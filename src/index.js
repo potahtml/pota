@@ -39,7 +39,7 @@ render(
       <Test title="`Show` order, 2 should toggle and keep in between 1 and 3">
         <ComponentShow />
       </Test>
-      <Test title="`Show` lonely unwrapped (doesnt work)">
+      <Test title="`Show` lonely unwrapped">
         <br />
         for some reason the component should be wrapped or wont work
         <br />
@@ -54,7 +54,7 @@ render(
         <br />
         <ComponentNaiveFor />
       </Test>
-      <Test title="Lonely `For` unwrapped (doesnt work)">
+      <Test title="Lonely `For` unwrapped">
         <br />
         for some reason the component should be wrapped or wont work
         <br />
@@ -108,7 +108,7 @@ function ComponentArray() {
 }
 
 function ComponentStyleChange() {
-  let [color, setColor] = createSignal('red')
+  const [color, setColor] = createSignal('red')
 
   setInterval(function () {
     setColor(
@@ -125,7 +125,7 @@ function ComponentStyleChange() {
 }
 
 function ComponentShow() {
-  let [showing, setShowing] = createSignal(true)
+  const [showing, setShowing] = createSignal(true)
 
   setInterval(function () {
     setShowing(!showing())
@@ -138,7 +138,7 @@ function ComponentShow() {
   )
 }
 function ComponentLonelyShow() {
-  let [showing, setShowing] = createSignal(true)
+  const [showing, setShowing] = createSignal(true)
 
   setInterval(function () {
     setShowing(!showing())
@@ -147,7 +147,7 @@ function ComponentLonelyShow() {
   return <Show when={showing}>2</Show>
 }
 function ComponentLonelySignal() {
-  let [value, setValue] = createSignal(Math.random())
+  const [value, setValue] = createSignal(Math.random())
 
   setInterval(function () {
     setValue(Math.random())
@@ -171,10 +171,11 @@ function ComponentLonelySignal() {
 }
 
 function ComponentNaiveFor() {
-  let [value, setValue] = createSignal([1, 1, 1])
+  const content = () => <div>{Math.random()}</div>
+  const [value, setValue] = createSignal([content, content, content])
 
   setInterval(function () {
-    setValue(new Array((Math.random() * 10) | 0 || 1).fill(1))
+    setValue(new Array((Math.random() * 10) | 0 || 1).fill(content))
   }, 1000)
   return (
     <>
@@ -183,16 +184,18 @@ function ComponentNaiveFor() {
   )
 }
 function ComponentLonelyFor() {
-  let [value, setValue] = createSignal([1, 1, 1])
+  const content = () => <div>{Math.random()}</div>
+
+  const [value, setValue] = createSignal([content, content])
 
   setInterval(function () {
-    setValue(new Array((Math.random() * 10) | 0 || 1).fill(1))
+    setValue(new Array((Math.random() * 10) | 0 || 1).fill(content))
   }, 1000)
   return <For each={value}>{item => item}</For>
 }
 
 function ComponentCounter() {
-  let [value, setValue] = createSignal(0)
+  const [value, setValue] = createSignal(0)
 
   return (
     <>
