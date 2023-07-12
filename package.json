@@ -1,0 +1,28 @@
+{
+	"name": "potable",
+	"description": "",
+	"version": "0.0.1",
+	"author": "Tito Bouzout",
+	"type": "module",
+	"scripts": {
+		"dev": "tsc -w"
+	},
+	"devDependencies": {
+		"typescript": "latest"
+	},
+	"prettier": {
+		"printWidth": 90,
+		"useTabs": true,
+		"semi": false,
+		"singleQuote": true,
+		"quoteProps": "as-needed",
+		"jsxSingleQuote": false,
+		"trailingComma": "all",
+		"bracketSpacing": true,
+		"bracketSameLine": false,
+		"arrowParens": "avoid",
+		"proseWrap": "never",
+		"endOfLine": "lf",
+		"singleAttributePerLine": true
+	}
+}
