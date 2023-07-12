@@ -63,17 +63,13 @@ export function createElement(tag, props, ...children) {
   })
 }
 
-// TODO: disposer should remove the added elements not just clean the parent
 export function render(children, parent) {
   let disposer
   createRoot(dispose => {
     disposer = dispose
     insertChildren(parent, children)
   })
-  return () => {
-    disposer()
-    parent.textContent = ''
-  }
+  return disposer
 }
 
 export function insertChildren(parent, children) {
@@ -100,6 +96,8 @@ export function insertChildren(parent, children) {
 
         // put the node in place
         parent.replaceChild(element, placeholder)
+
+        // save the new node as the new placeholder
         placeholder = element
 
         // call onMount if defined
