@@ -8,7 +8,7 @@
 		"dev": "tsc -w"
 	},
 	"devDependencies": {
-		"typescript": "latest"
+		"typescript": "^5.1.6"
 	},
 	"prettier": {
 		"printWidth": 90,
@@ -24,5 +24,9 @@
 		"proseWrap": "never",
 		"endOfLine": "lf",
 		"singleAttributePerLine": true
+	},
+	"dependencies": {
+		"flimsy": "^1.0.3",
+		"oby": "^14.3.0"
 	}
 }

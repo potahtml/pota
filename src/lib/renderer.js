@@ -1,4 +1,10 @@
-import { createRoot, createEffect, onCleanup } from './flimsy.js'
+import {
+  createRoot,
+  createEffect,
+  onCleanup,
+  createSignal,
+  createMemo,
+} from './flimsy.js'
 
 export function createFragment(props, ...children) {
   return children
@@ -9,11 +15,11 @@ export function createElement(tag, props, ...children) {
   return () => {
     // a component function
     if (typeof tag === 'function') {
-      return () => tag(props, children)
+      return tag(props, children)
     }
 
     // a regular html tag
-    console.log('creating tag', tag)
+    console.log('creating tag', tag, props)
 
     const element = document.createElement(tag)
 
@@ -21,6 +27,7 @@ export function createElement(tag, props, ...children) {
     if (props) {
       Object.entries(props).forEach(([name, value]) => {
         if (name === 'onMount') {
+          // not good but for the sake of testing
           element.onMount = value
         } else if (value === null || value === undefined) {
           element.removeAttribute(name)
@@ -41,12 +48,12 @@ export function createElement(tag, props, ...children) {
         } else if (name.startsWith('on') && name.toLowerCase() in window) {
           element.addEventListener(name.toLowerCase().substr(2), value)
         } else {
+          // not good but for the sake of testing
           element[name] = value
           element.setAttribute(name, value)
         }
       })
     }
-
     // insert children
     insertChildren(element, children)
 
@@ -54,27 +61,29 @@ export function createElement(tag, props, ...children) {
   }
 }
 
-export function insertChildren(parent, child) {
+export function insertChildren(parent, children) {
   // placeholder so elements stay in position
-  const placeholder = document.createTextNode('')
+  const placeholder = document.createComment('placeholder')
   parent.appendChild(placeholder)
 
   createEffect(() => {
-    let childNode = children(child)
-    if (childNode !== undefined && childNode !== null) {
-      if (Array.isArray(childNode)) {
-        childNode.forEach(childNode => insertChildren(parent, childNode))
+    let child = unwrap(children)
+
+    // 0 and empty text are valid childs
+    if (child !== undefined && child !== null) {
+      if (Array.isArray(child)) {
+        child.forEach(child => insertChildren(parent, child))
       } else {
+        // console.log('rendering', child, child.outerHTML)
+
         // create text node if isnt a dom element
-        const element = childNode.nodeType
-          ? childNode
-          : document.createTextNode(childNode)
+        const element = child && child.nodeType ? child : document.createTextNode(child)
 
         // put the node in place
         parent.insertBefore(element, placeholder)
 
         // call onMount if defined
-        childNode.onMount && childNode.onMount(childNode)
+        child && child.onMount && child.onMount(element)
 
         // remove the element from the tree on cleanup
         onCleanup(() => {
@@ -87,15 +96,15 @@ export function insertChildren(parent, child) {
   })
 }
 
-export function render(child, parent) {
-  insertChildren(parent, child)
+export function render(children, parent) {
+  insertChildren(parent, children)
 }
 
 // helpers
 
-export function children(child) {
-  while (typeof child === 'function') child = child()
-  return child
+export function unwrap(children) {
+  while (typeof children === 'function') children = children()
+  return children
 }
 
 // control flow
@@ -103,6 +112,7 @@ export function children(child) {
 export function Show(props, children) {
   return props.when() ? children[0] : null
 }
+
 export function For(props, children) {
   return props.each().map(children[0])
 }
