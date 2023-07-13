@@ -4,17 +4,16 @@ import {
   onCleanup,
   createSignal,
   createMemo,
-} from './lib/flimsy.js'
+} from './lib/reactivity.js'
 
 import { render, createElement, createFragment, Show, For } from './lib/renderer.js'
 
-render(
+let disposer = render(
   () => (
     <div>
       <h1>Renderer Test</h1>
 
       <Test title="Component return types">
-        <br />
         text: <ComponentText />
         <br />
         null: <ComponentNull />
@@ -32,6 +31,13 @@ render(
         <ComponentDiv />
         array:
         <ComponentArray />
+        <br />
+        false:
+        <ComponentFalse />
+        <br />
+        true:
+        <ComponentTrue />
+        <br />
       </Test>
       <Test title="reactive prop">
         <ComponentStyleChange />
@@ -40,28 +46,31 @@ render(
         <ComponentShow />
       </Test>
       <Test title="`Show` lonely unwrapped">
-        <br />
-        for some reason the component should be wrapped or wont work
-        <br />
         <ComponentLonelyShow />
+      </Test>
+      <Test title="`Show` function">
+        <ComponentShowFunction />
+      </Test>
+      <Test title="`Show` fallback">
+        <ComponentShowFallback />
       </Test>
       <Test title="Deep lonely signal">
         <ComponentLonelySignal />
       </Test>
       <Test title="Naive `For`">
-        <br />
-        for some reason the component should be wrapped or wont work
-        <br />
         <ComponentNaiveFor />
       </Test>
       <Test title="Lonely `For` unwrapped">
-        <br />
-        for some reason the component should be wrapped or wont work
-        <br />
         <ComponentLonelyFor />
+      </Test>
+      <Test title="`For` with siblings">
+        <ComponentForWithSiblings />
       </Test>
       <Test title="lame counter">
         <ComponentCounter />
+      </Test>
+      <Test title="fancy For">
+        <ComponentFancyFor />
       </Test>
     </div>
   ),
@@ -106,6 +115,13 @@ function ComponentDiv() {
 function ComponentArray() {
   return [1, 2, 3]
 }
+function ComponentFalse() {
+  return false
+}
+
+function ComponentTrue() {
+  return true
+}
 
 function ComponentStyleChange() {
   const [color, setColor] = createSignal('red')
@@ -130,14 +146,20 @@ function ComponentShow() {
   setInterval(function () {
     setShowing(!showing())
   }, 1000)
+  console.log('component show 1 running')
 
   return (
-    <div onMount={() => console.log('mounting the parent of show update? ')}>
+    <div onMount={() => console.log('component show mounted')}>
       1 <Show when={showing}>2</Show> 3
+      <br />
+      Test nesting a component
+      <ComponentLonelyShow />
     </div>
   )
 }
 function ComponentLonelyShow() {
+  console.log('component show 2 running')
+
   const [showing, setShowing] = createSignal(true)
 
   setInterval(function () {
@@ -146,8 +168,39 @@ function ComponentLonelyShow() {
 
   return <Show when={showing}>2</Show>
 }
+function ComponentShowFunction() {
+  const [showing, setShowing] = createSignal(true)
+
+  setInterval(function () {
+    setShowing(!showing())
+  }, 1000)
+
+  return (
+    <span>
+      <Show when={showing}>{() => 'hola'}</Show>
+    </span>
+  )
+}
+function ComponentShowFallback() {
+  const [showing, setShowing] = createSignal(true)
+
+  setInterval(function () {
+    setShowing(!showing())
+  }, 1000)
+
+  return (
+    <div>
+      <Show
+        when={false}
+        fallback={'ciao'}
+      >
+        {() => 'hola'}
+      </Show>
+    </div>
+  )
+}
 function ComponentLonelySignal() {
-  const [value, setValue] = createSignal(Math.random())
+  const [value, setValue] = createSignal(1)
 
   setInterval(function () {
     setValue(Math.random())
@@ -157,41 +210,79 @@ function ComponentLonelySignal() {
     console.log('cleanup on ComponentSignal')
   })
   return (
-    <span onMount={() => console.log('mounting on lonely signal update? ')}>
+    <span>
       s s{' '}
-      <span onMount={() => console.log('mounting on lonely signal update? ')}>
-        deep lonely signal{' '}
-        <span onMount={() => console.log('mounting on lonely signal update? ')}>
-          {value}
-        </span>
+      <span>
+        deep lonely signal <span>{value}</span>
       </span>{' '}
-      s s
+      {value}s s
     </span>
   )
 }
 
 function ComponentNaiveFor() {
-  const content = () => <div>{Math.random()}</div>
-  const [value, setValue] = createSignal([content, content, content])
+  let a = 0
+  const content = () => a++
+  const [value, setValue] = createSignal([content])
 
   setInterval(function () {
+    a = 0
     setValue(new Array((Math.random() * 10) | 0 || 1).fill(content))
-  }, 1000)
+  }, 10000)
   return (
     <>
-      <For each={value}>{item => item}</For>
+      <For
+        each={value}
+        skipLogs={true}
+      >
+        {item => item}
+      </For>
     </>
   )
 }
-function ComponentLonelyFor() {
-  const content = () => <div>{Math.random()}</div>
 
-  const [value, setValue] = createSignal([content, content])
+function ComponentLonelyFor() {
+  let a = 0
+  const content = new Array(10).fill(<span>'wth' + {a++}</span>)
+
+  const [value, setValue] = createSignal(content)
 
   setInterval(function () {
+    a = 0
+    setValue(content.slice(0, (Math.random() * 8) | 0 || 1))
+  }, 10000)
+  return (
+    <For
+      each={value}
+      skipLogs={true}
+    >
+      {item => item}
+    </For>
+  )
+}
+
+function ComponentForWithSiblings() {
+  let a = 0
+  const content = () => a++
+
+  const [value, setValue] = createSignal([content])
+
+  setInterval(function () {
+    a = 0
     setValue(new Array((Math.random() * 10) | 0 || 1).fill(content))
-  }, 1000)
-  return <For each={value}>{item => item}</For>
+  }, 10000)
+  return (
+    <span>
+      BEFORE
+      <For
+        each={value}
+        skipLogs={true}
+      >
+        {item => item}
+      </For>
+      AFTER
+    </span>
+  )
 }
 
 function ComponentCounter() {
@@ -203,11 +294,169 @@ function ComponentCounter() {
         type="button"
         style="color:black"
         onClick={() => setValue(value() + 1)}
-        onMount={() => console.log('mounted the button of the lame counter')}
+        onMount={() => console.log('mounted button')}
       >
         {value}
       </button>{' '}
       {value}
+    </>
+  )
+}
+
+function ComponentFancyFor() {
+  let a = 0
+
+  const content = () => {
+    return { content: a++ }
+  }
+
+  let arr = [content()]
+  const [value, setValue] = createSignal(arr)
+
+  onCleanup(() => {
+    console.log('wth this shoulnt be running!')
+  })
+  return (
+    <>
+      <button
+        style="color:black"
+        onClick={() => {
+          console.log('-------------------------------------')
+          arr = value()
+
+          arr.push(content())
+          setValue([...arr])
+        }}
+      >
+        append
+      </button>
+      <button
+        style="color:black"
+        onClick={() => {
+          console.log('-------------------------------------')
+          arr = value()
+
+          arr.unshift(content())
+          setValue([...arr])
+        }}
+      >
+        unshift
+      </button>
+      <button
+        style="color:black"
+        onClick={() => {
+          console.log('-------------------------------------')
+          arr = value()
+
+          arr.pop()
+          setValue([...arr])
+        }}
+      >
+        pop
+      </button>
+      <button
+        style="color:black"
+        onClick={() => {
+          console.log('-------------------------------------')
+          arr = value()
+
+          arr.shift()
+          setValue([...arr])
+        }}
+      >
+        shift
+      </button>
+      <button
+        style="color:black"
+        onClick={() => {
+          console.log('-------------------------------------')
+          arr = value()
+
+          let a = arr[1]
+          arr[1] = arr[0]
+          arr[0] = a
+          setValue([...arr])
+        }}
+      >
+        swap
+      </button>
+      <button
+        style="color:black"
+        onClick={() => {
+          console.log('-------------------------------------')
+          arr = value()
+
+          arr.splice((arr.length / 2) | 0, 0, content())
+          setValue([...arr])
+        }}
+      >
+        insert in middle
+      </button>
+      <button
+        style="color:black"
+        onClick={() => {
+          console.log('-------------------------------------')
+          arr = value()
+
+          arr.reverse()
+          setValue([...arr])
+        }}
+      >
+        reverse
+      </button>
+      <button
+        style="color:black"
+        onClick={() => {
+          console.log('-------------------------------------')
+          function shuffle(array) {
+            let currentIndex = array.length,
+              randomIndex
+
+            // While there remain elements to shuffle.
+            while (currentIndex != 0) {
+              // Pick a remaining element.
+              randomIndex = Math.floor(Math.random() * currentIndex)
+              currentIndex--
+
+              // And swap it with the current element.
+              ;[array[currentIndex], array[randomIndex]] = [
+                array[randomIndex],
+                array[currentIndex],
+              ]
+            }
+
+            return array
+          }
+
+          setValue([...shuffle(value())])
+        }}
+      >
+        shuffle
+      </button>
+      <button
+        style="color:black"
+        onClick={() => {
+          console.log('-------------------------------------')
+          setValue([])
+        }}
+      >
+        clear
+      </button>
+      <For each={value}>
+        {item => (
+          <div>
+            <span>
+              <span>
+                <span>
+                  <span onCleanup={() => console.log('onCleanup baby')}>
+                    {item.content}
+                  </span>
+                </span>
+              </span>
+            </span>
+          </div>
+        )}
+      </For>
     </>
   )
 }

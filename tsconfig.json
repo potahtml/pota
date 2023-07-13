@@ -15,5 +15,6 @@
     "sourceMap": true,
     "target": "ESNext",
     "useDefineForClassFields": true
-  }
+  },
+  "exclude": ["./todo/*", "./dist/*"]
 }
