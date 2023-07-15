@@ -5,7 +5,6 @@ import {
 	createSignal,
 	createMemo,
 	untrack,
-	Signal,
 } from './reactivity.js'
 
 export function render(children, parent) {
@@ -58,7 +57,6 @@ function insertChildren(parent, children, position) {
 	let placeholder = marker
 
 	// in the case of `For` the position is defined by the parent
-
 	position ? parent.insertBefore(marker, position) : parent.appendChild(marker)
 
 	// get rid of the node on cleanup
@@ -73,6 +71,7 @@ function insertChildren(parent, children, position) {
 			// define position argument for childs by passing placeholder
 			return child.map(child => insertChildren(parent, child, placeholder))
 		} else if (Array.isArray(child)) {
+			// avoid useless placeholders
 			placeholder.remove()
 			// array of childs
 			return child.map(child => insertChildren(parent, child))
@@ -82,8 +81,8 @@ function insertChildren(parent, children, position) {
 			// 2. the node has been removed, <Show when={false}/>
 			if (placeholder.isConnected && placeholder !== marker) {
 				parent.replaceChild(marker, placeholder)
+				placeholder = marker
 			}
-			placeholder = marker
 			return placeholder
 		} else {
 			// create text node if isnt a dom element
@@ -121,8 +120,9 @@ export function For(props, children) {
 // map array
 
 function mapArray(list, cb) {
+	const map = new Map()
+
 	let runId = 0
-	let map = new Map()
 	let prev = []
 
 	// to get rid of all items
@@ -134,13 +134,14 @@ function mapArray(list, cb) {
 	function create(item, index, fn) {
 		// a root is created so we can call dispose to get rid of an item
 		return createRoot(dispose => ({
+			item,
 			element: fn ? fn(cb(item, index), index) : cb(item, index),
 			dispose: () => {
-				dispose(), map.delete(item)
+				dispose(), map.delete(item), map.delete(index + byIndex)
 			},
 		}))
 	}
-
+	const byIndex = ' _ cached by index _ '
 	return fn => {
 		runId++
 
@@ -156,10 +157,13 @@ function mapArray(list, cb) {
 			} else if (row.runId === runId) {
 				// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
 				// if the saved value was already used on this run, create a new one
-				// TODO : detect this and switch to index+value
-				row = create(item, index, fn)
-			} else {
-				// reuse
+
+				// to avoid the previous problem, cache the value by index
+				row = map.get(index + byIndex)
+				if (!row || row.item !== item) {
+					row = create(item, index, fn)
+					map.set(index + byIndex, row)
+				}
 			}
 			// mark used on this run
 			row.runId = runId
@@ -186,12 +190,15 @@ class MapArray {
 	map(fn) {
 		const nodes = resolve(this.mapper((item, index) => fn(item)))
 
-		// check order of elements
-		for (let i = nodes.length - 1; i > 0; i--) {
-			const prev = nodes[i - 1]
-			const node = nodes[i]
-			if (node.previousSibling !== prev) {
-				node.parentNode.insertBefore(prev, node)
+		// order of elements may have changed, reorder it
+		if (nodes.length > 1) {
+			const parent = nodes[0].parentNode
+			for (let i = nodes.length - 1; i > 0; i--) {
+				const node = nodes[i]
+				const prev = nodes[i - 1]
+				if (node.previousSibling !== prev) {
+					parent.insertBefore(prev, node)
+				}
 			}
 		}
 		return nodes
@@ -204,13 +211,12 @@ function resolve(children) {
 	if (typeof children === 'function') {
 		return resolve(children())
 	}
-
 	if (Array.isArray(children)) {
 		return (
 			children
 				// flat to an array of childrens
 				.flat(Infinity)
-				// resolve any functions
+				// resolve any children
 				.map(child => resolve(child))
 				// these may return arrays, flat the result
 				.flat(Infinity)
