@@ -44,18 +44,22 @@ export function createElement(tag, props, ...children) {
 		// get rid of the node on cleanup
 		onCleanup(() => element.remove())
 
-		// insert children one by one to avoid a useless placeholder
-		children.forEach(child => insertChildren(element, child))
+		// insert children
+		insertChildren(element, children)
 
 		return element
 	}
 }
 
 function insertChildren(parent, children, placeholder) {
+	// avoids tracking by unwrapping the array earlier
+	// it also avoids some placeholders
+	if (Array.isArray(children))
+		return children.map(child => insertChildren(parent, child, placeholder))
+
 	// appends a placeholder so elements stay in position
 	// the placeholder is later replaced by the actual node
 	// and the placeholder is restored when the node becomes null
-
 	placeholder = !placeholder
 		? parent.appendChild(marker(/* 'parent doesnt provide placeholder' */))
 		: placeholder.parentNode.insertBefore(
