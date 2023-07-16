@@ -18,6 +18,15 @@ export function createFragment(props, ...children) {
 	return children
 }
 
+const NS = {
+	svg: 'http://www.w3.org/2000/svg',
+	math: 'http://www.w3.org/1998/Math/MathML',
+	html: 'http://www.w3.org/1999/xhtml',
+}
+const NSProps = {
+	'xlink:href': 'http://www.w3.org/1999/xlink',
+}
+
 // should return wrapped so the code runs from parent to child
 export function createElement(tag, props, ...children) {
 	// a component function
@@ -26,9 +35,16 @@ export function createElement(tag, props, ...children) {
 	}
 
 	// a html tag component
-	return () => {
-		// a regular html tag
-		const node = document.createElement(tag)
+	return parent => {
+		// resolve the namespace
+		const ns =
+			props && props.xmlns
+				? props.xmlns // the prop contains the namespace
+				: parent.namespaceURI !== NS.html
+				? parent.namespaceURI // the parent contains the namespace
+				: NS[tag] // special case svg, math in case of missing xmlns attribute
+
+		const node = ns ? document.createElementNS(ns, tag) : document.createElement(tag)
 
 		// naive assign props to the tag for the sake of testing
 		if (props)
@@ -65,11 +81,11 @@ function insertChildren(parent, children, placeholder) {
 
 	return createMemo(() => {
 		// a children is most likely a function
-		const child = resolve(children)
+		const child = resolve(children, parent)
 
 		if (child instanceof MapArray) {
 			// `For`, the callback function will run only for new childs
-			return child.map(child => insertChildren(parent, child, placeholder))
+			return child.map(child => insertChildren(parent, child, placeholder), parent)
 		} else if (Array.isArray(child)) {
 			return child.map(child => insertChildren(parent, child, placeholder))
 		} else if (child === null) {
@@ -179,8 +195,11 @@ class MapArray {
 	constructor(items, cb) {
 		this.mapper = mapArray(items, cb)
 	}
-	map(fn) {
-		const nodes = resolve(this.mapper((item, index) => fn(item)))
+	map(fn, parent) {
+		const nodes = resolve(
+			this.mapper((item, index) => fn(item)),
+			parent,
+		)
 
 		// order of nodes may have changed, reorder it
 		if (nodes.length > 1) {
@@ -199,9 +218,9 @@ class MapArray {
 
 // helpers
 
-function resolve(children) {
+function resolve(children, parent) {
 	if (typeof children === 'function') {
-		return resolve(children())
+		return resolve(children(parent), parent)
 	}
 
 	if (Array.isArray(children)) {
@@ -210,7 +229,7 @@ function resolve(children) {
 				// flat to an array of childrens
 				.flat(Infinity)
 				// resolve any children
-				.map(child => resolve(child))
+				.map(child => resolve(child, parent))
 				// these may return arrays, flat the result
 				.flat(Infinity)
 		)
@@ -230,7 +249,9 @@ function assignProps(node, name, value) {
 	} else if (name === 'onCleanup') {
 		node.onCleanup = value
 	} else if (value === null || value === undefined) {
-		node.removeAttribute(name)
+		NSProps[name]
+			? node.removeAttributeNS(NSProps[name], name, value)
+			: node.removeAttribute(name)
 	} else if (name === 'style') {
 		if (typeof value === 'string') {
 			node.style.cssText = value
@@ -244,7 +265,8 @@ function assignProps(node, name, value) {
 	} else if (name.startsWith('on') && name.toLowerCase() in window) {
 		node.addEventListener(name.toLowerCase().substr(2), value)
 	} else {
-		node[name] = value
-		node.setAttribute(name, value)
+		NSProps[name]
+			? node.setAttributeNS(NSProps[name], name, value)
+			: node.setAttribute(name, value)
 	}
 }
