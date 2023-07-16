@@ -18,11 +18,12 @@ export function createFragment(props, ...children) {
 	return children
 }
 
+function marker(s) {
+	return document.createComment(s || 'placeholder')
+}
+
 export function createElement(tag, props, ...children) {
 	// should return wrapped so the code runs from parent to child
-	// return a memo to avoid re-excuting the components
-	// example fn Component(){ return (<Show when={signal}></Show>) } will re-execute if not in a memo
-	// TODO: for some unexplainable reason some components wont work without the createMemo
 
 	// a component function
 	if (typeof tag === 'function') {
@@ -35,11 +36,13 @@ export function createElement(tag, props, ...children) {
 		const element = document.createElement(tag)
 
 		// naive assign props to the tag for the sake of testing
-		if (props) {
+		if (props)
 			Object.entries(props).forEach(([name, value]) => {
 				assignProps(element, name, value)
 			})
-		}
+
+		// get rid of the node on cleanup
+		onCleanup(() => element.remove())
 
 		// insert children one by one to avoid a useless placeholder
 		children.forEach(child => insertChildren(element, child))
@@ -48,47 +51,41 @@ export function createElement(tag, props, ...children) {
 	}
 }
 
-function insertChildren(parent, children, position) {
+function insertChildren(parent, children, placeholder) {
 	// appends a placeholder so elements stay in position
 	// the placeholder is later replaced by the actual node
 	// and the placeholder is restored when the node becomes null
 
-	const marker = document.createComment('placeholder')
-	let placeholder = marker
-
-	// in the case of `For` the position is defined by the parent
-	position ? parent.insertBefore(marker, position) : parent.appendChild(marker)
+	placeholder = !placeholder
+		? parent.appendChild(marker(/* 'parent doesnt provide placeholder' */))
+		: placeholder.parentNode.insertBefore(
+				marker(/*'placeholder from parent'*/),
+				placeholder,
+		  )
 
 	// get rid of the node on cleanup
 	onCleanup(() => placeholder.remove())
 
 	return createMemo(() => {
-		// a children could be a component
+		// a children could be a function
 		const child = resolve(children)
 
 		if (child instanceof MapArray) {
 			// this function will run only for new childs
-			// define position argument for childs by passing placeholder
 			return child.map(child => insertChildren(parent, child, placeholder))
 		} else if (Array.isArray(child)) {
-			// avoid useless placeholders
-			placeholder.remove()
 			// array of childs
-			return child.map(child => insertChildren(parent, child))
+			return child.map(child => insertChildren(parent, child, placeholder))
 		} else if (child === null) {
-			// when child is null is because one of the following:
-			// 1. the value is actually null as in {null}
-			// 2. the node has been removed, <Show when={false}/>
-			if (placeholder.isConnected && placeholder !== marker) {
-				parent.replaceChild(marker, placeholder)
-				placeholder = marker
-			}
+			// the value is actually null
 			return placeholder
 		} else {
 			// create text node if isnt a dom element
 			const element = child && child.nodeType ? child : document.createTextNode(child)
 
-			// put the node in place replacing the placeholder or the old element
+			// TODO: onCleanup(() => element.remove())
+
+			// put the node in place by replacing the placeholder or the old element
 			parent.replaceChild(element, placeholder)
 
 			// save the new node as the new placeholder (to be replaced if the node changes)
@@ -104,10 +101,10 @@ function insertChildren(parent, children, position) {
 }
 
 // control flow
-// for a reason I cant explain it works only with functions (children[0])
+
 export function Show(props, children) {
 	return createMemo(() =>
-		(typeof props.when === 'function' ? props.when() : props.when) ? children[0] : null,
+		(typeof props.when === 'function' ? props.when() : props.when) ? children : null,
 	)
 }
 
@@ -118,9 +115,10 @@ export function For(props, children) {
 }
 
 // map array
-
+// TODO: avoid the prev object by doing something clever with the map itself
 function mapArray(list, cb) {
 	const map = new Map()
+	const byIndex = ' _ cached by index _ '
 
 	let runId = 0
 	let prev = []
@@ -141,7 +139,6 @@ function mapArray(list, cb) {
 			},
 		}))
 	}
-	const byIndex = ' _ cached by index _ '
 	return fn => {
 		runId++
 
@@ -211,6 +208,7 @@ function resolve(children) {
 	if (typeof children === 'function') {
 		return resolve(children())
 	}
+
 	if (Array.isArray(children)) {
 		return (
 			children
