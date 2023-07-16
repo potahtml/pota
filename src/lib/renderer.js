@@ -62,10 +62,7 @@ function insertChildren(parent, children, placeholder) {
 	// and the placeholder is restored when the node becomes null
 	placeholder = !placeholder
 		? parent.appendChild(marker(/* 'parent doesnt provide placeholder' */))
-		: placeholder.parentNode.insertBefore(
-				marker(/*'placeholder from parent'*/),
-				placeholder,
-		  )
+		: parent.insertBefore(marker(/*'placeholder from parent'*/), placeholder)
 
 	// get rid of the node on cleanup
 	onCleanup(() => placeholder.remove())
@@ -86,8 +83,6 @@ function insertChildren(parent, children, placeholder) {
 		} else {
 			// create text node if isnt a dom element
 			const element = child && child.nodeType ? child : document.createTextNode(child)
-
-			// TODO: onCleanup(() => element.remove())
 
 			// put the node in place by replacing the placeholder or the old element
 			parent.replaceChild(element, placeholder)
@@ -119,7 +114,6 @@ export function For(props, children) {
 }
 
 // map array
-// TODO: avoid the prev object by doing something clever with the map itself
 function mapArray(list, cb) {
 	const map = new Map()
 	const byIndex = ' _ cached by index _ '
@@ -133,13 +127,13 @@ function mapArray(list, cb) {
 	})
 
 	// create an item
-	function create(item, index, fn) {
+	function create(item, index, fn, byIndex) {
 		// a root is created so we can call dispose to get rid of an item
 		return createRoot(dispose => ({
 			item,
 			element: fn ? fn(cb(item, index), index) : cb(item, index),
 			dispose: () => {
-				dispose(), map.delete(item), map.delete(index + byIndex)
+				dispose(), map.delete(item), byIndex && map.delete(index + byIndex)
 			},
 		}))
 	}
@@ -162,7 +156,7 @@ function mapArray(list, cb) {
 				// to avoid the previous problem, cache the value by index
 				row = map.get(index + byIndex)
 				if (!row || row.item !== item) {
-					row = create(item, index, fn)
+					row = create(item, index, fn, 1)
 					map.set(index + byIndex, row)
 				}
 			}
