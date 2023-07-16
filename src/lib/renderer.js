@@ -18,13 +18,8 @@ export function createFragment(props, ...children) {
 	return children
 }
 
-function marker(s) {
-	return document.createComment(s || 'placeholder')
-}
-
+// should return wrapped so the code runs from parent to child
 export function createElement(tag, props, ...children) {
-	// should return wrapped so the code runs from parent to child
-
 	// a component function
 	if (typeof tag === 'function') {
 		return untrack(() => tag(props, children))
@@ -33,68 +28,68 @@ export function createElement(tag, props, ...children) {
 	// a html tag component
 	return () => {
 		// a regular html tag
-		const element = document.createElement(tag)
+		const node = document.createElement(tag)
 
 		// naive assign props to the tag for the sake of testing
 		if (props)
 			Object.entries(props).forEach(([name, value]) => {
-				assignProps(element, name, value)
+				assignProps(node, name, value)
 			})
 
 		// get rid of the node on cleanup
-		onCleanup(() => element.remove())
+		onCleanup(() => node.remove())
 
 		// insert children
-		insertChildren(element, children)
+		insertChildren(node, children)
 
-		return element
+		return node
 	}
 }
 
 function insertChildren(parent, children, placeholder) {
-	// avoids tracking by unwrapping the array earlier
-	// it also avoids some placeholders
+	// 1. avoids tracking by unwrapping the array earlier
+	// 2. it also avoids some placeholders
 	if (Array.isArray(children))
 		return children.map(child => insertChildren(parent, child, placeholder))
 
-	// appends a placeholder so elements stay in position
+	// a placeholder helps to keep nodes in position
 	// the placeholder is later replaced by the actual node
-	// and the placeholder is restored when the node becomes null
+	// the placeholder is restored when the node becomes null
 	placeholder = !placeholder
 		? parent.appendChild(marker(/* 'parent doesnt provide placeholder' */))
-		: parent.insertBefore(marker(/*'placeholder from parent'*/), placeholder)
+		: // in the case of arrays, position nodes relative to the component
+		  parent.insertBefore(marker(/*'placeholder from parent'*/), placeholder)
 
 	// get rid of the node on cleanup
 	onCleanup(() => placeholder.remove())
 
 	return createMemo(() => {
-		// a children could be a function
+		// a children is most likely a function
 		const child = resolve(children)
 
 		if (child instanceof MapArray) {
-			// this function will run only for new childs
+			// `For`, the callback function will run only for new childs
 			return child.map(child => insertChildren(parent, child, placeholder))
 		} else if (Array.isArray(child)) {
-			// array of childs
 			return child.map(child => insertChildren(parent, child, placeholder))
 		} else if (child === null) {
-			// the value is actually null
+			// the value is null, as in {null}
 			return placeholder
 		} else {
-			// create text node if isnt a dom element
-			const element = child && child.nodeType ? child : document.createTextNode(child)
+			// create a text node if isnt a dom node
+			const node = child && child.nodeType ? child : document.createTextNode(child)
 
-			// put the node in place by replacing the placeholder or the old element
-			parent.replaceChild(element, placeholder)
+			// put the node in place by replacing the placeholder or the old node
+			parent.replaceChild(node, placeholder)
 
 			// save the new node as the new placeholder (to be replaced if the node changes)
-			placeholder = element
+			placeholder = node
 
 			// call onMount if defined
-			child && child.onMount && child.onMount(element)
-			child && child.onCleanup && onCleanup(() => child.onCleanup(element))
+			child && child.onMount && child.onMount(node)
+			child && child.onCleanup && onCleanup(() => child.onCleanup(node))
 
-			return element
+			return node
 		}
 	})
 }
@@ -107,13 +102,14 @@ export function Show(props, children) {
 	)
 }
 
-// naive For
+// For
 
 export function For(props, children) {
 	return createMemo(() => new MapArray(props.each, children[0]))
 }
 
 // map array
+
 function mapArray(list, cb) {
 	const map = new Map()
 	const byIndex = ' _ cached by index _ '
@@ -121,9 +117,9 @@ function mapArray(list, cb) {
 	let runId = 0
 	let prev = []
 
-	// to get rid of all items
+	// to get rid of all nodes
 	onCleanup(() => {
-		for (const items of map.values()) items.dispose()
+		for (const row of map.values()) row.dispose()
 	})
 
 	// create an item
@@ -131,17 +127,18 @@ function mapArray(list, cb) {
 		// a root is created so we can call dispose to get rid of an item
 		return createRoot(dispose => ({
 			item,
-			element: fn ? fn(cb(item, index), index) : cb(item, index),
+			node: fn ? fn(cb(item, index), index) : cb(item, index),
 			dispose: () => {
 				dispose(), map.delete(item), byIndex && map.delete(index + byIndex)
 			},
 		}))
 	}
+
 	return fn => {
 		runId++
 
 		const items = list() || []
-		const nodes = []
+		const rows = []
 
 		for (const [index, item] of items.entries()) {
 			let row = map.get(item)
@@ -162,19 +159,19 @@ function mapArray(list, cb) {
 			}
 			// mark used on this run
 			row.runId = runId
-			nodes.push(row)
+			rows.push(row)
 		}
 
-		// remove nodes that arent present on the current list
-		for (const node of prev) {
-			if (node.runId !== runId) node.dispose()
+		// remove rows that arent present on the current list
+		for (const row of prev) {
+			if (row.runId !== runId) row.dispose()
 		}
 
 		// save list
-		prev = nodes
+		prev = rows
 
 		// return external representation
-		return nodes.map(item => item.element)
+		return rows.map(item => item.node)
 	}
 }
 
@@ -185,7 +182,7 @@ class MapArray {
 	map(fn) {
 		const nodes = resolve(this.mapper((item, index) => fn(item)))
 
-		// order of elements may have changed, reorder it
+		// order of nodes may have changed, reorder it
 		if (nodes.length > 1) {
 			const parent = nodes[0].parentNode
 			for (let i = nodes.length - 1; i > 0; i--) {
@@ -221,29 +218,33 @@ function resolve(children) {
 	return children
 }
 
+function marker(s) {
+	return document.createComment(s || 'placeholder')
+}
+
 // naive assign props
 
-function assignProps(element, name, value) {
+function assignProps(node, name, value) {
 	if (name === 'onMount') {
-		element.onMount = value
+		node.onMount = value
 	} else if (name === 'onCleanup') {
-		element.onCleanup = value
+		node.onCleanup = value
 	} else if (value === null || value === undefined) {
-		element.removeAttribute(name)
+		node.removeAttribute(name)
 	} else if (name === 'style') {
 		if (typeof value === 'string') {
-			element.style.cssText = value
+			node.style.cssText = value
 		} else {
 			Object.entries(value).forEach(([name, value]) => {
 				createEffect(() => {
-					element.style[name] = typeof value === 'function' ? value() : value
+					node.style[name] = typeof value === 'function' ? value() : value
 				})
 			})
 		}
 	} else if (name.startsWith('on') && name.toLowerCase() in window) {
-		element.addEventListener(name.toLowerCase().substr(2), value)
+		node.addEventListener(name.toLowerCase().substr(2), value)
 	} else {
-		element[name] = value
-		element.setAttribute(name, value)
+		node[name] = value
+		node.setAttribute(name, value)
 	}
 }
