@@ -22,9 +22,10 @@ const NS = {
 	svg: 'http://www.w3.org/2000/svg',
 	math: 'http://www.w3.org/1998/Math/MathML',
 	html: 'http://www.w3.org/1999/xhtml',
+	xlink: 'http://www.w3.org/1999/xlink',
 }
 const NSProps = {
-	'xlink:href': 'http://www.w3.org/1999/xlink',
+	'xlink:href': NS.xlink,
 }
 
 // should return wrapped so the code runs from parent to child
@@ -40,7 +41,8 @@ export function createElement(tag, props, ...children) {
 		const ns =
 			props && props.xmlns
 				? props.xmlns // the prop contains the namespace
-				: parent.namespaceURI !== NS.html
+				: // parent wont be defined if resolved by resolveChildren helper
+				parent && parent.namespaceURI !== NS.html
 				? parent.namespaceURI // the parent contains the namespace
 				: NS[tag] // special case svg, math in case of missing xmlns attribute
 
@@ -236,6 +238,8 @@ function resolve(children, parent) {
 	}
 	return children
 }
+
+export { resolve as resolveChildren }
 
 function marker(s) {
 	return document.createComment(s || 'placeholder')
