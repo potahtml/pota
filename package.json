@@ -1,9 +1,19 @@
 {
-	"name": "renderer",
-	"description": "",
+	"name": "potable",
+	"description": "HTML Renderer for reactive libraries.",
 	"version": "0.0.1",
 	"author": "Tito Bouzout",
 	"type": "module",
+	"exports": {
+		".": "./src/index.js",
+		"./flimsy": "./src/lib/renderer/flimsy.js",
+		"./solid": "./src/lib/renderer/solid.js",
+		"./oby": "./src/lib/renderer/oby.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/titoBouzout/potable"
+	},
 	"scripts": {
 		"dev": "tsc -w"
 	},
@@ -27,6 +37,7 @@
 	},
 	"dependencies": {
 		"flimsy": "^1.0.3",
-		"oby": "^14.3.0"
+		"oby": "^14.3.0",
+		"solid-js": "^1.7.8"
 	}
 }

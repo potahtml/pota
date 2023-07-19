@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "baseUrl": "./src",
+    "outDir": "./dist",
+    "allowJs": true,
     "checkJs": false,
+    "strict": true,
     "jsx": "react",
-    "jsxFactory": "createElement",
+    "jsxFactory": "createComponent",
     "jsxFragmentFactory": "createFragment",
     "lib": ["ESNext", "dom", "dom.iterable"],
     "module": "es6",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "./dist",
     "sourceMap": true,
     "target": "ESNext",
     "useDefineForClassFields": true

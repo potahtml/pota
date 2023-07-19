@@ -1,7 +1,6 @@
-// for being able to switch reactive libraries easily
-
 let root, renderEffect, effect, cleanup, signal, memo, untrack
 
+// for being able to switch reactive libraries easily
 export function setReactiveLibrary(o) {
 	root = o.root
 	renderEffect = o.renderEffect
@@ -22,7 +21,6 @@ const entries = Object.entries
 const isArray = Array.isArray
 const isFunction = v => typeof v === 'function'
 const isComponent = v => v && v[$component] === null
-const isMapArray = v => v && v[$mapArray] === null
 const isResolved = v => v && v[$resolved] === null
 
 const getValue = v => (isFunction(v) ? v() : v)
@@ -44,7 +42,6 @@ const NSProps = {
 }
 
 const $component = Symbol('component')
-const $mapArray = Symbol('mapArray')
 const $resolved = Symbol('resolved')
 
 // components
@@ -88,7 +85,7 @@ export function render(children, parent) {
 	})
 }
 
-// a x/html tag component
+// a x/html tag element
 export function createNode(tag, props, children, name, parent) {
 	// resolve the namespace
 	const ns = props.xmlns
@@ -98,7 +95,7 @@ export function createNode(tag, props, children, name, parent) {
 		? parent.namespaceURI // the parent contains the namespace
 		: NS[tag] // special case svg, math in case of missing xmlns attribute
 
-	const node = ns ? document.createElementNS(ns, tag) : document.createElement(tag)
+	const node = ns ? createElementNS(ns, tag) : createElement(tag)
 
 	// assign the props to the tag
 	entries(props).forEach(([name, value]) => {
@@ -162,7 +159,7 @@ function insertChildren(parent, child, placeholder, name) {
 		return placeholder // the value is null, as in {null}
 	}
 
-	if (isMapArray(child)) {
+	if (child instanceof MapArray) {
 		// `For`, the callback function will run only for new childs
 		return child.map(parent, child => insertChildren(parent, child, placeholder, name))
 	}
@@ -253,7 +250,6 @@ export function For(props, children) {
 // Map Array
 
 class MapArray {
-	[$mapArray] = null
 	constructor(items, cb) {
 		this.mapper = mapArray(items, cb)
 	}

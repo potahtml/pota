@@ -4,6 +4,7 @@ let BATCH
 let OBSERVER
 let TRACKING = false
 let SYMBOL_ERRORS = Symbol()
+
 /* OBJECTS */
 class Wrapper {
   /* API */
@@ -12,18 +13,21 @@ class Wrapper {
     const TRACKING_PREV = TRACKING
     OBSERVER = observer
     TRACKING = tracking
+    let r
     try {
-      return fn()
+      r = fn()
     } catch (error) {
       const fns = observer?.get(SYMBOL_ERRORS)
       if (fns) {
         fns.forEach(fn => fn(error))
       } else {
+        console.error(error)
         throw error
       }
     } finally {
       OBSERVER = OBSERVER_PREV
       TRACKING = TRACKING_PREV
+      return r
     }
   }
 }
@@ -43,7 +47,7 @@ class Signal {
       return this.value
     }
     this.set = value => {
-      const valueNext = value instanceof Function ? value(this.value) : value
+      const valueNext = /*value instanceof Function ? value(this.value) : */ value
       if (!this.equals(this.value, valueNext)) {
         if (BATCH) {
           BATCH.set(this, valueNext)
@@ -181,6 +185,9 @@ function batch(fn) {
   const batch = (BATCH = new Map())
   try {
     return fn()
+  } catch (e) {
+    console.error(e)
+    throw e
   } finally {
     BATCH = undefined
     batch.forEach((value, signal) => signal.stale(1, false))
@@ -191,6 +198,11 @@ function batch(fn) {
 function untrack(fn) {
   return Wrapper.wrap(fn, OBSERVER, false)
 }
+
+function isTracking() {
+  return TRACKING
+}
+
 /* EXPORT */
 export {
   createContext,
@@ -203,4 +215,5 @@ export {
   useContext,
   batch,
   untrack,
+  isTracking,
 }
