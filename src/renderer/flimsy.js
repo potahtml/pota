@@ -1,6 +1,6 @@
 import * as reactivity from '../reactivity/flimsy.js'
 
-import { setReactiveLibrary } from '../../index.js'
+import { setReactiveLibrary } from '../index.js'
 
 export const root = reactivity.createRoot
 export const renderEffect = reactivity.createEffect
@@ -22,4 +22,4 @@ setReactiveLibrary({
   isTracking,
 })
 
-export * from '../../index.js'
+export * from '../index.js'
