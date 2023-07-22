@@ -350,7 +350,7 @@ export function Show(props, children) {
 	const condition = memo(() => getValue(props.when))
 	// needs resolve to avoid rerendering
 	// `lazy` to not render it at all unless is needed
-	const fallback = lazy(() => resolve(props.fallback || ''))
+	const fallback = lazy(() => (props.fallback ? resolve(props.fallback) : null))
 	return memo(() => {
 		const result = condition()
 		return result ? callback(result) : fallback()
