@@ -72,8 +72,7 @@ export function Fragment(props, children) {
 // having parent before children creation is helpful for example to create svgs and spread the namespace downwards
 
 export function Component(value, props, ...children) {
-	// special case fragments
-	// these dont need untrack nor props
+	// special case fragments, these dont need untrack nor props
 	if (value === Fragment) {
 		return children
 	}
@@ -87,31 +86,48 @@ export function Component(value, props, ...children) {
 	const component =
 		typeof value === 'string'
 			? createTag // a string component 'div'
-			: value instanceof Node // an actual node <div>
-			? createNode
-			: Component // a function
+			: value instanceof Node
+			? createNode // an actual node component <div>
+			: Component // a function component
 
 	let self
-	let properties = { value, props, children }
+	let properties = {
+		value,
+		props,
+		get displayName() {
+			return typeof this.value === 'string'
+				? this.value
+				: this.value instanceof Node
+				? this.value.tagName
+				: 'name' in this.value
+				? this.value.name
+				: this.value
+		},
+	}
 	if (component === Component) {
-		// function component provided by the user
+		// a component function
 		self = assign(function () {
-			return untrack(() => self.value(self.props, self.children))
+			return untrack(() => self.value(self.props, self.props.children))
 		}, properties)
 	} else {
 		self = assign(function (parent) {
-			return untrack(() => component(self.value, self.props, self.children, parent))
+			return untrack(() => component(self.value, self.props, self.props.children, parent))
 		}, properties)
 	}
 	return markComponent(component, self)
 }
 
+// for being able to diferentiate from a signal function from a component function
+// signals and user functions go in effects
 function markComponent(constructor, fn) {
 	return assign(fn, {
 		component: constructor,
 		super: Component,
 	})
 }
+
+// children helper for when you need the HTML
+// if you do not need the html do not use this
 
 export function children(fn) {
 	const children = lazy(fn)
@@ -134,7 +150,8 @@ function createTag(tagName, props, children, parent) {
 	// resolve the namespace
 	const ns = props.xmlns
 		? props.xmlns // the prop contains the namespace
-		: parent?.node?.namespaceURI !== NS.html
+		: // todo use some context
+		parent?.node?.namespaceURI !== NS.html
 		? parent?.node?.namespaceURI // the parent contains the namespace
 		: NS[tagName] // special case svg, math in case of missing xmlns attribute
 
@@ -221,7 +238,7 @@ function insertChildren(parent, child, placeholder) {
 	if (isFunction(child)) {
 		// needs placeholder to stay in position OK
 		// needs `true` to stay in a relative position
-		createPlaceholder(true, child.displayName || child.name)
+		createPlaceholder(true, child.name)
 
 		// maybe signal so needs an effect
 
@@ -283,14 +300,14 @@ function insertNode(parent, node, relativeTo) {
 
 function insertHeadNode(parent, node, relativeTo) {
 	const head = document.head
-	const tagName = node.localName
+	const name = node.localName // lowercase qualified node name
 	// search for tags that should be unique
 	let prev
-	if (tagName === 'meta') {
+	if (name === 'meta') {
 		prev =
 			head.querySelector('meta[name="' + node.name + '"]') ||
 			head.querySelector('meta[property="' + node.property + '"]')
-	} else if (tagName === 'title') {
+	} else if (name === 'title') {
 		prev = head.querySelector('title')
 	}
 
@@ -371,6 +388,12 @@ export function Portal(props, children) {
 		child.props = { ...props, ...child.props }
 		return child
 	})
+}
+
+export function Dynamic(props) {
+	const component = props.component
+	delete props.component
+	return Component(component, props)
 }
 
 // Map Array
