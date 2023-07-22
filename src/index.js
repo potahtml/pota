@@ -14,6 +14,7 @@ export function setReactiveLibrary(o) {
 
 // constants
 
+const $component = Symbol('component')
 const $mount = Symbol('mount')
 
 // while not needed these make the logic/code more readable
@@ -23,10 +24,7 @@ const entries = Object.entries
 
 const isArray = Array.isArray
 const isFunction = v => typeof v === 'function'
-const isComponent = v => v && v.super === Component
-// const isComponentTag = v => v && v.component === createTag
-// const isComponentNode = v => v && v.component === createNode
-// const isComponentFunction = v => v && v.component === Component
+const isComponent = v => v && v[$component] !== undefined
 
 const isDisplayable = v => {
 	const type = typeof v
@@ -77,18 +75,25 @@ export function Component(value, props, ...children) {
 	// 1. use the `children` helper only if you need to access the html
 	// 2. if you dont need the html then just use props.children as much as you want
 	// 3. no need to call the functions inside props.children, just pass them down even in jsx
+
 	props = props || Object.create(null)
 	props.children = children
+
+	// component kind
 
 	const component =
 		typeof value === 'string'
 			? createTag // a string component 'div'
 			: value instanceof Node
 			? createNode // an actual node component <div>
-			: Component // a function component <MyComponent../>
+			: value // a function component <MyComponent../>
 
-	let self
+	const isUserComponent = component === value
+
+	// component properties
+
 	let properties = {
+		component: isUserComponent ? value : component,
 		value,
 		props,
 		get displayName() {
@@ -96,31 +101,35 @@ export function Component(value, props, ...children) {
 				? this.value
 				: this.value instanceof Node
 				? this.value.tagName
-				: 'name' in this.value
+				: this.value.name
 				? this.value.name
 				: '() => .. '
 		},
 	}
-	if (component === Component) {
+
+	// component instance
+
+	let self
+	if (isUserComponent) {
 		// a component function
 		self = assign(function () {
-			return untrack(() => self.value(self.props, self.props.children))
+			return untrack(() => self.component(self.props, self.props.children))
 		}, properties)
 	} else {
 		// a tagName like 'div' or a real node <div>
 		self = assign(function () {
-			return untrack(() => component(self.value, self.props, self.props.children))
+			return untrack(() => self.component(self.value, self.props, self.props.children))
 		}, properties)
 	}
-	return markComponent(component, self)
+	return markComponent(self)
 }
 
-// for being able to diferentiate a signal function from a component function
-// signals and user functions go in effects, components go untracked to avoid rerendering
-function markComponent(constructor, fn) {
+// for being able to differentiate a signal function from a component function
+// signals and user functions go in effects, components go untracked to avoid re-rendering
+
+function markComponent(fn) {
 	return assign(fn, {
-		component: constructor,
-		super: Component,
+		[$component]: null,
 	})
 }
 
@@ -142,11 +151,12 @@ export function render(value, parent) {
 	})
 }
 
-// keep track of parentNode for xmlns spreading to children
+// keep track of parentNode for `xmlns` spreading to children
 
 let parentNode
 
 // creates a x/html element from a tagName
+
 function createTag(tagName, props, children) {
 	// resolve the namespace
 	const ns = props.xmlns
@@ -173,12 +183,13 @@ function createNode(node, props, children) {
 	// assign the props to the tag
 	assignProps(node, props)
 
+	// set if the node should be portaled
 	if (props.mount) {
 		node[$mount] = props.mount
 	}
 
 	// insert childrens
-	// resolve in line the most common case of 1 children, or no children at all
+	// in line the most common case of 1 children, or no children at all
 	if (children.length) {
 		insertChildren(node, children.length === 1 ? children[0] : children)
 	}
@@ -306,6 +317,7 @@ function insertNode(parent, node, relativeTo) {
 function insertHeadNode(parent, node, relativeTo) {
 	const head = document.head
 	const name = node.localName // lowercase qualified node name
+
 	// search for tags that should be unique
 	let prev
 	if (name === 'meta') {
@@ -346,7 +358,7 @@ function resolve(children) {
 // helper for making untracked callbacks from childrens
 
 export function makeCallback(fns) {
-	return markComponent(Component, (...args) =>
+	return markComponent((...args) =>
 		untrack(() => fns.map(fn => (isFunction(fn) ? fn(...args) : fn))),
 	)
 }
@@ -370,7 +382,7 @@ export default function lazy(fn) {
 export function Show(props, children) {
 	const callback = makeCallback(children)
 	const condition = memo(() => getValue(props.when))
-	// needs resolve to avoid rerendering
+	// needs resolve to avoid re-rendering
 	// `lazy` to not render it at all unless is needed
 	const fallback = lazy(() => (props.fallback ? resolve(props.fallback) : null))
 	return memo(() => {
