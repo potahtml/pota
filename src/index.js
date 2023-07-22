@@ -23,11 +23,10 @@ const entries = Object.entries
 
 const isArray = Array.isArray
 const isFunction = v => typeof v === 'function'
-
 const isComponent = v => v && v.super === Component
-const isComponentTag = v => v && v.component === createTag
-const isComponentNode = v => v && v.component === createNode
-const isComponentFunction = v => v && v.component === Component
+// const isComponentTag = v => v && v.component === createTag
+// const isComponentNode = v => v && v.component === createNode
+// const isComponentFunction = v => v && v.component === Component
 
 const isDisplayable = v => {
 	const type = typeof v
@@ -71,12 +70,13 @@ export function Fragment(props, children) {
 export function Component(value, props, ...children) {
 	// special case fragments, these dont need untrack nor props
 	if (value === Fragment) {
-		return children
+		return children // <>...</>
 	}
 
 	// save the children
 	// 1. use the `children` helper only if you need to access the html
 	// 2. if you dont need the html then just use props.children as much as you want
+	// 3. no need to call the functions inside props.children, just pass them down even in jsx
 	props = props || Object.create(null)
 	props.children = children
 
@@ -85,7 +85,7 @@ export function Component(value, props, ...children) {
 			? createTag // a string component 'div'
 			: value instanceof Node
 			? createNode // an actual node component <div>
-			: Component // a function component
+			: Component // a function component <MyComponent../>
 
 	let self
 	let properties = {
@@ -107,15 +107,16 @@ export function Component(value, props, ...children) {
 			return untrack(() => self.value(self.props, self.props.children))
 		}, properties)
 	} else {
-		self = assign(function (parent) {
-			return untrack(() => component(self.value, self.props, self.props.children, parent))
+		// a tagName like 'div' or a real node <div>
+		self = assign(function () {
+			return untrack(() => component(self.value, self.props, self.props.children))
 		}, properties)
 	}
 	return markComponent(component, self)
 }
 
-// for being able to diferentiate from a signal function from a component function
-// signals and user functions go in effects
+// for being able to diferentiate a signal function from a component function
+// signals and user functions go in effects, components go untracked to avoid rerendering
 function markComponent(constructor, fn) {
 	return assign(fn, {
 		component: constructor,
@@ -141,26 +142,31 @@ export function render(value, parent) {
 	})
 }
 
-// creates a x/html element from a tagName
+// keep track of parentNode for xmlns spreading to children
 
-function createTag(tagName, props, children, parent) {
+let parentNode
+
+// creates a x/html element from a tagName
+function createTag(tagName, props, children) {
 	// resolve the namespace
 	const ns = props.xmlns
 		? props.xmlns // the prop contains the namespace
-		: // todo use some context
-		parent?.node?.namespaceURI !== NS.html
-		? parent?.node?.namespaceURI // the parent contains the namespace
+		: parentNode && parentNode.namespaceURI !== NS.html
+		? parentNode.namespaceURI // the parent contains the namespace
 		: NS[tagName] // special case svg, math in case of missing xmlns attribute
 
 	return createNode(
 		ns ? createElementNS(ns, tagName) : createElement(tagName),
 		props,
 		children,
-		parent,
 	)
 }
 
-function createNode(node, props, children, parent) {
+function createNode(node, props, children) {
+	const oldParentNode = parentNode
+
+	parentNode = node
+
 	// get rid of the node on cleanup
 	cleanup(() => node.remove())
 
@@ -176,6 +182,8 @@ function createNode(node, props, children, parent) {
 	if (children.length) {
 		insertChildren(node, children.length === 1 ? children[0] : children)
 	}
+
+	parentNode = oldParentNode
 
 	return node
 }
@@ -227,7 +235,7 @@ function insertChildren(parent, child, placeholder) {
 	}
 
 	if (isComponent(child)) {
-		return insertChildren(parent, child(parent), placeholder)
+		return insertChildren(parent, child(), placeholder)
 	}
 
 	// signal/memo/external/user provided function
