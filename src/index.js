@@ -14,7 +14,7 @@ export function setReactiveLibrary(o) {
 
 // constants
 
-const $component = Symbol('component')
+const $mount = Symbol('mount')
 
 // while not needed these make the logic/code more readable
 
@@ -23,19 +23,20 @@ const entries = Object.entries
 
 const isArray = Array.isArray
 const isFunction = v => typeof v === 'function'
-const isComponentFunction = v => v && v[$component] === ComponentFunction
-const isComponentNode = v => v && v[$component] === ComponentNode
-const isComponentFragment = v => v && v.displayName === 'createFragment'
-const isComponent = v =>
-	isComponentNode(v) || isComponentFunction(v) || isComponentFragment(v)
-const isNode = v => v && v.nodeType // v instanceof Node
+
+const isComponent = v => v && v.super === Component
+const isComponentTag = v => v && v.component === createTag
+const isComponentNode = v => v && v.component === createNode
+const isComponentFunction = v => v && v.component === Component
+
 const isDisplayable = v => {
 	const type = typeof v
 	return (
 		type === 'string' ||
 		type === 'number' ||
-		type === 'boolean' ||
+		// show undefined because most likely is a mistake by the developer
 		v === undefined ||
+		type === 'boolean' ||
 		type === 'bigint'
 	)
 }
@@ -61,18 +62,8 @@ const NSProps = {
 
 // components
 
-// <MyComponent ../>
-function ComponentFunction(fn, props, children) {
-	return untrack(() => fn(props, children))
-}
-
-// <div ../>
-function ComponentNode(tagName, props, children, parent) {
-	return untrack(() => createNode(tagName, props, children, parent))
-}
-
 // <>...</>
-export function createFragment(props, children) {
+export function Fragment(props, children) {
 	return children
 }
 
@@ -80,61 +71,104 @@ export function createFragment(props, children) {
 // this allows to access parent from children
 // having parent before children creation is helpful for example to create svgs and spread the namespace downwards
 
-export function createComponent(unknown, props, ...children) {
-	props = props || Object.create(null)
-
-	const component = isFunction(unknown) ? ComponentFunction : ComponentNode
-
-	const meta = {
-		[$component]: component,
-		displayName: component === ComponentNode ? unknown : unknown.name || 'anon function',
-		unknown,
-		props,
-		children,
+export function Component(value, props, ...children) {
+	// special case fragments
+	// these dont need untrack nor props
+	if (value === Fragment) {
+		return children
 	}
-	return assign(component.bind(meta, unknown, props, children), meta)
+
+	// save the children
+	// 1. use the `children` helper only if you need to access the html
+	// 2. if you dont need the html then just use props.children as much as you want
+	props = props || Object.create(null)
+	props.children = children
+
+	const component =
+		typeof value === 'string'
+			? createTag // a string component 'div'
+			: value instanceof Node // an actual node <div>
+			? createNode
+			: Component // a function
+
+	let self
+	let properties = { value, props, children }
+	if (component === Component) {
+		// function component provided by the user
+		self = assign(function () {
+			return untrack(() => self.value(self.props, self.children))
+		}, properties)
+	} else {
+		self = assign(function (parent) {
+			return untrack(() => component(self.value, self.props, self.children, parent))
+		}, properties)
+	}
+	return markComponent(component, self)
+}
+
+function markComponent(constructor, fn) {
+	return assign(fn, {
+		component: constructor,
+		super: Component,
+	})
+}
+
+export function children(fn) {
+	const children = lazy(fn)
+	return lazy(() => resolve(children()))
 }
 
 // rendering
 
-export function render(unknown, parent) {
+export function render(value, parent) {
 	return root(dispose => {
-		insertChildren(parent, createComponent(unknown))
+		// create component so its untracked
+		insertChildren(parent, Component(value))
 		return dispose
 	})
 }
 
-// a x/html element
-export function createNode(tag, props, children, parent) {
+// creates a x/html element from a tagName
+
+function createTag(tagName, props, children, parent) {
 	// resolve the namespace
 	const ns = props.xmlns
 		? props.xmlns // the prop contains the namespace
-		: // parent wont be defined if resolved by resolveChildren helper
-		parent && parent.namespaceURI !== NS.html
-		? parent.namespaceURI // the parent contains the namespace
-		: NS[tag] // special case svg, math in case of missing xmlns attribute
+		: parent?.node?.namespaceURI !== NS.html
+		? parent?.node?.namespaceURI // the parent contains the namespace
+		: NS[tagName] // special case svg, math in case of missing xmlns attribute
 
-	// todo handle real nodes coming in `tag`
-	const node = ns ? createElementNS(ns, tag) : createElement(tag)
+	return createNode(
+		ns ? createElementNS(ns, tagName) : createElement(tagName),
+		props,
+		children,
+		parent,
+	)
+}
 
+function createNode(node, props, children, parent) {
 	// get rid of the node on cleanup
 	cleanup(() => node.remove())
 
 	// assign the props to the tag
-	entries(props).forEach(([name, value]) => {
-		assignProps(node, name, value)
-	})
+	assignProps(node, props)
+
+	if (props.mount) {
+		node[$mount] = props.mount
+	}
 
 	// insert childrens
-	// resolve in line the most common case of 1 children
-	if (children.length)
+	// resolve in line the most common case of 1 children, or no children at all
+	if (children.length) {
 		insertChildren(node, children.length === 1 ? children[0] : children)
+	}
 
 	return node
 }
 
 // this function returns just to please the `For` component
 // it NEEDS to return a valid dom node
+// function insertChildren(parent, child, placeholder) {}
 function insertChildren(parent, child, placeholder) {
 	// a placeholder helps to keep nodes in position
 
@@ -161,18 +195,12 @@ function insertChildren(parent, child, placeholder) {
 		return node
 	}
 
-	// TODO: on here maybe use flat, maybe not
 	if (isArray(child)) {
 		return child.map(child => insertChildren(parent, child, placeholder))
 	}
 
-	// TODO: on here maybe use flat, maybe not
-	if (isComponentFragment(child)) {
-		return child().map(child => insertChildren(parent, child, placeholder))
-	}
-
 	// DOM Node
-	if (isNode(child)) {
+	if (child instanceof Node) {
 		const node = child
 
 		insertNode(parent, node, placeholder)
@@ -184,32 +212,32 @@ function insertChildren(parent, child, placeholder) {
 		return node
 	}
 
-	if (isComponentNode(child)) {
+	if (isComponent(child)) {
 		return insertChildren(parent, child(parent), placeholder)
 	}
 
-	if (isComponentFunction(child)) {
-		return insertChildren(parent, child(), placeholder)
-	}
-
 	// signal/memo/external/user provided function
-	// CAREFUL moving function here up or down, its just checking for function
+	// CAREFUL moving this up or down, its just checking for function
 	if (isFunction(child)) {
 		// needs placeholder to stay in position OK
 		// needs `true` to stay in a relative position
 		createPlaceholder(true, child.displayName || child.name)
 
-		// maybe signal: needs an effect
-		const node = renderEffect(() => insertChildren(parent, child(), placeholder))
+		// maybe signal so needs an effect
 
-		// if we return undefined it crash, need to return the placeholder
+		// if we return undefined it crash, needs to return the placeholder
 		// its important to return a placeholder here
-		return node || placeholder
+		let node
+		renderEffect(() => {
+			node = insertChildren(parent, child(), placeholder)
+			return node
+		})
+		return node
 	}
 
 	if (child === null) {
-		// we are cheating here and not returning a placeholder
-		return createTextNode('') // the value is null, as in {null}
+		createPlaceholder(false, '{null}')
+		return placeholder // the value is null, as in {null}
 	}
 
 	if (child instanceof MapArray) {
@@ -217,17 +245,20 @@ function insertChildren(parent, child, placeholder) {
 		createPlaceholder(true, 'MapArray')
 
 		// signal: needs an effect
-		return renderEffect(() =>
-			// `For`, the callback function will run only for new childs
-			// parent is needed to resolve the childs, or maybe not TODO
-			child.map(parent, child => insertChildren(parent, child, placeholder)),
-		)
+		// `For`, the callback function will run only for new childs
+		// parent is needed to resolve the childs, or maybe not TODO
+		let node
+		renderEffect(() => {
+			node = child.map(child => insertChildren(parent, child, placeholder))
+			return node
+		})
+		return node
 	}
 
 	// object/symbol/catch all
 
 	// create a text node
-	// toString() is needed for symbols and other fancy objects
+	// toString() is needed for symbols and any fancy objects
 	const node = createTextNode(child.toString())
 
 	// insert node
@@ -236,21 +267,53 @@ function insertChildren(parent, child, placeholder) {
 	return node
 }
 
+// insert
+
 function insertNode(parent, node, relativeTo) {
-	relativeTo ? parent.insertBefore(node, relativeTo) : parent.appendChild(node)
-	cleanup(() => node.remove())
+	parent = node[$mount] || parent
+	if (parent === document.head) {
+		insertHeadNode(parent, node, relativeTo)
+	} else {
+		relativeTo ? parent.insertBefore(node, relativeTo) : parent.appendChild(node)
+		cleanup(() => node.remove())
+	}
+}
+
+// portal
+
+function insertHeadNode(parent, node, relativeTo) {
+	const head = document.head
+	const tagName = node.localName
+	// search for tags that should be unique
+	let prev
+	if (tagName === 'meta') {
+		prev =
+			head.querySelector('meta[name="' + node.name + '"]') ||
+			head.querySelector('meta[property="' + node.property + '"]')
+	} else if (tagName === 'title') {
+		prev = head.querySelector('title')
+	}
+
+	if (prev) {
+		// replace node
+		prev.replaceWith(node)
+		// restore node on cleanup
+		cleanup(() => node.replaceWith(prev))
+	} else {
+		head.appendChild(node)
+	}
 }
 
 // recursively resolve all children and return direct children
 
-function resolve(children, parent) {
+function resolve(children) {
 	if (isFunction(children)) {
-		return resolve(children(parent), parent)
+		return resolve(children())
 	}
 	if (isArray(children)) {
 		const childrens = []
 		for (let child of children) {
-			child = resolve(child, parent)
+			child = resolve(child)
 			isArray(child) ? childrens.push.apply(childrens, child) : childrens.push(child)
 		}
 		return childrens
@@ -258,26 +321,26 @@ function resolve(children, parent) {
 	return children
 }
 
-// helper for making untracked callbacks
+// helper for making untracked callbacks from childrens
 
-function makeCallback(children) {
-	if (children.length === 1) {
-		const cb = children[0]
-		if (isComponent(cb)) {
-			return cb // already untracking
-		}
-		if (isFunction(cb)) {
-			return markComponent(cb) // should untrack
-		}
-		return () => cb // simple value
-	}
-	return markComponent(() => children)
+export function makeCallback(fns) {
+	return markComponent(Component, (...args) =>
+		untrack(() => fns.map(fn => (isFunction(fn) ? fn(...args) : fn))),
+	)
 }
 
-function markComponent(fn) {
-	return assign((...args) => untrack(() => fn(...args)), {
-		[$component]: ComponentFunction,
+// lazy memo runs only after use
+
+export default function lazy(fn) {
+	const [sleeping, setSleeping] = signal(true)
+	const m = memo(() => {
+		if (sleeping()) return
+		return fn()
 	})
+	return () => {
+		setSleeping(false)
+		return m()
+	}
 }
 
 // control flow
@@ -285,9 +348,12 @@ function markComponent(fn) {
 export function Show(props, children) {
 	const callback = makeCallback(children)
 	const condition = memo(() => getValue(props.when))
+	// needs resolve to avoid rerendering
+	// `lazy` to not render it at all unless is needed
+	const fallback = lazy(() => resolve(props.fallback || ''))
 	return memo(() => {
 		const result = condition()
-		return result ? callback(result) : null
+		return result ? callback(result) : fallback()
 	})
 }
 
@@ -298,18 +364,24 @@ export function For(props, children) {
 	return memo(() => new MapArray(props.each, callback))
 }
 
+// portal
+
+export function Portal(props, children) {
+	return children.map(child => {
+		child.props = { ...props, ...child.props }
+		return child
+	})
+}
+
 // Map Array
 
 class MapArray {
 	constructor(items, cb) {
 		this.mapper = mapArray(items, cb)
 	}
-	map(parent, fn) {
+	map(fn) {
 		// needs the children for sorting, so calling resolve
-		let nodes = resolve(
-			this.mapper((item, index) => fn(item)),
-			parent,
-		)
+		let nodes = resolve(this.mapper((item, index) => fn(item)))
 
 		// order of nodes may have changed, reorder it
 		if (nodes.length > 1) {
@@ -393,45 +465,46 @@ function mapArray(list, cb) {
 
 // naive assign props
 
-function assignProps(node, name, value) {
-	if (name === 'mount' || typeof value === 'symbol') {
-		return
-	}
-	if (name === 'onMount') {
-		node.onMount = node.onMount || []
-		node.onMount.push(value)
-		return
-	}
-	if (name === 'onCleanup') {
-		node.onCleanup = node.onCleanup || []
-		node.onCleanup.push(value)
-		return
-	}
-	if (value === null) {
-		NSProps[name]
-			? node.removeAttributeNS(NSProps[name], name, value)
-			: node.removeAttribute(name)
-		return
-	}
-	if (name === 'style') {
-		if (typeof value === 'string') {
-			node.style.cssText = value
-		} else {
-			entries(value).forEach(([name, value]) => {
-				// maybe here cache a reference to value and make it run only 1 effect for all copies of value
-				effect(() => {
-					node.style[name] = isFunction(value) ? value() : value
-				})
-			})
+function assignProps(node, props) {
+	for (const [name, value] of entries(props)) {
+		if (name === 'mount' || name === 'children' || typeof value === 'symbol') {
+			continue
 		}
-		return
-	}
-	if (name.startsWith('on') && name.toLowerCase() in window) {
-		node.addEventListener(name.toLowerCase().substr(2), value)
-		return
-	}
+		if (name === 'onMount') {
+			node.onMount = node.onMount || []
+			node.onMount.push(value)
+			continue
+		}
+		if (name === 'onCleanup') {
+			node.onCleanup = node.onCleanup || []
+			node.onCleanup.push(value)
+			continue
+		}
+		if (value === null) {
+			NSProps[name]
+				? node.removeAttributeNS(NSProps[name], name, value)
+				: node.removeAttribute(name)
+			continue
+		}
+		if (name === 'style') {
+			if (typeof value === 'string') {
+				node.style.cssText = value
+			} else {
+				entries(value).forEach(([name, value]) => {
+					effect(() => {
+						node.style[name] = getValue(value)
+					})
+				})
+			}
+			continue
+		}
+		if (name.startsWith('on') && name.toLowerCase() in window) {
+			node.addEventListener(name.toLowerCase().substr(2), value)
+			continue
+		}
 
-	NSProps[name]
-		? node.setAttributeNS(NSProps[name], name, value)
-		: node.setAttribute(name, value)
+		NSProps[name]
+			? node.setAttributeNS(NSProps[name], name, value)
+			: node.setAttribute(name, value)
+	}
 }
