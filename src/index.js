@@ -56,9 +56,6 @@ const NS = {
 	html: 'http://www.w3.org/1999/xhtml',
 	xlink: 'http://www.w3.org/1999/xlink',
 }
-const NSProps = {
-	'xlink:href': 'http://www.w3.org/1999/xlink',
-}
 
 // components
 
@@ -101,7 +98,7 @@ export function Component(value, props, ...children) {
 				? this.value.tagName
 				: 'name' in this.value
 				? this.value.name
-				: this.value
+				: '() => .. '
 		},
 	}
 	if (component === Component) {
@@ -381,21 +378,6 @@ export function For(props, children) {
 	return memo(() => new MapArray(props.each, callback))
 }
 
-// portal
-
-export function Portal(props, children) {
-	return children.map(child => {
-		child.props = { ...props, ...child.props }
-		return child
-	})
-}
-
-export function Dynamic(props) {
-	const component = props.component
-	delete props.component
-	return Component(component, props)
-}
-
 // Map Array
 
 class MapArray {
@@ -423,6 +405,7 @@ class MapArray {
 
 function mapArray(list, cb) {
 	const map = new Map()
+	// when caching by value is not possible [1,2,1]
 	const byIndex = ' _ cached by index _ '
 
 	let runId = 0
@@ -486,13 +469,38 @@ function mapArray(list, cb) {
 	}
 }
 
+// portal
+
+export function Portal(props, children) {
+	return children.map(child => {
+		// sets `mount` prop on children, and copy any other prop too
+		child.props = { ...props, ...child.props }
+		return child
+	})
+}
+
+// portal
+
+export function Dynamic(props) {
+	const component = props.component
+	delete props.component
+	return Component(component, props)
+}
+
 // naive assign props
 
 function assignProps(node, props) {
 	for (const [name, value] of entries(props)) {
-		if (name === 'mount' || name === 'children' || typeof value === 'symbol') {
+		if (name === 'mount' || name === 'children') {
 			continue
 		}
+		// if(typeof value === 'symbol')
+
+		// namespace
+		const [ns, localName] = name.indexOf(':') !== -1 ? name.split(':') : [undefined, name]
+
+		// magic
+
 		if (name === 'onMount') {
 			node.onMount = node.onMount || []
 			node.onMount.push(value)
@@ -504,8 +512,8 @@ function assignProps(node, props) {
 			continue
 		}
 		if (value === null) {
-			NSProps[name]
-				? node.removeAttributeNS(NSProps[name], name, value)
+			ns && NS[ns]
+				? node.removeAttributeNS(NS[ns], name, value)
 				: node.removeAttribute(name)
 			continue
 		}
@@ -526,8 +534,8 @@ function assignProps(node, props) {
 			continue
 		}
 
-		NSProps[name]
-			? node.setAttributeNS(NSProps[name], name, value)
+		ns && NS[ns]
+			? node.setAttributeNS(NS[ns], name, value)
 			: node.setAttribute(name, value)
 	}
 }
