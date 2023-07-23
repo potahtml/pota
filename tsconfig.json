@@ -3,11 +3,12 @@
     "baseUrl": "./src",
     "outDir": "./dist",
     "allowJs": true,
-    "checkJs": false,
+    /* you probably want to disable checkJs */
+    "checkJs": true,
     "strict": true,
     "jsx": "react",
-    "jsxFactory": "createComponent",
-    "jsxFragmentFactory": "createFragment",
+    "jsxFactory": "Component",
+    "jsxFragmentFactory": "Fragment",
     "lib": ["ESNext", "dom", "dom.iterable"],
     "module": "es6",
     "noImplicitReturns": true,
@@ -17,5 +18,5 @@
     "target": "ESNext",
     "useDefineForClassFields": true
   },
-  "exclude": ["./todo/*", "./dist/*"]
+  "exclude": ["./todo/*", "./dist/*", "./docs/*"]
 }

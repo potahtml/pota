@@ -1,9 +1,10 @@
-import * as reactivity from '../../../node_modules/oby/dist/index.js'
+import * as reactivity from 'oby'
 
-import { setReactiveLibrary } from '../index.js'
+import { setReactiveLibrary } from 'pota'
 
 export const root = v => reactivity.root(v)
-export const renderEffect = v => reactivity.effect(v, { sync: 'init' })
+export const renderEffect = v =>
+  reactivity.effect(v, { sync: 'init' })
 export const effect = v => reactivity.effect(v, { sync: 'init' })
 export const cleanup = v => reactivity.cleanup(v)
 export const signal = v => {
@@ -23,4 +24,4 @@ setReactiveLibrary({
   untrack,
 })
 
-export * from '../index.js'
+export * from 'pota'

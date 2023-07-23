@@ -1,27 +1,22 @@
 {
-	"name": "potable",
-	"description": "HTML Renderer for reactive libraries.",
-	"version": "0.0.1",
+	"name": "pota",
+	"description": "A Runtime HTML Renderer for Reactive Libraries.",
+	"version": "0.1.0",
 	"author": "Tito Bouzout",
 	"type": "module",
 	"exports": {
 		".": "./src/index.js",
-		"./flimsy": "./src/lib/renderer/flimsy.js",
-		"./solid": "./src/lib/renderer/solid.js",
-		"./oby": "./src/lib/renderer/oby.js"
+		"./flimsy": "./src/reactivity/flimsy.js",
+		"./solid": "./src/reactivity/solid.js",
+		"./oby": "./src/reactivity/oby.js",
+		"./*": "./*"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/titoBouzout/potable"
-	},
-	"scripts": {
-		"dev": "tsc -w"
-	},
-	"devDependencies": {
-		"typescript": "^5.1.6"
+		"url": "https://github.com/titoBouzout/pota"
 	},
 	"prettier": {
-		"printWidth": 90,
+		"printWidth": 70,
 		"useTabs": true,
 		"semi": false,
 		"singleQuote": true,
@@ -34,10 +29,5 @@
 		"proseWrap": "never",
 		"endOfLine": "lf",
 		"singleAttributePerLine": true
-	},
-	"dependencies": {
-		"flimsy": "^1.0.3",
-		"oby": "^14.3.0",
-		"solid-js": "^1.7.8"
 	}
 }
