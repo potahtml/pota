@@ -24,7 +24,7 @@ const entries = Object.entries
 
 const isArray = Array.isArray
 const isFunction = v => typeof v === 'function'
-const isComponent = v => v && v[$component] !== undefined
+const isComponent = v => typeof v === 'function' && v[$component] !== undefined
 
 const isDisplayable = v => {
 	const type = typeof v
@@ -66,7 +66,7 @@ export function Fragment(props, children) {
 // having parent before children creation is helpful for example to create svgs and spread the namespace downwards
 
 export function Component(value, props, ...children) {
-	// special case fragments, these dont need untrack nor props
+	// special case fragments, these are arrays and dont need untrack nor props
 	if (value === Fragment) {
 		return children // <>...</>
 	}
@@ -81,73 +81,90 @@ export function Component(value, props, ...children) {
 
 	// component kind
 
-	const component =
-		typeof value === 'string'
-			? createTag // a string component 'div'
-			: value instanceof Node
-			? createNode // an actual node component <div>
-			: value // a function component <MyComponent../>
+	if (typeof value === 'string') {
+		// a string component 'div' becomes <div>
+		return createTagFactory(value, props)
+	} else if (isFunction(value)) {
+		// a function component <MyComponent../>
+		return createComponentFactory(value, props)
+	} else if (value instanceof Node) {
+		// an actual node component <div>
+		return createNodeFactory(value, props)
+	} else {
+		// objects with custom toString()
+		return createComponentFactory(value, props)
+	}
+}
 
-	const isUserComponent = component === value
-
+function createTagFactory(tagName, props) {
 	// component properties
 
-	let properties = {
-		component: isUserComponent ? value : component,
-		value,
-		props,
+	const properties = {
+		component: createTag,
+		value: tagName,
 		get displayName() {
-			return typeof this.value === 'string'
-				? this.value
-				: this.value instanceof Node
-				? this.value.tagName
-				: this.value.name
-				? this.value.name
-				: '() => .. '
+			return this.value
 		},
+		props,
 	}
 
 	// component instance
 
-	let self
-	if (isUserComponent) {
-		// a component function
-		self = assign(function () {
-			return untrack(() => self.component(self.props, self.props.children))
-		}, properties)
-	} else {
-		// a tagName like 'div' or a real node <div>
-		self = assign(function () {
-			return untrack(() => self.component(self.value, self.props, self.props.children))
-		}, properties)
+	const self = assign(function () {
+		return untrack(() => self.component(self.value, self.props, self.props.children))
+	}, properties)
+
+	return markComponent(self)
+}
+
+function createNodeFactory(node, props) {
+	// component properties
+
+	const properties = {
+		component: createNode,
+		value: node,
+		get displayName() {
+			return this.value.tagName
+		},
+		props,
 	}
+
+	// component instance
+
+	const self = assign(function () {
+		return untrack(() => self.component(self.value, self.props, self.props.children))
+	}, properties)
+
+	return markComponent(self)
+}
+
+function createComponentFactory(fn, props) {
+	// component properties
+
+	const properties = {
+		component: fn,
+		value: fn,
+		get displayName() {
+			return this.value.name || 'anon fn'
+		},
+		props,
+	}
+
+	// component instance
+
+	const self = assign(function () {
+		return untrack(() => self.component(self.props, self.props.children))
+	}, properties)
+
 	return markComponent(self)
 }
 
 // for being able to differentiate a signal function from a component function
-// signals and user functions go in effects, components go untracked to avoid re-rendering
+// signals and user functions go in effects, components are untracked to avoid re-rendering
 
 function markComponent(fn) {
 	return assign(fn, {
 		[$component]: null,
-	})
-}
-
-// children helper for when you need the HTML
-// if you do not need the html do not use this
-
-export function children(fn) {
-	const children = lazy(fn)
-	return lazy(() => resolve(children()))
-}
-
-// rendering
-
-export function render(value, parent) {
-	return root(dispose => {
-		// create component so its untracked
-		insertChildren(parent, Component(value))
-		return dispose
 	})
 }
 
@@ -199,26 +216,27 @@ function createNode(node, props, children) {
 	return node
 }
 
+// a placeholder helps to keep nodes in position
+
+function createPlaceholder(parent, placeholder, text, relative) {
+	placeholder =
+		!placeholder || !relative
+			? parent.appendChild(createComment(text || ''))
+			: // provided by parent
+			  parent.insertBefore(createComment('by parent - ' + text || ''), placeholder)
+
+	// get rid of the placeholder on cleanup
+	cleanup(() => placeholder.remove())
+
+	return placeholder
+}
+
 // this function returns just to please the `For` component
 // it NEEDS to return a valid dom node
 // function insertChildren(parent, child, placeholder) {}
 function insertChildren(parent, child, placeholder) {
-	// a placeholder helps to keep nodes in position
-
-	function createPlaceholder(relative, text) {
-		placeholder =
-			!placeholder || !relative
-				? parent.appendChild(createComment(text || ''))
-				: // provided by parent
-				  parent.insertBefore(createComment('by parent - ' + text || ''), placeholder)
-
-		// get rid of the placeholder on cleanup
-		cleanup(() => placeholder.remove())
-	}
-
+	// string/number/undefined/boolean/bigint
 	if (isDisplayable(child)) {
-		// undefined/string/number/boolean/bigint
-
 		// create a text node
 		const node = createTextNode(child)
 
@@ -254,7 +272,7 @@ function insertChildren(parent, child, placeholder) {
 	if (isFunction(child)) {
 		// needs placeholder to stay in position OK
 		// needs `true` to stay in a relative position
-		createPlaceholder(true, child.name)
+		placeholder = createPlaceholder(parent, placeholder, child.name, true)
 
 		// maybe signal so needs an effect
 
@@ -269,13 +287,13 @@ function insertChildren(parent, child, placeholder) {
 	}
 
 	if (child === null) {
-		createPlaceholder(false, '{null}')
+		placeholder = createPlaceholder(parent, placeholder, '{null}', false)
 		return placeholder // the value is null, as in {null}
 	}
 
 	if (child instanceof MapArray) {
 		// needs `true` to stay in a relative position
-		createPlaceholder(true, 'MapArray')
+		placeholder = createPlaceholder(parent, placeholder, 'MapArray', true)
 
 		// signal: needs an effect
 		// `For`, the callback function will run only for new childs
@@ -303,26 +321,28 @@ function insertChildren(parent, child, placeholder) {
 // insert
 
 function insertNode(parent, node, relativeTo) {
+	// check if the node has been portaled
 	parent = node[$mount] || parent
 
 	if (parent === document.head) {
-		const head = document.head
-		const name = node.localName // lowercase qualified node name
-
 		// search for tags that should be unique
+
+		const head = document.head
+		const name = node.tagName
+
 		let prev
-		if (name === 'meta') {
+		if (name === 'META') {
 			prev =
 				head.querySelector('meta[name="' + node.name + '"]') ||
 				head.querySelector('meta[property="' + node.property + '"]')
-		} else if (name === 'title') {
-			prev = head.querySelector('title')
+		} else if (name === 'TITLE') {
+			prev = head.querySelector('TITLE')
 		}
 
 		if (prev) {
 			// replace node
 			prev.replaceWith(node)
-			// restore node on cleanup
+			// restore old node on cleanup
 			cleanup(() => node.replaceWith(prev))
 		} else {
 			head.appendChild(node)
@@ -331,6 +351,24 @@ function insertNode(parent, node, relativeTo) {
 		relativeTo ? parent.insertBefore(node, relativeTo) : parent.appendChild(node)
 		cleanup(() => node.remove())
 	}
+}
+
+// children helper for when you need the HTML
+// if you do not need the html do not use this
+
+export function children(fn) {
+	const children = lazy(fn)
+	return lazy(() => resolve(children()))
+}
+
+// rendering
+
+export function render(value, parent) {
+	return root(dispose => {
+		// create component so its untracked
+		insertChildren(parent, Component(value))
+		return dispose
+	})
 }
 
 // recursively resolve all children and return direct children
@@ -352,7 +390,7 @@ function resolve(children) {
 
 // helper for making untracked callbacks from childrens
 
-export function makeCallback(fns) {
+export function createCallback(fns) {
 	return markComponent((...args) =>
 		untrack(() => fns.map(fn => (isFunction(fn) ? fn(...args) : fn))),
 	)
@@ -375,11 +413,12 @@ export default function lazy(fn) {
 // control flow
 
 export function Show(props, children) {
-	const callback = makeCallback(children)
+	const callback = createCallback(children)
 	const condition = memo(() => getValue(props.when))
 	// needs resolve to avoid re-rendering
 	// `lazy` to not render it at all unless is needed
-	const fallback = lazy(() => (props.fallback ? resolve(props.fallback) : null))
+	const fallback =
+		props.fallback !== undefined ? lazy(() => resolve(props.fallback)) : () => null
 	return memo(() => {
 		const result = condition()
 		return result ? callback(result) : fallback()
@@ -389,7 +428,7 @@ export function Show(props, children) {
 // For
 
 export function For(props, children) {
-	const callback = makeCallback(children)
+	const callback = createCallback(children)
 	return memo(() => new MapArray(props.each, callback))
 }
 
