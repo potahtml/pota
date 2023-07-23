@@ -382,8 +382,13 @@ function insertNode(parent, node, relativeTo) {
 		if (prev) {
 			// replace node
 			prev.replaceWith(node)
+
 			// restore old node on cleanup
-			cleanup(() => node.replaceWith(prev))
+			cleanup(() => {
+				// it needs appendChild instead of replaceWith here because
+				// our node gets cleaned up by the reactivity
+				head.appendChild(prev)
+			})
 		} else {
 			head.appendChild(node)
 		}
