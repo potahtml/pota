@@ -17,7 +17,7 @@ export function setReactiveLibrary(o) {
 const $component = Symbol('component')
 const $mount = Symbol('mount')
 
-// while not needed these make the logic/code more readable
+// while not needed these make the logic/code more concise readable
 
 const assign = Object.assign
 const entries = Object.entries
@@ -304,37 +304,32 @@ function insertChildren(parent, child, placeholder) {
 
 function insertNode(parent, node, relativeTo) {
 	parent = node[$mount] || parent
+
 	if (parent === document.head) {
-		insertHeadNode(parent, node, relativeTo)
+		const head = document.head
+		const name = node.localName // lowercase qualified node name
+
+		// search for tags that should be unique
+		let prev
+		if (name === 'meta') {
+			prev =
+				head.querySelector('meta[name="' + node.name + '"]') ||
+				head.querySelector('meta[property="' + node.property + '"]')
+		} else if (name === 'title') {
+			prev = head.querySelector('title')
+		}
+
+		if (prev) {
+			// replace node
+			prev.replaceWith(node)
+			// restore node on cleanup
+			cleanup(() => node.replaceWith(prev))
+		} else {
+			head.appendChild(node)
+		}
 	} else {
 		relativeTo ? parent.insertBefore(node, relativeTo) : parent.appendChild(node)
 		cleanup(() => node.remove())
-	}
-}
-
-// portal
-
-function insertHeadNode(parent, node, relativeTo) {
-	const head = document.head
-	const name = node.localName // lowercase qualified node name
-
-	// search for tags that should be unique
-	let prev
-	if (name === 'meta') {
-		prev =
-			head.querySelector('meta[name="' + node.name + '"]') ||
-			head.querySelector('meta[property="' + node.property + '"]')
-	} else if (name === 'title') {
-		prev = head.querySelector('title')
-	}
-
-	if (prev) {
-		// replace node
-		prev.replaceWith(node)
-		// restore node on cleanup
-		cleanup(() => node.replaceWith(prev))
-	} else {
-		head.appendChild(node)
 	}
 }
 
@@ -532,9 +527,7 @@ function assignProps(node, props) {
 			continue
 		}
 		if (value === null) {
-			ns && NS[ns]
-				? node.removeAttributeNS(NS[ns], name, value)
-				: node.removeAttribute(name)
+			ns && NS[ns] ? node.removeAttributeNS(NS[ns], name) : node.removeAttribute(name)
 			continue
 		}
 		if (name === 'style') {
