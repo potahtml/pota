@@ -25,17 +25,17 @@ const entries = Object.entries
 const isArray = Array.isArray
 const isFunction = v => typeof v === 'function'
 const isComponent = v =>
-	typeof v === 'function' && v[$component] !== undefined
+	typeof v === 'function' && v[$component] === true
 
 const isDisplayable = v => {
 	const type = typeof v
 	return (
 		type === 'string' ||
 		type === 'number' ||
-		// show undefined because most likely is a mistake by the developer
-		v === undefined ||
 		type === 'boolean' ||
-		type === 'bigint'
+		type === 'bigint' ||
+		// show undefined because most likely is a mistake by the developer
+		v === undefined
 	)
 }
 
@@ -58,7 +58,8 @@ const NS = {
 // components
 
 // <>...</>
-export function Fragment(props, children) {
+
+export function Fragment(children) {
 	return children
 }
 
@@ -80,24 +81,24 @@ export function Component(value, props, ...children) {
 	props = props || Object.create(null)
 	props.children = children
 
-	// component kind
+	// resolve component kind
 
 	if (typeof value === 'string') {
 		// a string component 'div' becomes <div>
-		return createTagFactory(value, props)
+		return factoryTag(value, props)
 	} else if (isFunction(value)) {
 		// a function component <MyComponent../>
-		return createComponentFactory(value, props)
+		return factoryComponent(value, props)
 	} else if (value instanceof Node) {
 		// an actual node component <div>
-		return createNodeFactory(value, props)
+		return factoryNode(value, props)
 	} else {
 		// objects with custom .toString()
-		return createComponentFactory(value, props)
+		return factoryComponent(value, props)
 	}
 }
 
-function createTagFactory(tagName, props) {
+function factoryTag(tagName, props) {
 	// component properties
 
 	const properties = {
@@ -125,7 +126,7 @@ function createTagFactory(tagName, props) {
 	return markComponent(self)
 }
 
-function createNodeFactory(node, props) {
+function factoryNode(node, props) {
 	// component properties
 
 	const properties = {
@@ -153,7 +154,7 @@ function createNodeFactory(node, props) {
 	return markComponent(self)
 }
 
-function createComponentFactory(fn, props) {
+function factoryComponent(fn, props) {
 	// component properties
 
 	const properties = {
@@ -181,7 +182,7 @@ function createComponentFactory(fn, props) {
 
 function markComponent(fn) {
 	return assign(fn, {
-		[$component]: null,
+		[$component]: true,
 	})
 }
 
@@ -208,19 +209,22 @@ function createTag(tagName, props, children, self) {
 }
 
 function createNode(node, props, children, self) {
+	// keep track of parent nodes
 	const oldParentNode = parentNode
-
 	parentNode = node
+
+	// set properties to the node for debugging
+	// todo this also sets the mount point, figure out if that's the way
+	node[$properties] = self
+	if (parentNode[$properties]) {
+		node[$properties].parent = parentNode[$properties]
+	}
 
 	// get rid of the node on cleanup
 	cleanup(() => node.remove())
 
 	// assign the props to the tag
 	assignProps(node, props)
-
-	// set properties to the node
-
-	node[$properties] = self
 
 	// insert childrens
 	// in line the most common case of 1 children, or no children at all
@@ -231,6 +235,7 @@ function createNode(node, props, children, self) {
 		)
 	}
 
+	// restore parent node
 	parentNode = oldParentNode
 
 	return node
@@ -294,7 +299,7 @@ function insertChildren(parent, child, placeholder) {
 	// signal/memo/external/user provided function
 	// CAREFUL moving this up or down, its just checking for function
 	if (isFunction(child)) {
-		// needs placeholder to stay in position OK
+		// needs placeholder to stay in position
 		// needs `true` to stay in a relative position
 		placeholder = createPlaceholder(
 			parent,
@@ -304,9 +309,7 @@ function insertChildren(parent, child, placeholder) {
 		)
 
 		// maybe signal so needs an effect
-
-		// if we return undefined it crash, needs to return the placeholder
-		// its important to return a placeholder here
+		// if we return undefined it crash, needs to return an actual node
 		let node
 		renderEffect(() => {
 			node = insertChildren(parent, child(), placeholder)
@@ -364,6 +367,7 @@ function insertNode(parent, node, relativeTo) {
 	// check if the node has been portaled
 	parent = node[$properties]?.props.mount || parent
 
+	// special case head
 	if (parent === document.head) {
 		// search for tags that should be unique
 
@@ -413,7 +417,7 @@ export function children(fn) {
 export function render(value, parent) {
 	return root(dispose => {
 		// create component so its untracked
-		insertChildren(parent, Component(value))
+		insertChildren(parent || document.body, Component(value))
 		return dispose
 	})
 }
@@ -601,7 +605,6 @@ function assignProps(node, props) {
 		if (name === 'mount' || name === 'children') {
 			continue
 		}
-		// if(typeof value === 'symbol')
 
 		// namespace
 		const [ns, localName] =
