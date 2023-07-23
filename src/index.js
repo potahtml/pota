@@ -15,7 +15,7 @@ export function setReactiveLibrary(o) {
 // constants
 
 const $component = Symbol('component')
-const $mount = Symbol('mount')
+const $properties = Symbol('properties')
 
 // while not needed these make the logic/code more concise readable
 
@@ -24,7 +24,8 @@ const entries = Object.entries
 
 const isArray = Array.isArray
 const isFunction = v => typeof v === 'function'
-const isComponent = v => typeof v === 'function' && v[$component] !== undefined
+const isComponent = v =>
+	typeof v === 'function' && v[$component] !== undefined
 
 const isDisplayable = v => {
 	const type = typeof v
@@ -91,7 +92,7 @@ export function Component(value, props, ...children) {
 		// an actual node component <div>
 		return createNodeFactory(value, props)
 	} else {
-		// objects with custom toString()
+		// objects with custom .toString()
 		return createComponentFactory(value, props)
 	}
 }
@@ -111,7 +112,14 @@ function createTagFactory(tagName, props) {
 	// component instance
 
 	const self = assign(function () {
-		return untrack(() => self.component(self.value, self.props, self.props.children))
+		return untrack(() =>
+			self.component(
+				self.value,
+				self.props,
+				self.props.children,
+				self,
+			),
+		)
 	}, properties)
 
 	return markComponent(self)
@@ -132,7 +140,14 @@ function createNodeFactory(node, props) {
 	// component instance
 
 	const self = assign(function () {
-		return untrack(() => self.component(self.value, self.props, self.props.children))
+		return untrack(() =>
+			self.component(
+				self.value,
+				self.props,
+				self.props.children,
+				self,
+			),
+		)
 	}, properties)
 
 	return markComponent(self)
@@ -153,7 +168,9 @@ function createComponentFactory(fn, props) {
 	// component instance
 
 	const self = assign(function () {
-		return untrack(() => self.component(self.props, self.props.children))
+		return untrack(() =>
+			self.component(self.props, self.props.children, self),
+		)
 	}, properties)
 
 	return markComponent(self)
@@ -174,7 +191,7 @@ let parentNode
 
 // creates a x/html element from a tagName
 
-function createTag(tagName, props, children) {
+function createTag(tagName, props, children, self) {
 	// resolve the namespace
 	const ns = props.xmlns
 		? props.xmlns // the prop contains the namespace
@@ -186,10 +203,11 @@ function createTag(tagName, props, children) {
 		ns ? createElementNS(ns, tagName) : createElement(tagName),
 		props,
 		children,
+		self,
 	)
 }
 
-function createNode(node, props, children) {
+function createNode(node, props, children, self) {
 	const oldParentNode = parentNode
 
 	parentNode = node
@@ -200,15 +218,17 @@ function createNode(node, props, children) {
 	// assign the props to the tag
 	assignProps(node, props)
 
-	// set if the node should be portaled
-	if (props.mount) {
-		node[$mount] = props.mount
-	}
+	// set properties to the node
+
+	node[$properties] = self
 
 	// insert childrens
 	// in line the most common case of 1 children, or no children at all
 	if (children.length) {
-		insertChildren(node, children.length === 1 ? children[0] : children)
+		insertChildren(
+			node,
+			children.length === 1 ? children[0] : children,
+		)
 	}
 
 	parentNode = oldParentNode
@@ -223,7 +243,10 @@ function createPlaceholder(parent, placeholder, text, relative) {
 		!placeholder || !relative
 			? parent.appendChild(createComment(text || ''))
 			: // provided by parent
-			  parent.insertBefore(createComment('by parent - ' + text || ''), placeholder)
+			  parent.insertBefore(
+					createComment('by parent - ' + text || ''),
+					placeholder,
+			  )
 
 	// get rid of the placeholder on cleanup
 	cleanup(() => placeholder.remove())
@@ -233,7 +256,6 @@ function createPlaceholder(parent, placeholder, text, relative) {
 
 // this function returns just to please the `For` component
 // it NEEDS to return a valid dom node
-// function insertChildren(parent, child, placeholder) {}
 function insertChildren(parent, child, placeholder) {
 	// string/number/undefined/boolean/bigint
 	if (isDisplayable(child)) {
@@ -247,7 +269,9 @@ function insertChildren(parent, child, placeholder) {
 	}
 
 	if (isArray(child)) {
-		return child.map(child => insertChildren(parent, child, placeholder))
+		return child.map(child =>
+			insertChildren(parent, child, placeholder),
+		)
 	}
 
 	// DOM Node
@@ -272,7 +296,12 @@ function insertChildren(parent, child, placeholder) {
 	if (isFunction(child)) {
 		// needs placeholder to stay in position OK
 		// needs `true` to stay in a relative position
-		placeholder = createPlaceholder(parent, placeholder, child.name, true)
+		placeholder = createPlaceholder(
+			parent,
+			placeholder,
+			child.name,
+			true,
+		)
 
 		// maybe signal so needs an effect
 
@@ -286,21 +315,32 @@ function insertChildren(parent, child, placeholder) {
 		return node
 	}
 
+	// the value is null, as in {null}
 	if (child === null) {
-		placeholder = createPlaceholder(parent, placeholder, '{null}', false)
-		return placeholder // the value is null, as in {null}
+		placeholder = createPlaceholder(
+			parent,
+			placeholder,
+			'{null}',
+			false,
+		)
+		return placeholder
 	}
 
 	if (child instanceof MapArray) {
 		// needs `true` to stay in a relative position
-		placeholder = createPlaceholder(parent, placeholder, 'MapArray', true)
+		placeholder = createPlaceholder(
+			parent,
+			placeholder,
+			'MapArray',
+			true,
+		)
 
 		// signal: needs an effect
-		// `For`, the callback function will run only for new childs
-		// parent is needed to resolve the childs, or maybe not TODO
 		let node
 		renderEffect(() => {
-			node = child.map(child => insertChildren(parent, child, placeholder))
+			node = child.map(child =>
+				insertChildren(parent, child, placeholder),
+			)
 			return node
 		})
 		return node
@@ -322,7 +362,7 @@ function insertChildren(parent, child, placeholder) {
 
 function insertNode(parent, node, relativeTo) {
 	// check if the node has been portaled
-	parent = node[$mount] || parent
+	parent = node[$properties]?.props.mount || parent
 
 	if (parent === document.head) {
 		// search for tags that should be unique
@@ -348,7 +388,9 @@ function insertNode(parent, node, relativeTo) {
 			head.appendChild(node)
 		}
 	} else {
-		relativeTo ? parent.insertBefore(node, relativeTo) : parent.appendChild(node)
+		relativeTo
+			? parent.insertBefore(node, relativeTo)
+			: parent.appendChild(node)
 		cleanup(() => node.remove())
 	}
 }
@@ -381,7 +423,9 @@ function resolve(children) {
 		const childrens = []
 		for (let child of children) {
 			child = resolve(child)
-			isArray(child) ? childrens.push.apply(childrens, child) : childrens.push(child)
+			isArray(child)
+				? childrens.push.apply(childrens, child)
+				: childrens.push(child)
 		}
 		return childrens
 	}
@@ -418,7 +462,9 @@ export function Show(props, children) {
 	// needs resolve to avoid re-rendering
 	// `lazy` to not render it at all unless is needed
 	const fallback =
-		props.fallback !== undefined ? lazy(() => resolve(props.fallback)) : () => null
+		props.fallback !== undefined
+			? lazy(() => resolve(props.fallback))
+			: () => null
 	return memo(() => {
 		const result = condition()
 		return result ? callback(result) : fallback()
@@ -478,7 +524,9 @@ function mapArray(list, cb) {
 			item,
 			node: fn ? fn(cb(item, index), index) : cb(item, index),
 			dispose: () => {
-				dispose(), map.delete(item), byIndex && map.delete(index + byIndex)
+				dispose(),
+					map.delete(item),
+					byIndex && map.delete(index + byIndex)
 			},
 		}))
 	}
@@ -551,7 +599,8 @@ function assignProps(node, props) {
 		// if(typeof value === 'symbol')
 
 		// namespace
-		const [ns, localName] = name.indexOf(':') !== -1 ? name.split(':') : [undefined, name]
+		const [ns, localName] =
+			name.indexOf(':') !== -1 ? name.split(':') : [undefined, name]
 
 		// magic
 
@@ -566,7 +615,9 @@ function assignProps(node, props) {
 			continue
 		}
 		if (value === null) {
-			ns && NS[ns] ? node.removeAttributeNS(NS[ns], name) : node.removeAttribute(name)
+			ns && NS[ns]
+				? node.removeAttributeNS(NS[ns], name)
+				: node.removeAttribute(name)
 			continue
 		}
 		if (name === 'style') {
