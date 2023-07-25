@@ -584,12 +584,12 @@ function mapArray(list, cb) {
 	}
 }
 
-// portal
+// portal childrens to a new location
 
 export function Portal(props, children) {
 	return children.map(child => {
-		// sets `mount` prop on children, and copy any other prop too
-		child.props = { ...props, ...child.props }
+		// sets `mount` prop on children
+		child.props = { mount: props.mount, ...child.props }
 		return child
 	})
 }
