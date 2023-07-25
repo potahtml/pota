@@ -407,8 +407,8 @@ function insertNode(parent, node, relativeTo) {
 // if you do not need the html do not use this
 
 export function children(fn) {
-	const children = lazy(fn)
-	return lazy(() => resolve(children()))
+	const children = lazyMemo(fn)
+	return lazyMemo(() => resolve(children()))
 }
 
 // rendering
@@ -448,9 +448,9 @@ export function createCallback(fns) {
 	)
 }
 
-// lazy memo runs only after use
+// lazy memo runs only after use, by fabio@discord
 
-export default function lazy(fn) {
+export function lazyMemo(fn) {
 	const [sleeping, setSleeping] = signal(true)
 	const m = memo(() => {
 		if (sleeping()) return
@@ -471,7 +471,7 @@ export function Show(props, children) {
 	// `lazy` to not render it at all unless is needed
 	const fallback =
 		props.fallback !== undefined
-			? lazy(() => resolve(props.fallback))
+			? lazyMemo(() => resolve(props.fallback))
 			: () => null
 	return memo(() => {
 		const result = condition()
