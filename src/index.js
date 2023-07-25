@@ -413,10 +413,15 @@ export function children(fn) {
 
 // rendering
 
-export function render(value, parent) {
+export function render(value, parent, clean) {
 	return root(dispose => {
+		// default to document body
+		const container = parent || document.body
+
+		if (clean) container.textContent = ''
+
 		// create component so its untracked
-		insertChildren(parent || document.body, Component(value))
+		insertChildren(container, Component(value))
 		return dispose
 	})
 }
