@@ -1,27 +1,19 @@
-import * as reactivity from 'oby'
+import $, { root, effect, cleanup, memo, untrack } from 'oby'
 
-import { setReactiveLibrary } from 'pota'
-
-export const root = v => reactivity.root(v)
-export const renderEffect = v =>
-  reactivity.effect(v, { sync: 'init' })
-export const effect = v => reactivity.effect(v, { sync: 'init' })
-export const cleanup = v => reactivity.cleanup(v)
-export const signal = v => {
-  const s = reactivity.default(v)
-  return [s, s]
-}
-export const memo = v => reactivity.memo(v)
-export const untrack = v => reactivity.untrack(v)
+import { setReactiveLibrary } from '../index.js'
 
 setReactiveLibrary({
-  root,
-  renderEffect,
-  effect,
-  cleanup,
-  signal,
-  memo,
-  untrack,
+  root: root,
+  renderEffect: v => effect(v, { sync: 'init' }),
+  effect: v => effect(v, { sync: 'init' }),
+  cleanup: cleanup,
+  signal: v => {
+    const s = $(v)
+    return [s, s]
+  },
+  memo: memo,
+  untrack: untrack,
 })
 
-export * from 'pota'
+export * from '../index.js'
+export * from '../components.js'

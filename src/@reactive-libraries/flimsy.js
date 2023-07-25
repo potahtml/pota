@@ -1,25 +1,23 @@
-import * as reactivity from './lib/flimsy.js'
+import {
+  createRoot,
+  createEffect,
+  onCleanup,
+  createSignal,
+  createMemo,
+  untrack,
+} from './lib/flimsy.js'
 
-import { setReactiveLibrary } from 'pota'
-
-export const root = reactivity.createRoot
-export const renderEffect = reactivity.createEffect
-export const effect = reactivity.createEffect
-export const cleanup = reactivity.onCleanup
-export const signal = reactivity.createSignal
-export const memo = reactivity.createMemo
-export const untrack = reactivity.untrack
-export const isTracking = reactivity.isTracking
+import { setReactiveLibrary } from '../index.js'
 
 setReactiveLibrary({
-  root,
-  renderEffect,
-  effect,
-  cleanup,
-  signal,
-  memo,
-  untrack,
-  isTracking,
+  root: createRoot,
+  renderEffect: createEffect,
+  effect: createEffect,
+  cleanup: onCleanup,
+  signal: createSignal,
+  memo: createMemo,
+  untrack: untrack,
 })
 
-export * from 'pota'
+export * from '../index.js'
+export * from '../components.js'

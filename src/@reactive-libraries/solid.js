@@ -8,24 +8,17 @@ import {
   untrack,
 } from 'solid-js'
 
-import { setReactiveLibrary } from 'pota'
-
-export const root = createRoot
-export const renderEffect = createRenderEffect
-export const effect = createEffect
-export const cleanup = onCleanup
-export const signal = createSignal
-export const memo = createMemo
-export { untrack }
+import { setReactiveLibrary } from '../index.js'
 
 setReactiveLibrary({
-  root,
-  renderEffect,
-  effect,
-  cleanup,
-  signal,
-  memo,
-  untrack,
+  root: createRoot,
+  renderEffect: createRenderEffect,
+  effect: createEffect,
+  cleanup: onCleanup,
+  signal: createSignal,
+  memo: createMemo,
+  untrack: untrack,
 })
 
-export * from 'pota'
+export * from '../index.js'
+export * from '../components.js'

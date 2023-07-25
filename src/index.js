@@ -12,6 +12,10 @@ export function setReactiveLibrary(o) {
 	untrack = o.untrack
 }
 
+// reactivity
+
+export { root, renderEffect, effect, cleanup, signal, memo, untrack }
+
 // constants
 
 const $component = Symbol('component')
@@ -23,10 +27,9 @@ const assign = Object.assign
 const entries = Object.entries
 
 const isArray = Array.isArray
-const isFunction = v => typeof v === 'function'
+export const isFunction = v => typeof v === 'function'
 const isComponent = v =>
 	typeof v === 'function' && v[$component] === true
-
 const isDisplayable = v => {
 	const type = typeof v
 	return (
@@ -39,7 +42,7 @@ const isDisplayable = v => {
 	)
 }
 
-const getValue = v => (isFunction(v) ? v() : v)
+export const getValue = v => (isFunction(v) ? v() : v)
 const call = (fns, ...args) => fns && fns.forEach(fn => fn(...args))
 
 // todo: allow to change document
@@ -58,7 +61,6 @@ const NS = {
 // components
 
 // <>...</>
-
 export function Fragment() {}
 
 // must return a function so we render from parent to children instead of from children to parent
@@ -179,7 +181,7 @@ function factoryComponent(fn, props) {
 // for being able to differentiate a signal function from a component function
 // signals and user functions go in effects, components are untracked to avoid re-rendering
 
-function markComponent(fn) {
+export function markComponent(fn) {
 	return assign(fn, {
 		[$component]: true,
 	})
@@ -428,7 +430,7 @@ export function render(value, parent, clean) {
 
 // recursively resolve all children and return direct children
 
-function resolve(children) {
+export function resolve(children) {
 	if (isFunction(children)) {
 		return resolve(children())
 	}
@@ -447,7 +449,7 @@ function resolve(children) {
 
 // helper for making untracked callbacks from childrens
 
-export function createCallback(fns) {
+export function componentCallback(fns) {
 	return markComponent((...args) =>
 		untrack(() => fns.map(fn => (isFunction(fn) ? fn(...args) : fn))),
 	)
@@ -467,33 +469,9 @@ export function lazyMemo(fn) {
 	}
 }
 
-// control flow
-
-export function Show(props, children) {
-	const callback = createCallback(children)
-	const condition = memo(() => getValue(props.when))
-	// needs resolve to avoid re-rendering
-	// `lazy` to not render it at all unless is needed
-	const fallback =
-		props.fallback !== undefined
-			? lazyMemo(() => resolve(props.fallback))
-			: () => null
-	return memo(() => {
-		const result = condition()
-		return result ? callback(result) : fallback()
-	})
-}
-
-// For
-
-export function For(props, children) {
-	const callback = createCallback(children)
-	return memo(() => new MapArray(props.each, callback))
-}
-
 // Map Array
 
-class MapArray {
+export class MapArray {
 	constructor(items, cb) {
 		this.mapper = mapArray(items, cb)
 	}
@@ -519,6 +497,7 @@ class MapArray {
 function mapArray(list, cb) {
 	const map = new Map()
 	// when caching by value is not possible [1,2,1]
+	// append this to each index to avoid a colision with the values
 	const byIndex = ' _ cached by index _ '
 
 	let runId = 0
@@ -547,7 +526,7 @@ function mapArray(list, cb) {
 	return function mapper(fn) {
 		runId++
 
-		const items = list() || []
+		const items = getValue(list) || []
 		const rows = []
 
 		for (const [index, item] of items.entries()) {
@@ -584,34 +563,6 @@ function mapArray(list, cb) {
 	}
 }
 
-// portal childrens to a new location
-
-export function Portal(props, children) {
-	return children.map(child => {
-		// sets `mount` prop on children
-		child.props = { mount: props.mount, ...child.props }
-		return child
-	})
-}
-
-// spread
-
-export function Spread(props, children) {
-	return children.map(child => {
-		// copy or spread props of parent to children
-		child.props = { ...props, ...child.props }
-		return child
-	})
-}
-
-// portal
-
-export function Dynamic(props) {
-	const component = props.component
-	delete props.component
-	return Component(component, props)
-}
-
 // naive assign props
 
 function assignProps(node, props) {
@@ -621,6 +572,7 @@ function assignProps(node, props) {
 		}
 
 		// namespace
+
 		const [ns, localName] =
 			name.indexOf(':') !== -1 ? name.split(':') : [undefined, name]
 
