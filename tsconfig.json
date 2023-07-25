@@ -18,5 +18,5 @@
     "target": "ESNext",
     "useDefineForClassFields": true
   },
-  "exclude": ["./todo/*", "./dist/*", "./docs/*"]
+  "exclude": ["./dist/*"]
 }

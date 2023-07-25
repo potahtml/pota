@@ -6,9 +6,9 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.js",
-		"./flimsy": "./src/reactivity/flimsy.js",
-		"./solid": "./src/reactivity/solid.js",
-		"./oby": "./src/reactivity/oby.js",
+		"./flimsy": "./src/@reactive-libraries/flimsy.js",
+		"./solid": "./src/@reactive-libraries/solid.js",
+		"./oby": "./src/@reactive-libraries/oby.js",
 		"./*": "./*"
 	},
 	"repository": {

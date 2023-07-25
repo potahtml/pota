@@ -1,7 +1,6 @@
 package-lock.json
 node_modules
 dist
-docs/todo
 
 # Logs
 logs
