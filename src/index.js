@@ -77,7 +77,8 @@ export function Component(value, props, ...children) {
 	// 3. no need to call the functions inside props.children, just pass them down even in jsx
 
 	props = props || Object.create(null)
-	props.children = children
+	// <div {...props}/> // has to check for props.children first to allow spreads
+	props.children = props.children || children
 
 	// resolve component kind
 
