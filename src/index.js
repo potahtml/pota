@@ -59,9 +59,7 @@ const NS = {
 
 // <>...</>
 
-export function Fragment(children) {
-	return children
-}
+export function Fragment() {}
 
 // must return a function so we render from parent to children instead of from children to parent
 // this allows to access parent from children
