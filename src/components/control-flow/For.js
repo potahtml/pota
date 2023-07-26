@@ -1,5 +1,5 @@
 // For
-import { componentCallback, memo, MapArray } from '../../index.js'
+import { componentCallback, memo, MapArray } from '#main'
 
 export function For(props, children) {
 	const callback = componentCallback(children)

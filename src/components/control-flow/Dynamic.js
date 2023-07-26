@@ -1,5 +1,5 @@
 // portal
-import { Component } from '../../index.js'
+import { Component } from '#main'
 
 export function Dynamic(props) {
 	const component = props.component

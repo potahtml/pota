@@ -6,7 +6,7 @@ import {
 	getValue,
 	lazyMemo,
 	resolve,
-} from '../../index.js'
+} from '#main'
 
 export function Show(props, children) {
 	const callback = componentCallback(children)

@@ -2,6 +2,9 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "outDir": "./dist",
+    "paths": {
+      "#main": ["./src/main.js"]
+    },
     "allowJs": true,
     /* you probably want to disable checkJs */
     "checkJs": true,
