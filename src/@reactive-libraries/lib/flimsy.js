@@ -27,8 +27,8 @@ class Wrapper {
     } finally {
       OBSERVER = OBSERVER_PREV
       TRACKING = TRACKING_PREV
-      return r
     }
+    return r
   }
 }
 class Signal {
@@ -47,7 +47,8 @@ class Signal {
       return this.value
     }
     this.set = value => {
-      const valueNext = /*value instanceof Function ? value(this.value) : */ value
+      const valueNext =
+        value instanceof Function ? value(this.value) : value
       if (!this.equals(this.value, valueNext)) {
         if (BATCH) {
           BATCH.set(this, valueNext)
@@ -162,12 +163,15 @@ function createMemo(fn, options) {
 function createRoot(fn) {
   return new Root().wrap(fn)
 }
+
 function createContext(defaultValue) {
   const id = Symbol()
   const get = () => OBSERVER?.get(id) ?? defaultValue
   const set = value => OBSERVER?.set(id, value)
+
   return { id, defaultValue, get, set }
 }
+
 function useContext(context) {
   return context.get()
 }

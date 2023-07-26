@@ -1,4 +1,14 @@
-let root, renderEffect, effect, cleanup, signal, memo, untrack
+// local reactivity
+
+let root,
+	renderEffect,
+	effect,
+	cleanup,
+	signal,
+	memo,
+	untrack,
+	createContext,
+	useContext
 
 // for being able to switch reactive libraries easily
 
@@ -10,11 +20,23 @@ export function setReactiveLibrary(o) {
 	signal = o.signal
 	memo = o.memo
 	untrack = o.untrack
+	createContext = o.createContext
+	useContext = o.useContext
 }
 
-// reactivity
+// export reactivity
 
-export { root, renderEffect, effect, cleanup, signal, memo, untrack }
+export {
+	root,
+	renderEffect,
+	effect,
+	cleanup,
+	signal,
+	memo,
+	untrack,
+	createContext,
+	useContext,
+}
 
 // constants
 
@@ -78,9 +100,19 @@ export function Component(value, props, ...children) {
 	// 2. if you dont need the html then just use props.children as much as you want
 	// 3. no need to call the functions inside props.children, just pass them down even in jsx
 
-	props = props || Object.create(null)
 	// <div {...props}/> // has to check for props.children first to allow spreads
-	props.children = props.children || children
+	// props.children = props.children || children
+
+	if (!props) {
+		// maybe consider to change for {children}
+		props = Object.create(null)
+		props.children = children
+	} else if (!('children' in props)) {
+		// only set `children` if the props dont have it already
+		// use `in` to not trigger getters
+		// also, if the prop children is _only_ a getter, we cant set it.
+		props.children = children
+	}
 
 	// resolve component kind
 
@@ -407,10 +439,10 @@ function insertNode(parent, node, relativeTo) {
 
 // children helper for when you need the HTML
 // if you do not need the html do not use this
-
+// children helper is asumed to be used, therefore no lazy memo
 export function children(fn) {
-	const children = lazyMemo(fn)
-	return lazyMemo(() => resolve(children()))
+	const children = memo(fn)
+	return memo(() => resolve(children()))
 }
 
 // rendering
@@ -450,12 +482,15 @@ export function resolve(children) {
 // helper for making untracked callbacks from childrens
 
 export function componentCallback(fns) {
+	// function MyComponent() { return 'Something'} // children wont be an array
+	// this happens on components created on the fly <Dynamic component={MyComponent}../>
+	fns = isArray(fns) ? fns : [fns]
 	return markComponent((...args) =>
 		untrack(() => fns.map(fn => (isFunction(fn) ? fn(...args) : fn))),
 	)
 }
 
-// lazy memo runs only after use, by fabio@discord
+// lazy memo runs only after use, by fabio@solid-js/discord
 
 export function lazyMemo(fn) {
 	const [sleeping, setSleeping] = signal(true)
