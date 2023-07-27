@@ -65,6 +65,8 @@ const isDisplayable = v => {
 }
 
 export const getValue = v => (isFunction(v) ? v() : v)
+export const hasValue = v => v !== null && v !== undefined
+
 const call = (fns, ...args) => fns && fns.forEach(fn => fn(...args))
 
 // todo: allow to change document
@@ -597,8 +599,6 @@ function mapArray(list, cb) {
 		return rows.map(item => item.node)
 	}
 }
-
-// naive assign props
 
 function assignProps(node, props) {
 	for (const [name, value] of entries(props)) {
