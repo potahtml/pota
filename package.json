@@ -1,40 +1,41 @@
 {
-	"name": "pota",
-	"description": "A Runtime HTML Renderer for Reactive Libraries.",
-	"version": "0.1.0",
-	"author": "Tito Bouzout",
-	"type": "module",
-	"main": "./src/@reactive-libraries/solid.js",
-	"exports": {
-		".": "./src/@reactive-libraries/solid.js",
-		"./setup": "./src/index.js",
-		"./test": "./src/@reactive-libraries/solid.js",
-		"./flimsy": "./src/@reactive-libraries/flimsy.js",
-		"./oby": "./src/@reactive-libraries/oby.js",
-		"./solid": "./src/@reactive-libraries/solid.js",
-		"./components": "./src/components/components.js",
-		"./*": "./*"
-	},
-	"imports": {
-		"#main": "./src/main.js"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/titoBouzout/pota"
-	},
-	"prettier": {
-		"printWidth": 70,
-		"useTabs": true,
-		"semi": false,
-		"singleQuote": true,
-		"quoteProps": "as-needed",
-		"jsxSingleQuote": false,
-		"trailingComma": "all",
-		"bracketSpacing": true,
-		"bracketSameLine": false,
-		"arrowParens": "avoid",
-		"proseWrap": "never",
-		"endOfLine": "lf",
-		"singleAttributePerLine": true
-	}
+  "name": "pota",
+  "description": "A Runtime HTML Renderer for Reactive Libraries.",
+  "version": "0.1.0",
+  "author": "Tito Bouzout",
+  "type": "module",
+  "main": "./src/@reactive-libraries/solid.js",
+  "exports": {
+    ".": "./src/@reactive-libraries/solid.js",
+    "./setup": "./src/core.js",
+    "./test": "./src/@reactive-libraries/solid.js",
+    "./flimsy": "./src/@reactive-libraries/flimsy.js",
+    "./oby": "./src/@reactive-libraries/oby.js",
+    "./solid": "./src/@reactive-libraries/solid.js",
+    "./components": "./src/components/components.js",
+    "./router": "./src/components/router.js",
+    "./*": "./*"
+  },
+  "imports": {
+    "#main": "./src/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/titoBouzout/pota"
+  },
+  "prettier": {
+    "printWidth": 70,
+    "useTabs": true,
+    "semi": false,
+    "singleQuote": true,
+    "quoteProps": "as-needed",
+    "jsxSingleQuote": false,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "arrowParens": "avoid",
+    "proseWrap": "never",
+    "endOfLine": "lf",
+    "singleAttributePerLine": true
+  }
 }

@@ -1,25 +1,27 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "outDir": "./dist",
     "paths": {
       "#main": ["./src/main.js"]
     },
+
     "allowJs": true,
     /* you probably want to disable checkJs */
     "checkJs": true,
     "strict": true,
+
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ESNext", "dom", "dom.iterable"],
+
     "jsx": "react",
     "jsxFactory": "Component",
     "jsxFragmentFactory": "Fragment",
-    "lib": ["ESNext", "dom", "dom.iterable"],
-    "module": "es6",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+
     "sourceMap": true,
-    "target": "ESNext",
-    "useDefineForClassFields": true
+
+    "moduleResolution": "nodenext"
   },
   "exclude": ["./dist/*"]
 }

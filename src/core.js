@@ -1,4 +1,4 @@
-// local reactivity
+// reactivity
 
 let root,
 	renderEffect,
@@ -10,7 +10,7 @@ let root,
 	createContext,
 	useContext
 
-// for being able to switch reactive libraries easily
+// for being able to switch reactive libraries
 
 export function setReactiveLibrary(o) {
 	root = o.root
@@ -43,7 +43,7 @@ export {
 const $component = Symbol('component')
 const $properties = Symbol('properties')
 
-// while not needed these make the logic/code more concise readable
+// while not needed these make the logic/code more concise/readable
 
 const assign = Object.assign
 const entries = Object.entries
