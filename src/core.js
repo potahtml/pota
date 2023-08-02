@@ -31,6 +31,7 @@ export {
 	renderEffect,
 	effect,
 	cleanup,
+	cleanup as onCleanup,
 	signal,
 	memo,
 	untrack,
@@ -40,40 +41,8 @@ export {
 
 // constants
 
-const $component = Symbol('component')
-const $properties = Symbol('properties')
-
-// while not needed these make the logic/code more concise/readable
-
-const assign = Object.assign
-const entries = Object.entries
-
-const isArray = Array.isArray
-export const isFunction = v => typeof v === 'function'
-const isComponent = v =>
-	typeof v === 'function' && v[$component] === true
-const isDisplayable = v => {
-	const type = typeof v
-	return (
-		type === 'string' ||
-		type === 'number' ||
-		type === 'boolean' ||
-		type === 'bigint' ||
-		// show undefined because most likely is a mistake by the developer
-		v === undefined
-	)
-}
-
-export const getValue = v => (isFunction(v) ? v() : v)
-export const hasValue = v => v !== null && v !== undefined
-
-const call = (fns, ...args) => fns && fns.forEach(fn => fn(...args))
-
-// todo: allow to change document
-const createElement = document.createElement.bind(document)
-const createElementNS = document.createElementNS.bind(document)
-const createTextNode = document.createTextNode.bind(document)
-const createComment = document.createComment.bind(document)
+const $meta = Symbol('pota-meta')
+const $component = Symbol('pota-component')
 
 const NS = {
 	svg: 'http://www.w3.org/2000/svg',
@@ -82,192 +51,236 @@ const NS = {
 	xlink: 'http://www.w3.org/1999/xlink',
 }
 
-// components
+// while not needed these make the logic/code more concise/readable
 
-// <>...</>
-export function Fragment() {}
+const assign = Object.assign
+const entries = Object.entries
+const empty = Object.create.bind(Object, null)
 
-// must return a function so we render from parent to children instead of from children to parent
-// this allows to access parent from children
-// having parent before children creation is helpful for example to create svgs and spread the namespace downwards
-
-export function Component(value, props, ...children) {
-	// special case fragments, these are arrays and dont need untrack nor props
-	if (value === Fragment) {
-		return children // <>...</>
-	}
-
-	// save the children
-	// 1. use the `children` helper only if you need to access the html
-	// 2. if you dont need the html then just use props.children as much as you want
-	// 3. no need to call the functions inside props.children, just pass them down even in jsx
-
-	// <div {...props}/> // has to check for props.children first to allow spreads
-	// props.children = props.children || children
-
-	if (!props) {
-		// maybe consider to change for {children}
-		props = Object.create(null)
-		props.children = children
-	} else if (!('children' in props)) {
-		// only set `children` if the props dont have it already
-		// use `in` to not trigger getters
-		// also, if the prop children is _only_ a getter, we cant set it.
-		props.children = children
-	}
-
-	// resolve component kind
-
-	if (typeof value === 'string') {
-		// a string component 'div' becomes <div>
-		return factoryTag(value, props)
-	} else if (isFunction(value)) {
-		// a function component <MyComponent../>
-		return factoryComponent(value, props)
-	} else if (value instanceof Node) {
-		// an actual node component <div>
-		return factoryNode(value, props)
-	} else {
-		// objects with custom .toString()
-		return factoryComponent(value, props)
-	}
+export const isArray = Array.isArray
+export const isFunction = v => typeof v === 'function'
+export const isComponent = v =>
+	typeof v === 'function' && v[$component] === true
+const isDisplayable = v => {
+	const type = typeof v
+	return (
+		type === 'string' ||
+		type === 'number' ||
+		type === 'boolean' ||
+		type === 'bigint' ||
+		// show undefined because most likely is a mistake
+		// in the data/by the developer
+		// the only place where undefined is unwanted and discarded
+		// is on values of styles/classes/node attributes/node properties
+		v === undefined
+	)
 }
 
-function factoryTag(tagName, props) {
-	// component properties
-
-	const properties = {
-		component: createTag,
-		value: tagName,
-		get displayName() {
-			return this.value
-		},
-		props,
-	}
-
-	// component instance
-
-	const self = assign(function () {
-		return untrack(() =>
-			self.component(
-				self.value,
-				self.props,
-				self.props.children,
-				self,
-			),
-		)
-	}, properties)
-
-	return markComponent(self)
-}
-
-function factoryNode(node, props) {
-	// component properties
-
-	const properties = {
-		component: createNode,
-		value: node,
-		get displayName() {
-			return this.value.tagName
-		},
-		props,
-	}
-
-	// component instance
-
-	const self = assign(function () {
-		return untrack(() =>
-			self.component(
-				self.value,
-				self.props,
-				self.props.children,
-				self,
-			),
-		)
-	}, properties)
-
-	return markComponent(self)
-}
-
-function factoryComponent(fn, props) {
-	// component properties
-
-	const properties = {
-		component: fn,
-		value: fn,
-		get displayName() {
-			return this.value.name || 'anon fn'
-		},
-		props,
-	}
-
-	// component instance
-
-	const self = assign(function () {
-		return untrack(() =>
-			self.component(self.props, self.props.children, self),
-		)
-	}, properties)
-
-	return markComponent(self)
-}
-
-// for being able to differentiate a signal function from a component function
-// signals and user functions go in effects, components are untracked to avoid re-rendering
-
-export function markComponent(fn) {
-	return assign(fn, {
-		[$component]: true,
+// the following set of functions are based on the renderer assumptions
+// these are not mean to be generic JavaScript functions
+const isNotNullObject = v => v !== null && typeof v === 'object'
+export const hasValue = v => v !== null && v !== undefined
+export const getValue = v =>
+	typeof v === 'function' ? getValue(v()) : v
+// runs arrays of functions with arguments
+const call = (fns, ...args) => {
+	fns.forEach(fn => {
+		if (isArray(fn)) {
+			fn[0](...args, ...fn.slice(1))
+		} else {
+			fn(...args)
+		}
 	})
 }
 
-// keep track of parentNode for `xmlns` spreading to children
+// todo: allow to change document
+const createElement = document.createElement.bind(document)
+const createElementNS = document.createElementNS.bind(document)
+const createElementText = document.createTextNode.bind(document)
+const createElementComment = document.createComment.bind(document)
+const querySelector = document.querySelector.bind(document)
 
-let parentNode
+// Components
+
+// <>...</>
+// used by the JSX transform
+// this function is empty because its given to `Component` via the transformer
+// and we dont even need to run it
+export function Fragment() {}
+
+// used by the JSX transform
+// Component is not supposed to be used in user land
+// returns a function because we need to render from parent to children instead of from children to parent
+// this allows to properly set the reactivity tree (think of nested effects that clear inner effects)
+// additionally allows to access parent when creating children
+export function Component(value, props, ...children) {
+	// special case fragments, these are arrays and dont need untrack nor props
+	if (value === Fragment) {
+		// <>...</>
+		return children
+	}
+
+	// props is `null` when the transformer finds no props: <div></div>
+	// props is `undefined` when calling the Component function directly without props
+	// `Component('div')`, whoever is doing this should be using `create('div')` instead
+	// `Component('div')` returns a function with the props already set
+	// `create('div')` returns a function that you can call with any props reusing the component
+	if (!hasValue(props)) {
+		// null or undefined
+		props = empty()
+		props.children = children
+	} else if (!('children' in props)) {
+		// use `in` to not trigger getters
+		// only set `children` if the props dont have it already
+		// when the `props.children` is set, it takes over the component own children:
+		// <div children={[1,2,3]}>CHILDREN IS IGNORED HERE</div>
+		props.children = children
+	}
+
+	// create component instance with props bind, and a scope initially set to an empty object
+	// the scope is used to hold the parent to be able to tell if dynamic childrens are xml
+	return create(value).bind(null, props, empty())
+}
+
+// component are cached for the duration of a run (top to bottom)
+// cache is cleared after the run
+// if you make a list with 100 links in one shot
+// it will reuse a component 99 times
+// then discard that object
+// performance opportunity: expiration could be smarter
+
+const Components = new Map()
+
+// the components factory
+// creates a function that could be called with a props object
+export function create(value) {
+	// on here we check if the value is already a known component
+	// think of const MyComponent = create('div'), AnotherComponent({children:MyComponent})
+	// the jsx transformer doesnt do that, but I can see how that could happen with hand crafted components
+	// performance opportunity: behave differently if its the first run or not, and consider the above
+	if (isComponent(value)) {
+		return value
+	}
+
+	let component = Components.get(value)
+	if (component) return component
+
+	if (typeof value === 'string') {
+		// a string component, 'div' becomes <div>
+		component = markComponent((props = empty(), scope = empty()) =>
+			untrack(() => createTag(value, props, props.children, scope)),
+		)
+	} else if (isFunction(value)) {
+		// a function component <MyComponent../>
+		component = markComponent((props = empty(), scope = empty()) =>
+			untrack(() => value(props, props.children, scope)),
+		)
+	} else if (value instanceof Node) {
+		// an actual node component <div>
+		component = markComponent((props = empty(), scope = empty()) =>
+			untrack(() =>
+				createNode(
+					value.cloneNode(true),
+					props,
+					props.children,
+					scope,
+				),
+			),
+		)
+	} else {
+		// objects with a custom .toString()
+		component = markComponent((props = empty(), scope = empty()) =>
+			untrack(() => value.toString(props, props.children, scope)),
+		)
+	}
+
+	// save in cache
+	Components.set(value, component)
+
+	return component
+}
+
+// allows to tell a `signal function` from a `component function`
+// signals and user functions go in effects, for reactivity
+// components are untracked to avoid re-rendering and wont go in effects
+
+const componentMark = empty()
+componentMark[$component] = true
+export const markComponent = function (o, fn) {
+	return assign(fn, o)
+}.bind(null, componentMark)
+
+// keeps track of parentNode for `xmlns` spreading to children
+// defaults to empty object so parentNode.namespaceURI doesnt throw
+
+let parentNode = empty()
 
 // creates a x/html element from a tagName
 
-function createTag(tagName, props, children, self) {
-	// resolve the namespace
+function createTag(tagName, props, children, scope) {
+	// get the namespace
 	const ns = props.xmlns
 		? props.xmlns // the prop contains the namespace
-		: parentNode && parentNode.namespaceURI !== NS.html
+		: // this works on first run
+		parentNode.namespaceURI && parentNode.namespaceURI !== NS.html
 		? parentNode.namespaceURI // the parent contains the namespace
+		: // used after the first run, once reactivity takes over
+		scope.parent?.node.namespaceURI &&
+		  scope.parent.node.namespaceURI !== NS.html
+		? scope.parent.node.namespaceURI // the parent contains the namespace
 		: NS[tagName] // special case svg, math in case of missing xmlns attribute
 
 	return createNode(
 		ns ? createElementNS(ns, tagName) : createElement(tagName),
 		props,
 		children,
-		self,
+		scope,
 	)
 }
 
-function createNode(node, props, children, self) {
+function createNode(node, props, children, scope) {
+	// sets internals properties of the node
+	// allows to lookup mount, parent node for xmlns, holds events handlers
+	// appears in the dev tools for easy debugging
+
+	node[$meta] = scope
+	node[$meta].node = node
+	node[$meta].props = props
+
+	// on first run this will hold a value
+	// once reactivity takes over (like a Show), then,
+	// it wont and we use old parent which is saved on the scope
+	if (parentNode[$meta]) {
+		node[$meta].parent = parentNode[$meta]
+	}
+
 	// keep track of parent nodes
 	const oldParentNode = parentNode
 	parentNode = node
 
-	// set properties to the node for debugging
-	// todo this also sets the mount point, figure out if that's the way
-	node[$properties] = self
-	if (parentNode[$properties]) {
-		node[$properties].parent = parentNode[$properties]
-	}
-
 	// get rid of the node on cleanup
-	cleanup(() => node.remove())
+	cleanup(() => {
+		// callback
+		node[$meta].onCleanup &&
+			untrack(() => call(node[$meta].onCleanup, node))
+		node.remove()
+	})
 
-	// assign the props to the tag
+	// assign the props to the node
 	assignProps(node, props)
 
 	// insert childrens
 	// in line the most common case of 1 children, or no children at all
-	if (children.length) {
-		insertChildren(
-			node,
-			children.length === 1 ? children[0] : children,
-		)
+	if (isArray(children)) {
+		if (children.length) {
+			createChildren(
+				node,
+				children.length === 1 ? children[0] : children,
+			)
+		}
+	} else {
+		// children is possibly not an array when it comes from user components
+		createChildren(node, children)
 	}
 
 	// restore parent node
@@ -279,63 +292,52 @@ function createNode(node, props, children, self) {
 // a placeholder helps to keep nodes in position
 
 function createPlaceholder(parent, placeholder, text, relative) {
-	placeholder =
-		!placeholder || !relative
-			? parent.appendChild(createComment(text || ''))
-			: // provided by parent
-			  parent.insertBefore(
-					createComment('by parent - ' + text || ''),
-					placeholder,
-			  )
-
-	// get rid of the placeholder on cleanup
-	cleanup(() => placeholder.remove())
-
-	return placeholder
+	return !placeholder || !relative
+		? insertNode(parent, createElementComment(text || ''))
+		: insertNode(
+				parent,
+				createElementComment('by parent - ' + text || ''),
+				placeholder,
+		  )
 }
 
-// this function returns just to please the `For` component
-// it NEEDS to return a valid dom node
-function insertChildren(parent, child, placeholder) {
+// creates the children for a parent
+
+function createChildren(parent, child, placeholder) {
 	// string/number/undefined/boolean/bigint
 	if (isDisplayable(child)) {
-		// create a text node
-		const node = createTextNode(child)
-
-		// insert node
-		insertNode(parent, node, placeholder)
-
-		return node
+		return insertNode(parent, createElementText(child), placeholder)
 	}
 
+	// childrens/fragments
 	if (isArray(child)) {
 		return child.map(child =>
-			insertChildren(parent, child, placeholder),
+			createChildren(parent, child, placeholder),
 		)
 	}
 
-	// DOM Node
+	// Node
 	if (child instanceof Node) {
 		const node = child
 
+		node[$meta]?.use && untrack(() => call(node[$meta].use, node))
+
 		insertNode(parent, node, placeholder)
 
-		// callbacks
-		node.onCleanup && cleanup(() => call(node.onCleanup, node))
-		call(node.onMount, node)
+		node[$meta]?.onMount &&
+			Timing.add(1, () => call(node[$meta].onMount, node))
 
 		return node
 	}
 
+	// component
 	if (isComponent(child)) {
-		return insertChildren(parent, child(), placeholder)
+		return createChildren(parent, child(), placeholder)
 	}
 
 	// signal/memo/external/user provided function
-	// CAREFUL moving this up or down, its just checking for function
 	if (isFunction(child)) {
 		// needs placeholder to stay in position
-		// needs `true` to stay in a relative position
 		placeholder = createPlaceholder(
 			parent,
 			placeholder,
@@ -343,11 +345,10 @@ function insertChildren(parent, child, placeholder) {
 			true,
 		)
 
-		// maybe signal so needs an effect
-		// if we return undefined it crash, needs to return an actual node
+		// maybe a signal so needs an effect
 		let node
 		renderEffect(() => {
-			node = insertChildren(parent, child(), placeholder)
+			node = createChildren(parent, child(), placeholder)
 			return node
 		})
 		return node
@@ -359,13 +360,14 @@ function insertChildren(parent, child, placeholder) {
 			parent,
 			placeholder,
 			'{null}',
-			false,
+			true,
 		)
 		return placeholder
 	}
 
+	// For
 	if (child instanceof MapArray) {
-		// needs `true` to stay in a relative position
+		// needs placeholder to stay in position
 		placeholder = createPlaceholder(
 			parent,
 			placeholder,
@@ -376,39 +378,43 @@ function insertChildren(parent, child, placeholder) {
 		// signal: needs an effect
 		let node
 		renderEffect(() => {
-			node = child.map(child =>
-				insertChildren(parent, child, placeholder),
-			)
+			node = child.map((child, index) => {
+				// put it in position
+				let insertBefore = placeholder
+				for (let i = 0; i < index; i++) {
+					insertBefore = insertBefore.nextSibling
+				}
+				console.log(insertBefore)
+				return createChildren(parent, child, insertBefore)
+			})
 			return node
 		})
 		return node
 	}
 
-	// object/symbol/catch all
-
-	// create a text node
+	// symbol/object/catch all
 	// toString() is needed for symbols and any fancy objects
-	const node = createTextNode(child.toString())
-
-	// insert node
-	insertNode(parent, node, placeholder)
-
-	return node
+	return insertNode(
+		parent,
+		createElementText(child.toString()),
+		placeholder,
+	)
 }
 
 // insert
 
 function insertNode(parent, node, relativeTo) {
 	// check if the node has been portaled
-	parent = node[$properties]?.props.mount || parent
+	if (node[$meta]?.props.mount) {
+		parent = node[$meta].props.mount
+	}
 
 	// special case head
 	if (parent === document.head) {
-		// search for tags that should be unique
-
 		const head = document.head
 		const name = node.tagName
 
+		// search for tags that should be unique
 		let prev
 		if (name === 'META') {
 			prev =
@@ -424,45 +430,97 @@ function insertNode(parent, node, relativeTo) {
 
 			// restore old node on cleanup
 			cleanup(() => {
+				// bug: there's a race condition when restoring the tag
+				// it could happen that the tag is restored after we changed pages and appended already a new one
+
 				// it needs appendChild instead of replaceWith here because
 				// our node gets cleaned up by the reactivity
 				head.appendChild(prev)
 			})
 		} else {
+			// tag not found, append it
 			head.appendChild(node)
 		}
 	} else {
 		relativeTo
-			? parent.insertBefore(node, relativeTo)
+			? relativeTo.parentNode
+				? relativeTo.parentNode.insertBefore(node, relativeTo)
+				: parent.insertBefore(node, relativeTo)
 			: parent.appendChild(node)
+
+		// get rid of text nodes on cleanup
 		cleanup(() => node.remove())
 	}
+
+	return node
 }
 
-// children helper for when you need the HTML
-// if you do not need the html do not use this
-// children helper is asumed to be used, therefore no lazy memo
+// rendering
+
+export function render(value, parent, clear, placeholder) {
+	return root(dispose => {
+		insert(value, parent, clear, placeholder)
+		return dispose
+	})
+}
+
+export function insert(value, parent, clear, placeholder) {
+	clear && clearNode(parent)
+
+	return createChildren(
+		parent || document.body,
+		isFunction(value) ? create(value) : value,
+		placeholder,
+	)
+}
+
+function clearNode(node) {
+	if (node) node.textContent = ''
+	// node.replaceChildren() thoughts?
+}
+
+// templates are cached for the duration of a run
+// cache is cleared after the run
+// if you make a list with 100 links, it will reuse a component 99 times
+// then discard that object
+// performance opportunity: expiration could be smarter
+
+const Templates = new Map()
+
+// I love the following function
+
+export function template(template, ...args) {
+	let cached = Templates.get(template)
+	if (!cached) {
+		cached = createElement('pota')
+		cached.innerHTML = template.join('<pota></pota>')
+		Templates.set(template, cached)
+	}
+
+	const clone = cached.cloneNode(true)
+	const replace = clone.querySelectorAll('pota')
+	for (const [index, value] of args.entries()) {
+		insert(value, replace[index].parentNode, null, replace[index])
+		replace[index].remove()
+	}
+
+	// from NodeList to Array
+	const result = [...clone.childNodes]
+	// return a single element if possible to ease usage
+	return result.length === 1 ? result[0] : result
+}
+
+// children helper for when you need to unwrap children functions
+// if you do not need the data from the children do not use this
+// this should be used when you actually need the data from the children
+// children helper is assumed to be used, therefore no lazy memo
+
 export function children(fn) {
 	const children = memo(fn)
 	return memo(() => resolve(children()))
 }
 
-// rendering
-
-export function render(value, parent, clean) {
-	return root(dispose => {
-		// default to document body
-		const container = parent || document.body
-
-		if (clean) container.textContent = ''
-
-		// create component so its untracked
-		insertChildren(container, Component(value))
-		return dispose
-	})
-}
-
-// recursively resolve all children and return direct children
+// recursively resolve all children functions and return direct children
 
 export function resolve(children) {
 	if (isFunction(children)) {
@@ -481,11 +539,20 @@ export function resolve(children) {
 	return children
 }
 
-// helper for making untracked callbacks from childrens
+// life cycles
 
-export function componentCallback(fns) {
+export function onReady(fn) {
+	Timing.add(2, () => call([fn]))
+}
+
+// UTILS
+
+// makes untracked callbacks from childrens
+
+export function makeCallback(fns) {
+	// ensure is an array
+	// the transformer gives arrays but user components could return anything
 	// function MyComponent() { return 'Something'} // children wont be an array
-	// this happens on components created on the fly <Dynamic component={MyComponent}../>
 	fns = isArray(fns) ? fns : [fns]
 	return markComponent((...args) =>
 		untrack(() => fns.map(fn => (isFunction(fn) ? fn(...args) : fn))),
@@ -508,33 +575,10 @@ export function lazyMemo(fn) {
 
 // Map Array
 
-export class MapArray {
-	constructor(items, cb) {
-		this.mapper = mapArray(items, cb)
-	}
-	map(fn) {
-		// needs the children for sorting, so calling resolve
-		let nodes = resolve(this.mapper((item, index) => fn(item)))
-
-		// order of nodes may have changed, reorder it
-		if (nodes.length > 1) {
-			const parent = nodes[0].parentNode
-			for (let i = nodes.length - 1; i > 0; i--) {
-				const node = nodes[i]
-				const prev = nodes[i - 1]
-				if (node.previousSibling !== prev) {
-					parent.insertBefore(prev, node)
-				}
-			}
-		}
-		return nodes
-	}
-}
-
-function mapArray(list, cb) {
+export function mapArray(list, cb) {
 	const map = new Map()
 	// when caching by value is not possible [1,2,1]
-	// append this to each index to avoid a colision with the values
+	// to use the same Map append this to each index to avoid a collision with the values
 	const byIndex = ' _ cached by index _ '
 
 	let runId = 0
@@ -548,7 +592,7 @@ function mapArray(list, cb) {
 	// create an item
 	function create(item, index, fn, byIndex) {
 		// a root is created so we can call dispose to get rid of an item
-		// TODO: maybe we can avoid the root here?
+		// TODO: maybe we can avoid/reuse the root here?
 		return root(dispose => ({
 			item,
 			node: fn ? fn(cb(item, index), index) : cb(item, index),
@@ -600,54 +644,405 @@ function mapArray(list, cb) {
 	}
 }
 
+export class MapArray {
+	constructor(items, cb) {
+		this.mapper = mapArray(items, cb)
+	}
+	map(fn) {
+		// needs the children for sorting, so calling resolve
+		let nodes = resolve(this.mapper((item, index) => fn(item, index)))
+
+		// order of nodes may have changed, reorder it
+		if (nodes.length > 1) {
+			/*	const parent = nodes[0].parentNode
+			for (let i = nodes.length - 1; i > 0; i--) {
+				const prev = nodes[i - 1]
+				const node = nodes[i]
+				if (node.previousSibling !== prev) {
+					node.parentNode.insertBefore(prev, node)
+				}
+			}*/
+		}
+		return nodes
+	}
+}
+
+// properties vs attributes
+// from dom-expressions
+
+// todo: this has a weird mix of lowercase vs case sensitive
+// this is a bit messy, maybe default to prop and special case attributes?
+
+const NodesPropertiesBooleans = [
+	'allowfullscreen',
+	'async',
+	'autofocus',
+	'autoplay',
+	'checked',
+	'controls',
+	'default',
+	'disabled',
+	'formnovalidate',
+	'hidden',
+	'indeterminate',
+	'ismap',
+	'loop',
+	'multiple',
+	'muted',
+	'nomodule',
+	'novalidate',
+	'open',
+	'playsinline',
+	'readonly',
+	'required',
+	'reversed',
+	'seamless',
+	'selected',
+]
+const NodesProperties = new Set([
+	// content
+	'innerHTML',
+	'textContent',
+	'innerText',
+
+	// properties
+	'value',
+	'readOnly',
+	'formNoValidate',
+	'isMap',
+	'noModule',
+	'playsInline',
+	...NodesPropertiesBooleans,
+])
+
 function assignProps(node, props) {
 	for (const [name, value] of entries(props)) {
+		// internal
+
 		if (name === 'mount' || name === 'children') {
 			continue
 		}
 
-		// namespace
+		// magic, no ns
+
+		if (name === 'style') {
+			setNodeStyle(node.style, value)
+			continue
+		}
+
+		if (name === 'class') {
+			setNodeClassList(node.classList, value)
+			continue
+		}
+
+		if (NodesProperties.has(name)) {
+			setNodeProperty(node, name, value)
+			continue
+		}
+
+		// magic with ns
 
 		const [ns, localName] =
-			name.indexOf(':') !== -1 ? name.split(':') : [undefined, name]
+			name.indexOf(':') !== -1 ? name.split(':') : ['', name]
 
-		// magic
+		if (name === 'use' || ns === 'use') {
+			node[$meta].use = node[$meta].use || []
+			node[$meta].use.push(value)
+			continue
+		}
+		if (name === 'onMount' || ns === 'onMount') {
+			node[$meta].onMount = node[$meta].onMount || []
+			node[$meta].onMount.push(value)
+			continue
+		}
+		if (name === 'onCleanup' || ns === 'onCleanup') {
+			node[$meta].onCleanup = node[$meta].onCleanup || []
+			node[$meta].onCleanup.push(value)
+			continue
+		}
 
-		if (name === 'onMount') {
-			node.onMount = node.onMount || []
-			node.onMount.push(value)
+		if (ns === 'prop' || ns === 'p') {
+			setNodeProperty(node, localName, value)
 			continue
 		}
-		if (name === 'onCleanup') {
-			node.onCleanup = node.onCleanup || []
-			node.onCleanup.push(value)
+		if (ns === 'attr' || ns === 'a') {
+			setNodeAttribute(node, localName, value)
 			continue
 		}
-		if (value === null) {
-			ns && NS[ns]
-				? node.removeAttributeNS(NS[ns], name)
-				: node.removeAttribute(name)
+
+		if (ns === 'style') {
+			setNodeStyle(
+				node.style,
+				isNotNullObject(value) ? value : { [localName]: value },
+			)
 			continue
 		}
-		if (name === 'style') {
-			if (typeof value === 'string') {
-				node.style.cssText = value
-			} else {
-				entries(value).forEach(([name, value]) => {
-					effect(() => {
-						node.style[name] = getValue(value)
-					})
-				})
+		if (ns === 'var') {
+			setNodeStyle(node.style, { ['--' + localName]: value })
+			continue
+		}
+
+		if (ns === 'class') {
+			setNodeClassList(
+				node.classList,
+				isNotNullObject(value) ? value : { [localName]: value },
+			)
+			continue
+		}
+
+		if (ns === 'on') {
+			// delegated: no
+			addEventListener(node, localName, value, false)
+			continue
+		}
+
+		// onClick:my-ns={handler}
+		if (ns.startsWith('on')) {
+			// delegated: yes
+			if (ns.toLowerCase() in window) {
+				addEventListener(
+					node,
+					ns.toLowerCase().substr(2),
+					value,
+					true,
+				)
+				continue
 			}
-			continue
 		}
+
+		// onClick={handler}
 		if (name.startsWith('on') && name.toLowerCase() in window) {
-			node.addEventListener(name.toLowerCase().substr(2), value)
+			// delegated: yes
+			addEventListener(
+				node,
+				name.toLowerCase().substr(2),
+				value,
+				true,
+			)
 			continue
 		}
 
+		// default to attribute
+		setNodeAttribute(node, name, value, ns)
+	}
+}
+
+// node properties / attributes
+
+function setNodeProperty(node, name, value) {
+	if (isFunction(value)) {
+		effect(() => _setNodeProperty(node, name, getValue(value)))
+	} else {
+		_setNodeProperty(node, name, value)
+	}
+}
+function _setNodeProperty(node, name, value) {
+	// if the value is null or undefined it will be removed
+	if (!hasValue(value)) {
+		delete node[name]
+	} else {
+		node[name] = value
+	}
+}
+function setNodeAttribute(node, name, value, ns) {
+	if (isFunction(value)) {
+		effect(() => _setNodeAttribute(node, name, getValue(value), ns))
+	} else {
+		_setNodeAttribute(node, name, value, ns)
+	}
+}
+function _setNodeAttribute(node, name, value, ns) {
+	// if the value is null or undefined it will be removed
+	if (!hasValue(value)) {
+		ns && NS[ns]
+			? node.removeAttributeNS(NS[ns], name)
+			: node.removeAttribute(name)
+	} else {
 		ns && NS[ns]
 			? node.setAttributeNS(NS[ns], name, value)
 			: node.setAttribute(name, value)
 	}
 }
+
+// node class / classList
+
+// todo: the name of the class is not reactive
+
+function setNodeClassList(classList, value) {
+	if (isNotNullObject(value)) {
+		for (const [name, _value] of entries(value))
+			setNodeClassListValue(classList, name, _value)
+		return
+	}
+	const type = typeof value
+
+	if (type === 'string') {
+		setNodeClassListValue(classList, value, true)
+		return
+	}
+	if (type === 'function') {
+		effect(() => setNodeClassList(classList, getValue(value)))
+		return
+	}
+}
+function setNodeClassListValue(classList, name, value) {
+	if (isFunction(value)) {
+		effect(() =>
+			_setNodeClassListValue(classList, name, getValue(value)),
+		)
+	} else {
+		_setNodeClassListValue(classList, name, value)
+	}
+}
+function _setNodeClassListValue(classList, name, value) {
+	// null, undefined or false the class is removed
+	if (!value) {
+		classList.remove(name)
+	} else {
+		classList.add(...name.trim().split(/\s+/))
+	}
+}
+
+// node style
+
+function setNodeStyle(style, value) {
+	if (isNotNullObject(value)) {
+		for (const [name, _value] of entries(value))
+			setNodeStyleValue(style, name, _value)
+		return
+	}
+	const type = typeof value
+	if (type === 'string') {
+		style.cssText = value
+		return
+	}
+	if (type === 'function') {
+		effect(() => setNodeStyle(style, getValue(value)))
+		return
+	}
+}
+function setNodeStyleValue(style, name, value) {
+	if (isFunction(value)) {
+		effect(() => _setNodeStyleValue(style, name, getValue(value)))
+	} else {
+		_setNodeStyleValue(style, name, value)
+	}
+}
+function _setNodeStyleValue(style, name, value) {
+	// if the value is null or undefined it will be removed
+	if (!hasValue(value)) {
+		style.removeProperty(name)
+	} else {
+		style.setProperty(name, value)
+	}
+}
+
+// events
+// delegated and native events are hold into an array property of the node
+// to avoid duplicated events that could be added by using `ns` in ease of organization
+
+const Delegated = new Set()
+
+// todo removeEventListener
+export function addEventListener(node, type, handler, delegate) {
+	let key = type
+	if (delegate) {
+		node[$meta][key] = node[$meta][key] || []
+		if (!Delegated.has(type)) {
+			Delegated.add(type)
+			// performance opportunity: maybe default to { passive:true }
+			// TODO: remove it once the nodes get cleared
+			document.addEventListener(type, eventHandlerDelegated)
+		}
+	} else {
+		key += 'Native'
+		if (!node[$meta][key]) {
+			node[$meta][key] = []
+			node.addEventListener(type, eventHandlerNative)
+		}
+	}
+
+	node[$meta][key].push(isArray(handler) ? handler : [handler])
+}
+
+function eventHandlerNative(e) {
+	const key = `${e.type}Native`
+	const node = e.target
+	const handlers = node[$meta][key]
+	eventDispatch(node, e, handlers)
+}
+
+function eventHandlerDelegated(e) {
+	const key = e.type
+	let node = (e.composedPath && e.composedPath()[0]) || e.target
+
+	// reverse Shadow DOM retargetting
+	// from dom-expressions
+	if (e.target !== node) {
+		Object.defineProperty(e, 'target', {
+			value: node,
+		})
+	}
+
+	// simulate currentTarget
+	Object.defineProperty(e, 'currentTarget', {
+		value: node,
+	})
+
+	while (node) {
+		const handlers = node[$meta] && node[$meta][key]
+		if (handlers && !node.disabled) {
+			eventDispatch(node, e, handlers)
+			if (e.cancelBubble) break
+		}
+		node = node.parentNode
+	}
+}
+
+function eventDispatch(node, e, handlers) {
+	for (const [handler, ...data] of handlers)
+		handler.call(node, e, ...data)
+}
+
+// we need to ensure the timing of some callbacks, like onMount, use and onReady
+// for this we add 1 queueMicrotask, then we queue in an array at a `priority` position
+// once the microtask is called, we run the array of functions in order of priority
+
+class Scheduler {
+	constructor() {
+		this.reset()
+	}
+	reset() {
+		this.run = [[], [], [], []]
+		this.do = false
+	}
+	add(priority, fn) {
+		if (!this.do) {
+			this.do = true
+			queueMicrotask(() => this.process())
+		}
+		this.run[priority].push(fn)
+	}
+	process() {
+		const run = this.run
+		this.reset()
+		untrack(() => {
+			for (const fns of run) {
+				for (const fn of fns) fn()
+			}
+		})
+		this.finally()
+	}
+	finally() {
+		// we are sure our job is done for this loop
+		// this function runs after each run is done
+		// so we can add here house keeping stuff
+
+		// clear the component cache
+		Components.clear()
+
+		// clear the template cache
+		Templates.clear()
+	}
+}
+const Timing = new Scheduler()
