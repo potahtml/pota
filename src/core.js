@@ -137,9 +137,9 @@ export function Component(value, props, ...children) {
 		props.children = children
 	}
 
-	// create component instance with props bind, and a scope initially set to an empty object
-	// the scope is used to hold the parent to be able to tell if dynamic childrens are xml
-	return create(value).bind(null, props, empty())
+	// create component instance with bind, props, and a scope initially set to an empty object
+	// the scope is used to hold the parent to be able to tell if dynamic childrens are XML
+	return markComponent(Factory(value).bind(null, props, empty()))
 }
 
 // component are cached for the duration of a run (top to bottom)
@@ -152,32 +152,37 @@ export function Component(value, props, ...children) {
 const Components = new Map()
 
 // the components factory
-// creates a function that could be called with a props object
+// abstraction for users
 export function create(value) {
 	// on here we check if the value is already a known component
-	// think of const MyComponent = create('div'), AnotherComponent({children:MyComponent})
-	// the jsx transformer doesnt do that, but I can see how that could happen with hand crafted components
-	// performance opportunity: behave differently if its the first run or not, and consider the above
+	// think of const MyComponent = create('div'), AnotherComponent({children:create(MyComponent)({..props..})})
+	// the jsx transformer doesnt do that, but I can see how that could happen with user crafted components
 	if (isComponent(value)) {
 		return value
 	}
 
+	return markComponent(Factory(value))
+}
+
+// the components factory
+// creates a function that could be called with a props object
+function Factory(value) {
 	let component = Components.get(value)
-	if (component) return component
+	if (component) {
+		return component
+	}
 
 	if (typeof value === 'string') {
 		// a string component, 'div' becomes <div>
-		component = markComponent((props = empty(), scope = empty()) =>
-			untrack(() => createTag(value, props, props.children, scope)),
-		)
+		component = (props = empty(), scope = empty()) =>
+			untrack(() => createTag(value, props, props.children, scope))
 	} else if (isFunction(value)) {
 		// a function component <MyComponent../>
-		component = markComponent((props = empty(), scope = empty()) =>
-			untrack(() => value(props, props.children, scope)),
-		)
+		component = (props = empty(), scope = empty()) =>
+			untrack(() => value(props, props.children, scope))
 	} else if (value instanceof Node) {
 		// an actual node component <div>
-		component = markComponent((props = empty(), scope = empty()) =>
+		component = (props = empty(), scope = empty()) =>
 			untrack(() =>
 				createNode(
 					value.cloneNode(true),
@@ -185,13 +190,11 @@ export function create(value) {
 					props.children,
 					scope,
 				),
-			),
-		)
+			)
 	} else {
 		// objects with a custom .toString()
-		component = markComponent((props = empty(), scope = empty()) =>
-			untrack(() => value.toString(props, props.children, scope)),
-		)
+		component = (props = empty(), scope = empty()) =>
+			untrack(() => value.toString(props, props.children, scope))
 	}
 
 	// save in cache
@@ -291,29 +294,27 @@ function createNode(node, props, children, scope) {
 
 // a placeholder helps to keep nodes in position
 
-function createPlaceholder(parent, placeholder, text, relative) {
-	return !placeholder || !relative
-		? insertNode(parent, createElementComment(text || ''))
-		: insertNode(
-				parent,
-				createElementComment('by parent - ' + text || ''),
-				placeholder,
-		  )
+function createPlaceholder(parent, text, relative) {
+	return insertNode(
+		parent,
+		createElementComment(
+			(text || '') + (relative ? ' by parent' : ''),
+		),
+		relative,
+	)
 }
 
 // creates the children for a parent
 
-function createChildren(parent, child, placeholder) {
+function createChildren(parent, child, relative) {
 	// string/number/undefined/boolean/bigint
 	if (isDisplayable(child)) {
-		return insertNode(parent, createElementText(child), placeholder)
+		return insertNode(parent, createElementText(child), relative)
 	}
 
 	// childrens/fragments
 	if (isArray(child)) {
-		return child.map(child =>
-			createChildren(parent, child, placeholder),
-		)
+		return child.map(child => createChildren(parent, child, relative))
 	}
 
 	// Node
@@ -322,7 +323,7 @@ function createChildren(parent, child, placeholder) {
 
 		node[$meta]?.use && untrack(() => call(node[$meta].use, node))
 
-		insertNode(parent, node, placeholder)
+		insertNode(parent, node, relative)
 
 		node[$meta]?.onMount &&
 			Timing.add(1, () => call(node[$meta].onMount, node))
@@ -332,23 +333,19 @@ function createChildren(parent, child, placeholder) {
 
 	// component
 	if (isComponent(child)) {
-		return createChildren(parent, child(), placeholder)
+		return createChildren(parent, child(), relative)
 	}
 
 	// signal/memo/external/user provided function
 	if (isFunction(child)) {
 		// needs placeholder to stay in position
-		placeholder = createPlaceholder(
-			parent,
-			placeholder,
-			child.name,
-			true,
-		)
+
+		parent = createPlaceholder(parent, child.name, relative)
 
 		// maybe a signal so needs an effect
 		let node
 		renderEffect(() => {
-			node = createChildren(parent, child(), placeholder)
+			node = createChildren(parent, child(), true)
 			return node
 		})
 		return node
@@ -356,36 +353,18 @@ function createChildren(parent, child, placeholder) {
 
 	// the value is null, as in {null}
 	if (child === null) {
-		placeholder = createPlaceholder(
-			parent,
-			placeholder,
-			'{null}',
-			true,
-		)
-		return placeholder
+		return null ///parent
 	}
 
 	// For
 	if (child instanceof MapArray) {
-		// needs placeholder to stay in position
-		placeholder = createPlaceholder(
-			parent,
-			placeholder,
-			'MapArray',
-			true,
-		)
-
 		// signal: needs an effect
 		let node
 		renderEffect(() => {
 			node = child.map((child, index) => {
-				// put it in position
-				let insertBefore = placeholder
-				for (let i = 0; i < index; i++) {
-					insertBefore = insertBefore.nextSibling
-				}
-				console.log(insertBefore)
-				return createChildren(parent, child, insertBefore)
+				// we know we need to insert it in a relative position
+				// because the parent comes from a memo() placeholder
+				return createChildren(parent, child, true)
 			})
 			return node
 		})
@@ -397,13 +376,13 @@ function createChildren(parent, child, placeholder) {
 	return insertNode(
 		parent,
 		createElementText(child.toString()),
-		placeholder,
+		relative,
 	)
 }
 
 // insert
 
-function insertNode(parent, node, relativeTo) {
+function insertNode(parent, node, relative) {
 	// check if the node has been portaled
 	if (node[$meta]?.props.mount) {
 		parent = node[$meta].props.mount
@@ -442,11 +421,7 @@ function insertNode(parent, node, relativeTo) {
 			head.appendChild(node)
 		}
 	} else {
-		relativeTo
-			? relativeTo.parentNode
-				? relativeTo.parentNode.insertBefore(node, relativeTo)
-				: parent.insertBefore(node, relativeTo)
-			: parent.appendChild(node)
+		relative ? parent.before(node) : parent.appendChild(node)
 
 		// get rid of text nodes on cleanup
 		cleanup(() => node.remove())
@@ -457,20 +432,20 @@ function insertNode(parent, node, relativeTo) {
 
 // rendering
 
-export function render(value, parent, clear, placeholder) {
+export function render(value, parent, clear, relative) {
 	return root(dispose => {
-		insert(value, parent, clear, placeholder)
+		insert(value, parent, clear, relative)
 		return dispose
 	})
 }
 
-export function insert(value, parent, clear, placeholder) {
+export function insert(value, parent, clear, relative) {
 	clear && clearNode(parent)
 
 	return createChildren(
 		parent || document.body,
 		isFunction(value) ? create(value) : value,
-		placeholder,
+		relative,
 	)
 }
 
@@ -500,7 +475,7 @@ export function template(template, ...args) {
 	const clone = cached.cloneNode(true)
 	const replace = clone.querySelectorAll('pota')
 	for (const [index, value] of args.entries()) {
-		insert(value, replace[index].parentNode, null, replace[index])
+		insert(value, replace[index], null, true)
 		replace[index].remove()
 	}
 
