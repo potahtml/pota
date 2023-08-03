@@ -461,16 +461,14 @@ function clearNode(node) {
 // then discard that object
 // performance opportunity: expiration could be smarter
 
-const Templates = new Map()
-
 // I love the following function
 
 export function template(template, ...args) {
-	let cached = Templates.get(template)
+	let cached = Components.get(template)
 	if (!cached) {
 		cached = createElement('pota')
 		cached.innerHTML = template.join('<pota></pota>')
-		Templates.set(template, cached)
+		Components.set(template, cached)
 	}
 
 	const clone = cached.cloneNode(true)
@@ -632,13 +630,13 @@ export class MapArray {
 		// order of nodes may have changed, reorder it
 		if (nodes.length > 1) {
 			/*	const parent = nodes[0].parentNode
-				for (let i = nodes.length - 1; i > 0; i--) {
-					const prev = nodes[i - 1]
-					const node = nodes[i]
-					if (node.previousSibling !== prev) {
-						node.parentNode.insertBefore(prev, node)
-					}
-				}*/
+					for (let i = nodes.length - 1; i > 0; i--) {
+						const prev = nodes[i - 1]
+						const node = nodes[i]
+						if (node.previousSibling !== prev) {
+							node.parentNode.insertBefore(prev, node)
+						}
+					}*/
 		}
 		return nodes
 	}
@@ -1017,9 +1015,6 @@ class Scheduler {
 
 		// clear the component cache
 		Components.clear()
-
-		// clear the template cache
-		Templates.clear()
 	}
 }
 const Timing = new Scheduler()
