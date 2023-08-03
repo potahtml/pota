@@ -339,7 +339,6 @@ function createChildren(parent, child, relative) {
 	// signal/memo/external/user provided function
 	if (isFunction(child)) {
 		// needs placeholder to stay in position
-
 		parent = createPlaceholder(parent, child.name, relative)
 
 		// maybe a signal so needs an effect
@@ -353,7 +352,7 @@ function createChildren(parent, child, relative) {
 
 	// the value is null, as in {null}
 	if (child === null) {
-		return null ///parent
+		return null
 	}
 
 	// For
@@ -439,12 +438,14 @@ export function render(value, parent, clear, relative) {
 	})
 }
 
-export function insert(value, parent, clear, relative) {
+// insert
+
+export function insert(value, parent, clear, relative, shouldtrack) {
 	clear && clearNode(parent)
 
 	return createChildren(
 		parent || document.body,
-		isFunction(value) ? create(value) : value,
+		shouldtrack ? value : isFunction(value) ? create(value) : value,
 		relative,
 	)
 }
@@ -475,7 +476,7 @@ export function template(template, ...args) {
 	const clone = cached.cloneNode(true)
 	const replace = clone.querySelectorAll('pota')
 	for (const [index, value] of args.entries()) {
-		insert(value, replace[index], null, true)
+		insert(value, replace[index], null, true, true)
 		replace[index].remove()
 	}
 
@@ -590,6 +591,7 @@ export function mapArray(list, cb) {
 			if (!row) {
 				// if the item doesnt exists, create it
 				row = create(item, index, fn)
+
 				map.set(item, row)
 			} else if (row.runId === runId) {
 				// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
@@ -630,13 +632,13 @@ export class MapArray {
 		// order of nodes may have changed, reorder it
 		if (nodes.length > 1) {
 			/*	const parent = nodes[0].parentNode
-			for (let i = nodes.length - 1; i > 0; i--) {
-				const prev = nodes[i - 1]
-				const node = nodes[i]
-				if (node.previousSibling !== prev) {
-					node.parentNode.insertBefore(prev, node)
-				}
-			}*/
+				for (let i = nodes.length - 1; i > 0; i--) {
+					const prev = nodes[i - 1]
+					const node = nodes[i]
+					if (node.previousSibling !== prev) {
+						node.parentNode.insertBefore(prev, node)
+					}
+				}*/
 		}
 		return nodes
 	}
