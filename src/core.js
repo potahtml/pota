@@ -24,7 +24,7 @@ export function setReactiveLibrary(o) {
 	useContext = o.useContext
 }
 
-// export reactivity
+// export the reactivity
 
 export {
 	root,
@@ -58,32 +58,24 @@ const entries = Object.entries
 const empty = Object.create.bind(Object, null)
 
 export const isArray = Array.isArray
-export const isFunction = v => typeof v === 'function'
-export const isComponent = v =>
-	typeof v === 'function' && v[$component] === true
-const isDisplayable = v => {
-	const type = typeof v
-	return (
-		type === 'string' ||
-		type === 'number' ||
-		type === 'boolean' ||
-		type === 'bigint' ||
-		// show undefined because most likely is a mistake
-		// in the data/by the developer
-		// the only place where undefined is unwanted and discarded
-		// is on values of styles/classes/node attributes/node properties
-		v === undefined
-	)
-}
+export const isFunction = value => typeof value === 'function'
+export const isComponent = value =>
+	typeof value === 'function' && value[$component] === null
+const isComponentable = value =>
+	typeof value === 'function' ||
+	// avoid [1,2] and support: { toString(){ return "something"} }
+	(!isArray(value) && isNotNullObject(value))
 
 // the following set of functions are based on the renderer assumptions
 // these are not mean to be generic JavaScript functions
-const isNotNullObject = v => v !== null && typeof v === 'object'
-export const hasValue = v => v !== null && v !== undefined
-export const getValue = v =>
-	typeof v === 'function' ? getValue(v()) : v
+const isNotNullObject = value =>
+	value !== null && typeof value === 'object'
+export const hasValue = value => value !== null && value !== undefined
+export const getValue = value =>
+	typeof value === 'function' ? getValue(value()) : value
+
 // runs arrays of functions with arguments
-const call = (fns, ...args) => {
+function call(fns, ...args) {
 	fns.forEach(fn => {
 		if (isArray(fn)) {
 			fn[0](...args, ...fn.slice(1))
@@ -109,7 +101,7 @@ const querySelector = document.querySelector.bind(document)
 export function Fragment() {}
 
 // used by the JSX transform
-// Component is not supposed to be used in user land
+// `Component` is not supposed to be used in user land
 // returns a function because we need to render from parent to children instead of from children to parent
 // this allows to properly set the reactivity tree (think of nested effects that clear inner effects)
 // additionally allows to access parent when creating children
@@ -130,7 +122,7 @@ export function Component(value, props, ...children) {
 		props = empty()
 		props.children = children
 	} else if (!('children' in props)) {
-		// use `in` to not trigger getters
+		// use `in` to not trigger getters, although is not a getter on this library
 		// only set `children` if the props dont have it already
 		// when the `props.children` is set, it takes over the component own children:
 		// <div children={[1,2,3]}>CHILDREN IS IGNORED HERE</div>
@@ -155,7 +147,8 @@ const Components = new Map()
 // abstraction for users
 export function create(value) {
 	// on here we check if the value is already a known component
-	// think of const MyComponent = create('div'), AnotherComponent({children:create(MyComponent)({..props..})})
+	// think of
+	// `const MyComponent = create('div'), AnotherComponent({children:create(MyComponent)({..props..})})`
 	// the jsx transformer doesnt do that, but I can see how that could happen with user crafted components
 	if (isComponent(value)) {
 		return value
@@ -192,7 +185,7 @@ function Factory(value) {
 				),
 			)
 	} else {
-		// objects with a custom .toString()
+		// objects with a custom `.toString()`
 		component = (props = empty(), scope = empty()) =>
 			untrack(() => value.toString(props, props.children, scope))
 	}
@@ -205,13 +198,12 @@ function Factory(value) {
 
 // allows to tell a `signal function` from a `component function`
 // signals and user functions go in effects, for reactivity
-// components are untracked to avoid re-rendering and wont go in effects
+// components and callbacks are untracked and wont go in effects to avoid re-rendering
 
-const componentMark = empty()
-componentMark[$component] = true
-export const markComponent = function (o, fn) {
-	return assign(fn, o)
-}.bind(null, componentMark)
+function markComponent(fn) {
+	fn[$component] = null
+	return fn
+}
 
 // keeps track of parentNode for `xmlns` spreading to children
 // defaults to empty object so parentNode.namespaceURI doesnt throw
@@ -246,16 +238,17 @@ function createNode(node, props, children, scope) {
 	// allows to lookup mount, parent node for xmlns, holds events handlers
 	// appears in the dev tools for easy debugging
 
-	node[$meta] = scope
-	node[$meta].node = node
-	node[$meta].props = props
+	scope.node = node
+	scope.props = props
 
 	// on first run this will hold a value
 	// once reactivity takes over (like a Show), then,
 	// it wont and we use old parent which is saved on the scope
 	if (parentNode[$meta]) {
-		node[$meta].parent = parentNode[$meta]
+		scope.parent = parentNode[$meta]
 	}
+
+	node[$meta] = scope
 
 	// keep track of parent nodes
 	const oldParentNode = parentNode
@@ -298,7 +291,7 @@ function createPlaceholder(parent, text, relative) {
 	return insertNode(
 		parent,
 		createElementComment(
-			(text || '') + (relative ? ' by parent' : ''),
+			(text || '') + (relative ? ' relative' : ''),
 		),
 		relative,
 	)
@@ -307,12 +300,12 @@ function createPlaceholder(parent, text, relative) {
 // creates the children for a parent
 
 function createChildren(parent, child, relative) {
-	// string/number/undefined/boolean/bigint
-	if (isDisplayable(child)) {
+	// string/number
+	if (typeof child === 'string' || typeof child === 'number') {
 		return insertNode(parent, createElementText(child), relative)
 	}
 
-	// childrens/fragments
+	// childrens/fragments/NodeList
 	if (isArray(child)) {
 		return child.map(child => createChildren(parent, child, relative))
 	}
@@ -320,13 +313,13 @@ function createChildren(parent, child, relative) {
 	// Node
 	if (child instanceof Node) {
 		const node = child
+		const meta = node[$meta]
 
-		node[$meta]?.use && untrack(() => call(node[$meta].use, node))
+		meta?.use && untrack(() => call(meta.use, node))
 
 		insertNode(parent, node, relative)
 
-		node[$meta]?.onMount &&
-			Timing.add(1, () => call(node[$meta].onMount, node))
+		meta?.onMount && Timing.add(1, () => call(meta.onMount, node))
 
 		return node
 	}
@@ -347,10 +340,16 @@ function createChildren(parent, child, relative) {
 			node = createChildren(parent, child(), true)
 			return node
 		})
-		return node
+		// A placeholder is created and added to the dom but doesnt form part of the children.
+		// The placeholder needs to be returned so it forms part of the group of childrens
+		// for components that use `resolve` to get the children.
+		// If childrens are moved and the placeholder is not moved with them, then,
+		// whenever childrens update these will be at the wrong place.
+		// wrong place: where the placeholder is and not where the childrens were moved to
+		return [node, parent]
 	}
 
-	// the value is null, as in {null}
+	// the value is `null`, as in {null} or like a show returning `null` on the falsy case
 	if (child === null) {
 		return null
 	}
@@ -370,8 +369,13 @@ function createChildren(parent, child, relative) {
 		return node
 	}
 
-	// symbol/object/catch all
-	// toString() is needed for symbols and any fancy objects
+	// the very unlikely for last
+	// undefined/boolean/bigint/symbol/object/catch all
+	// toString() is needed for `Symbol` and any fancy objects
+	// display `undefined` because most likely is a mistake
+	// in the data/by the developer
+	// the only place where `undefined` is unwanted and discarded
+	// is on values of styles/classes/node attributes/node properties
 	return insertNode(
 		parent,
 		createElementText(child.toString()),
@@ -387,7 +391,7 @@ function insertNode(parent, node, relative) {
 		parent = node[$meta].props.mount
 	}
 
-	// special case head
+	// special case `head`
 	if (parent === document.head) {
 		const head = document.head
 		const name = node.tagName
@@ -409,7 +413,8 @@ function insertNode(parent, node, relative) {
 			// restore old node on cleanup
 			cleanup(() => {
 				// bug: there's a race condition when restoring the tag
-				// it could happen that the tag is restored after we changed pages and appended already a new one
+				// it could happen that the tag is restored after we changed pages
+				// and already appended a new tag to the head, so we end with 2 of them
 
 				// it needs appendChild instead of replaceWith here because
 				// our node gets cleaned up by the reactivity
@@ -433,24 +438,29 @@ function insertNode(parent, node, relative) {
 
 export function render(value, parent, clear, relative) {
 	return root(dispose => {
-		insert(value, parent, clear, relative)
+		insert(value, parent, clear, relative, false)
 		return dispose
 	})
 }
 
 // insert
 
-export function insert(value, parent, clear, relative, shouldtrack) {
+export function insert(value, parent, clear, relative, shouldTrack) {
 	clear && clearNode(parent)
 
 	return createChildren(
 		parent || document.body,
-		shouldtrack ? value : isFunction(value) ? create(value) : value,
+		shouldTrack
+			? value
+			: isComponentable(value)
+			? create(value)
+			: value,
 		relative,
 	)
 }
 
 function clearNode(node) {
+	// check for node existence to be able to use querySelector on yet to be created nodes
 	if (node) node.textContent = ''
 	// node.replaceChildren() thoughts?
 }
@@ -474,14 +484,17 @@ export function template(template, ...args) {
 	const clone = cached.cloneNode(true)
 	const replace = clone.querySelectorAll('pota')
 	for (const [index, value] of args.entries()) {
+		// note: templates track by default
+		// wrap components in `create(MyComponent)` to untrack
 		insert(value, replace[index], null, true, true)
 		replace[index].remove()
 	}
 
-	// from NodeList to Array
-	const result = [...clone.childNodes]
 	// return a single element if possible to ease usage
-	return result.length === 1 ? result[0] : result
+	return clone.childNodes.length === 1
+		? clone.childNodes[0]
+		: // from NodeList to Array
+		  [...clone.childNodes]
 }
 
 // children helper for when you need to unwrap children functions
@@ -510,6 +523,7 @@ export function resolve(children) {
 		}
 		return childrens
 	}
+
 	return children
 }
 
@@ -550,65 +564,115 @@ export function lazyMemo(fn) {
 // Map Array
 
 export function mapArray(list, cb) {
-	const map = new Map()
-	// when caching by value is not possible [1,2,1]
-	// to use the same Map append this to each index to avoid a collision with the values
-	const byIndex = ' _ cached by index _ '
+	const cache = new Map()
+	const duplicates = new Map() // for when caching by value is not possible [1,2,1]
 
 	let runId = 0
+	let rows = []
 	let prev = []
 
 	// to get rid of all nodes
 	cleanup(() => {
-		for (const row of map.values()) row.dispose()
+		for (const row of rows) {
+			row.dispose(true)
+		}
+
+		cache.clear()
+		duplicates.clear()
+
+		runId = 0
+		rows = []
+		prev = []
 	})
 
 	// create an item
-	function create(item, index, fn, byIndex) {
+	function create(item, index, fn, isDupe) {
 		// a root is created so we can call dispose to get rid of an item
-		// TODO: maybe we can avoid/reuse the root here?
-		return root(dispose => ({
-			item,
-			node: fn ? fn(cb(item, index), index) : cb(item, index),
-			dispose: () => {
-				dispose(),
-					map.delete(item),
-					byIndex && map.delete(index + byIndex)
-			},
-		}))
+		return root(dispose => {
+			const row = {
+				item, // debug could be removed
+				runId: -1,
+				node: memo(() =>
+					fn ? fn(cb(item, index), index) : cb(item, index),
+				),
+				dispose: deletingAll => {
+					// skip deletion as we are going to clear the map
+					if (!deletingAll) {
+						// needs to delete it from cache
+						if (!isDupe) {
+							cache.delete(item)
+						} else {
+							const dupes = duplicates.get(item)
+							const index = dupes.indexOf(row)
+							if (index !== -1) {
+								dupes.splice(index, 1)
+							}
+						}
+					}
+					dispose()
+				},
+			}
+			return row
+		})
 	}
 
-	return function mapper(fn) {
+	return function (fn) {
 		runId++
 
 		const items = getValue(list) || []
-		const rows = []
+
+		rows = []
 
 		for (const [index, item] of items.entries()) {
-			let row = map.get(item)
+			let row = cache.get(item)
+			// if the item doesnt exists, create it
 			if (!row) {
-				// if the item doesnt exists, create it
 				row = create(item, index, fn)
-
-				map.set(item, row)
+				cache.set(item, row)
 			} else if (row.runId === runId) {
 				// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
 				// if the saved value was already used on this run, create a new one
-				// to avoid the previous problem, cache the value by index
-				row = map.get(index + byIndex)
-				if (!row || row.item !== item) {
-					row = create(item, index, fn, 1)
-					map.set(index + byIndex, row)
+				let dupes = duplicates.get(item)
+				if (!dupes) {
+					dupes = []
+					duplicates.set(item, dupes)
+				}
+				for (row of dupes) {
+					if (row.runId !== runId) break
+				}
+				if (row.runId === runId) {
+					row = create(item, index, fn, true)
+					dupes.push(row)
 				}
 			}
-			// mark used on this run
-			row.runId = runId
+
+			row.runId = runId // mark used on this run
 			rows.push(row)
 		}
 
-		// remove rows that arent present on the current list
+		// remove rows that arent present on the current run
 		for (const row of prev) {
 			if (row.runId !== runId) row.dispose()
+		}
+
+		// reorder elements
+		if (rows.length > 1) {
+			let nodeSet = resolve(rows[rows.length - 1].node()).filter(
+				item => item !== null,
+			)
+
+			for (let i = rows.length - 1; i > 0; i--) {
+				const prevSet = resolve(rows[i - 1].node()).filter(
+					item => item !== null,
+				)
+				const node = nodeSet[0]
+				if (node && node.nodeType && prevSet.length) {
+					if (node.previousSibling !== prevSet.at(-1)) {
+						node.before(...prevSet)
+					}
+				}
+				nodeSet = prevSet
+			}
 		}
 
 		// save list
@@ -624,27 +688,14 @@ export class MapArray {
 		this.mapper = mapArray(items, cb)
 	}
 	map(fn) {
-		// needs the children for sorting, so calling resolve
-		let nodes = resolve(this.mapper((item, index) => fn(item, index)))
-
-		// order of nodes may have changed, reorder it
-		if (nodes.length > 1) {
-			/*	const parent = nodes[0].parentNode
-					for (let i = nodes.length - 1; i > 0; i--) {
-						const prev = nodes[i - 1]
-						const node = nodes[i]
-						if (node.previousSibling !== prev) {
-							node.parentNode.insertBefore(prev, node)
-						}
-					}*/
-		}
-		return nodes
+		return this.mapper((item, index) => fn(item, index))
 	}
 }
 
+// props magic
+
 // properties vs attributes
 // from dom-expressions
-
 // todo: this has a weird mix of lowercase vs case sensitive
 // this is a bit messy, maybe default to prop and special case attributes?
 
@@ -926,7 +977,7 @@ export function addEventListener(node, type, handler, delegate) {
 		if (!Delegated.has(type)) {
 			Delegated.add(type)
 			// performance opportunity: maybe default to { passive:true }
-			// TODO: remove it once the nodes get cleared
+			// TODO: remove it once the nodes using it get cleared
 			document.addEventListener(type, eventHandlerDelegated)
 		}
 	} else {
@@ -979,8 +1030,8 @@ function eventDispatch(node, e, handlers) {
 		handler.call(node, e, ...data)
 }
 
-// we need to ensure the timing of some callbacks, like onMount, use and onReady
-// for this we add 1 queueMicrotask, then we queue in an array at a `priority` position
+// we need to ensure the timing of some callbacks, like `onMount`, `use` and `onReady`
+// for this we add 1 queueMicrotask, then we queue functions in an array at a `priority` position
 // once the microtask is called, we run the array of functions in order of priority
 
 class Scheduler {
@@ -1010,7 +1061,7 @@ class Scheduler {
 	}
 	finally() {
 		// we are sure our job is done for this loop
-		// this function runs after each run is done
+		// this function runs after each "run" is done
 		// so we can add here house keeping stuff
 
 		// clear the component cache
