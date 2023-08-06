@@ -1,7 +1,7 @@
 // control flow
 
 import {
-	componentCallback,
+	makeCallback,
 	memo,
 	hasValue,
 	getValue,
@@ -10,14 +10,14 @@ import {
 } from '#main'
 
 export function Show(props, children) {
-	const callback = componentCallback(children)
+	const callback = makeCallback(children)
 	const value = memo(() => getValue(props.when))
 	const condition = memo(() => !!value())
 	// needs resolve to avoid re-rendering
-	// `lazy` to not render it at all unless is needed
 	const fallback = hasValue(props.fallback)
 		? lazyMemo(() => resolve(props.fallback))
 		: () => null
+
 	return memo(() => {
 		const result = condition()
 		return result ? callback(value) : fallback()
