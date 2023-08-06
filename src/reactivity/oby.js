@@ -1,3 +1,4 @@
+// setup
 import $, { root, effect, cleanup, memo, untrack, context } from 'oby'
 
 import { setReactiveLibrary, children } from '#main'
@@ -37,3 +38,6 @@ setReactiveLibrary({
 		return c ?? v.defaultValue
 	},
 })
+
+// export
+export * from '#main'

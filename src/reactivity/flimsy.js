@@ -1,6 +1,7 @@
+// setup
+
 import {
 	createRoot,
-	createRenderEffect,
 	createEffect,
 	onCleanup,
 	createSignal,
@@ -8,32 +9,28 @@ import {
 	untrack,
 	createContext,
 	useContext,
-	getOwner,
-} from 'solid-js'
+} from './lib/flimsy.js'
 
 import { setReactiveLibrary, children } from '#main'
 
 setReactiveLibrary({
 	root: createRoot,
-	renderEffect: createRenderEffect,
+	renderEffect: createEffect,
 	effect: createEffect,
 	cleanup: onCleanup,
 	signal: createSignal,
 	memo: createMemo,
 	untrack: untrack,
-	createContext: defaultValue => {
-		const id = Symbol()
+	createContext: function (defaultValue) {
+		const context = createContext(defaultValue)
 		return {
-			id,
-			defaultValue,
+			...context,
 			Provider: function (props) {
 				let r
-				createRenderEffect(
+				createEffect(
 					() =>
 						(r = untrack(() => {
-							getOwner().context = {
-								[id]: props.value,
-							}
+							context.set(props.value)
 							return children(() => props.children)
 						})),
 				)
@@ -43,3 +40,6 @@ setReactiveLibrary({
 	},
 	useContext: useContext,
 })
+
+// export
+export * from '#main'

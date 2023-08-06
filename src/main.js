@@ -1,2 +1,2 @@
-export * from './core.js'
+export * from './renderer/index.js'
 export * from './components/components.js'
