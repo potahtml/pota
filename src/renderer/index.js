@@ -51,6 +51,9 @@ const NS = {
 	xlink: 'http://www.w3.org/1999/xlink',
 }
 
+const TIME_MOUNT = 1
+const TIME_READY = 2
+
 // while not needed these make the logic/code more concise/readable
 
 const assign = Object.assign
@@ -84,7 +87,10 @@ function call(fns, ...args) {
 		}
 	})
 }
-
+function removeFromArray(arr, value) {
+	const index = arr.indexOf(value)
+	if (index !== -1) arr.splice(index, 1)
+}
 // todo: allow to change document
 const createElement = document.createElement.bind(document)
 const createElementNS = document.createElementNS.bind(document)
@@ -319,7 +325,8 @@ function createChildren(parent, child, relative) {
 
 		insertNode(parent, node, relative)
 
-		meta?.onMount && Timing.add(1, () => call(meta.onMount, node))
+		meta?.onMount &&
+			Timing.add(TIME_MOUNT, () => call(meta.onMount, node))
 
 		return node
 	}
@@ -530,7 +537,7 @@ export function resolve(children) {
 // life cycles
 
 export function onReady(fn) {
-	Timing.add(2, () => call([fn]))
+	Timing.add(TIME_READY, () => call([fn]))
 }
 
 // UTILS
@@ -599,15 +606,9 @@ export function mapArray(list, cb) {
 					// skip deletion as we are going to clear the map
 					if (!deletingAll) {
 						// needs to delete it from cache
-						if (!isDupe) {
-							cache.delete(item)
-						} else {
-							const dupes = duplicates.get(item)
-							const index = dupes.indexOf(row)
-							if (index !== -1) {
-								dupes.splice(index, 1)
-							}
-						}
+						!isDupe
+							? cache.delete(item)
+							: removeFromArray(duplicates.get(item), row)
 					}
 					dispose()
 				},
@@ -969,28 +970,37 @@ function _setNodeStyleValue(style, name, value) {
 
 const Delegated = new Set()
 
-// todo removeEventListener
-export function addEventListener(node, type, handler, delegate) {
-	let key = type
-	if (delegate) {
-		node[$meta][key] = node[$meta][key] || []
+export function addEventListener(node, type, handler, delegated) {
+	node[$meta] = node[$meta] || (node[$meta] = empty())
+
+	const key = delegated ? type : `${type}Native`
+	const handlers = node[$meta][key] || (node[$meta][key] = [])
+
+	if (delegated) {
 		if (!Delegated.has(type)) {
 			Delegated.add(type)
-			// performance opportunity: maybe default to { passive:true }
-			// TODO: remove it once the nodes using it get cleared
-			document.addEventListener(type, eventHandlerDelegated)
+			document.addEventListener(type, eventHandlerDelegated) // maybe default to { passive:true }
 		}
 	} else {
-		key += 'Native'
-		if (!node[$meta][key]) {
-			node[$meta][key] = []
+		if (handlers.length === 0) {
 			node.addEventListener(type, eventHandlerNative)
 		}
 	}
 
-	node[$meta][key].push(isArray(handler) ? handler : [handler])
+	handler[$meta] = isArray(handler) ? handler : [handler]
+
+	handlers.push(handler)
 }
 
+export function removeEventListener(node, type, callback, delegated) {
+	const key = delegated ? type : `${type}Native`
+	const handlers = node[$meta][key]
+
+	removeFromArray(handlers, callback)
+	if (!delegated && handlers.length === 0) {
+		node.removeEventListener(type, eventHandlerNative)
+	}
+}
 function eventHandlerNative(e) {
 	const key = `${e.type}Native`
 	const node = e.target
@@ -1000,6 +1010,7 @@ function eventHandlerNative(e) {
 
 function eventHandlerDelegated(e) {
 	const key = e.type
+
 	let node = (e.composedPath && e.composedPath()[0]) || e.target
 
 	// reverse Shadow DOM retargetting
@@ -1026,8 +1037,10 @@ function eventHandlerDelegated(e) {
 }
 
 function eventDispatch(node, e, handlers) {
-	for (const [handler, ...data] of handlers)
-		handler.call(node, e, ...data)
+	for (const handler of handlers) {
+		handler[$meta][0].call(node, e, ...handler[$meta].slice(1))
+		if (e.cancelBubble) break
+	}
 }
 
 // we need to ensure the timing of some callbacks, like `onMount`, `use` and `onReady`
@@ -1061,7 +1074,7 @@ class Scheduler {
 	}
 	finally() {
 		// we are sure our job is done for this loop
-		// this function runs after each "run" is done
+		// this function runs after each "run" is complete
 		// so we can add here house keeping stuff
 
 		// clear the component cache
