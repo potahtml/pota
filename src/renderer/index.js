@@ -249,7 +249,7 @@ function createNode(node, props, children, scope) {
 
 	// on first run this will hold a value
 	// once reactivity takes over (like a Show), then,
-	// it wont and we use old parent which is saved on the scope
+	// it wont and we use old parent which is saved on the scope from previous run
 	if (parentNode[$meta]) {
 		scope.parent = parentNode[$meta]
 	}
@@ -272,8 +272,8 @@ function createNode(node, props, children, scope) {
 	assignProps(node, props)
 
 	// insert childrens
-	// in line the most common case of 1 children, or no children at all
 	if (isArray(children)) {
+		// in line the most common case of 1 children, or no children at all
 		if (children.length) {
 			createChildren(
 				node,
@@ -347,7 +347,7 @@ function createChildren(parent, child, relative) {
 			node = createChildren(parent, child(), true)
 			return node
 		})
-		// A placeholder is created and added to the dom but doesnt form part of the children.
+		// A placeholder is created and added to the document but doesnt form part of the children.
 		// The placeholder needs to be returned so it forms part of the group of childrens
 		// for components that use `resolve` to get the children.
 		// If childrens are moved and the placeholder is not moved with them, then,
@@ -364,6 +364,7 @@ function createChildren(parent, child, relative) {
 	// For
 	if (child instanceof MapArray) {
 		// signal: needs an effect
+
 		let node
 		renderEffect(() => {
 			node = child.map((child, index) => {
@@ -413,30 +414,14 @@ function insertNode(parent, node, relative) {
 			prev = head.querySelector('TITLE')
 		}
 
-		if (prev) {
-			// replace node
-			prev.replaceWith(node)
-
-			// restore old node on cleanup
-			cleanup(() => {
-				// bug: there's a race condition when restoring the tag
-				// it could happen that the tag is restored after we changed pages
-				// and already appended a new tag to the head, so we end with 2 of them
-
-				// it needs appendChild instead of replaceWith here because
-				// our node gets cleaned up by the reactivity
-				head.appendChild(prev)
-			})
-		} else {
-			// tag not found, append it
-			head.appendChild(node)
-		}
+		// replace old node if theres any
+		prev ? prev.replaceWith(node) : head.appendChild(node)
 	} else {
 		relative ? parent.before(node) : parent.appendChild(node)
-
-		// get rid of text nodes on cleanup
-		cleanup(() => node.remove())
 	}
+
+	// get rid of text nodes on cleanup
+	cleanup(() => node.remove())
 
 	return node
 }
@@ -583,7 +568,7 @@ export function mapArray(list, cb) {
 		for (const row of rows) {
 			row.dispose(true)
 		}
-
+		console.log('disposing')
 		cache.clear()
 		duplicates.clear()
 
@@ -595,17 +580,20 @@ export function mapArray(list, cb) {
 	// create an item
 	function create(item, index, fn, isDupe) {
 		// a root is created so we can call dispose to get rid of an item
+
 		return root(dispose => {
 			const row = {
 				item, // debug could be removed
 				runId: -1,
-				node: memo(() =>
-					fn ? fn(cb(item, index), index) : cb(item, index),
-				),
+				node: memo(() => {
+					const r = fn ? fn(cb(item, index), index) : cb(item, index)
+					console.log('refreshing children')
+					return r
+				}),
 				dispose: deletingAll => {
-					// skip deletion as we are going to clear the map
+					// skip cache deletion as we are going to clear the full map
 					if (!deletingAll) {
-						// needs to delete it from cache
+						// delete from cache
 						!isDupe
 							? cache.delete(item)
 							: removeFromArray(duplicates.get(item), row)
@@ -661,7 +649,6 @@ export function mapArray(list, cb) {
 			let nodeSet = resolve(rows[rows.length - 1].node()).filter(
 				item => item !== null,
 			)
-
 			for (let i = rows.length - 1; i > 0; i--) {
 				const prevSet = resolve(rows[i - 1].node()).filter(
 					item => item !== null,
@@ -680,7 +667,7 @@ export function mapArray(list, cb) {
 		prev = rows
 
 		// return external representation
-		return rows.map(item => item.node)
+		return rows.map(item => item.node())
 	}
 }
 
