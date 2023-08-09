@@ -7,7 +7,7 @@ let root,
 	signal,
 	memo,
 	untrack,
-	createContext,
+	context,
 	useContext
 
 // for being able to switch reactive libraries
@@ -20,7 +20,7 @@ export function setReactiveLibrary(o) {
 	signal = o.signal
 	memo = o.memo
 	untrack = o.untrack
-	createContext = o.createContext
+	context = o.context
 	useContext = o.useContext
 }
 
@@ -35,7 +35,7 @@ export {
 	signal,
 	memo,
 	untrack,
-	createContext,
+	context,
 	useContext,
 }
 
@@ -274,12 +274,11 @@ function createNode(node, props, children, scope) {
 	// insert childrens
 	if (isArray(children)) {
 		// in line the most common case of 1 children, or no children at all
-		if (children.length) {
+		if (children.length)
 			createChildren(
 				node,
 				children.length === 1 ? children[0] : children,
 			)
-		}
 	} else {
 		// children is possibly not an array when it comes from user components
 		createChildren(node, children)
@@ -568,7 +567,6 @@ export function mapArray(list, cb) {
 		for (const row of rows) {
 			row.dispose(true)
 		}
-		console.log('disposing')
 		cache.clear()
 		duplicates.clear()
 
@@ -585,11 +583,11 @@ export function mapArray(list, cb) {
 			const row = {
 				item, // debug could be removed
 				runId: -1,
-				node: memo(() => {
-					const r = fn ? fn(cb(item, index), index) : cb(item, index)
-					console.log('refreshing children')
-					return r
-				}),
+				node: memo(() =>
+					children(() =>
+						fn ? fn(cb(item, index), index) : cb(item, index),
+					)().filter(item => item !== null),
+				),
 				dispose: deletingAll => {
 					// skip cache deletion as we are going to clear the full map
 					if (!deletingAll) {
@@ -646,13 +644,10 @@ export function mapArray(list, cb) {
 
 		// reorder elements
 		if (rows.length > 1) {
-			let nodeSet = resolve(rows[rows.length - 1].node()).filter(
-				item => item !== null,
-			)
+			let nodeSet = rows[rows.length - 1].node()
+
 			for (let i = rows.length - 1; i > 0; i--) {
-				const prevSet = resolve(rows[i - 1].node()).filter(
-					item => item !== null,
-				)
+				const prevSet = rows[i - 1].node()
 				const node = nodeSet[0]
 				if (node && node.nodeType && prevSet.length) {
 					if (node.previousSibling !== prevSet.at(-1)) {
@@ -764,11 +759,13 @@ function assignProps(node, props) {
 			node[$meta].use.push(value)
 			continue
 		}
+
 		if (name === 'onMount' || ns === 'onMount') {
 			node[$meta].onMount = node[$meta].onMount || []
 			node[$meta].onMount.push(value)
 			continue
 		}
+
 		if (name === 'onCleanup' || ns === 'onCleanup') {
 			node[$meta].onCleanup = node[$meta].onCleanup || []
 			node[$meta].onCleanup.push(value)
@@ -779,6 +776,7 @@ function assignProps(node, props) {
 			setNodeProperty(node, localName, value)
 			continue
 		}
+
 		if (ns === 'attr' || ns === 'a') {
 			setNodeAttribute(node, localName, value)
 			continue
@@ -791,6 +789,7 @@ function assignProps(node, props) {
 			)
 			continue
 		}
+
 		if (ns === 'var') {
 			setNodeStyle(node.style, { ['--' + localName]: value })
 			continue
@@ -858,6 +857,7 @@ function _setNodeProperty(node, name, value) {
 		node[name] = value
 	}
 }
+
 function setNodeAttribute(node, name, value, ns) {
 	if (isFunction(value)) {
 		effect(() => _setNodeAttribute(node, name, getValue(value), ns))
@@ -988,13 +988,13 @@ export function removeEventListener(node, type, callback, delegated) {
 		node.removeEventListener(type, eventHandlerNative)
 	}
 }
+
 function eventHandlerNative(e) {
 	const key = `${e.type}Native`
 	const node = e.target
 	const handlers = node[$meta][key]
 	eventDispatch(node, e, handlers)
 }
-
 function eventHandlerDelegated(e) {
 	const key = e.type
 

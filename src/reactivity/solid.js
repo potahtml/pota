@@ -7,7 +7,6 @@ import {
 	createSignal,
 	createMemo,
 	untrack,
-	createContext,
 	useContext,
 	getOwner,
 } from 'solid-js'
@@ -22,7 +21,7 @@ setReactiveLibrary({
 	signal: createSignal,
 	memo: createMemo,
 	untrack: untrack,
-	createContext: defaultValue => {
+	context: defaultValue => {
 		const id = Symbol()
 		return {
 			id,

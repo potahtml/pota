@@ -21,7 +21,7 @@ setReactiveLibrary({
 	signal: createSignal,
 	memo: createMemo,
 	untrack: untrack,
-	createContext: function (defaultValue) {
+	context: function (defaultValue) {
 		const context = createContext(defaultValue)
 		return {
 			...context,

@@ -17,7 +17,6 @@ export function Show(props, children) {
 	const fallback = hasValue(props.fallback)
 		? lazyMemo(() => resolve(props.fallback))
 		: () => null
-
 	return memo(() => {
 		const result = condition()
 		return result ? callback(value) : fallback()

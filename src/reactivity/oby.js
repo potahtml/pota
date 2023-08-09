@@ -14,7 +14,7 @@ setReactiveLibrary({
 	},
 	memo: memo,
 	untrack: untrack,
-	createContext: defaultValue => {
+	context: defaultValue => {
 		const id = Symbol()
 		return {
 			id,

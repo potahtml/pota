@@ -7,7 +7,7 @@
   "main": "./src/reactivity/solid.js",
   "exports": {
     "./setup": "./src/renderer/index.js",
-    "./test": "./src/reactivity/solid-dev.js",
+    "./test": "./src/reactivity/solid.js",
     ".": "./src/reactivity/solid.js",
     "./flimsy": "./src/reactivity/flimsy.js",
     "./oby": "./src/reactivity/oby.js",
