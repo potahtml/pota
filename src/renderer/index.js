@@ -280,8 +280,11 @@ function createNode(node, props, children, scope) {
 				children.length === 1 ? children[0] : children,
 			)
 	} else {
-		// children is possibly not an array when it comes from user components
-		createChildren(node, children)
+		// children could be anything and not an array when it comes from user components
+		// children will be `undefined` when there are no children at all, example `<br/>`
+		if (children !== undefined) {
+			createChildren(node, children)
+		}
 	}
 
 	// restore parent node
@@ -305,8 +308,16 @@ function createPlaceholder(parent, text, relative) {
 // creates the children for a parent
 
 function createChildren(parent, child, relative) {
-	// string/number
-	if (typeof child === 'string' || typeof child === 'number') {
+	// string/number/undefined
+	// display `undefined` because most likely is a mistake
+	// in the data/by the developer
+	// the only place where `undefined` is unwanted and discarded
+	// is on values of styles/classes/node attributes/node properties
+	if (
+		typeof child === 'string' ||
+		typeof child === 'number' ||
+		child === undefined
+	) {
 		return insertNode(parent, createElementText(child), relative)
 	}
 
@@ -377,12 +388,8 @@ function createChildren(parent, child, relative) {
 	}
 
 	// the very unlikely for last
-	// undefined/boolean/bigint/symbol/object/catch all
+	// boolean/bigint/symbol/object/catch all
 	// toString() is needed for `Symbol` and any fancy objects
-	// display `undefined` because most likely is a mistake
-	// in the data/by the developer
-	// the only place where `undefined` is unwanted and discarded
-	// is on values of styles/classes/node attributes/node properties
 	return insertNode(
 		parent,
 		createElementText(child.toString()),
