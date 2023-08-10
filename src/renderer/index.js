@@ -378,9 +378,11 @@ function createChildren(parent, child, relative) {
 		let node
 		renderEffect(() => {
 			node = child.map((child, index) => {
-				// we know we need to insert it in a relative position
-				// because the parent comes from a memo() placeholder
-				return createChildren(parent, child, true)
+				// wrap the item with placeholders, to avoid resolving and for easy re-arragement
+				const begin = createPlaceholder(parent, 'begin', true)
+				const end = createPlaceholder(parent, 'end', true)
+
+				return [begin, createChildren(end, child, true), end]
 			})
 			return node
 		})
@@ -577,7 +579,6 @@ export function mapArray(list, cb) {
 		cache.clear()
 		duplicates.clear()
 
-		runId = 0
 		rows = []
 		prev = []
 	})
@@ -585,16 +586,14 @@ export function mapArray(list, cb) {
 	// create an item
 	function create(item, index, fn, isDupe) {
 		// a root is created so we can call dispose to get rid of an item
-
 		return root(dispose => {
+			const nodes = fn ? fn(cb(item, index), index) : cb(item, index)
 			const row = {
-				item, // debug could be removed
 				runId: -1,
-				node: memo(() =>
-					children(() =>
-						fn ? fn(cb(item, index), index) : cb(item, index),
-					)().filter(item => item !== null),
-				),
+				// this is held here only to be returned on the first run, but no need to keep it after
+				nodes: runId === 1 ? nodes : [],
+				// reference nodes, it holds the placeholders that delimit `begin` and `end`
+				shore: [nodes[0], nodes.at(-1)],
 				dispose: deletingAll => {
 					// skip cache deletion as we are going to clear the full map
 					if (!deletingAll) {
@@ -651,17 +650,27 @@ export function mapArray(list, cb) {
 
 		// reorder elements
 		if (rows.length > 1) {
-			let nodeSet = rows[rows.length - 1].node()
-
+			// a `shore` delimits every item with a `begin` and `end` placeholder
+			// you can quickly check if items are in the right order
+			// by checking if item.end.nextSibling === nextItem.begin
+			let current = rows[rows.length - 1].shore
 			for (let i = rows.length - 1; i > 0; i--) {
-				const prevSet = rows[i - 1].node()
-				const node = nodeSet[0]
-				if (node && node.nodeType && prevSet.length) {
-					if (node.previousSibling !== prevSet.at(-1)) {
-						node.before(...prevSet)
+				const previous = rows[i - 1].shore
+				const previousEnd = previous[1]
+				const currentStart = current[0]
+				if (currentStart.previousSibling !== previousEnd) {
+					const previousStart = previous[0]
+					const nodes = [previousStart]
+
+					let next = previousStart.nextSibling
+					while (next !== previousEnd) {
+						nodes.push(next)
+						next = next.nextSibling
 					}
+					nodes.push(previousEnd)
+					currentStart.before(...nodes)
 				}
-				nodeSet = prevSet
+				current = previous
 			}
 		}
 
@@ -669,7 +678,8 @@ export function mapArray(list, cb) {
 		prev = rows
 
 		// return external representation
-		return rows.map(item => item.node())
+		// after the first run it lives in an effect
+		if (runId === 1) return rows.map(item => item.nodes)
 	}
 }
 
