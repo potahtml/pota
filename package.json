@@ -4,21 +4,22 @@
   "version": "0.1.0",
   "author": "Tito Bouzout",
   "type": "module",
-  "main": "./src/reactivity/solid.js",
+  "main": "./src/reactiveLibraries/solid.js",
   "exports": {
     "./setup": "./src/renderer/index.js",
-    "./test": "./src/reactivity/solid.js",
-    ".": "./src/reactivity/solid.js",
-    "./flimsy": "./src/reactivity/flimsy.js",
-    "./oby": "./src/reactivity/oby.js",
-    "./solid": "./src/reactivity/solid.js",
-    "./solid-dev": "./src/reactivity/solid-dev.js",
-    "./components": "./src/components/components.js",
-    "./router": "./src/components/router.js",
+    "./test": "./src/reactiveLibraries/solid.js",
+    ".": "./src/reactiveLibraries/solid.js",
+    "./flimsy": "./src/reactiveLibraries/flimsy.js",
+    "./oby": "./src/reactiveLibraries/oby.js",
+    "./solid": "./src/reactiveLibraries/solid.js",
+    "./solid-dev": "./src/reactiveLibraries/solid-dev.js",
+    "./router": "./src/components/router/@main.js",
     "./*": "./*"
   },
   "imports": {
-    "#main": "./src/main.js"
+    "#main": "./src/@main.js",
+    "#lib/*": "./src/lib/*",
+    "#components/*": "./src/components/*"
   },
   "repository": {
     "type": "git",

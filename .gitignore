@@ -28,3 +28,5 @@ dist-ssr
 *.sw?
 src/components/router.js
 src/components/router
+src/lib
+src/components/media
