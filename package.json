@@ -4,10 +4,11 @@
   "version": "0.1.0",
   "author": "Tito Bouzout",
   "type": "module",
+  "types": "./src/types.d.ts",
   "main": "./src/reactiveLibraries/solid.js",
   "exports": {
     "./setup": "./src/renderer/index.js",
-    "./test": "./src/reactiveLibraries/solid.js",
+    "./test": "./src/reactiveLibraries/solid-dev.js",
     ".": "./src/reactiveLibraries/solid.js",
     "./flimsy": "./src/reactiveLibraries/flimsy.js",
     "./oby": "./src/reactiveLibraries/oby.js",

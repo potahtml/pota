@@ -3,7 +3,9 @@
     "baseUrl": ".",
     "outDir": "./dist",
     "paths": {
-      "#main": ["./src/main.js"]
+      "#main": ["./src/@main.js"],
+      "#lib/*": ["./src/lib/*"],
+      "#components/*": ["./src/components/*"]
     },
 
     "allowJs": true,
@@ -13,15 +15,14 @@
 
     "module": "ESNext",
     "target": "ESNext",
-    "lib": ["ESNext", "dom", "dom.iterable"],
+    "lib": ["ESNext", "dom"],
+    "moduleResolution": "nodenext",
 
     "jsx": "react",
     "jsxFactory": "Component",
     "jsxFragmentFactory": "Fragment",
 
-    "sourceMap": true,
-
-    "moduleResolution": "nodenext"
+    "sourceMap": true
   },
   "exclude": ["./dist/*"]
 }
