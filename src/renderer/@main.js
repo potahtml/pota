@@ -128,7 +128,7 @@ export function Component(value, props, ...children) {
 		props = empty()
 		props.children = children
 	} else if (!('children' in props)) {
-		// use `in` to not trigger getters, although is not a getter on this library
+		// use `in` to not trigger getters, although `children` is not a getter on this library
 		// only set `children` if the props dont have it already
 		// when the `props.children` is set, it takes over the component own children:
 		// <div children={[1,2,3]}>CHILDREN IS IGNORED HERE</div>
@@ -164,7 +164,7 @@ export function create(value) {
 }
 
 // the components factory
-// creates a function that could be called with a props object
+// creates a component which is an untracked function that could be called with a props object
 function Factory(value) {
 	let component = Components.get(value)
 	if (component) {
@@ -254,6 +254,7 @@ function createNode(node, props, children, scope) {
 		scope.parent = parentNode[$meta]
 	}
 
+	// assign the scope to the node
 	node[$meta] = scope
 
 	// keep track of parent nodes
@@ -262,9 +263,10 @@ function createNode(node, props, children, scope) {
 
 	// get rid of the node on cleanup
 	cleanup(() => {
-		// callback
+		// callbacks
 		node[$meta].onCleanup &&
 			untrack(() => call(node[$meta].onCleanup, node))
+		// remove from dom
 		node.remove()
 	})
 
@@ -465,13 +467,12 @@ function clearNode(node) {
 	// node.replaceChildren() thoughts?
 }
 
+// creates tagged template components
 // templates are cached for the duration of a run
 // cache is cleared after the run
 // if you make a list with 100 links, it will reuse a component 99 times
 // then discard that object
 // performance opportunity: expiration could be smarter
-
-// I love the following function
 
 export function template(template, ...args) {
 	let cached = Components.get(template)
@@ -547,6 +548,17 @@ export function makeCallback(fns) {
 	)
 }
 
+// some props are for components use not for attributes/props
+// propsData(props, ['noscroll', 'replace'])
+// sets props.noscroll and props.replace to null, and adds it to
+// props.$data = { noscroll, replace }
+// data may be accessed from the node via
+// getPropsData(node) === { noscroll, replace }
+
+export function getPropsData(node) {
+	return node[$meta]?.props.$data || empty()
+}
+
 // lazy memo runs only after use, by fabio@solid-js/discord
 
 export function lazyMemo(fn) {
@@ -591,7 +603,7 @@ export function mapArray(list, cb) {
 			const row = {
 				runId: -1,
 				// this is held here only to be returned on the first run, but no need to keep it after
-				nodes: runId === 1 ? nodes : [],
+				nodes: runId === 1 ? nodes : null,
 				// reference nodes, it holds the placeholders that delimit `begin` and `end`
 				shore: [nodes[0], nodes.at(-1)],
 				dispose: deletingAll => {
@@ -616,6 +628,7 @@ export function mapArray(list, cb) {
 
 		rows = []
 
+		// todo: check what can be iterated
 		for (const [index, item] of items.entries()) {
 			let row = cache.get(item)
 			// if the item doesnt exists, create it
@@ -695,36 +708,7 @@ export class MapArray {
 // props magic
 
 // properties vs attributes
-// from dom-expressions
-// todo: this has a weird mix of lowercase vs case sensitive
-// this is a bit messy, maybe default to prop and special case attributes?
 
-const NodesPropertiesBooleans = [
-	'allowfullscreen',
-	'async',
-	'autofocus',
-	'autoplay',
-	'checked',
-	'controls',
-	'default',
-	'disabled',
-	'formnovalidate',
-	'hidden',
-	'indeterminate',
-	'ismap',
-	'loop',
-	'multiple',
-	'muted',
-	'nomodule',
-	'novalidate',
-	'open',
-	'playsinline',
-	'readonly',
-	'required',
-	'reversed',
-	'seamless',
-	'selected',
-]
 const NodesProperties = new Set([
 	// content
 	'innerHTML',
@@ -733,19 +717,12 @@ const NodesProperties = new Set([
 
 	// properties
 	'value',
-	'readOnly',
-	'formNoValidate',
-	'isMap',
-	'noModule',
-	'playsInline',
-	...NodesPropertiesBooleans,
 ])
 
 function assignProps(node, props) {
 	for (const [name, value] of entries(props)) {
 		// internal
-
-		if (name === 'mount' || name === 'children') {
+		if (name === 'mount' || name === 'children' || name === '$data') {
 			continue
 		}
 
@@ -852,16 +829,39 @@ function assignProps(node, props) {
 			continue
 		}
 
-		// default to attribute
-		setNodeAttribute(node, name, value, ns)
+		// catch all
+		setNodeProp(node, name, value, ns)
 	}
 }
 
 // node properties / attributes
 
+function setNodeProp(node, name, value, ns) {
+	if (isFunction(value)) {
+		effect(() => {
+			_setNodeProp(node, name, getValue(value), ns)
+		})
+	} else {
+		_setNodeProp(node, name, value, ns)
+	}
+}
+function _setNodeProp(node, name, value, ns) {
+	// set as property when boolean
+	if (typeof value === 'boolean') {
+		_setNodeProperty(node, name, value)
+	} else {
+		// fallback to attribute when unknown
+		_setNodeAttribute(node, name, value, ns)
+	}
+}
+
+// node properties
+
 function setNodeProperty(node, name, value) {
 	if (isFunction(value)) {
-		effect(() => _setNodeProperty(node, name, getValue(value)))
+		effect(() => {
+			_setNodeProperty(node, name, getValue(value))
+		})
 	} else {
 		_setNodeProperty(node, name, value)
 	}
@@ -875,9 +875,13 @@ function _setNodeProperty(node, name, value) {
 	}
 }
 
+// node attributes
+
 function setNodeAttribute(node, name, value, ns) {
 	if (isFunction(value)) {
-		effect(() => _setNodeAttribute(node, name, getValue(value), ns))
+		effect(() => {
+			_setNodeAttribute(node, name, getValue(value), ns)
+		})
 	} else {
 		_setNodeAttribute(node, name, value, ns)
 	}
@@ -912,15 +916,17 @@ function setNodeClassList(classList, value) {
 		return
 	}
 	if (type === 'function') {
-		effect(() => setNodeClassList(classList, getValue(value)))
+		effect(() => {
+			setNodeClassList(classList, getValue(value))
+		})
 		return
 	}
 }
 function setNodeClassListValue(classList, name, value) {
 	if (isFunction(value)) {
-		effect(() =>
-			_setNodeClassListValue(classList, name, getValue(value)),
-		)
+		effect(() => {
+			_setNodeClassListValue(classList, name, getValue(value))
+		})
 	} else {
 		_setNodeClassListValue(classList, name, value)
 	}
@@ -948,13 +954,17 @@ function setNodeStyle(style, value) {
 		return
 	}
 	if (type === 'function') {
-		effect(() => setNodeStyle(style, getValue(value)))
+		effect(() => {
+			setNodeStyle(style, getValue(value))
+		})
 		return
 	}
 }
 function setNodeStyleValue(style, name, value) {
 	if (isFunction(value)) {
-		effect(() => _setNodeStyleValue(style, name, getValue(value)))
+		effect(() => {
+			_setNodeStyleValue(style, name, getValue(value))
+		})
 	} else {
 		_setNodeStyleValue(style, name, value)
 	}
