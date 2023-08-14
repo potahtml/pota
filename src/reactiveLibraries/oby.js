@@ -1,5 +1,13 @@
 // setup
-import $, { root, effect, cleanup, memo, untrack, context } from 'oby'
+import $, {
+	root,
+	effect,
+	cleanup,
+	memo,
+	untrack,
+	context,
+	batch,
+} from 'oby'
 
 import { setReactiveLibrary, children } from '#main'
 
@@ -14,6 +22,7 @@ setReactiveLibrary({
 	},
 	memo: memo,
 	untrack: untrack,
+	batch: batch,
 	context: defaultValue => {
 		const id = Symbol()
 		return {

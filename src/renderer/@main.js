@@ -8,7 +8,8 @@ let root,
 	memo,
 	untrack,
 	context,
-	useContext
+	useContext,
+	batch
 
 // for being able to switch reactive libraries
 
@@ -22,6 +23,7 @@ export function setReactiveLibrary(o) {
 	untrack = o.untrack
 	context = o.context
 	useContext = o.useContext
+	batch = o.batch
 }
 
 // export the reactivity
@@ -37,6 +39,7 @@ export {
 	untrack,
 	context,
 	useContext,
+	batch,
 }
 
 // constants
@@ -549,8 +552,8 @@ export function makeCallback(fns) {
 }
 
 // some props are for components use not for attributes/props
-// propsData(props, ['noscroll', 'replace'])
-// sets props.noscroll and props.replace to null, and adds it to
+// propsData(props, ['scroll', 'replace'])
+// sets props.scroll and props.replace to null, and adds it to
 // props.$data = { noscroll, replace }
 // data may be accessed from the node via
 // getPropsData(node) === { noscroll, replace }
@@ -1022,6 +1025,7 @@ function eventHandlerNative(e) {
 	const handlers = node[$meta][key]
 	eventDispatch(node, e, handlers)
 }
+
 function eventHandlerDelegated(e) {
 	const key = e.type
 

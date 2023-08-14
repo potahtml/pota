@@ -9,6 +9,7 @@ import {
 	untrack,
 	createContext,
 	useContext,
+	batch,
 } from './lib/flimsy.js'
 
 import { setReactiveLibrary, children } from '#main'
@@ -21,6 +22,7 @@ setReactiveLibrary({
 	signal: createSignal,
 	memo: createMemo,
 	untrack: untrack,
+	batch: batch,
 	context: function (defaultValue) {
 		const context = createContext(defaultValue)
 		return {

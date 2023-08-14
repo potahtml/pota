@@ -9,6 +9,7 @@ import {
 	untrack,
 	useContext,
 	getOwner,
+	batch,
 } from 'solid-js'
 
 import { setReactiveLibrary, children } from '#main'
@@ -21,6 +22,7 @@ setReactiveLibrary({
 	signal: createSignal,
 	memo: createMemo,
 	untrack: untrack,
+	batch: batch,
 	context: defaultValue => {
 		const id = Symbol()
 		return {
