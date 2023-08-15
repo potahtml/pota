@@ -54,6 +54,8 @@ const NS = {
 	xlink: 'http://www.w3.org/1999/xlink',
 }
 
+// to ensure timing of "events" callbacks are queued to run at specific times
+
 const TIME_MOUNT = 1
 const TIME_READY = 2
 
@@ -61,7 +63,7 @@ const TIME_READY = 2
 
 const assign = Object.assign
 const entries = Object.entries
-const empty = Object.create.bind(Object, null)
+const empty = () => Object.create(null)
 
 export const isArray = Array.isArray
 export const isFunction = value => typeof value === 'function'
@@ -69,7 +71,7 @@ export const isComponent = value =>
 	typeof value === 'function' && value[$component] === null
 const isComponentable = value =>
 	typeof value === 'function' ||
-	// avoid [1,2] and support: { toString(){ return "something"} }
+	// avoid [1,2] and support { toString(){ return "something"} }
 	(!isArray(value) && isNotNullObject(value))
 
 // the following set of functions are based on the renderer assumptions
@@ -94,7 +96,7 @@ function removeFromArray(arr, value) {
 	const index = arr.indexOf(value)
 	if (index !== -1) arr.splice(index, 1)
 }
-// todo: allow to change document
+
 const createElement = document.createElement.bind(document)
 const createElementNS = document.createElementNS.bind(document)
 const createElementText = document.createTextNode.bind(document)
@@ -107,7 +109,7 @@ const querySelector = document.querySelector.bind(document)
 // used by the JSX transform
 // this function is empty because its given to `Component` via the transformer
 // and we dont even need to run it
-export function Fragment() {}
+export const Fragment = () => {}
 
 // used by the JSX transform
 // `Component` is not supposed to be used in user land
@@ -128,8 +130,7 @@ export function Component(value, props, ...children) {
 	// `create('div')` returns a function that you can call with any props reusing the component
 	if (!hasValue(props)) {
 		// null or undefined
-		props = empty()
-		props.children = children
+		props = assign(empty(), { children })
 	} else if (!('children' in props)) {
 		// use `in` to not trigger getters, although `children` is not a getter on this library
 		// only set `children` if the props dont have it already
@@ -138,8 +139,8 @@ export function Component(value, props, ...children) {
 		props.children = children
 	}
 
-	// create component instance with bind, props, and a scope initially set to an empty object
-	// the scope is used to hold the parent to be able to tell if dynamic childrens are XML
+	// create component instance with bind, props, and a scope/context initially set to an empty object
+	// the scope/context is used to hold the parent to be able to tell if dynamic childrens are XML
 	return markComponent(Factory(value).bind(null, props, empty()))
 }
 
@@ -245,14 +246,14 @@ function createTag(tagName, props, children, scope) {
 function createNode(node, props, children, scope) {
 	// sets internals properties of the node
 	// allows to lookup mount, parent node for xmlns, holds events handlers
-	// appears in the dev tools for easy debugging
+	// appears in the dev tools at the node properties for easy debugging
 
 	scope.node = node
 	scope.props = props
 
 	// on first run this will hold a value
 	// once reactivity takes over (like a Show), then,
-	// it wont and we use old parent which is saved on the scope from previous run
+	// it wont and we use old parent which is already saved on the scope from the previous run
 	if (parentNode[$meta]) {
 		scope.parent = parentNode[$meta]
 	}
@@ -269,7 +270,7 @@ function createNode(node, props, children, scope) {
 		// callbacks
 		node[$meta].onCleanup &&
 			untrack(() => call(node[$meta].onCleanup, node))
-		// remove from dom
+		// remove from the document
 		node.remove()
 	})
 
@@ -284,12 +285,10 @@ function createNode(node, props, children, scope) {
 				node,
 				children.length === 1 ? children[0] : children,
 			)
-	} else {
+	} else if (children !== undefined) {
 		// children could be anything and not an array when it comes from user components
 		// children will be `undefined` when there are no children at all, example `<br/>`
-		if (children !== undefined) {
-			createChildren(node, children)
-		}
+		createChildren(node, children)
 	}
 
 	// restore parent node
@@ -364,7 +363,6 @@ function createChildren(parent, child, relative) {
 		})
 		// A placeholder is created and added to the document but doesnt form part of the children.
 		// The placeholder needs to be returned so it forms part of the group of childrens
-		// for components that use `resolve` to get the children.
 		// If childrens are moved and the placeholder is not moved with them, then,
 		// whenever childrens update these will be at the wrong place.
 		// wrong place: where the placeholder is and not where the childrens were moved to
@@ -394,9 +392,28 @@ function createChildren(parent, child, relative) {
 		return node
 	}
 
+	// object.toString fancy objects
+	if (typeof child === 'object' && child.toString) {
+		// needs placeholder to stay in position
+		parent = createPlaceholder(parent, 'object', relative)
+
+		// maybe use signals so needs an effect
+		let node
+		renderEffect(() => {
+			node = createChildren(parent, child.toString(), true)
+			return node
+		})
+		// A placeholder is created and added to the document but doesnt form part of the children.
+		// The placeholder needs to be returned so it forms part of the group of childrens
+		// If childrens are moved and the placeholder is not moved with them, then,
+		// whenever childrens update these will be at the wrong place.
+		// wrong place: where the placeholder is and not where the childrens were moved to
+		return [node, parent]
+	}
+
 	// the very unlikely for last
-	// boolean/bigint/symbol/object/catch all
-	// toString() is needed for `Symbol` and any fancy objects
+	// boolean/bigint/symbol/catch all
+	// toString() is needed for `Symbol`
 	return insertNode(
 		parent,
 		createElementText(child.toString()),
@@ -494,7 +511,7 @@ export function template(template, ...args) {
 		replace[index].remove()
 	}
 
-	// return a single element if possible to ease usage
+	// return a single element if possible to make it more easy to use
 	return clone.childNodes.length === 1
 		? clone.childNodes[0]
 		: // from NodeList to Array
@@ -562,7 +579,7 @@ export function getPropsData(node) {
 	return node[$meta]?.props.$data || empty()
 }
 
-// lazy memo runs only after use, by fabio@solid-js/discord
+// lazy memo runs only after use, by fabiospampinato@solid-js/discord
 
 export function lazyMemo(fn) {
 	const [sleeping, setSleeping] = signal(true)
