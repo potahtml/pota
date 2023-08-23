@@ -54,7 +54,7 @@ const NS = {
 	xlink: 'http://www.w3.org/1999/xlink',
 }
 
-// to ensure timing of "events" callbacks are queued to run at specific times
+// to ensure timing of events callbacks are queued to run at specific times
 
 const TIME_MOUNT = 1
 const TIME_READY = 2
@@ -131,8 +131,7 @@ export function Component(value, props, ...children) {
 	if (!hasValue(props)) {
 		// null or undefined
 		props = assign(empty(), { children })
-	} else if (!('children' in props)) {
-		// use `in` to not trigger getters, although `children` is not a getter on this library
+	} else if (props.children === undefined) {
 		// only set `children` if the props dont have it already
 		// when the `props.children` is set, it takes over the component own children:
 		// <div children={[1,2,3]}>CHILDREN IS IGNORED HERE</div>
@@ -450,7 +449,7 @@ function insertNode(parent, node, relative) {
 		relative ? parent.before(node) : parent.appendChild(node)
 	}
 
-	// get rid of text nodes on cleanup
+	// get rid of children nodes on cleanup
 	cleanup(() => node.remove())
 
 	return node
@@ -626,9 +625,9 @@ export function mapArray(list, cb) {
 				nodes: runId === 1 ? nodes : null,
 				// reference nodes, it holds the placeholders that delimit `begin` and `end`
 				shore: [nodes[0], nodes.at(-1)],
-				dispose: deletingAll => {
+				dispose: all => {
 					// skip cache deletion as we are going to clear the full map
-					if (!deletingAll) {
+					if (!all) {
 						// delete from cache
 						!isDupe
 							? cache.delete(item)
@@ -707,12 +706,20 @@ export function mapArray(list, cb) {
 			}
 		}
 
-		// save list
+		// save sorted list
 		prev = rows
-
 		// return external representation
 		// after the first run it lives in an effect
-		if (runId === 1) return rows.map(item => item.nodes)
+		if (runId === 1) {
+			try {
+				return rows.map(item => {
+					return item.nodes
+				})
+			} finally {
+				// remove cached nodes as these are not needed
+				for (const node of rows) node.nodes = null
+			}
+		}
 	}
 }
 
@@ -786,12 +793,12 @@ function assignProps(node, props) {
 			continue
 		}
 
-		if (ns === 'prop' || ns === 'p') {
+		if (ns === 'prop') {
 			setNodeProperty(node, localName, value)
 			continue
 		}
 
-		if (ns === 'attr' || ns === 'a') {
+		if (ns === 'attr') {
 			setNodeAttribute(node, localName, value)
 			continue
 		}
