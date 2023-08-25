@@ -19,16 +19,12 @@ setReactiveLibrary({
 	renderEffect: createRenderEffect,
 	effect: createEffect,
 	cleanup: onCleanup,
-	signal: (v, equals) => {
-		const r = createSignal(v, equals)
+	signal: (a, b) => {
+		const r = createSignal(a, b)
 		markReactive(r[0])
 		return r
 	},
-	memo: (a, b, c) => {
-		const r = createMemo(a, b, c)
-		markReactive(r)
-		return r
-	},
+	memo: (a, b, c) => markReactive(createMemo(a, b, c)),
 	untrack: untrack,
 	batch: batch,
 	context: defaultValue => {
