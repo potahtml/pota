@@ -88,13 +88,8 @@ export const getValue = value =>
 
 // runs arrays of functions with arguments
 function call(fns, ...args) {
-	fns.forEach(fn => {
-		if (isArray(fn)) {
-			fn[0](...args, ...fn.slice(1))
-		} else {
-			fn(...args)
-		}
-	})
+	for (const fn of fns)
+		isArray(fn) ? fn[0](...args, ...fn.slice(1)) : fn(...args)
 }
 function removeFromArray(arr, value) {
 	const index = arr.indexOf(value)
@@ -570,17 +565,16 @@ export function makeCallback(fns) {
 	// ensure is an array
 	// the transformer gives arrays but user components could return anything
 	// function MyComponent() { return 'Something'} // children wont be an array
-	fns = isArray(fns) ? fns : [fns]
-
-	return markComponent((...args) =>
-		fns.map(fn =>
-			isFunction(fn)
-				? isReactive(fn)
-					? fn()
-					: untrack(() => fn(...args))
-				: fn,
-		),
+	// it should track only reactive children like signals or memos
+	// children could also be regular children and not functions
+	fns = (isArray(fns) ? fns : [fns]).map(fn =>
+		isReactive(fn)
+			? fn
+			: isFunction(fn)
+			? (...args) => untrack(() => fn(...args))
+			: () => fn,
 	)
+	return markComponent((...args) => fns.map(fn => fn(...args)))
 }
 
 // some props are for components use not for attributes/props
