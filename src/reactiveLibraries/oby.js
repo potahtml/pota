@@ -21,7 +21,11 @@ setReactiveLibrary({
 		markReactive(s)
 		return [s, s]
 	},
-	memo: memo,
+	memo: (a, b) => {
+		const r = memo(a, b)
+		markReactive(r)
+		return r
+	},
 	untrack: untrack,
 	batch: batch,
 	context: defaultValue => {
