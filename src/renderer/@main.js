@@ -46,6 +46,7 @@ export {
 
 const $meta = Symbol('pota-meta')
 const $component = Symbol('pota-component')
+const $reactive = Symbol('pota-reactive')
 
 const NS = {
 	svg: 'http://www.w3.org/2000/svg',
@@ -69,6 +70,9 @@ export const isArray = Array.isArray
 export const isFunction = value => typeof value === 'function'
 export const isComponent = value =>
 	typeof value === 'function' && value[$component] === null
+export const isReactive = value =>
+	typeof value === 'function' && value[$reactive] === null
+
 const isComponentable = value =>
 	typeof value === 'function' ||
 	// avoid [1,2] and support { toString(){ return "something"} }
@@ -211,6 +215,11 @@ function Factory(value) {
 
 function markComponent(fn) {
 	fn[$component] = null
+	return fn
+}
+
+export function markReactive(fn) {
+	fn[$reactive] = null
 	return fn
 }
 
@@ -562,8 +571,15 @@ export function makeCallback(fns) {
 	// the transformer gives arrays but user components could return anything
 	// function MyComponent() { return 'Something'} // children wont be an array
 	fns = isArray(fns) ? fns : [fns]
+
 	return markComponent((...args) =>
-		untrack(() => fns.map(fn => (isFunction(fn) ? fn(...args) : fn))),
+		fns.map(fn =>
+			isFunction(fn)
+				? isReactive(fn)
+					? fn()
+					: untrack(() => fn(...args))
+				: fn,
+		),
 	)
 }
 

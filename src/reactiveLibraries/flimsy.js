@@ -12,14 +12,18 @@ import {
 	batch,
 } from './lib/flimsy.js'
 
-import { setReactiveLibrary, children } from '#main'
+import { setReactiveLibrary, children, markReactive } from '#main'
 
 setReactiveLibrary({
 	root: createRoot,
 	renderEffect: createEffect,
 	effect: createEffect,
 	cleanup: onCleanup,
-	signal: createSignal,
+	signal: (v, equals) => {
+		const r = createSignal(v, equals)
+		markReactive(r[0])
+		return r
+	},
 	memo: createMemo,
 	untrack: untrack,
 	batch: batch,

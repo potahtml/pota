@@ -9,7 +9,7 @@ import $, {
 	batch,
 } from 'oby'
 
-import { setReactiveLibrary, children } from '#main'
+import { setReactiveLibrary, children, markReactive } from '#main'
 
 setReactiveLibrary({
 	root: root,
@@ -18,6 +18,7 @@ setReactiveLibrary({
 	cleanup: cleanup,
 	signal: (v, equals) => {
 		const s = $(v, equals)
+		markReactive(s)
 		return [s, s]
 	},
 	memo: memo,
