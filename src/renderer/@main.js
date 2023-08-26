@@ -74,9 +74,10 @@ export const isReactive = value =>
 	typeof value === 'function' && value[$reactive] === null
 
 const isComponentable = value =>
-	typeof value === 'function' ||
-	// avoid [1,2] and support { toString(){ return "something"} }
-	(!isArray(value) && isNotNullObject(value))
+	!isReactive(value) &&
+	(typeof value === 'function' ||
+		// avoid [1,2] and support { toString(){ return "something"} }
+		(!isArray(value) && isNotNullObject(value)))
 
 // the following set of functions are based on the renderer assumptions
 // these are not mean to be generic JavaScript functions
@@ -115,32 +116,18 @@ export const Fragment = () => {}
 // returns a function because we need to render from parent to children instead of from children to parent
 // this allows to properly set the reactivity tree (think of nested effects that clear inner effects)
 // additionally allows to access parent when creating children
-export function Component(value, props, ...children) {
+function Component(value, props) {
 	// special case fragments, these are arrays and dont need untrack nor props
 	if (value === Fragment) {
 		// <>...</>
-		return children
-	}
-
-	// props is `null` when the transformer finds no props: <div></div>
-	// props is `undefined` when calling the Component function directly without props
-	// `Component('div')`, whoever is doing this should be using `create('div')` instead
-	// `Component('div')` returns a function with the props already set
-	// `create('div')` returns a function that you can call with any props reusing the component
-	if (!hasValue(props)) {
-		// null or undefined
-		props = assign(empty(), { children })
-	} else if (props.children === undefined) {
-		// only set `children` if the props dont have it already
-		// when the `props.children` is set, it takes over the component own children:
-		// <div children={[1,2,3]}>CHILDREN IS IGNORED HERE</div>
-		props.children = children
+		return props.children
 	}
 
 	// create component instance with bind, props, and a scope/context initially set to an empty object
 	// the scope/context is used to hold the parent to be able to tell if dynamic childrens are XML
 	return markComponent(Factory(value).bind(null, props, empty()))
 }
+export { Component as jsx, Component as jsxs }
 
 // component are cached for the duration of a run (top to bottom)
 // cache is cleared after the run
@@ -281,15 +268,7 @@ function createNode(node, props, children, scope) {
 	assignProps(node, props)
 
 	// insert childrens
-	if (isArray(children)) {
-		// in line the most common case of 1 children, or no children at all
-		if (children.length)
-			createChildren(
-				node,
-				children.length === 1 ? children[0] : children,
-			)
-	} else if (children !== undefined) {
-		// children could be anything and not an array when it comes from user components
+	if (children !== undefined) {
 		// children will be `undefined` when there are no children at all, example `<br/>`
 		createChildren(node, children)
 	}
@@ -463,23 +442,19 @@ function insertNode(parent, node, relative) {
 
 export function render(value, parent, clear, relative) {
 	return root(dispose => {
-		insert(value, parent, clear, relative, false)
+		insert(value, parent, clear, relative)
 		return dispose
 	})
 }
 
 // insert
 
-export function insert(value, parent, clear, relative, shouldTrack) {
+export function insert(value, parent, clear, relative) {
 	clear && clearNode(parent)
 
 	return createChildren(
 		parent || document.body,
-		shouldTrack
-			? value
-			: isComponentable(value)
-			? create(value)
-			: value,
+		isComponentable(value) ? create(value) : value,
 		relative,
 	)
 }
@@ -508,9 +483,16 @@ export function template(template, ...args) {
 	const clone = cached.cloneNode(true)
 	const replace = clone.querySelectorAll('pota')
 	for (const [index, value] of args.entries()) {
-		// note: templates track by default
-		// wrap components in `create(MyComponent)` to untrack
-		insert(value, replace[index], null, true, true)
+		insert(
+			// insert creates components for things to insert.
+			// for nodes it will use cloneNode
+			// this will cause any event listener to be lost
+			// for this reason we wrap it on a function
+			value instanceof Node ? () => value : value,
+			replace[index],
+			null,
+			true,
+		)
 		replace[index].remove()
 	}
 
@@ -560,13 +542,13 @@ export function onReady(fn) {
 // UTILS
 
 // makes untracked callbacks from childrens
+// it should track only reactive children like signals or memos
+// children could also be regular children and not functions
 
 export function makeCallback(fns) {
 	// ensure is an array
 	// the transformer gives arrays but user components could return anything
 	// function MyComponent() { return 'Something'} // children wont be an array
-	// it should track only reactive children like signals or memos
-	// children could also be regular children and not functions
 	fns = (isArray(fns) ? fns : [fns]).map(fn =>
 		isReactive(fn)
 			? fn
@@ -726,7 +708,7 @@ export function mapArray(list, cb) {
 					return item.nodes
 				})
 			} finally {
-				// remove cached nodes as these are not needed
+				// remove cached nodes as these are not needed after the first run
 				for (const node of rows) node.nodes = null
 			}
 		}
