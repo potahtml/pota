@@ -836,7 +836,7 @@ function assignProps(node, props) {
 
 		if (ns === 'on') {
 			// delegated: no
-			addEventListener(node, localName, value, false)
+			addEvent(node, localName, value, false)
 			continue
 		}
 
@@ -844,12 +844,7 @@ function assignProps(node, props) {
 		if (ns.startsWith('on')) {
 			// delegated: yes
 			if (ns.toLowerCase() in window) {
-				addEventListener(
-					node,
-					ns.toLowerCase().substr(2),
-					value,
-					true,
-				)
+				addEvent(node, ns.toLowerCase().substr(2), value, true)
 				continue
 			}
 		}
@@ -857,12 +852,7 @@ function assignProps(node, props) {
 		// onClick={handler}
 		if (name.startsWith('on') && name.toLowerCase() in window) {
 			// delegated: yes
-			addEventListener(
-				node,
-				name.toLowerCase().substr(2),
-				value,
-				true,
-			)
+			addEvent(node, name.toLowerCase().substr(2), value, true)
 			continue
 		}
 
@@ -1021,7 +1011,7 @@ function _setNodeStyleValue(style, name, value) {
 
 const Delegated = new Set()
 
-export function addEventListener(node, type, handler, delegated) {
+export function addEvent(node, type, handler, delegated) {
 	node[$meta] = node[$meta] || (node[$meta] = empty())
 
 	const key = delegated ? type : `${type}Native`
@@ -1041,16 +1031,19 @@ export function addEventListener(node, type, handler, delegated) {
 	handler[$meta] = isArray(handler) ? handler : [handler]
 
 	handlers.push(handler)
+
+	return () => removeEvent(node, type, handler, delegated)
 }
 
-export function removeEventListener(node, type, callback, delegated) {
+export function removeEvent(node, type, handler, delegated) {
 	const key = delegated ? type : `${type}Native`
 	const handlers = node[$meta][key]
 
-	removeFromArray(handlers, callback)
+	removeFromArray(handlers, handler)
 	if (!delegated && handlers.length === 0) {
 		node.removeEventListener(type, eventHandlerNative)
 	}
+	return () => addEvent(node, type, handler, delegated)
 }
 
 function eventHandlerNative(e) {
