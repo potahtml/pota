@@ -19,9 +19,8 @@
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
 
-    "jsx": "react",
-    "jsxFactory": "Component",
-    "jsxFragmentFactory": "Fragment",
+    "jsx": "react-jsx",
+    "jsxImportSource": "pota",
 
     "sourceMap": true
   },

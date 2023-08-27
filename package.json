@@ -7,6 +7,7 @@
   "types": "./src/types.d.ts",
   "main": "./src/reactiveLibraries/solid.js",
   "exports": {
+    "./jsx-runtime": "./src/@main.js",
     "./setup": "./src/renderer/index.js",
     "./test": "./src/reactiveLibraries/solid-dev.js",
     ".": "./src/reactiveLibraries/solid.js",
@@ -14,12 +15,14 @@
     "./oby": "./src/reactiveLibraries/oby.js",
     "./solid": "./src/reactiveLibraries/solid.js",
     "./solid-dev": "./src/reactiveLibraries/solid-dev.js",
-    "./router": "./src/components/router/@main.js",
-    "./*": "./*"
+    "./router/*": null,
+    "./router": "./src/components/router/@main.js"
   },
   "imports": {
     "#main": "./src/@main.js",
     "#lib/*": "./src/lib/*",
+    "#lib/std": "./src/lib/std/@main.js",
+    "#lib/reactivity": "./src/lib/reactivity/@main.js",
     "#components/*": "./src/components/*"
   },
   "repository": {
