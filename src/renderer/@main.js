@@ -601,9 +601,8 @@ export function mapArray(list, cb) {
 	let rows = []
 	let prev = []
 
-	// to get rid of all nodes
-	cleanup(() => {
-		for (const row of rows) {
+	function clear() {
+		for (const row of prev) {
 			row.dispose(true)
 		}
 		cache.clear()
@@ -611,7 +610,10 @@ export function mapArray(list, cb) {
 
 		rows = []
 		prev = []
-	})
+	}
+
+	// to get rid of all nodes
+	cleanup(clear)
 
 	// create an item
 	function create(item, index, fn, isDupe) {
@@ -675,8 +677,13 @@ export function mapArray(list, cb) {
 		}
 
 		// remove rows that arent present on the current run
-		for (const row of prev) {
-			if (row.runId !== runId) row.dispose()
+		if (rows.length === 0) {
+			// fast path for an empty list
+			clear()
+		} else {
+			for (const row of prev) {
+				if (row.runId !== runId) row.dispose()
+			}
 		}
 
 		// reorder elements
@@ -707,6 +714,7 @@ export function mapArray(list, cb) {
 
 		// save sorted list
 		prev = rows
+
 		// return external representation
 		// after the first run it lives in an effect
 		if (runId === 1) {
