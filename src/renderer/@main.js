@@ -830,7 +830,7 @@ function assignProps(node, props) {
 
 		if (ns === 'on') {
 			// delegated: no
-			addEvent(node, localName, value, false)
+			addEvent(node, localName, value, false, false)
 			continue
 		}
 
@@ -838,7 +838,7 @@ function assignProps(node, props) {
 		if (ns.startsWith('on')) {
 			// delegated: yes
 			if (ns.toLowerCase() in window) {
-				addEvent(node, ns.toLowerCase().substr(2), value, true)
+				addEvent(node, ns.toLowerCase().substr(2), value, true, false)
 				continue
 			}
 		}
@@ -846,7 +846,7 @@ function assignProps(node, props) {
 		// onClick={handler}
 		if (name.startsWith('on') && name.toLowerCase() in window) {
 			// delegated: yes
-			addEvent(node, name.toLowerCase().substr(2), value, true)
+			addEvent(node, name.toLowerCase().substr(2), value, true, false)
 			continue
 		}
 
@@ -1005,7 +1005,13 @@ function _setNodeStyleValue(style, name, value) {
 
 const Delegated = new Set()
 
-export function addEvent(node, type, handler, delegated) {
+export function addEvent(
+	node,
+	type,
+	handler,
+	delegated,
+	external = true,
+) {
 	node[$meta] = node[$meta] || (node[$meta] = empty())
 
 	const key = delegated ? type : `${type}Native`
@@ -1026,7 +1032,8 @@ export function addEvent(node, type, handler, delegated) {
 
 	handlers.push(handler)
 
-	return () => removeEvent(node, type, handler, delegated)
+	if (external)
+		return () => removeEvent(node, type, handler, delegated)
 }
 
 export function removeEvent(node, type, handler, delegated) {
