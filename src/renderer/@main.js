@@ -259,9 +259,11 @@ function createNode(node, props, children, scope) {
 	cleanup(() => {
 		// callbacks
 		node[$meta].onCleanup &&
-			untrack(() => call(node[$meta].onCleanup, node))
+			untrack(() => {
+				call(node[$meta].onCleanup, node)
+			})
 		// remove from the document
-		node.remove()
+		node.isConnected && node.remove()
 	})
 
 	// assign the props to the node
@@ -294,113 +296,121 @@ function createPlaceholder(parent, text, relative) {
 // creates the children for a parent
 
 function createChildren(parent, child, relative) {
-	// string/number/undefined
-	// display `undefined` because most likely is a mistake
-	// in the data/by the developer
-	// the only place where `undefined` is unwanted and discarded
-	// is on values of styles/classes/node attributes/node properties
-	if (
-		typeof child === 'string' ||
-		typeof child === 'number' ||
-		child === undefined
-	) {
-		return insertNode(parent, createElementText(child), relative)
-	}
+	switch (typeof child) {
+		// string/number/undefined
+		// display `undefined` because most likely is a mistake
+		// in the data/by the developer
+		// the only place where `undefined` is unwanted and discarded
+		// is on values of styles/classes/node attributes/node properties
+		case 'string':
+		case 'number':
+		case 'undefined': {
+			return insertNode(parent, createElementText(child), relative)
+		}
+		case 'function': {
+			// component
+			if (isComponent(child)) {
+				return createChildren(parent, child(), relative)
+			}
 
-	// childrens/fragments/NodeList
-	if (isArray(child)) {
-		return child.map(child => createChildren(parent, child, relative))
-	}
+			// signal/memo/external/user provided function
+			// if (isFunction(child)) {
+			// needs placeholder to stay in position
+			parent = createPlaceholder(parent, child.name, relative)
 
-	// Node
-	if (child instanceof Node) {
-		const node = child
-		const meta = node[$meta]
-
-		meta?.use && untrack(() => call(meta.use, node))
-
-		insertNode(parent, node, relative)
-
-		meta?.onMount &&
-			Timing.add(TIME_MOUNT, () => call(meta.onMount, node))
-
-		return node
-	}
-
-	// component
-	if (isComponent(child)) {
-		return createChildren(parent, child(), relative)
-	}
-
-	// signal/memo/external/user provided function
-	if (isFunction(child)) {
-		// needs placeholder to stay in position
-		parent = createPlaceholder(parent, child.name, relative)
-
-		// maybe a signal so needs an effect
-		let node
-		renderEffect(() => {
-			node = createChildren(parent, child(), true)
-			return node
-		})
-		// A placeholder is created and added to the document but doesnt form part of the children.
-		// The placeholder needs to be returned so it forms part of the group of childrens
-		// If childrens are moved and the placeholder is not moved with them, then,
-		// whenever childrens update these will be at the wrong place.
-		// wrong place: where the placeholder is and not where the childrens were moved to
-		return [node, parent]
-	}
-
-	// the value is `null`, as in {null} or like a show returning `null` on the falsy case
-	if (child === null) {
-		return null
-	}
-
-	// For
-	if (child instanceof MapArray) {
-		// signal: needs an effect
-
-		let node
-		renderEffect(() => {
-			node = child.map((child, index) => {
-				// wrap the item with placeholders, to avoid resolving and for easy re-arragement
-				const begin = createPlaceholder(parent, 'begin', true)
-				const end = createPlaceholder(parent, 'end', true)
-
-				return [begin, createChildren(end, child, true), end]
+			// maybe a signal so needs an effect
+			let node
+			renderEffect(() => {
+				node = createChildren(parent, child(), true)
+				return node
 			})
-			return node
-		})
-		return node
+			// A placeholder is created and added to the document but doesnt form part of the children.
+			// The placeholder needs to be returned so it forms part of the group of childrens
+			// If childrens are moved and the placeholder is not moved with them, then,
+			// whenever childrens update these will be at the wrong place.
+			// wrong place: where the placeholder is and not where the childrens were moved to
+			return [node, parent]
+			// }
+		}
+		case 'object': {
+			// childrens/fragments/NodeList
+			if (isArray(child)) {
+				return child.map(child =>
+					createChildren(parent, child, relative),
+				)
+			}
+
+			// Node
+			if (child instanceof Node) {
+				const node = child
+				const meta = node[$meta]
+
+				meta?.use &&
+					untrack(() => {
+						call(meta.use, node)
+					})
+
+				insertNode(parent, node, relative)
+
+				meta?.onMount &&
+					Timing.add(TIME_MOUNT, () => call(meta.onMount, node))
+
+				return node
+			}
+
+			// For
+			if (child instanceof MapArray) {
+				// signal: needs an effect
+
+				let node
+				renderEffect(() => {
+					node = child.map(child => {
+						// wrap the item with placeholders, to avoid resolving and for easy re-arragement
+						const begin = createPlaceholder(parent, 'begin', true)
+						const end = createPlaceholder(parent, 'end', true)
+
+						return [begin, createChildren(end, child, true), end]
+					})
+					return node
+				})
+				return node
+			}
+
+			// the value is `null`, as in {null} or like a show returning `null` on the falsy case
+			if (child === null) {
+				return null
+			}
+
+			// object.toString fancy objects
+			// if ( child.toString) {
+			// needs placeholder to stay in position
+			parent = createPlaceholder(parent, 'object', relative)
+
+			// maybe use signals so needs an effect
+			let node
+			renderEffect(() => {
+				node = createChildren(parent, child.toString(), true)
+				return node
+			})
+			// A placeholder is created and added to the document but doesnt form part of the children.
+			// The placeholder needs to be returned so it forms part of the group of childrens
+			// If childrens are moved and the placeholder is not moved with them, then,
+			// whenever childrens update these will be at the wrong place.
+			// wrong place: where the placeholder is and not where the childrens were moved to
+			return [node, parent]
+			// }
+		}
+		default: {
+			// the very unlikely
+			// boolean/bigint/symbol/catch all
+			// toString() is needed for `Symbol`
+			return insertNode(
+				parent,
+				createElementText(child.toString()),
+				relative,
+			)
+		}
 	}
-
-	// object.toString fancy objects
-	if (typeof child === 'object' && child.toString) {
-		// needs placeholder to stay in position
-		parent = createPlaceholder(parent, 'object', relative)
-
-		// maybe use signals so needs an effect
-		let node
-		renderEffect(() => {
-			node = createChildren(parent, child.toString(), true)
-			return node
-		})
-		// A placeholder is created and added to the document but doesnt form part of the children.
-		// The placeholder needs to be returned so it forms part of the group of childrens
-		// If childrens are moved and the placeholder is not moved with them, then,
-		// whenever childrens update these will be at the wrong place.
-		// wrong place: where the placeholder is and not where the childrens were moved to
-		return [node, parent]
-	}
-
-	// the very unlikely for last
-	// boolean/bigint/symbol/catch all
-	// toString() is needed for `Symbol`
-	return insertNode(
-		parent,
-		createElementText(child.toString()),
-		relative,
-	)
 }
 
 // insert
@@ -433,7 +443,9 @@ function insertNode(parent, node, relative) {
 	}
 
 	// get rid of children nodes on cleanup
-	cleanup(() => node.remove())
+	cleanup(() => {
+		node.isConnected && node.remove()
+	})
 
 	return node
 }
