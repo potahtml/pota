@@ -1020,7 +1020,9 @@ export function addEvent(
 	if (delegated) {
 		if (!Delegated.has(type)) {
 			Delegated.add(type)
-			document.addEventListener(type, eventHandlerDelegated) // maybe default to { passive:true }
+			document.addEventListener(type, eventHandlerDelegated, {
+				passive: true,
+			})
 		}
 	} else {
 		if (handlers.length === 0) {
