@@ -345,11 +345,6 @@ function createChildren(parent, child, relative) {
 				const node = child
 				const meta = node[$meta]
 
-				meta?.use &&
-					untrack(() => {
-						call(meta.use, node)
-					})
-
 				insertNode(parent, node, relative)
 
 				meta?.onMount &&
@@ -779,12 +774,6 @@ function assignProps(node, props) {
 		const [ns, localName] =
 			name.indexOf(':') !== -1 ? name.split(':') : ['', name]
 
-		if (name === 'use' || ns === 'use') {
-			node[$meta].use = node[$meta].use || []
-			node[$meta].use.push(value)
-			continue
-		}
-
 		if (name === 'onMount' || ns === 'onMount') {
 			node[$meta].onMount = node[$meta].onMount || []
 			node[$meta].onMount.push(value)
@@ -1091,7 +1080,7 @@ function eventDispatch(node, e, handlers) {
 	}
 }
 
-// we need to ensure the timing of some callbacks, like `onMount`, `use` and `onReady`
+// we need to ensure the timing of some callbacks, like `onMount`, and `onReady`
 // for this we add 1 queueMicrotask, then we queue functions in an array at a `priority` position
 // once the microtask is called, we run the array of functions in order of priority
 
