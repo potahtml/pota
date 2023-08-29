@@ -1,16 +1,12 @@
 import {
-  children,
-  getValue,
-  hasValue,
-  lazyMemo,
-  makeCallback,
   memo,
+  children,
+  lazyMemo,
   resolve,
+  makeCallback,
 } from '#main'
 
-export function Match(props) {
-  return props
-}
+import { hasValue, getValue } from '#std'
 
 export function Switch(props) {
   const childrens = children(() => props.children)
@@ -27,4 +23,8 @@ export function Switch(props) {
     () => match() && makeCallback(match().children),
   )
   return memo(() => (match() ? callback()(value) : fallback))
+}
+
+export function Match(props) {
+  return props
 }

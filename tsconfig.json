@@ -4,7 +4,16 @@
     "outDir": "./dist",
     "paths": {
       "#main": ["./src/@main.js"],
-      "#lib/*": ["./src/lib/*"],
+
+      "#primitives": ["./src/lib/reactivity/lib/solid.js"],
+      "#comp": ["./src/lib/comp/@main.js"],
+
+      "#std": ["./src/lib/std/@main.js"],
+      "#reactivity": ["./src/lib/reactivity/@main.js"],
+      "#urls": ["./src/lib/urls/@main.js"],
+      "#scroll": ["./src/lib/scroll/@main.js"],
+      "#time": ["./src/lib/time/@main.js"],
+
       "#components/*": ["./src/components/*"]
     },
 
@@ -22,7 +31,9 @@
     "jsx": "react-jsx",
     "jsxImportSource": "pota",
 
-    "sourceMap": true
+    "sourceMap": true,
+
+    "types": ["./src/types.d.ts", "solid-js"]
   },
   "exclude": ["./dist/*"]
 }

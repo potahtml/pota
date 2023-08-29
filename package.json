@@ -1,28 +1,29 @@
 {
   "name": "pota",
-  "description": "A Runtime HTML Renderer for Reactive Libraries.",
+  "description": "A Reactive HTML Renderer.",
   "version": "0.1.0",
   "author": "Tito Bouzout",
   "type": "module",
   "types": "./src/types.d.ts",
-  "main": "./src/reactiveLibraries/solid.js",
+  "main": "./src/@main.js",
   "exports": {
-    "./jsx-runtime": "./src/@main.js",
-    "./setup": "./src/renderer/index.js",
-    "./test": "./src/reactiveLibraries/solid-dev.js",
-    ".": "./src/reactiveLibraries/solid.js",
-    "./flimsy": "./src/reactiveLibraries/flimsy.js",
-    "./oby": "./src/reactiveLibraries/oby.js",
-    "./solid": "./src/reactiveLibraries/solid.js",
-    "./solid-dev": "./src/reactiveLibraries/solid-dev.js",
+    ".": "./src/@main.js",
+    "./jsx-runtime": "./src/renderer/jsx-runtime.js",
     "./router/*": null,
     "./router": "./src/components/router/@main.js"
   },
   "imports": {
     "#main": "./src/@main.js",
-    "#lib/*": "./src/lib/*",
-    "#lib/std": "./src/lib/std/@main.js",
-    "#lib/reactivity": "./src/lib/reactivity/@main.js",
+
+    "#primitives": "./src/lib/reactivity/lib/solid.js",
+    "#comp": "./src/lib/comp/@main.js",
+
+    "#std": "./src/lib/std/@main.js",
+    "#reactivity": "./src/lib/reactivity/@main.js",
+    "#urls": "./src/lib/urls/@main.js",
+    "#scroll": "./src/lib/scroll/@main.js",
+    "#time": "./src/lib/time/@main.js",
+
     "#components/*": "./src/components/*"
   },
   "repository": {

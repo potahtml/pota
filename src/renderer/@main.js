@@ -1,101 +1,41 @@
 // reactivity
 
-let root,
-	renderEffect,
-	effect,
-	cleanup,
-	signal,
-	memo,
-	untrack,
-	context,
-	useContext,
-	batch
-
-// for being able to switch reactive libraries
-
-export function setReactiveLibrary(o) {
-	root = o.root
-	renderEffect = o.renderEffect
-	effect = o.effect
-	cleanup = o.cleanup
-	signal = o.signal
-	memo = o.memo
-	untrack = o.untrack
-	context = o.context
-	useContext = o.useContext
-	batch = o.batch
-}
-
-// export the reactivity
-
-export {
+import {
 	root,
 	renderEffect,
-	effect,
 	cleanup,
-	cleanup as onCleanup,
-	signal,
 	memo,
 	untrack,
-	context,
-	useContext,
-	batch,
-}
+} from '#primitives'
 
 // constants
 
-const $meta = Symbol('pota-meta')
-const $component = Symbol('pota-component')
-const $reactive = Symbol('pota-reactive')
-
-const NS = {
-	svg: 'http://www.w3.org/2000/svg',
-	math: 'http://www.w3.org/1998/Math/MathML',
-	html: 'http://www.w3.org/1999/xhtml',
-	xlink: 'http://www.w3.org/1999/xlink',
-}
-
-// to ensure timing of events callbacks are queued to run at specific times
-
-const TIME_MOUNT = 1
-const TIME_READY = 2
+import {
+	// symbols
+	$meta,
+	// namespace
+	NS,
+	// to ensure timing of events callbacks are queued to run at specific times
+	TIME_MOUNT,
+	TIME_READY,
+} from './constants.js'
 
 // while not needed these make the logic/code more concise/readable
 
-const assign = Object.assign
-const entries = Object.entries
-const empty = () => Object.create(null)
+import {
+	empty,
+	isArray,
+	isFunction,
+	call,
+	removeFromArray,
+	getValue,
+} from '#std'
 
-export const isArray = Array.isArray
-export const isFunction = value => typeof value === 'function'
-export const isComponent = value =>
-	typeof value === 'function' && value[$component] === null
-export const isReactive = value =>
-	typeof value === 'function' && value[$reactive] === null
+// renderer lib
 
-const isComponentable = value =>
-	!isReactive(value) &&
-	(typeof value === 'function' ||
-		// avoid [1,2] and support { toString(){ return "something"} }
-		(!isArray(value) && isNotNullObject(value)))
+import { isComponent, isComponentable, markComponent } from '#comp'
 
-// the following set of functions are based on the renderer assumptions
-// these are not mean to be generic JavaScript functions
-const isNotNullObject = value =>
-	value !== null && typeof value === 'object'
-export const hasValue = value => value !== null && value !== undefined
-export const getValue = value =>
-	typeof value === 'function' ? getValue(value()) : value
-
-// runs arrays of functions with arguments
-function call(fns, ...args) {
-	for (const fn of fns)
-		isArray(fn) ? fn[0](...args, ...fn.slice(1)) : fn(...args)
-}
-function removeFromArray(arr, value) {
-	const index = arr.indexOf(value)
-	if (index !== -1) arr.splice(index, 1)
-}
+// document
 
 const createElement = document.createElement.bind(document)
 const createElementNS = document.createElementNS.bind(document)
@@ -116,7 +56,7 @@ export const Fragment = () => {}
 // returns a function because we need to render from parent to children instead of from children to parent
 // this allows to properly set the reactivity tree (think of nested effects that clear inner effects)
 // additionally allows to access parent when creating children
-function Component(value, props) {
+export function Component(value, props) {
 	// special case fragments, these are arrays and dont need untrack nor props
 	if (value === Fragment) {
 		// <>...</>
@@ -127,7 +67,6 @@ function Component(value, props) {
 	// the scope/context is used to hold the parent to be able to tell if dynamic childrens are XML
 	return markComponent(Factory(value).bind(null, props, empty()))
 }
-export { Component as jsx, Component as jsxs }
 
 // component are cached for the duration of a run (top to bottom)
 // cache is cleared after the run
@@ -189,20 +128,6 @@ function Factory(value) {
 	Components.set(value, component)
 
 	return component
-}
-
-// allows to tell a `signal function` from a `component function`
-// signals and user functions go in effects, for reactivity
-// components and callbacks are untracked and wont go in effects to avoid re-rendering
-
-function markComponent(fn) {
-	fn[$component] = null
-	return fn
-}
-
-export function markReactive(fn) {
-	fn[$reactive] = null
-	return fn
 }
 
 // keeps track of parentNode for `xmlns` spreading to children
@@ -360,7 +285,7 @@ function createChildren(parent, child, relative) {
 				let node
 				renderEffect(() => {
 					node = child.map(child => {
-						// wrap the item with placeholders, to avoid resolving and for easy re-arragement
+						// wrap the item with placeholders, to avoid resolving and for easy re-arrangement
 						const begin = createPlaceholder(parent, 'begin', true)
 						const end = createPlaceholder(parent, 'end', true)
 
@@ -409,7 +334,6 @@ function createChildren(parent, child, relative) {
 }
 
 // insert
-
 function insertNode(parent, node, relative) {
 	// check if the node has been portaled
 	if (node[$meta]?.props.mount) {
@@ -428,10 +352,10 @@ function insertNode(parent, node, relative) {
 				head.querySelector('meta[name="' + node.name + '"]') ||
 				head.querySelector('meta[property="' + node.property + '"]')
 		} else if (name === 'TITLE') {
-			prev = head.querySelector('TITLE')
+			prev = head.querySelector('title')
 		}
 
-		// replace old node if theres any
+		// replace old node if there's any
 		prev ? prev.replaceWith(node) : head.appendChild(node)
 	} else {
 		relative ? parent.before(node) : parent.appendChild(node)
@@ -468,8 +392,7 @@ export function insert(value, parent, clear, relative) {
 
 function clearNode(node) {
 	// check for node existence to be able to use querySelector on yet to be created nodes
-	if (node) node.textContent = ''
-	// node.replaceChildren() thoughts?
+	if (node) node.replaceChildren()
 }
 
 // creates tagged template components
@@ -544,51 +467,6 @@ export function resolve(children) {
 
 export function onReady(fn) {
 	Timing.add(TIME_READY, () => call([fn]))
-}
-
-// UTILS
-
-// makes untracked callbacks from childrens
-// it should track only reactive children like signals or memos
-// children could also be regular children and not functions
-
-export function makeCallback(fns) {
-	// ensure is an array
-	// the transformer gives arrays but user components could return anything
-	// function MyComponent() { return 'Something'} // children wont be an array
-	fns = (isArray(fns) ? fns : [fns]).map(fn =>
-		isReactive(fn)
-			? fn
-			: isFunction(fn)
-			? (...args) => untrack(() => fn(...args))
-			: () => fn,
-	)
-	return markComponent((...args) => fns.map(fn => fn(...args)))
-}
-
-// some props are for components use not for attributes/props
-// propsData(props, ['scroll', 'replace'])
-// sets props.scroll and props.replace to null, and adds it to
-// props.$data = { noscroll, replace }
-// data may be accessed from the node via
-// getPropsData(node) === { noscroll, replace }
-
-export function getPropsData(node) {
-	return node[$meta]?.props.$data || empty()
-}
-
-// lazy memo runs only after use, by fabiospampinato@solid-js/discord
-
-export function lazyMemo(fn) {
-	const [sleeping, setSleeping] = signal(true)
-	const m = memo(() => {
-		if (sleeping()) return
-		return fn()
-	})
-	return () => {
-		setSleeping(false)
-		return m()
-	}
 }
 
 // Map Array
@@ -678,7 +556,6 @@ export function mapArray(list, cb) {
 
 		// remove rows that arent present on the current run
 		if (rows.length === 0) {
-			// fast path for an empty list
 			clear()
 		} else {
 			for (const row of prev) {
@@ -739,391 +616,37 @@ export class MapArray {
 	}
 }
 
-// props magic
+// some props are for components use not for attributes/props
+// propsData(props, ['scroll', 'replace'])
+// sets props.scroll and props.replace to null, and adds it to
+// props.$data = { noscroll, replace }
+// data may be accessed from the node via
+// getPropsData(node) === { noscroll, replace }
 
-// properties vs attributes
-
-const NodesProperties = new Set([
-	// content
-	'innerHTML',
-	'textContent',
-	'innerText',
-
-	// properties
-	'value',
-])
-
-function assignProps(node, props) {
-	for (const [name, value] of entries(props)) {
-		// internal
-		if (name === 'mount' || name === 'children' || name === '$data') {
-			continue
-		}
-
-		// magic, no ns
-
-		if (name === 'style') {
-			setNodeStyle(node.style, value)
-			continue
-		}
-
-		if (name === 'class') {
-			setNodeClassList(node.classList, value)
-			continue
-		}
-
-		if (NodesProperties.has(name)) {
-			setNodeProperty(node, name, value)
-			continue
-		}
-
-		// magic with ns
-
-		const [ns, localName] =
-			name.indexOf(':') !== -1 ? name.split(':') : ['', name]
-
-		if (name === 'onMount' || ns === 'onMount') {
-			node[$meta].onMount = node[$meta].onMount || []
-			node[$meta].onMount.push(value)
-			continue
-		}
-
-		if (name === 'onCleanup' || ns === 'onCleanup') {
-			node[$meta].onCleanup = node[$meta].onCleanup || []
-			node[$meta].onCleanup.push(value)
-			continue
-		}
-
-		if (ns === 'prop') {
-			setNodeProperty(node, localName, value)
-			continue
-		}
-
-		if (ns === 'attr') {
-			setNodeAttribute(node, localName, value)
-			continue
-		}
-
-		if (ns === 'style') {
-			setNodeStyle(
-				node.style,
-				isNotNullObject(value) ? value : { [localName]: value },
-			)
-			continue
-		}
-
-		if (ns === 'var') {
-			setNodeStyle(node.style, { ['--' + localName]: value })
-			continue
-		}
-
-		if (ns === 'class') {
-			setNodeClassList(
-				node.classList,
-				isNotNullObject(value) ? value : { [localName]: value },
-			)
-			continue
-		}
-
-		if (ns === 'on') {
-			// delegated: no
-			addEvent(node, localName, value, false, false)
-			continue
-		}
-
-		// onClick:my-ns={handler}
-		if (ns.startsWith('on')) {
-			// delegated: yes
-			if (ns.toLowerCase() in window) {
-				addEvent(node, ns.toLowerCase().substr(2), value, true, false)
-				continue
-			}
-		}
-
-		// onClick={handler}
-		if (name.startsWith('on') && name.toLowerCase() in window) {
-			// delegated: yes
-			addEvent(node, name.toLowerCase().substr(2), value, true, false)
-			continue
-		}
-
-		// catch all
-		setNodeProp(node, name, value, ns)
-	}
+export function getPropsData(node) {
+	return node[$meta]?.props.$data || empty()
 }
 
-// node properties / attributes
+// properties / attributes
 
-function setNodeProp(node, name, value, ns) {
-	if (isFunction(value)) {
-		effect(() => {
-			_setNodeProp(node, name, getValue(value), ns)
-		})
-	} else {
-		_setNodeProp(node, name, value, ns)
-	}
-}
-function _setNodeProp(node, name, value, ns) {
-	// set as property when boolean
-	if (typeof value === 'boolean') {
-		_setNodeProperty(node, name, value)
-	} else {
-		// fallback to attribute when unknown
-		_setNodeAttribute(node, name, value, ns)
-	}
-}
-
-// node properties
-
-function setNodeProperty(node, name, value) {
-	if (isFunction(value)) {
-		effect(() => {
-			_setNodeProperty(node, name, getValue(value))
-		})
-	} else {
-		_setNodeProperty(node, name, value)
-	}
-}
-function _setNodeProperty(node, name, value) {
-	// if the value is null or undefined it will be removed
-	if (!hasValue(value)) {
-		delete node[name]
-	} else {
-		node[name] = value
-	}
-}
-
-// node attributes
-
-function setNodeAttribute(node, name, value, ns) {
-	if (isFunction(value)) {
-		effect(() => {
-			_setNodeAttribute(node, name, getValue(value), ns)
-		})
-	} else {
-		_setNodeAttribute(node, name, value, ns)
-	}
-}
-function _setNodeAttribute(node, name, value, ns) {
-	// if the value is null or undefined it will be removed
-	if (!hasValue(value)) {
-		ns && NS[ns]
-			? node.removeAttributeNS(NS[ns], name)
-			: node.removeAttribute(name)
-	} else {
-		ns && NS[ns]
-			? node.setAttributeNS(NS[ns], name, value)
-			: node.setAttribute(name, value)
-	}
-}
-
-// node class / classList
-
-// todo: the name of the class is not reactive
-
-function setNodeClassList(classList, value) {
-	if (isNotNullObject(value)) {
-		for (const [name, _value] of entries(value))
-			setNodeClassListValue(classList, name, _value)
-		return
-	}
-	const type = typeof value
-
-	if (type === 'string') {
-		setNodeClassListValue(classList, value, true)
-		return
-	}
-	if (type === 'function') {
-		effect(() => {
-			setNodeClassList(classList, getValue(value))
-		})
-		return
-	}
-}
-function setNodeClassListValue(classList, name, value) {
-	if (isFunction(value)) {
-		effect(() => {
-			_setNodeClassListValue(classList, name, getValue(value))
-		})
-	} else {
-		_setNodeClassListValue(classList, name, value)
-	}
-}
-function _setNodeClassListValue(classList, name, value) {
-	// null, undefined or false the class is removed
-	if (!value) {
-		classList.remove(name)
-	} else {
-		classList.add(...name.trim().split(/\s+/))
-	}
-}
-
-// node style
-
-function setNodeStyle(style, value) {
-	if (isNotNullObject(value)) {
-		for (const [name, _value] of entries(value))
-			setNodeStyleValue(style, name, _value)
-		return
-	}
-	const type = typeof value
-	if (type === 'string') {
-		style.cssText = value
-		return
-	}
-	if (type === 'function') {
-		effect(() => {
-			setNodeStyle(style, getValue(value))
-		})
-		return
-	}
-}
-function setNodeStyleValue(style, name, value) {
-	if (isFunction(value)) {
-		effect(() => {
-			_setNodeStyleValue(style, name, getValue(value))
-		})
-	} else {
-		_setNodeStyleValue(style, name, value)
-	}
-}
-function _setNodeStyleValue(style, name, value) {
-	// if the value is null or undefined it will be removed
-	if (!hasValue(value)) {
-		style.removeProperty(name)
-	} else {
-		style.setProperty(name, value)
-	}
-}
-
-// events
-// delegated and native events are hold into an array property of the node
-// to avoid duplicated events that could be added by using `ns` in ease of organization
-
-const Delegated = new Set()
-
-export function addEvent(
-	node,
-	type,
-	handler,
-	delegated,
-	external = true,
-) {
-	node[$meta] = node[$meta] || (node[$meta] = empty())
-
-	const key = delegated ? type : `${type}Native`
-	const handlers = node[$meta][key] || (node[$meta][key] = [])
-
-	if (delegated) {
-		if (!Delegated.has(type)) {
-			Delegated.add(type)
-			document.addEventListener(type, eventHandlerDelegated, {
-				passive: true,
-			})
-		}
-	} else {
-		if (handlers.length === 0) {
-			node.addEventListener(type, eventHandlerNative)
-		}
-	}
-
-	handler[$meta] = isArray(handler) ? handler : [handler]
-
-	handlers.push(handler)
-
-	if (external)
-		return () => removeEvent(node, type, handler, delegated)
-}
-
-export function removeEvent(node, type, handler, delegated) {
-	const key = delegated ? type : `${type}Native`
-	const handlers = node[$meta][key]
-
-	removeFromArray(handlers, handler)
-	if (!delegated && handlers.length === 0) {
-		node.removeEventListener(type, eventHandlerNative)
-	}
-	return () => addEvent(node, type, handler, delegated)
-}
-
-function eventHandlerNative(e) {
-	const key = `${e.type}Native`
-	const node = e.target
-	const handlers = node[$meta][key]
-	eventDispatch(node, e, handlers)
-}
-
-function eventHandlerDelegated(e) {
-	const key = e.type
-
-	let node = (e.composedPath && e.composedPath()[0]) || e.target
-
-	// reverse Shadow DOM retargetting
-	// from dom-expressions
-	if (e.target !== node) {
-		Object.defineProperty(e, 'target', {
-			value: node,
-		})
-	}
-
-	// simulate currentTarget
-	Object.defineProperty(e, 'currentTarget', {
-		value: node,
-	})
-
-	while (node) {
-		const handlers = node[$meta] && node[$meta][key]
-		if (handlers && !node.disabled) {
-			eventDispatch(node, e, handlers)
-			if (e.cancelBubble) break
-		}
-		node = node.parentNode
-	}
-}
-
-function eventDispatch(node, e, handlers) {
-	for (const handler of handlers) {
-		handler[$meta][0].call(node, e, ...handler[$meta].slice(1))
-		if (e.cancelBubble) break
-	}
-}
+import { assignProps } from './props/@main.js'
 
 // we need to ensure the timing of some callbacks, like `onMount`, and `onReady`
 // for this we add 1 queueMicrotask, then we queue functions in an array at a `priority` position
 // once the microtask is called, we run the array of functions in order of priority
 
-class Scheduler {
-	constructor() {
-		this.reset()
-	}
-	reset() {
-		this.run = [[], [], [], []]
-		this.do = false
-	}
-	add(priority, fn) {
-		if (!this.do) {
-			this.do = true
-			queueMicrotask(() => this.process())
-		}
-		this.run[priority].push(fn)
-	}
-	process() {
-		const run = this.run
-		this.reset()
-		untrack(() => {
-			for (const fns of run) {
-				for (const fn of fns) fn()
-			}
-		})
-		this.finally()
-	}
-	finally() {
+import { Scheduler } from '#time'
+
+const Timing = new Scheduler(
+	// callback
+	cb => untrack(cb),
+	// finally
+	() => {
 		// we are sure our job is done for this loop
 		// this function runs after each "run" is complete
 		// so we can add here house keeping stuff
 
 		// clear the component cache
 		Components.clear()
-	}
-}
-const Timing = new Scheduler()
+	},
+)

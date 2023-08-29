@@ -1,13 +1,8 @@
 // control flow
 
-import {
-	makeCallback,
-	memo,
-	hasValue,
-	getValue,
-	lazyMemo,
-	resolve,
-} from '#main'
+import { memo, lazyMemo, resolve, makeCallback } from '#main'
+
+import { hasValue, getValue } from '#std'
 
 export function Show(props, children) {
 	const callback = makeCallback(children)
@@ -19,6 +14,6 @@ export function Show(props, children) {
 		: () => null
 	return memo(() => {
 		const result = condition()
-		return result ? callback(value) : fallback()
+		return result ? callback(value) : fallback
 	})
 }

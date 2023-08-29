@@ -1,5 +1,4 @@
-// For
-import { makeCallback, memo, MapArray, getValue } from '#main'
+import { memo, MapArray, makeCallback } from '#main'
 
 export function For(props, children) {
 	const callback = makeCallback(children)

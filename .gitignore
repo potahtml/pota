@@ -1,6 +1,4 @@
-package-lock.json
-node_modules
-dist
+
 
 # Logs
 logs
@@ -26,7 +24,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-src/components/router.js
-src/components/router
-src/lib
-src/components/media
+
