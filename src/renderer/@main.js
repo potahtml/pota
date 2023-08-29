@@ -392,7 +392,7 @@ export function insert(value, parent, clear, relative) {
 
 function clearNode(node) {
 	// check for node existence to be able to use querySelector on yet to be created nodes
-	if (node) node.replaceChildren()
+	if (node) node.textContent = ''
 }
 
 // creates tagged template components
@@ -476,6 +476,7 @@ export function mapArray(list, cb) {
 	const duplicates = new Map() // for when caching by value is not possible [1,2,1]
 
 	let runId = 0
+
 	let rows = []
 	let prev = []
 
@@ -486,8 +487,8 @@ export function mapArray(list, cb) {
 		cache.clear()
 		duplicates.clear()
 
-		rows = []
-		prev = []
+		rows.length = 0
+		prev.length = 0
 	}
 
 	// to get rid of all nodes
@@ -529,9 +530,10 @@ export function mapArray(list, cb) {
 		// todo: check what can be iterated
 		for (const [index, item] of items.entries()) {
 			let row = cache.get(item)
+
 			// if the item doesnt exists, create it
 			if (!row) {
-				row = create(item, index, fn)
+				row = create(item, index, fn, false)
 				cache.set(item, row)
 			} else if (row.runId === runId) {
 				// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
@@ -564,10 +566,12 @@ export function mapArray(list, cb) {
 		}
 
 		// reorder elements
-		if (rows.length > 1) {
+		// prev.length > 0 to skip sorting on creation as its already sorted
+		if (rows.length > 1 && prev.length > 0) {
 			// a `shore` delimits every item with a `begin` and `end` placeholder
 			// you can quickly check if items are in the right order
 			// by checking if item.end.nextSibling === nextItem.begin
+
 			let current = rows[rows.length - 1].shore
 			for (let i = rows.length - 1; i > 0; i--) {
 				const previous = rows[i - 1].shore
@@ -612,7 +616,7 @@ export class MapArray {
 		this.mapper = mapArray(items, cb)
 	}
 	map(fn) {
-		return this.mapper((item, index) => fn(item, index))
+		return this.mapper(fn)
 	}
 }
 
