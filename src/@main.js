@@ -52,6 +52,13 @@ export {
 	getPropsData,
 } from './renderer/@main.js'
 
+// classes
+
+import { $class } from '#comp'
+class Component {}
+Component[$class] = Component.prototype[$class] = null
+export { Component }
+
 // render utils
 
 export { makeCallback } from '#comp'

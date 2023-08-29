@@ -33,7 +33,12 @@ import {
 
 // renderer lib
 
-import { isComponent, isComponentable, markComponent } from '#comp'
+import {
+	isClassComponent,
+	isComponent,
+	isComponentable,
+	markComponent,
+} from '#comp'
 
 // document
 
@@ -103,6 +108,17 @@ function Factory(value) {
 		// a string component, 'div' becomes <div>
 		component = (props = empty(), scope = empty()) =>
 			untrack(() => createTag(value, props, props.children, scope))
+	} else if (isClassComponent(value)) {
+		// a class component <MyComponent../>
+		component = (props = empty(), scope = empty()) =>
+			untrack(() => {
+				const instance = new value()
+				instance.onReady &&
+					Timing.add(TIME_READY, () => instance.onReady())
+				instance.onCleanup && cleanup(() => instance.onCleanup())
+
+				return instance.render(props, props.children /*, scope*/)
+			})
 	} else if (isFunction(value)) {
 		// a function component <MyComponent../>
 		component = (props = empty(), scope = empty()) =>
@@ -121,7 +137,7 @@ function Factory(value) {
 	} else {
 		// objects with a custom `.toString()`
 		component = (props = empty(), scope = empty()) =>
-			untrack(() => value.toString(props, props.children, scope))
+			untrack(() => value.toString(props, props.children /*, scope*/))
 	}
 
 	// save in cache
