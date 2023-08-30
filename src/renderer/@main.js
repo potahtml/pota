@@ -68,9 +68,21 @@ export function Component(value, props) {
 		return props.children
 	}
 
-	// create component instance with bind, props, and a scope/context initially set to an empty object
+	/*
+		const some = create('div')
+ 		some === () => createDiv
+ 		some !== Factory(some)
+		the factory wont recognize `some` as an already seen component
+		because we are returning a new function
+		by checking if its already a component we avoid this problem
+	*/
+	if (isComponent(value)) {
+		return markComponent(() => value(props, empty()))
+	}
+	// create component instance with props, and a scope/context initially set to an empty object
 	// the scope/context is used to hold the parent to be able to tell if dynamic childrens are XML
-	return markComponent(Factory(value).bind(null, props, empty()))
+
+	return markComponent(() => Factory(value)(props, empty()))
 }
 
 // component are cached for the duration of a run (top to bottom)
@@ -88,7 +100,6 @@ export function create(value) {
 	// on here we check if the value is already a known component
 	// think of
 	// `const MyComponent = create('div'), AnotherComponent({children:create(MyComponent)({..props..})})`
-	// the jsx transformer doesnt do that, but I can see how that could happen with user crafted components
 	if (isComponent(value)) {
 		return value
 	}
@@ -117,7 +128,7 @@ function Factory(value) {
 					Timing.add(TIME_READY, () => instance.onReady())
 				instance.onCleanup && cleanup(() => instance.onCleanup())
 
-				return instance.render(props, props.children /*, scope*/)
+				return instance.render(props, props.children, scope)
 			})
 	} else if (isFunction(value)) {
 		// a function component <MyComponent../>
@@ -137,7 +148,7 @@ function Factory(value) {
 	} else {
 		// objects with a custom `.toString()`
 		component = (props = empty(), scope = empty()) =>
-			untrack(() => value.toString(props, props.children /*, scope*/))
+			untrack(() => value.toString(props, props.children, scope))
 	}
 
 	// save in cache

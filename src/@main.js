@@ -55,7 +55,7 @@ export {
 // classes
 
 import { $class } from '#comp'
-class Component {}
+function Component() {}
 Component[$class] = Component.prototype[$class] = null
 export { Component }
 
