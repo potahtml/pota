@@ -45,7 +45,6 @@ export {
 	renderEffect,
 	_effect as effect,
 	cleanup,
-	cleanup as onCleanup,
 	signal,
 	_memo as memo,
 	untrack,

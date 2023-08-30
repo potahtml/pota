@@ -40,7 +40,6 @@ export {
 	createEffect as renderEffect,
 	createEffect as effect,
 	onCleanup as cleanup,
-	onCleanup,
 	signal,
 	memo,
 	untrack,
