@@ -306,7 +306,7 @@ function createChildren(parent, child, relative) {
 			}
 
 			// For
-			if (child instanceof MapArray) {
+			if (child instanceof ReactiveMap) {
 				// signal: needs an effect
 
 				let node
@@ -641,7 +641,7 @@ export function map(list, cb, sort) {
 	}
 }
 
-export class MapArray {
+export class ReactiveMap {
 	constructor(items, cb) {
 		this.mapper = map(items, cb, true)
 	}

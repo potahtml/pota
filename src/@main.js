@@ -49,7 +49,7 @@ export {
 	resolve,
 	// utils
 	map,
-	MapArray,
+	ReactiveMap,
 	getPropsData,
 } from './renderer/@main.js'
 
