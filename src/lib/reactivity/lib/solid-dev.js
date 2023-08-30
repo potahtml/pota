@@ -9,7 +9,7 @@ import {
 	useContext,
 	getOwner,
 	batch,
-} from 'solid-js' // /dist/dev.js
+} from 'solid-js/dist/dev.js'
 
 const signal = (a, b) => {
 	const r = createSignal(a, b)
@@ -19,7 +19,7 @@ const signal = (a, b) => {
 
 const memo = (a, b, c) => markReactive(createMemo(a, b, c))
 
-const context = defaultValue => {
+function context(defaultValue) {
 	const id = Symbol()
 	return {
 		id,

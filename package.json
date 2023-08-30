@@ -24,7 +24,8 @@
     "#scroll": "./src/lib/scroll/@main.js",
     "#time": "./src/lib/time/@main.js",
 
-    "#components/*": "./src/components/*"
+    "#components/*": "./src/components/*",
+    "#reactivity-lib/*": "./src/lib/reactivity/lib/*"
   },
   "repository": {
     "type": "git",

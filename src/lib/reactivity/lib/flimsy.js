@@ -1,37 +1,32 @@
 import {
 	createRoot,
-	createRenderEffect,
 	createEffect,
 	onCleanup,
 	createSignal,
 	createMemo,
 	untrack,
+	createContext,
 	useContext,
-	getOwner,
 	batch,
-} from 'solid-js' // /dist/dev.js
+} from 'flimsy'
 
 const signal = (a, b) => {
 	const r = createSignal(a, b)
 	markReactive(r[0])
 	return r
 }
-
-const memo = (a, b, c) => markReactive(createMemo(a, b, c))
+const memo = (a, b) => markReactive(createMemo(a, b))
 
 const context = defaultValue => {
-	const id = Symbol()
+	const context = createContext(defaultValue)
 	return {
-		id,
-		defaultValue,
+		...context,
 		Provider: function (props) {
 			let r
-			createRenderEffect(
+			createEffect(
 				() =>
 					(r = untrack(() => {
-						getOwner().context = {
-							[id]: props.value,
-						}
+						context.set(props.value)
 						return children(() => props.children)
 					})),
 			)
@@ -42,7 +37,7 @@ const context = defaultValue => {
 
 export {
 	createRoot as root,
-	createRenderEffect as renderEffect,
+	createEffect as renderEffect,
 	createEffect as effect,
 	onCleanup as cleanup,
 	onCleanup,
