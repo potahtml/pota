@@ -18,6 +18,7 @@ export {
 
 export {
 	lazyMemo,
+	selector,
 	propsMerge,
 	propsSplit,
 	propsData,
@@ -47,7 +48,7 @@ export {
 	children,
 	resolve,
 	// utils
-	mapArray,
+	map,
 	MapArray,
 	getPropsData,
 } from './renderer/@main.js'

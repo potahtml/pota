@@ -498,7 +498,7 @@ export function onReady(fn) {
 
 // Map Array
 
-export function mapArray(list, cb) {
+export function map(list, cb, sort) {
 	const cache = new Map()
 	const duplicates = new Map() // for when caching by value is not possible [1,2,1]
 
@@ -525,13 +525,17 @@ export function mapArray(list, cb) {
 	function create(item, index, fn, isDupe) {
 		// a root is created so we can call dispose to get rid of an item
 		return root(dispose => {
-			const nodes = fn ? fn(cb(item, index), index) : cb(item, index)
+			const nodes = untrack(() =>
+				fn
+					? fn(cb(item /*, index*/) /*, index*/)
+					: cb(item /*, index*/),
+			)
 			const row = {
 				runId: -1,
 				// this is held here only to be returned on the first run, but no need to keep it after
 				nodes: runId === 1 ? nodes : null,
 				// reference nodes, it holds the placeholders that delimit `begin` and `end`
-				shore: [nodes[0], nodes.at(-1)],
+				shore: !sort ? [] : [nodes[0], nodes.at(-1)],
 				dispose: all => {
 					// skip cache deletion as we are going to clear the full map
 					if (!all) {
@@ -554,7 +558,6 @@ export function mapArray(list, cb) {
 
 		rows = []
 
-		// todo: check what can be iterated
 		for (const [index, item] of items.entries()) {
 			let row = cache.get(item)
 
@@ -594,7 +597,7 @@ export function mapArray(list, cb) {
 
 		// reorder elements
 		// prev.length > 0 to skip sorting on creation as its already sorted
-		if (rows.length > 1 && prev.length > 0) {
+		if (sort && rows.length > 1 && prev.length > 0) {
 			// a `shore` delimits every item with a `begin` and `end` placeholder
 			// you can quickly check if items are in the right order
 			// by checking if item.end.nextSibling === nextItem.begin
@@ -640,7 +643,7 @@ export function mapArray(list, cb) {
 
 export class MapArray {
 	constructor(items, cb) {
-		this.mapper = mapArray(items, cb)
+		this.mapper = map(items, cb, true)
 	}
 	map(fn) {
 		return this.mapper(fn)
