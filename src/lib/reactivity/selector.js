@@ -5,10 +5,11 @@ export function selector(value) {
 
 	let prev
 	effect(() => {
+		const selected = value()
+		if (selected === prev) return
+
 		const previous = map.get(prev)
 		if (previous) previous.write(false)
-
-		const selected = value()
 
 		const current = map.get(selected)
 		if (current) current.write(true)
