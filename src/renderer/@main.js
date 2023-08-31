@@ -259,6 +259,7 @@ function createChildren(parent, child, relative) {
 		case 'undefined': {
 			return insertNode(parent, createElementText(child), relative)
 		}
+
 		case 'function': {
 			// component
 			if (isComponent(child)) {
@@ -284,6 +285,7 @@ function createChildren(parent, child, relative) {
 			return [node, parent]
 			// }
 		}
+
 		case 'object': {
 			// childrens/fragments/NodeList
 			if (isArray(child)) {
@@ -347,6 +349,7 @@ function createChildren(parent, child, relative) {
 			return [node, parent]
 			// }
 		}
+
 		default: {
 			// the very unlikely
 			// boolean/bigint/symbol/catch all

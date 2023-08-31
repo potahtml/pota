@@ -9,21 +9,19 @@
   "exports": {
     ".": "./src/@main.js",
     "./jsx-runtime": "./src/renderer/jsx-runtime.js",
+    "./babel-preset": "./babel-preset/index.js",
     "./router/*": null,
     "./router": "./src/components/router/@main.js"
   },
   "imports": {
     "#main": "./src/@main.js",
-
     "#primitives": "./src/lib/reactivity/lib/solid.js",
     "#comp": "./src/lib/comp/@main.js",
-
     "#std": "./src/lib/std/@main.js",
     "#reactivity": "./src/lib/reactivity/@main.js",
     "#urls": "./src/lib/urls/@main.js",
     "#scroll": "./src/lib/scroll/@main.js",
     "#time": "./src/lib/time/@main.js",
-
     "#components/*": "./src/components/*",
     "#reactivity-lib/*": "./src/lib/reactivity/lib/*"
   },
@@ -45,5 +43,12 @@
     "proseWrap": "never",
     "endOfLine": "lf",
     "singleAttributePerLine": true
+  },
+  "dependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "babel-plugin-transform-rename-import": "^2.3.0"
+  },
+  "peerDependencies": {
+    "@babel/core": "^7.22.11"
   }
 }
