@@ -12,9 +12,9 @@ export function registerPropNS(name, fn) {
 
 // internal props
 
-registerProp('children', noop)
-registerProp('mount', noop)
-registerProp('$data', noop)
+registerProp('children', noop) // childrens skipped
+registerProp('mount', noop) // mount property skipped
+registerProp('$data', noop) // props data skipped
 
 // styles
 
@@ -64,7 +64,6 @@ registerPropNS('on', setEventNS)
 import { setNodeProp } from './attribute-property.js'
 
 export function assignProps(node, props) {
-	let event
 	for (const [name, value] of entries(props)) {
 		// run plugins
 		if (properties[name]) {
@@ -73,7 +72,7 @@ export function assignProps(node, props) {
 		}
 
 		// onClick={handler}
-		event = eventName(name)
+		let event = eventName(name)
 		if (event !== null) {
 			// delegated: yes
 			addEvent(node, event, value, true, false)

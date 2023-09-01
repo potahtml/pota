@@ -1,11 +1,13 @@
 import { $meta } from '../constants.js'
 
 export function setOnMount(node, name, value, props) {
-	node[$meta].onMount = node[$meta].onMount || []
-	node[$meta].onMount.push(value)
+	const meta = node[$meta]
+	meta.onMount = meta.onMount || []
+	meta.onMount.push(value)
 }
 
 export function setOnCleanup(node, name, value, props) {
-	node[$meta].onCleanup = node[$meta].onCleanup || []
-	node[$meta].onCleanup.push(value)
+	const meta = node[$meta]
+	meta.onCleanup = meta.onCleanup || []
+	meta.onCleanup.push(value)
 }

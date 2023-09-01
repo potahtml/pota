@@ -1,3 +1,5 @@
+const DEV = false
+
 // reactivity
 
 import {
@@ -39,6 +41,10 @@ import {
 	isComponentable,
 	markComponent,
 } from '#comp'
+
+// properties / attributes
+
+import { assignProps } from './props/@main.js'
 
 // document
 
@@ -99,7 +105,8 @@ const Components = new Map()
 export function create(value) {
 	// on here we check if the value is already a known component
 	// think of
-	// `const MyComponent = create('div'), AnotherComponent({children:create(MyComponent)({..props..})})`
+	// `const MyComponent = create('div')
+	// AnotherComponent({children:create(MyComponent)({..props..})})`
 	if (isComponent(value)) {
 		return value
 	}
@@ -125,8 +132,9 @@ function Factory(value) {
 			untrack(() => {
 				const instance = new value()
 				instance.onReady &&
-					Timing.add(TIME_READY, () => instance.onReady())
-				instance.onCleanup && cleanup(() => instance.onCleanup())
+					Timing.add(TIME_READY, instance.onReady.bind(instance))
+				instance.onCleanup &&
+					cleanup(instance.onCleanup.bind(instance))
 
 				return instance.render(props, props.children, scope)
 			})
@@ -168,13 +176,10 @@ function createTag(tagName, props, children, scope) {
 	// get the namespace
 	const ns = props.xmlns
 		? props.xmlns // the prop contains the namespace
-		: // this works on first run
-		parentNode.namespaceURI && parentNode.namespaceURI !== NS.html
+		: parentNode.namespaceURI && parentNode.namespaceURI !== NS.html // this works on first run
 		? parentNode.namespaceURI // the parent contains the namespace
-		: // used after the first run, once reactivity takes over
-		scope.parent?.node.namespaceURI &&
-		  scope.parent.node.namespaceURI !== NS.html
-		? scope.parent.node.namespaceURI // the parent contains the namespace
+		: scope.parent?.namespaceURI // used after the first run, once reactivity takes over
+		? scope.parent.namespaceURI // the parent contains the namespace
 		: NS[tagName] // special case svg, math in case of missing xmlns attribute
 
 	return createNode(
@@ -190,8 +195,16 @@ function createNode(node, props, children, scope) {
 	// allows to lookup mount, parent node for xmlns, holds events handlers
 	// appears in the dev tools at the node properties for easy debugging
 
-	scope.node = node
-	scope.props = props
+	// assign the scope to the node
+	node[$meta] = scope
+
+	if (node.namespaceURI !== NS.html) {
+		scope.namespaceURI = node.namespaceURI
+	}
+
+	if (props.mount) {
+		scope.mount = props.mount
+	}
 
 	// on first run this will hold a value
 	// once reactivity takes over (like a Show), then,
@@ -200,8 +213,8 @@ function createNode(node, props, children, scope) {
 		scope.parent = parentNode[$meta]
 	}
 
-	// assign the scope to the node
-	node[$meta] = scope
+	// to be able to access some magic props from the node
+	scope.$data = props.$data = empty()
 
 	// keep track of parent nodes
 	const oldParentNode = parentNode
@@ -210,10 +223,7 @@ function createNode(node, props, children, scope) {
 	// get rid of the node on cleanup
 	cleanup(() => {
 		// callbacks
-		node[$meta].onCleanup &&
-			untrack(() => {
-				call(node[$meta].onCleanup, node)
-			})
+		scope.onCleanup && call(scope.onCleanup, node)
 		// remove from the document
 		node.isConnected && node.remove()
 	})
@@ -238,9 +248,12 @@ function createNode(node, props, children, scope) {
 function createPlaceholder(parent, text, relative) {
 	return insertNode(
 		parent,
-		createElementComment(
-			(text || '') + (relative ? ' relative' : ''),
-		),
+		DEV
+			? createElementComment(
+					(text || '') + (relative ? ' relative' : ''),
+			  )
+			: createElementText(''),
+
 		relative,
 	)
 }
@@ -366,8 +379,8 @@ function createChildren(parent, child, relative) {
 // insert
 function insertNode(parent, node, relative) {
 	// check if the node has been portaled
-	if (node[$meta]?.props.mount) {
-		parent = node[$meta].props.mount
+	if (node[$meta]?.mount) {
+		parent = node[$meta].mount
 	}
 
 	// special case `head`
@@ -484,7 +497,7 @@ export function resolve(children) {
 		for (let child of children) {
 			child = resolve(child)
 			isArray(child)
-				? childrens.push.apply(childrens, child)
+				? childrens.push(...child)
 				: childrens.push(child)
 		}
 		return childrens
@@ -528,11 +541,10 @@ export function map(list, cb, sort) {
 	function create(item, index, fn, isDupe) {
 		// a root is created so we can call dispose to get rid of an item
 		return root(dispose => {
-			const nodes = untrack(() =>
-				fn
-					? fn(cb(item /*, index*/) /*, index*/)
-					: cb(item /*, index*/),
-			)
+			const nodes = fn
+				? fn(cb(item /*, index*/) /*, index*/)
+				: cb(item /*, index*/)
+
 			const row = {
 				runId: -1,
 				// this is held here only to be returned on the first run, but no need to keep it after
@@ -555,92 +567,94 @@ export function map(list, cb, sort) {
 	}
 
 	return function (fn) {
-		runId++
-
 		const items = getValue(list) || []
 
-		rows = []
+		return untrack(() => {
+			const values = items
+			runId++
+			rows = []
 
-		for (const [index, item] of items.entries()) {
-			let row = cache.get(item)
+			for (const [index, item] of values.entries()) {
+				let row = cache.get(item)
 
-			// if the item doesnt exists, create it
-			if (!row) {
-				row = create(item, index, fn, false)
-				cache.set(item, row)
-			} else if (row.runId === runId) {
-				// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
-				// if the saved value was already used on this run, create a new one
-				let dupes = duplicates.get(item)
-				if (!dupes) {
-					dupes = []
-					duplicates.set(item, dupes)
-				}
-				for (row of dupes) {
-					if (row.runId !== runId) break
-				}
-				if (row.runId === runId) {
-					row = create(item, index, fn, true)
-					dupes.push(row)
-				}
-			}
-
-			row.runId = runId // mark used on this run
-			rows.push(row)
-		}
-
-		// remove rows that arent present on the current run
-		if (rows.length === 0) {
-			clear()
-		} else {
-			for (const row of prev) {
-				if (row.runId !== runId) row.dispose()
-			}
-		}
-
-		// reorder elements
-		// prev.length > 0 to skip sorting on creation as its already sorted
-		if (sort && rows.length > 1 && prev.length > 0) {
-			// a `shore` delimits every item with a `begin` and `end` placeholder
-			// you can quickly check if items are in the right order
-			// by checking if item.end.nextSibling === nextItem.begin
-
-			let current = rows[rows.length - 1].shore
-			for (let i = rows.length - 1; i > 0; i--) {
-				const previous = rows[i - 1].shore
-				const previousEnd = previous[1]
-				const currentStart = current[0]
-				if (currentStart.previousSibling !== previousEnd) {
-					const previousStart = previous[0]
-					const nodes = [previousStart]
-
-					let next = previousStart.nextSibling
-					while (next !== previousEnd) {
-						nodes.push(next)
-						next = next.nextSibling
+				// if the item doesnt exists, create it
+				if (!row) {
+					row = create(item, index, fn, false)
+					cache.set(item, row)
+				} else if (row.runId === runId) {
+					// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
+					// if the saved value was already used on this run, create a new one
+					let dupes = duplicates.get(item)
+					if (!dupes) {
+						dupes = []
+						duplicates.set(item, dupes)
 					}
-					nodes.push(previousEnd)
-					currentStart.before(...nodes)
+					for (row of dupes) {
+						if (row.runId !== runId) break
+					}
+					if (row.runId === runId) {
+						row = create(item, index, fn, true)
+						dupes.push(row)
+					}
 				}
-				current = previous
-			}
-		}
 
-		// save sorted list
-		prev = rows
-
-		// return external representation
-		// after the first run it lives in an effect
-		if (runId === 1) {
-			try {
-				return rows.map(item => {
-					return item.nodes
-				})
-			} finally {
-				// remove cached nodes as these are not needed after the first run
-				for (const node of rows) node.nodes = null
+				row.runId = runId // mark used on this run
+				rows.push(row)
 			}
-		}
+
+			// remove rows that arent present on the current run
+			if (rows.length === 0) {
+				clear()
+			} else {
+				for (const row of prev) {
+					if (row.runId !== runId) row.dispose()
+				}
+			}
+
+			// reorder elements
+			// prev.length > 0 to skip sorting on creation as its already sorted
+			if (sort && rows.length > 1 && prev.length > 0) {
+				// a `shore` delimits every item with a `begin` and `end` placeholder
+				// you can quickly check if items are in the right order
+				// by checking if item.end.nextSibling === nextItem.begin
+
+				let current = rows[rows.length - 1].shore
+				for (let i = rows.length - 1; i > 0; i--) {
+					const previous = rows[i - 1].shore
+					if (current[0].previousSibling !== previous[1]) {
+						const previousEnd = previous[1]
+						const currentStart = current[0]
+						const previousStart = previous[0]
+						const nodes = [previousStart]
+
+						let next = previousStart.nextSibling
+						while (next !== previousEnd) {
+							nodes.push(next)
+							next = next.nextSibling
+						}
+						nodes.push(previousEnd)
+						currentStart.before(...nodes)
+					}
+					current = previous
+				}
+			}
+
+			// save sorted list
+			prev = rows
+
+			// return external representation
+			// after the first run it lives in an effect
+			if (runId === 1) {
+				try {
+					return rows.map(item => {
+						return item.nodes
+					})
+				} finally {
+					// remove cached nodes as these are not needed after the first run
+					for (const node of rows) node.nodes = null
+				}
+			}
+		})
 	}
 }
 
@@ -661,12 +675,8 @@ export class ReactiveMap {
 // getPropsData(node) === { noscroll, replace }
 
 export function getPropsData(node) {
-	return node[$meta]?.props.$data || empty()
+	return node[$meta]?.$data || empty()
 }
-
-// properties / attributes
-
-import { assignProps } from './props/@main.js'
 
 // we need to ensure the timing of some callbacks, like `onMount`, and `onReady`
 // for this we add 1 queueMicrotask, then we queue functions in an array at a `priority` position
