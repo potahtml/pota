@@ -9,8 +9,6 @@ export {
 	signal,
 	memo,
 	untrack,
-	context,
-	useContext,
 	batch,
 } from '#primitives'
 

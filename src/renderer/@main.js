@@ -42,6 +42,10 @@ import {
 	markComponent,
 } from '#comp'
 
+// context
+
+import { context } from '#reactivity'
+
 // properties / attributes
 
 import { assignProps } from './props/@main.js'
@@ -74,6 +78,9 @@ export function Component(value, props) {
 		return props.children
 	}
 
+	// the scope/context is used to hold the parent to be able to tell if dynamic childrens are XML
+	const scope = empty()
+
 	/*
 		const some = create('div')
  		some === () => createDiv
@@ -83,12 +90,11 @@ export function Component(value, props) {
 		by checking if its already a component we avoid this problem
 	*/
 	if (isComponent(value)) {
-		return markComponent(() => value(props, empty()))
+		return markComponent(() => value(props, scope))
 	}
-	// create component instance with props, and a scope/context initially set to an empty object
-	// the scope/context is used to hold the parent to be able to tell if dynamic childrens are XML
 
-	return markComponent(() => Factory(value)(props, empty()))
+	// create component instance with props, and a scope/context initially set to an empty object
+	return markComponent(() => Factory(value)(props, scope))
 }
 
 // component are cached for the duration of a run (top to bottom)
@@ -168,11 +174,13 @@ function Factory(value) {
 // keeps track of parentNode for `xmlns` spreading to children
 // defaults to empty object so parentNode.namespaceURI doesnt throw
 
-let parentNode = empty()
+const useParentNode = context(empty())
 
 // creates a x/html element from a tagName
 
 function createTag(tagName, props, children, scope) {
+	const parentNode = useParentNode()
+
 	// get the namespace
 	const ns = props.xmlns
 		? props.xmlns // the prop contains the namespace
@@ -206,6 +214,8 @@ function createNode(node, props, children, scope) {
 		scope.mount = props.mount
 	}
 
+	const parentNode = useParentNode()
+
 	// on first run this will hold a value
 	// once reactivity takes over (like a Show), then,
 	// it wont and we use old parent which is already saved on the scope from the previous run
@@ -216,10 +226,6 @@ function createNode(node, props, children, scope) {
 	// to be able to access some magic props from the node
 	scope.$data = props.$data = empty()
 
-	// keep track of parent nodes
-	const oldParentNode = parentNode
-	parentNode = node
-
 	// get rid of the node on cleanup
 	cleanup(() => {
 		// callbacks
@@ -228,17 +234,16 @@ function createNode(node, props, children, scope) {
 		node.isConnected && node.remove()
 	})
 
-	// assign the props to the node
-	assignProps(node, props)
+	useParentNode(node, () => {
+		// assign the props to the node
+		assignProps(node, props)
 
-	// insert childrens
-	if (children !== undefined) {
-		// children will be `undefined` when there are no children at all, example `<br/>`
-		createChildren(node, children)
-	}
-
-	// restore parent node
-	parentNode = oldParentNode
+		// insert childrens
+		if (children !== undefined) {
+			// children will be `undefined` when there are no children at all, example `<br/>`
+			createChildren(node, children)
+		}
+	})
 
 	return node
 }

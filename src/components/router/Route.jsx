@@ -66,7 +66,6 @@ export function Route(props) {
 
 Route.Default = function Default(props) {
 	const context = Context()
-
 	return (
 		<Show
 			when={context.noneMatch}

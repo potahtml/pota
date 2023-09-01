@@ -1,12 +1,24 @@
-import { context, useContext } from '#main'
 import { empty } from '#std'
 
-function _context(defaultValue = empty()) {
-	const Context = context(defaultValue)
-	function getContext() {
-		return useContext(Context)
+import { children } from '#main'
+
+export function context(defaultValue = empty()) {
+	let value = defaultValue
+
+	function Context(newValue, fn) {
+		if (newValue === undefined) {
+			return value
+		} else {
+			const parent = value
+			value = newValue
+			const result = fn()
+			value = parent
+			return result
+		}
 	}
-	getContext.Provider = Context.Provider
-	return getContext
+	Context.Provider = function (props) {
+		return () =>
+			Context(props.value, () => children(() => props.children)())
+	}
+	return Context
 }
-export { _context as context }
