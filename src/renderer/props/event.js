@@ -7,8 +7,6 @@ import { $meta } from '../constants.js'
 
 const EventNames = empty()
 
-const Delegated = empty()
-
 export function eventName(s) {
 	if (EventNames[s] !== undefined) {
 		return EventNames[s]
@@ -26,6 +24,7 @@ export function setEventNS(node, name, value, props, localName, ns) {
 	addEvent(node, localName, value, false, false)
 }
 
+const Delegated = empty()
 export function addEvent(
 	node,
 	type,
@@ -33,10 +32,11 @@ export function addEvent(
 	delegated,
 	external = true,
 ) {
-	node[$meta] = node[$meta] || (node[$meta] = empty())
+	node[$meta] = node[$meta] || empty()
 
 	const key = delegated ? type : `${type}Native`
-	const handlers = node[$meta][key] || (node[$meta][key] = [])
+	let handlers
+	handlers = node[$meta][key] = node[$meta][key] || []
 
 	if (delegated) {
 		if (Delegated[type] === undefined) {
@@ -74,7 +74,7 @@ function eventHandlerNative(e) {
 	const key = `${e.type}Native`
 	const node = e.target
 	const handlers = node[$meta][key]
-	eventDispatch(node, e, handlers)
+	eventDispatch(node, handlers, e)
 }
 
 function eventHandlerDelegated(e) {
@@ -98,16 +98,16 @@ function eventHandlerDelegated(e) {
 	while (node) {
 		const handlers = node[$meta] && node[$meta][key]
 		if (handlers && !node.disabled) {
-			eventDispatch(node, e, handlers)
+			eventDispatch(node, handlers, e)
 			if (e.cancelBubble) break
 		}
 		node = node.parentNode
 	}
 }
 
-function eventDispatch(node, e, handlers) {
+function eventDispatch(node, handlers, e) {
 	for (const handler of handlers) {
-		handler[$meta][0].call(node, e, ...handler[$meta].slice(1))
+		handler[$meta][0].call(node, ...handler[$meta].slice(1), e)
 		if (e.cancelBubble) break
 	}
 }
