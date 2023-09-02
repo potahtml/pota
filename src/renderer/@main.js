@@ -546,23 +546,33 @@ export function map(list, cb, sort) {
 	function create(item, index, fn, isDupe) {
 		// a root is created so we can call dispose to get rid of an item
 		return root(dispose => {
-			const nodes = fn
-				? fn(cb(item /*, index*/) /*, index*/)
-				: cb(item /*, index*/)
+			const nodes = untrack(() =>
+				fn
+					? fn(cb(item /*, index*/) /*, index*/)
+					: cb(item /*, index*/),
+			)
 
 			const row = {
 				runId: -1,
 				// this is held here only to be returned on the first run, but no need to keep it after
 				nodes: runId === 1 ? nodes : null,
 				// reference nodes, it holds the placeholders that delimit `begin` and `end`
-				shore: !sort ? [] : [nodes[0], nodes.at(-1)],
+				// you can quickly check if items are in the right order
+				// by checking if item.end === nextItem.begin.previousSibling
+				begin: !sort ? null : nodes[0],
+				end: !sort ? null : nodes.at(-1),
 				dispose: all => {
 					// skip cache deletion as we are going to clear the full map
 					if (!all) {
 						// delete from cache
-						!isDupe
-							? cache.delete(item)
-							: removeFromArray(duplicates.get(item), row)
+						if (!isDupe) {
+							cache.delete(item)
+						} else {
+							const arr = duplicates.get(item)
+							arr.length === 1
+								? duplicates.delete(item)
+								: removeFromArray(arr, row)
+						}
 					}
 					dispose()
 				},
@@ -571,93 +581,96 @@ export function map(list, cb, sort) {
 		})
 	}
 
+	function nodes(row) {
+		const begin = row.begin
+		const end = row.end
+		const nodes = [begin]
+
+		let nextSibling = begin.nextSibling
+		while (nextSibling !== end) {
+			nodes.push(nextSibling)
+			nextSibling = nextSibling.nextSibling
+		}
+		nodes.push(end)
+		return nodes
+	}
+
 	return function (fn) {
 		const items = getValue(list) || []
 
-		return untrack(() => {
-			const values = items
-			runId++
-			rows = []
+		runId++
+		rows = []
 
-			for (const [index, item] of values.entries()) {
-				let row = cache.get(item)
+		for (const [index, item] of items.entries()) {
+			let row = cache.get(item)
 
-				// if the item doesnt exists, create it
-				if (!row) {
-					row = create(item, index, fn, false)
-					cache.set(item, row)
-				} else if (row.runId === runId) {
-					// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
-					// if the saved value was already used on this run, create a new one
-					let dupes = duplicates.get(item)
-					if (!dupes) {
-						dupes = []
-						duplicates.set(item, dupes)
-					}
-					for (row of dupes) {
-						if (row.runId !== runId) break
-					}
-					if (row.runId === runId) {
-						row = create(item, index, fn, true)
-						dupes.push(row)
-					}
+			// if the item doesnt exists, create it
+			if (!row) {
+				row = create(item, index, fn, false)
+				cache.set(item, row)
+			} else if (row.runId === runId) {
+				// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
+				// if the saved value was already used on this run, create a new one
+				let dupes = duplicates.get(item)
+				if (!dupes) {
+					dupes = []
+					duplicates.set(item, dupes)
 				}
-
-				row.runId = runId // mark used on this run
-				rows.push(row)
-			}
-
-			// remove rows that arent present on the current run
-			if (rows.length === 0) {
-				clear()
-			} else {
-				for (const row of prev) {
-					if (row.runId !== runId) row.dispose()
+				for (row of dupes) {
+					if (row.runId !== runId) break
+				}
+				if (row.runId === runId) {
+					row = create(item, index, fn, true)
+					dupes.push(row)
 				}
 			}
 
-			// reorder elements
-			// prev.length > 0 to skip sorting on creation as its already sorted
-			if (sort && rows.length > 1 && prev.length > 0) {
-				// a `shore` delimits every item with a `begin` and `end` placeholder
-				// you can quickly check if items are in the right order
-				// by checking if item.end.nextSibling === nextItem.begin
+			row.runId = runId // mark used on this run
+			rows.push(row)
+		}
 
-				for (let i = 0; i < rows.length - 1; i++) {
-					const current = rows[i].shore
-					const next = rows[i + 1].shore
-					if (current[1] !== next[0].previousSibling) {
-						const start = next[0]
-						const end = next[1]
-						const nodes = [start]
-
-						let nextSibling = start.nextSibling
-						while (nextSibling !== end) {
-							nodes.push(nextSibling)
-							nextSibling = nextSibling.nextSibling
-						}
-						nodes.push(end)
-						current[1].after(...nodes)
-					}
-				}
+		// remove rows that arent present on the current run
+		if (rows.length === 0) {
+			clear()
+		} else {
+			for (const row of prev) {
+				if (row.runId !== runId) row.dispose()
 			}
+		}
 
-			// save sorted list
-			prev = rows
-
-			// return external representation
-			// after the first run it lives in an effect
-			if (runId === 1) {
-				try {
-					return rows.map(item => {
-						return item.nodes
-					})
-				} finally {
-					// remove cached nodes as these are not needed after the first run
-					for (const node of rows) node.nodes = null
+		// reorder elements
+		// prev.length > 0 to skip sorting on creation as its already sorted
+		if (sort && rows.length > 1 && prev.length > 0) {
+			// check sorting
+			// best for any combination of: push/pop/shift/unshift/insertion/deletion
+			// as for swap, anything in between the swaped elements gets sorted,
+			// so as long as the swapped elements are close to each other is good
+			// must check in reverse as on creation stuff is added to the end
+			let current = rows[rows.length - 1]
+			for (let i = rows.length - 1; i > 0; i--) {
+				const previous = rows[i - 1]
+				if (current.begin.previousSibling !== previous.end) {
+					current.begin.before(...nodes(previous))
 				}
+				current = previous
 			}
-		})
+		}
+
+		// save sorted list
+		prev = rows
+
+		// return external representation
+		// after the first run it lives in an effect
+		if (runId === 1) {
+			try {
+				return rows.map(item => {
+					return item.nodes
+				})
+			} finally {
+				// remove cached nodes as these are not needed after the first run
+				for (const node of rows) node.nodes = null
+			}
+		}
 	}
 }
 
