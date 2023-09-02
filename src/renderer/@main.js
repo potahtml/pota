@@ -239,8 +239,8 @@ function createNode(node, props, children, scope) {
 		assignProps(node, props)
 
 		// insert childrens
+		// children will be `undefined` when there are no children at all, example `<br/>`
 		if (children !== undefined) {
-			// children will be `undefined` when there are no children at all, example `<br/>`
 			createChildren(node, children)
 		}
 	})
@@ -623,24 +623,22 @@ export function map(list, cb, sort) {
 				// you can quickly check if items are in the right order
 				// by checking if item.end.nextSibling === nextItem.begin
 
-				let current = rows[rows.length - 1].shore
-				for (let i = rows.length - 1; i > 0; i--) {
-					const previous = rows[i - 1].shore
-					if (current[0].previousSibling !== previous[1]) {
-						const previousEnd = previous[1]
-						const currentStart = current[0]
-						const previousStart = previous[0]
-						const nodes = [previousStart]
+				for (let i = 0; i < rows.length - 1; i++) {
+					const current = rows[i].shore
+					const next = rows[i + 1].shore
+					if (current[1] !== next[0].previousSibling) {
+						const start = next[0]
+						const end = next[1]
+						const nodes = [start]
 
-						let next = previousStart.nextSibling
-						while (next !== previousEnd) {
-							nodes.push(next)
-							next = next.nextSibling
+						let nextSibling = start.nextSibling
+						while (nextSibling !== end) {
+							nodes.push(nextSibling)
+							nextSibling = nextSibling.nextSibling
 						}
-						nodes.push(previousEnd)
-						currentStart.before(...nodes)
+						nodes.push(end)
+						current[1].after(...nodes)
 					}
-					current = previous
 				}
 			}
 
