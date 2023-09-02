@@ -72,9 +72,9 @@ export function removeEvent(node, type, handler, delegated) {
 
 function eventHandlerNative(e) {
 	const key = `${e.type}Native`
-	const node = e.target
+	const node = e.currentTarget
 	const handlers = node[$meta][key]
-	eventDispatch(node, handlers, e)
+	eventDispatch(e.target, handlers, e)
 }
 
 function eventHandlerDelegated(e) {
