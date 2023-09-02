@@ -1,4 +1,4 @@
-import { effect, signal } from '#main'
+import { cleanup, effect, signal } from '#main'
 
 export function selector(value) {
 	const map = new Map()
@@ -20,6 +20,8 @@ export function selector(value) {
 	const defaultValue = value()
 
 	return item => {
+		cleanup(() => map.delete(item))
+
 		if (!map.has(item)) {
 			const [read, write] = signal(item === defaultValue)
 			map.set(item, {
