@@ -31,6 +31,7 @@ import {
 	call,
 	removeFromArray,
 	getValue,
+	toArray,
 } from '#std'
 
 // renderer lib
@@ -450,7 +451,7 @@ function clearNode(node) {
 // then discard that object
 // performance opportunity: expiration could be smarter
 
-export function template(template, ...args) {
+export function template(template, ...values) {
 	let cached = Components.get(template)
 	if (!cached) {
 		cached = createElement('pota')
@@ -459,19 +460,53 @@ export function template(template, ...args) {
 	}
 
 	const clone = cached.cloneNode(true)
-	const replace = clone.querySelectorAll('pota')
-	for (const [index, value] of args.entries()) {
-		insert(
-			// insert creates components for things to insert.
-			// for nodes it will use cloneNode
-			// this will cause any event listener to be lost
-			// for this reason we wrap it on a function
-			value instanceof Node ? () => value : value,
-			replace[index],
-			null,
-			true,
-		)
-		replace[index].remove()
+
+	// it searched all nodes with our attribute wildcard or nodes with our name
+	const replace = document.evaluate(
+		"//*[@*='<pota></pota>']|//pota",
+		clone,
+		null,
+		XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+		null,
+	)
+	// as we are going to manipulate the nodes
+	// the snapshot will change and will get messed up
+	// save it on a temp array
+	const nodes = []
+	for (let i = 0; i < replace.snapshotLength; i++) {
+		nodes.push(replace.snapshotItem(i))
+	}
+	let index = 0
+	for (const node of nodes) {
+		if (node.localName === 'pota') {
+			// replace full node
+
+			const value = values[index++]
+			insert(
+				// insert creates components for things to insert.
+				// for nodes it will use cloneNode
+				// this will cause any event listener to be lost
+				// for this reason we wrap it on a function
+				value instanceof Node ? markComponent(() => value) : value,
+				node,
+				null,
+				true,
+			)
+			node && node.remove()
+		} else {
+			// replace attribute
+
+			// as we are going to manipulate the attributes
+			// these will change and will get messed up
+			// save it on a temp array
+			const attributes = toArray(node.attributes).filter(
+				item => item.value === '<pota></pota>',
+			)
+			for (const attr of attributes) {
+				node.removeAttribute(attr.name)
+				node[attr.name] = values[index++]
+			}
+		}
 	}
 
 	// return a single element if possible to make it more easy to use
