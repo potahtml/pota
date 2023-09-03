@@ -8,6 +8,7 @@ import {
 	cleanup,
 	memo,
 	untrack,
+	signal,
 } from '#primitives'
 
 // constants
@@ -129,41 +130,55 @@ function Factory(value) {
 		return component
 	}
 
-	if (typeof value === 'string') {
-		// a string component, 'div' becomes <div>
-		component = (props = empty(), scope = empty()) =>
-			untrack(() => createTag(value, props, props.children, scope))
-	} else if (isClassComponent(value)) {
-		// a class component <MyComponent../>
-		component = (props = empty(), scope = empty()) =>
-			untrack(() => {
-				const instance = new value()
-				instance.onReady &&
-					Timing.add(TIME_READY, instance.onReady.bind(instance))
-				instance.onCleanup &&
-					cleanup(instance.onCleanup.bind(instance))
+	switch (typeof value) {
+		case 'string': {
+			// a string component, 'div' becomes <div>
+			component = (props = empty(), scope = empty()) =>
+				untrack(() => createTag(value, props, props.children, scope))
+			break
+		}
+		case 'function': {
+			if (isClassComponent(value)) {
+				// a class component <MyComponent../>
+				component = (props = empty(), scope = empty()) =>
+					untrack(() => {
+						const instance = new value()
+						instance.onReady &&
+							Timing.add(TIME_READY, instance.onReady.bind(instance))
+						instance.onCleanup &&
+							cleanup(instance.onCleanup.bind(instance))
 
-				return instance.render(props, props.children, scope)
-			})
-	} else if (isFunction(value)) {
-		// a function component <MyComponent../>
-		component = (props = empty(), scope = empty()) =>
-			untrack(() => value(props, props.children, scope))
-	} else if (value instanceof Node) {
-		// an actual node component <div>
-		component = (props = empty(), scope = empty()) =>
-			untrack(() =>
-				createNode(
-					value.cloneNode(true),
-					props,
-					props.children,
-					scope,
-				),
-			)
-	} else {
-		// objects with a custom `.toString()`
-		component = (props = empty(), scope = empty()) =>
-			untrack(() => value.toString(props, props.children, scope))
+						return instance.render(props, props.children, scope)
+					})
+				break
+			}
+			// else if (isFunction(value)) {
+			// a function component <MyComponent../>
+			component = (props = empty(), scope = empty()) =>
+				untrack(() => value(props, props.children, scope))
+			// }
+			break
+		}
+		default: {
+			if (value instanceof Node) {
+				// an actual node component <div>
+				component = (props = empty(), scope = empty()) =>
+					untrack(() =>
+						createNode(
+							value.cloneNode(true),
+							props,
+							props.children,
+							scope,
+						),
+					)
+				break
+			}
+			// objects with a custom `.toString()`
+			component = (props = empty(), scope = empty()) =>
+				untrack(() => value.toString(props, props.children, scope))
+
+			break
+		}
 	}
 
 	// save in cache
@@ -347,6 +362,13 @@ function createChildren(parent, child, relative) {
 			// the value is `null`, as in {null} or like a show returning `null` on the falsy case
 			if (child === null) {
 				return null
+			}
+
+			// async components
+			if (child.then) {
+				const [component, setComponent] = signal('')
+				child.then(setComponent)
+				return createChildren(parent, component, relative)
 			}
 
 			// object.toString fancy objects

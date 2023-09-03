@@ -5,4 +5,4 @@ export const isComponentable = value =>
 	!isReactive(value) &&
 	(isFunction(value) ||
 		// avoid [1,2] and support { toString(){ return "something"} }
-		(!isArray(value) && isNotNullObject(value)))
+		(!isArray(value) && isNotNullObject(value) && !value.then))
