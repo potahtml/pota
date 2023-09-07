@@ -1,3 +1,4 @@
+import { origin } from '#urls'
 import { signal, lazyMemo } from '#main'
 import { assign, empty } from '#std'
 
@@ -10,11 +11,7 @@ const [getLocation, setLocation] = signal(window.location, {
 	equals: false,
 })
 
-function setLocation2(a) {
-	console.log('setting location', a)
-	setLocation(a)
-}
-export { setLocation2 as setLocation }
+export { setLocation }
 
 // only trigger on what changed
 const hash = lazyMemo(() => getLocation().hash)
@@ -25,7 +22,6 @@ const href = lazyMemo(() => getLocation().href)
 // query params is resolved once
 let queryParams
 let querySearch = ''
-const origin = window.location.origin
 export const location = assign(empty(), {
 	hash,
 	pathname,

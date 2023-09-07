@@ -2,13 +2,12 @@ import { cleanup, memo, Show, Dynamic, Collapse } from '#main'
 
 // utils
 import { optional } from '#std'
-import { replaceParams } from '#urls'
+import { replaceParams, origin } from '#urls'
 
 // local
 import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
-import { origin } from './origin.js'
 
 export function Route(props) {
 	const parent = Context()

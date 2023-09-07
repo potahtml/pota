@@ -11,7 +11,8 @@ export { setParams }
 
 const params = lazyMemo(() => {
 	const params = empty()
-	for (const [key, value] of entries(getParams()())) {
+	// `|| params` because when nothing is found the result is undefined
+	for (const [key, value] of entries(getParams()() || params)) {
 		params[key] =
 			value !== undefined ? decodeURIComponent(value) : value
 	}

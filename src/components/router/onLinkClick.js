@@ -2,6 +2,7 @@ import { getPropsData } from '#main'
 
 // utils
 import { optional } from '#std'
+import { origin } from '#urls'
 
 // local
 import { navigate } from './navigate.js'
@@ -29,7 +30,7 @@ function onLinkClick(e) {
 		node.download ||
 		node.target ||
 		// origin could be http://example.net and link could be http://example.net.ha.com
-		(node.href + '/').indexOf(window.location.origin + '/') !== 0 ||
+		(node.href + '/').indexOf(origin + '/') !== 0 ||
 		(node.rel && node.rel.split(/\s/).includes('external'))
 	)
 		return
