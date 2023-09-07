@@ -3,7 +3,7 @@ import { Context } from './context.js'
 
 export function useBeforeLeave(cb) {
 	Context.beforeLeave.push({
-		href: Context().href,
+		href: Context().href(),
 		cb,
 	})
 }

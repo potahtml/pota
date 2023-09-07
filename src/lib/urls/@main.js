@@ -1,4 +1,5 @@
 export { cleanLink } from './cleanLink.js'
 export { decodeURIComponent } from './decodeURIComponent.js'
 export { isExternal } from './isExternal.js'
+export { isRelative } from './isRelative.js'
 export { replaceParams } from './replaceParams.js'

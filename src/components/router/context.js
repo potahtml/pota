@@ -10,7 +10,7 @@ export function create(props = empty()) {
 
 	return {
 		base: '', // the composed base route
-		href: '', // the url of the route
+		href: () => '', // the url of the route
 		route: '', // the regular expresion of this route
 		parent: null, // parent context
 		show, // if the route is shown

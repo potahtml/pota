@@ -8,16 +8,19 @@ import { replaceParams } from '#urls'
 import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
-
-// route
-const origin = window.location.origin
+import { origin } from './origin.js'
 
 export function Route(props) {
 	const parent = Context()
 
-	const path = parent.base + replaceParams(props.path, props.params)
+	const base =
+		parent.base +
+		replaceParams(
+			props.path !== undefined ? props.path : '$',
+			props.params,
+		)
 	const route = new RegExp(
-		'^' + path.replace(/\:([a-z0-9_\-]+)/gi, '(?<$1>.+)'),
+		'^' + base.replace(/\:([a-z0-9_\-]+)/gi, '(?<$1>.+)'),
 	)
 
 	let href = ''
@@ -31,8 +34,16 @@ export function Route(props) {
 
 			if (href === '') {
 				href = path.replace(path.replace(route, ''), '')
-				href = origin + (href[0] !== '/' ? '/' : '') + href
+				// create full link
+				href =
+					// add origin
+					origin +
+					// add slash after origin if isnt present
+					(href[0] !== '/' ? '/' : '') +
+					// add the path
+					href
 			}
+
 			return true
 		} else {
 			return false
@@ -40,17 +51,17 @@ export function Route(props) {
 	})
 
 	const context = create({
-		base: path,
-		get href() {
-			return href
-		},
-		route,
+		base, // the prefix for the children path
+		href: () => href, // the full url of the root
+		route, // the regexp for params
 		parent,
 		show,
 	})
 
 	parent.addChildren(context)
-	cleanup(() => parent.removeChildren(context))
+	cleanup(() => {
+		parent.removeChildren(context)
+	})
 
 	return (
 		<Context.Provider value={context}>

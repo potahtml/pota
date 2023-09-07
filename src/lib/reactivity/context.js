@@ -9,7 +9,7 @@ export function context(defaultValue = empty()) {
 		if (newValue === undefined) {
 			return value
 		} else {
-			const parent = value
+			const parent = Context()
 			value = newValue
 			const result = fn()
 			value = parent
