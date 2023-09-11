@@ -4,8 +4,8 @@ import { memo, lazyMemo, resolve, makeCallback } from '#main'
 
 import { hasValue, getValue } from '#std'
 
-export function Show(props, children) {
-	const callback = makeCallback(children)
+export function Show(props) {
+	const callback = makeCallback(props.children)
 	const value = memo(() => getValue(props.when))
 	const condition = memo(() => !!value())
 	// needs resolve to avoid re-rendering

@@ -1,6 +1,6 @@
 import { memo, ReactiveMap, makeCallback } from '#main'
 
-export function For(props, children) {
-	const callback = makeCallback(children)
+export function For(props) {
+	const callback = makeCallback(props.children)
 	return memo(() => new ReactiveMap(props.each, callback))
 }
