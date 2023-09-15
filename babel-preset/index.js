@@ -11,7 +11,7 @@ export default function (context, options = { reactivity: 'solid' }) {
 	)
 		throw new Error(
 			`
-      \`reactivity\` option \`pota/babel-preset\` should be one of the following:
+      \`pota/babel-preset\`: \`reactivity\` option should be one of the following:
        flimsy, oby, solid, solid-dev
       `,
 		)
