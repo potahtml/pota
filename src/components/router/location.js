@@ -1,5 +1,5 @@
 import { origin } from '#urls'
-import { signal, lazyMemo } from '#main'
+import { signal, lazyMemo, memo } from '#main'
 import { assign, empty } from '#std'
 
 // local
@@ -14,10 +14,16 @@ const [getLocation, setLocation] = signal(window.location, {
 export { setLocation }
 
 // only trigger on what changed
-const hash = lazyMemo(() => getLocation().hash)
-const pathname = lazyMemo(() => getLocation().pathname)
+
+const pathname = memo(() => getLocation().pathname)
 const search = lazyMemo(() => getLocation().search)
-const href = lazyMemo(() => getLocation().href)
+const href = memo(() => getLocation().href)
+// http://location/# reports hash to be empty
+// http://location/ reports hash to be empty
+// handle this diference by checking if "#" is at the end of `href`
+const hash = memo(() =>
+	href().endsWith('#') ? '#' : getLocation().hash,
+)
 
 // query params is resolved once
 let queryParams = empty()
@@ -69,12 +75,12 @@ async function onLocationChange() {
 		setLocation(window.location)
 	} else {
 		/* state.ignore = true
-		 */ console.log(
+		 console.log(
 			'going back to',
 			location.href(),
 			'from0',
 			getLocation().href,
-		)
+		)*/
 		window.history.pushState(null, '', location.href())
 	}
 	/*}*/

@@ -12,7 +12,13 @@ export function A(props) {
 	// link is relative to the <Route
 	const base = Context().href()
 	href =
-		!isRelative(href[0]) || !base ? href : new URL(href, base).href
+		!isRelative(href[0]) || !base
+			? href
+			: base.indexOf('/#') !== -1
+			? // making link dos/ relative to http://localhost:11433/#uno/
+			  // becomes http://localhost:11433/#uno/dos/
+			  base + href
+			: new URL(href, base).href
 
 	propsData(props, ['params', 'scroll', 'replace'])
 

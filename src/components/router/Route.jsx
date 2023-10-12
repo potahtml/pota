@@ -15,7 +15,9 @@ export function Route(props) {
 	const base =
 		parent.base +
 		replaceParams(
-			props.path !== undefined ? props.path : '$',
+			// pathname always starts with /, make sure the hash is considered
+			// when <Route lacks a path prop is treated as the final route
+			props.path !== undefined ? props.path.replace(/^#/, '/#') : '$',
 			props.params,
 		)
 	const route = new RegExp(
@@ -24,7 +26,6 @@ export function Route(props) {
 
 	let href = ''
 
-	// derived value
 	const show = memo(() => {
 		const path = location.path()
 
@@ -37,12 +38,11 @@ export function Route(props) {
 				href =
 					// add origin
 					origin +
-					// add slash after origin if isnt present
+					// add slash after origin if isnt present in the href
 					(href[0] !== '/' ? '/' : '') +
 					// add the path
 					href
 			}
-
 			return true
 		} else {
 			return false
@@ -58,6 +58,7 @@ export function Route(props) {
 	})
 
 	parent.addChildren(context)
+
 	cleanup(() => {
 		parent.removeChildren(context)
 	})
