@@ -242,16 +242,16 @@ function createNode(node, props, scope) {
 		node.isConnected && node.remove()
 	})
 
-	useParentNode(node, () => {
-		// assign the props to the node
-		assignProps(node, props)
+	// assign the props to the node
+	assignProps(node, props)
 
-		// insert childrens
-		// children will be `undefined` when there are no children at all, example `<br/>`
-		if (props.children !== undefined) {
+	// insert childrens
+	// children will be `undefined` when there are no children at all, example `<br/>`
+	if (props.children !== undefined) {
+		useParentNode(node, () => {
 			createChildren(node, props.children)
-		}
-	})
+		})
+	}
 
 	return node
 }
