@@ -637,7 +637,7 @@ export function map(list, cb, sort) {
 		})
 	}
 
-	function nodes(row) {
+	function nodesFromRow(row) {
 		const begin = row.begin
 		const end = row.end
 		const nodes = [begin]
@@ -697,7 +697,6 @@ export function map(list, cb, sort) {
 		// reorder elements
 		// prev.length > 0 to skip sorting on creation as its already sorted
 		if (sort && rows.length > 1 && prev.length > 0) {
-			// check sorting
 			// best for any combination of: push/pop/shift/unshift/insertion/deletion
 			// as for swap, anything in between the swaped elements gets sorted,
 			// so as long as the swapped elements are close to each other is good
@@ -706,7 +705,7 @@ export function map(list, cb, sort) {
 			for (let i = rows.length - 1; i > 0; i--) {
 				const previous = rows[i - 1]
 				if (current.begin.previousSibling !== previous.end) {
-					current.begin.before(...nodes(previous))
+					current.begin.before(...nodesFromRow(previous))
 				}
 				current = previous
 			}
