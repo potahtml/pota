@@ -367,7 +367,7 @@ function createChildren(parent, child, relative) {
 			// async components
 			if (child.then) {
 				const [component, setComponent] = signal('')
-				child.then(setComponent)
+				child.then(r => parent.isConnected && setComponent(r))
 				return createChildren(parent, component, relative)
 			}
 
