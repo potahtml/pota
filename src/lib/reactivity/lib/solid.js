@@ -7,6 +7,8 @@ import {
 	createMemo,
 	untrack,
 	batch,
+	useContext,
+	getOwner,
 } from 'solid-js' // /dist/dev.js
 
 const signal = (a, b) => {
@@ -17,6 +19,35 @@ const signal = (a, b) => {
 
 const memo = (a, b, c) => markReactive(createMemo(a, b, c))
 
+function context(defaultValue = {}) {
+	const id = Symbol('context')
+	const context = { id, defaultValue }
+
+	function Context(newValue, fn) {
+		if (newValue === undefined) {
+			return useContext(context)
+		} else {
+			let res
+			createRenderEffect(() => {
+				untrack(() => {
+					const owner = getOwner()
+					owner.context = {
+						...owner.context,
+						[id]: newValue,
+					}
+					res = fn()
+				})
+			})
+
+			return res
+		}
+	}
+	Context.Provider = props =>
+		Context(props.value, () => children(() => props.children))
+
+	return Context
+}
+
 export {
 	createRoot as root,
 	createRenderEffect as renderEffect,
@@ -26,6 +57,8 @@ export {
 	memo,
 	untrack,
 	batch,
+	context,
 }
 
 import { markReactive } from '#reactivity'
+import { children } from '#main'
