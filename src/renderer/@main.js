@@ -134,7 +134,7 @@ function Factory(value) {
 		case 'string': {
 			// a string component, 'div' becomes <div>
 			component = (props = empty(), scope = empty()) =>
-				untrack(() => createTag(value, props, props.children, scope))
+				untrack(() => createTag(value, props, scope))
 			break
 		}
 		case 'function': {
@@ -142,20 +142,18 @@ function Factory(value) {
 				// a class component <MyComponent../>
 				component = (props = empty(), scope = empty()) =>
 					untrack(() => {
-						const instance = new value()
-						instance.onReady &&
-							Timing.add(TIME_READY, instance.onReady.bind(instance))
-						instance.onCleanup &&
-							cleanup(instance.onCleanup.bind(instance))
+						const i = new value()
+						i.onReady && Timing.add(TIME_READY, i.onReady.bind(i))
+						i.onCleanup && cleanup(i.onCleanup.bind(i))
 
-						return instance.render(props, props.children, scope)
+						return i.render(props, scope)
 					})
 				break
 			}
 			// else if (isFunction(value)) {
 			// a function component <MyComponent../>
 			component = (props = empty(), scope = empty()) =>
-				untrack(() => value(props, props.children, scope))
+				untrack(() => value(props, scope))
 			// }
 			break
 		}
@@ -164,18 +162,13 @@ function Factory(value) {
 				// an actual node component <div>
 				component = (props = empty(), scope = empty()) =>
 					untrack(() =>
-						createNode(
-							value.cloneNode(true),
-							props,
-							props.children,
-							scope,
-						),
+						createNode(value.cloneNode(true), props, scope),
 					)
 				break
 			}
 			// objects with a custom `.toString()`
 			component = (props = empty(), scope = empty()) =>
-				untrack(() => value.toString(props, props.children, scope))
+				untrack(() => value.toString(props, scope))
 
 			break
 		}
@@ -194,7 +187,7 @@ const useParentNode = context(empty())
 
 // creates a x/html element from a tagName
 
-function createTag(tagName, props, children, scope) {
+function createTag(tagName, props, scope) {
 	const parentNode = useParentNode()
 
 	// get the namespace
@@ -209,12 +202,11 @@ function createTag(tagName, props, children, scope) {
 	return createNode(
 		ns ? createElementNS(ns, tagName) : createElement(tagName),
 		props,
-		children,
 		scope,
 	)
 }
 
-function createNode(node, props, children, scope) {
+function createNode(node, props, scope) {
 	// sets internals properties of the node
 	// allows to lookup mount, parent node for xmlns, holds events handlers
 	// appears in the dev tools at the node properties for easy debugging
@@ -256,8 +248,8 @@ function createNode(node, props, children, scope) {
 
 		// insert childrens
 		// children will be `undefined` when there are no children at all, example `<br/>`
-		if (children !== undefined) {
-			createChildren(node, children)
+		if (props.children !== undefined) {
+			createChildren(node, props.children)
 		}
 	})
 
