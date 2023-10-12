@@ -21,6 +21,14 @@ import {
 	// to ensure timing of events callbacks are queued to run at specific times
 	TIME_MOUNT,
 	TIME_READY,
+	// component are cached for the duration of a run (top to bottom)
+	// cache is cleared after the run
+	// if you make a list with 100 links in one shot
+	// it will reuse a component 99 times
+	// then discard that object
+	// performance opportunity: expiration could be smarter
+	Components,
+	Timing,
 } from './constants.js'
 
 // while not needed these make the logic/code more concise/readable
@@ -98,15 +106,6 @@ export function Component(value, props) {
 	// create component instance with props, and a scope/context initially set to an empty object
 	return markComponent(() => Factory(value)(props, scope))
 }
-
-// component are cached for the duration of a run (top to bottom)
-// cache is cleared after the run
-// if you make a list with 100 links in one shot
-// it will reuse a component 99 times
-// then discard that object
-// performance opportunity: expiration could be smarter
-
-const Components = new Map()
 
 // the components factory
 // abstraction for users
@@ -218,6 +217,7 @@ function createNode(node, props, scope) {
 		scope.namespaceURI = node.namespaceURI
 	}
 
+	// for portals
 	if (props.mount) {
 		scope.mount = props.mount
 	}
@@ -226,7 +226,8 @@ function createNode(node, props, scope) {
 
 	// on first run this will hold a value
 	// once reactivity takes over (like a Show), then,
-	// it wont and we use old parent which is already saved on the scope from the previous run
+	// it wont and we use the old reference to the parent
+	// which is already saved on the scope from the previous run
 	if (parentNode[$meta]) {
 		scope.parent = parentNode[$meta]
 	}
@@ -238,6 +239,7 @@ function createNode(node, props, scope) {
 	cleanup(() => {
 		// callbacks
 		scope.onCleanup && call(scope.onCleanup, node)
+
 		// remove from the document
 		node.isConnected && node.remove()
 	})
@@ -254,21 +256,6 @@ function createNode(node, props, scope) {
 	}
 
 	return node
-}
-
-// a placeholder helps to keep nodes in position
-
-function createPlaceholder(parent, text, relative) {
-	return insertNode(
-		parent,
-		DEV
-			? createElementComment(
-					(text || '') + (relative ? ' relative' : ''),
-			  )
-			: createElementText(''),
-
-		relative,
-	)
 }
 
 // creates the children for a parent
@@ -394,6 +381,21 @@ function createChildren(parent, child, relative) {
 			)
 		}
 	}
+}
+
+// a placeholder helps to keep nodes in position
+
+function createPlaceholder(parent, text, relative) {
+	return insertNode(
+		parent,
+		DEV
+			? createElementComment(
+					(text || '') + (relative ? ' relative' : ''),
+			  )
+			: createElementText(''),
+
+		relative,
+	)
 }
 
 // insert
@@ -748,23 +750,3 @@ export class ReactiveMap {
 export function getPropsData(node) {
 	return node[$meta]?.$data || empty()
 }
-
-// we need to ensure the timing of some callbacks, like `onMount`, and `onReady`
-// for this we add 1 queueMicrotask, then we queue functions in an array at a `priority` position
-// once the microtask is called, we run the array of functions in order of priority
-
-import { Scheduler } from '#time'
-
-const Timing = new Scheduler(
-	// callback
-	cb => untrack(cb),
-	// finally
-	() => {
-		// we are sure our job is done for this loop
-		// this function runs after each "run" is complete
-		// so we can add here house keeping stuff
-
-		// clear the component cache
-		Components.clear()
-	},
-)
