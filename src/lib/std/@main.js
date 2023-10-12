@@ -1,5 +1,6 @@
 export { assign } from './assign.js'
 export { call } from './call.js'
+export { contextSimple } from './contextSimple.js'
 export { defineProperty } from './defineProperty.js'
 export { empty } from './empty.js'
 export { entries } from './entries.js'

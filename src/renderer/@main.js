@@ -41,6 +41,7 @@ import {
 	removeFromArray,
 	getValue,
 	toArray,
+	contextSimple,
 } from '#std'
 
 // renderer lib
@@ -54,7 +55,7 @@ import {
 
 // context
 
-import { context, isReactive } from '#reactivity'
+import { isReactive } from '#reactivity'
 
 // properties / attributes
 
@@ -182,7 +183,7 @@ function Factory(value) {
 // keeps track of parentNode for `xmlns` spreading to children
 // defaults to empty object so parentNode.namespaceURI doesnt throw
 
-const useParentNode = context(empty())
+const useParentNode = contextSimple(empty())
 
 // creates a x/html element from a tagName
 
