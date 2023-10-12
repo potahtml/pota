@@ -1,4 +1,4 @@
-import { empty, entries, noop } from '#std'
+import { empty, entries } from '#std'
 
 const properties = empty()
 const propertiesNS = empty()
@@ -9,12 +9,6 @@ export function registerProp(name, fn) {
 export function registerPropNS(name, fn) {
 	propertiesNS[name] = fn
 }
-
-// internal props
-
-registerProp('children', noop) // childrens skipped
-registerProp('mount', noop) // mount property skipped
-registerProp('$data', noop) // props data skipped
 
 // styles
 
@@ -65,6 +59,10 @@ import { setNodeProp } from './attribute-property.js'
 
 export function assignProps(node, props) {
 	for (const [name, value] of entries(props)) {
+		// internal props
+		if (name === 'children' || name === 'mount' || name === '$data')
+			continue
+
 		// run plugins
 		if (properties[name]) {
 			properties[name](node, name, value, props)
