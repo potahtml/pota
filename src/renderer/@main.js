@@ -434,22 +434,22 @@ function insertNode(parent, node, relative) {
 
 // rendering
 
-export function render(value, parent, clear, relative) {
+export function render(value, parent, options = empty()) {
 	return root(dispose => {
-		insert(value, parent, clear, relative)
+		insert(value, parent, options)
 		return dispose
 	})
 }
 
 // insert
 
-export function insert(value, parent, clear, relative) {
-	clear && clearNode(parent)
+export function insert(value, parent, options = empty()) {
+	options.clear && clearNode(parent)
 
 	return createChildren(
 		parent || document.body,
 		isComponentable(value) ? create(value) : value,
-		relative,
+		options.relative,
 	)
 }
 
@@ -475,7 +475,7 @@ export function template(template, ...values) {
 
 	const clone = cached.cloneNode(true)
 
-	// it searched all nodes with our attribute wildcard or nodes with our name
+	// it searches all nodes with our attribute wildcard OR nodes with our name
 	const replace = document.evaluate(
 		"//*[@*='<pota></pota>']|//pota",
 		clone,
@@ -483,6 +483,7 @@ export function template(template, ...values) {
 		XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 		null,
 	)
+
 	// as we are going to manipulate the nodes
 	// the snapshot will change and will get messed up
 	// save it on a temp array
@@ -491,20 +492,22 @@ export function template(template, ...values) {
 		nodes.push(replace.snapshotItem(i))
 	}
 	let index = 0
+
+	const insertOptions = { relative: true }
+
 	for (const node of nodes) {
 		if (node.localName === 'pota') {
 			// replace full node
 
 			const value = values[index++]
 			insert(
-				// insert creates components for things to insert.
-				// for nodes it will use cloneNode
+				// `insert` creates components for things to insert.
+				// for nodes it will use `cloneNode`
 				// this will cause any event listener to be lost
 				// for this reason we wrap it on a function
 				value instanceof Node ? markComponent(() => value) : value,
 				node,
-				null,
-				true,
+				insertOptions,
 			)
 			node && node.remove()
 		} else {
