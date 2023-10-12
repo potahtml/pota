@@ -20,7 +20,7 @@ const search = lazyMemo(() => getLocation().search)
 const href = lazyMemo(() => getLocation().href)
 
 // query params is resolved once
-let queryParams
+let queryParams = empty()
 let querySearch = ''
 export const location = assign(empty(), {
 	hash,
