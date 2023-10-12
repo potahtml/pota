@@ -60,7 +60,7 @@ export { Component }
 
 // render utils
 
-export { makeCallback } from '#comp'
+export { makeCallback, lazyComponent, customElement } from '#comp'
 
 // events
 
