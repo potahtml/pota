@@ -9,13 +9,14 @@ import { $meta } from '../constants.js'
 const EventNames = empty()
 
 export function eventName(s) {
-	if (EventNames[s] !== undefined) {
+	if (s in EventNames) {
 		return EventNames[s]
 	}
-	EventNames[s] = null
 
 	if (s.startsWith('on') && window[s.toLowerCase()] !== undefined) {
 		EventNames[s] = s.substr(2).toLowerCase()
+	} else {
+		EventNames[s] = null
 	}
 	return EventNames[s]
 }
@@ -26,6 +27,7 @@ export function setEventNS(node, name, value, props, localName, ns) {
 }
 
 const Delegated = empty()
+
 export function addEvent(
 	node,
 	type,
