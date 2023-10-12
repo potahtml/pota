@@ -2,6 +2,7 @@
 // delegated and native events are hold into an array property of the node
 // to avoid duplicated events that could be added by using `ns` in ease of organization
 
+import { cleanup } from '#primitives'
 import { defineProperty, empty, isArray, removeFromArray } from '#std'
 import { $meta } from '../constants.js'
 
@@ -39,12 +40,19 @@ export function addEvent(
 	handlers = node[$meta][key] = node[$meta][key] || []
 
 	if (delegated) {
-		if (Delegated[type] === undefined) {
-			Delegated[type] = null
+		if (!(type in Delegated) || Delegated[type] === 0) {
+			Delegated[type] = 0
 			document.addEventListener(type, eventHandlerDelegated, {
 				passive: true,
 			})
 		}
+		Delegated[type]++
+		// remove event on cleanup if not in use
+		cleanup(() => {
+			if (--Delegated[type] === 0) {
+				document.removeEventListener(type, eventHandlerDelegated)
+			}
+		})
 	} else {
 		if (handlers.length === 0) {
 			node.addEventListener(type, eventHandlerNative)
@@ -84,6 +92,7 @@ function eventHandlerDelegated(e) {
 
 	// reverse Shadow DOM retargetting
 	// from dom-expressions
+	// I dont understand this
 	if (e.target !== node) {
 		defineProperty(e, 'target', {
 			value: node,
