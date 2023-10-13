@@ -1,8 +1,10 @@
+import { call } from '#std'
+
 export class Scheduler {
 	constructor(cb, _finally) {
-		this.reset()
 		this.cb = cb
 		this._finally = _finally
+		this.reset()
 	}
 	reset() {
 		this.queue = [[], [], [], []]
@@ -11,16 +13,16 @@ export class Scheduler {
 	add(priority, fn) {
 		if (!this.do) {
 			this.do = true
-			queueMicrotask(() => this.process())
+			queueMicrotask(this.process)
 		}
 		this.queue[priority].push(fn)
 	}
-	process() {
+	process = () => {
 		const queue = this.queue
 		this.reset()
 		this.cb(() => {
 			for (const fns of queue) {
-				for (const fn of fns) fn()
+				for (const fn of fns) call(...fn)
 			}
 		})
 		this._finally()

@@ -143,7 +143,7 @@ function Factory(value) {
 				component = (props = empty(), scope = empty()) =>
 					untrack(() => {
 						const i = new value()
-						i.onReady && Timing.add(TIME_READY, i.onReady.bind(i))
+						i.onReady && Timing.add(TIME_READY, [[i.onReady.bind(i)]])
 						i.onCleanup && cleanup(i.onCleanup.bind(i))
 
 						return i.render(props, scope)
@@ -315,8 +315,7 @@ function createChildren(parent, child, relative) {
 
 				insertNode(parent, node, relative)
 
-				meta?.onMount &&
-					Timing.add(TIME_MOUNT, () => call(meta.onMount, node))
+				meta?.onMount && Timing.add(TIME_MOUNT, [meta.onMount, node])
 
 				return node
 			}
@@ -532,8 +531,7 @@ export function template(template, ...values) {
 	// return a single element if possible to make it more easy to use
 	return clone.childNodes.length === 1
 		? clone.childNodes[0]
-		: // from NodeList to Array
-		  [...clone.childNodes]
+		: [...clone.childNodes] // from NodeList to Array
 }
 
 // children helper for when you need to unwrap children functions
@@ -573,7 +571,7 @@ export function resolve(children) {
 // life cycles
 
 export function onReady(fn) {
-	Timing.add(TIME_READY, () => call([fn]))
+	Timing.add(TIME_READY, [[fn]])
 }
 
 // Map Array

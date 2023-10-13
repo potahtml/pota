@@ -1,3 +1,7 @@
+import { markReactive } from '#reactivity'
+import { children } from '#main'
+import { empty } from '#std'
+
 import {
 	createRoot,
 	createRenderEffect,
@@ -19,7 +23,7 @@ const signal = (a, b) => {
 
 const memo = (a, b, c) => markReactive(createMemo(a, b, c))
 
-function context(defaultValue = {}) {
+function context(defaultValue = empty()) {
 	const id = Symbol('context')
 	const context = { id, defaultValue }
 
@@ -59,6 +63,3 @@ export {
 	batch,
 	context,
 }
-
-import { markReactive } from '#reactivity'
-import { children } from '#main'

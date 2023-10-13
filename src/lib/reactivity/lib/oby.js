@@ -1,4 +1,7 @@
-// setup
+import { markReactive } from '#reactivity'
+import { children } from '#main'
+import { empty } from '#std'
+
 import $, {
 	root,
 	effect,
@@ -18,7 +21,7 @@ const signal = (a, b) => {
 
 const _memo = (a, b) => markReactive(memo(a, b))
 
-function _context(defaultValue = {}) {
+function _context(defaultValue = empty()) {
 	const id = Symbol('context')
 
 	function Context(newValue, fn) {
@@ -50,6 +53,3 @@ export {
 	untrack,
 	batch,
 }
-
-import { markReactive } from '#reactivity'
-import { children } from '#main'

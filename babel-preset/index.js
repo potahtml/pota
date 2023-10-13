@@ -6,8 +6,7 @@ export default function (context, options = { reactivity: 'solid' }) {
 	if (
 		reactivity !== 'flimsy' &&
 		reactivity !== 'oby' &&
-		reactivity !== 'solid' &&
-		reactivity !== 'solid-dev'
+		reactivity !== 'solid'
 	)
 		throw new Error(
 			`

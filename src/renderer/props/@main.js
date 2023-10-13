@@ -71,7 +71,7 @@ export function assignProps(node, props) {
 
 		// onClick={handler}
 		let event = eventName(name)
-		if (event !== null) {
+		if (event) {
 			// delegated: yes
 			addEvent(node, event, value, true, false)
 			continue
@@ -90,7 +90,7 @@ export function assignProps(node, props) {
 
 		// onClick:my-ns={handler}
 		event = eventName(ns)
-		if (event !== null) {
+		if (event) {
 			// delegated: yes
 			addEvent(node, event, value, true, false)
 			continue
