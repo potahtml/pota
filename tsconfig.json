@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "rootDir": "./",
     "baseUrl": ".",
     "outDir": "./dist",
     "paths": {
@@ -33,7 +34,7 @@
 
     "sourceMap": true,
 
-    "types": ["./src/types.d.ts", "solid-js"]
+    "types": ["./src/types.d.ts"]
   },
   "exclude": ["./dist/*"]
 }
