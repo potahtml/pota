@@ -1,7 +1,7 @@
 {
   "name": "pota",
   "description": "A Reactive HTML Renderer.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Tito Bouzout",
   "type": "module",
   "types": "./src/types.d.ts",
