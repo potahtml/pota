@@ -1,8 +1,8 @@
-// as Show but doesnt remove the children from the DOM
+import { getValue } from '#std'
 
 customElements.define(
 	'pota-collapse',
-	class collapse extends HTMLElement {
+	class Collapse extends HTMLElement {
 		constructor() {
 			super(), this.attachShadow({ mode: 'open' })
 		}
@@ -12,9 +12,8 @@ customElements.define(
 		show() {
 			this.shadowRoot.innerHTML = '<slot/>'
 		}
-
 		set when(value) {
-			value ? this.show() : this.hide()
+			getValue(value) ? this.show() : this.hide()
 		}
 	},
 )
