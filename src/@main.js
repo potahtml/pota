@@ -24,7 +24,7 @@ export {
 
 // components
 
-export { Collapse } from '#components/flow/Collapse.js'
+export { Collapse } from '#components/flow/Collapse.jsx'
 export { Dynamic } from '#components/flow/Dynamic.js'
 export { For } from '#components/flow/For.js'
 export { Portal } from '#components/flow/Portal.js'
