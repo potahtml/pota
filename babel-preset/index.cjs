@@ -1,7 +1,10 @@
 // the purpose of the preset is to transform jsx using the automatic runtime
-// and to rename the import of the reactive library in use
+// and to rename the import of the selected reactive library in use
 
-export default function (context, options = { reactivity: 'solid' }) {
+module.exports = function (
+	context,
+	options = { reactivity: 'solid' },
+) {
 	const reactivity = options.reactivity || 'solid'
 	if (
 		reactivity !== 'flimsy' &&

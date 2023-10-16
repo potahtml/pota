@@ -9,7 +9,7 @@
   "exports": {
     ".": "./src/@main.js",
     "./jsx-runtime": "./src/renderer/jsx-runtime.js",
-    "./babel-preset": "./babel-preset/index.js",
+    "./babel-preset": "./babel-preset/index.cjs",
     "./router/*": null,
     "./router": "./src/components/router/@main.js"
   },
