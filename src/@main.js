@@ -53,10 +53,7 @@ export {
 
 // classes
 
-import { $class } from '#comp'
-function Component() {}
-Component[$class] = Component.prototype[$class] = null
-export { Component }
+export { Component } from '#comp'
 
 // render utils
 
@@ -66,7 +63,7 @@ export { makeCallback, lazyComponent, customElement } from '#comp'
 
 export { addEvent, removeEvent } from './renderer/props/event.js'
 
-// events
+// props
 
 export {
 	registerProp,

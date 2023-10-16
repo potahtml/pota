@@ -1,6 +1,7 @@
 export const $component = Symbol('component')
-export const $class = Symbol('class')
 
+export { $class } from './class.js'
+export { Component } from './Component.js'
 export { customElement } from './customElement.js'
 export { isClassComponent } from './isClassComponent.js'
 export { isComponent } from './isComponent.js'
