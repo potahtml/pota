@@ -56,13 +56,7 @@ export function useLocation() {
 
 // listen when using browser buttons
 
-const state = { ignore: false }
-
 async function onLocationChange() {
-	/* if (state.ignore) {
-			console.log('ignoring')
-			state.ignore = false
-		} else {*/
 	// chrome has a bug on which if you use the back/forward button
 	// it will change the title of the tab to whatever it was before
 	// if the navigation is prevented (therefore the title/page wont change)
@@ -74,16 +68,8 @@ async function onLocationChange() {
 	if (await canNavigate(window.location.href)) {
 		setLocation(window.location)
 	} else {
-		/* state.ignore = true
-		 console.log(
-			'going back to',
-			location.href(),
-			'from0',
-			getLocation().href,
-		)*/
 		window.history.pushState(null, '', location.href())
 	}
-	/*}*/
 }
 
 addEventListener('hashchange', onLocationChange)
