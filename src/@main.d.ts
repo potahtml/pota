@@ -68,6 +68,6 @@ export {
 // props
 
 export {
-	registerProp,
-	registerPropNS,
+	propDefine,
+	propDefineNS,
 } from './renderer/props/@main.js'

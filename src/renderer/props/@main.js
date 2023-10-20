@@ -4,7 +4,7 @@ const properties = empty()
 const propertiesNS = empty()
 
 /**
- * Registers a prop that can be used on any JSX Element
+ * Defines a prop that can be used on any JSX Element
  *
  * @param {string} propName - Name of the prop
  * @param {(
@@ -15,12 +15,12 @@ const propertiesNS = empty()
  * ) => void} fn
  *   - Function to run when this prop is found on a JSX Element
  */
-export function registerProp(propName, fn) {
+export function propDefine(propName, fn) {
 	properties[propName] = fn
 }
 
 /**
- * Registers a namespaced prop that can be used on any JSX Element
+ * Defines a namespaced prop that can be used on any JSX Element
  *
  * @param {string} NSName - Name of the namespace
  * @param {(
@@ -33,52 +33,52 @@ export function registerProp(propName, fn) {
  * ) => void} fn
  *   - Function to run when this prop is found on a JSX Element
  */
-export function registerPropNS(NSName, fn) {
+export function propDefineNS(NSName, fn) {
 	propertiesNS[NSName] = fn
 }
 
 // styles
 
 import { setStyle } from './style.js'
-registerProp('style', setStyle)
+propDefine('style', setStyle)
 
 import { setStyleNS, setVarNS } from './style.js'
-registerPropNS('style', setStyleNS)
-registerPropNS('var', setVarNS)
+propDefineNS('style', setStyleNS)
+propDefineNS('var', setVarNS)
 
 // class
 
 import { setClass } from './class.js'
-registerProp('class', setClass)
+propDefine('class', setClass)
 
 import { setClassNS } from './class.js'
-registerPropNS('class', setClassNS)
+propDefineNS('class', setClassNS)
 
 // properties
 
 import { setProp } from './attribute-property.js'
-registerProp('innerHTML', setProp)
-registerProp('textContent', setProp)
-registerProp('value', setProp)
-registerProp('innerText', setProp)
+propDefine('innerHTML', setProp)
+propDefine('textContent', setProp)
+propDefine('value', setProp)
+propDefine('innerText', setProp)
 
 import { setPropNS, setAttributeNS } from './attribute-property.js'
-registerPropNS('prop', setPropNS)
-registerPropNS('attr', setAttributeNS)
+propDefineNS('prop', setPropNS)
+propDefineNS('attr', setAttributeNS)
 
 // life-cycles
 
 import { setOnMount, setOnCleanup } from './lifecycles.js'
-registerProp('onMount', setOnMount)
-registerProp('onCleanup', setOnCleanup)
+propDefine('onMount', setOnMount)
+propDefine('onCleanup', setOnCleanup)
 
-registerPropNS('onMount', setOnMount)
-registerPropNS('onCleanup', setOnCleanup)
+propDefineNS('onMount', setOnMount)
+propDefineNS('onCleanup', setOnCleanup)
 
 // events
 
 import { eventName, setEventNS, addEventListener } from './event.js'
-registerPropNS('on', setEventNS)
+propDefineNS('on', setEventNS)
 
 // catch all
 

@@ -109,7 +109,12 @@ export function addEventListener(
  * @returns {Function} - An `on` function for adding back the event
  *   listener
  */
-export function removeEventListener(node, type, handler, delegated) {
+export function removeEventListener(
+	node,
+	type,
+	handler,
+	delegated = true,
+) {
 	const key = delegated ? type : `${type}Native`
 	const handlers = node[$meta][key]
 
