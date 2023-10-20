@@ -1,14 +1,46 @@
-// the purpose of the preset is to transform jsx using the automatic runtime
-// and to rename the import of the selected reactive library in use
+/**
+ * The purpose of the preset is to transform JSX using the automatic
+ * runtime from `plugin-transform-react-jsx`. It also allows you to
+ * switch the reactive library in use, by renaming the import of the
+ * reactive primitives using `transform-rename-import`.
+ *
+ * The babel preset and the library, reside on the same repository, so
+ * you never get into a conflict on which the compiler and the library
+ * wont match.
+ *
+ * Usage of the preset is very simple. To the babel config you may add
+ *
+ * `"presets": [["pota/babel-preset"]]`
+ *
+ * By default, it will use solid reactivity [1]. If you would like to
+ * use `oby` reactivity instead [2], you may do so by using the option
+ * `lib`, as follows:
+ *
+ * `"presets": [["pota/babel-preset", { lib: 'oby' } ]]`
+ *
+ * New reactive libraries are welcome, you may add one by adding a
+ * file here [3]. With the name of your lib and following the same
+ * abstraction that other libraries use on that folder. Then, just
+ * edit this file to allow selecting it as a lib.
+ *
+ * If time and motivation ever allows, it would be nice to provide a
+ * custom JSX transform to make the output code smaller and possibly
+ * faster, as JSX output _the React way_ it's very verbose.
+ *
+ * @url [1] https://github.com/solidjs/solid
+ * @url [2] https://github.com/vobyjs/oby/tree/master
+ * @url [3] https://github.com/titoBouzout/pota/tree/master/src/lib/reactivity/primitives
+ */
 
 module.exports = function (context, options = { lib: 'solid' }) {
 	const lib = options.lib || 'solid'
 
-	if (lib !== 'flimsy' && lib !== 'oby' && lib !== 'solid')
+	if (lib !== 'flimsy' && lib !== 'oby' && lib !== 'solid') {
 		throw new Error(`
 \`pota/babel-preset\`: \`lib\` option should be one of the following:
-flimsy, oby, solid
+flimsy, oby, solid. See file \`pota/babel-preset\`
 `)
+	}
 
 	return {
 		plugins: [
