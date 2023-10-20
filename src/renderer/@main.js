@@ -391,7 +391,7 @@ function createChildren(parent, child, relative) {
 
 			// iterable
 			if (child instanceof Map || child instanceof Set) {
-				return Array.from(child.values()).map(child =>
+				return toArray(child.values()).map(child =>
 					createChildren(parent, child, relative),
 				)
 			}
