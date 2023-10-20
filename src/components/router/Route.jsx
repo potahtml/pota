@@ -9,6 +9,25 @@ import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
 
+/**
+ * Renders children if the path matches the current location
+ *
+ * @param {object} props
+ * @param {string} [props.path] - Path to match relative to the parent
+ *   Route. When `path` is missing, it will render only when the
+ *   parent's route path is matched exactly.
+ * @param {object} [props.params] - Key-value pairs params to encode
+ *   and replace on the path
+ * @param {pota.when} [props.collapse] - To hide the route instead of
+ *   removing it from the document
+ * @param {pota.when} [props.when] - To stop rendering the route even
+ *   if the path matches.
+ * @param {pota.children} [props.fallback] - Fallback for when a
+ *   `when` condition is set. If the `when` condition is not set, this
+ *   wont be used.
+ * @param {pota.children} [props.children]
+ * @returns {pota.children}
+ */
 export function Route(props) {
 	const parent = Context()
 
@@ -75,7 +94,14 @@ export function Route(props) {
 	)
 }
 
-Route.Default = function Default(props) {
+/**
+ * Renders children when no sibling `Route` matches
+ *
+ * @param {object} props
+ * @param {pota.children} [props.children]
+ * @returns {pota.children}
+ */
+Route.Default = props => {
 	const context = Context()
 	return (
 		<Show

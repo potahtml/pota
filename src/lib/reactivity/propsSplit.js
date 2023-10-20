@@ -1,7 +1,14 @@
 // const [others, local] = propsSplit(props, ['children'])
 
-import { empty, keys, defineProperty } from '#std'
+import { empty, keys } from '#std'
 
+/**
+ * Split an object into multiple sub objects
+ *
+ * @param {pota.props} props
+ * @param {...string[]} args
+ * @returns {pota.props[]} - Array of objects
+ */
 export function propsSplit(props, ...args) {
 	const result = []
 	const used = empty()
@@ -10,11 +17,7 @@ export function propsSplit(props, ...args) {
 		const target = empty()
 		for (const key of _props) {
 			used[key] = null
-			defineProperty(target, key, {
-				get() {
-					return props[key]
-				},
-			})
+			target[key] = props[key]
 		}
 		result.push(target)
 	}
@@ -22,11 +25,7 @@ export function propsSplit(props, ...args) {
 	const target = empty()
 	for (const key of keys(props)) {
 		if (used[key] === undefined) {
-			defineProperty(target, key, {
-				get() {
-					return props[key]
-				},
-			})
+			target[key] = props[key]
 		}
 	}
 	result.unshift(target)

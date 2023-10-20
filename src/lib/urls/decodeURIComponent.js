@@ -1,10 +1,16 @@
-// malformed params will fail to decode
-// the safe guard is there because links are copied, pasted, manipulated by people, software etc
-function _decodeURIComponent(s) {
+/**
+ * Safe guard. `decodeURIComponent` will fail with malformed strings:
+ * links are copied, pasted, manipulated by people, software etc
+ *
+ * @param {string} string - String to decode
+ * @returns {string} Returns decoded string or original string on
+ *   error
+ */
+function _decodeURIComponent(string) {
 	try {
-		return decodeURIComponent(s)
+		return decodeURIComponent(string)
 	} catch (e) {
-		return s
+		return string
 	}
 }
 export { _decodeURIComponent as decodeURIComponent }

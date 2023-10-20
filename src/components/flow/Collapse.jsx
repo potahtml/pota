@@ -12,12 +12,23 @@ customElements.define(
 		show() {
 			this.shadowRoot.innerHTML = '<slot/>'
 		}
+		/** @param {pota.when} value - To toggle children */
 		set when(value) {
 			getValue(value) ? this.show() : this.hide()
 		}
 	},
 )
 
+/**
+ * Similar to `Show`, but doesn't remove its children from the
+ * document
+ *
+ * @param {{
+ * 	when: pota.when
+ * 	children?: pota.children
+ * }} props
+ * @returns {pota.children}
+ */
 export function Collapse(props) {
 	return (
 		<pota-collapse

@@ -6,7 +6,7 @@
     "paths": {
       "#main": ["./src/@main.js"],
 
-      "#primitives": ["./src/lib/reactivity/lib/solid.js"],
+      "#primitives": ["./src/lib/reactivity/primitives/solid.js"],
       "#comp": ["./src/lib/comp/@main.js"],
 
       "#std": ["./src/lib/std/@main.js"],
@@ -15,7 +15,7 @@
       "#scroll": ["./src/lib/scroll/@main.js"],
       "#time": ["./src/lib/time/@main.js"],
 
-      "#components/*": ["./src/components/*"]
+      "#hooks": ["./src/hooks/@main.js"]
     },
 
     "allowJs": true,
@@ -26,7 +26,7 @@
     "module": "ESNext",
     "target": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "moduleResolution": "nodenext",
+    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
 
     "jsx": "react-jsx",
@@ -34,7 +34,8 @@
 
     "sourceMap": true,
 
-    "types": ["./src/types.d.ts"]
+    "types": ["./pota.d.ts"]
   },
+
   "exclude": ["./dist/*"]
 }

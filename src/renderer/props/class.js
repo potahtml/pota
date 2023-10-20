@@ -3,10 +3,23 @@
 import { effect } from '#main'
 import { entries, getValue, isFunction, isNotNullObject } from '#std'
 
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {object} props
+ */
 export function setClass(node, name, value, props) {
 	setNodeClassList(node.classList, value)
 }
-
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {object} props
+ * @param {string} localName
+ * @param {string} ns
+ */
 export function setClassNS(node, name, value, props, localName, ns) {
 	setNodeClassList(
 		node.classList,
@@ -16,6 +29,10 @@ export function setClassNS(node, name, value, props, localName, ns) {
 
 // todo: the name of the class is not reactive
 
+/**
+ * @param {DOMTokenList} classList
+ * @param {unknown | string | ArrayLike<any>} value
+ */
 function setNodeClassList(classList, value) {
 	if (isNotNullObject(value)) {
 		for (const [name, _value] of entries(value))
@@ -35,6 +52,11 @@ function setNodeClassList(classList, value) {
 		return
 	}
 }
+/**
+ * @param {DOMTokenList} classList
+ * @param {string} name
+ * @param {unknown} value
+ */
 function setNodeClassListValue(classList, name, value) {
 	if (isFunction(value)) {
 		effect(() => {
@@ -44,6 +66,11 @@ function setNodeClassListValue(classList, name, value) {
 		_setNodeClassListValue(classList, name, value)
 	}
 }
+/**
+ * @param {DOMTokenList} classList
+ * @param {string} name
+ * @param {unknown} value
+ */
 function _setNodeClassListValue(classList, name, value) {
 	// null, undefined or false the class is removed
 	if (!value) {

@@ -1,21 +1,43 @@
 // properties vs attributes
 
 import { effect } from '#main'
-import { getValue, hasValue, isFunction } from '#std'
+import { getValue, isFunction, isNullUndefined } from '#std'
 
 import { NS } from '../constants.js'
 
-// prop
+// PROP
 
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {object} props
+ */
 export function setProp(node, name, value, props) {
 	setNodeProperty(node, name, value)
 }
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {object} props
+ * @param {string} localName
+ * @param {string} ns
+ */
 export function setPropNS(node, name, value, props, localName, ns) {
 	setNodeProperty(node, localName, value)
 }
 
-// attribute
+// ATTRIBUTE
 
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {object} props
+ * @param {string} localName
+ * @param {string} ns
+ */
 export function setAttributeNS(
 	node,
 	name,
@@ -27,8 +49,14 @@ export function setAttributeNS(
 	setNodeAttribute(node, localName, value)
 }
 
-// node properties / attributes
+// NODE PROPERTIES / ATTRIBUTES
 
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {string} ns
+ */
 export function setNodeProp(node, name, value, ns) {
 	if (isFunction(value)) {
 		effect(() => {
@@ -38,6 +66,12 @@ export function setNodeProp(node, name, value, ns) {
 		_setNodeProp(node, name, value, ns)
 	}
 }
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {string} ns
+ */
 function _setNodeProp(node, name, value, ns) {
 	// set as property when boolean
 	if (typeof value === 'boolean') {
@@ -48,8 +82,13 @@ function _setNodeProp(node, name, value, ns) {
 	}
 }
 
-// node properties
+// NODE PROPERTIES
 
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ */
 function setNodeProperty(node, name, value) {
 	if (isFunction(value)) {
 		effect(() => {
@@ -59,17 +98,28 @@ function setNodeProperty(node, name, value) {
 		_setNodeProperty(node, name, value)
 	}
 }
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ */
 function _setNodeProperty(node, name, value) {
 	// if the value is null or undefined it will be removed
-	if (!hasValue(value)) {
+	if (isNullUndefined(value)) {
 		delete node[name]
 	} else {
 		node[name] = value
 	}
 }
 
-// node attributes
+// NODE ATTRIBUTES
 
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {string} [ns]
+ */
 function setNodeAttribute(node, name, value, ns) {
 	if (isFunction(value)) {
 		effect(() => {
@@ -79,9 +129,15 @@ function setNodeAttribute(node, name, value, ns) {
 		_setNodeAttribute(node, name, value, ns)
 	}
 }
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {string} [ns]
+ */
 function _setNodeAttribute(node, name, value, ns) {
 	// if the value is null or undefined it will be removed
-	if (!hasValue(value)) {
+	if (isNullUndefined(value)) {
 		ns && NS[ns]
 			? node.removeAttributeNS(NS[ns], name)
 			: node.removeAttribute(name)

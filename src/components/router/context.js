@@ -1,5 +1,5 @@
 import { signal, lazyMemo } from '#main'
-import { context } from '#reactivity'
+import { context } from '#primitives'
 import { empty, removeFromArray } from '#std'
 
 function show() {
@@ -11,7 +11,7 @@ export function create(props = empty()) {
 	return {
 		base: '', // the composed base route
 		href: () => '', // the url of the route
-		route: '', // the regular expresion of this route
+		route: '', // the regular expression of this route
 		parent: null, // parent context
 		show, // if the route is shown
 		// the children routes
@@ -30,7 +30,7 @@ export function create(props = empty()) {
 		noneMatch: lazyMemo(() =>
 			children().every(children => !children.show()),
 		),
-		// overide
+		// override
 		...props,
 	}
 }

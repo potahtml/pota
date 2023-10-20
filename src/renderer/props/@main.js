@@ -3,11 +3,38 @@ import { empty, entries } from '#std'
 const properties = empty()
 const propertiesNS = empty()
 
-export function registerProp(name, fn) {
-	properties[name] = fn
+/**
+ * Registers a prop that can be used on any JSX Element
+ *
+ * @param {string} propName - Name of the prop
+ * @param {(
+ * 	node: pota.element,
+ * 	propName: string,
+ * 	propValue: Function | unknown,
+ * 	props: object,
+ * ) => void} fn
+ *   - Function to run when this prop is found on a JSX Element
+ */
+export function registerProp(propName, fn) {
+	properties[propName] = fn
 }
-export function registerPropNS(name, fn) {
-	propertiesNS[name] = fn
+
+/**
+ * Registers a namespaced prop that can be used on any JSX Element
+ *
+ * @param {string} NSName - Name of the namespace
+ * @param {(
+ * 	node: pota.element,
+ * 	propName: string,
+ * 	propValue: Function | unknown,
+ * 	props: object,
+ * 	localName: string,
+ * 	ns: string,
+ * ) => void} fn
+ *   - Function to run when this prop is found on a JSX Element
+ */
+export function registerPropNS(NSName, fn) {
+	propertiesNS[NSName] = fn
 }
 
 // styles
@@ -39,7 +66,7 @@ import { setPropNS, setAttributeNS } from './attribute-property.js'
 registerPropNS('prop', setPropNS)
 registerPropNS('attr', setAttributeNS)
 
-// lifecycles
+// life-cycles
 
 import { setOnMount, setOnCleanup } from './lifecycles.js'
 registerProp('onMount', setOnMount)
@@ -50,13 +77,19 @@ registerPropNS('onCleanup', setOnCleanup)
 
 // events
 
-import { eventName, setEventNS, addEvent } from './event.js'
+import { eventName, setEventNS, addEventListener } from './event.js'
 registerPropNS('on', setEventNS)
 
 // catch all
 
 import { setNodeProp } from './attribute-property.js'
 
+/**
+ * Assigns props to an Element
+ *
+ * @param {pota.element} node - Element to which assign props
+ * @param {object} props - Props to assign
+ */
 export function assignProps(node, props) {
 	for (const [name, value] of entries(props)) {
 		// internal props
@@ -73,11 +106,11 @@ export function assignProps(node, props) {
 		let event = eventName(name)
 		if (event) {
 			// delegated: yes
-			addEvent(node, event, value, true, false)
+			addEventListener(node, event, value, true, false)
 			continue
 		}
 
-		// magic with ns
+		// with ns
 
 		const [ns, localName] =
 			name.indexOf(':') !== -1 ? name.split(':') : ['', name]
@@ -92,7 +125,7 @@ export function assignProps(node, props) {
 		event = eventName(ns)
 		if (event) {
 			// delegated: yes
-			addEvent(node, event, value, true, false)
+			addEventListener(node, event, value, true, false)
 			continue
 		}
 

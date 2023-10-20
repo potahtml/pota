@@ -4,26 +4,26 @@
   "version": "0.1.1",
   "author": "Tito Bouzout",
   "type": "module",
-  "types": "./src/types.d.ts",
+  "types": "./pota.d.ts",
   "main": "./src/@main.js",
   "exports": {
     ".": "./src/@main.js",
     "./jsx-runtime": "./src/renderer/jsx-runtime.js",
     "./babel-preset": "./babel-preset/index.cjs",
-    "./router/*": null,
+    "./hooks": "./src/hooks/@main.js",
     "./router": "./src/components/router/@main.js"
   },
   "imports": {
     "#main": "./src/@main.js",
-    "#primitives": "./src/lib/reactivity/lib/solid.js",
+    "#primitives": "./src/lib/reactivity/primitives/solid.js",
+    "#primitives/*": "./src/lib/reactivity/primitives/*",
     "#comp": "./src/lib/comp/@main.js",
     "#std": "./src/lib/std/@main.js",
     "#reactivity": "./src/lib/reactivity/@main.js",
     "#urls": "./src/lib/urls/@main.js",
     "#scroll": "./src/lib/scroll/@main.js",
     "#time": "./src/lib/time/@main.js",
-    "#components/*": "./src/components/*",
-    "#reactivity-lib/*": "./src/lib/reactivity/lib/*"
+    "#hooks": "./src/hooks/@main.js"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,12 @@
-// lazy memo runs only after use, by fabiospampinato@solid-js/discord
 import { signal, memo } from '#main'
 
+/**
+ * Lazy version of `memo`, it will run the function only when used
+ *
+ * @author Fabio Spampinato
+ * @param {Function} fn - Function to re-run when dependencies change
+ * @returns {pota.signal}
+ */
 export function lazyMemo(fn) {
 	const [sleeping, setSleeping] = signal(true)
 	const m = memo(() => {

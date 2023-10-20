@@ -4,6 +4,13 @@
 
 import { $component } from '#comp'
 
+/**
+ * Marks a function as a `Component`. Components untrack, so these
+ * dont need effects.
+ *
+ * @param {Function} fn - Function to mark as a `Component`
+ * @returns {pota.component}
+ */
 export function markComponent(fn) {
 	fn[$component] = null
 	return fn

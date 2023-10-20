@@ -20,7 +20,7 @@ const search = lazyMemo(() => getLocation().search)
 const href = memo(() => getLocation().href)
 // http://location/# reports hash to be empty
 // http://location/ reports hash to be empty
-// handle this diference by checking if "#" is at the end of `href`
+// handle this difference by checking if "#" is at the end of `href`
 const hash = memo(() =>
 	href().endsWith('#') ? '#' : getLocation().hash,
 )
@@ -28,6 +28,18 @@ const hash = memo(() =>
 // query params is resolved once
 let queryParams = empty()
 let querySearch = ''
+
+/**
+ * @typedef {Object} location
+ * @property {pota.signal} hash - Everything after #
+ * @property {pota.signal} href - The full url
+ * @property {pota.signal} pathname - Mirror of
+ *   window.location.pathname
+ * @property {pota.signal} path - Pathname + hash
+ * @property {pota.signal} query - Key value pairs with params
+ */
+
+/** @type location */
 export const location = assign(empty(), {
 	hash,
 	pathname,
@@ -50,6 +62,11 @@ export const location = assign(empty(), {
 	href,
 })
 
+/**
+ * Returns location data in a reactive object
+ *
+ * @returns Location
+ */
 export function useLocation() {
 	return location
 }
@@ -60,7 +77,7 @@ async function onLocationChange() {
 	// chrome has a bug on which if you use the back/forward button
 	// it will change the title of the tab to whatever it was before
 	// if the navigation is prevented (therefore the title/page wont change)
-	// it will still use the old title even if the title tag didnt change at all
+	// it will still use the old title even if the title tag didn't change at all
 	const title = document.title
 	document.title = title + ' '
 	document.title = title

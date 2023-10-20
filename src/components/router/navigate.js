@@ -7,8 +7,12 @@ import { replaceParams } from '#urls'
 import { setLocation } from './location.js'
 import { canNavigate } from './useBeforeLeave.js'
 
-// navigate
-
+/**
+ * Navigates to a new location
+ *
+ * @param {string} href
+ * @param {{ scroll?: boolean; replace?: boolean }} options
+ */
 export async function navigate(href, options = empty()) {
 	if (window.location.href !== href) {
 		if (await canNavigate(href)) {
@@ -25,10 +29,19 @@ export async function navigate(href, options = empty()) {
 	}
 }
 
-// when the user sets the url it may pass a relative path
-// this resolves it
-
+/**
+ * Navigates to a new location programmatically
+ *
+ * @param {string} href
+ * @param {{
+ * 	params?: object
+ * 	scroll?: boolean
+ * 	replace?: boolean
+ * }} options
+ */
 export function navigateUser(href, options = empty()) {
+	// when the user sets the url it may pass a relative path
+	// this makes it absolute
 	href = replaceParams(href, options.params)
 
 	navigate(
@@ -39,8 +52,16 @@ export function navigateUser(href, options = empty()) {
 	)
 }
 
-// component for convenience
-
+/**
+ * Navigates to a new location from JSX
+ *
+ * @param {{
+ * 	href: string
+ * 	scroll?: boolean
+ * 	replace?: boolean
+ * 	params?: object
+ * }} props
+ */
 export function Navigate(props) {
 	navigateUser(props.href, props)
 }

@@ -1,22 +1,14 @@
 // the purpose of the preset is to transform jsx using the automatic runtime
 // and to rename the import of the selected reactive library in use
 
-module.exports = function (
-	context,
-	options = { reactivity: 'solid' },
-) {
-	const reactivity = options.reactivity || 'solid'
-	if (
-		reactivity !== 'flimsy' &&
-		reactivity !== 'oby' &&
-		reactivity !== 'solid'
-	)
-		throw new Error(
-			`
-\`pota/babel-preset\`: \`reactivity\` option should be one of the following:
-flimsy, oby, solid, solid-dev
-      `,
-		)
+module.exports = function (context, options = { lib: 'solid' }) {
+	const lib = options.lib || 'solid'
+
+	if (lib !== 'flimsy' && lib !== 'oby' && lib !== 'solid')
+		throw new Error(`
+\`pota/babel-preset\`: \`lib\` option should be one of the following:
+flimsy, oby, solid
+`)
 
 	return {
 		plugins: [
@@ -37,7 +29,7 @@ flimsy, oby, solid, solid-dev
 					replacements: [
 						{
 							original: '#primitives',
-							replacement: '#reactivity-lib/' + reactivity + '.js',
+							replacement: '#primitives/' + lib + '.js',
 						},
 					],
 				},

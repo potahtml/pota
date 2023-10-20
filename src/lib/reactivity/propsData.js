@@ -1,7 +1,12 @@
 import { empty } from '#std'
 
-// it moves some magic props to a "hidden" place (props.$data)
-
+/**
+ * It moves props to "meta" place
+ *
+ * @param {pota.props} props
+ * @param {string[]} data
+ * @returns {pota.props}
+ */
 export function propsData(props, data) {
 	if (!props.$data) {
 		props.$data = empty()

@@ -1,3 +1,7 @@
+// jsx
+
+export type * from '../pota.d.ts'
+
 // reactivity
 
 export {
@@ -11,20 +15,19 @@ export {
 	cleanup as onCleanup,
 	untrack,
 	context,
-} from '#primitives'
+} from './lib/reactivity/primitives/solid.js'
 
 // reactivity utils
 
-export { lazyMemo, propsSplit, propsData } from '#reactivity'
+export {
+	lazyMemo,
+	propsSplit,
+	propsData,
+} from './lib/reactivity/@main.js'
 
 // components
 
-export { Collapse } from './components/flow/Collapse.jsx'
-export { Dynamic } from './components/flow/Dynamic.js'
-export { For } from './components/flow/For.js'
-export { Portal } from './components/flow/Portal.js'
-export { Show } from './components/flow/Show.js'
-export { Switch, Match } from './components/flow/Switch.js'
+export * from './components/flow/@main.js'
 
 // renderer
 
@@ -46,14 +49,14 @@ export {
 	getPropsData,
 } from './renderer/@main.js'
 
-// classes
+// render utils
 
 export {
 	Component,
 	makeCallback,
 	lazyComponent,
 	customElement,
-} from '#comp'
+} from './lib/comp/@main.js'
 
 // events
 

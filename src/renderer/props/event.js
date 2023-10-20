@@ -6,33 +6,63 @@ import { cleanup } from '#primitives'
 import { defineProperty, empty, isArray, removeFromArray } from '#std'
 import { $meta } from '../constants.js'
 
-const EventNames = empty()
-
-export function eventName(s) {
-	if (s in EventNames) {
-		return EventNames[s]
-	}
-
-	if (s.startsWith('on') && window[s.toLowerCase()] !== undefined) {
-		EventNames[s] = s.substr(2).toLowerCase()
-	} else {
-		EventNames[s] = null
-	}
-	return EventNames[s]
-}
-
+/**
+ * @param {pota.element} node
+ * @param {string} name
+ * @param {pota.handler} value
+ * @param {object} props
+ * @param {string} localName
+ * @param {string} ns
+ */
 export function setEventNS(node, name, value, props, localName, ns) {
 	// delegated: no
-	addEvent(node, localName, value, false, false)
+	addEventListener(node, localName, value, false, false)
+}
+
+const EventNames = empty()
+
+/**
+ * Returns an event name when the string could be mapped to an event
+ *
+ * @param {string} name - String to check for a mapped event
+ * @returns {string | null} Returns the event name or null in case
+ *   isnt found
+ */
+export function eventName(name) {
+	if (name in EventNames) {
+		return EventNames[name]
+	}
+
+	if (
+		name.startsWith('on') &&
+		window[name.toLowerCase()] !== undefined
+	) {
+		EventNames[name] = name.substr(2).toLowerCase()
+	} else {
+		EventNames[name] = null
+	}
+	return EventNames[name]
 }
 
 const Delegated = empty()
 
-export function addEvent(
+/**
+ * Adds an event listener to a node
+ *
+ * @param {pota.element} node - Element to add the event listener
+ * @param {string} type - The name of the event listener
+ * @param {pota.handler} handler - Function to handle the event
+ * @param {boolean} [delegated] - To choose delegation or not
+ * @param {boolean} [external] - External defaults to true and avoids
+ *   returning an `off` function for the event listener
+ * @returns {Function | void} - An `off` function for removing the
+ *   event listener
+ */
+export function addEventListener(
 	node,
 	type,
 	handler,
-	delegated,
+	delegated = false,
 	external = true,
 ) {
 	node[$meta] = node[$meta] || empty()
@@ -66,10 +96,20 @@ export function addEvent(
 	handlers.push(handler)
 
 	if (external)
-		return () => removeEvent(node, type, handler, delegated)
+		return () => removeEventListener(node, type, handler, delegated)
 }
 
-export function removeEvent(node, type, handler, delegated) {
+/**
+ * Removes an event listener from a node
+ *
+ * @param {pota.element} node - Element to add the event listener
+ * @param {string} type - The name of the event listener
+ * @param {pota.handler} handler - Function to handle the event
+ * @param {boolean} [delegated] - To choose delegation or not
+ * @returns {Function} - An `on` function for adding back the event
+ *   listener
+ */
+export function removeEventListener(node, type, handler, delegated) {
 	const key = delegated ? type : `${type}Native`
 	const handlers = node[$meta][key]
 
@@ -77,16 +117,17 @@ export function removeEvent(node, type, handler, delegated) {
 	if (!delegated && handlers.length === 0) {
 		node.removeEventListener(type, eventHandlerNative)
 	}
-	return () => addEvent(node, type, handler, delegated)
+	return () => addEventListener(node, type, handler, delegated)
 }
 
+/** @param {Event} e - Event */
 function eventHandlerNative(e) {
 	const key = `${e.type}Native`
 	const node = e.currentTarget
 	const handlers = node[$meta][key]
 	eventDispatch(e.target, handlers, e)
 }
-
+/** @param {Event} e - Event */
 function eventHandlerDelegated(e) {
 	const key = e.type
 
@@ -115,7 +156,11 @@ function eventHandlerDelegated(e) {
 		node = node.parentNode
 	}
 }
-
+/**
+ * @param {pota.element} node
+ * @param {Function[]} handlers
+ * @param {Event} e - Event
+ */
 function eventDispatch(node, handlers, e) {
 	for (const handler of handlers) {
 		handler[$meta][0].call(node, ...handler[$meta].slice(1), e)

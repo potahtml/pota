@@ -1,9 +1,31 @@
 // utils
-import { propsMerge, propsData } from '#main'
+import { propsData } from '#main'
 import { isRelative, replaceParams } from '#urls'
 
 // local
 import { Context } from './context.js'
+
+/*
+ * // props
+ * // props.href Url relative to the parent <Route/>
+ * // props.params Key-value pair object params to replace in the url
+ * // props.scroll Scroll defaults to true, set this to false to
+ *   not scroll on location change
+ * // props.replace Replace the history entry from the browser} props
+ */
+
+/**
+ * Creates a link with Router features
+ *
+ * @param {{
+ * 	href: string
+ * 	params?: object
+ * 	scroll?: boolean
+ * 	replace?: boolean
+ * } & pota.props} props
+ *
+ * @returns {pota.children}
+ */
 
 export function A(props) {
 	let href = replaceParams(props.href, props.params)
@@ -22,5 +44,5 @@ export function A(props) {
 
 	propsData(props, ['params', 'scroll', 'replace'])
 
-	return <a {...propsMerge(props, { href })} />
+	return <a {...{ ...props, href }} />
 }
