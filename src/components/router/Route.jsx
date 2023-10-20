@@ -1,4 +1,5 @@
 import { cleanup, memo, Show, Dynamic, Collapse } from '#main'
+import { scrollToSelectorWithFallback } from '#scroll'
 
 // utils
 import { optional } from '#std'
@@ -16,6 +17,8 @@ import { setParams } from './useParams.js'
  * @param {string} [props.path] - Path to match relative to the parent
  *   Route. When `path` is missing, it will render only when the
  *   parent's route path is matched exactly.
+ * @param {string[]} [props.scrolls] - Elements to scroll when the
+ *   route matches
  * @param {object} [props.params] - Key-value pairs params to encode
  *   and replace on the path
  * @param {pota.when} [props.collapse] - To hide the route instead of
@@ -39,15 +42,19 @@ export function Route(props) {
 			props.path !== undefined ? props.path.replace(/^#/, '/#') : '$',
 			props.params,
 		)
+
 	const route = new RegExp(
 		'^' + base.replace(/\:([a-z0-9_\-]+)/gi, '(?<$1>.+)'),
 	)
 
 	let href = ''
 
+	const scrolls = props.scrolls
+		? parent.scrolls.concat(props.scrolls)
+		: parent.scrolls
+
 	const show = memo(() => {
 		const path = location.path()
-
 		if (route.test(path)) {
 			setParams(() => () => route.exec(path).groups)
 
@@ -62,6 +69,18 @@ export function Route(props) {
 					// add the path
 					href
 			}
+
+			// scroll
+			queueMicrotask(() => {
+				// render
+				queueMicrotask(() => {
+					// already rendered
+					for (const item of scrolls)
+						scrollToSelectorWithFallback(item)
+					scrollToSelectorWithFallback(window.location.hash)
+				})
+			})
+
 			return true
 		} else {
 			return false
@@ -70,8 +89,8 @@ export function Route(props) {
 
 	const context = create({
 		base, // the prefix for the children path
-		href: () => href, // the full url of the root
-		route, // the regexp for params
+		href: () => href, // the full url of the route
+		scrolls,
 		parent,
 		show,
 	})

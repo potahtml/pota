@@ -1,0 +1,10 @@
+import { scrollToSelector, scrollToTop } from '#scroll'
+
+/**
+ * Scrolls to hash and in case isnt found it scrolls to the top
+ *
+ * @param {string} selector - Hash to scroll to
+ */
+export function scrollToSelectorWithFallback(selector) {
+	if (!scrollToSelector(selector)) scrollToTop()
+}

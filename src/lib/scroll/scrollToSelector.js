@@ -6,12 +6,11 @@ import { scrollToElement } from '#scroll'
  * @param {string} hash - Hash to scroll to
  * @returns {boolean} True on success
  */
-export function scrollToHash(hash) {
+export function scrollToSelector(hash) {
 	if (hash) {
 		try {
 			// selector could be invalid
-			const item = document.querySelector(hash)
-			scrollToElement(item)
+			scrollToElement(document.querySelector(hash))
 			return true
 		} catch (e) {}
 	}

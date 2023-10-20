@@ -1,6 +1,6 @@
 // utils
 import { empty, optional } from '#std'
-import { scrollToHashWithFallback } from '#scroll'
+import { scrollToSelectorWithFallback } from '#scroll'
 import { replaceParams } from '#urls'
 
 // local
@@ -22,8 +22,9 @@ export async function navigate(href, options = empty()) {
 				window.history.pushState(null, '', href)
 			}
 			setLocation(window.location)
+
 			if (optional(options.scroll)) {
-				scrollToHashWithFallback(window.location.hash)
+				scrollToSelectorWithFallback(window.location.hash)
 			}
 		}
 	}
