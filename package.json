@@ -7,6 +7,7 @@
   "types": "./pota.d.ts",
   "main": "./src/@main.js",
   "exports": {
+    "./*": null,
     ".": "./src/@main.js",
     "./jsx-runtime": "./src/renderer/jsx-runtime.js",
     "./babel-preset": "./babel-preset/index.cjs",
@@ -15,14 +16,18 @@
   },
   "imports": {
     "#main": "./src/@main.js",
+
     "#primitives": "./src/lib/reactivity/primitives/solid.js",
     "#primitives/*": "./src/lib/reactivity/primitives/*",
-    "#comp": "./src/lib/comp/@main.js",
+
     "#std": "./src/lib/std/@main.js",
     "#reactivity": "./src/lib/reactivity/@main.js",
+    "#comp": "./src/lib/comp/@main.js",
+
     "#urls": "./src/lib/urls/@main.js",
     "#scroll": "./src/lib/scroll/@main.js",
     "#time": "./src/lib/time/@main.js",
+
     "#hooks": "./src/hooks/@main.js"
   },
   "repository": {
