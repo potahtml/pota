@@ -62,7 +62,7 @@ export function addEventListener(
 	node,
 	type,
 	handler,
-	delegated = false,
+	delegated = true,
 	external = true,
 ) {
 	node[$meta] = node[$meta] || empty()
