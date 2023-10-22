@@ -9,30 +9,22 @@
   "exports": {
     "./*": null,
     ".": "./src/exports.js",
-
     "./babel-preset": "./babel-preset/index.cjs",
-
     "./jsx-runtime": "./src/renderer/jsx/jsx-runtime.js",
     "./hooks": "./src/hooks/@main.js",
     "./router": "./src/components/router/@main.js"
   },
   "imports": {
     "#constants": "./src/constants.js",
-
     "#renderer": "./src/renderer/@main.js",
     "#renderer/*": "./src/renderer/*",
-
     "#primitives": "./src/lib/reactivity/primitives/solid.js",
     "#primitives/*": "./src/lib/reactivity/primitives/*",
-
     "#reactivity": "./src/lib/reactivity/@main.js",
-
     "#std": "./src/lib/std/@main.js",
     "#comp": "./src/lib/comp/@main.js",
-
     "#urls": "./src/lib/urls/@main.js",
     "#scroll": "./src/lib/scroll/@main.js",
-
     "#hooks": "./src/hooks/@main.js"
   },
   "repository": {
@@ -56,7 +48,10 @@
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.22.5",
-    "babel-plugin-transform-rename-import": "^2.3.0"
+    "babel-plugin-transform-rename-import": "^2.3.0",
+    "flimsy": "^1.0.3",
+    "oby": "^14.3.5",
+    "solid-js": "^1.8.3"
   },
   "peerDependencies": {
     "@babel/core": "^7.22.11"
