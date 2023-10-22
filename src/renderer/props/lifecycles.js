@@ -1,23 +1,23 @@
-import { $meta } from '../constants.js'
+import { property } from '#std'
+import { onMount } from '../scheduler.js'
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
- * @param {Function | unknown} value
+ * @param {pota.Handler} value
  * @param {object} props
  */
 export function setOnMount(node, name, value, props) {
-	const meta = node[$meta]
-	meta.onMount = meta.onMount || []
-	meta.onMount.push(value)
+	// timing is already controlled by onMount
+	onMount([value, node])
 }
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
- * @param {Function | unknown} value
+ * @param {Function | []} value
  * @param {object} props
  */
-export function setOnCleanup(node, name, value, props) {
-	const meta = node[$meta]
-	meta.onCleanup = meta.onCleanup || []
-	meta.onCleanup.push(value)
+export function setUnmount(node, name, value, props) {
+	// we need to ensure the timing of the cleanup callback
+	// so we queue it to run it at a specific time
+	property(node, 'onUnmount', []).push([value, node])
 }

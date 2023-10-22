@@ -5,9 +5,9 @@ import { empty, keys } from '#std'
 /**
  * Split an object into multiple sub objects
  *
- * @param {pota.props} props
+ * @param {pota.Props} props
  * @param {...string[]} args
- * @returns {pota.props[]} - Array of objects
+ * @returns {pota.Props[]} - Array of objects
  */
 export function propsSplit(props, ...args) {
 	const result = []

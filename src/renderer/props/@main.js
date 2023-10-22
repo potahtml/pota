@@ -8,7 +8,7 @@ const propertiesNS = empty()
  *
  * @param {string} propName - Name of the prop
  * @param {(
- * 	node: pota.element,
+ * 	node: pota.Element,
  * 	propName: string,
  * 	propValue: Function | unknown,
  * 	props: object,
@@ -24,7 +24,7 @@ export function propDefine(propName, fn) {
  *
  * @param {string} NSName - Name of the namespace
  * @param {(
- * 	node: pota.element,
+ * 	node: pota.Element,
  * 	propName: string,
  * 	propValue: Function | unknown,
  * 	props: object,
@@ -68,12 +68,12 @@ propDefineNS('attr', setAttributeNS)
 
 // life-cycles
 
-import { setOnMount, setOnCleanup } from './lifecycles.js'
+import { setOnMount, setUnmount } from './lifecycles.js'
 propDefine('onMount', setOnMount)
-propDefine('onCleanup', setOnCleanup)
+propDefine('onUnmount', setUnmount)
 
 propDefineNS('onMount', setOnMount)
-propDefineNS('onCleanup', setOnCleanup)
+propDefineNS('onUnmount', setUnmount)
 
 // events
 
@@ -87,14 +87,13 @@ import { setNodeProp } from './attribute-property.js'
 /**
  * Assigns props to an Element
  *
- * @param {pota.element} node - Element to which assign props
+ * @param {pota.Element} node - Element to which assign props
  * @param {object} props - Props to assign
  */
 export function assignProps(node, props) {
 	for (const [name, value] of entries(props)) {
 		// internal props
-		if (name === 'children' || name === 'mount' || name === '$data')
-			continue
+		if (name === 'children') continue
 
 		// run plugins
 		if (properties[name]) {

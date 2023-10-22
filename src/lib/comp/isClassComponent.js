@@ -1,6 +1,6 @@
 import { isFunction } from '#std'
 
-import { $class } from '#comp'
+import { $class } from '#constants'
 
 /**
  * Returns true if `value` is a class `Component`

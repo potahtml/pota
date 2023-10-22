@@ -1,4 +1,4 @@
-import { scrollToElement } from '#scroll'
+import { scrollToElement } from './scrollToElement.js'
 
 /**
  * Scrolls to element that matches the hash

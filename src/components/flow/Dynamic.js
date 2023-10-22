@@ -1,12 +1,12 @@
-import { create } from '#main'
+import { create } from '#renderer'
 
 /**
  * Creates components dynamically
  *
  * @param {{
- * 	component: pota.componenteable
- * } & pota.props} props
- * @returns {pota.component}
+ * 	component: pota.Componenteable
+ * } & pota.Props} props
+ * @returns {pota.Component}
  */
 
 export function Dynamic(props) {

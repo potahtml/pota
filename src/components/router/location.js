@@ -1,5 +1,5 @@
 import { origin } from '#urls'
-import { signal, lazyMemo, memo } from '#main'
+import { signal, memo, lazyMemo } from '#primitives'
 import { assign, empty } from '#std'
 
 // local
@@ -31,12 +31,12 @@ let querySearch = ''
 
 /**
  * @typedef {Object} location
- * @property {pota.signal} hash - Everything after #
- * @property {pota.signal} href - The full url
- * @property {pota.signal} pathname - Mirror of
+ * @property {pota.Signal} hash - Everything after #
+ * @property {pota.Signal} href - The full url
+ * @property {pota.Signal} pathname - Mirror of
  *   window.location.pathname
- * @property {pota.signal} path - Pathname + hash
- * @property {pota.signal} query - Key value pairs with params
+ * @property {pota.Signal} path - Pathname + hash
+ * @property {pota.Signal} query - Key value pairs with params
  */
 
 /** @type location */

@@ -1,11 +1,5 @@
-import {
-  memo,
-  children,
-  lazyMemo,
-  resolve,
-  makeCallback,
-} from '#main'
-
+import { memo, children, resolve, lazyMemo } from '#primitives'
+import { makeCallback } from '#comp'
 import { getValue, isNullUndefined } from '#std'
 
 /**
@@ -13,9 +7,9 @@ import { getValue, isNullUndefined } from '#std'
  * a fallback in case of no match
  *
  * @param {object} props
- * @param {pota.children} [props.children]
- * @param {pota.children} [props.fallback]
- * @returns {pota.children}
+ * @param {pota.Children} [props.children]
+ * @param {pota.Children} [props.fallback]
+ * @returns {pota.Children}
  */
 export function Switch(props) {
   const childrens = children(() => props.children)
@@ -38,9 +32,9 @@ export function Switch(props) {
  * Renders the content if the `when` condition is true
  *
  * @param {object} props
- * @param {pota.when} props.when
- * @param {pota.children} [props.children]
- * @returns {pota.children}
+ * @param {pota.When} props.when
+ * @param {pota.Children} [props.children]
+ * @returns {pota.Children}
  */
 export function Match(props) {
   return props

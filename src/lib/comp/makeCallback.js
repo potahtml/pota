@@ -1,15 +1,15 @@
-import { untrack } from '#main'
+import { untrack } from '#primitives'
 import { isArray, isFunction } from '#std'
 import { isReactive } from '#reactivity'
 
-import { markComponent } from '#comp'
+import { markComponent } from './markComponent.js'
 
 /**
  * Makes of `children` a function. Reactive children will run as is,
  * non-reactive children will run untracked, regular children will
  * just return.
  *
- * @param {pota.children} children
+ * @param {pota.Children} children
  * @returns {Function}
  */
 export function makeCallback(children) {

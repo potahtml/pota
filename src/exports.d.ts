@@ -15,15 +15,13 @@ export {
 	cleanup as onCleanup,
 	untrack,
 	context,
+	children,
+	lazyMemo,
 } from './lib/reactivity/primitives/solid.js'
 
 // reactivity utils
 
-export {
-	lazyMemo,
-	propsSplit,
-	propsData,
-} from './lib/reactivity/@main.js'
+export { propsSplit } from './lib/reactivity/@main.js'
 
 // components
 
@@ -34,28 +32,24 @@ export * from './components/flow/@main.js'
 export {
 	// components
 	create,
+	customElement,
+
 	// rendering
 	render,
 	insert,
 	template,
-	// lifecycle
-	onReady,
-	// children
-	children,
-	resolve,
-	// utils
-	map,
-	ReactiveMap,
-	getPropsData,
 } from './renderer/@main.js'
 
-// render utils
+export { map, ReactiveMap } from './renderer/map.js'
+
+export { onReady } from './renderer/scheduler.js'
+
+// components
 
 export {
 	Component,
 	makeCallback,
 	lazyComponent,
-	customElement,
 } from './lib/comp/@main.js'
 
 // events
@@ -67,7 +61,4 @@ export {
 
 // props
 
-export {
-	propDefine,
-	propDefineNS,
-} from './renderer/props/@main.js'
+export { propDefine, propDefineNS } from './renderer/props/@main.js'

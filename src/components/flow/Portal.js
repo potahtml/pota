@@ -1,12 +1,12 @@
-import { insert } from '#main'
+import { insert } from '#renderer'
 
 /**
  * Portals children to a different element while keeping the original
  * scope
  *
  * @param {object} props
- * @param {pota.element} props.mount
- * @param {pota.children} [props.children]
+ * @param {pota.Element} props.mount
+ * @param {pota.Children} [props.children]
  * @returns {null}
  */
 export function Portal(props) {

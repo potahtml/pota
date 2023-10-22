@@ -1,6 +1,6 @@
 import { isFunction } from '#std'
 
-import { $reactive } from '#reactivity'
+import { $reactive } from '#constants'
 
 /**
  * Returns true when value is reactive (a signal)

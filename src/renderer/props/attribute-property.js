@@ -1,14 +1,14 @@
 // properties vs attributes
 
-import { effect } from '#main'
+import { effect } from '#primitives'
 import { getValue, isFunction, isNullUndefined } from '#std'
 
-import { NS } from '../constants.js'
+import { NS } from '#constants'
 
 // PROP
 
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -17,7 +17,7 @@ export function setProp(node, name, value, props) {
 	setNodeProperty(node, name, value)
 }
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -31,7 +31,7 @@ export function setPropNS(node, name, value, props, localName, ns) {
 // ATTRIBUTE
 
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -52,7 +52,7 @@ export function setAttributeNS(
 // NODE PROPERTIES / ATTRIBUTES
 
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {string} ns
@@ -67,7 +67,7 @@ export function setNodeProp(node, name, value, ns) {
 	}
 }
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {string} ns
@@ -85,7 +85,7 @@ function _setNodeProp(node, name, value, ns) {
 // NODE PROPERTIES
 
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  */
@@ -99,7 +99,7 @@ function setNodeProperty(node, name, value) {
 	}
 }
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  */
@@ -115,7 +115,7 @@ function _setNodeProperty(node, name, value) {
 // NODE ATTRIBUTES
 
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {string} [ns]
@@ -130,7 +130,7 @@ function setNodeAttribute(node, name, value, ns) {
 	}
 }
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {string} [ns]

@@ -1,4 +1,4 @@
-import { empty } from '#std'
+import { empty } from './empty.js'
 
 /**
  * Keeps state in the function as a bind param

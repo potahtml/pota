@@ -1,4 +1,4 @@
-import { isAbsolute } from '#urls'
+import { isAbsolute } from './isAbsolute.js'
 
 /**
  * Returns true if the link is relative

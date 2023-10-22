@@ -1,6 +1,5 @@
-import { markReactive } from '#reactivity'
-import { children } from '#main'
-import { empty } from '#std'
+import { isReactive, markReactive } from '#reactivity'
+import { empty, isArray, isFunction } from '#std'
 
 // abstracts flimsy reactivity
 
@@ -49,7 +48,7 @@ export const memo = fn => markReactive(createMemo(fn))
 /**
  * Creates a new root
  *
- * @param {Function} fn
+ * @param {(dispose: Function) => any} fn
  * @returns {unknown}
  */
 export const root = fn => createRoot(fn)
@@ -101,7 +100,7 @@ export const untrack = fn => _untrack(fn)
  * @returns {typeof Context} Context
  */
 export function context(defaultValue = empty()) {
-	const id = Symbol('context')
+	const id = Symbol()
 	const context = { id, defaultValue }
 
 	/**
@@ -112,7 +111,7 @@ export function context(defaultValue = empty()) {
 	 * @overload Runs `fn` with a new value as context
 	 * @param {unknown} newValue - New value for the context
 	 * @param {Function} fn - Callback to run with the new context value
-	 * @returns {pota.children} Children
+	 * @returns {pota.Children} Children
 	 */
 	/**
 	 * @param {unknown | undefined} newValue
@@ -143,11 +142,75 @@ export function context(defaultValue = empty()) {
 	 *
 	 * @param {object} props
 	 * @param {unknown} props.value
-	 * @param {pota.children} [props.children]
-	 * @returns {pota.children} Children
+	 * @param {pota.Children} [props.children]
+	 * @returns {pota.Children} Children
 	 */
 	Context.Provider = props =>
 		Context(props.value, () => children(() => props.children))
 
 	return Context
+}
+
+// THIS IS HERE TO AVOID CIRCULAR IMPORTS
+
+/**
+ * Resolves and returns `children` in a memo
+ *
+ * @param {Function} fn
+ * @returns {Function} Memo
+ */
+export function children(fn) {
+	const children = memo(fn)
+	return memo(() => resolve(children()))
+}
+
+/**
+ * Recursively resolves children functions
+ *
+ * @param {pota.Children} children
+ * @returns {pota.Children}
+ */
+export function resolve(children) {
+	/**
+	 * `!isReactive(children)` avoids reading signals to not trigger a
+	 * refresh on the parent memo. The issue manifest when `children` is
+	 * an array containing more than 1 signal, because an invalidation
+	 * on any, will cause invalidation on siblings, as the parent memo
+	 * needs to be refreshed. The _most_ likely signals avoided here are
+	 * memos returned by the resolved components.
+	 */
+	if (isFunction(children) && !isReactive(children)) {
+		return resolve(children())
+	}
+	if (isArray(children)) {
+		const childrens = []
+		for (let child of children) {
+			child = resolve(child)
+			isArray(child)
+				? childrens.push(...child)
+				: childrens.push(child)
+		}
+		return childrens
+	}
+
+	return children
+}
+
+/**
+ * Lazy version of `memo`, it will run the function only when used
+ *
+ * @author Fabio Spampinato
+ * @param {Function} fn - Function to re-run when dependencies change
+ * @returns {pota.Signal}
+ */
+export function lazyMemo(fn) {
+	const [sleeping, setSleeping] = signal(true)
+	const m = memo(() => {
+		if (sleeping()) return
+		return fn()
+	})
+	return () => {
+		setSleeping(false)
+		return m()
+	}
 }

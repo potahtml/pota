@@ -3,7 +3,7 @@
 // this function will short it to `if(optional(something.bla))`
 // additionally the value is resolved, for cases like `when={() => show() && optional(props.when)}`
 
-import { getValue } from '#std'
+import { getValue } from './getValue.js'
 
 /**
  * Returns true when value is true or undefined

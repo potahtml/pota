@@ -1,5 +1,4 @@
 // utils
-import { propsData } from '#main'
 import { isRelative, replaceParams } from '#urls'
 
 // local
@@ -9,7 +8,6 @@ import { Context } from './context.js'
  * // props
  * // props.href Url relative to the parent <Route/>
  * // props.params Key-value pair object params to replace in the url
- * // props.scroll Scroll defaults to true, set this to false to
  *   not scroll on location change
  * // props.replace Replace the history entry from the browser} props
  */
@@ -20,11 +18,10 @@ import { Context } from './context.js'
  * @param {{
  * 	href: string
  * 	params?: object
- * 	scroll?: boolean
  * 	replace?: boolean
- * } & pota.props} props
+ * } & pota.Props} props
  *
- * @returns {pota.children}
+ * @returns {pota.Children}
  */
 
 export function A(props) {
@@ -42,7 +39,5 @@ export function A(props) {
 			  base + href
 			: new URL(href, base).href
 
-	propsData(props, ['params', 'scroll', 'replace'])
-
-	return <a {...{ ...props, href }} />
+	return <a {...{ ...props, href, params: null }} />
 }

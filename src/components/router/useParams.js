@@ -1,8 +1,6 @@
-import { lazyMemo, signal } from '#main'
-
-// utils
 import { proxy } from '#reactivity'
 import { empty, entries } from '#std'
+import { signal, lazyMemo } from '#primitives'
 import { decodeURIComponent } from '#urls'
 
 const [getParams, setParams] = signal(() => empty())

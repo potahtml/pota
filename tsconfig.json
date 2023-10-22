@@ -4,22 +4,25 @@
     "baseUrl": ".",
     "outDir": "./dist",
     "paths": {
-      "#main": ["./src/@main.js"],
+      "#constants": ["./src/constants.js"],
+
+      "#renderer": ["./src/renderer/@main.js"],
+      "#renderer/*": ["./src/renderer/*"],
 
       "#primitives": ["./src/lib/reactivity/primitives/solid.js"],
-      "#comp": ["./src/lib/comp/@main.js"],
+
+      "#reactivity": ["./src/lib/reactivity/@main.js"],
 
       "#std": ["./src/lib/std/@main.js"],
-      "#reactivity": ["./src/lib/reactivity/@main.js"],
+      "#comp": ["./src/lib/comp/@main.js"],
+
       "#urls": ["./src/lib/urls/@main.js"],
       "#scroll": ["./src/lib/scroll/@main.js"],
-      "#time": ["./src/lib/time/@main.js"],
 
       "#hooks": ["./src/hooks/@main.js"]
     },
 
     "allowJs": true,
-    /* you probably want to disable checkJs */
     "checkJs": true,
     "strict": true,
 
@@ -37,5 +40,5 @@
     "types": ["./pota.d.ts"]
   },
 
-  "exclude": ["./dist/*"]
+  "exclude": ["./dist/*", "node_modules"]
 }

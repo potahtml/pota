@@ -1,4 +1,5 @@
-import { cleanup, memo, Show, Dynamic, Collapse } from '#main'
+import { Show, Dynamic, Collapse } from '../flow/@main.js'
+import { cleanup, memo } from '#primitives'
 import { scrollToSelectorWithFallback } from '#scroll'
 
 // utils
@@ -9,6 +10,7 @@ import { replaceParams, origin } from '#urls'
 import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
+import { onRender } from '#renderer/scheduler.js'
 
 /**
  * Renders children if the path matches the current location
@@ -21,15 +23,15 @@ import { setParams } from './useParams.js'
  *   route matches
  * @param {object} [props.params] - Key-value pairs params to encode
  *   and replace on the path
- * @param {pota.when} [props.collapse] - To hide the route instead of
+ * @param {pota.When} [props.collapse] - To hide the route instead of
  *   removing it from the document
- * @param {pota.when} [props.when] - To stop rendering the route even
+ * @param {pota.When} [props.when] - To stop rendering the route even
  *   if the path matches.
- * @param {pota.children} [props.fallback] - Fallback for when a
+ * @param {pota.Children} [props.fallback] - Fallback for when a
  *   `when` condition is set. If the `when` condition is not set, this
  *   wont be used.
- * @param {pota.children} [props.children]
- * @returns {pota.children}
+ * @param {pota.Children} [props.children]
+ * @returns {pota.Children}
  */
 export function Route(props) {
 	const parent = Context()
@@ -71,14 +73,10 @@ export function Route(props) {
 			}
 
 			// scroll
-			queueMicrotask(() => {
-				// render
-				queueMicrotask(() => {
-					// already rendered
-					for (const item of scrolls)
-						scrollToSelectorWithFallback(item)
-					scrollToSelectorWithFallback(window.location.hash)
-				})
+			onRender(() => {
+				// already rendered
+				for (const item of scrolls) scrollToSelectorWithFallback(item)
+				scrollToSelectorWithFallback(window.location.hash)
 			})
 
 			return true
@@ -117,8 +115,8 @@ export function Route(props) {
  * Renders children when no sibling `Route` matches
  *
  * @param {object} props
- * @param {pota.children} [props.children]
- * @returns {pota.children}
+ * @param {pota.Children} [props.children]
+ * @returns {pota.Children}
  */
 Route.Default = props => {
 	const context = Context()

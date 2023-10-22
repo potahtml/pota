@@ -1,4 +1,4 @@
-import { origin } from '#urls'
+import { origin } from './origin.js'
 
 /**
  * Returns true if the link is external. It does so by checking that

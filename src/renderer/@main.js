@@ -1,45 +1,26 @@
-const DEV = false
-
 // REACTIVITE PRIMITIVES
 
 import {
 	root,
 	renderEffect,
 	cleanup,
-	memo,
 	untrack,
 	signal,
 } from '#primitives'
 
 // CONSTANTS
 
-import {
-	// symbols
-	$meta,
-	// namespace
-	NS,
-	// to ensure timing of events callbacks are queued to run at specific times
-	TIME_MOUNT,
-	TIME_READY,
-	// component are cached for the duration of a run (top to bottom)
-	// cache is cleared after the run
-	// if you make a list with 100 links in one shot
-	// it will reuse a component 99 times
-	// then discard that object
-	// performance opportunity: expiration could be smarter
-	Components,
-	Timing,
-} from './constants.js'
+import { $map, $meta, NS } from '#constants'
+
+// LIB
 
 import {
 	empty,
 	isArray,
-	isFunction,
 	call,
-	removeFromArray,
-	getValue,
 	toArray,
 	contextSimple,
+	property,
 } from '#std'
 
 // RENDERER LIB
@@ -51,19 +32,16 @@ import {
 	markComponent,
 } from '#comp'
 
-import { isReactive } from '#reactivity'
-
 // PROPERTIES / ATTRIBUTES
 
 import { assignProps } from './props/@main.js'
+import { onFinally, onReady } from './scheduler.js'
 
 // DOCUMENT
 
 const createElement = document.createElement.bind(document)
 const createElementNS = document.createElementNS.bind(document)
 const createElementText = document.createTextNode.bind(document)
-const createElementComment = document.createComment.bind(document)
-const querySelector = document.querySelector.bind(document)
 
 // COMPONENTS
 
@@ -86,6 +64,7 @@ export const Fragment = () => {}
  * @param {object} props Object
  * @param {unknown} props.children Children
  */
+
 export function Component(value, props) {
 	// special case fragments, these are arrays and dont need untrack nor props
 	if (value === Fragment) {
@@ -93,7 +72,7 @@ export function Component(value, props) {
 	}
 
 	// The scope/context is used to hold the parent to be able to tell if dynamic children are XML
-	const scope = empty()
+	const scope = Scope()
 
 	/*
 		As is already a component, just call it with props.
@@ -115,17 +94,22 @@ export function Component(value, props) {
 	return markComponent(() => Factory(value)(props, scope))
 }
 
+function Scope() {
+	return {
+		namespaceURI: undefined,
+		parent: undefined,
+	}
+}
 /**
  * Creates a component that can be used as `Comp(props)`
  *
- * @param {pota.componenteable} value
- * @returns {pota.component} Component
+ * @param {pota.Componenteable} value
+ * @returns {pota.Component} Component
  */
 export function create(value) {
-	// on here we check if the value is already a known component
-	// think of
+	// check if the value is already a known component think of
 	// `const MyComponent = create('div')
-	// AnotherComponent({children:create(MyComponent)({..props..})})`
+	// <Dynamic component={MyComponent}../> // which does create(props.component)
 	if (isComponent(value)) {
 		return value
 	}
@@ -133,12 +117,16 @@ export function create(value) {
 	return markComponent(Factory(value))
 }
 
+export const Components = new Map()
+
+onFinally(() => Components.clear())
+
 /**
  * Creates a component which is an untracked function that could be
  * called with a props object
  *
- * @param {pota.componenteable} value
- * @returns {pota.component}
+ * @param {pota.Componenteable} value
+ * @returns {pota.Component}
  */
 
 function Factory(value) {
@@ -150,32 +138,32 @@ function Factory(value) {
 	switch (typeof value) {
 		case 'string': {
 			// a string component, 'div' becomes <div>
-			component = (props = empty(), scope = empty()) =>
+			component = (props = empty(), scope = Scope()) =>
 				untrack(() => createTag(value, props, scope))
 			break
 		}
 		case 'function': {
 			if (isClassComponent(value)) {
 				// a class component <MyComponent../>
-				component = (props = empty(), scope = empty()) =>
+				component = (props = empty()) =>
 					untrack(() => {
 						const i = new value()
-						i.onReady && Timing.add(TIME_READY, [[i.onReady.bind(i)]])
+						i.onReady && onReady(i.onReady.bind(i))
 						i.onCleanup && cleanup(i.onCleanup.bind(i))
 
-						return i.render(props, scope)
+						return i.render(props)
 					})
 				break
 			}
 			// a function component <MyComponent../>
-			component = (props = empty(), scope = empty()) =>
+			component = (props = empty(), scope = Scope()) =>
 				untrack(() => value(props, scope))
 			break
 		}
 		default: {
 			if (value instanceof Node) {
 				// an actual node component <div>
-				component = (props = empty(), scope = empty()) =>
+				component = (props = empty(), scope = Scope()) =>
 					untrack(() =>
 						createNode(value.cloneNode(true), props, scope),
 					)
@@ -184,12 +172,12 @@ function Factory(value) {
 
 			// objects with a custom `.toString(props)`
 			if ('toString' in value && value.toString.length > 0) {
-				component = (props = empty(), scope = empty()) =>
-					untrack(() => value.toString(props, scope))
+				component = (props = empty()) =>
+					untrack(() => value.toString(props))
 				break
 			}
 
-			component = (props = empty(), scope = empty()) => value
+			component = () => value
 
 			break
 		}
@@ -210,9 +198,9 @@ const useParentNode = contextSimple(empty())
  * Creates a x/html element from a tagName
  *
  * @param {string} tagName
- * @param {pota.props} props
- * @param {pota.props} scope
- * @returns {pota.element} Element
+ * @param {pota.Props} props
+ * @param {pota.Props} scope
+ * @returns {pota.Element} Element
  */
 function createTag(tagName, props, scope) {
 	const parentNode = useParentNode()
@@ -236,10 +224,10 @@ function createTag(tagName, props, scope) {
 /**
  * Assigns props to an element and creates its children
  *
- * @param {pota.element} node
- * @param {pota.props} props
- * @param {pota.props} scope
- * @returns {pota.element} Element
+ * @param {pota.Element} node
+ * @param {pota.Props} props
+ * @param {pota.Props} scope
+ * @returns {pota.Element} Element
  */
 function createNode(node, props, scope) {
 	// sets internals properties of the node
@@ -253,11 +241,6 @@ function createNode(node, props, scope) {
 		scope.namespaceURI = node.namespaceURI
 	}
 
-	// for portals
-	if (props.mount) {
-		scope.mount = props.mount
-	}
-
 	const parentNode = useParentNode()
 
 	// on first run this will hold a value
@@ -268,14 +251,14 @@ function createNode(node, props, scope) {
 		scope.parent = parentNode[$meta]
 	}
 
-	// to be able to access some "meta" props from the node
-	scope.$data = props.$data = empty()
-
 	// get rid of the node on cleanup
 	cleanup(() => {
-		// callbacks
-		scope.onCleanup && call(scope.onCleanup, node)
-
+		const onUnmount = property(node, 'onUnmount')
+		if (onUnmount) {
+			for (const fn of onUnmount) {
+				call(fn, node)
+			}
+		}
 		// remove from the document
 		node.isConnected && node.remove()
 	})
@@ -297,10 +280,10 @@ function createNode(node, props, scope) {
 /**
  * Creates the children for a parent
  *
- * @param {pota.element} parent
- * @param {pota.children} child
+ * @param {pota.Element} parent
+ * @param {pota.Children} child
  * @param {boolean} [relative]
- * @returns {pota.children}
+ * @returns {pota.Children}
  */
 function createChildren(parent, child, relative) {
 	switch (typeof child) {
@@ -349,18 +332,16 @@ function createChildren(parent, child, relative) {
 
 			// Node
 			if (child instanceof Node) {
-				const node = child
-				const meta = node[$meta]
+				return insertNode(parent, child, relative)
+			}
 
-				insertNode(parent, node, relative)
-
-				meta?.onMount && Timing.add(TIME_MOUNT, [meta.onMount, node])
-
-				return node
+			// the value is `null`, as in {null} or like a show returning `null` on the falsy case
+			if (child === null) {
+				return null
 			}
 
 			// For
-			if (child instanceof ReactiveMap) {
+			if (child[$map] === null) {
 				// signal: needs an effect
 
 				let node
@@ -375,11 +356,6 @@ function createChildren(parent, child, relative) {
 					return node
 				})
 				return node
-			}
-
-			// the value is `null`, as in {null} or like a show returning `null` on the falsy case
-			if (child === null) {
-				return null
 			}
 
 			// async components
@@ -397,21 +373,7 @@ function createChildren(parent, child, relative) {
 			}
 
 			// object.toString fancy objects
-			// needs placeholder to stay in position
-			parent = createPlaceholder(parent, 'object', relative)
-
-			// maybe use signals so needs an effect
-			let node
-			renderEffect(() => {
-				node = createChildren(parent, child.toString(), true)
-				return node
-			})
-			// A placeholder is created and added to the document but doesnt form part of the children.
-			// The placeholder needs to be returned so it forms part of the group of children
-			// If children are moved and the placeholder is not moved with them, then,
-			// whenever children update these will be at the wrong place.
-			// wrong place: where the placeholder is and not where the children were moved to
-			return [node, parent]
+			return createChildren(parent, child.toString(), relative)
 		}
 
 		default: {
@@ -430,38 +392,33 @@ function createChildren(parent, child, relative) {
 /**
  * Creates placeholder to keep nodes in position
  *
- * @param {pota.element} parent
+ * @param {pota.Element} parent
  * @param {unknown} text
  * @param {boolean} [relative]
- * @returns {pota.element}
+ * @returns {pota.Element}
  */
 function createPlaceholder(parent, text, relative) {
+	/*
 	return insertNode(
 		parent,
-		DEV
-			? createElementComment(
-					(text || '') + (relative ? ' relative' : ''),
-			  )
-			: createElementText(''),
-
+		document.createComment(
+			(text || '') + (relative ? ' relative' : ''),
+		),
 		relative,
 	)
+	*/
+	return insertNode(parent, createElementText(''), relative)
 }
 
 /**
  * Adds the element to the document
  *
- * @param {pota.element} parent
- * @param {pota.element} node
+ * @param {pota.Element} parent
+ * @param {pota.Element} node
  * @param {boolean} [relative]
- * @returns {pota.element}
+ * @returns {pota.Element}
  */
 function insertNode(parent, node, relative) {
-	// check if the node has been portaled
-	if (node[$meta]?.mount) {
-		parent = node[$meta].mount
-	}
-
 	// special case `head`
 	if (parent === document.head) {
 		const head = document.head
@@ -495,7 +452,7 @@ function insertNode(parent, node, relative) {
 
 /**
  * @param {any} value - Thing to render
- * @param {pota.element | null | undefined} [parent] - Mount point,
+ * @param {pota.Element | null | undefined} [parent] - Mount point,
  *   defaults to document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
@@ -510,7 +467,7 @@ export function render(value, parent, options = empty()) {
 
 /**
  * @param {any} value - Thing to render
- * @param {pota.element | null | undefined} [parent] - Mount point,
+ * @param {pota.Element | null | undefined} [parent] - Mount point,
  *   defaults to document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
@@ -525,7 +482,7 @@ export function insert(value, parent, options = empty()) {
 	)
 }
 
-/** @param {pota.element} node */
+/** @param {pota.Element} node */
 function clearNode(node) {
 	// check for node existence to be able to use querySelector on yet to be created nodes
 	node.textContent = ''
@@ -542,7 +499,7 @@ function clearNode(node) {
  *
  * @param {TemplateStringsArray} template
  * @param {...any} values
- * @returns {pota.children}
+ * @returns {pota.Children}
  */
 export function template(template, ...values) {
 	let cached = Components.get(template)
@@ -566,6 +523,7 @@ export function template(template, ...values) {
 	// as we are going to manipulate the nodes
 	// the snapshot will change and will get messed up
 	// save it on a temp array
+	/** @type {Element[]} */
 	const nodes = []
 	for (let i = 0; i < replace.snapshotLength; i++) {
 		nodes.push(replace.snapshotItem(i))
@@ -612,251 +570,19 @@ export function template(template, ...values) {
 }
 
 /**
- * Resolves and returns `children` in a memo
+ * Defines a custom Element (if isnt defined already), and returns a
+ * `Component` of it that can be used as `myComponent(props)`
  *
- * @param {Function} fn
- * @returns {Function} Memo
+ * @param {string} name - Name for the custom element
+ * @param {CustomElementConstructor} constructor - Class for the
+ *   custom element
+ * @param {ElementDefinitionOptions} [options] - Options passed to
+ *   `customElements.define`
+ * @returns {pota.Component}
  */
-export function children(fn) {
-	const children = memo(fn)
-	return memo(() => resolve(children()))
-}
-
-/**
- * Recursively resolves children functions
- *
- * @param {pota.children} children
- * @returns {pota.children}
- */
-export function resolve(children) {
-	// `!isReactive(children)` avoids reading signals to not trigger a refresh on the parent memo.
-	// The issue manifest when `children` is an array containing more than 1 signal, because
-	// an invalidation on any, will cause invalidation on siblings, as the parent memo needs to be refreshed.
-	// The _most_ likely signals avoided here are memos returned by the resolved components.
-	if (isFunction(children) && !isReactive(children)) {
-		return resolve(children())
+export function customElement(name, constructor, options) {
+	if (customElements.get(name) === undefined) {
+		customElements.define(name, constructor, options)
 	}
-	if (isArray(children)) {
-		const childrens = []
-		for (let child of children) {
-			child = resolve(child)
-			isArray(child)
-				? childrens.push(...child)
-				: childrens.push(child)
-		}
-		return childrens
-	}
-
-	return children
-}
-
-// LIFECYCLES
-
-/**
- * `OnReady` runs a function after elements on the reactive scope
- * mounted
- *
- * @param {Function} fn
- */
-export function onReady(fn) {
-	Timing.add(TIME_READY, [[fn]])
-}
-
-// MAP
-
-/**
- * Reactive Map
- *
- * @param {pota.each} list
- * @param {Function} callback
- * @param {boolean} [sort] - To reorder items in the document
- */
-export function map(list, callback, sort) {
-	const cache = new Map()
-	const duplicates = new Map() // for when caching by value is not possible [1, 2, 1]
-
-	let runId = 0
-
-	let rows = []
-	let prev = []
-
-	function clear() {
-		for (const row of prev) {
-			row.dispose(true)
-		}
-		cache.clear()
-		duplicates.clear()
-
-		rows.length = 0
-		prev.length = 0
-	}
-
-	// to get rid of all nodes
-	cleanup(clear)
-
-	/**
-	 * Create an item
-	 *
-	 * @param {unknown} item
-	 * @param {unknown} index
-	 * @param {Function} fn
-	 * @param {boolean} isDupe
-	 */
-	function create(item, index, fn, isDupe) {
-		// a root is created so we can call dispose to get rid of an item
-		return root(dispose => {
-			/** @type Array<unknown> */
-			const nodes = untrack(() =>
-				fn ? fn(callback(item, index), index) : callback(item, index),
-			)
-
-			const row = {
-				runId: -1,
-				// this is held here only to be returned on the first run, but no need to keep it after
-				nodes: runId === 1 ? nodes : null,
-				// reference nodes, it holds the placeholders that delimit `begin` and `end`
-				// you can quickly check if items are in the right order
-				// by checking if item.end === nextItem.begin.previousSibling
-				begin: !sort ? null : nodes[0],
-				end: !sort ? null : nodes.at(-1),
-				dispose: all => {
-					// skip cache deletion as we are going to clear the full map
-					if (!all) {
-						// delete from cache
-						if (!isDupe) {
-							cache.delete(item)
-						} else {
-							const arr = duplicates.get(item)
-							arr.length === 1
-								? duplicates.delete(item)
-								: removeFromArray(arr, row)
-						}
-					}
-					dispose()
-				},
-			}
-			return row
-		})
-	}
-
-	function nodesFromRow(row) {
-		const begin = row.begin
-		const end = row.end
-		const nodes = [begin]
-
-		let nextSibling = begin.nextSibling
-		while (nextSibling !== end) {
-			nodes.push(nextSibling)
-			nextSibling = nextSibling.nextSibling
-		}
-		nodes.push(end)
-		return nodes
-	}
-
-	/**
-	 * @param {Function} fn
-	 * @returns {[] | void}
-	 */
-	return function (fn) {
-		const items = getValue(list) || []
-
-		runId++
-		rows = []
-
-		for (const [index, item] of items.entries()) {
-			let row = cache.get(item)
-
-			// if the item doesnt exists, create it
-			if (!row) {
-				row = create(item, index, fn, false)
-				cache.set(item, row)
-			} else if (row.runId === runId) {
-				// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
-				// if the saved value was already used on this run, create a new one
-				let dupes = duplicates.get(item)
-				if (!dupes) {
-					dupes = []
-					duplicates.set(item, dupes)
-				}
-				for (row of dupes) {
-					if (row.runId !== runId) break
-				}
-				if (row.runId === runId) {
-					row = create(item, index, fn, true)
-					dupes.push(row)
-				}
-			}
-
-			row.runId = runId // mark used on this run
-			rows.push(row)
-		}
-
-		// remove rows that arent present on the current run
-		if (rows.length === 0) {
-			clear()
-		} else {
-			for (const row of prev) {
-				if (row.runId !== runId) row.dispose()
-			}
-		}
-
-		// reorder elements
-		// prev.length > 0 to skip sorting on creation as its already sorted
-		if (sort && rows.length > 1 && prev.length > 0) {
-			// best for any combination of: push/pop/shift/unshift/insertion/deletion
-			// as for swap, anything in between the swapped elements gets sorted,
-			// so as long as the swapped elements are close to each other is good
-			// must check in reverse as on creation stuff is added to the end
-			let current = rows[rows.length - 1]
-			for (let i = rows.length - 1; i > 0; i--) {
-				const previous = rows[i - 1]
-				if (current.begin.previousSibling !== previous.end) {
-					current.begin.before(...nodesFromRow(previous))
-				}
-				current = previous
-			}
-		}
-
-		// save sorted list
-		prev = rows
-
-		// return external representation
-		// after the first run it lives in an effect
-		if (runId === 1) {
-			try {
-				return rows.map(item => {
-					return item.nodes
-				})
-			} finally {
-				// remove cached nodes as these are not needed after the first run
-				for (const node of rows) node.nodes = null
-			}
-		}
-	}
-}
-
-/** Reactive Map */
-export class ReactiveMap {
-	/**
-	 * @param {pota.each} items
-	 * @param {Function} callback
-	 */
-	constructor(items, callback) {
-		this.mapper = map(items, callback, true)
-	}
-	/** @param {Function} fn */
-	map(fn) {
-		return this.mapper(fn)
-	}
-}
-
-// some props are for components use not for attributes/props
-// propsData(props, ['scroll', 'replace'])
-// sets props.scroll and props.replace to null, and adds it to
-// props.$data = { noscroll, replace }
-// data may be accessed from the node via
-// getPropsData(node) === { noscroll, replace }
-
-export function getPropsData(node) {
-	return node[$meta]?.$data || empty()
+	return create(name)
 }

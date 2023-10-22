@@ -1,4 +1,4 @@
-import { $reactive } from '#reactivity'
+import { $reactive } from '#constants'
 
 /**
  * Marks a function as reactive. Reactive functions are ran inside

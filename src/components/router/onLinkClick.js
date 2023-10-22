@@ -1,7 +1,4 @@
-import { getPropsData } from '#main'
-
 // utils
-import { optional } from '#std'
 import { origin } from '#urls'
 
 // local
@@ -37,11 +34,8 @@ function onLinkClick(e) {
 
 	e.preventDefault()
 
-	const options = getPropsData(node)
-
 	navigate(node.href, {
-		replace: options.replace,
-		scroll: optional(options.scroll),
+		replace: node.replace,
 	})
 }
 

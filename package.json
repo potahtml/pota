@@ -5,28 +5,33 @@
   "author": "Tito Bouzout",
   "type": "module",
   "types": "./pota.d.ts",
-  "main": "./src/@main.js",
+  "main": "./src/exports.js",
   "exports": {
     "./*": null,
-    ".": "./src/@main.js",
-    "./jsx-runtime": "./src/renderer/jsx-runtime.js",
+    ".": "./src/exports.js",
+
     "./babel-preset": "./babel-preset/index.cjs",
+
+    "./jsx-runtime": "./src/renderer/jsx-runtime.js",
     "./hooks": "./src/hooks/@main.js",
     "./router": "./src/components/router/@main.js"
   },
   "imports": {
-    "#main": "./src/@main.js",
+    "#constants": "./src/constants.js",
+
+    "#renderer": "./src/renderer/@main.js",
+    "#renderer/*": "./src/renderer/*",
 
     "#primitives": "./src/lib/reactivity/primitives/solid.js",
     "#primitives/*": "./src/lib/reactivity/primitives/*",
 
-    "#std": "./src/lib/std/@main.js",
     "#reactivity": "./src/lib/reactivity/@main.js",
+
+    "#std": "./src/lib/std/@main.js",
     "#comp": "./src/lib/comp/@main.js",
 
     "#urls": "./src/lib/urls/@main.js",
     "#scroll": "./src/lib/scroll/@main.js",
-    "#time": "./src/lib/time/@main.js",
 
     "#hooks": "./src/hooks/@main.js"
   },

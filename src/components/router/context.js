@@ -1,5 +1,4 @@
-import { signal, lazyMemo } from '#main'
-import { context } from '#primitives'
+import { context, signal, lazyMemo } from '#primitives'
 import { empty, removeFromArray } from '#std'
 
 function show() {

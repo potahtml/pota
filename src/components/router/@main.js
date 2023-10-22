@@ -2,9 +2,9 @@
 
 export { Route } from './Route.jsx'
 
-// Link/A
+// A
 
-export { A, A as Link } from './link.js'
+export { A } from './link.js'
 
 // navigate
 
@@ -21,6 +21,10 @@ export { useParams } from './useParams.js'
 // before leave
 
 export { useBeforeLeave } from './useBeforeLeave.js'
+
+// meta tags
+
+export { Meta } from './Meta.jsx'
 
 // side effect adds link click listener
 

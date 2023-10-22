@@ -1,4 +1,5 @@
-import { memo, lazyMemo, resolve, makeCallback } from '#main'
+import { makeCallback } from '#comp'
+import { memo, resolve, lazyMemo } from '#primitives'
 
 import { getValue, isNullUndefined } from '#std'
 
@@ -6,10 +7,10 @@ import { getValue, isNullUndefined } from '#std'
  * Renders its children based on a condition
  *
  * @param {object} props
- * @param {pota.when} props.when
- * @param {pota.children} [props.children]
- * @param {pota.children} [props.fallback]
- * @returns {pota.children}
+ * @param {pota.When} props.when
+ * @param {pota.Children} [props.fallback]
+ * @param {pota.Children} [props.children]
+ * @returns {pota.Children}
  */
 export function Show(props) {
 	const callback = makeCallback(props.children)

@@ -1,43 +1,50 @@
-/*
-  Types for public facing APIs are added via JSDoc.
-*/
+/**
+ * Types for public facing APIs are added via JSDoc.
+ *
+ * Typings is a work in progress, and there could be some non-sense.
+ * Contributions welcome.
+ */
 
 export * from './src/renderer/jsx-runtime.d.js'
 
 // types
 
-export type signal = Function
-export type element = HTMLElement | Element | Node
-export type handler = Function | any[]
+export type Signal = Function
+export type Element = HTMLElement | Node
+export type Handler =
+  | Function
+  | VoidFunction
+  | [VoidFunction | Function, ...any]
 
 // props
 
-export type props = {
+export type Props = {
   [key: PropertyKey]: any
 }
-export type children = any
 
-export type when = boolean | signal | unknown
+export type Children = any
 
-export type each =
-  | signal
-  | (() => each)
+export type When = Signal | boolean | unknown
+
+export type Each =
+  | Signal
+  | (() => Each)
   | unknown[]
   | Map<unknown, unknown>
   | Set<unknown>
 
 // components
 
-export type componenteable =
+export type Componenteable =
   | string
   | Element
   | object
   | FunctionConstructor
-  | component
+  | Component
 
-export type component =
-  | ((props?: props, scope?: unknown) => children)
-  | ((props?: props) => children)
+export type Component =
+  | ((props?: Props, scope?: unknown) => Children)
+  | ((props?: Props) => Children)
   | Function
 
 export as namespace pota

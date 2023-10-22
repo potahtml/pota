@@ -1,10 +1,10 @@
 // node class / classList
 
-import { effect } from '#main'
+import { effect } from '#primitives'
 import { entries, getValue, isFunction, isNotNullObject } from '#std'
 
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -13,7 +13,7 @@ export function setClass(node, name, value, props) {
 	setNodeClassList(node.classList, value)
 }
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props

@@ -18,8 +18,8 @@
  *
  * `"presets": [["pota/babel-preset", { lib: 'oby' } ]]`
  *
- * New reactive libraries are welcome, you may add one by adding a
- * file here [3]. With the name of your lib and following the same
+ * New reactive libraries are welcome, you may do so by adding a file
+ * here [3]. With the name of your lib and following the same
  * abstraction that other libraries use on that folder. Then, just
  * edit this file to allow selecting it as a lib.
  *

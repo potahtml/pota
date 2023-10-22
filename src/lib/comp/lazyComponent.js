@@ -1,4 +1,4 @@
-import { markComponent } from '#comp'
+import { markComponent } from './markComponent.js'
 
 /**
  * Returns a `Component` that has been lazy loaded

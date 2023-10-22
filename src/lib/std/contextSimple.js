@@ -1,4 +1,4 @@
-import { empty } from '#std'
+import { empty } from './empty.js'
 
 /**
  * Creates a context and returns a function to get or set the value

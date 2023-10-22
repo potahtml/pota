@@ -1,6 +1,6 @@
 // node style
 
-import { effect } from '#main'
+import { effect } from '#primitives'
 
 import {
 	entries,
@@ -11,7 +11,7 @@ import {
 } from '#std'
 
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -20,7 +20,7 @@ export function setStyle(node, name, value, props) {
 	setNodeStyle(node.style, value)
 }
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -34,7 +34,7 @@ export function setStyleNS(node, name, value, props, localName, ns) {
 	)
 }
 /**
- * @param {pota.element} node
+ * @param {pota.Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props

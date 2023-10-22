@@ -1,7 +1,7 @@
 /**
  * Scrolls to an element
  *
- * @param {pota.element} item - Element to scroll to
+ * @param {pota.Element} item - Element to scroll to
  */
 export function scrollToElement(item) {
 	// scrolls the content to the top

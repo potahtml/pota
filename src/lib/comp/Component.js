@@ -1,4 +1,4 @@
-import { $class } from './class.js'
+import { $class } from '#constants'
 
 /**
  * Extend `Component` and define a `render(props){}` method to create

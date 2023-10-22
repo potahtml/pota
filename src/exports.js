@@ -11,11 +11,13 @@ export {
 	cleanup as onCleanup,
 	untrack,
 	context,
+	children,
+	lazyMemo,
 } from '#primitives'
 
 // reactivity utils
 
-export { lazyMemo, propsSplit, propsData } from '#reactivity'
+export { propsSplit } from '#reactivity'
 
 // components
 
@@ -31,29 +33,21 @@ export { Switch, Match } from './components/flow/Switch.js'
 export {
 	// components
 	create,
+	customElement,
+
 	// rendering
 	render,
 	insert,
 	template,
-	// lifecycle
-	onReady,
-	// children
-	children,
-	resolve,
-	// utils
-	map,
-	ReactiveMap,
-	getPropsData,
 } from './renderer/@main.js'
 
-// classes
+export { map, ReactiveMap } from './renderer/map.js'
 
-export {
-	Component,
-	makeCallback,
-	lazyComponent,
-	customElement,
-} from '#comp'
+export { onReady } from './renderer/scheduler.js'
+
+// components
+
+export { Component, makeCallback, lazyComponent } from '#comp'
 
 // events
 
@@ -64,7 +58,4 @@ export {
 
 // props
 
-export {
-	propDefine,
-	propDefineNS,
-} from './renderer/props/@main.js'
+export { propDefine, propDefineNS } from './renderer/props/@main.js'

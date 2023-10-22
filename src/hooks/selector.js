@@ -1,11 +1,11 @@
-import { cleanup, effect, signal } from '#main'
+import { cleanup, effect, signal } from '#primitives'
 
 /**
  * Returns a function that will return true when the argument for it
  * matches the original signal `value`.
  *
- * @param {pota.signal} value - Signal with the current value
- * @returns {(item: any) => pota.signal} Signal that you can run with
+ * @param {pota.Signal} value - Signal with the current value
+ * @returns {(item: any) => pota.Signal} Signal that you can run with
  *   a value to know if matches the original signal
  */
 export function selector(value) {
@@ -32,7 +32,7 @@ export function selector(value) {
 	 * the current signal
 	 *
 	 * @param {unknown} item - Values to compare with current
-	 * @returns {pota.signal} A signal with a boolean value
+	 * @returns {pota.Signal} A signal with a boolean value
 	 */
 	return function isSelected(item) {
 		if (!map.has(item)) {
