@@ -1,6 +1,6 @@
 # pota
 
-pota is a small and pluggable Web Renderer for Reactive Libraries.
+pota is a small Reactive Web Renderer for Reactive Libraries.
 
 Although its compiler-less, it includes a babel preset for
 transforming JSX. Its abstracted API and components, allow you to
@@ -15,8 +15,8 @@ Its driven by developer needs, not benchmarks.
 
 ## Key Points
 
-- Easy to understand reactivity. If something is a function, it can be
-  reactive; if it is not a function, it's not reactive
+- Reactivity that is easy to understand. If something is a function,
+  it can be reactive; if it is not a function, it's not reactive
 - Doesn't use prop getters, or any getters; you may use destructuring
 - Renders any kind of XML, including custom namespaces
 - Provides a `defineProp` function for using custom props on any
@@ -31,7 +31,7 @@ Its driven by developer needs, not benchmarks.
 - Supports class components with automatic registration of `onReady`
   and `onCleanup` methods
 - `Portal` does not wrap children in a `div`
-- Includes a simple Router component
+- Includes a simple `Route` component
 - Does not include server-side rendering (SSR)
 - Does not include stores
 
