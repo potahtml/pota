@@ -12,7 +12,7 @@
 
     "./babel-preset": "./babel-preset/index.cjs",
 
-    "./jsx-runtime": "./src/renderer/jsx-runtime.js",
+    "./jsx-runtime": "./src/renderer/jsx/jsx-runtime.js",
     "./hooks": "./src/hooks/@main.js",
     "./router": "./src/components/router/@main.js"
   },

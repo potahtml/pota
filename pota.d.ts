@@ -5,7 +5,7 @@
  * Contributions welcome.
  */
 
-export * from './src/renderer/jsx-runtime.d.js'
+export * from './src/renderer/jsx/jsx-runtime.d.js'
 
 // types
 
