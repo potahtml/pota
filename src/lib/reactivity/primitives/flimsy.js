@@ -10,7 +10,7 @@ import {
 
 	// effects
 	createRoot,
-	createRenderEffect,
+	// createRenderEffect,
 	createEffect,
 	batch as _batch,
 
@@ -19,8 +19,9 @@ import {
 	untrack as _untrack,
 
 	// context
-	useContext,
-	getOwner,
+	// useContext,
+	// getOwner,
+	createContext,
 } from 'flimsy'
 
 /**
@@ -28,7 +29,11 @@ import {
  *
  * @param {unknown} [initialValue] - Initial value of the signal
  * @param {unknown} [options] - Signal options
- * @returns {[Function, Function]} - Read/write tuple
+ * @returns {[
+ * 	pota.Signal,
+ * 	Function | ((currentValue: unknown) => unknown),
+ * ]}
+ *   - Read/write tuple
  */
 export const signal = (initialValue, options) => {
 	const r = createSignal(initialValue, options)
@@ -41,7 +46,7 @@ export const signal = (initialValue, options) => {
  * automatically updates
  *
  * @param {Function} fn - Function to re-run when dependencies change
- * @returns {Function} - Read only signal
+ * @returns {pota.Signal} - Read only signal
  */
 export const memo = fn => markReactive(createMemo(fn))
 
@@ -51,23 +56,25 @@ export const memo = fn => markReactive(createMemo(fn))
  * @param {(dispose: Function) => any} fn
  * @returns {unknown}
  */
-export const root = fn => createRoot(fn)
+export const root = createRoot
 
 /**
  * Creates a renderEffect
  *
  * @param {Function} fn
- * @returns {unknown}
  */
-export const renderEffect = fn => createRenderEffect(fn)
+export const renderEffect = fn => {
+	createEffect(fn)
+}
 
 /**
  * Creates an effect
  *
  * @param {Function} fn
- * @returns {unknown}
  */
-export const effect = fn => createEffect(fn)
+export const effect = fn => {
+	createEffect(fn)
+}
 
 /**
  * Batches changes to signals
@@ -75,23 +82,22 @@ export const effect = fn => createEffect(fn)
  * @param {Function} fn
  * @returns {unknown}
  */
-export const batch = fn => _batch(fn)
+export const batch = _batch
 
 /**
  * Runs a callback on cleanup
  *
  * @param {Function} fn
- * @returns {unknown}
  */
-export const cleanup = fn => onCleanup(fn)
+export const cleanup = onCleanup
 
 /**
  * Disables tracking for a function
  *
  * @param {Function} fn - Function to run with tracking disabled
- * @returns {any}
+ * @returns {unknown}
  */
-export const untrack = fn => _untrack(fn)
+export const untrack = _untrack
 
 /**
  * Creates a context and returns a function to get or set the value
@@ -100,8 +106,10 @@ export const untrack = fn => _untrack(fn)
  * @returns {typeof Context} Context
  */
 export function context(defaultValue = empty()) {
-	const id = Symbol()
-	const context = { id, defaultValue }
+	// const id = Symbol()
+	// const context = { id, defaultValue }
+
+	const context = createContext(defaultValue)
 
 	/**
 	 * @overload Gets the context value
@@ -119,16 +127,12 @@ export function context(defaultValue = empty()) {
 	 */
 	function Context(newValue, fn) {
 		if (newValue === undefined) {
-			return useContext(context)
+			return context.get()
 		} else {
 			let res
-			createRenderEffect(() => {
+			renderEffect(() => {
 				untrack(() => {
-					const owner = getOwner()
-					owner.context = {
-						...owner.context,
-						[id]: newValue,
-					}
+					context.set(newValue)
 					res = fn()
 				})
 			})
@@ -136,7 +140,7 @@ export function context(defaultValue = empty()) {
 			return res
 		}
 	}
-	Context()
+
 	/**
 	 * Sets the `value` for the context
 	 *
@@ -157,7 +161,7 @@ export function context(defaultValue = empty()) {
  * Resolves and returns `children` in a memo
  *
  * @param {Function} fn
- * @returns {Function} Memo
+ * @returns {pota.Signal} Memo
  */
 export function children(fn) {
 	const children = memo(fn)
@@ -209,8 +213,8 @@ export function lazyMemo(fn) {
 		if (sleeping()) return
 		return fn()
 	})
-	return () => {
+	return markReactive(() => {
 		setSleeping(false)
 		return m()
-	}
+	})
 }

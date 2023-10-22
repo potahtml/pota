@@ -25,7 +25,11 @@ import $, {
  *
  * @param {unknown} [initialValue] - Initial value of the signal
  * @param {unknown} [options] - Signal options
- * @returns {[Function, Function]} - Read/write tuple
+ * @returns {[
+ * 	pota.Signal,
+ * 	Function | ((currentValue: unknown) => unknown),
+ * ]}
+ *   - Read/write tuple
  */
 export const signal = (initialValue, options) => {
 	const s = $(initialValue, options)
@@ -37,7 +41,7 @@ export const signal = (initialValue, options) => {
  * automatically updates
  *
  * @param {Function} fn - Function to re-run when dependencies change
- * @returns {Function} - Read only signal
+ * @returns {pota.Signal} - Read only signal
  */
 export const memo = fn => markReactive(_memo(fn))
 
@@ -47,23 +51,25 @@ export const memo = fn => markReactive(_memo(fn))
  * @param {(dispose: Function) => any} fn
  * @returns {unknown}
  */
-export const root = fn => _root(fn)
+export const root = _root
 
 /**
  * Creates a renderEffect
  *
  * @param {Function} fn
- * @returns {unknown}
  */
-export const renderEffect = fn => _effect(fn, { sync: 'init' })
+export const renderEffect = fn => {
+	_effect(fn, { sync: 'init' })
+}
 
 /**
  * Creates an effect
  *
  * @param {Function} fn
- * @returns {unknown}
  */
-export const effect = fn => _effect(fn)
+export const effect = fn => {
+	_effect(fn)
+}
 
 /**
  * Batches changes to signals
@@ -71,23 +77,22 @@ export const effect = fn => _effect(fn)
  * @param {Function} fn
  * @returns {unknown}
  */
-export const batch = fn => _batch(fn)
+export const batch = _batch
 
 /**
  * Runs a callback on cleanup
  *
  * @param {Function} fn
- * @returns {unknown}
  */
-export const cleanup = fn => _cleanup(fn)
+export const cleanup = _cleanup
 
 /**
  * Disables tracking for a function
  *
  * @param {Function} fn - Function to run with tracking disabled
- * @returns {any}
+ * @returns {unknown}
  */
-export const untrack = fn => _untrack(fn)
+export const untrack = _untrack
 
 /**
  * Creates a context and returns a function to get or set the value
@@ -145,7 +150,7 @@ export function context(defaultValue = empty()) {
  * Resolves and returns `children` in a memo
  *
  * @param {Function} fn
- * @returns {Function} Memo
+ * @returns {pota.Signal} Memo
  */
 export function children(fn) {
 	const children = memo(fn)
@@ -197,8 +202,8 @@ export function lazyMemo(fn) {
 		if (sleeping()) return
 		return fn()
 	})
-	return () => {
+	return markReactive(() => {
 		setSleeping(false)
 		return m()
-	}
+	})
 }
