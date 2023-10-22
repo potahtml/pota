@@ -32,7 +32,7 @@ export function map(list, callback, sort) {
 		prev.length = 0
 	}
 
-	// to get rid of all nodes
+	// to get rid of all nodes when parent disposes
 	cleanup(clear)
 
 	/**

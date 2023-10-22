@@ -459,10 +459,18 @@ function insertNode(parent, node, relative) {
  * @returns {Function} Disposer
  */
 export function render(value, parent, options = empty()) {
-	return root(dispose => {
+	const dispose = root(dispose => {
+		// run dispose when the mount point is removed from the document
+		// assumes that parent was created by this lib
+		parent && property(parent, 'onUnmount', []).push(dispose)
+
 		insert(value, parent, options)
 		return dispose
 	})
+	// run dispose when the parent scope disposes
+	// todo: should do this only when its owned
+	cleanup(dispose)
+	return dispose
 }
 
 /**
