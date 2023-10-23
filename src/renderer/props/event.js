@@ -43,7 +43,7 @@ export function eventName(name) {
 		name.startsWith('on') &&
 		window[name.toLowerCase()] !== undefined
 	) {
-		EventNames[name] = name.substr(2).toLowerCase()
+		EventNames[name] = name.slice(2).toLowerCase()
 	} else {
 		EventNames[name] = null
 	}

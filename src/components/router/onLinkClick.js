@@ -1,5 +1,5 @@
 // utils
-import { origin } from '#urls'
+import { isExternal } from '#urls'
 
 // local
 import { navigate } from './navigate.js'
@@ -26,8 +26,7 @@ function onLinkClick(e) {
 		!node.href ||
 		node.download ||
 		node.target ||
-		// origin could be http://example.net and link could be http://example.net.ha.com
-		(node.href + '/').indexOf(origin + '/') !== 0 ||
+		isExternal(node.href) ||
 		(node.rel && node.rel.split(/\s/).includes('external'))
 	)
 		return

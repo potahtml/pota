@@ -101,6 +101,7 @@ function Scope() {
 		parent: undefined,
 	}
 }
+
 /**
  * Creates a component that can be used as `Comp(props)`
  *
@@ -119,7 +120,7 @@ export function create(value) {
 }
 
 export const Components = new Map()
-
+// clear the cache after each run
 onFinally(() => Components.clear())
 
 /**
@@ -452,30 +453,32 @@ function insertNode(parent, node, relative) {
 // RENDERING
 
 /**
- * @param {any} value - Thing to render
+ * Inserts children into a parent
+ *
+ * @param {any} children - Thing to render
  * @param {pota.Element | null | undefined} [parent] - Mount point,
  *   defaults to document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  * @returns {Function} Disposer
  */
-export function render(value, parent, options = empty()) {
+export function render(children, parent, options = empty()) {
 	const dispose = root(dispose => {
-		insert(value, parent, options)
+		insert(children, parent, options)
 		return dispose
 	})
 
 	// listener for mount point removal
 	// assumes that mount point was created by this lib, else would need mutation observer
-	const onRemoval = parent ? property(parent, 'onUnmount', []) : []
+	const onUnmount = parent ? property(parent, 'onUnmount', []) : []
 
 	const disposer = () => {
-		removeFromArray(onRemoval, disposer)
+		removeFromArray(onUnmount, disposer)
 		dispose()
 	}
 
 	// run dispose when the mount point is removed from the document
-	onRemoval.push(disposer)
+	onUnmount.push(disposer)
 
 	// run dispose when the parent scope disposes
 	// todo: should do this only when its owned
@@ -485,18 +488,18 @@ export function render(value, parent, options = empty()) {
 }
 
 /**
- * @param {any} value - Thing to render
+ * @param {any} children - Thing to render
  * @param {pota.Element | null | undefined} [parent] - Mount point,
- *   defaults to document.body
+ *   defaults to `document.body`
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  */
-export function insert(value, parent, options = empty()) {
+function insert(children, parent, options = empty()) {
 	options.clear && clearNode(parent)
 
 	return createChildren(
 		parent || document.body,
-		isComponentable(value) ? create(value) : value,
+		isComponentable(children) ? create(children) : children,
 		options.relative,
 	)
 }

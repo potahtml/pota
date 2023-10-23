@@ -33,7 +33,7 @@ export function A(props) {
 	href =
 		!isRelative(href[0]) || !base
 			? href
-			: base.indexOf('/#') !== -1
+			: base.includes('/#')
 			? // making link dos/ relative to http://localhost:11433/#uno/
 			  // becomes http://localhost:11433/#uno/dos/
 			  base + href
