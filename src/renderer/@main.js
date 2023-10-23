@@ -21,6 +21,7 @@ import {
 	toArray,
 	contextSimple,
 	property,
+	removeFromArray,
 } from '#std'
 
 // RENDERER LIB
@@ -460,17 +461,27 @@ function insertNode(parent, node, relative) {
  */
 export function render(value, parent, options = empty()) {
 	const dispose = root(dispose => {
-		// run dispose when the mount point is removed from the document
-		// assumes that parent was created by this lib
-		parent && property(parent, 'onUnmount', []).push(dispose)
-
 		insert(value, parent, options)
 		return dispose
 	})
+
+	// listener for mount point removal
+	// assumes that mount point was created by this lib, else would need mutation observer
+	const onRemoval = parent ? property(parent, 'onUnmount', []) : []
+
+	const disposer = () => {
+		removeFromArray(onRemoval, disposer)
+		dispose()
+	}
+
+	// run dispose when the mount point is removed from the document
+	onRemoval.push(disposer)
+
 	// run dispose when the parent scope disposes
 	// todo: should do this only when its owned
-	cleanup(dispose)
-	return dispose
+	cleanup(disposer)
+
+	return disposer
 }
 
 /**
