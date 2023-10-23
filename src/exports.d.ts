@@ -36,7 +36,11 @@ export {
 
 	// rendering
 	render,
-	insert,
+	/**
+	 * Do not expose insert. As removal of the element on where you
+	 * inserted into, wont cause disposal of what you inserted.
+	 */
+	// insert,
 	template,
 } from './renderer/@main.js'
 

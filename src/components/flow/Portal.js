@@ -1,4 +1,4 @@
-import { insert } from '#renderer'
+import { render } from '#renderer'
 
 /**
  * Portals children to a different element while keeping the original
@@ -10,6 +10,7 @@ import { insert } from '#renderer'
  * @returns {null}
  */
 export function Portal(props) {
-	insert(props.children, props.mount)
+	// use `render` instead of `insert` so in case the mount point is removed the portal is disposed
+	render(props.children, props.mount)
 	return null
 }
