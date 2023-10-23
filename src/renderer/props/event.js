@@ -94,8 +94,9 @@ export function addEventListener(
 			node.addEventListener(type, eventHandlerNative)
 		}
 	}
-
-	handler[$meta] = isArray(handler) ? handler : [handler]
+	// handler may be already in use
+	if (handler[$meta] === undefined)
+		handler[$meta] = isArray(handler) ? handler : [handler]
 
 	handlers.push(handler)
 
