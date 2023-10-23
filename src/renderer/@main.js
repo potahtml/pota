@@ -232,25 +232,24 @@ function createTag(tagName, props, scope) {
  * @returns {pota.Element} Element
  */
 function createNode(node, props, scope) {
-	// sets internals properties of the node
-	// allows to lookup mount, parent node for xmlns, holds events handlers
-	// appears in the dev tools at the node properties for easy debugging
-
-	// assign the scope to the node
-	node[$meta] = scope
-
 	if (node.namespaceURI !== NS.html) {
+		// TODO: do not write a property to the node
+
+		// assign the scope to the node when the namespace is not html
+		// allows to lookup parent node for xmlns
+		node[$meta] = scope
+
 		scope.namespaceURI = node.namespaceURI
-	}
 
-	const parentNode = useParentNode()
+		const parentNode = useParentNode()
 
-	// on first run this will hold a value
-	// once reactivity takes over (like a Show), then,
-	// it wont and we use the old reference to the parent
-	// which is already saved on the scope from the previous run
-	if (parentNode[$meta]) {
-		scope.parent = parentNode[$meta]
+		// on first run this will hold a value
+		// once reactivity takes over (like a Show), then,
+		// it wont and we use the old reference to the parent
+		// which is already saved on the scope from the previous run
+		if (parentNode[$meta]) {
+			scope.parent = parentNode[$meta]
+		}
 	}
 
 	// get rid of the node on cleanup
