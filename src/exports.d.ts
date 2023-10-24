@@ -1,72 +1,65 @@
-// version
-
-export { version as v } from '../package.json' assert { type: 'json' }
-
 // jsx
 
 export type * from '../pota.d.ts'
 
-// reactivity
+// REACTIVITY
 
 export {
-	signal,
-	memo,
-	root,
-	renderEffect,
-	effect,
 	batch,
-	cleanup,
-	cleanup as onCleanup,
-	untrack,
-	context,
 	children,
+	cleanup as onCleanup,
+	cleanup,
+	context,
+	effect,
 	lazyMemo,
+	memo,
+	renderEffect,
+	root,
+	signal,
+	untrack,
 } from './lib/reactivity/primitives/solid.js'
 
-// reactivity utils
+// REACTIVITY UTILS
 
-export { propsSplit } from './lib/reactivity/@main.js'
+export { map, ReactiveMap } from './renderer/map.js'
 
-// components
+// JSX COMPONENTS
 
-export * from './components/flow/@main.js'
+export { Collapse } from './components/flow/Collapse.jsx'
+export { Dynamic } from './components/flow/Dynamic.js'
+export { For } from './components/flow/For.js'
+export { Portal } from './components/flow/Portal.js'
+export { Show } from './components/flow/Show.js'
+export { Switch, Match } from './components/flow/Switch.js'
 
-// renderer
+// RENDERER
 
 export {
-	// components
 	create,
 	customElement,
-
-	// rendering
 	render,
+	template,
 	/**
 	 * Do not expose insert. As removal of the element on where you
 	 * inserted into, wont cause disposal of what you inserted.
 	 */
 	// insert,
-	template,
 } from './renderer/@main.js'
-
-export { map, ReactiveMap } from './renderer/map.js'
 
 export { onReady } from './renderer/scheduler.js'
 
-// components
+// COMPONENTS
 
-export {
-	Component,
-	makeCallback,
-	lazyComponent,
-} from './lib/comp/@main.js'
+export { Component, makeCallback, lazy } from './lib/comp/@main.js'
 
-// events
+// EVENTS
 
 export {
 	addEventListener,
 	removeEventListener,
 } from './renderer/props/event.js'
 
-// props
+// PROPS
 
 export { propDefine, propDefineNS } from './renderer/props/@main.js'
+export { propsSplit } from './lib/comp/@main.js'

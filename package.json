@@ -11,6 +11,7 @@
     ".": "./src/exports.js",
     "./babel-preset": "./babel-preset/index.cjs",
     "./jsx-runtime": "./src/renderer/jsx/jsx-runtime.js",
+    "./jsx-dev-runtime": "./src/renderer/jsx/jsx-runtime.js",
     "./hooks": "./src/hooks/@main.js",
     "./router": "./src/components/router/@main.js"
   },
