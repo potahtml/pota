@@ -26,6 +26,7 @@ function onLinkClick(e) {
 		!node.href ||
 		node.download ||
 		node.target ||
+		!/^http/.test(node.href) || // when using other protocol than "http"
 		isExternal(node.href) ||
 		(node.rel && node.rel.split(/\s/).includes('external'))
 	)
