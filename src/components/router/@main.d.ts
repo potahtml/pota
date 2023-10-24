@@ -4,7 +4,7 @@ export { Route } from './Route.jsx'
 
 // A
 
-export { A } from './link.js'
+export { A } from './link.jsx'
 
 // navigate
 
