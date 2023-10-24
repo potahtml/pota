@@ -27,6 +27,17 @@
     "#scroll": "./src/lib/scroll/@main.js",
     "#hooks": "./src/hooks/@main.js"
   },
+  "dependencies": {
+    "@babel/plugin-syntax-import-attributes": "^7.22.5",
+    "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "babel-plugin-transform-rename-import": "^2.3.0",
+    "flimsy": "^1.0.3",
+    "oby": "^14.3.5",
+    "solid-js": "^1.8.3"
+  },
+  "peerDependencies": {
+    "@babel/core": "^7.22.11"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/titoBouzout/pota"
@@ -45,15 +56,5 @@
     "proseWrap": "never",
     "endOfLine": "lf",
     "singleAttributePerLine": true
-  },
-  "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.22.5",
-    "babel-plugin-transform-rename-import": "^2.3.0",
-    "flimsy": "^1.0.3",
-    "oby": "^14.3.5",
-    "solid-js": "^1.8.3"
-  },
-  "peerDependencies": {
-    "@babel/core": "^7.22.11"
   }
 }
