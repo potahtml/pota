@@ -1,3 +1,7 @@
+// version
+
+export { version as v } from '../package.json' assert { type: 'json' }
+
 // reactivity
 
 export {

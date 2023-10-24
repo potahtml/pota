@@ -66,6 +66,10 @@ flimsy, oby, solid. See file \`pota/babel-preset\`
 					],
 				},
 			],
+			[
+				'@babel/plugin-syntax-import-attributes',
+				{ deprecatedAssertSyntax: true },
+			],
 		],
 	}
 }
