@@ -2,43 +2,28 @@
   "compilerOptions": {
     "rootDir": "./",
     "baseUrl": ".",
-    "outDir": "./dist",
-    "paths": {
-      "#constants": ["./src/constants.js"],
-
-      "#renderer": ["./src/renderer/@main.js"],
-      "#renderer/*": ["./src/renderer/*"],
-
-      "#primitives": ["./src/lib/reactivity/primitives/solid.js"],
-
-      "#reactivity": ["./src/lib/reactivity/@main.js"],
-
-      "#std": ["./src/lib/std/@main.js"],
-      "#comp": ["./src/lib/comp/@main.js"],
-
-      "#urls": ["./src/lib/urls/@main.js"],
-      "#scroll": ["./src/lib/scroll/@main.js"],
-
-      "#hooks": ["./src/hooks/@main.js"]
-    },
+    "outDir": "./types",
 
     "allowJs": true,
     "checkJs": true,
     "strict": true,
 
-    "module": "ESNext",
+    "module": "NodeNext",
     "target": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
 
-    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+
+    "jsx": "preserve",
     "jsxImportSource": "pota",
 
     "sourceMap": true,
 
-    "types": ["./pota.d.ts"]
+    "types": ["./ts.pota.d.ts", "./ts.jsx.d.ts"]
   },
-
-  "exclude": ["./dist/*", "node_modules"]
+  "include": ["src"]
 }

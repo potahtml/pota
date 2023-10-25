@@ -1,4 +1,4 @@
-import { call } from '#std'
+import { call } from '../lib/std/@main.js'
 
 /**
  * The purpose of this file is to guarantee the timing of some
@@ -37,8 +37,8 @@ reset()
  * Queues a callback at a priority
  *
  * @param {number} priority - Priority
- * @param {pota.Handler} fn - Function to run once the callbacks at
- *   this priority run
+ * @param {Handler} fn - Function to run once the callbacks at this
+ *   priority run
  */
 function add(priority, fn) {
 	if (!added) {
@@ -67,7 +67,7 @@ function run() {
 /**
  * Queue a function to run onMount (before onReady)
  *
- * @param {pota.Handler} fn
+ * @param {Handler} fn
  */
 export function onMount(fn) {
 	add(0, fn)
@@ -76,7 +76,7 @@ export function onMount(fn) {
 /**
  * Queue a function to run onReady (after onMount)
  *
- * @param {pota.Handler} fn
+ * @param {Handler} fn
  */
 export function onReady(fn) {
 	add(1, fn)
@@ -85,7 +85,7 @@ export function onReady(fn) {
 /**
  * Queue a function to run onRender (after onReady)
  *
- * @param {pota.Handler} fn
+ * @param {Handler} fn
  */
 export function onRender(fn) {
 	add(2, fn)

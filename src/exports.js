@@ -1,6 +1,6 @@
 // VERSION
 
-import pkg from '../package.json' assert { type: 'json' }
+import pkg from '../package.json'
 const version = pkg.version
 export { version as v }
 
@@ -19,7 +19,7 @@ export {
 	root,
 	signal,
 	untrack,
-} from '#primitives'
+} from './lib/reactivity/primitives/solid.js'
 
 // REACTIVITY UTILS
 
@@ -52,7 +52,7 @@ export { onReady } from './renderer/scheduler.js'
 
 // COMPONENTS
 
-export { Component, makeCallback, lazy } from '#comp'
+export { Component, makeCallback, lazy } from './lib/comp/@main.js'
 
 // EVENTS
 
@@ -64,4 +64,4 @@ export {
 // PROPS
 
 export { propDefine, propDefineNS } from './renderer/props/@main.js'
-export { propsSplit } from '#comp'
+export { propsSplit } from './lib/comp/@main.js'

@@ -1,7 +1,7 @@
-import { proxy } from '#reactivity'
-import { empty, entries } from '#std'
-import { signal, lazyMemo } from '#primitives'
-import { decodeURIComponent } from '#urls'
+import { proxy } from '../../lib/reactivity/@main.js'
+import { empty, entries } from '../../lib/std/@main.js'
+import { signal, lazyMemo } from '../../lib/reactivity/primitives/solid.js'
+import { decodeURIComponent } from '../../lib/urls/@main.js'
 
 const [getParams, setParams] = signal(() => empty())
 

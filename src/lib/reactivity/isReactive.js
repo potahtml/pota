@@ -1,6 +1,6 @@
-import { isFunction } from '#std'
+import { isFunction } from '../std/@main.js'
 
-import { $reactive } from '#constants'
+import { $reactive } from '../../constants.js'
 
 /**
  * Returns true when value is reactive (a signal)

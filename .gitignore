@@ -1,4 +1,5 @@
 todo
+types
 
 # Logs
 logs
@@ -24,4 +25,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-

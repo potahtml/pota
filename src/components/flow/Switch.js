@@ -1,15 +1,15 @@
-import { memo, children, resolve, lazyMemo } from '#primitives'
-import { makeCallback } from '#comp'
-import { getValue, isNullUndefined } from '#std'
+import { memo, children, resolve, lazyMemo } from '../../lib/reactivity/primitives/solid.js'
+import { makeCallback } from '../../lib/comp/@main.js'
+import { getValue, isNullUndefined } from '../../lib/std/@main.js'
 
 /**
  * Renders the first child that matches the given `when` condition, or
  * a fallback in case of no match
  *
  * @param {object} props
- * @param {pota.Children} [props.children]
- * @param {pota.Children} [props.fallback]
- * @returns {pota.Children}
+ * @param {Children} [props.children]
+ * @param {Children} [props.fallback]
+ * @returns {Children}
  */
 export function Switch(props) {
   const childrens = children(() => props.children)
@@ -32,9 +32,9 @@ export function Switch(props) {
  * Renders the content if the `when` condition is true
  *
  * @param {object} props
- * @param {pota.When} props.when
- * @param {pota.Children} [props.children]
- * @returns {pota.Children}
+ * @param {When} props.when
+ * @param {Children} [props.children]
+ * @returns {Children}
  */
 export function Match(props) {
   return props

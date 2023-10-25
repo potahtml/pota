@@ -1,5 +1,5 @@
 // utils
-import { isRelative, replaceParams } from '#urls'
+import { isRelative, replaceParams } from '../../lib/urls/@main.js'
 
 // local
 import { Context } from './context.js'
@@ -19,9 +19,9 @@ import { Context } from './context.js'
  * 	href: string
  * 	params?: object
  * 	replace?: boolean
- * } & pota.Props} props
+ * } & Props} props
  *
- * @returns {pota.Children}
+ * @returns {Children}
  */
 
 export function A(props) {

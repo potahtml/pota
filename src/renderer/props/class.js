@@ -1,10 +1,15 @@
 // node class / classList
 
-import { effect } from '#primitives'
-import { entries, getValue, isFunction, isNotNullObject } from '#std'
+import { effect } from '../../lib/reactivity/primitives/solid.js'
+import {
+	entries,
+	getValue,
+	isFunction,
+	isNotNullObject,
+} from '../../lib/std/@main.js'
 
 /**
- * @param {pota.Element} node
+ * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -13,7 +18,7 @@ export function setClass(node, name, value, props) {
 	setNodeClassList(node.classList, value)
 }
 /**
- * @param {pota.Element} node
+ * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props

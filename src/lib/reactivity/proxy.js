@@ -1,10 +1,10 @@
-import { empty, keys, proxyTrapDefaults } from '#std'
+import { empty, keys, proxyTrapDefaults } from '../std/@main.js'
 
 /**
  * Proxies a signals property access so you dont have to call the
  * function
  *
- * @param {pota.Signal} signal - Signal to proxy
+ * @param {Signal} signal - Signal to proxy
  * @param {object} [target] - Target object for the proxy
  * @returns {object} Proxied signal
  */

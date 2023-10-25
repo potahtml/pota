@@ -8,7 +8,7 @@ export const $map = Symbol()
 
 // supported namespaces
 
-/** @type {pota.Props} */
+/** @type {Props} */
 export const NS = {
 	svg: 'http://www.w3.org/2000/svg',
 	math: 'http://www.w3.org/1998/Math/MathML',

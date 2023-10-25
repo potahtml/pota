@@ -1,7 +1,7 @@
 // utils
-import { empty, optional } from '#std'
-import { scrollToSelectorWithFallback } from '#scroll'
-import { replaceParams } from '#urls'
+import { empty, optional } from '../../lib/std/@main.js'
+import { scrollToSelectorWithFallback } from '../../lib/scroll/@main.js'
+import { replaceParams } from '../../lib/urls/@main.js'
 
 // local
 import { setLocation } from './location.js'

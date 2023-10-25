@@ -1,5 +1,5 @@
-import { customElement } from '#renderer'
-import { getValue } from '#std'
+import { customElement } from '../../renderer/@main.js'
+import { getValue } from '../../lib/std/@main.js'
 
 class CollapseElement extends HTMLElement {
 	constructor() {
@@ -11,7 +11,7 @@ class CollapseElement extends HTMLElement {
 	show() {
 		this.shadowRoot.innerHTML = '<slot/>'
 	}
-	/** @param {pota.When} value - To toggle children */
+	/** @param {When} value - To toggle children */
 	set when(value) {
 		getValue(value) ? this.show() : this.hide()
 	}
@@ -22,10 +22,10 @@ class CollapseElement extends HTMLElement {
  * document
  *
  * @param {{
- * 	when: pota.When
- * 	children?: pota.Children
+ * 	when: When
+ * 	children?: Children
  * }} props
- * @returns {pota.Children}
+ * @returns {Children}
  */
 export function Collapse(props) {
 	customElement('pota-collapse', CollapseElement)

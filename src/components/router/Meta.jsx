@@ -4,9 +4,9 @@ import { Portal } from '../flow/Portal.js'
  * Mounts children on HEAD
  *
  * @param {{
- * 	children?: pota.Children
+ * 	children?: Children
  * }} props
- * @returns {pota.Children}
+ * @returns {Children}
  */
 export function Meta(props) {
 	return (

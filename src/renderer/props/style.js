@@ -1,6 +1,6 @@
 // node style
 
-import { effect } from '#primitives'
+import { effect } from '../../lib/reactivity/primitives/solid.js'
 
 import {
 	entries,
@@ -8,10 +8,10 @@ import {
 	isFunction,
 	isNotNullObject,
 	isNullUndefined,
-} from '#std'
+} from '../../lib/std/@main.js'
 
 /**
- * @param {pota.Element} node
+ * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -20,7 +20,7 @@ export function setStyle(node, name, value, props) {
 	setNodeStyle(node.style, value)
 }
 /**
- * @param {pota.Element} node
+ * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -34,7 +34,7 @@ export function setStyleNS(node, name, value, props, localName, ns) {
 	)
 }
 /**
- * @param {pota.Element} node
+ * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props

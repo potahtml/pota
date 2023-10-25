@@ -1,16 +1,16 @@
-import { makeCallback } from '#comp'
-import { memo, resolve, lazyMemo } from '#primitives'
+import { makeCallback } from '../../lib/comp/@main.js'
+import { memo, resolve, lazyMemo } from '../../lib/reactivity/primitives/solid.js'
 
-import { getValue, isNullUndefined } from '#std'
+import { getValue, isNullUndefined } from '../../lib/std/@main.js'
 
 /**
  * Renders its children based on a condition
  *
  * @param {object} props
- * @param {pota.When} props.when
- * @param {pota.Children} [props.fallback]
- * @param {pota.Children} [props.children]
- * @returns {pota.Children}
+ * @param {When} props.when
+ * @param {Children} [props.fallback]
+ * @param {Children} [props.children]
+ * @returns {Children}
  */
 export function Show(props) {
 	const callback = makeCallback(props.children)

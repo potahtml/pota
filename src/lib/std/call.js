@@ -3,7 +3,7 @@ import { isArray } from './isArray.js'
 /**
  * Runs arrays of functions with arguments
  *
- * @param {pota.Handler} fn
+ * @param {Handler} fn
  * @param {...any} [args] - Arguments to pass to the functions
  */
 export const call = (fn, ...args) =>

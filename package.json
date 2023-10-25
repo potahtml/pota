@@ -4,32 +4,33 @@
   "version": "0.1.155",
   "author": "Tito Bouzout",
   "type": "module",
-  "types": "./pota.d.ts",
+  "types": "./ts.pota.d.ts",
   "main": "./src/exports.js",
   "exports": {
     "./*": null,
-    ".": "./src/exports.js",
+    ".": {
+      "types": "./types/src/exports.d.ts",
+      "default": "./src/exports.js"
+    },
     "./babel-preset": "./babel-preset/index.cjs",
-    "./jsx-runtime": "./src/renderer/jsx/jsx-runtime.js",
-    "./jsx-dev-runtime": "./src/renderer/jsx/jsx-runtime.js",
-    "./hooks": "./src/hooks/@main.js",
-    "./router": "./src/components/router/@main.js"
-  },
-  "imports": {
-    "#constants": "./src/constants.js",
-    "#renderer": "./src/renderer/@main.js",
-    "#renderer/*": "./src/renderer/*",
-    "#primitives": "./src/lib/reactivity/primitives/solid.js",
-    "#primitives/*": "./src/lib/reactivity/primitives/*",
-    "#reactivity": "./src/lib/reactivity/@main.js",
-    "#std": "./src/lib/std/@main.js",
-    "#comp": "./src/lib/comp/@main.js",
-    "#urls": "./src/lib/urls/@main.js",
-    "#scroll": "./src/lib/scroll/@main.js",
-    "#hooks": "./src/hooks/@main.js"
+    "./jsx-runtime": {
+      "types": "./ts.jsx.d.ts",
+      "default": "./src/renderer/jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./ts.jsx.d.ts",
+      "default": "./src/renderer/jsx-runtime.js"
+    },
+    "./hooks": {
+      "types": "./types/src/hooks/@main.d.ts",
+      "default": "./src/hooks/@main.js"
+    },
+    "./router": {
+      "types": "./types/src/components/router/@main.d.ts",
+      "default": "./src/components/router/@main.js"
+    }
   },
   "dependencies": {
-    "@babel/plugin-syntax-import-attributes": "^7.22.5",
     "@babel/plugin-transform-react-jsx": "^7.22.5",
     "babel-plugin-transform-rename-import": "^2.3.0",
     "flimsy": "^1.0.3",
@@ -38,6 +39,9 @@
   },
   "peerDependencies": {
     "@babel/core": "^7.22.11"
+  },
+  "scripts": {
+    "prepublishOnly": "tsc || echo 1"
   },
   "repository": {
     "type": "git",
@@ -57,5 +61,8 @@
     "proseWrap": "never",
     "endOfLine": "lf",
     "singleAttributePerLine": true
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
   }
 }

@@ -1,15 +1,15 @@
-import { makeCallback } from '#comp'
-import { memo } from '#primitives'
-import { ReactiveMap } from '#renderer/map.js'
+import { makeCallback } from '../../lib/comp/@main.js'
+import { memo } from '../../lib/reactivity/primitives/solid.js'
+import { ReactiveMap } from '../../renderer/map.js'
 
 /**
  * Renders reactive values from an signal that returns an Iterable
  * object
  *
  * @param {object} props
- * @param {pota.Each} props.each
- * @param {pota.Children} [props.children]
- * @returns {pota.Children}
+ * @param {Each} props.each
+ * @param {Children} [props.children]
+ * @returns {Children}
  */
 export function For(props) {
 	const callback = makeCallback(props.children)

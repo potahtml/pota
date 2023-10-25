@@ -1,5 +1,5 @@
-import { context, signal, lazyMemo } from '#primitives'
-import { empty, removeFromArray } from '#std'
+import { context, signal, lazyMemo } from '../../lib/reactivity/primitives/solid.js'
+import { empty, removeFromArray } from '../../lib/std/@main.js'
 
 function show() {
 	return false

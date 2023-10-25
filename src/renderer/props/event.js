@@ -2,20 +2,20 @@
 // delegated and native events are hold into an array property of the node
 // to avoid duplicated events that could be added by using `ns` in ease of organization
 
-import { cleanup } from '#primitives'
+import { cleanup } from '../../lib/reactivity/primitives/solid.js'
 import {
 	defineProperty,
 	empty,
 	isArray,
 	property,
 	removeFromArray,
-} from '#std'
-import { $meta } from '#constants'
+} from '../../lib/std/@main.js'
+import { $meta } from '../../constants.js'
 
 /**
- * @param {pota.Element} node
+ * @param {Elements} node
  * @param {string} name
- * @param {pota.Handler} value
+ * @param {Handler} value
  * @param {object} props
  * @param {string} localName
  * @param {string} ns
@@ -55,9 +55,9 @@ const Delegated = empty()
 /**
  * Adds an event listener to a node
  *
- * @param {pota.Element} node - Element to add the event listener
+ * @param {Elements} node - Element to add the event listener
  * @param {string} type - The name of the event listener
- * @param {pota.Handler} handler - Function to handle the event
+ * @param {Handler} handler - Function to handle the event
  * @param {boolean} [delegated] - To choose delegation or not. Default
  *   is `true`
  * @param {boolean} [external] - External defaults to true and avoids
@@ -107,9 +107,9 @@ export function addEventListener(
 /**
  * Removes an event listener from a node
  *
- * @param {pota.Element} node - Element to add the event listener
+ * @param {Elements} node - Element to add the event listener
  * @param {string} type - The name of the event listener
- * @param {pota.Handler} handler - Function to handle the event
+ * @param {Handler} handler - Function to handle the event
  * @param {boolean} [delegated] - To choose delegation or not
  * @returns {Function} - An `on` function for adding back the event
  *   listener
@@ -169,7 +169,7 @@ function eventHandlerDelegated(e) {
 	}
 }
 /**
- * @param {pota.Element} node
+ * @param {Elements} node
  * @param {Function[]} handlers
  * @param {Event} e - Event
  */

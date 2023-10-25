@@ -1,4 +1,4 @@
-import { $reactive } from '#constants'
+import { $reactive } from '../../constants.js'
 
 /**
  * Marks a function as reactive. Reactive functions are ran inside

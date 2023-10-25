@@ -1,12 +1,16 @@
-import { cleanup, effect, signal } from '#primitives'
+import {
+	cleanup,
+	effect,
+	signal,
+} from '../lib/reactivity/primitives/solid.js'
 
 /**
  * Returns a function that will return true when the argument for it
  * matches the original signal `value`.
  *
- * @param {pota.Signal} value - Signal with the current value
- * @returns {(item: any) => pota.Signal} Signal that you can run with
- *   a value to know if matches the original signal
+ * @param {Signal} value - Signal with the current value
+ * @returns {(item: any) => Signal} Signal that you can run with a
+ *   value to know if matches the original signal
  */
 export function selector(value) {
 	const map = new Map()
@@ -32,7 +36,7 @@ export function selector(value) {
 	 * the current signal
 	 *
 	 * @param {unknown} item - Values to compare with current
-	 * @returns {pota.Signal} A signal with a boolean value
+	 * @returns {Signal} A signal with a boolean value
 	 */
 	return function isSelected(item) {
 		if (!map.has(item)) {

@@ -6,11 +6,11 @@ import {
 	cleanup,
 	untrack,
 	signal,
-} from '#primitives'
+} from '../lib/reactivity/primitives/solid.js'
 
 // CONSTANTS
 
-import { $map, $meta, NS } from '#constants'
+import { $map, $meta, NS } from '../constants.js'
 
 // LIB
 
@@ -22,7 +22,7 @@ import {
 	contextSimple,
 	property,
 	removeFromArray,
-} from '#std'
+} from '../lib/std/@main.js'
 
 // RENDERER LIB
 
@@ -31,7 +31,7 @@ import {
 	isComponent,
 	isComponentable,
 	markComponent,
-} from '#comp'
+} from '../lib/comp/@main.js'
 
 // PROPERTIES / ATTRIBUTES
 
@@ -105,8 +105,8 @@ function Scope() {
 /**
  * Creates a component that can be used as `Comp(props)`
  *
- * @param {pota.Componenteable} value
- * @returns {pota.Component} Component
+ * @param {Componenteable} value
+ * @returns {Component} Component
  */
 export function create(value) {
 	// check if the value is already a known component think of
@@ -127,8 +127,8 @@ onFinally(() => Components.clear())
  * Creates a component which is an untracked function that could be
  * called with a props object
  *
- * @param {pota.Componenteable} value
- * @returns {pota.Component}
+ * @param {Componenteable} value
+ * @returns {Component}
  */
 
 function Factory(value) {
@@ -200,9 +200,9 @@ const useParentNode = contextSimple(empty())
  * Creates a x/html element from a tagName
  *
  * @param {string} tagName
- * @param {pota.Props} props
- * @param {pota.Props} scope
- * @returns {pota.Element} Element
+ * @param {Props} props
+ * @param {Props} scope
+ * @returns {Elements} Element
  */
 function createTag(tagName, props, scope) {
 	const parentNode = useParentNode()
@@ -226,10 +226,10 @@ function createTag(tagName, props, scope) {
 /**
  * Assigns props to an element and creates its children
  *
- * @param {pota.Element} node
- * @param {pota.Props} props
- * @param {pota.Props} scope
- * @returns {pota.Element} Element
+ * @param {Elements} node
+ * @param {Props} props
+ * @param {Props} scope
+ * @returns {Elements} Element
  */
 function createNode(node, props, scope) {
 	if (node.namespaceURI !== NS.html) {
@@ -281,10 +281,10 @@ function createNode(node, props, scope) {
 /**
  * Creates the children for a parent
  *
- * @param {pota.Element} parent
- * @param {pota.Children} child
+ * @param {Elements} parent
+ * @param {Children} child
  * @param {boolean} [relative]
- * @returns {pota.Children}
+ * @returns {Children}
  */
 function createChildren(parent, child, relative) {
 	switch (typeof child) {
@@ -393,10 +393,10 @@ function createChildren(parent, child, relative) {
 /**
  * Creates placeholder to keep nodes in position
  *
- * @param {pota.Element} parent
+ * @param {Elements} parent
  * @param {unknown} text
  * @param {boolean} [relative]
- * @returns {pota.Element}
+ * @returns {Elements}
  */
 function createPlaceholder(parent, text, relative) {
 	/*
@@ -414,10 +414,10 @@ function createPlaceholder(parent, text, relative) {
 /**
  * Adds the element to the document
  *
- * @param {pota.Element} parent
- * @param {pota.Element} node
+ * @param {Elements} parent
+ * @param {Elements} node
  * @param {boolean} [relative]
- * @returns {pota.Element}
+ * @returns {Elements}
  */
 function insertNode(parent, node, relative) {
 	// special case `head`
@@ -455,7 +455,7 @@ function insertNode(parent, node, relative) {
  * Inserts children into a parent
  *
  * @param {any} children - Thing to render
- * @param {pota.Element | null | undefined} [parent] - Mount point,
+ * @param {Elements | null | undefined} [parent] - Mount point,
  *   defaults to document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
@@ -488,7 +488,7 @@ export function render(children, parent, options = empty()) {
 
 /**
  * @param {any} children - Thing to render
- * @param {pota.Element | null | undefined} [parent] - Mount point,
+ * @param {Elements | null | undefined} [parent] - Mount point,
  *   defaults to `document.body`
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
@@ -503,7 +503,7 @@ function insert(children, parent, options = empty()) {
 	)
 }
 
-/** @param {pota.Element} node */
+/** @param {Elements} node */
 function clearNode(node) {
 	// check for node existence to be able to use querySelector on yet to be created nodes
 	node.textContent = ''
@@ -520,7 +520,7 @@ function clearNode(node) {
  *
  * @param {TemplateStringsArray} template
  * @param {...any} values
- * @returns {pota.Children}
+ * @returns {Children}
  */
 export function template(template, ...values) {
 	let cached = Components.get(template)
@@ -599,7 +599,7 @@ export function template(template, ...values) {
  *   custom element
  * @param {ElementDefinitionOptions} [options] - Options passed to
  *   `customElements.define`
- * @returns {pota.Component}
+ * @returns {Component}
  */
 export function customElement(name, constructor, options) {
 	if (customElements.get(name) === undefined) {

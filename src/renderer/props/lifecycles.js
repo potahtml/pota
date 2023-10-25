@@ -1,9 +1,9 @@
-import { property } from '#std'
+import { property } from '../../lib/std/@main.js'
 import { onMount } from '../scheduler.js'
 /**
- * @param {pota.Element} node
+ * @param {Elements} node
  * @param {string} name
- * @param {pota.Handler} value
+ * @param {Handler} value
  * @param {object} props
  */
 export function setOnMount(node, name, value, props) {
@@ -11,7 +11,7 @@ export function setOnMount(node, name, value, props) {
 	onMount([value, node])
 }
 /**
- * @param {pota.Element} node
+ * @param {Elements} node
  * @param {string} name
  * @param {Function | []} value
  * @param {object} props

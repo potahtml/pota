@@ -1,11 +1,11 @@
-import { markComponent } from '#comp'
-import { create } from '#renderer'
+import { markComponent } from './markComponent.js'
+import { create } from '../../renderer/@main.js'
 
 /**
  * Returns a `Component` that has been lazy loaded
  *
  * @param {Function} component - Import statement
- * @returns {() => pota.Component}
+ * @returns {() => Component}
  */
 export function lazy(component) {
 	return markComponent(() =>

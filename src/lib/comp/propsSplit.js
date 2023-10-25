@@ -1,13 +1,13 @@
 // const [others, local] = propsSplit(props, ['children'])
 
-import { empty, keys } from '#std'
+import { empty, keys } from '../std/@main.js'
 
 /**
  * Split an object into multiple sub objects
  *
- * @param {pota.Props} props
+ * @param {Props} props
  * @param {...string[]} args
- * @returns {pota.Props[]} - Array of objects
+ * @returns {Props[]} - Array of objects
  */
 export function propsSplit(props, ...args) {
 	const result = []

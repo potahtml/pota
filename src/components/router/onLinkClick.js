@@ -1,5 +1,5 @@
 // utils
-import { isExternal } from '#urls'
+import { isExternal } from '../../lib/urls/@main.js'
 
 // local
 import { navigate } from './navigate.js'

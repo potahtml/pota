@@ -1,7 +1,7 @@
 /**
  * Returns an object without a prototype
  *
- * @returns {pota.Props} Empty object
+ * @returns {Props} Empty object
  */
 export function empty() {
 	return Object.create(null)

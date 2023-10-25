@@ -60,15 +60,11 @@ flimsy, oby, solid. See file \`pota/babel-preset\`
 				{
 					replacements: [
 						{
-							original: '#primitives',
-							replacement: '#primitives/' + lib + '.js',
+							original: '^(.+?)/primitives/solid\\.js$',
+							replacement: '$1/primitives/' + lib + '.js',
 						},
 					],
 				},
-			],
-			[
-				'@babel/plugin-syntax-import-attributes',
-				{ deprecatedAssertSyntax: true },
 			],
 		],
 	}

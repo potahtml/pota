@@ -1,6 +1,6 @@
-import { origin } from '#urls'
-import { signal, memo, lazyMemo } from '#primitives'
-import { assign, empty } from '#std'
+import { origin } from '../../lib/urls/@main.js'
+import { signal, memo, lazyMemo } from '../../lib/reactivity/primitives/solid.js'
+import { assign, empty } from '../../lib/std/@main.js'
 
 // local
 import { canNavigate } from './useBeforeLeave.js'
@@ -31,12 +31,12 @@ let querySearch = ''
 
 /**
  * @typedef {Object} location
- * @property {pota.Signal} hash - Everything after #
- * @property {pota.Signal} href - The full url
- * @property {pota.Signal} pathname - Mirror of
+ * @property {Signal} hash - Everything after #
+ * @property {Signal} href - The full url
+ * @property {Signal} pathname - Mirror of
  *   window.location.pathname
- * @property {pota.Signal} path - Pathname + hash
- * @property {pota.Signal} query - Key value pairs with params
+ * @property {Signal} path - Pathname + hash
+ * @property {Signal} query - Key value pairs with params
  */
 
 /** @type location */

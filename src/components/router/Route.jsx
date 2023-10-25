@@ -1,16 +1,19 @@
 import { Show, Dynamic, Collapse } from '../flow/@main.js'
-import { cleanup, memo } from '#primitives'
-import { scrollToSelectorWithFallback } from '#scroll'
+import {
+	cleanup,
+	memo,
+} from '../../lib/reactivity/primitives/solid.js'
+import { scrollToSelectorWithFallback } from '../../lib/scroll/@main.js'
 
 // utils
-import { optional } from '#std'
-import { replaceParams, origin } from '#urls'
+import { optional } from '../../lib/std/@main.js'
+import { replaceParams, origin } from '../../lib/urls/@main.js'
 
 // local
 import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
-import { onRender } from '#renderer/scheduler.js'
+import { onRender } from '../../renderer/scheduler.js'
 
 /**
  * Renders children if the path matches the current location
@@ -23,15 +26,15 @@ import { onRender } from '#renderer/scheduler.js'
  *   route matches
  * @param {object} [props.params] - Key-value pairs params to encode
  *   and replace on the path
- * @param {pota.When} [props.collapse] - To hide the route instead of
+ * @param {When} [props.collapse] - To hide the route instead of
  *   removing it from the document
- * @param {pota.When} [props.when] - To stop rendering the route even
- *   if the path matches.
- * @param {pota.Children} [props.fallback] - Fallback for when a
- *   `when` condition is set. If the `when` condition is not set, this
- *   wont be used.
- * @param {pota.Children} [props.children]
- * @returns {pota.Children}
+ * @param {When} [props.when] - To stop rendering the route even if
+ *   the path matches.
+ * @param {Children} [props.fallback] - Fallback for when a `when`
+ *   condition is set. If the `when` condition is not set, this wont
+ *   be used.
+ * @param {Children} [props.children]
+ * @returns {Children}
  */
 export function Route(props) {
 	const parent = Context()
@@ -115,8 +118,8 @@ export function Route(props) {
  * Renders children when no sibling `Route` matches
  *
  * @param {object} props
- * @param {pota.Children} [props.children]
- * @returns {pota.Children}
+ * @param {Children} [props.children]
+ * @returns {Children}
  */
 Route.Default = props => {
 	const context = Context()

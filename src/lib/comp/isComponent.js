@@ -1,6 +1,6 @@
-import { isFunction } from '#std'
+import { isFunction } from '../std/@main.js'
 
-import { $component } from '#constants'
+import { $component } from '../../constants.js'
 
 /**
  * Returns true if the `value` is a `Component`

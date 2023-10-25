@@ -1,13 +1,17 @@
 // MAP
 
-import { $map } from '#constants'
-import { cleanup, root, untrack } from '#primitives'
-import { getValue, removeFromArray } from '#std'
+import { $map } from '../constants.js'
+import {
+	cleanup,
+	root,
+	untrack,
+} from '../lib/reactivity/primitives/solid.js'
+import { getValue, removeFromArray } from '../lib/std/@main.js'
 
 /**
  * Reactive Map
  *
- * @param {pota.Each} list
+ * @param {Each} list
  * @param {Function} callback
  * @param {boolean} [sort] - To reorder items in the document
  */
@@ -182,7 +186,7 @@ export function map(list, callback, sort) {
 export class ReactiveMap {
 	[$map] = null
 	/**
-	 * @param {pota.Each} items
+	 * @param {Each} items
 	 * @param {Function} callback
 	 */
 	constructor(items, callback) {

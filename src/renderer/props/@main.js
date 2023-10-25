@@ -1,4 +1,4 @@
-import { empty, entries } from '#std'
+import { empty, entries } from '../../lib/std/@main.js'
 
 const properties = empty()
 const propertiesNS = empty()
@@ -8,7 +8,7 @@ const propertiesNS = empty()
  *
  * @param {string} propName - Name of the prop
  * @param {(
- * 	node: pota.Element,
+ * 	node: Elements,
  * 	propName: string,
  * 	propValue: Function | unknown,
  * 	props: object,
@@ -24,7 +24,7 @@ export function propDefine(propName, fn) {
  *
  * @param {string} NSName - Name of the namespace
  * @param {(
- * 	node: pota.Element,
+ * 	node: Elements,
  * 	propName: string,
  * 	propValue: Function | unknown,
  * 	props: object,
@@ -87,7 +87,7 @@ import { setNodeProp } from './attribute-property.js'
 /**
  * Assigns props to an Element
  *
- * @param {pota.Element} node - Element to which assign props
+ * @param {Elements} node - Element to which assign props
  * @param {object} props - Props to assign
  */
 export function assignProps(node, props) {

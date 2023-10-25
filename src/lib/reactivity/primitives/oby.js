@@ -1,5 +1,5 @@
-import { isReactive, markReactive } from '#reactivity'
-import { empty, isArray, isFunction } from '#std'
+import { isReactive, markReactive } from '../@main.js'
+import { empty, isArray, isFunction } from '../../std/@main.js'
 
 // abstracts oby reactivity
 
@@ -26,7 +26,7 @@ import $, {
  * @param {unknown} [initialValue] - Initial value of the signal
  * @param {unknown} [options] - Signal options
  * @returns {[
- * 	pota.Signal,
+ * 	Signal,
  * 	Function | ((currentValue: unknown) => unknown),
  * ]}
  *   - Read/write tuple
@@ -41,7 +41,7 @@ export const signal = (initialValue, options) => {
  * automatically updates
  *
  * @param {Function} fn - Function to re-run when dependencies change
- * @returns {pota.Signal} - Read only signal
+ * @returns {Signal} - Read only signal
  */
 export const memo = fn => markReactive(_memo(fn))
 
@@ -111,7 +111,7 @@ export function context(defaultValue = empty()) {
 	 * @overload Runs `fn` with a new value as context
 	 * @param {unknown} newValue - New value for the context
 	 * @param {Function} fn - Callback to run with the new context value
-	 * @returns {pota.Children} Children
+	 * @returns {Children} Children
 	 */
 	/**
 	 * @param {unknown | undefined} newValue
@@ -135,8 +135,8 @@ export function context(defaultValue = empty()) {
 	 *
 	 * @param {object} props
 	 * @param {unknown} props.value
-	 * @param {pota.Children} [props.children]
-	 * @returns {pota.Children} Children
+	 * @param {Children} [props.children]
+	 * @returns {Children} Children
 	 */
 	Context.Provider = props =>
 		Context(props.value, () => children(() => props.children))
@@ -150,7 +150,7 @@ export function context(defaultValue = empty()) {
  * Resolves and returns `children` in a memo
  *
  * @param {Function} fn
- * @returns {pota.Signal} Memo
+ * @returns {Signal} Memo
  */
 export function children(fn) {
 	const children = memo(fn)
@@ -160,8 +160,8 @@ export function children(fn) {
 /**
  * Recursively resolves children functions
  *
- * @param {pota.Children} children
- * @returns {pota.Children}
+ * @param {Children} children
+ * @returns {Children}
  */
 export function resolve(children) {
 	/**
@@ -194,7 +194,7 @@ export function resolve(children) {
  *
  * @author Fabio Spampinato
  * @param {Function} fn - Function to re-run when dependencies change
- * @returns {pota.Signal}
+ * @returns {Signal}
  */
 export function lazyMemo(fn) {
 	const [sleeping, setSleeping] = signal(true)
