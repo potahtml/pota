@@ -172,15 +172,7 @@ function Factory(value) {
 				break
 			}
 
-			// objects with a custom `.toString(props)`
-			if ('toString' in value && value.toString.length > 0) {
-				component = (props = empty()) =>
-					untrack(() => value.toString(props))
-				break
-			}
-
 			component = () => value
-
 			break
 		}
 	}
