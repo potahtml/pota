@@ -8,6 +8,22 @@ import {
 } from '../lib/reactivity/primitives/solid.js'
 import { getValue, removeFromArray } from '../lib/std/@main.js'
 
+/** Reactive Map */
+export class ReactiveMap {
+	[$map] = null
+	/**
+	 * @param {Each} items
+	 * @param {Function} callback
+	 */
+	constructor(items, callback) {
+		this.mapper = map(items, callback, true)
+	}
+	/** @param {Function} fn */
+	map(fn) {
+		return this.mapper(fn)
+	}
+}
+
 /**
  * Reactive Map
  *
@@ -179,21 +195,5 @@ export function map(list, callback, sort) {
 				for (const node of rows) node.nodes = null
 			}
 		}
-	}
-}
-
-/** Reactive Map */
-export class ReactiveMap {
-	[$map] = null
-	/**
-	 * @param {Each} items
-	 * @param {Function} callback
-	 */
-	constructor(items, callback) {
-		this.mapper = map(items, callback, true)
-	}
-	/** @param {Function} fn */
-	map(fn) {
-		return this.mapper(fn)
 	}
 }

@@ -1,7 +1,6 @@
 import { untrack } from '../reactivity/primitives/solid.js'
 import { isArray, isFunction } from '../std/@main.js'
 import { isReactive } from '../reactivity/@main.js'
-
 import { markComponent } from './markComponent.js'
 
 /**

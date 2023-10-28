@@ -22,7 +22,7 @@ let queue
  *
  *   | VoidFunction[]
  */
-let finally_ = []
+const finally_ = []
 
 /** Resets the Scheduler */
 function reset() {
@@ -41,13 +41,16 @@ reset()
  *   priority run
  */
 function add(priority, fn) {
+	enqueue()
+	queue[priority].push(fn)
+}
+
+function enqueue() {
 	if (!added) {
 		added = true
 		queueMicrotask(run)
 	}
-	queue[priority].push(fn)
 }
-
 /** Runs all queued callbacks */
 function run() {
 	const q = queue
@@ -92,15 +95,11 @@ export function onRender(fn) {
 }
 
 /**
- * Queue a function to run after the queue is processed. Caution:
- * onFinally will only run if an onReady or onMount callback is found
- * in the code, else it wont run. This is intended to never be
- * cleaned.
+ * Finally_ is intended to never be cleaned.
  *
  * @param {VoidFunction | Function} fn
  */
 export function onFinally(fn) {
+	enqueue()
 	finally_.push(fn)
-	// make sure we run it at least once
-	queueMicrotask(fn)
 }

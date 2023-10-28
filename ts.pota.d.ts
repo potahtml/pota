@@ -8,10 +8,8 @@
 
 type Signal = Function
 type Elements = HTMLElement | Element | Node
-type Handler =
-  | Function
-  | VoidFunction
-  | [VoidFunction | Function, ...any]
+type Handler = Function | VoidFunction
+// | [VoidFunction | Function, ...any]
 
 // props
 

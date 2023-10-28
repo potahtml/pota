@@ -14,6 +14,8 @@ import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
 import { onRender } from '../../renderer/scheduler.js'
+import { markComponent } from '../../lib/comp/markComponent.js'
+import { create as createComponent } from '../../renderer/@main.js'
 
 /**
  * Renders children if the path matches the current location
@@ -52,12 +54,11 @@ export function Route(props) {
 		'^' + base.replace(/\:([a-z0-9_\-]+)/gi, '(?<$1>.+)'),
 	)
 
-	let href = ''
-
 	const scrolls = props.scrolls
 		? parent.scrolls.concat(props.scrolls)
 		: parent.scrolls
 
+	let href = ''
 	const show = memo(() => {
 		const path = location.path()
 		if (route.test(path)) {
@@ -76,11 +77,7 @@ export function Route(props) {
 			}
 
 			// scroll
-			onRender(() => {
-				// already rendered
-				for (const item of scrolls) scrollToSelectorWithFallback(item)
-				scrollToSelectorWithFallback(window.location.hash)
-			})
+			onRender(() => doScrolls(scrolls))
 
 			return true
 		} else {
@@ -115,6 +112,16 @@ export function Route(props) {
 }
 
 /**
+ * Scrolls an array of selectors, taken from the <Route component
+ *
+ * @param {string[]} scrolls
+ */
+function doScrolls(scrolls) {
+	console.log('scrolling', scrolls)
+	for (const item of scrolls) scrollToSelectorWithFallback(item)
+	scrollToSelectorWithFallback(window.location.hash)
+}
+/**
  * Renders children when no sibling `Route` matches
  *
  * @param {object} props
@@ -129,4 +136,33 @@ Route.Default = props => {
 			children={props.children}
 		/>
 	)
+}
+
+/**
+ * Returns a `Component` that has been lazy loaded
+ *
+ * @param {Function} component - Import statement
+ * @returns {() => Component}
+ */
+export function lazy(component, tryAgain = true) {
+	return markComponent(() => {
+		const context = Context()
+
+		return (
+			component()
+				.then(r =>
+					markComponent(() => {
+						onRender(() => doScrolls(context.scrolls))
+						return createComponent(r.default)
+					}),
+				)
+				// trying again in case it fails due to some network error
+				// need to test this
+				.catch(
+					e =>
+						console.log(e) ||
+						(tryAgain ? lazy(component, false) : console.error(e)),
+				)
+		)
+	})
 }

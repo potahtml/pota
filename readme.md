@@ -20,7 +20,7 @@ Its driven by developer needs, not benchmarks.
 - Doesn't use prop getters, or any getters; you may use destructuring
 - Renders any kind of XML, including custom namespaces
 - Provides a `defineProp` function for using custom props on any
-  element
+  element, think defining your own htmx stuff
 - Includes a `removeEventListener` function and properly cleans up
   delegated events
 - `addEventListener` can accept the same type of event multiple times

@@ -25,5 +25,6 @@
 
     "types": ["./ts.pota.d.ts", "./ts.jsx.d.ts"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }

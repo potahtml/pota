@@ -27,12 +27,7 @@ export { map, ReactiveMap } from './renderer/map.js'
 
 // JSX COMPONENTS
 
-export { Collapse } from './components/flow/Collapse.jsx'
-export { Dynamic } from './components/flow/Dynamic.js'
-export { For } from './components/flow/For.js'
-export { Portal } from './components/flow/Portal.js'
-export { Show } from './components/flow/Show.js'
-export { Switch, Match } from './components/flow/Switch.js'
+export * from './components/flow/@main.js'
 
 // RENDERER
 
@@ -52,7 +47,7 @@ export { onReady } from './renderer/scheduler.js'
 
 // COMPONENTS
 
-export { Component, makeCallback, lazy } from './lib/comp/@main.js'
+export { Component, makeCallback } from './lib/comp/@main.js'
 
 // EVENTS
 

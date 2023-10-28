@@ -1,14 +1,14 @@
-import { Portal } from '../flow/Portal.js'
+import { Portal } from './Portal.js'
 
 /**
- * Mounts children on HEAD
+ * Mounts children on `document.head`
  *
  * @param {{
  * 	children?: Children
  * }} props
  * @returns {Children}
  */
-export function Meta(props) {
+export function Head(props) {
 	return (
 		<Portal
 			mount={document.head}
