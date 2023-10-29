@@ -59,6 +59,7 @@ export function Route(props) {
 		: parent.scrolls
 
 	let href = ''
+	// derived
 	const show = memo(() => {
 		const path = location.path()
 		if (route.test(path)) {
@@ -150,17 +151,15 @@ export function lazy(component, tryAgain = true) {
 
 		return (
 			component()
-				.then(r =>
-					markComponent(() => {
-						onRender(() => doScrolls(context.scrolls))
-						return createComponent(r.default)
-					}),
-				)
+				.then(r => {
+					onRender(() => doScrolls(context.scrolls))
+					return createComponent(r.default)
+				})
 				// trying again in case it fails due to some network error
 				// need to test this
 				.catch(
 					e =>
-						console.log(e) ||
+						console.error('trying again', e) ||
 						(tryAgain ? lazy(component, false) : console.error(e)),
 				)
 		)

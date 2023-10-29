@@ -40,9 +40,12 @@ import { onFinally, onReady } from './scheduler.js'
 
 // DOCUMENT
 
-const createElement = document.createElement.bind(document)
-const createElementNS = document.createElementNS.bind(document)
-const createElementText = document.createTextNode.bind(document)
+const createElement = (tagName, options) =>
+	document.createElement(tagName)
+const createElementNS = (ns, name) =>
+	document.createElementNS(ns, name)
+const createElementText = text => document.createTextNode(text)
+const createFragment = () => new DocumentFragment()
 
 // COMPONENTS
 
@@ -281,10 +284,12 @@ function createNode(node, props, scope) {
 function createChildren(parent, child, relative) {
 	switch (typeof child) {
 		// string/number/undefined
-		// display `undefined` because most likely is a mistake
-		// in the data/by the developer
-		// the only place where `undefined` is unwanted and discarded
-		// is on values of styles/classes/node attributes/node properties
+		/**
+		 * Display `undefined` because most likely is a mistake in the
+		 * data/by the developer. The only place where `undefined` is
+		 * unwanted and discarded is on values of styles/classes/node
+		 * attributes/node properties
+		 */
 		case 'string':
 		case 'number':
 		case 'undefined': {
@@ -391,7 +396,7 @@ function createChildren(parent, child, relative) {
  * @returns {Elements}
  */
 function createPlaceholder(parent, text, relative) {
-	/*
+	/* dev
 	return insertNode(
 		parent,
 		document.createComment(
@@ -414,21 +419,21 @@ function createPlaceholder(parent, text, relative) {
 function insertNode(parent, node, relative) {
 	// special case `head`
 	if (parent === document.head) {
-		const head = document.head
+		const querySelector = parent.querySelector.bind(parent)
 		const name = node.tagName
 
 		// search for tags that should be unique
 		let prev
 		if (name === 'META') {
 			prev =
-				head.querySelector('meta[name="' + node.name + '"]') ||
-				head.querySelector('meta[property="' + node.property + '"]')
+				querySelector('meta[name="' + node.name + '"]') ||
+				querySelector('meta[property="' + node.property + '"]')
 		} else if (name === 'TITLE') {
-			prev = head.querySelector('title')
+			prev = querySelector('title')
 		}
 
 		// replace old node if there's any
-		prev ? prev.replaceWith(node) : head.appendChild(node)
+		prev ? prev.replaceWith(node) : parent.appendChild(node)
 	} else {
 		relative ? parent.before(node) : parent.appendChild(node)
 	}
@@ -579,7 +584,7 @@ export function template(template, ...values) {
 	// return a single element if possible to make it more easy to use
 	return clone.childNodes.length === 1
 		? clone.childNodes[0]
-		: [...clone.childNodes] // from NodeList to Array
+		: toArray(clone.childNodes) // from NodeList to Array
 }
 
 /**
