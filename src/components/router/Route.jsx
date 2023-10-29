@@ -44,9 +44,14 @@ export function Route(props) {
 	const base =
 		parent.base +
 		replaceParams(
-			// pathname always starts with /, make sure the hash is considered
 			// when <Route lacks a path prop is treated as the final route
-			props.path !== undefined ? props.path.replace(/^#/, '/#') : '$',
+			props.path === undefined
+				? '(|#.*)$' // ends with nothing or has a hash followed of stuff
+				: // ends with nothing or has a hash followed of stuff
+				  props.path
+						.replace('$', '(|#.*)$')
+						// pathname always starts with /, make sure the hash is considered
+						.replace(/^#/, '/#'),
 			props.params,
 		)
 
