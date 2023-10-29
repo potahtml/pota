@@ -26,9 +26,21 @@ export function create(props = empty()) {
 				return [...children]
 			})
 		},
-		noneMatch: lazyMemo(() =>
-			children().every(children => !children.show()),
-		),
+		noneMatch: lazyMemo(() => {
+			return (
+				/**
+				 * If doesnt have siblings then is not a 404
+				 *
+				 * @example
+				 * 	<Route>
+				 * 	<Component/> <Router.Default/> <-- Router.Default should never render
+				 * 	</Route>
+				 */
+				children().length &&
+				// when it has sibling, check if at least 1 rendered
+				children().every(children => !children.show())
+			)
+		}),
 		// override
 		...props,
 	}
