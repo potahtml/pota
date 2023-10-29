@@ -1,5 +1,4 @@
-import { isReactive, markReactive } from '../@main.js'
-import { empty, isArray, isFunction } from '../../std/@main.js'
+import { markReactive } from '../@main.js'
 
 // abstracts oby reactivity
 
@@ -51,7 +50,7 @@ export const memo = fn => markReactive(_memo(fn))
  * @param {(dispose: Function) => any} fn
  * @returns {unknown}
  */
-export const root = _root
+export const root = fn => _root(fn)
 
 /**
  * Creates a renderEffect
@@ -77,14 +76,14 @@ export const effect = fn => {
  * @param {Function} fn
  * @returns {unknown}
  */
-export const batch = _batch
+export const batch = fn => _batch(fn)
 
 /**
  * Runs a callback on cleanup
  *
  * @param {Function} fn
  */
-export const cleanup = _cleanup
+export const cleanup = fn => _cleanup(fn)
 
 /**
  * Disables tracking for a function
@@ -92,7 +91,7 @@ export const cleanup = _cleanup
  * @param {Function} fn - Function to run with tracking disabled
  * @returns {unknown}
  */
-export const untrack = _untrack
+export const untrack = fn => _untrack(fn)
 
 /**
  * Creates a context and returns a function to get or set the value
@@ -100,7 +99,7 @@ export const untrack = _untrack
  * @param {unknown} [defaultValue] - Default value for the context
  * @returns {typeof Context} Context
  */
-export function Context(defaultValue = empty()) {
+export function Context(defaultValue = {}) {
 	const id = Symbol()
 
 	/**
