@@ -611,3 +611,12 @@ export function customElement(name, constructor, options) {
 	}
 	return create(name)
 }
+/**
+ * To set and read refs
+ *
+ * @returns {Signal}
+ */
+export function ref() {
+	const [read, write] = signal()
+	return v => (v ? write(v) : read())
+}

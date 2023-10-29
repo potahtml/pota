@@ -75,6 +75,11 @@ propDefine('onUnmount', setUnmount)
 propDefineNS('onMount', setOnMount)
 propDefineNS('onUnmount', setUnmount)
 
+// ref
+
+propDefine('ref', setOnMount)
+propDefineNS('ref', setOnMount)
+
 // events
 
 import { eventName, setEventNS, addEventListener } from './event.js'

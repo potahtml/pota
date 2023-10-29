@@ -41,6 +41,7 @@ export {
 	 * inserted into, wont cause disposal of what you inserted.
 	 */
 	// insert,
+	ref,
 } from './renderer/@main.js'
 
 export { onReady } from './renderer/scheduler.js'
