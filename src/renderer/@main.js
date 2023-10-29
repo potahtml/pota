@@ -371,7 +371,14 @@ function createChildren(parent, child, relative) {
 			}
 
 			// object.toString fancy objects
-			return createChildren(parent, child.toString(), relative)
+			return createChildren(
+				parent,
+				'toString' in child
+					? child.toString()
+					: // object.create(null) would fail to convert to string
+					  JSON.stringify(child),
+				relative,
+			)
 		}
 
 		default: {
