@@ -8,10 +8,8 @@ export { version }
 
 export {
 	batch,
-	children,
 	cleanup as onCleanup,
 	cleanup,
-	context,
 	effect,
 	lazyMemo,
 	memo,
@@ -41,6 +39,10 @@ export {
 	 * inserted into, wont cause disposal of what you inserted.
 	 */
 	// insert,
+
+	// reactivity
+	children,
+	context,
 	ref,
 } from './renderer/@main.js'
 

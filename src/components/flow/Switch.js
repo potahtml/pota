@@ -1,4 +1,8 @@
-import { memo, children, resolve, lazyMemo } from '../../lib/reactivity/primitives/solid.js'
+import {
+  memo,
+  lazyMemo,
+} from '../../lib/reactivity/primitives/solid.js'
+import { children, resolve } from '../../renderer/@main.js'
 import { makeCallback } from '../../lib/comp/@main.js'
 import { getValue, isNullUndefined } from '../../lib/std/@main.js'
 

@@ -6,6 +6,8 @@ import {
 	cleanup,
 	untrack,
 	signal,
+	memo,
+	Context,
 } from '../lib/reactivity/primitives/solid.js'
 
 // CONSTANTS
@@ -22,6 +24,7 @@ import {
 	contextSimple,
 	property,
 	removeFromArray,
+	isFunction,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -611,6 +614,60 @@ export function customElement(name, constructor, options) {
 	}
 	return create(name)
 }
+
+export function context(defaultValue = empty()) {
+	/** @type {any} */
+	const ctx = Context(defaultValue)
+
+	/**
+	 * Sets the `value` for the context
+	 *
+	 * @param {object} props
+	 * @param {unknown} props.value
+	 * @param {Children} [props.children]
+	 * @returns {Children} Children
+	 */
+	ctx.Provider = props =>
+		ctx(props.value, () => children(() => props.children))
+
+	return ctx
+}
+
+/**
+ * Resolves and returns `children` in a memo
+ *
+ * @param {Function} fn
+ * @returns {Signal} Memo
+ */
+export function children(fn) {
+	const children = memo(fn)
+	return memo(() => resolve(children()))
+}
+
+/**
+ * Recursively resolves children functions
+ *
+ * @param {Children} children
+ * @returns {Children}
+ */
+export function resolve(children) {
+	if (isFunction(children)) {
+		return resolve(children())
+	}
+	if (isArray(children)) {
+		const childrens = []
+		for (let child of children) {
+			child = resolve(child)
+			isArray(child)
+				? childrens.push(...child)
+				: childrens.push(child)
+		}
+		return childrens
+	}
+
+	return children
+}
+
 /**
  * To set and read refs
  *

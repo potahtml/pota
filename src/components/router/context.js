@@ -1,5 +1,9 @@
-import { context, signal, lazyMemo } from '../../lib/reactivity/primitives/solid.js'
+import {
+	signal,
+	lazyMemo,
+} from '../../lib/reactivity/primitives/solid.js'
 import { empty, removeFromArray } from '../../lib/std/@main.js'
+import { context } from '../../renderer/@main.js'
 
 function show() {
 	return false
