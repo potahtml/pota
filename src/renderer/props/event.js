@@ -154,9 +154,11 @@ function eventHandlerDelegated(e) {
 		})
 	}
 
-	// simulate currentTarget
+	// currentTarget has to be the element that has the handlers
 	defineProperty(e, 'currentTarget', {
-		value: node,
+		get() {
+			return node
+		},
 	})
 
 	while (node) {
