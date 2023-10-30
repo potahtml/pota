@@ -43,8 +43,7 @@ import { onFinally, onReady } from './scheduler.js'
 
 // DOCUMENT
 
-const createElement = (tagName, options) =>
-	document.createElement(tagName)
+const createElement = tagName => document.createElement(tagName)
 const createElementNS = (ns, name) =>
 	document.createElementNS(ns, name)
 const createElementText = text => document.createTextNode(text)
