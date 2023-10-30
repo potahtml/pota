@@ -44,6 +44,7 @@ export {
 	children,
 	context,
 	ref,
+	toHTML,
 } from './renderer/@main.js'
 
 export { onReady } from './renderer/scheduler.js'

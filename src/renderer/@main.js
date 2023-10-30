@@ -623,14 +623,26 @@ export function context(defaultValue = empty()) {
 	 * Sets the `value` for the context
 	 *
 	 * @param {object} props
-	 * @param {unknown} props.value
+	 * @param {any} props.value
 	 * @param {Children} [props.children]
 	 * @returns {Children} Children
 	 */
 	ctx.Provider = props =>
-		ctx(props.value, () => children(() => props.children))
+		ctx(props.value, () => toHTML(props.children))
 
 	return ctx
+}
+
+/**
+ * Creates and returns HTML Elements for `children`
+ *
+ * @param {Children} children
+ * @returns {DocumentFragment}
+ */
+export function toHTML(children) {
+	const fragment = createFragment()
+	createChildren(fragment, children)
+	return fragment // toArray(elements.childNodes)
 }
 
 /**
