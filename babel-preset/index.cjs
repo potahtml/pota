@@ -38,7 +38,7 @@ module.exports = function (context, options = { lib: 'solid' }) {
 	if (lib !== 'flimsy' && lib !== 'oby' && lib !== 'solid') {
 		throw new Error(`
 \`pota/babel-preset\`: \`lib\` option should be one of the following:
-flimsy, oby, solid. See file \`pota/babel-preset\`
+flimsy, oby, solid.
 `)
 	}
 
@@ -49,7 +49,6 @@ flimsy, oby, solid. See file \`pota/babel-preset\`
 				{
 					runtime: 'automatic',
 					importSource: 'pota',
-
 					throwIfNamespace: false,
 					useSpread: true,
 					useBuiltIns: false,
