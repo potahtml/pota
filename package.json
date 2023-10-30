@@ -6,6 +6,8 @@
   "type": "module",
   "types": "./ts.pota.d.ts",
   "main": "./src/exports.js",
+  "module": "./src/exports.js",
+  "unpkg": "./dist/pota.standalone.js",
   "exports": {
     "./*": null,
     ".": {
@@ -21,27 +23,41 @@
       "types": "./ts.jsx.d.ts",
       "default": "./src/renderer/jsx-runtime.js"
     },
-    "./hooks": {
-      "types": "./types/src/hooks/@main.d.ts",
-      "default": "./src/hooks/@main.js"
-    },
     "./router": {
       "types": "./types/src/components/router/@main.d.ts",
       "default": "./src/components/router/@main.js"
+    },
+    "./hooks": {
+      "types": "./types/src/hooks/@main.d.ts",
+      "default": "./src/hooks/@main.js"
     }
+  },
+  "scripts": {
+    "dev": "concurrently --kill-others \"npm:watch:*\"",
+    "types": "tsc",
+    "watch:types": "tsc -w",
+    "standalone": "cd dist.standalone && rollup -c",
+    "watch:standalone": "cd dist.standalone && rollup -c -w",
+    "prepublishOnly": "npm run types || npm run standalone || echo 1"
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.22.5",
     "babel-plugin-transform-rename-import": "^2.3.0",
     "flimsy": "^1.0.3",
     "oby": "^14.3.5",
-    "solid-js": "^1.8.3"
+    "solid-js": "1.x"
   },
   "peerDependencies": {
-    "@babel/core": "^7.22.11"
+    "@babel/core": "7.x"
   },
-  "scripts": {
-    "prepublishOnly": "tsc || echo 1"
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.2.2",
+    "rollup": "^4.1.4",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-json": "^6.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4"
   },
   "repository": {
     "type": "git",
@@ -61,8 +77,5 @@
     "proseWrap": "never",
     "endOfLine": "lf",
     "singleAttributePerLine": true
-  },
-  "devDependencies": {
-    "typescript": "^5.2.2"
   }
 }
