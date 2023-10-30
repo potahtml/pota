@@ -100,12 +100,10 @@ export function Component(value, props) {
 	return markComponent(() => Factory(value)(props, scope))
 }
 
-function Scope() {
-	return {
-		namespaceURI: undefined,
-		parent: undefined,
-	}
-}
+const Scope = () => ({
+	namespaceURI: undefined,
+	parent: undefined,
+})
 
 /**
  * Creates a component that can be used as `Comp(props)`
@@ -696,15 +694,14 @@ export function ref() {
  * @param {Function} component - Import statement
  * @returns {Component}
  */
-export function lazy(component, tryAgain = true) {
-	return markComponent(props => {
-		return component()
+export const lazy = (component, tryAgain = true) =>
+	markComponent(props =>
+		component()
 			.then(r => create(r.default)(props))
 			.catch(e =>
 				// trying again in case it fails due to some network error
 				tryAgain
 					? lazy(component, false)(props)
 					: console.error(e) || (() => component + ' is offline'),
-			)
-	})
-}
+			),
+	)
