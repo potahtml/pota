@@ -31,7 +31,7 @@ Its driven by developer needs, not benchmarks.
 - Supports class components with automatic registration of `onReady`
   and `onCleanup` methods
 - `Portal` does not wrap children in a `div`
-- Includes a simple `Route` component
+- Full featured simple to use `Route` component
 - Does not include server-side rendering (SSR)
 - Does not include stores
 
