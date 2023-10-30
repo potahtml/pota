@@ -1,6 +1,6 @@
 // const [others, local] = propsSplit(props, ['children'])
 
-import { empty, keys } from '../std/@main.js'
+import { empty, keys } from '../../lib/std/@main.js'
 
 /**
  * Split an object into multiple sub objects

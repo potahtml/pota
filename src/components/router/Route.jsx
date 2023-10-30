@@ -119,8 +119,11 @@ export function Route(props) {
  *
  * @param {string[]} scrolls
  */
+
 function doScrolls(scrolls) {
-	for (const item of scrolls) scrollToSelectorWithFallback(item)
+	for (const item of scrolls) {
+		scrollToSelectorWithFallback(item)
+	}
 	scrollToSelectorWithFallback(window.location.hash)
 }
 
