@@ -61,5 +61,5 @@ export {
 
 // PROPS
 
-export { propDefine, propDefineNS } from './renderer/props/@main.js'
+export { propsPlugin, propsPluginNS } from './renderer/props/@main.js'
 export { propsSplit } from './lib/comp/@main.js'

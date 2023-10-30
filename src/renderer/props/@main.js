@@ -15,7 +15,7 @@ const propertiesNS = empty()
  * ) => void} fn
  *   - Function to run when this prop is found on a JSX Element
  */
-export function propDefine(propName, fn) {
+export function propsPlugin(propName, fn) {
 	properties[propName] = fn
 }
 
@@ -33,57 +33,56 @@ export function propDefine(propName, fn) {
  * ) => void} fn
  *   - Function to run when this prop is found on a JSX Element
  */
-export function propDefineNS(NSName, fn) {
+export function propsPluginNS(NSName, fn) {
 	propertiesNS[NSName] = fn
 }
 
 // styles
 
 import { setStyle } from './style.js'
-propDefine('style', setStyle)
+propsPlugin('style', setStyle)
 
 import { setStyleNS, setVarNS } from './style.js'
-propDefineNS('style', setStyleNS)
-propDefineNS('var', setVarNS)
+propsPluginNS('style', setStyleNS)
+propsPluginNS('var', setVarNS)
 
 // class
 
 import { setClass } from './class.js'
-propDefine('class', setClass)
+propsPlugin('class', setClass)
 
 import { setClassNS } from './class.js'
-propDefineNS('class', setClassNS)
+propsPluginNS('class', setClassNS)
 
 // properties
 
 import { setProp } from './attribute-property.js'
-propDefine('innerHTML', setProp)
-propDefine('textContent', setProp)
-propDefine('value', setProp)
-propDefine('innerText', setProp)
+;['innerHTML', 'textContent', 'value', 'innerText'].forEach(item =>
+	propsPlugin(item, setProp),
+)
 
 import { setPropNS, setAttributeNS } from './attribute-property.js'
-propDefineNS('prop', setPropNS)
-propDefineNS('attr', setAttributeNS)
+propsPluginNS('prop', setPropNS)
+propsPluginNS('attr', setAttributeNS)
 
 // life-cycles
 
 import { setOnMount, setUnmount } from './lifecycles.js'
-propDefine('onMount', setOnMount)
-propDefine('onUnmount', setUnmount)
+propsPlugin('onMount', setOnMount)
+propsPlugin('onUnmount', setUnmount)
 
-propDefineNS('onMount', setOnMount)
-propDefineNS('onUnmount', setUnmount)
+propsPluginNS('onMount', setOnMount)
+propsPluginNS('onUnmount', setUnmount)
 
 // ref
 
-propDefine('ref', setOnMount)
-propDefineNS('ref', setOnMount)
+propsPlugin('ref', setOnMount)
+propsPluginNS('ref', setOnMount)
 
 // events
 
 import { eventName, setEventNS, addEventListener } from './event.js'
-propDefineNS('on', setEventNS)
+propsPluginNS('on', setEventNS)
 
 // catch all
 
