@@ -86,11 +86,11 @@ export function onReady(fn) {
 }
 
 /**
- * Queue a function to run onRender (after onReady)
+ * Queue a function to run after all user defined processes
  *
  * @param {Handler} fn
  */
-export function onRender(fn) {
+export function onDone(fn) {
 	add(2, fn)
 }
 

@@ -13,9 +13,7 @@ import { replaceParams, origin } from '../../lib/urls/@main.js'
 import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
-import { onRender } from '../../renderer/scheduler.js'
-import { markComponent } from '../../lib/comp/markComponent.js'
-import { create as createComponent } from '../../renderer/@main.js'
+import { onDone } from '../../renderer/scheduler.js'
 
 /**
  * Renders children if the path matches the current location
@@ -82,8 +80,7 @@ export function Route(props) {
 					href
 			}
 
-			// scroll
-			onRender(() => doScrolls(scrolls))
+			onDone(() => doScrolls(scrolls))
 
 			return true
 		} else {
@@ -123,10 +120,10 @@ export function Route(props) {
  * @param {string[]} scrolls
  */
 function doScrolls(scrolls) {
-	console.log('scrolling', scrolls)
 	for (const item of scrolls) scrollToSelectorWithFallback(item)
 	scrollToSelectorWithFallback(window.location.hash)
 }
+
 /**
  * Renders children when no sibling `Route` matches
  *
