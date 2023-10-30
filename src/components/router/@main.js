@@ -1,6 +1,6 @@
 // routes
 
-export { Route, lazy } from './Route.jsx'
+export { Route } from './Route.jsx'
 
 // A
 

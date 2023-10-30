@@ -689,3 +689,23 @@ export function ref() {
 	const [read, write] = signal()
 	return v => (v ? write(v) : read())
 }
+
+/**
+ * Returns a `Component` that has been lazy loaded and can be used as
+ * `Component(props)`
+ *
+ * @param {Function} component - Import statement
+ * @returns {Component}
+ */
+export function lazy(component, tryAgain = true) {
+	return markComponent(props => {
+		return component()
+			.then(r => create(r.default)(props))
+			.catch(e =>
+				// trying again in case it fails due to some network error
+				tryAgain
+					? lazy(component, false)(props)
+					: console.error(e) || (() => component + ' is offline'),
+			)
+	})
+}

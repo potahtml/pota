@@ -45,6 +45,7 @@ export {
 	context,
 	ref,
 	toHTML,
+	lazy,
 } from './renderer/@main.js'
 
 export { onReady } from './renderer/scheduler.js'

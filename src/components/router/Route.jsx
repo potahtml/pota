@@ -143,30 +143,3 @@ Route.Default = props => {
 		/>
 	)
 }
-
-/**
- * Returns a `Component` that has been lazy loaded
- *
- * @param {Function} component - Import statement
- * @returns {() => Component}
- */
-export function lazy(component, tryAgain = true) {
-	return markComponent(() => {
-		const context = Context()
-
-		return (
-			component()
-				.then(r => {
-					onRender(() => doScrolls(context.scrolls))
-					return createComponent(r.default)
-				})
-				// trying again in case it fails due to some network error
-				// need to test this
-				.catch(
-					e =>
-						console.error('trying again', e) ||
-						(tryAgain ? lazy(component, false) : console.error(e)),
-				)
-		)
-	})
-}
