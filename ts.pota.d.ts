@@ -7,7 +7,7 @@
 // general
 
 type Signal = Function
-type Elements = HTMLElement | Element | Node
+type Elements = HTMLElement | Element | Node | EventTarget
 type Handler =
   | Function
   | VoidFunction

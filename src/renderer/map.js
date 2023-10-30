@@ -66,7 +66,7 @@ export function map(list, callback, sort) {
 	function create(item, index, fn, isDupe) {
 		// a root is created so we can call dispose to get rid of an item
 		return root(dispose => {
-			/** @type Array<unknown> */
+			/** @type Children[] */
 			const nodes = untrack(() =>
 				fn ? fn(callback(item, index), index) : callback(item, index),
 			)
@@ -116,7 +116,7 @@ export function map(list, callback, sort) {
 
 	/**
 	 * @param {Function} fn
-	 * @returns {[] | void}
+	 * @returns {Children[] | void}
 	 */
 	return function (fn) {
 		const items = getValue(list) || []

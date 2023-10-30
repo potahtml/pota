@@ -94,7 +94,7 @@ export const cleanup = fn => onCleanup(fn)
  * Disables tracking for a function
  *
  * @param {Function} fn - Function to run with tracking disabled
- * @returns {unknown}
+ * @returns {any}
  */
 export const untrack = fn => _untrack(fn)
 

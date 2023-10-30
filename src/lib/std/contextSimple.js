@@ -3,7 +3,7 @@ import { empty } from './empty.js'
 /**
  * Creates a context and returns a function to get or set the value
  *
- * @param {unknown} [defaultValue] - Default value for the context
+ * @param {any} [defaultValue] - Default value for the context
  * @returns {typeof Context} Context
  */
 export function contextSimple(defaultValue = empty()) {
@@ -15,12 +15,12 @@ export function contextSimple(defaultValue = empty()) {
 	 */
 	/**
 	 * @overload Runs `fn` with a new value as context
-	 * @param {unknown} newValue - New value for the context
+	 * @param {any} newValue - New value for the context
 	 * @param {Function} fn - Callback to run with the new context value
 	 * @returns {any}
 	 */
 	/**
-	 * @param {unknown | undefined} newValue
+	 * @param {any | undefined} newValue
 	 * @param {Function | undefined} fn
 	 */
 	function Context(newValue, fn) {
