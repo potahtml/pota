@@ -17,6 +17,7 @@ import $, {
 
 	// context
 	context as _context,
+	with as with_,
 } from 'oby'
 
 /**
@@ -149,4 +150,15 @@ export function lazyMemo(fn) {
 		setSleeping(false)
 		return m()
 	})
+}
+
+/**
+ * Returns a function on which you can pass functions to run with the
+ * current owner
+ *
+ * - @returns {(fn)=>any}
+ */
+export const withOwner = () => {
+	const owned = with_()
+	return fn => owned(fn)
 }

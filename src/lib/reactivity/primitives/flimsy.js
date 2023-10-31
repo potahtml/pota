@@ -19,7 +19,6 @@ import {
 
 	// context
 	// useContext,
-	// getOwner,
 	createContext,
 } from 'flimsy'
 
@@ -160,4 +159,13 @@ export function lazyMemo(fn) {
 		setSleeping(false)
 		return m()
 	})
+}
+
+/**
+ * Noop. Flimsy doesnt implement `withOwner`
+ *
+ * - @returns {(fn)=>any}
+ */
+export const withOwner = () => {
+	return fn => fn()
 }

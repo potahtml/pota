@@ -17,6 +17,7 @@ export {
 	root,
 	signal,
 	untrack,
+	withOwner,
 } from './lib/reactivity/primitives/solid.js'
 
 // REACTIVITY UTILS

@@ -20,6 +20,7 @@ import {
 	// context
 	useContext,
 	getOwner,
+	runWithOwner,
 } from 'solid-js/dist/solid.js' // /dist/dev.js
 
 /**
@@ -161,4 +162,15 @@ export function lazyMemo(fn) {
 		setSleeping(false)
 		return m()
 	})
+}
+
+/**
+ * Returns a function on which you can pass functions to run with the
+ * current owner
+ *
+ * - @returns {(fn)=>any}
+ */
+export const withOwner = () => {
+	const owner = getOwner()
+	return fn => runWithOwner(owner, fn)
 }
