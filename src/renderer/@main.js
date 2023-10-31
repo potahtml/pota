@@ -8,6 +8,7 @@ import {
 	signal,
 	memo,
 	Context,
+	withOwner,
 } from '../lib/reactivity/primitives/solid.js'
 
 // CONSTANTS
@@ -359,7 +360,16 @@ function createChildren(parent, child, relative) {
 			// async components
 			if (child.then) {
 				const [component, setComponent] = signal('')
-				child.then(r => parent.isConnected && setComponent(r))
+				/**
+				 * If the result of the promise is a function it runs it with
+				 * an owner. Else it will just use the return value
+				 */
+				const owned = withOwner()
+				child.then(
+					r =>
+						parent.isConnected &&
+						setComponent(isFunction(r) ? owned(r) : r),
+				)
 				return createChildren(parent, component, relative)
 			}
 
@@ -694,14 +704,20 @@ export function ref() {
  * @param {Function} component - Import statement
  * @returns {Component}
  */
-export const lazy = (component, tryAgain = true) =>
-	markComponent(props =>
-		component()
-			.then(r => create(r.default)(props))
-			.catch(e =>
-				// trying again in case it fails due to some network error
-				tryAgain
-					? lazy(component, false)(props)
-					: console.error(e) || (() => component + ' is offline'),
-			),
-	)
+export const lazy = component => {
+	return markComponent(props => {
+		const owned = withOwner()
+		// tries to load the lazy component
+		const doTry = (tryAgain = true) =>
+			component()
+				.then(r => owned(() => create(r.default)(props)))
+				.catch(e =>
+					// trying again in case it fails due to some network error
+					tryAgain
+						? doTry(false)
+						: console.error(e) || (() => component + ' is offline'),
+				)
+
+		return doTry()
+	})
+}
