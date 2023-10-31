@@ -22,7 +22,7 @@ export {
 
 // REACTIVITY UTILS
 
-export { map, ReactiveMap } from './renderer/map.js'
+export { map } from './renderer/map.js'
 
 // JSX COMPONENTS
 
@@ -56,7 +56,7 @@ export { onReady } from './renderer/scheduler.js'
 
 // COMPONENTS
 
-export { Component, makeCallback } from './lib/comp/@main.js'
+export { Component } from './lib/comp/@main.js'
 
 // EVENTS
 
