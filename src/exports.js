@@ -31,6 +31,7 @@ export * from './components/flow/@main.js'
 // RENDERER
 
 export {
+	// rendering
 	create,
 	customElement,
 	render,
@@ -41,11 +42,13 @@ export {
 	 */
 	// insert,
 
+	// children
+	toHTML,
+	resolve,
+
 	// reactivity
-	children,
 	context,
 	ref,
-	toHTML,
 	lazy,
 } from './renderer/@main.js'
 

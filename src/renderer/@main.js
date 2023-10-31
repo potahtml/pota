@@ -655,28 +655,28 @@ export function toHTML(children) {
 /**
  * Resolves and returns `children` in a memo
  *
- * @param {Function} fn
+ * @param {Function | Children} fn
  * @returns {Signal} Memo
  */
-export function children(fn) {
-	const children = memo(fn)
-	return memo(() => resolve(children()))
+export function resolve(fn) {
+	const children = isFunction(fn) ? memo(fn) : () => fn
+	return memo(() => unwrap(children()))
 }
 
 /**
- * Recursively resolves children functions
+ * Recursively unwrap children functions
  *
  * @param {Children} children
  * @returns {Children}
  */
-export function resolve(children) {
+function unwrap(children) {
 	if (isFunction(children)) {
-		return resolve(children())
+		return unwrap(children())
 	}
 	if (isArray(children)) {
 		const childrens = []
 		for (let child of children) {
-			child = resolve(child)
+			child = unwrap(child)
 			isArray(child)
 				? childrens.push(...child)
 				: childrens.push(child)
