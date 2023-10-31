@@ -30,6 +30,10 @@
     "./hooks": {
       "types": "./types/src/hooks/@main.d.ts",
       "default": "./src/hooks/@main.js"
+    },
+    "./lib": {
+      "types": "./types/src/lib/@main.d.ts",
+      "default": "./src/lib/@main.js"
     }
   },
   "scripts": {
