@@ -116,7 +116,7 @@ export function map(list, callback, sort) {
 
 	/**
 	 * @param {Function} fn
-	 * @returns {Children[] | void}
+	 * @returns {Children[] | null}
 	 */
 	return function (fn) {
 		const items = getValue(list) || []
@@ -195,5 +195,6 @@ export function map(list, callback, sort) {
 				for (const node of rows) node.nodes = null
 			}
 		}
+		return null
 	}
 }
