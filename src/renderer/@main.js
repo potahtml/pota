@@ -78,6 +78,9 @@ export function Component(value, props) {
 		return props.children
 	}
 
+	// freeze props so isnt directly writable
+	Object.freeze(props)
+
 	// The scope/context is used to hold the parent to be able to tell if dynamic children are XML
 	const scope = Scope()
 
