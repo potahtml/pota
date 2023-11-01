@@ -19,7 +19,7 @@ export function Switch(props) {
   const children = resolve(() => props.children)
 
   const fallback = isNullUndefined(props.fallback)
-    ? () => null
+    ? null
     : lazyMemo(() => resolve(props.fallback))
 
   const match = memo(() =>

@@ -23,7 +23,7 @@ export function Show(props) {
 
 	// needs resolve to avoid re-rendering
 	const fallback = isNullUndefined(props.fallback)
-		? () => null
+		? null
 		: lazyMemo(() => resolve(props.fallback))
 
 	return memo(() => {
