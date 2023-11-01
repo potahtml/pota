@@ -6,6 +6,4 @@ import { isAbsolute } from './isAbsolute.js'
  * @param {string} url - Url
  * @returns {boolean} Returns true if the link relative
  */
-export function isRelative(url) {
-	return !isAbsolute(url)
-}
+export const isRelative = url => !isAbsolute(url)

@@ -63,6 +63,4 @@ export function navigateUser(href, options = empty()) {
  * 	params?: object
  * }} props
  */
-export function Navigate(props) {
-	navigateUser(props.href, props)
-}
+export const Navigate = props => navigateUser(props.href, props)

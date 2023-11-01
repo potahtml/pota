@@ -1,5 +1,9 @@
 import { origin } from '../../lib/urls/@main.js'
-import { signal, memo, lazyMemo } from '../../lib/reactivity/primitives/solid.js'
+import {
+	signal,
+	memo,
+	lazyMemo,
+} from '../../lib/reactivity/primitives/solid.js'
 import { assign, empty } from '../../lib/std/@main.js'
 
 // local
@@ -33,8 +37,7 @@ let querySearch = ''
  * @typedef {Object} location
  * @property {Signal} hash - Everything after #
  * @property {Signal} href - The full url
- * @property {Signal} pathname - Mirror of
- *   window.location.pathname
+ * @property {Signal} pathname - Mirror of window.location.pathname
  * @property {Signal} path - Pathname + hash
  * @property {Signal} query - Key value pairs with params
  */
@@ -67,9 +70,7 @@ export const location = assign(empty(), {
  *
  * @returns Location
  */
-export function useLocation() {
-	return location
-}
+export const useLocation = () => location
 
 // listen when using browser buttons
 

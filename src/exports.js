@@ -1,8 +1,7 @@
 // VERSION
 
 import pkg from '../package.json'
-const version = pkg.version
-export { version }
+export const version = pkg.version
 
 // REACTIVITY
 

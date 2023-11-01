@@ -3,6 +3,4 @@
  *
  * @returns {Props} Empty object
  */
-export function empty() {
-	return Object.create(null)
-}
+export const empty = () => Object.create(null)

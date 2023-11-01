@@ -10,12 +10,12 @@ const propertiesNS = empty()
  * @param {(
  * 	node: Elements,
  * 	propName: string,
- * 	propValue: Function | unknown,
+ * 	propValue: Function | any,
  * 	props: object,
  * ) => void} fn
  *   - Function to run when this prop is found on a JSX Element
  */
-export function propsPlugin(propName, fn) {
+export const propsPlugin = (propName, fn) => {
 	properties[propName] = fn
 }
 
@@ -26,14 +26,14 @@ export function propsPlugin(propName, fn) {
  * @param {(
  * 	node: Elements,
  * 	propName: string,
- * 	propValue: Function | unknown,
+ * 	propValue: Function | any,
  * 	props: object,
  * 	localName: string,
  * 	ns: string,
  * ) => void} fn
  *   - Function to run when this prop is found on a JSX Element
  */
-export function propsPluginNS(NSName, fn) {
+export const propsPluginNS = (NSName, fn) => {
 	propertiesNS[NSName] = fn
 }
 

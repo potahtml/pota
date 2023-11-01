@@ -7,6 +7,5 @@ import { empty } from './empty.js'
  * @param {object} [state] - To which add state to it
  * @returns {Function} A copy of the function with the state
  */
-export function functionState(fn, state = empty()) {
-	return fn.bind(null, state)
-}
+export const functionState = (fn, state = empty()) =>
+	fn.bind(null, state)

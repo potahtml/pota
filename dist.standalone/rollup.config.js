@@ -49,7 +49,7 @@ export default [
         file: '../dist/pota.standalone.small.js',
       },
     ],
-    external: ['solid-js'],
+    external: ['solid-js/dist/solid.js'],
   },
   // cjs with solid
   {

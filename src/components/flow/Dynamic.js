@@ -9,7 +9,6 @@ import { create } from '../../renderer/@main.js'
  * @returns {Component}
  */
 
-export function Dynamic(props) {
+export const Dynamic = props =>
 	// `component` needs to be deleted else it will end in the tag as an attribute
-	return create(props.component)({ ...props, component: null })
-}
+	create(props.component)({ ...props, component: null })

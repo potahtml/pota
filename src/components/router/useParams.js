@@ -1,6 +1,9 @@
 import { proxy } from '../../lib/reactivity/@main.js'
 import { empty, entries } from '../../lib/std/@main.js'
-import { signal, lazyMemo } from '../../lib/reactivity/primitives/solid.js'
+import {
+	signal,
+	lazyMemo,
+} from '../../lib/reactivity/primitives/solid.js'
 import { decodeURIComponent } from '../../lib/urls/@main.js'
 
 const [getParams, setParams] = signal(() => empty())
@@ -17,6 +20,4 @@ const params = lazyMemo(() => {
 	return params
 })
 
-export function useParams() {
-	return proxy(params)
-}
+export const useParams = () => proxy(params)

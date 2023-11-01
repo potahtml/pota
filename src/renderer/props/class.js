@@ -14,9 +14,9 @@ import {
  * @param {unknown} value
  * @param {object} props
  */
-export function setClass(node, name, value, props) {
+export const setClass = (node, name, value, props) =>
 	setNodeClassList(node.classList, value)
-}
+
 /**
  * @param {Elements} node
  * @param {string} name
@@ -25,12 +25,11 @@ export function setClass(node, name, value, props) {
  * @param {string} localName
  * @param {string} ns
  */
-export function setClassNS(node, name, value, props, localName, ns) {
+export const setClassNS = (node, name, value, props, localName, ns) =>
 	setNodeClassList(
 		node.classList,
 		isNotNullObject(value) ? value : { [localName]: value },
 	)
-}
 
 // todo: the name of the class is not reactive
 

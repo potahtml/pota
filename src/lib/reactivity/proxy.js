@@ -8,8 +8,8 @@ import { empty, keys, proxyTrapDefaults } from '../std/@main.js'
  * @param {object} [target] - Target object for the proxy
  * @returns {object} Proxied signal
  */
-export function proxy(signal, target = empty()) {
-	return new Proxy(target, {
+export const proxy = (signal, target = empty()) =>
+	new Proxy(target, {
 		get(target, key, receiver) {
 			return signal()[key]
 		},
@@ -21,4 +21,3 @@ export function proxy(signal, target = empty()) {
 		},
 		...proxyTrapDefaults,
 	})
-}

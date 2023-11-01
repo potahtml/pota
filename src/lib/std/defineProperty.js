@@ -12,9 +12,8 @@ const defaults = {
  * @param {PropertyKey} key
  * @param {PropertyDescriptor} descriptor
  */
-export function defineProperty(target, key, descriptor) {
+export const defineProperty = (target, key, descriptor) =>
 	define(target, key, {
 		...descriptor,
 		...defaults,
 	})
-}

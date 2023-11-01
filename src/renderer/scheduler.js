@@ -72,27 +72,21 @@ function run() {
  *
  * @param {Handler} fn
  */
-export function onMount(fn) {
-	add(0, fn)
-}
+export const onMount = fn => add(0, fn)
 
 /**
  * Queue a function to run onReady (after onMount)
  *
  * @param {Handler} fn
  */
-export function onReady(fn) {
-	add(1, fn)
-}
+export const onReady = fn => add(1, fn)
 
 /**
  * Queue a function to run after all user defined processes
  *
  * @param {Handler} fn
  */
-export function onDone(fn) {
-	add(2, fn)
-}
+export const onDone = fn => add(2, fn)
 
 /**
  * Finally_ is intended to never be cleaned.

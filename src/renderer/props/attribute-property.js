@@ -17,9 +17,9 @@ import { NS } from '../../constants.js'
  * @param {unknown} value
  * @param {object} props
  */
-export function setProp(node, name, value, props) {
+export const setProp = (node, name, value, props) =>
 	setNodeProperty(node, name, value)
-}
+
 /**
  * @param {Elements} node
  * @param {string} name
@@ -28,9 +28,8 @@ export function setProp(node, name, value, props) {
  * @param {string} localName
  * @param {string} ns
  */
-export function setPropNS(node, name, value, props, localName, ns) {
+export const setPropNS = (node, name, value, props, localName, ns) =>
 	setNodeProperty(node, localName, value)
-}
 
 // ATTRIBUTE
 
@@ -42,16 +41,14 @@ export function setPropNS(node, name, value, props, localName, ns) {
  * @param {string} localName
  * @param {string} ns
  */
-export function setAttributeNS(
+export const setAttributeNS = (
 	node,
 	name,
 	value,
 	props,
 	localName,
 	ns,
-) {
-	setNodeAttribute(node, localName, value)
-}
+) => setNodeAttribute(node, localName, value)
 
 // NODE PROPERTIES / ATTRIBUTES
 

@@ -1,4 +1,3 @@
 /** Scrolls to the top of the window */
-export function scrollToTop() {
+export const scrollToTop = () =>
 	window.scrollTo({ top: 0, behavior: 'auto' })
-}

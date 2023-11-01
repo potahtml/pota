@@ -8,11 +8,9 @@ import { Portal } from './Portal.js'
  * }} props
  * @returns {Children}
  */
-export function Head(props) {
-	return (
-		<Portal
-			mount={document.head}
-			children={props.children}
-		/>
-	)
-}
+export const Head = props => (
+	<Portal
+		mount={document.head}
+		children={props.children}
+	/>
+)

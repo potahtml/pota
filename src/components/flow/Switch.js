@@ -40,6 +40,4 @@ export function Switch(props) {
  * @param {Children} [props.children]
  * @returns {Children}
  */
-export function Match(props) {
-  return props
-}
+export const Match = props => props

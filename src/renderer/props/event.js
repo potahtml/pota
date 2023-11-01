@@ -20,10 +20,9 @@ import { $meta } from '../../constants.js'
  * @param {string} localName
  * @param {string} ns
  */
-export function setEventNS(node, name, value, props, localName, ns) {
+export const setEventNS = (node, name, value, props, localName, ns) =>
 	// delegated: no
 	addEventListener(node, localName, value, false, false)
-}
 
 const EventNames = empty()
 

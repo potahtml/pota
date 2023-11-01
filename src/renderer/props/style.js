@@ -16,9 +16,9 @@ import {
  * @param {unknown} value
  * @param {object} props
  */
-export function setStyle(node, name, value, props) {
+export const setStyle = (node, name, value, props) =>
 	setNodeStyle(node.style, value)
-}
+
 /**
  * @param {Elements} node
  * @param {string} name
@@ -27,12 +27,12 @@ export function setStyle(node, name, value, props) {
  * @param {string} localName
  * @param {string} ns
  */
-export function setStyleNS(node, name, value, props, localName, ns) {
+export const setStyleNS = (node, name, value, props, localName, ns) =>
 	setNodeStyle(
 		node.style,
 		isNotNullObject(value) ? value : { [localName]: value },
 	)
-}
+
 /**
  * @param {Elements} node
  * @param {string} name
@@ -41,9 +41,9 @@ export function setStyleNS(node, name, value, props, localName, ns) {
  * @param {string} localName
  * @param {string} ns
  */
-export function setVarNS(node, name, value, props, localName, ns) {
+export const setVarNS = (node, name, value, props, localName, ns) =>
 	setNodeStyle(node.style, { ['--' + localName]: value })
-}
+
 /**
  * @param {CSSStyleDeclaration} style
  * @param {unknown} value

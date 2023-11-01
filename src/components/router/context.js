@@ -5,9 +5,8 @@ import {
 import { empty, removeFromArray } from '../../lib/std/@main.js'
 import { context } from '../../renderer/@main.js'
 
-function show() {
-	return false
-}
+const show = () => false
+
 export function create(props = empty()) {
 	const [children, setChildren] = signal([])
 

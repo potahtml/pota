@@ -8,12 +8,11 @@ import { Context } from './context.js'
  * @param {Function | Promise<unknown>} callback - Run before leaving
  *   the route
  */
-export function useBeforeLeave(callback) {
+export const useBeforeLeave = callback =>
 	Context.beforeLeave.push({
 		href: Context().href(),
 		callback,
 	})
-}
 
 /**
  * Returns a boolean telling if navigation is allowed

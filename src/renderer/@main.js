@@ -412,7 +412,7 @@ function createChildren(parent, child, relative) {
  * @param {boolean} [relative]
  * @returns {Elements}
  */
-function createPlaceholder(parent, text, relative) {
+const createPlaceholder = (parent, text, relative) =>
 	/* dev
 	return insertNode(
 		parent,
@@ -422,8 +422,7 @@ function createPlaceholder(parent, text, relative) {
 		relative,
 	)
 	*/
-	return insertNode(parent, createElementText(''), relative)
-}
+	insertNode(parent, createElementText(''), relative)
 
 /**
  * Adds the element to the document
@@ -704,8 +703,8 @@ export function ref() {
  * @param {Function} component - Import statement
  * @returns {Component}
  */
-export const lazy = component => {
-	return markComponent(props => {
+export const lazy = component =>
+	markComponent(props => {
 		const owned = withOwner()
 		// tries to load the lazy component
 		const doTry = (tryAgain = true) =>
@@ -720,4 +719,3 @@ export const lazy = component => {
 
 		return doTry()
 	})
-}

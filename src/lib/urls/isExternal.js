@@ -7,7 +7,6 @@ import { origin } from './origin.js'
  * @param {string} url - Url
  * @returns {boolean} Returns true if the link is external
  */
-export function isExternal(url) {
+export const isExternal = url =>
 	// origin could be http://example.net and link could be http://example.net.ha.com, so add "/"
-	return /^http/.test(url) && !(url + '/').startsWith(origin + '/')
-}
+	/^http/.test(url) && !(url + '/').startsWith(origin + '/')
