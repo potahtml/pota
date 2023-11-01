@@ -15,3 +15,9 @@ Its driven by developer needs, not benchmarks.
 
 Usage and documentation can be found on the website:
 https://pota.quack.uy/
+
+## See also
+
+- https://www.npmjs.com/package/pota
+- https://github.com/potaorg/pota
+-

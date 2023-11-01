@@ -7,7 +7,6 @@
   "types": "./ts.pota.d.ts",
   "main": "./src/exports.js",
   "module": "./src/exports.js",
-  "unpkg": "./dist/pota.standalone.js",
   "exports": {
     "./*": null,
     ".": {
@@ -63,9 +62,10 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4"
   },
+  "homepage": "https://pota.quack.uy/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/titoBouzout/pota"
+    "url": "https://github.com/potaorg/pota"
   },
   "prettier": {
     "printWidth": 70,

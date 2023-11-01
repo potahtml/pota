@@ -29,7 +29,7 @@
  *
  * @url [1] https://github.com/solidjs/solid
  * @url [2] https://github.com/vobyjs/oby/tree/master
- * @url [3] https://github.com/titoBouzout/pota/tree/master/src/lib/reactivity/primitives
+ * @url [3] https://github.com/potaorg/pota/tree/master/src/lib/reactivity/primitives
  */
 
 module.exports = function (context, options = { lib: 'solid' }) {
