@@ -68,3 +68,7 @@ export {
 
 export { propsPlugin, propsPluginNS } from './renderer/props/@main.js'
 export { propsSplit } from './renderer/props/propsSplit.js'
+
+// LIB
+
+export { getValue } from './lib/std/getValue.js'
