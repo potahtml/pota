@@ -93,6 +93,9 @@ export function addEventListener(
 		if (handlers.length === 0) {
 			node.addEventListener(type, eventHandlerNative)
 		}
+		cleanup(() => {
+			removeEventListener(node, type, handler, delegated, false)
+		})
 	}
 	// handler may be already in use
 	if (handler[$meta] === undefined)
@@ -111,14 +114,17 @@ export function addEventListener(
  * @param {string} type - The name of the event listener
  * @param {Handler} handler - Function to handle the event
  * @param {boolean} [delegated] - To choose delegation or not
- * @returns {Function} - An `on` function for adding back the event
- *   listener
+ * @param {boolean} [external] - External defaults to true and avoids
+ *   returning an `off` function for the event listener
+ * @returns {Function | void} - An `on` function for adding back the
+ *   event listener
  */
 export function removeEventListener(
 	node,
 	type,
 	handler,
 	delegated = true,
+	external = true,
 ) {
 	const key = delegated ? type : `${type}Native`
 
@@ -128,7 +134,8 @@ export function removeEventListener(
 	if (!delegated && handlers.length === 0) {
 		node.removeEventListener(type, eventHandlerNative)
 	}
-	return () => addEventListener(node, type, handler, delegated)
+	if (external)
+		return () => addEventListener(node, type, handler, delegated)
 }
 
 /** @param {Event} e - Event */
@@ -156,6 +163,10 @@ function eventHandlerDelegated(e) {
 
 	// currentTarget has to be the element that has the handlers
 	defineProperty(e, 'currentTarget', {
+		/**
+		 * It's a getter because the `while(node)` keeps changing the
+		 * `node` aka currentTarget as we walk up the tree
+		 */
 		get() {
 			return node
 		},
