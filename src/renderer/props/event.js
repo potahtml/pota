@@ -44,6 +44,13 @@ export function eventName(name) {
 	) {
 		EventNames[name] = name.slice(2).toLowerCase()
 	} else {
+		if (/^on[A-Z]/.test(name)) {
+			console.warn(
+				'pota: warn:',
+				name,
+				'not found as an event listener',
+			)
+		}
 		EventNames[name] = null
 	}
 	return EventNames[name]
