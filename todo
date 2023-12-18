@@ -1,0 +1,45 @@
+TODO:
+
+	Documentation:
+	- light theme
+
+	Documentation:
+	- usage
+ 	- directory
+
+ 	Improvements:
+ 	- divide stuff in packages
+ 	- source map is broken for playground
+
+	Reactivity:
+	- flimsy is broken for some reason
+
+BUGS:
+
+	classList:
+	- the name of the class is not reactive
+
+	Router:
+	- decide what to do with useParams
+ 	- is not scrolling when reloading to a hash tag when used with `lazy`
+
+FUTURE FEATURES:
+
+	Mount:
+	- support mount points as a selector
+
+	Components:
+	- provide fallback for collapse
+
+	Router:
+	- support setting a viewTransition for "navigate" onLinkClick
+	- make the `path` reactive
+
+	Compiler:
+	- write a compiler to make the output smaller
+
+	Optimizations:
+	- change some for of for for in
+	- merge effects on equal reactive values
+	- functions that accept arguments of changing types should be split
+	- get rid of the ReactiveMap class as is no longer checking for instanceof ReactiveMap
