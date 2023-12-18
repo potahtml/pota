@@ -362,7 +362,7 @@ function createChildren(parent, child, relative) {
 
 			// async components
 			if (child.then) {
-				const [component, setComponent] = signal('')
+				const [value, setValue] = signal('')
 				/**
 				 * If the result of the promise is a function it runs it with
 				 * an owner. Else it will just use the return value
@@ -371,9 +371,9 @@ function createChildren(parent, child, relative) {
 				child.then(
 					r =>
 						parent.isConnected &&
-						setComponent(isFunction(r) ? owned(r) : r),
+						setValue(isFunction(r) ? owned(r) : r),
 				)
-				return createChildren(parent, component, relative)
+				return createChildren(parent, value, relative)
 			}
 
 			// iterable
