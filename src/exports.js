@@ -1,7 +1,10 @@
 // VERSION
 
-import pkg from '../package.json'
-export const version = pkg.version
+/*
+	importing from json gives problems with node
+	import pkg from '../package.json'
+	export const version = pkg.version
+*/
 
 // REACTIVITY
 
@@ -18,6 +21,8 @@ export {
 	untrack,
 	withOwner,
 } from './lib/reactivity/primitives/solid.js'
+
+export { mutable } from './lib/reactivity/mutable.js'
 
 // REACTIVITY UTILS
 

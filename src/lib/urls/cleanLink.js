@@ -1,1 +1,1 @@
-export const cleanLink = /[\.,"]$/
+export const cleanLink = v => v.replace(/[\.,"]$/, '')

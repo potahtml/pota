@@ -1,7 +1,7 @@
 {
   "name": "pota",
   "description": "pota is a small and pluggable Reactive Web Renderer for Reactive Libraries.",
-  "version": "0.2.5",
+  "version": "0.3.5",
   "author": "Tito Bouzout",
   "type": "module",
   "types": "./ts.pota.d.ts",
@@ -30,9 +30,49 @@
       "types": "./types/src/hooks/@main.d.ts",
       "default": "./src/hooks/@main.js"
     },
+    "./hooks/*": {
+      "types": "./types/src/hooks/*",
+      "default": "./src/hooks/*"
+    },
     "./lib": {
-      "types": "./types/src/lib/@main.d.ts",
-      "default": "./src/lib/@main.js"
+      "types": "./types/src/lib/exports.d.ts",
+      "default": "./src/lib/exports.js"
+    },
+    "./lib/*": {
+      "types": "./types/src/lib/*",
+      "default": "./src/lib/*"
+    },
+    "./color": {
+      "types": "./types/src/color/@main.d.ts",
+      "default": "./src/color/@main.js"
+    },
+    "./events": {
+      "types": "./types/src/events/@main.d.ts",
+      "default": "./src/events/@main.js"
+    },
+    "./random": {
+      "types": "./types/src/random/@main.d.ts",
+      "default": "./src/random/@main.js"
+    },
+    "./scroll": {
+      "types": "./types/src/scroll/@main.d.ts",
+      "default": "./src/scroll/@main.js"
+    },
+    "./streams": {
+      "types": "./types/src/streams/@main.d.ts",
+      "default": "./src/streams/@main.js"
+    },
+    "./strings": {
+      "types": "./types/src/strings/@main.d.ts",
+      "default": "./src/strings/@main.js"
+    },
+    "./time": {
+      "types": "./types/src/time/@main.d.ts",
+      "default": "./src/time/@main.js"
+    },
+    "./urls": {
+      "types": "./types/src/urls/@main.d.ts",
+      "default": "./src/urls/@main.js"
     }
   },
   "scripts": {
@@ -51,7 +91,8 @@
     "solid-js": "1.x"
   },
   "peerDependencies": {
-    "@babel/core": "7.x"
+    "@babel/core": "7.x",
+    "colorjs.io": "^0.4.5"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
