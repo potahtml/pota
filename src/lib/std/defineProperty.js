@@ -14,6 +14,6 @@ const defaults = {
  */
 export const defineProperty = (target, key, descriptor) =>
 	define(target, key, {
-		...descriptor,
 		...defaults,
+		...descriptor,
 	})
