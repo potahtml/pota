@@ -43,36 +43,36 @@
       "default": "./src/lib/*"
     },
     "./color": {
-      "types": "./types/src/color/@main.d.ts",
-      "default": "./src/color/@main.js"
+      "types": "./types/src/lib/color/@main.d.ts",
+      "default": "./src/lib/color/@main.js"
     },
     "./events": {
-      "types": "./types/src/events/@main.d.ts",
-      "default": "./src/events/@main.js"
+      "types": "./types/src/lib/events/@main.d.ts",
+      "default": "./src/lib/events/@main.js"
     },
     "./random": {
-      "types": "./types/src/random/@main.d.ts",
-      "default": "./src/random/@main.js"
+      "types": "./types/src/lib/random/@main.d.ts",
+      "default": "./src/lib/random/@main.js"
     },
     "./scroll": {
-      "types": "./types/src/scroll/@main.d.ts",
-      "default": "./src/scroll/@main.js"
+      "types": "./types/src/lib/scroll/@main.d.ts",
+      "default": "./src/lib/scroll/@main.js"
     },
     "./streams": {
-      "types": "./types/src/streams/@main.d.ts",
-      "default": "./src/streams/@main.js"
+      "types": "./types/src/lib/streams/@main.d.ts",
+      "default": "./src/lib/streams/@main.js"
     },
     "./strings": {
-      "types": "./types/src/strings/@main.d.ts",
-      "default": "./src/strings/@main.js"
+      "types": "./types/src/lib/strings/@main.d.ts",
+      "default": "./src/lib/strings/@main.js"
     },
     "./time": {
-      "types": "./types/src/time/@main.d.ts",
-      "default": "./src/time/@main.js"
+      "types": "./types/src/lib/time/@main.d.ts",
+      "default": "./src/lib/time/@main.js"
     },
     "./urls": {
-      "types": "./types/src/urls/@main.d.ts",
-      "default": "./src/urls/@main.js"
+      "types": "./types/src/lib/urls/@main.d.ts",
+      "default": "./src/lib/urls/@main.js"
     }
   },
   "scripts": {
