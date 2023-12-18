@@ -75,7 +75,7 @@ export function setNodeProp(node, name, value, ns) {
  */
 function _setNodeProp(node, name, value, ns) {
 	// set as property when boolean
-	if (typeof value === 'boolean') {
+	if (typeof value === 'boolean' && !name.startsWith('data-')) {
 		_setNodeProperty(node, name, value)
 	} else {
 		// fallback to attribute when unknown
