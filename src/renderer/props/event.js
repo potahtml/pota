@@ -99,10 +99,13 @@ export function addEventListener(
 		if (handlers.length === 0) {
 			node.addEventListener(type, eventHandlerNative)
 		}
-		cleanup(() => {
-			removeEventListener(node, type, handler, delegated, false)
-		})
 	}
+
+	// remove event on cleanup
+	cleanup(() => {
+		removeEventListener(node, type, handler, delegated, false)
+	})
+
 	// handler may be already in use
 	if (handler[$meta] === undefined)
 		handler[$meta] = isArray(handler) ? handler : [handler]

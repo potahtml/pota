@@ -210,10 +210,10 @@ function createTag(tagName, props, scope) {
 	const ns = props.xmlns
 		? props.xmlns // the prop contains the namespace
 		: parentNode.namespaceURI && parentNode.namespaceURI !== NS.html // this works on first run
-		? parentNode.namespaceURI // the parent contains the namespace
-		: scope.parent?.namespaceURI // used after the first run, once reactivity takes over
-		? scope.parent.namespaceURI // the parent contains the namespace
-		: NS[tagName] // special case svg, math in case of missing xmlns attribute
+		  ? parentNode.namespaceURI // the parent contains the namespace
+		  : scope.parent?.namespaceURI // used after the first run, once reactivity takes over
+		    ? scope.parent.namespaceURI // the parent contains the namespace
+		    : NS[tagName] // special case svg, math in case of missing xmlns attribute
 
 	return createNode(
 		ns ? createElementNS(ns, tagName) : createElement(tagName),
@@ -521,7 +521,7 @@ function insert(children, parent, options = empty()) {
 
 /** @param {Elements} node */
 function clearNode(node) {
-	// check for node existence to be able to use querySelector on yet to be created nodes
+	// todo: check for node existence to be able to use querySelector on yet to be created nodes
 	node.textContent = ''
 }
 
