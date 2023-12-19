@@ -12,7 +12,7 @@ export function validateColor(string) {
 			isNaN(color.coords[2])
 		) {
 		} else {
-			return color
+			return string
 		}
 	} catch (e) {}
 }
