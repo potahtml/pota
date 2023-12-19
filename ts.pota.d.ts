@@ -43,3 +43,7 @@ type Componenteable =
   | object
   | FunctionConstructor
   | Component
+
+type Mutable<T> = {
+  [K in keyof T]: T[K]
+}

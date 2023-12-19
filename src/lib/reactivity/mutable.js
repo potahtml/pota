@@ -4,8 +4,9 @@ import { signal } from './primitives/solid.js'
  * Creates setters and getter signals for the immediate properties
  * that are already defined in the object. Non-recursive.
  *
- * @param {{}} obj
- * @returns {{}}
+ * @template T
+ * @param {Mutable<T>} obj
+ * @returns {Mutable<T>}
  */
 export function mutable(obj) {
 	for (const key in obj) {
