@@ -110,7 +110,7 @@ export function addEventListener(
 	if (handler[$meta] === undefined)
 		handler[$meta] = isArray(handler) ? handler : [handler]
 
-	handlers.push(handler)
+	handlers.unshift(handler)
 
 	if (external)
 		return () => removeEventListener(node, type, handler, delegated)
