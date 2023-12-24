@@ -1,6 +1,5 @@
-export const randomBetween = (min, max) => {
-	const random = crypto.getRandomValues(new Uint32Array(1))[0]
-	return (
-		Math.floor((random / (0xffffffff + 1)) * (max - min + 1)) + min
-	)
+import { random } from './random.js'
+
+export const randomBetween = (min, max, generator = random) => {
+	return Math.floor(generator() * (max - min + 1)) + min
 }
