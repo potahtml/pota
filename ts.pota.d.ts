@@ -47,3 +47,5 @@ type Componenteable =
 type Mutable<T> = {
   [K in keyof T]: T[K]
 }
+
+type FunctionT<T> = T

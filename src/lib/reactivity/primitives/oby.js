@@ -80,11 +80,16 @@ export const effect = fn => {
 export const batch = fn => _batch(fn)
 
 /**
- * Runs a callback on cleanup
+ * Runs a callback on cleanup, returns callback
  *
- * @param {Function} fn
+ * @template T
+ * @param {FunctionT<T>} fn
+ * @returns {FunctionT<T>}
  */
-export const cleanup = fn => _cleanup(fn)
+export const cleanup = fn => {
+	_cleanup(fn)
+	return fn
+}
 
 /**
  * Disables tracking for a function
