@@ -45,6 +45,8 @@ export const signal = (initialValue, options) => {
  */
 export const memo = fn => markReactive(_memo(fn))
 
+export { memo as lazyMemo }
+
 /**
  * Creates a new root
  *
@@ -136,25 +138,6 @@ export function Context(defaultValue = {}) {
 	}
 
 	return Context
-}
-
-/**
- * Lazy version of `memo`, it will run the function only when used
- *
- * @author Fabio Spampinato
- * @param {Function} fn - Function to re-run when dependencies change
- * @returns {Signal}
- */
-export function lazyMemo(fn) {
-	const [sleeping, setSleeping] = signal(true)
-	const m = memo(() => {
-		if (sleeping()) return
-		return fn()
-	})
-	return markReactive(() => {
-		setSleeping(false)
-		return m()
-	})
 }
 
 /**
