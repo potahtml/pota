@@ -201,3 +201,21 @@ function eventDispatch(node, handlers, e) {
 		if (e.cancelBubble) break
 	}
 }
+
+/**
+ * @param {Elements} node
+ * @param {string} name
+ * @param {Function} value
+ * @param {object} props
+ */
+export function bindValue(node, name, value, props) {
+	// set initial value
+	node.value === undefined
+		? (node.textContent = value())
+		: (node.value = value())
+
+	// listen for changes
+	addEventListener(node, 'input', e => {
+		value(node.value === undefined ? node.textContent : node.value)
+	})
+}

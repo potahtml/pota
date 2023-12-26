@@ -53,6 +53,7 @@ export {
 	// reactivity
 	context,
 	ref,
+	bind,
 	lazy,
 } from './renderer/@main.js'
 

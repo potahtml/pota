@@ -690,13 +690,24 @@ function unwrap(children) {
 }
 
 /**
- * To set and read refs
+ * To set and read refs. To use in ref attribute.
  *
  * @returns {Signal}
  */
 export function ref() {
 	const [read, write] = signal()
 	return v => (v ? write(v) : read())
+}
+
+/**
+ * To use in bind attribute.
+ *
+ * @param {any} value? - Initial value
+ * @returns {Signal}
+ */
+export function bind(value = '') {
+	const [read, write] = signal(value)
+	return v => (v !== undefined ? write(v) : read())
 }
 
 /**
