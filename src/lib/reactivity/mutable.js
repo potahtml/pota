@@ -5,8 +5,8 @@ import { signal } from './primitives/solid.js'
  * that are already defined in the object. Non-recursive.
  *
  * @template T
- * @param {Mutable<T>} obj
- * @returns {Mutable<T>}
+ * @param {GenericObject<T>} obj
+ * @returns {GenericObject<T>}
  */
 export function mutable(obj) {
 	for (const key in obj) {

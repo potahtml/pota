@@ -44,8 +44,8 @@ type Componenteable =
   | FunctionConstructor
   | Component
 
-type Mutable<T> = {
+type GenericObject<T> = {
   [K in keyof T]: T[K]
 }
 
-type FunctionT<T> = T
+type Generic<T> = T

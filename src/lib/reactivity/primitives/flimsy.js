@@ -86,8 +86,8 @@ export const batch = fn => _batch(fn)
  * Runs a callback on cleanup, returns callback
  *
  * @template T
- * @param {FunctionT<T>} fn
- * @returns {FunctionT<T>}
+ * @param {Generic<T>} fn
+ * @returns {Generic<T>}
  */
 export const cleanup = fn => {
 	onCleanup(fn)
