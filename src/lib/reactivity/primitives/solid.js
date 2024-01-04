@@ -55,7 +55,7 @@ export const memo = fn => markReactive(createMemo(fn))
  * @param {(dispose: Function) => any} fn
  * @returns {unknown}
  */
-export const root = fn => createRoot(fn)
+export const root = fn => createRoot(dispose => fn(dispose))
 
 /**
  * Creates a renderEffect

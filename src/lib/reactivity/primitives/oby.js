@@ -53,7 +53,7 @@ export { memo as lazyMemo }
  * @param {(dispose: Function) => any} fn
  * @returns {unknown}
  */
-export const root = fn => _root(fn)
+export const root = fn => _root(dispose => fn(dispose))
 
 /**
  * Creates a renderEffect

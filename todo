@@ -6,6 +6,7 @@ TODO:
 	Documentation:
 	- usage
  	- directory
+ 	- 404 no index
 
  	Improvements:
  	- divide stuff in packages
@@ -13,6 +14,7 @@ TODO:
 
 	Reactivity:
 	- flimsy is broken for some reason
+	- abstract equals param on signals
 
 BUGS:
 
