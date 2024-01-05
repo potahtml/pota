@@ -23,6 +23,7 @@ export {
 } from './lib/reactivity/primitives/solid.js'
 
 export { mutable } from './lib/reactivity/mutable.js'
+export { mutableDeep } from './lib/reactivity/mutableDeep.js'
 
 // REACTIVITY UTILS
 
