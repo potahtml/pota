@@ -66,6 +66,10 @@
       "types": "./types/src/lib/strings/@main.d.ts",
       "default": "./src/lib/strings/@main.js"
     },
+    "./test": {
+      "types": "./types/src/lib/test/@main.d.ts",
+      "default": "./src/lib/test/@main.js"
+    },
     "./time": {
       "types": "./types/src/lib/time/@main.d.ts",
       "default": "./src/lib/time/@main.js"

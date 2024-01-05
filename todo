@@ -8,6 +8,10 @@ TODO:
  	- directory
  	- 404 no index
 
+ 	Playground
+ 	- import map
+ 	- switch reactive library
+
  	Improvements:
  	- divide stuff in packages
  	- source map is broken for playground
@@ -15,6 +19,7 @@ TODO:
 	Reactivity:
 	- flimsy is broken for some reason
 	- abstract equals param on signals
+	- abstract functions are parameters to signals
 
 BUGS:
 
