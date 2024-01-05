@@ -1,5 +1,9 @@
 TODO:
 
+	TO BE DECIDED:
+	- to remove delegated events
+	- difference between propsPlugin and propsPluginNS
+
 	Documentation:
 	- light theme
 
@@ -20,6 +24,7 @@ TODO:
 	- flimsy is broken for some reason
 	- abstract equals param on signals
 	- abstract functions are parameters to signals
+	- add maverick https://github.com/maverick-js/signals
 
 BUGS:
 

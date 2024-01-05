@@ -66,6 +66,18 @@ function setNodeStyle(style, value) {
 		return
 	}
 }
+
+/**
+ * @param {Elements} node
+ * @param {string} name
+ * @param {unknown} value
+ */
+function setNodeStyleValue2(node, name, value) {
+	setNodeStyleValue(node.style, name, value)
+}
+
+export { setNodeStyleValue2 as setNodeStyle }
+
 /**
  * @param {CSSStyleDeclaration} style
  * @param {string} name

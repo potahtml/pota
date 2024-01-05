@@ -146,3 +146,10 @@ export function assignProps(node, props) {
 		setNodeProp(node, name, value, ns)
 	}
 }
+
+export {
+	setNodeProperty,
+	setNodeAttribute,
+} from './attribute-property.js'
+
+export { setNodeStyle } from './style.js'

@@ -72,7 +72,14 @@ export {
 
 // PROPS
 
-export { propsPlugin, propsPluginNS } from './renderer/props/@main.js'
+export {
+	propsPlugin,
+	propsPluginNS,
+	setNodeAttribute,
+	setNodeProperty,
+	setNodeStyle,
+} from './renderer/props/@main.js'
+
 export { propsSplit } from './renderer/props/propsSplit.js'
 
 // LIB

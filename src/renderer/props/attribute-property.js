@@ -91,7 +91,7 @@ function _setNodeProp(node, name, value, ns) {
  * @param {string} name
  * @param {unknown} value
  */
-function setNodeProperty(node, name, value) {
+export function setNodeProperty(node, name, value) {
 	if (isFunction(value)) {
 		effect(() => {
 			_setNodeProperty(node, name, getValue(value))
@@ -100,6 +100,7 @@ function setNodeProperty(node, name, value) {
 		_setNodeProperty(node, name, value)
 	}
 }
+
 /**
  * @param {Elements} node
  * @param {string} name
@@ -122,7 +123,7 @@ function _setNodeProperty(node, name, value) {
  * @param {unknown} value
  * @param {string} [ns]
  */
-function setNodeAttribute(node, name, value, ns) {
+export function setNodeAttribute(node, name, value, ns) {
 	if (isFunction(value)) {
 		effect(() => {
 			_setNodeAttribute(node, name, getValue(value), ns)
@@ -131,6 +132,7 @@ function setNodeAttribute(node, name, value, ns) {
 		_setNodeAttribute(node, name, value, ns)
 	}
 }
+
 /**
  * @param {Elements} node
  * @param {string} name
