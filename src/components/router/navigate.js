@@ -16,20 +16,27 @@ import { canNavigate } from './useBeforeLeave.js'
 export async function navigate(href, options = empty()) {
 	if (window.location.href !== href) {
 		if (await canNavigate(href)) {
-			if (options.replace) {
-				window.history.replaceState(null, '', href)
-			} else {
-				window.history.pushState(null, '', href)
-			}
-			setLocation(window.location)
-
-			if (optional(options.scroll)) {
-				scrollToSelectorWithFallback(window.location.hash)
-			}
+			const fn = () => navigateInternal(href, options)
+			// navigate with transition if available
+			document.startViewTransition
+				? document.startViewTransition(fn)
+				: fn()
 		}
 	}
 }
 
+function navigateInternal(href, options) {
+	if (options.replace) {
+		window.history.replaceState(null, '', href)
+	} else {
+		window.history.pushState(null, '', href)
+	}
+	setLocation(window.location)
+
+	if (optional(options.scroll)) {
+		scrollToSelectorWithFallback(window.location.hash)
+	}
+}
 /**
  * Navigates to a new location programmatically
  *
