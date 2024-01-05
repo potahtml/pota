@@ -91,5 +91,13 @@ function pass(expected, value, equals) {
 }
 
 function error(...args) {
-	console.error(describeTitle + ' -> ' + testTitle + '\n', ...args)
+	console.error(
+		'\x1b[31m' +
+			describeTitle +
+			' -> ' +
+			testTitle +
+			'\n' +
+			'\x1b[0m',
+		...args,
+	)
 }
