@@ -81,18 +81,8 @@ propsPluginNS('ref', setOnMount)
 
 // events
 
-import {
-	eventName,
-	setEventNS,
-	addEventListener,
-	bindValue,
-} from './event.js'
+import { eventName, setEventNS, addEventListener } from './event.js'
 propsPluginNS('on', setEventNS)
-
-// bind
-
-propsPlugin('bind', bindValue)
-propsPluginNS('bind', bindValue)
 
 // catch all
 

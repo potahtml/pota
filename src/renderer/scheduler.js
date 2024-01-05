@@ -1,4 +1,4 @@
-import { call } from '../lib/std/@main.js'
+import { call, microtask } from '../lib/std/@main.js'
 
 /**
  * The purpose of this file is to guarantee the timing of some
@@ -48,7 +48,7 @@ function add(priority, fn) {
 function enqueue() {
 	if (!added) {
 		added = true
-		queueMicrotask(run)
+		microtask(run)
 	}
 }
 /** Runs all queued callbacks */

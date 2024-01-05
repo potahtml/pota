@@ -13,7 +13,7 @@ import {
 
 // CONSTANTS
 
-import { $map, $meta, NS } from '../constants.js'
+import { $default, $map, $meta, NS } from '../constants.js'
 
 // LIB
 
@@ -210,10 +210,10 @@ function createTag(tagName, props, scope) {
 	const ns = props.xmlns
 		? props.xmlns // the prop contains the namespace
 		: parentNode.namespaceURI && parentNode.namespaceURI !== NS.html // this works on first run
-		  ? parentNode.namespaceURI // the parent contains the namespace
-		  : scope.parent?.namespaceURI // used after the first run, once reactivity takes over
-		    ? scope.parent.namespaceURI // the parent contains the namespace
-		    : NS[tagName] // special case svg, math in case of missing xmlns attribute
+			? parentNode.namespaceURI // the parent contains the namespace
+			: scope.parent?.namespaceURI // used after the first run, once reactivity takes over
+				? scope.parent.namespaceURI // the parent contains the namespace
+				: NS[tagName] // special case svg, math in case of missing xmlns attribute
 
 	return createNode(
 		ns ? createElementNS(ns, tagName) : createElement(tagName),
@@ -389,7 +389,7 @@ function createChildren(parent, child, relative) {
 				'toString' in child
 					? child.toString()
 					: // object.create(null) would fail to convert to string
-					  JSON.stringify(child),
+						JSON.stringify(child),
 				relative,
 			)
 		}
@@ -697,17 +697,6 @@ function unwrap(children) {
 export function ref() {
 	const [read, write] = signal()
 	return v => (v ? write(v) : read())
-}
-
-/**
- * To use in bind attribute.
- *
- * @param {any} value? - Initial value
- * @returns {Signal}
- */
-export function bind(value = '') {
-	const [read, write] = signal(value)
-	return v => (v !== undefined ? write(v) : read())
 }
 
 /**

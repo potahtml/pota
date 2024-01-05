@@ -1,29 +1,27 @@
 TODO:
 
 	TO BE DECIDED:
-	- to remove delegated events
-	- difference between propsPlugin and propsPluginNS
+	- avoid making a difference between delegated events
+	- avoid making a difference between propsPlugin and propsPluginNS
 
 	Documentation:
 	- light theme
 
 	Documentation:
 	- usage
- 	- directory
- 	- 404 no index
+ 	- improve directory
 
  	Playground
  	- import map
  	- switch reactive library
 
  	Improvements:
- 	- divide stuff in packages
+ 	- move selector to lib
  	- source map is broken for playground
 
 	Reactivity:
 	- flimsy is broken for some reason
 	- abstract equals param on signals
-	- abstract functions are parameters to signals
 	- add maverick https://github.com/maverick-js/signals
 
 BUGS:
@@ -44,7 +42,6 @@ FUTURE FEATURES:
 	- provide fallback for collapse
 
 	Router:
-	- support setting a viewTransition for "navigate" onLinkClick
 	- make the `path` reactive
 
 	Compiler:
