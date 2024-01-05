@@ -1,4 +1,4 @@
-import { isFunction } from '../../lib/exports.js'
+import { isFunction } from '../../lib/std/isFunction.js'
 import {
 	signal,
 	withOwner,
