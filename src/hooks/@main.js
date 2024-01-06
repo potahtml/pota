@@ -1,1 +1,1 @@
-export { selector } from './selector.js'
+export { useSelector } from './useSelector.js'

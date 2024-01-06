@@ -3,6 +3,11 @@
   "description": "pota is a small and pluggable Reactive Web Renderer for Reactive Libraries.",
   "version": "0.4.18",
   "author": "Tito Bouzout",
+  "homepage": "https://pota.quack.uy/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/potaorg/pota"
+  },
   "type": "module",
   "types": "./ts.pota.d.ts",
   "main": "./src/exports.js",
@@ -31,8 +36,8 @@
       "default": "./src/hooks/@main.js"
     },
     "./hooks/*": {
-      "types": "./types/src/hooks/*",
-      "default": "./src/hooks/*"
+      "types": "./types/src/hooks/*.d.ts",
+      "default": "./src/hooks/*.js"
     },
     "./plugins": {
       "types": "./types/src/plugins/@main.d.ts",
@@ -45,10 +50,6 @@
     "./lib": {
       "types": "./types/src/lib/exports.d.ts",
       "default": "./src/lib/exports.js"
-    },
-    "./lib/*": {
-      "types": "./types/src/lib/*",
-      "default": "./src/lib/*"
     },
     "./color": {
       "types": "./types/src/lib/color/@main.d.ts",
@@ -111,14 +112,8 @@
     "typescript": "^5.2.2",
     "rollup": "^4.1.4",
     "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-json": "^6.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4"
-  },
-  "homepage": "https://pota.quack.uy/",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/potaorg/pota"
   },
   "prettier": {
     "printWidth": 70,

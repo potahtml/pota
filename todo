@@ -1,9 +1,5 @@
 TODO:
 
-	TO BE DECIDED:
-	- avoid making a difference between delegated events
-	- avoid making a difference between propsPlugin and propsPluginNS
-
 	Documentation:
 	- light theme
 
@@ -16,8 +12,7 @@ TODO:
  	- switch reactive library
 
  	Improvements:
- 	- move selector to lib
- 	- source map is broken for playground
+  	- source map is broken for playground
 
 	Reactivity:
 	- flimsy is broken for some reason

@@ -5,14 +5,14 @@ import {
 } from '../lib/reactivity/primitives/solid.js'
 
 /**
- * Returns a function that will return true when the argument for it
- * matches the original signal `value`.
+ * Returns a `isSelected`function that will return true when the
+ * argument for it matches the original signal `value`.
  *
  * @param {Signal} value - Signal with the current value
  * @returns {(item: any) => Signal} Signal that you can run with a
  *   value to know if matches the original signal
  */
-export function selector(value) {
+export function useSelector(value) {
 	const map = new Map()
 
 	let prev

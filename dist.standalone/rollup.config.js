@@ -6,7 +6,6 @@
  */
 
 import babel from '@rollup/plugin-babel'
-import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 
@@ -20,7 +19,6 @@ export default [
   {
     input: './pota.standalone.template.js',
     plugins: [
-      json(),
       resolve({}),
       babel({
         babelHelpers: 'bundled',

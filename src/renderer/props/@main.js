@@ -138,8 +138,8 @@ export function assignProps(node, props) {
 }
 
 export {
-	setNodeProperty,
-	setNodeAttribute,
+	setNodeProperty as setElementProperty,
+	setNodeAttribute as setElementAttribute,
 } from './attribute-property.js'
 
-export { setNodeStyle } from './style.js'
+export { setElementStyle } from './style.js'

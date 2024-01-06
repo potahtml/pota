@@ -1,10 +1,6 @@
 // VERSION
 
-/*
-	importing from json gives problems with node
-	import pkg from '../package.json'
-	export const version = pkg.version
-*/
+export { version } from '../version.js'
 
 // REACTIVITY
 
@@ -75,9 +71,9 @@ export {
 export {
 	propsPlugin,
 	propsPluginNS,
-	setNodeAttribute,
-	setNodeProperty,
-	setNodeStyle,
+	setElementAttribute,
+	setElementProperty,
+	setElementStyle,
 } from './renderer/props/@main.js'
 
 export { propsSplit } from './renderer/props/propsSplit.js'
