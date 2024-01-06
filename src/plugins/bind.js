@@ -43,9 +43,11 @@ function bindValue(node, name, value, props) {
 				break
 			}
 			default: {
-				node.value === undefined
-					? (node.textContent = value())
-					: (node.value = value())
+				if (node.isContentEditable) {
+					node.innerText = value()
+				} else {
+					node.value = value()
+				}
 			}
 		}
 	})
@@ -61,9 +63,7 @@ function bindValue(node, name, value, props) {
 				break
 			}
 			default: {
-				value(
-					node.value === undefined ? node.textContent : node.value,
-				)
+				value(node.isContentEditable ? node.innerText : node.value)
 			}
 		}
 	})
