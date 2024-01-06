@@ -13,7 +13,7 @@ import {
 
 // CONSTANTS
 
-import { $default, $map, $meta, NS } from '../constants.js'
+import { $map, $meta, NS } from '../constants.js'
 
 // LIB
 
@@ -449,6 +449,8 @@ function insertNode(parent, node, relative) {
 				querySelector('meta[property="' + node.property + '"]')
 		} else if (name === 'TITLE') {
 			prev = querySelector('title')
+		} else if (name === 'LINK' && node.rel === 'canonical') {
+			prev = querySelector('link[rel="canonical"]')
 		}
 
 		// replace old node if there's any
