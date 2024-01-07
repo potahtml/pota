@@ -21,7 +21,15 @@ export {
 export { mutable } from './lib/reactivity/mutable.js'
 export { mutableDeep } from './lib/reactivity/mutableDeep.js'
 
-// REACTIVITY UTILS
+export {
+	/**
+	 * To set and read refs. To use in ref attribute.
+	 *
+	 * @param {any} value? - Optional initial value
+	 * @returns {Signal}
+	 */
+	functionSignal as ref,
+} from './lib/reactivity/functionSignal.js'
 
 export { map } from './renderer/map.js'
 
@@ -49,7 +57,6 @@ export {
 
 	// reactivity
 	context,
-	ref,
 	lazy,
 } from './renderer/@main.js'
 

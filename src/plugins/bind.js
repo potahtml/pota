@@ -1,10 +1,6 @@
 // bind is a small helper for binding the value of an element to a signal
 // https://pota.quack.uy/props/bind
 
-import { $default } from '../constants.js'
-
-import { signal } from '../lib/reactivity/primitives/solid.js'
-
 import { microtask } from '../lib/std/microtask.js'
 import {
 	addEventListener,
@@ -12,16 +8,15 @@ import {
 	propsPluginNS,
 } from '../exports.js'
 
-/**
- * To use in bind attribute.
- *
- * @param {any} value? - Initial value
- * @returns {Signal}
- */
-export function bind(value) {
-	const [read, write] = signal(value)
-	return (v = $default) => (v !== $default ? write(v) : read())
-}
+export {
+	/**
+	 * To use in bind attribute on JSX elements.
+	 *
+	 * @param {any} value? - Initial value
+	 * @returns {Signal}
+	 */
+	functionSignal as bind,
+} from '../lib/reactivity/functionSignal.js'
 
 /**
  * @param {Elements} node

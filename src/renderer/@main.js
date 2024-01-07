@@ -704,15 +704,7 @@ function unwrap(children) {
 	return children
 }
 
-/**
- * To set and read refs. To use in ref attribute.
- *
- * @returns {Signal}
- */
-export function ref() {
-	const [read, write] = signal()
-	return v => (v ? write(v) : read())
-}
+
 
 /**
  * Returns a `Component` that has been lazy loaded and can be used as
