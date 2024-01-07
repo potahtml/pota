@@ -41,6 +41,7 @@ import {
 
 import { assignProps } from './props/@main.js'
 import { onFinally, onReady } from './scheduler.js'
+import { isReactive } from '../lib/reactivity/isReactive.js'
 
 // DOCUMENT
 
@@ -164,6 +165,18 @@ function Factory(value) {
 					})
 				break
 			}
+
+			/**
+			 * ```js
+			 * const [Count, setCount] = signal(1)
+			 * return <Count />
+			 * ```
+			 */
+			if (isReactive(value)) {
+				component = (props = empty(), scope = Scope()) => value
+				break
+			}
+
 			// a function component <MyComponent../>
 			component = (props = empty(), scope = Scope()) =>
 				untrack(() => value(props, scope))
