@@ -1,4 +1,4 @@
-import { empty, entries } from '../../lib/std/@main.js'
+import { empty, entries, microtask } from '../../lib/std/@main.js'
 
 const properties = empty()
 const propertiesNS = empty()
@@ -14,9 +14,15 @@ const propertiesNS = empty()
  * 	props: object,
  * ) => void} fn
  *   - Function to run when this prop is found on a JSX Element
+ *
+ * @param {boolean} [runOnMicrotask=true] - To avoid the problem of
+ *   needed props not being set, or children elements not created yet.
+ *   Default is `true`
  */
-export const propsPlugin = (propName, fn) => {
-	properties[propName] = fn
+export const propsPlugin = (propName, fn, runOnMicrotask = true) => {
+	properties[propName] = !runOnMicrotask
+		? fn
+		: (...args) => microtask(() => fn(...args))
 }
 
 /**
@@ -32,57 +38,63 @@ export const propsPlugin = (propName, fn) => {
  * 	ns: string,
  * ) => void} fn
  *   - Function to run when this prop is found on a JSX Element
+ *
+ * @param {boolean} [runOnMicrotask=true] - To avoid the problem of
+ *   needed props not being set, or children elements not created yet.
+ *   Default is `true`
  */
-export const propsPluginNS = (NSName, fn) => {
-	propertiesNS[NSName] = fn
+export const propsPluginNS = (NSName, fn, runOnMicrotask = true) => {
+	propertiesNS[NSName] = !runOnMicrotask
+		? fn
+		: (...args) => microtask(() => fn(...args))
 }
 
 // styles
 
 import { setStyle } from './style.js'
-propsPlugin('style', setStyle)
+propsPlugin('style', setStyle, false)
 
 import { setStyleNS, setVarNS } from './style.js'
-propsPluginNS('style', setStyleNS)
-propsPluginNS('var', setVarNS)
+propsPluginNS('style', setStyleNS, false)
+propsPluginNS('var', setVarNS, false)
 
 // class
 
 import { setClass } from './class.js'
-propsPlugin('class', setClass)
+propsPlugin('class', setClass, false)
 
 import { setClassNS } from './class.js'
-propsPluginNS('class', setClassNS)
+propsPluginNS('class', setClassNS, false)
 
 // properties
 
 import { setProp } from './attribute-property.js'
 ;['innerHTML', 'textContent', 'value', 'innerText'].forEach(item =>
-	propsPlugin(item, setProp),
+	propsPlugin(item, setProp, false),
 )
 
 import { setPropNS, setAttributeNS } from './attribute-property.js'
-propsPluginNS('prop', setPropNS)
-propsPluginNS('attr', setAttributeNS)
+propsPluginNS('prop', setPropNS, false)
+propsPluginNS('attr', setAttributeNS, false)
 
 // life-cycles
 
 import { setOnMount, setUnmount } from './lifecycles.js'
-propsPlugin('onMount', setOnMount)
-propsPlugin('onUnmount', setUnmount)
+propsPlugin('onMount', setOnMount, false)
+propsPlugin('onUnmount', setUnmount, false)
 
-propsPluginNS('onMount', setOnMount)
-propsPluginNS('onUnmount', setUnmount)
+propsPluginNS('onMount', setOnMount, false)
+propsPluginNS('onUnmount', setUnmount, false)
 
 // ref
 
-propsPlugin('ref', setOnMount)
-propsPluginNS('ref', setOnMount)
+propsPlugin('ref', setOnMount, false)
+propsPluginNS('ref', setOnMount, false)
 
 // events
 
 import { eventName, setEventNS, addEventListener } from './event.js'
-propsPluginNS('on', setEventNS)
+propsPluginNS('on', setEventNS, false)
 
 // catch all
 

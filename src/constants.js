@@ -6,6 +6,7 @@ export const $class = Symbol()
 export const $reactive = Symbol()
 export const $map = Symbol()
 export const $default = Symbol()
+export const $internal = Symbol()
 
 // supported namespaces
 

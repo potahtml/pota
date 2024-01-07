@@ -1,7 +1,6 @@
 // bind is a small helper for binding the value of an element to a signal
 // https://pota.quack.uy/props/bind
 
-import { microtask } from '../lib/std/microtask.js'
 import {
 	addEventListener,
 	propsPlugin,
@@ -25,27 +24,25 @@ export {
  * @param {object} props
  */
 function bindValue(node, name, value, props) {
-	// give time to the node to get a value from props
-	microtask(() => {
-		// set initial value
-		switch (node.type) {
-			case 'checkbox': {
-				node.checked = value()
-				break
-			}
-			case 'radio': {
-				node.checked = node.value == value()
-				break
-			}
-			default: {
-				if (node.isContentEditable) {
-					node.innerText = value()
-				} else {
-					node.value = value()
-				}
+	// set initial value
+	switch (node.type) {
+		case 'checkbox': {
+			node.checked = value()
+			break
+		}
+		case 'radio': {
+			node.checked = node.value == value()
+			break
+		}
+		default: {
+			if (node.isContentEditable) {
+				node.innerText = value()
+			} else {
+				node.value = value()
 			}
 		}
-	})
+	}
+
 	// listen for changes
 	addEventListener(node, 'input', e => {
 		switch (node.type) {

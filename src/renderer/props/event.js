@@ -48,7 +48,7 @@ export function eventName(name) {
 			console.warn(
 				'pota: warn:',
 				name,
-				'not found as an event listener',
+				'not found as an event listener on `window`',
 			)
 		}
 		EventNames[name] = null

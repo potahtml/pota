@@ -10,9 +10,7 @@ TODO:
  	Playground
  	- import map
  	- switch reactive library
-
- 	Improvements:
-  	- source map is broken for playground
+ 	- LSP
 
 	Reactivity:
 	- flimsy is broken for some reason
