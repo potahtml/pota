@@ -9,12 +9,6 @@ import babel from '@rollup/plugin-babel'
 import resolve from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 
-const outputOptions = {
-  format: 'es',
-  sourcemap: true,
-  sourcemapExcludeSources: true,
-}
-
 export default [
   {
     input: './pota.standalone.template.js',
@@ -28,7 +22,9 @@ export default [
     ],
     output: [
       {
-        ...outputOptions,
+        format: 'es',
+        sourcemap: 'inline',
+        sourcemapExcludeSources: false,
         file: '../dist/pota.standalone.js',
       },
     ],
