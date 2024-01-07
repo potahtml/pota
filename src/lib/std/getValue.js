@@ -3,7 +3,12 @@
  * returns the value
  *
  * @param {Function | any} value - Maybe function
+ * @param {...any} args? - Arguments
  * @returns {any}
  */
-export const getValue = value =>
-	typeof value === 'function' ? getValue(value()) : value
+export const getValue = (value, ...args) =>
+	typeof value === 'function'
+		? args.length
+			? getValue(value(...args))
+			: getValue(value())
+		: value
