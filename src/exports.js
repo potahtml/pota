@@ -44,7 +44,8 @@ export {
 	create,
 	customElement,
 	render,
-	template,
+	html,
+	html as template,
 	/**
 	 * Do not expose insert. As removal of the element on where you
 	 * inserted into, wont cause disposal of what you inserted.

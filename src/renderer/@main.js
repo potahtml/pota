@@ -26,6 +26,9 @@ import {
 	property,
 	removeFromArray,
 	isFunction,
+	assign,
+	entries,
+	getOwnPropertyNames,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -553,7 +556,7 @@ function clearNode(node) {
  * @param {...any} values
  * @returns {Children}
  */
-export function template(template, ...values) {
+export function html(template, ...values) {
 	let cached = Components.get(template)
 	if (!cached) {
 		cached = createElement('pota')
@@ -615,10 +618,32 @@ export function template(template, ...values) {
 		}
 	}
 
+	// replace user components
+	for (const [name, Component] of entries(html.userDefined)) {
+		// search for user component
+		for (const element of clone.querySelectorAll(name)) {
+			// get props
+			const props = empty()
+			for (const propName of getOwnPropertyNames(element)) {
+				props[propName] = element[propName]
+			}
+			props.children = toArray(element.childNodes)
+
+			// create component instance
+			const component = Component(props)
+
+			// replace
+			element.replaceWith(component)
+		}
+	}
 	// return a single element if possible to make it more easy to use
 	return clone.childNodes.length === 1
 		? clone.childNodes[0]
 		: toArray(clone.childNodes) // from NodeList to Array
+}
+html.userDefined = empty()
+html.register = function (Components) {
+	assign(html.userDefined, Components)
 }
 
 /**
@@ -703,8 +728,6 @@ function unwrap(children) {
 
 	return children
 }
-
-
 
 /**
  * Returns a `Component` that has been lazy loaded and can be used as
