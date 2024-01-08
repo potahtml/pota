@@ -26,9 +26,9 @@ import {
 	property,
 	removeFromArray,
 	isFunction,
-	assign,
 	entries,
 	getOwnPropertyNames,
+	keys,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -583,10 +583,9 @@ export function html(template, ...values) {
 	for (let i = 0; i < replace.snapshotLength; i++) {
 		nodes.push(replace.snapshotItem(i))
 	}
-	let index = 0
 
 	const insertOptions = { relative: true }
-
+	let index = 0
 	for (const node of nodes) {
 		if (node.localName === 'pota') {
 			// replace full node
@@ -619,32 +618,37 @@ export function html(template, ...values) {
 	}
 
 	// replace user components
-	for (const [name, Component] of entries(html.userDefined)) {
+	if (html.search) {
 		// search for user component
-		for (const element of clone.querySelectorAll(name)) {
+		for (const element of clone.querySelectorAll(html.search)) {
 			// get props
 			const props = empty()
 			for (const propName of getOwnPropertyNames(element)) {
 				props[propName] = element[propName]
 			}
-
 			props.children = toArray(element.childNodes)
 
 			// create component instance
-			const component = Component(props)
+			const component = html.components[element.tagName](props)
 
-			// replace
+			// replace node, toHTML because components may return any kind of children
 			element.replaceWith(toHTML(component))
 		}
 	}
+
 	// return a single element if possible to make it more easy to use
 	return clone.childNodes.length === 1
 		? clone.childNodes[0]
 		: toArray(clone.childNodes) // from NodeList to Array
 }
-html.userDefined = empty()
-html.register = function (Components) {
-	assign(html.userDefined, Components)
+
+html.search = ''
+html.components = empty()
+html.register = components => {
+	for (const [name, component] of entries(components)) {
+		html.components[name.toUpperCase()] = component
+	}
+	html.search = keys(html.components).join(',')
 }
 
 /**
@@ -687,9 +691,12 @@ export function context(defaultValue = empty()) {
  * Creates and returns HTML Elements for `children`
  *
  * @param {Children} children
- * @returns {DocumentFragment}
+ * @returns {DocumentFragment | Node}
  */
 export function toHTML(children) {
+	if (children instanceof Node) {
+		return children
+	}
 	const fragment = createFragment()
 	createChildren(fragment, children)
 	return fragment // toArray(elements.childNodes)
