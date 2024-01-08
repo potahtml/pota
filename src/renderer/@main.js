@@ -584,23 +584,15 @@ export function html(template, ...values) {
 		nodes.push(replace.snapshotItem(i))
 	}
 
-	const insertOptions = { relative: true }
 	let index = 0
 	for (const node of nodes) {
 		if (node.localName === 'pota') {
 			// replace full node
 
 			const value = values[index++]
-			insert(
-				// `insert` creates components for things to insert.
-				// for nodes it will use `cloneNode`
-				// this will cause any event listener to be lost
-				// for this reason we wrap it on a function
-				value instanceof Node ? markComponent(() => value) : value,
-				node,
-				insertOptions,
-			)
-			node && node.remove()
+
+			// toHTML because components may return any kind of children
+			node.replaceWith(toHTML(value))
 		} else {
 			// replace attribute
 
