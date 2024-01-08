@@ -627,13 +627,14 @@ export function html(template, ...values) {
 			for (const propName of getOwnPropertyNames(element)) {
 				props[propName] = element[propName]
 			}
+
 			props.children = toArray(element.childNodes)
 
 			// create component instance
 			const component = Component(props)
 
 			// replace
-			element.replaceWith(component)
+			element.replaceWith(toHTML(component))
 		}
 	}
 	// return a single element if possible to make it more easy to use
