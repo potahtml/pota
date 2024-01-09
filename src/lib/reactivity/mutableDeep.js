@@ -8,10 +8,10 @@ import { isPrototypeProperty } from '../std/isPrototypeProperty.js'
  * Creates setters and getter signals for an object. Recursive.
  *
  * @template T
- * @param {GenericObject<T>} value
+ * @param {GenericObject<T> | Props} value
  * @returns {GenericObject<T>}
  */
-export function mutableDeep(value) {
+export function mutableDeep(value = empty()) {
 	// console.log('creating proxy for', value)
 	value = isExtensible(value) ? value : copy(value)
 	return getValue(value, typeof value)
