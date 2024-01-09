@@ -67,6 +67,16 @@ export { onReady } from './renderer/scheduler.js'
 
 export { Component } from './lib/comp/@main.js'
 
+// COMPONENTS UTILITIES
+
+// comp
+export { makeCallback } from './lib/comp/makeCallback.js'
+export { markComponent } from './lib/comp/markComponent.js'
+export { isComponent } from './lib/comp/isComponent.js'
+
+// reactivity
+export { isReactive } from './lib/reactivity/isReactive.js'
+
 // EVENTS
 
 export {

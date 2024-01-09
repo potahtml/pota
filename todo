@@ -4,7 +4,6 @@ TODO:
 	- light theme
 
 	Documentation:
-	- usage
  	- improve directory
 
  	Playground
@@ -18,7 +17,7 @@ TODO:
 	- add maverick https://github.com/maverick-js/signals
 
 	Miscellaneous:
- 	-
+ 	- provide a rollup template
 
 BUGS:
 

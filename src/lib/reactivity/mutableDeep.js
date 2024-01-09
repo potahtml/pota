@@ -2,6 +2,7 @@ import { empty } from '../std/empty.js'
 import { copy } from '../std/copy.js'
 import { isExtensible } from '../std/isExtensible.js'
 import { batch, signal } from './primitives/solid.js'
+import { isPrototypeProperty } from '../std/isPrototypeProperty.js'
 
 /**
  * Creates setters and getter signals for an object. Recursive.
@@ -36,8 +37,7 @@ function makeProxy(value) {
 // returns true for keys that shouldnt be transformed into getters/setters
 function keyInPrototype(target, key) {
 	return (
-		(key in target && !target.hasOwnProperty(key)) ||
-		cannotRedefine(target, key)
+		isPrototypeProperty(target, key) || cannotRedefine(target, key)
 	)
 }
 
@@ -111,7 +111,7 @@ const handler = {
 
 		// console.log('what 2')
 
-		// run functions in a batch to prevent malfunction on arrays
+		// run functions in a batch to prevent malfunction(lol) on arrays
 		if (type === 'function' && keyInPrototype(target, key)) {
 			return (...args) => {
 				return batch(() => Reflect.apply(target[key], proxy, args))

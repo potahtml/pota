@@ -48,8 +48,8 @@
       "default": "./src/plugins/*.js"
     },
     "./lib": {
-      "types": "./types/src/lib/exports.d.ts",
-      "default": "./src/lib/exports.js"
+      "types": "./types/src/lib/std/@main.d.ts",
+      "default": "./src/lib/std/@main.js"
     },
     "./color": {
       "types": "./types/src/lib/color/@main.d.ts",

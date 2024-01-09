@@ -1,3 +1,4 @@
 todo
 .gitignore
 node_modules
+release.bat
