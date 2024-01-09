@@ -1,5 +1,11 @@
 import { markReactive } from './markReactive.js'
-import { cleanup, effect, memo, signal } from './primitives/solid.js'
+import {
+  cleanup,
+  effect,
+  memo,
+  signal,
+  untrack,
+} from './primitives/solid.js'
 
 /**
  * Lazy and writable version of `memo`, its writable and will run the
@@ -14,7 +20,7 @@ export function writableMemo(fn) {
   const [value, setValue] = signal()
 
   const memoValue = memo(() => {
-    if (sleeping()) return
+    if (sleeping()) return untrack(value)
     return fn()
   })
 
@@ -24,10 +30,10 @@ export function writableMemo(fn) {
   })
 
   let reads = 0
-  let read = () => {
+  const read = () => {
     reads++
     setSleeping(false)
-    //  read = value
+
     cleanup(() => {
       if (--reads === 0) {
         setSleeping(true)
