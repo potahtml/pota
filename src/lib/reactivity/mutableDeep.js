@@ -1,4 +1,6 @@
 import { empty } from '../std/empty.js'
+import { copy } from '../std/copy.js'
+import { isExtensible } from '../std/isExtensible.js'
 import { batch, signal } from './primitives/solid.js'
 
 /**
@@ -10,6 +12,7 @@ import { batch, signal } from './primitives/solid.js'
  */
 export function mutableDeep(value) {
 	// console.log('creating proxy for', value)
+	value = isExtensible(value) ? value : copy(value)
 	return getValue(value, typeof value)
 }
 
