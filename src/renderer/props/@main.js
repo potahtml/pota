@@ -1,4 +1,5 @@
 import { empty, entries, microtask } from '../../lib/std/@main.js'
+import { withOwner } from '../../lib/reactivity/primitives/solid.js'
 
 const properties = empty()
 const propertiesNS = empty()
@@ -20,9 +21,13 @@ const propertiesNS = empty()
  *   Default is `true`
  */
 export const propsPlugin = (propName, fn, runOnMicrotask = true) => {
-	properties[propName] = !runOnMicrotask
-		? fn
-		: (...args) => microtask(() => fn(...args))
+	if (runOnMicrotask) {
+		const owned = withOwner()
+		properties[propName] = (...args) =>
+			microtask(() => owned(() => fn(...args)))
+	} else {
+		properties[propName] = fn
+	}
 }
 
 /**
@@ -44,9 +49,13 @@ export const propsPlugin = (propName, fn, runOnMicrotask = true) => {
  *   Default is `true`
  */
 export const propsPluginNS = (NSName, fn, runOnMicrotask = true) => {
-	propertiesNS[NSName] = !runOnMicrotask
-		? fn
-		: (...args) => microtask(() => fn(...args))
+	if (runOnMicrotask) {
+		const owned = withOwner()
+		propertiesNS[NSName] = (...args) =>
+			microtask(() => owned(() => fn(...args)))
+	} else {
+		propertiesNS[NSName] = fn
+	}
 }
 
 // styles
