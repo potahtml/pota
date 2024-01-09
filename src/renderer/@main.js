@@ -348,7 +348,7 @@ function createChildren(parent, child, relative) {
 				)
 			}
 
-			// Node
+			// Node/DocumentFragment
 			if (child instanceof Node) {
 				return insertNode(parent, child, relative)
 			}
@@ -557,11 +557,11 @@ function clearNode(node) {
  * @returns {Children}
  */
 export function html(template, ...values) {
-	let cached = Components.get(template)
+	let cached = html.cache.get(template)
 	if (!cached) {
 		cached = createElement('pota')
 		cached.innerHTML = template.join('<pota></pota>')
-		Components.set(template, cached)
+		html.cache.set(template, cached)
 	}
 
 	const clone = cached.cloneNode(true)
@@ -589,10 +589,8 @@ export function html(template, ...values) {
 		if (node.localName === 'pota') {
 			// replace full node
 
-			const value = values[index++]
-
 			// toHTML because components may return any kind of children
-			node.replaceWith(toHTML(value))
+			node.replaceWith(toHTML(values[index++]))
 		} else {
 			// replace attribute
 
@@ -602,6 +600,8 @@ export function html(template, ...values) {
 			const attributes = toArray(node.attributes).filter(
 				item => item.value === '<pota></pota>',
 			)
+
+			// replace attributes
 			for (const attr of attributes) {
 				node.removeAttribute(attr.name)
 				node[attr.name] = values[index++]
@@ -618,12 +618,13 @@ export function html(template, ...values) {
 			for (const propName of getOwnPropertyNames(element)) {
 				props[propName] = element[propName]
 			}
-			props.children = toArray(element.childNodes)
+			props.children = toArray(element.childNodes) // from NodeList to Array
 
 			// create component instance
 			const component = html.components[element.tagName](props)
 
-			// replace node, toHTML because components may return any kind of children
+			// replace node
+			// toHTML because components may return any kind of children
 			element.replaceWith(toHTML(component))
 		}
 	}
@@ -634,6 +635,7 @@ export function html(template, ...values) {
 		: toArray(clone.childNodes) // from NodeList to Array
 }
 
+html.cache = new WeakMap()
 html.search = ''
 html.components = empty()
 html.register = components => {
