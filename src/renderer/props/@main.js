@@ -21,13 +21,7 @@ const propertiesNS = empty()
  *   Default is `true`
  */
 export const propsPlugin = (propName, fn, runOnMicrotask = true) => {
-	if (runOnMicrotask) {
-		const owned = withOwner()
-		properties[propName] = (...args) =>
-			microtask(() => owned(() => fn(...args)))
-	} else {
-		properties[propName] = fn
-	}
+	plugin(properties, propName, fn, runOnMicrotask)
 }
 
 /**
@@ -49,13 +43,16 @@ export const propsPlugin = (propName, fn, runOnMicrotask = true) => {
  *   Default is `true`
  */
 export const propsPluginNS = (NSName, fn, runOnMicrotask = true) => {
-	if (runOnMicrotask) {
-		const owned = withOwner()
-		propertiesNS[NSName] = (...args) =>
-			microtask(() => owned(() => fn(...args)))
-	} else {
-		propertiesNS[NSName] = fn
-	}
+	plugin(propertiesNS, NSName, fn, runOnMicrotask)
+}
+
+const plugin = (object, name, fn, runOnMicrotask) => {
+	object[name] = !runOnMicrotask
+		? fn
+		: (...args) => {
+				const owned = withOwner()
+				microtask(() => owned(() => fn(...args)))
+			}
 }
 
 // styles
