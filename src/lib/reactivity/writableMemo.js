@@ -29,16 +29,9 @@ export function writableMemo(fn) {
     setValue(memoValue())
   })
 
-  let reads = 0
-  const read = () => {
-    reads++
+  let read = () => {
     setSleeping(false)
-
-    cleanup(() => {
-      if (--reads === 0) {
-        setSleeping(true)
-      }
-    })
+    read = value
     return value()
   }
 

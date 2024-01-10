@@ -1,8 +1,5 @@
 import { makeCallback } from '../../lib/comp/@main.js'
-import {
-	memo,
-	lazyMemo,
-} from '../../lib/reactivity/primitives/solid.js'
+import { memo } from '../../lib/reactivity/primitives/solid.js'
 import { resolve } from '../../renderer/@main.js'
 
 import { getValue, isNullUndefined } from '../../lib/std/@main.js'
@@ -24,7 +21,7 @@ export function Show(props) {
 	// needs resolve to avoid re-rendering
 	const fallback = isNullUndefined(props.fallback)
 		? null
-		: lazyMemo(() => resolve(props.fallback))
+		: memo(() => resolve(props.fallback))
 
 	return memo(() => {
 		const result = condition()

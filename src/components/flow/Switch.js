@@ -1,7 +1,4 @@
-import {
-  memo,
-  lazyMemo,
-} from '../../lib/reactivity/primitives/solid.js'
+import { memo } from '../../lib/reactivity/primitives/solid.js'
 import { resolve } from '../../renderer/@main.js'
 import { makeCallback } from '../../lib/comp/@main.js'
 import { getValue, isNullUndefined } from '../../lib/std/@main.js'
@@ -20,7 +17,7 @@ export function Switch(props) {
 
   const fallback = isNullUndefined(props.fallback)
     ? null
-    : lazyMemo(() => resolve(props.fallback))
+    : memo(() => resolve(props.fallback))
 
   const match = memo(() =>
     children().find(match => !!getValue(match.when)),

@@ -9,7 +9,6 @@ export {
 	cleanup as onCleanup,
 	cleanup,
 	effect,
-	lazyMemo,
 	memo,
 	renderEffect,
 	root,

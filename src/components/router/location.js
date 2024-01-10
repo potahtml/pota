@@ -2,7 +2,6 @@ import { origin } from '../../lib/urls/@main.js'
 import {
 	signal,
 	memo,
-	lazyMemo,
 } from '../../lib/reactivity/primitives/solid.js'
 import { assign, empty } from '../../lib/std/@main.js'
 
@@ -20,7 +19,7 @@ export { setLocation }
 // only trigger on what changed
 
 const pathname = memo(() => getLocation().pathname)
-const search = lazyMemo(() => getLocation().search)
+const search = memo(() => getLocation().search)
 const href = memo(() => getLocation().href)
 // http://location/# reports hash to be empty
 // http://location/ reports hash to be empty

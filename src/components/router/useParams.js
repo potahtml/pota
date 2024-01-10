@@ -2,7 +2,7 @@ import { proxy } from '../../lib/reactivity/@main.js'
 import { empty, entries } from '../../lib/std/@main.js'
 import {
 	signal,
-	lazyMemo,
+	memo,
 } from '../../lib/reactivity/primitives/solid.js'
 import { decodeURIComponent } from '../../lib/urls/@main.js'
 
@@ -10,7 +10,7 @@ const [getParams, setParams] = signal(() => empty())
 
 export { setParams }
 
-const params = lazyMemo(() => {
+const params = memo(() => {
 	const params = empty()
 	// `|| params` because when nothing is found the result is undefined
 	for (const [key, value] of entries(getParams()() || params)) {

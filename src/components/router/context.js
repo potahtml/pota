@@ -1,6 +1,6 @@
 import {
 	signal,
-	lazyMemo,
+	memo,
 } from '../../lib/reactivity/primitives/solid.js'
 import { empty, removeFromArray } from '../../lib/std/@main.js'
 import { context } from '../../renderer/@main.js'
@@ -29,7 +29,7 @@ export function create(props = empty()) {
 				return [...children]
 			})
 		},
-		noneMatch: lazyMemo(() => {
+		noneMatch: memo(() => {
 			return (
 				/**
 				 * If doesnt have siblings then is not a 404

@@ -47,7 +47,7 @@ export const signal = (initialValue, options) => {
  * @param {Function} fn - Function to re-run when dependencies change
  * @returns {Signal} - Read only signal
  */
-export const memo = fn => markReactive(createMemo(fn))
+const memo = fn => markReactive(createMemo(fn))
 
 /**
  * Creates a new root
@@ -157,17 +157,22 @@ export function Context(defaultValue = {}) {
  * @param {Function} fn - Function to re-run when dependencies change
  * @returns {Signal}
  */
-export function lazyMemo(fn) {
+function lazyMemo(fn) {
 	const [sleeping, setSleeping] = signal(true)
 	const m = memo(() => {
 		if (sleeping()) return
 		return fn()
 	})
-	return markReactive(() => {
+
+	let read = markReactive(() => {
 		setSleeping(false)
+		read = m
 		return m()
 	})
+	return read
 }
+
+export { lazyMemo as memo }
 
 /**
  * Returns a function on which you can pass functions to run with the
