@@ -131,6 +131,7 @@ export function create(value) {
 }
 
 export const Components = new Map()
+
 // clear the cache after each run
 onFinally(() => Components.clear())
 
@@ -640,7 +641,7 @@ html.search = ''
 html.components = empty()
 html.register = components => {
 	for (const [name, component] of entries(components)) {
-		html.components[name.toUpperCase()] = component
+		html.components[name.toUpperCase()] = create(component)
 	}
 	html.search = keys(html.components).join(',')
 }
