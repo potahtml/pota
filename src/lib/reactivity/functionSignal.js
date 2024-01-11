@@ -1,4 +1,3 @@
-import { $default } from '../../constants.js'
 import { signal } from './primitives/solid.js'
 
 /**
@@ -10,5 +9,5 @@ import { signal } from './primitives/solid.js'
  */
 export function functionSignal(value) {
 	const [read, write] = signal(value)
-	return (v = $default) => (v !== $default ? write(v) : read())
+	return (...args) => (args.length ? write(args[0]) : read())
 }
