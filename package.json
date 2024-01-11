@@ -55,6 +55,10 @@
       "types": "./types/src/lib/color/@main.d.ts",
       "default": "./src/lib/color/@main.js"
     },
+    "./data": {
+      "types": "./types/src/lib/data/@main.d.ts",
+      "default": "./src/lib/data/@main.js"
+    },
     "./events": {
       "types": "./types/src/lib/events/@main.d.ts",
       "default": "./src/lib/events/@main.js"
