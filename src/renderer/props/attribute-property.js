@@ -8,6 +8,7 @@ import {
 } from '../../lib/std/@main.js'
 
 import { NS } from '../../constants.js'
+import { dispatchNativeEvent } from '../../lib/events/dispatchNativeEvent.js'
 
 // PROP
 
@@ -112,6 +113,9 @@ function _setNodeProperty(node, name, value) {
 		delete node[name]
 	} else {
 		node[name] = value
+		if (name === 'value') {
+			dispatchNativeEvent('input'), dispatchNativeEvent('change')
+		}
 	}
 }
 
