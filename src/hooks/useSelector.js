@@ -1,8 +1,4 @@
-import {
-	cleanup,
-	effect,
-	signal,
-} from '../lib/reactivity/primitives/solid.js'
+import { effect, signal } from '../lib/reactivity/primitives/solid.js'
 
 /**
  * Returns a `isSelected`function that will return true when the
@@ -29,8 +25,6 @@ export function useSelector(value) {
 		prev = selected
 	})
 
-	const defaultValue = value()
-
 	/**
 	 * Is selected function, it will return true when the value matches
 	 * the current signal
@@ -40,11 +34,7 @@ export function useSelector(value) {
 	 */
 	return function isSelected(item) {
 		if (!map.has(item)) {
-			// todo: is this cleaning earlier than it should do?
-			// when isSelected is used in many places, and 1 gets disposed
-			cleanup(() => map.delete(item))
-
-			const [read, write] = signal(item === defaultValue)
+			const [read, write] = signal(item === value())
 			map.set(item, {
 				read,
 				write,
