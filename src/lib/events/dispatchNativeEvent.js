@@ -1,5 +1,10 @@
+/**
+ * @param {Elements} node
+ * @param {string} eventName
+ * @param {any} [data]
+ */
 export const dispatchNativeEvent = (
 	node,
-	event,
+	eventName,
 	data = { bubbles: true },
-) => node.dispatchEvent(new Event(event, data))
+) => node.dispatchEvent(new Event(eventName, data))

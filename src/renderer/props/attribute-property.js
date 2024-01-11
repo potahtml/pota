@@ -114,7 +114,8 @@ function _setNodeProperty(node, name, value) {
 	} else {
 		node[name] = value
 		if (name === 'value') {
-			dispatchNativeEvent('input'), dispatchNativeEvent('change')
+			dispatchNativeEvent(node, 'input'),
+				dispatchNativeEvent(node, 'change')
 		}
 	}
 }
