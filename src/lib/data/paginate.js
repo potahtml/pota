@@ -56,14 +56,15 @@ export function paginate(fetch, options) {
 	const [page, pageSet] = signal(0)
 
 	const totalPages = memo(() => {
-		const pages =
-			(getValue(options.numItems) / getValue(options.numPerPage)) | 0
+		const pages = Math.ceil(
+			getValue(options.numItems) / getValue(options.numPerPage),
+		)
 		if (page() > pages) pageSet(pages)
 		return pages
 	})
 
 	const hasPrevious = () => page() !== 0
-	const hasNext = () => page() !== totalPages()
+	const hasNext = () => page() + 1 < totalPages()
 
 	return {
 		items: memo(() => {
