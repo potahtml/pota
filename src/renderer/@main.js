@@ -592,14 +592,6 @@ export function html(template, ...values) {
 		if (node.localName === 'pota') {
 			// replace full node
 
-			/**
-			 * `create` is needed to `untrack` component bodies. `create`
-			 * will `cloneNode` when is a `Node`, avoid that for this
-			 * functionality.
-			 *
-			 * `toHTML` because components may return any kind of children
-			 */
-
 			const value = values[index++]
 
 			untrack(() => {
@@ -626,6 +618,10 @@ export function html(template, ...values) {
 					defineProperty(parent, 'children', { value })
 					node.remove()
 				} else {
+					/**
+					 * `toHTML` because components may return any kind of
+					 * children
+					 */
 					node.replaceWith(toHTML(value))
 				}
 			})
