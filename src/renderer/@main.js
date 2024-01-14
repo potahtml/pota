@@ -643,7 +643,9 @@ export function html(template, ...values) {
 			 */
 			props.children = element.childNodes.length
 				? toArray(element.childNodes) // from NodeList to Array
-				: props.children || null
+				: props.children !== undefined
+					? props.children
+					: null
 
 			// create component instance
 			const component = html.components[element.tagName](props)
