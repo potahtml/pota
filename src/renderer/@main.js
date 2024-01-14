@@ -560,12 +560,14 @@ function clearNode(node) {
 export function html(template, ...values) {
 	let cached = html.cache.get(template)
 	if (!cached) {
-		cached = createElement('pota')
-		cached.innerHTML = template.join('<pota></pota>')
+		untrack(() => {
+			cached = createElement('pota')
+			cached.innerHTML = template.join('<pota></pota>')
+		})
 		html.cache.set(template, cached)
 	}
 
-	const clone = cached.cloneNode(true)
+	const clone = untrack(() => cached.cloneNode(true))
 
 	// it searches all nodes with our attribute wildcard OR nodes with our name
 	const replace = document.evaluate(
@@ -595,8 +597,10 @@ export function html(template, ...values) {
 			// `create` will cloneNode when is a Node, avoid that for this functionality
 			// toHTML because components may return any kind of children
 
-			node.replaceWith(
-				toHTML(val instanceof Node ? val : create(val)),
+			untrack(() =>
+				node.replaceWith(
+					toHTML(val instanceof Node ? val : create(val)),
+				),
 			)
 		} else {
 			// replace attribute
@@ -625,6 +629,7 @@ export function html(template, ...values) {
 			for (const propName of getOwnPropertyNames(element)) {
 				props[propName] = element[propName]
 			}
+
 			props.children = toArray(element.childNodes) // from NodeList to Array
 
 			// create component instance
@@ -632,7 +637,7 @@ export function html(template, ...values) {
 
 			// replace node
 			// toHTML because components may return any kind of children
-			element.replaceWith(toHTML(component))
+			untrack(() => element.replaceWith(toHTML(component)))
 		}
 	}
 
