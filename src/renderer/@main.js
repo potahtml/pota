@@ -378,7 +378,7 @@ function createChildren(parent, child, relative) {
 			}
 
 			// async components
-			if (child.then) {
+			if ('then' in child) {
 				const [value, setValue] = signal('')
 				/**
 				 * If the result of the promise is a function it runs it with
