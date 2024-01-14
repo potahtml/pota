@@ -615,7 +615,10 @@ export function html(template, ...values) {
 			// replace attributes
 			for (const attr of attributes) {
 				node.removeAttribute(attr.name)
-				node[attr.name] = values[index++]
+				// `children` on nodes is a getter, it needs to be aliased
+				// when a custom component use children the alias is reverted
+				node[attr.name === 'children' ? '_children' : attr.name] =
+					values[index++]
 			}
 		}
 	}
@@ -627,7 +630,10 @@ export function html(template, ...values) {
 			// get props
 			const props = empty()
 			for (const propName of getOwnPropertyNames(element)) {
-				props[propName] = element[propName]
+				// on a Node, `children` is a getter, so it's using an alias
+				// revert alias of `_children` to `chidren`
+				props[propName === '_children' ? 'children' : propName] =
+					element[propName]
 			}
 
 			/**
