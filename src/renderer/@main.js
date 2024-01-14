@@ -590,8 +590,14 @@ export function html(template, ...values) {
 		if (node.localName === 'pota') {
 			// replace full node
 
+			const val = values[index++]
+			// `create` is needed to untrack component bodies
+			// `create` will cloneNode when is a Node, avoid that for this functionality
 			// toHTML because components may return any kind of children
-			node.replaceWith(toHTML(values[index++]))
+
+			node.replaceWith(
+				toHTML(val instanceof Node ? val : create(val)),
+			)
 		} else {
 			// replace attribute
 
