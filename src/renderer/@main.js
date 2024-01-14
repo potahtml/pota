@@ -630,7 +630,14 @@ export function html(template, ...values) {
 				props[propName] = element[propName]
 			}
 
-			props.children = toArray(element.childNodes) // from NodeList to Array
+			/**
+			 * It should get the children from the `childNodes`. But if
+			 * there are no `childNodes` and a `props.children` was provided
+			 * then it should use the provided `props.children`
+			 */
+			props.children = element.childNodes.length
+				? toArray(element.childNodes) // from NodeList to Array
+				: props.children || null
 
 			// create component instance
 			const component = html.components[element.tagName](props)
