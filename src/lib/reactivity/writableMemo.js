@@ -7,7 +7,7 @@ import { memo, signal } from './primitives/solid.js'
  *
  * @author ryansolid
  * @param {Function} fn - Function to re-run when dependencies change
- * @returns {Signal}
+ * @returns {((...args) => any) | (() => any)}
  */
 export function writableMemo(fn) {
   const result = memo(() => signal(fn()))

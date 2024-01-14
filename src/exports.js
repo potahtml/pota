@@ -26,7 +26,7 @@ export {
 	 * To set and read refs. To use in ref attribute.
 	 *
 	 * @param {any} value? - Optional initial value
-	 * @returns {Signal}
+	 * @returns {((...args) => any) | (() => any)}
 	 */
 	functionSignal as ref,
 } from './lib/reactivity/functionSignal.js'

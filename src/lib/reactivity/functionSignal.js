@@ -5,7 +5,7 @@ import { signal } from './primitives/solid.js'
  * writes to the signal, when theres no argument it reads the signal.
  *
  * @param {any} value? - Optional initial value
- * @returns {Signal}
+ * @returns {((...args) => any) | (() => any)}
  */
 export function functionSignal(value) {
 	const [read, write] = signal(value)
