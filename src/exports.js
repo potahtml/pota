@@ -63,6 +63,7 @@ export {
 } from './renderer/@main.js'
 
 export { css } from './lib/css/css.js'
+export { WebElement } from './lib/comp/WebElement.js'
 
 export { onReady } from './renderer/scheduler.js'
 

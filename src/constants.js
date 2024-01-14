@@ -1,11 +1,13 @@
 // symbols
 
-export const $meta = Symbol()
-export const $component = Symbol()
-export const $class = Symbol()
-export const $reactive = Symbol()
-export const $map = Symbol()
-export const $internal = Symbol()
+const $ = Symbol
+export const $meta = $()
+export const $component = $()
+export const $class = $()
+export const $reactive = $()
+export const $map = $()
+export const $internal = $()
+export const $webElement = $()
 
 // supported namespaces
 
