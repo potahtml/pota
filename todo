@@ -2,14 +2,12 @@ TODO:
 
 	Documentation:
 	- light theme
+	- improve directory
 
-	Documentation:
- 	- improve directory
-
- 	Playground
- 	- import map
- 	- switch reactive library
- 	- LSP
+	Playground
+	- import map
+	- switch reactive library
+	- LSP
 
 	Reactivity:
 	- flimsy is broken for some reason
@@ -17,7 +15,10 @@ TODO:
 	- add maverick https://github.com/maverick-js/signals
 
 	Miscellaneous:
- 	- provide a rollup template
+	- provide a rollup template
+	- typings
+	- fns to arrow functions
+	- allow to use a class in createWebElementsGroup
 
 BUGS:
 
@@ -26,7 +27,7 @@ BUGS:
 
 	Router:
 	- decide what to do with useParams
- 	- is not scrolling when reloading to a hash tag when used with `lazy`
+	- is not scrolling when reloading to a hash tag when used with `lazy`
 
 FUTURE FEATURES:
 
