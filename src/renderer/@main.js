@@ -602,7 +602,33 @@ export function html(template, ...values) {
 
 			const value = values[index++]
 
-			untrack(() => node.replaceWith(toHTML(value)))
+			untrack(() => {
+				/**
+				 * Define it as `children` of parent when parent is a
+				 * registered component. This allows components like `Show` to
+				 * have functions as children. Else, one would have to set the
+				 * children as an attribute of the user registered component,
+				 * as in `<Show when="${true}" children="${value=>value}"/>`
+				 *
+				 * By adding it as a children of parent, then we can use it
+				 * like this instead:
+				 *
+				 * ```js
+				 * html`<Show when="${show}">${value => value}</Show>`
+				 * ```
+				 */
+				const parent = node.parentNode
+				if (
+					parent &&
+					parent.childNodes.length === 1 &&
+					html.components[parent.tagName]
+				) {
+					defineProperty(parent, 'children', { value })
+					node.remove()
+				} else {
+					node.replaceWith(toHTML(value))
+				}
+			})
 		} else {
 			// replace attributes
 
