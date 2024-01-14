@@ -6,6 +6,5 @@
  * @param {...any} values
  * @returns {string}
  */
-export function css(template, ...values) {
-	return String.raw({ raw: template }, ...values)
-}
+export const css = (template, ...values) =>
+	String.raw({ raw: template }, ...values)

@@ -1,5 +1,4 @@
 import { noop } from '../std/noop.js'
 
-export function copyToClipboard(s) {
+export const copyToClipboard = s =>
 	navigator.clipboard.writeText(s).then(noop).catch(noop)
-}

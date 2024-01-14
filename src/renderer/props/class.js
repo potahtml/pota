@@ -61,25 +61,20 @@ function setNodeClassList(classList, value) {
  * @param {string} name
  * @param {unknown} value
  */
-function setNodeClassListValue(classList, name, value) {
-	if (isFunction(value)) {
-		effect(() => {
-			_setNodeClassListValue(classList, name, getValue(value))
-		})
-	} else {
-		_setNodeClassListValue(classList, name, value)
-	}
-}
+const setNodeClassListValue = (classList, name, value) =>
+	isFunction(value)
+		? effect(() => {
+				_setNodeClassListValue(classList, name, getValue(value))
+			})
+		: _setNodeClassListValue(classList, name, value)
+
 /**
  * @param {DOMTokenList} classList
  * @param {string} name
  * @param {unknown} value
  */
-function _setNodeClassListValue(classList, name, value) {
+const _setNodeClassListValue = (classList, name, value) =>
 	// null, undefined or false the class is removed
-	if (!value) {
-		classList.remove(name)
-	} else {
-		classList.add(...name.trim().split(/\s+/))
-	}
-}
+	!value
+		? classList.remove(name)
+		: classList.add(...name.trim().split(/\s+/))

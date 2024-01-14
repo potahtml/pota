@@ -7,10 +7,8 @@
  */
 export const replaceParams = (url, params) =>
 	params
-		? url.replace(/\:([a-z0-9_\-]+)/gi, function (a, b) {
+		? url.replace(/\:([a-z0-9_\-]+)/gi, (a, b) =>
 				// only replace the ones defined on params
-				return params[b] !== undefined
-					? encodeURIComponent(params[b])
-					: a
-		  })
+				params[b] !== undefined ? encodeURIComponent(params[b]) : a,
+			)
 		: url

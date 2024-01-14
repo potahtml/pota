@@ -59,31 +59,26 @@ export const setAttributeNS = (
  * @param {unknown} value
  * @param {string} ns
  */
-export function setNodeProp(node, name, value, ns) {
-	if (isFunction(value)) {
-		effect(() => {
-			_setNodeProp(node, name, getValue(value), ns)
-		})
-	} else {
-		_setNodeProp(node, name, value, ns)
-	}
-}
+export const setNodeProp = (node, name, value, ns) =>
+	isFunction(value)
+		? effect(() => {
+				_setNodeProp(node, name, getValue(value), ns)
+			})
+		: _setNodeProp(node, name, value, ns)
+
 /**
  * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
  * @param {string} ns
  */
-function _setNodeProp(node, name, value, ns) {
+const _setNodeProp = (node, name, value, ns) =>
 	// set as property when boolean
 	// data-* and attributes with dashes are set as strings
-	if (typeof value === 'boolean' && !name.includes('-')) {
-		_setNodeProperty(node, name, value)
-	} else {
-		// fallback to attribute when unknown
-		_setNodeAttribute(node, name, value, ns)
-	}
-}
+	typeof value === 'boolean' && !name.includes('-')
+		? _setNodeProperty(node, name, value)
+		: // fallback to attribute when unknown
+			_setNodeAttribute(node, name, value, ns)
 
 // NODE PROPERTIES
 
@@ -92,15 +87,12 @@ function _setNodeProp(node, name, value, ns) {
  * @param {string} name
  * @param {unknown} value
  */
-export function setNodeProperty(node, name, value) {
-	if (isFunction(value)) {
-		effect(() => {
-			_setNodeProperty(node, name, getValue(value))
-		})
-	} else {
-		_setNodeProperty(node, name, value)
-	}
-}
+export const setNodeProperty = (node, name, value) =>
+	isFunction(value)
+		? effect(() => {
+				_setNodeProperty(node, name, getValue(value))
+			})
+		: _setNodeProperty(node, name, value)
 
 /**
  * @param {Elements} node
@@ -128,15 +120,12 @@ function _setNodeProperty(node, name, value) {
  * @param {unknown} value
  * @param {string} [ns]
  */
-export function setNodeAttribute(node, name, value, ns) {
-	if (isFunction(value)) {
-		effect(() => {
-			_setNodeAttribute(node, name, getValue(value), ns)
-		})
-	} else {
-		_setNodeAttribute(node, name, value, ns)
-	}
-}
+export const setNodeAttribute = (node, name, value, ns) =>
+	isFunction(value)
+		? effect(() => {
+				_setNodeAttribute(node, name, getValue(value), ns)
+			})
+		: _setNodeAttribute(node, name, value, ns)
 
 /**
  * @param {Elements} node

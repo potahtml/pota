@@ -10,14 +10,12 @@ export function textColor(color) {
 }
 
 // returns shaded color to be readable on black
-export function textColorWhenBackgroundIsBlack(color) {
-	return textColorWhenBackgroundIs(color, true)
-}
+export const textColorWhenBackgroundIsBlack = color =>
+	textColorWhenBackgroundIs(color, true)
 
 // returns shaded color to be readable on white
-export function textColorWhenBackgroundIsWhite(color) {
-	return textColorWhenBackgroundIs(color, false)
-}
+export const textColorWhenBackgroundIsWhite = color =>
+	textColorWhenBackgroundIs(color, false)
 
 export function textColorWhenBackgroundIs(color, black) {
 	const algo = 'APCA'

@@ -1,3 +1,2 @@
-export function label(string) {
-	return string.replace(/[-_]/g, ' ').replace(/\s+/g, ' ')
-}
+export const label = string =>
+	string.replace(/[-_]/g, ' ').replace(/\s+/g, ' ')

@@ -21,11 +21,10 @@ export function mutableDeep(value = empty()) {
 const Proxied = new WeakMap()
 
 // ensures a value is made into a proxy only once when is an object
-function getValue(value, type) {
-	return type === 'object' && value !== null && !Proxied.has(value)
+const getValue = (value, type) =>
+	type === 'object' && value !== null && !Proxied.has(value)
 		? makeProxy(value)
 		: value
-}
 
 // makes a proxy from an object
 function makeProxy(value) {
@@ -35,16 +34,12 @@ function makeProxy(value) {
 }
 
 // returns true for keys that shouldnt be transformed into getters/setters
-function keyInPrototype(target, key) {
-	return (
-		isPrototypeProperty(target, key) || cannotRedefine(target, key)
-	)
-}
+const keyInPrototype = (target, key) =>
+	isPrototypeProperty(target, key) || cannotRedefine(target, key)
 
 // returns true for keys that cannot be redefined
-function cannotRedefine(target, key) {
-	return Array.isArray(target) && key === 'length'
-}
+const cannotRedefine = (target, key) =>
+	Array.isArray(target) && key === 'length'
 
 // keeps track of properties that already been transformed to getters/setters
 

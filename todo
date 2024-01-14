@@ -17,8 +17,7 @@ TODO:
 	Miscellaneous:
 	- provide a rollup template
 	- typings
-	- fns to arrow functions
-	- allow to use a class in createWebElementsGroup
+ 	- allow to use a class in createWebElementsGroup
 
 BUGS:
 
