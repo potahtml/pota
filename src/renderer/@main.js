@@ -602,11 +602,7 @@ export function html(template, ...values) {
 
 			const value = values[index++]
 
-			untrack(() =>
-				node.replaceWith(
-					toHTML(value instanceof Node ? value : create(value)),
-				),
-			)
+			untrack(() => node.replaceWith(toHTML(value)))
 		} else {
 			// replace attributes
 
