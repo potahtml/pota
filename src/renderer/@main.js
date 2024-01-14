@@ -544,12 +544,6 @@ function clearNode(node) {
 	node.textContent = ''
 }
 
-// templates are cached for the duration of a run
-// cache is cleared after the run
-// if you make a list with 100 links, it will reuse a component 99 times
-// then discard that object
-// performance opportunity: expiration could be smarter
-
 /**
  * Creates tagged template components
  *
@@ -569,7 +563,10 @@ export function html(template, ...values) {
 
 	const clone = untrack(() => cached.cloneNode(true))
 
-	// it searches all nodes with our attribute wildcard OR nodes with our name
+	/**
+	 * It searches all nodes with our attribute wildcard OR nodes with
+	 * our name
+	 */
 	const replace = document.evaluate(
 		"//*[@*='<pota></pota>']|//pota",
 		clone,
@@ -578,9 +575,11 @@ export function html(template, ...values) {
 		null,
 	)
 
-	// as we are going to manipulate the nodes
-	// the snapshot will change and will get messed up
-	// save it on a temp array
+	/**
+	 * As we are going to manipulate the nodes, the snapshot will change
+	 * live, and will get messed up, save it on a temp array
+	 */
+
 	/** @type {Element[]} */
 	const nodes = []
 	for (let i = 0; i < replace.snapshotLength; i++) {
@@ -592,31 +591,41 @@ export function html(template, ...values) {
 		if (node.localName === 'pota') {
 			// replace full node
 
-			const val = values[index++]
-			// `create` is needed to untrack component bodies
-			// `create` will cloneNode when is a Node, avoid that for this functionality
-			// toHTML because components may return any kind of children
+			/**
+			 * `create` is needed to `untrack` component bodies. `create`
+			 * will `cloneNode` when is a `Node`, avoid that for this
+			 * functionality.
+			 *
+			 * `toHTML` because components may return any kind of children
+			 */
+
+			const value = values[index++]
 
 			untrack(() =>
 				node.replaceWith(
-					toHTML(val instanceof Node ? val : create(val)),
+					toHTML(value instanceof Node ? value : create(value)),
 				),
 			)
 		} else {
-			// replace attribute
+			// replace attributes
 
-			// as we are going to manipulate the attributes
-			// these will change and will get messed up
-			// save it on a temp array
+			/**
+			 * As we are going to manipulate the attributes these will
+			 * change live, and will get messed up, save it on a temp array
+			 */
 			const attributes = toArray(node.attributes).filter(
 				item => item.value === '<pota></pota>',
 			)
 
-			// replace attributes
+			// replace
 			for (const attr of attributes) {
 				node.removeAttribute(attr.name)
-				// `children` on nodes is a getter, it needs to be aliased
-				// when a custom component use children the alias is reverted
+
+				/**
+				 * `children` on a `Node` is a getter, it needs to be aliased
+				 * to `_children`. When a user component use `children` the
+				 * alias is reverted
+				 */
 				node[attr.name === 'children' ? '_children' : attr.name] =
 					values[index++]
 			}
@@ -627,19 +636,21 @@ export function html(template, ...values) {
 	if (html.search) {
 		// search for user component
 		for (const element of clone.querySelectorAll(html.search)) {
-			// get props
+			// create props
 			const props = empty()
 			for (const propName of getOwnPropertyNames(element)) {
-				// on a Node, `children` is a getter, so it's using an alias
-				// revert alias of `_children` to `chidren`
+				/**
+				 * On a `Node`, `children` is a getter, so it's using an alias
+				 * `_children`. Revert alias to `children`
+				 */
 				props[propName === '_children' ? 'children' : propName] =
 					element[propName]
 			}
 
 			/**
 			 * It should get the children from the `childNodes`. But if
-			 * there are no `childNodes` and a `props.children` was provided
-			 * then it should use the provided `props.children`
+			 * there are no `childNodes`, and a `props.children` was
+			 * provided, then it should use the provided `props.children`
 			 */
 			props.children = element.childNodes.length
 				? toArray(element.childNodes) // from NodeList to Array
@@ -647,11 +658,11 @@ export function html(template, ...values) {
 					? props.children
 					: null
 
-			// create component instance
+			// create user provided component instance
 			const component = html.components[element.tagName](props)
 
 			// replace node
-			// toHTML because components may return any kind of children
+			// `toHTML` because components may return any kind of children
 			untrack(() => element.replaceWith(toHTML(component)))
 		}
 	}
