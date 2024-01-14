@@ -568,11 +568,12 @@ export function html(template, ...values) {
 	 * It searches all nodes with our attribute wildcard OR nodes with
 	 * our name
 	 */
-	const replace = document.evaluate(
+	const result = document.evaluate(
 		"//*[@*='<pota></pota>']|//pota",
 		clone,
 		null,
-		XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+		// XPathResult.ORDERED_NODE_SNAPSHOT_TYPE
+		7,
 		null,
 	)
 
@@ -583,8 +584,8 @@ export function html(template, ...values) {
 
 	/** @type {Element[]} */
 	const nodes = []
-	for (let i = 0; i < replace.snapshotLength; i++) {
-		nodes.push(replace.snapshotItem(i))
+	for (let i = 0; i < result.snapshotLength; i++) {
+		nodes.push(result.snapshotItem(i))
 	}
 
 	let index = 0
