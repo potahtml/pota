@@ -7,7 +7,7 @@ import {
 	isNullUndefined,
 } from '../../lib/std/@main.js'
 
-import { $webElement, NS } from '../../constants.js'
+import { $customElement, NS } from '../../constants.js'
 import { dispatchNativeEvent } from '../../lib/events/dispatchNativeEvent.js'
 
 // PROP
@@ -110,7 +110,7 @@ function _setNodeProperty(node, name, value) {
 		dispatchNativeEvent(node, 'input'),
 			dispatchNativeEvent(node, 'change')
 	}
-	if ($webElement in node) node.onPropChange(name, value)
+	if ($customElement in node) node.onPropChange(name, value)
 }
 
 // NODE ATTRIBUTES
@@ -145,5 +145,5 @@ function _setNodeAttribute(node, name, value, ns) {
 			? node.setAttributeNS(NS[ns], name, value)
 			: node.setAttribute(name, value)
 	}
-	if ($webElement in node) node.onPropChange(name, value)
+	if ($customElement in node) node.onPropChange(name, value)
 }

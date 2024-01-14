@@ -1,7 +1,7 @@
-import { $webElement } from '../../constants.js'
+import { $customElement } from '../../constants.js'
 
-export class WebElement extends HTMLElement {
-	[$webElement] = null
+export class CustomElement extends HTMLElement {
+	[$customElement] = null
 	/**
 	 * Fires when an attribute or property changes
 	 *

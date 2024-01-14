@@ -1,20 +1,20 @@
 import { create, toHTML } from '../../exports.js'
-import { WebElement } from '../comp/WebElement.js'
+import { CustomElement as CustomElementsTemplate } from '../comp/CustomElement.js'
 import { assign } from '../std/assign.js'
 import { entries } from '../std/entries.js'
 import { sheet } from './sheet.js'
 
 /**
- * Web Element Factory. Returns a function to register web elements
- * that share a groupCSS and externalSheets. Each registered web
- * element can have its own css too.
+ * Custom Element Factory. Returns a function to register custom
+ * elements that share a groupCSS and externalSheets. Each registered
+ * custom element can have its own css too.
  *
  * @param {string} groupCSS - Css shared by the group
  * @param {string[]} externalSheets - Array with paths to external
  *   sheets
  * @returns {(name, css, component) => void}
  */
-export function webElementsGroup(groupCSS, externalSheets = []) {
+export function customElementGroup(groupCSS, externalSheets = []) {
 	// load external css files in a Link
 	for (const [key, value] of entries(externalSheets)) {
 		externalSheets[key] = (
@@ -32,7 +32,7 @@ export function webElementsGroup(groupCSS, externalSheets = []) {
 	const sheets = new Map()
 
 	// adds main sheets to the Web Element
-	class WebElementsGroup extends WebElement {
+	class CustomElement extends CustomElementsTemplate {
 		constructor() {
 			super()
 
@@ -63,7 +63,7 @@ export function webElementsGroup(groupCSS, externalSheets = []) {
 
 	return assign(
 		function (name, css, component) {
-			class WebElementUser extends WebElementsGroup {
+			class CustomElementUser extends CustomElement {
 				constructor() {
 					super()
 					// add local css
@@ -79,17 +79,17 @@ export function webElementsGroup(groupCSS, externalSheets = []) {
 			// if user provides a class
 			const constructor = component.toString().startsWith('class')
 				? component
-				: WebElementUser
+				: CustomElementUser
 
 			// save css in case user provided a class
 			// as we cannot dynamically make it extend
-			if (constructor !== WebElementUser && css !== '') {
+			if (constructor !== CustomElementUser && css !== '') {
 				sheets.set(name, sheet(css))
 			}
 
 			// define web element
 			customElements.define(name, constructor)
 		},
-		{ WebElement: WebElementsGroup },
+		{ CustomElement },
 	)
 }

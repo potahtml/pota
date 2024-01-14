@@ -6,8 +6,7 @@ export const $component = $()
 export const $class = $()
 export const $reactive = $()
 export const $map = $()
-export const $internal = $()
-export const $webElement = $()
+export const $customElement = $()
 
 // supported namespaces
 

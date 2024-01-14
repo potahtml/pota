@@ -63,7 +63,6 @@ export {
 } from './renderer/@main.js'
 
 export { css } from './lib/css/css.js'
-export { WebElement } from './lib/comp/WebElement.js'
 
 export { onReady } from './renderer/scheduler.js'
 
@@ -77,6 +76,7 @@ export { Component } from './lib/comp/@main.js'
 export { makeCallback } from './lib/comp/makeCallback.js'
 export { markComponent } from './lib/comp/markComponent.js'
 export { isComponent } from './lib/comp/isComponent.js'
+export { CustomElement } from './lib/comp/CustomElement.js'
 
 // reactivity
 export { isReactive } from './lib/reactivity/isReactive.js'
