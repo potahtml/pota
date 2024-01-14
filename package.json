@@ -55,6 +55,10 @@
       "types": "./types/src/lib/color/@main.d.ts",
       "default": "./src/lib/color/@main.js"
     },
+    "./css": {
+      "types": "./types/src/lib/css/@main.d.ts",
+      "default": "./src/lib/css/@main.js"
+    },
     "./data": {
       "types": "./types/src/lib/data/@main.d.ts",
       "default": "./src/lib/data/@main.js"

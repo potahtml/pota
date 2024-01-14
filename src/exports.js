@@ -46,6 +46,7 @@ export {
 	render,
 	html,
 	html as template,
+
 	/**
 	 * Do not expose insert. As removal of the element on where you
 	 * inserted into, wont cause disposal of what you inserted.
@@ -60,6 +61,8 @@ export {
 	context,
 	lazy,
 } from './renderer/@main.js'
+
+export { css } from './lib/css/css.js'
 
 export { onReady } from './renderer/scheduler.js'
 
