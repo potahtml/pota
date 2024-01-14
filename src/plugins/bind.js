@@ -11,8 +11,8 @@ export {
 	/**
 	 * To use in bind attribute on JSX elements.
 	 *
-	 * @param {any} value? - Initial value
-	 * @returns {((...args) => any) | (() => any)}
+	 * @param {any} [value] - Initial value
+	 * @returns {Signal}
 	 */
 	functionSignal as bind,
 } from '../lib/reactivity/functionSignal.js'
