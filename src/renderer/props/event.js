@@ -159,16 +159,7 @@ function eventHandlerNative(e) {
 function eventHandlerDelegated(e) {
 	const key = e.type
 
-	let node = (e.composedPath && e.composedPath()[0]) || e.target
-
-	// reverse Shadow DOM retargetting
-	// from dom-expressions
-	// I dont understand this
-	if (e.target !== node) {
-		defineProperty(e, 'target', {
-			value: node,
-		})
-	}
+	let node = e.target
 
 	// currentTarget has to be the element that has the handlers
 	defineProperty(e, 'currentTarget', {
@@ -181,13 +172,12 @@ function eventHandlerDelegated(e) {
 		},
 	})
 
-	while (node) {
+	for (node of e.composedPath()) {
 		const handlers = property(node, `${key}Handlers`)
 		if (handlers && !node.disabled) {
 			eventDispatch(node, handlers, e)
 			if (e.cancelBubble) break
 		}
-		node = node.parentNode
 	}
 }
 /**
