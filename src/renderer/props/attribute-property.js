@@ -110,8 +110,7 @@ function _setNodeProperty(node, name, value) {
 		dispatchNativeEvent(node, 'input'),
 			dispatchNativeEvent(node, 'change')
 	}
-	if ($webElement in node && 'setNodeProperty' in node)
-		node.setNodeProperty(name, value)
+	if ($webElement in node) node.onPropChange(name, value)
 }
 
 // NODE ATTRIBUTES
@@ -146,6 +145,5 @@ function _setNodeAttribute(node, name, value, ns) {
 			? node.setAttributeNS(NS[ns], name, value)
 			: node.setAttribute(name, value)
 	}
-	if ($webElement in node && 'setNodeAttribute' in node)
-		node.setNodeAttribute(name, value)
+	if ($webElement in node) node.onPropChange(name, value)
 }
