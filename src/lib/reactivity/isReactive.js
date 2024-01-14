@@ -9,4 +9,4 @@ import { $reactive } from '../../constants.js'
  * @returns {boolean}
  */
 export const isReactive = value =>
-	isFunction(value) && value[$reactive] === null
+	isFunction(value) && $reactive in value

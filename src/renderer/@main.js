@@ -360,7 +360,7 @@ function createChildren(parent, child, relative) {
 			}
 
 			// For
-			if (child[$map] === null) {
+			if ($map in child) {
 				// signal: needs an effect
 
 				let node

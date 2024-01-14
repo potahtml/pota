@@ -9,4 +9,4 @@ import { $class } from '../../constants.js'
  * @returns {boolean}
  */
 export const isClassComponent = value =>
-	isFunction(value) && value[$class] === null
+	isFunction(value) && $class in value

@@ -1,3 +1,4 @@
+import { markReactive } from './markReactive.js'
 import { signal } from './primitives/solid.js'
 
 /**
@@ -9,5 +10,7 @@ import { signal } from './primitives/solid.js'
  */
 export function functionSignal(value) {
 	const [read, write] = signal(value)
-	return (...args) => (args.length ? write(args[0]) : read())
+	return markReactive((...args) =>
+		args.length ? write(args[0]) : read(),
+	)
 }
