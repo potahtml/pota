@@ -29,6 +29,7 @@ import {
 	entries,
 	getOwnPropertyNames,
 	keys,
+	defineProperty,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -619,15 +620,17 @@ export function html(template, ...values) {
 
 			// replace
 			for (const attr of attributes) {
+				const value = values[index++]
+
 				node.removeAttribute(attr.name)
 
 				/**
-				 * `children` on a `Node` is a getter, it needs to be aliased
-				 * to `_children`. When a user component use `children` the
-				 * alias is reverted
+				 * `children` on a `Node` is a getter, it needs to be defined
+				 * as a property
 				 */
-				node[attr.name === 'children' ? '_children' : attr.name] =
-					values[index++]
+				attr.name === 'children'
+					? defineProperty(node, attr.name, { value })
+					: (node[attr.name] = value)
 			}
 		}
 	}
@@ -639,12 +642,7 @@ export function html(template, ...values) {
 			// create props
 			const props = empty()
 			for (const propName of getOwnPropertyNames(element)) {
-				/**
-				 * On a `Node`, `children` is a getter, so it's using an alias
-				 * `_children`. Revert alias to `children`
-				 */
-				props[propName === '_children' ? 'children' : propName] =
-					element[propName]
+				props[propName] = element[propName]
 			}
 
 			/**
