@@ -557,7 +557,7 @@ export function html(template, ...values) {
 	let cached = html.cache.get(template)
 	if (!cached) {
 		cached = createElement('template')
-		cached.innerHTML = template.join('<pota></pota>')
+		cached.innerHTML = template.join('<pota></pota>').trim()
 
 		html.cache.set(template, cached)
 	}
