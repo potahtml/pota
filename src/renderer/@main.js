@@ -587,13 +587,14 @@ export function html(template, ...values) {
 	for (let i = 0; i < result.snapshotLength; i++) {
 		nodes.push(result.snapshotItem(i))
 	}
+	nodes.reverse()
 
-	let index = 0
+	let index = values.length - 1
 	for (const node of nodes) {
 		if (node.localName === 'pota') {
 			// replace full node
 
-			const value = values[index++]
+			const value = values[index--]
 
 			untrack(() => {
 				/**
@@ -616,7 +617,9 @@ export function html(template, ...values) {
 					parent.childNodes.length === 1 &&
 					html.components[parent.tagName]
 				) {
-					defineProperty(parent, 'children', { value })
+					defineProperty(parent, 'children', {
+						value: value,
+					})
 					node.remove()
 				} else {
 					/**
@@ -639,7 +642,7 @@ export function html(template, ...values) {
 
 			// replace
 			for (const attr of attributes) {
-				const value = values[index++]
+				const value = values[index--]
 
 				node.removeAttribute(attr.name)
 
@@ -656,8 +659,14 @@ export function html(template, ...values) {
 
 	// replace user components
 	if (html.search) {
-		// search for user component
-		for (const element of clone.querySelectorAll(html.search)) {
+		/**
+		 * Search for user components. Result needs to be reversed so it
+		 * replaces the nested one first.
+		 */
+		const elements = toArray(
+			clone.querySelectorAll(html.search),
+		).reverse()
+		for (const element of elements) {
 			// create props
 			const props = empty()
 			for (const propName of getOwnPropertyNames(element)) {
