@@ -278,7 +278,7 @@ function createNode(node, props, scope) {
 			}
 		}
 		// remove from the document
-		node.remove()
+		node.remove && node.remove()
 	})
 
 	// assign the props to the node
@@ -386,7 +386,11 @@ function createChildren(parent, child, relative) {
 				 * an owner. Else it will just use the return value
 				 */
 				const owned = withOwner()
-				child.then(r => setValue(isFunction(r) ? owned(r) : r))
+				child.then(
+					r =>
+						parent.isConnected &&
+						setValue(isFunction(r) ? owned(r) : r),
+				)
 				return createChildren(parent, value, relative)
 			}
 
@@ -475,7 +479,7 @@ function insertNode(parent, node, relative) {
 
 	// get rid of children nodes on cleanup
 	cleanup(() => {
-		node.remove()
+		node.remove && node.remove()
 	})
 
 	return node
