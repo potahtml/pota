@@ -555,15 +555,14 @@ function clearNode(node) {
 export function html(template, ...values) {
 	let cached = html.cache.get(template)
 	if (!cached) {
-		untrack(() => {
-			cached = createElement('template')
-			cached.append(createElement('pota'))
-			cached.firstChild.innerHTML = template.join('<pota></pota>')
-		})
+		cached = createElement('template')
+		cached.innerHTML = template.join('<pota></pota>')
+
 		html.cache.set(template, cached)
 	}
 
-	const clone = untrack(() => cached.firstChild.cloneNode(true))
+	const clone = cached.cloneNode(true)
+	const content = clone.content
 
 	/**
 	 * It searches all nodes with our attribute wildcard OR nodes with
@@ -571,7 +570,7 @@ export function html(template, ...values) {
 	 */
 	const result = document.evaluate(
 		"//*[@*='<pota></pota>']|//pota",
-		clone,
+		content.firstChild,
 		null,
 		// XPathResult.ORDERED_NODE_SNAPSHOT_TYPE
 		7,
@@ -588,6 +587,7 @@ export function html(template, ...values) {
 	for (let i = 0; i < result.snapshotLength; i++) {
 		nodes.push(result.snapshotItem(i))
 	}
+
 	/** Reverse the result so we process from children to parent */
 	nodes.reverse()
 
@@ -625,7 +625,7 @@ export function html(template, ...values) {
 				node.remove()
 			} else {
 				/** `toHTML` because components may return any kind of children */
-				untrack(() => node.replaceWith(toHTML(value)))
+				node.replaceWith(toHTML(value))
 			}
 		} else {
 			// replace attributes
@@ -691,14 +691,14 @@ export function html(template, ...values) {
 
 			// replace node
 			// `toHTML` because components may return any kind of children
-			untrack(() => element.replaceWith(toHTML(component)))
+			element.replaceWith(toHTML(component))
 		}
 	}
 
 	// return a single element if possible to make it more easy to use
-	return clone.childNodes.length === 1
-		? clone.childNodes[0]
-		: toArray(clone.childNodes) // from NodeList to Array
+	return content.childNodes.length === 1
+		? content.childNodes[0]
+		: toArray(content.childNodes) // from NodeList to Array
 }
 
 html.cache = new WeakMap()
