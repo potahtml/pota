@@ -278,7 +278,7 @@ function createNode(node, props, scope) {
 			}
 		}
 		// remove from the document
-		node.isConnected && node.remove()
+		node.remove()
 	})
 
 	// assign the props to the node
@@ -386,11 +386,7 @@ function createChildren(parent, child, relative) {
 				 * an owner. Else it will just use the return value
 				 */
 				const owned = withOwner()
-				child.then(
-					r =>
-						parent.isConnected &&
-						setValue(isFunction(r) ? owned(r) : r),
-				)
+				child.then(r => setValue(isFunction(r) ? owned(r) : r))
 				return createChildren(parent, value, relative)
 			}
 
@@ -479,7 +475,7 @@ function insertNode(parent, node, relative) {
 
 	// get rid of children nodes on cleanup
 	cleanup(() => {
-		node.isConnected && node.remove()
+		node.remove()
 	})
 
 	return node
@@ -587,6 +583,7 @@ export function html(template, ...values) {
 	for (let i = 0; i < result.snapshotLength; i++) {
 		nodes.push(result.snapshotItem(i))
 	}
+	/** Reverse the result so we process from children to parent */
 	nodes.reverse()
 
 	let index = values.length - 1
@@ -596,51 +593,48 @@ export function html(template, ...values) {
 
 			const value = values[index--]
 
-			untrack(() => {
-				/**
-				 * Define it as `children` of parent when parent is a
-				 * registered component. This allows components like `Show` to
-				 * have functions as children. Else, one would have to set the
-				 * children as an attribute of the user registered component,
-				 * as in `<Show when="${true}" children="${value=>value}"/>`
-				 *
-				 * By adding it as a children of parent, then we can use it
-				 * like this instead:
-				 *
-				 * ```js
-				 * html`<Show when="${show}">${value => value}</Show>`
-				 * ```
-				 */
-				const parent = node.parentNode
-				if (
-					parent &&
-					parent.childNodes.length === 1 &&
-					html.components[parent.tagName]
-				) {
-					defineProperty(parent, 'children', {
-						value: value,
-					})
-					node.remove()
-				} else {
-					/**
-					 * `toHTML` because components may return any kind of
-					 * children
-					 */
-					node.replaceWith(toHTML(value))
-				}
-			})
+			/**
+			 * Define it as `children` of parent when parent is a registered
+			 * component. This allows components like `Show` to have
+			 * callbacks as children. Else, one would have to set the
+			 * callback as an attribute of the component, as in
+			 *
+			 * `<Show when="${true}" children="${value => value}" />`
+			 *
+			 * By adding it as a children of parent, then we can use it like
+			 * this instead:
+			 *
+			 * `<Show when="${show}">${value => value}</Show>`
+			 */
+			const parent = node.parentNode
+			if (
+				parent &&
+				parent.childNodes.length === 1 &&
+				html.components[parent.tagName]
+			) {
+				// TODO: handle case when childNodes.length > 1
+				defineProperty(parent, 'children', {
+					value,
+				})
+
+				node.remove()
+			} else {
+				/** `toHTML` because components may return any kind of children */
+				untrack(() => node.replaceWith(toHTML(value)))
+			}
 		} else {
 			// replace attributes
 
 			/**
 			 * As we are going to manipulate the attributes these will
-			 * change live, and will get messed up, save it on a temp array
+			 * change live, and will get messed up, save it on a temp array.
+			 * Reverse result because `index` is reversed.
 			 */
-			const attributes = toArray(node.attributes).filter(
-				item => item.value === '<pota></pota>',
-			)
+			const attributes = toArray(node.attributes)
+				.filter(item => item.value === '<pota></pota>')
+				.reverse()
 
-			// replace
+			// replace attributes
 			for (const attr of attributes) {
 				const value = values[index--]
 
@@ -648,11 +642,14 @@ export function html(template, ...values) {
 
 				/**
 				 * `children` on a `Node` is a getter, it needs to be defined
-				 * as a property
+				 * as Object.defineProperty. Note `children` will take
+				 * precedence only if `childNodes.length` is 0, same as in
+				 * JSX.
 				 */
 				attr.name === 'children'
 					? defineProperty(node, attr.name, { value })
-					: (node[attr.name] = value)
+					: /** Keep this else onclick wont work */
+						(node[attr.name] = value)
 			}
 		}
 	}
@@ -661,7 +658,7 @@ export function html(template, ...values) {
 	if (html.search) {
 		/**
 		 * Search for user components. Result needs to be reversed so it
-		 * replaces the nested one first.
+		 * replaces the nested ones first.
 		 */
 		const elements = toArray(
 			clone.querySelectorAll(html.search),
@@ -674,9 +671,9 @@ export function html(template, ...values) {
 			}
 
 			/**
-			 * It should get the children from the `childNodes`. But if
-			 * there are no `childNodes`, and a `props.children` was
-			 * provided, then it should use the provided `props.children`
+			 * It should get the children from the `childNodes` as in JSX.
+			 * But if there are no `childNodes`, and a `props.children` was
+			 * provided, then it should use `props.children`
 			 */
 			props.children = element.childNodes.length
 				? toArray(element.childNodes) // from NodeList to Array
