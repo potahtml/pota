@@ -30,6 +30,7 @@ import {
 	getOwnPropertyNames,
 	keys,
 	defineProperty,
+	assign,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -676,13 +677,18 @@ export function html(template, ...values) {
 		 * replaces the nested ones first.
 		 */
 		const elements = toArray(
-			clone.querySelectorAll(html.search),
+			content.querySelectorAll(html.search),
 		).reverse()
+
 		for (const element of elements) {
 			// create props
 			const props = empty()
 			for (const propName of getOwnPropertyNames(element)) {
 				props[propName] = element[propName]
+			}
+
+			if (nodesWithProps.has(element)) {
+				assign(props, nodesWithProps.get(element))
 			}
 
 			/**
