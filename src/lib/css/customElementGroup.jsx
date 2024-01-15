@@ -1,7 +1,6 @@
 import { create, toHTML } from '../../exports.js'
 import { CustomElement as CustomElementsTemplate } from '../comp/CustomElement.js'
 import { assign } from '../std/assign.js'
-import { entries } from '../std/entries.js'
 import { sheet } from './sheet.js'
 
 /**
@@ -14,17 +13,7 @@ import { sheet } from './sheet.js'
  *   sheets
  * @returns {(name, css, component) => void}
  */
-export function customElementGroup(groupCSS, externalSheets = []) {
-	// load external css files in a Link
-	for (const [key, value] of entries(externalSheets)) {
-		externalSheets[key] = (
-			<link
-				rel="stylesheet"
-				href={value}
-			/>
-		)
-	}
-
+export function customElementGroup(groupCSS, externalSheets) {
 	// make a sheet of the group css
 	const groupSheet = sheet(groupCSS)
 
@@ -36,21 +25,15 @@ export function customElementGroup(groupCSS, externalSheets = []) {
 		constructor() {
 			super()
 
-			const shadow = this.attachShadow({
-				mode: 'open',
-			})
-
 			// add external stylesheets
-			externalSheets.length && shadow.append(toHTML(externalSheets))
+			this.addExternalStyles(externalSheets)
 
 			// add group sheet to shadow
-			shadow.adoptedStyleSheets.push(groupSheet)
+			this.addSheet(groupSheet)
 
-			// add local css when the user provides a class
+			// add local css for when the user provides a class
 			const name = customElements.getName(this.constructor)
-
-			if (sheets.has(name))
-				this.shadowRoot.adoptedStyleSheets.push(sheets.get(name))
+			if (sheets.has(name)) this.addSheet(sheets.get(name))
 
 			// set property to empty when the slot is not in use
 			this.shadowRoot.addEventListener('slotchange', e =>
@@ -66,8 +49,9 @@ export function customElementGroup(groupCSS, externalSheets = []) {
 			class CustomElementUser extends CustomElement {
 				constructor() {
 					super()
+
 					// add local css
-					this.shadowRoot.adoptedStyleSheets.push(sheet(css))
+					this.addCSS(css)
 
 					// add component
 					this.shadowRoot.append(
@@ -87,7 +71,7 @@ export function customElementGroup(groupCSS, externalSheets = []) {
 				sheets.set(name, sheet(css))
 			}
 
-			// define web element
+			// define custom element
 			customElements.define(name, constructor)
 		},
 		{ CustomElement },
