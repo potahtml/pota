@@ -556,13 +556,14 @@ export function html(template, ...values) {
 	let cached = html.cache.get(template)
 	if (!cached) {
 		untrack(() => {
-			cached = createElement('pota')
-			cached.innerHTML = template.join('<pota></pota>')
+			cached = createElement('template')
+			cached.append(createElement('pota'))
+			cached.firstChild.innerHTML = template.join('<pota></pota>')
 		})
 		html.cache.set(template, cached)
 	}
 
-	const clone = untrack(() => cached.cloneNode(true))
+	const clone = untrack(() => cached.firstChild.cloneNode(true))
 
 	/**
 	 * It searches all nodes with our attribute wildcard OR nodes with
