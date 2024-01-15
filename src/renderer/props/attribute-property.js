@@ -51,6 +51,17 @@ export const setAttributeNS = (
 	ns,
 ) => setNodeAttribute(node, localName, value)
 
+/**
+ * @param {Elements} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {object} props
+ * @param {string} localName
+ * @param {string} ns
+ */
+export const setBoolNS = (node, name, value, props, localName, ns) =>
+	setBoolAttribute(node, localName, value)
+
 // NODE PROPERTIES / ATTRIBUTES
 
 /**
@@ -145,5 +156,33 @@ function _setNodeAttribute(node, name, value, ns) {
 			? node.setAttributeNS(NS[ns], name, value)
 			: node.setAttribute(name, value)
 	}
+	if ($customElement in node) node.onPropChange(name, value)
+}
+
+// BOOL ATTRIBUTES
+
+/**
+ * @param {Elements} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {string} [ns]
+ */
+export const setBoolAttribute = (node, name, value, ns) =>
+	isFunction(value)
+		? effect(() => {
+				_setBoolAttribute(node, name, getValue(value), ns)
+			})
+		: _setBoolAttribute(node, name, value, ns)
+
+/**
+ * @param {Elements} node
+ * @param {string} name
+ * @param {unknown} value
+ * @param {string} [ns]
+ */
+function _setBoolAttribute(node, name, value, ns) {
+	// if the value is falsy gets removed
+	!value ? node.removeAttribute(name) : node.setAttribute(name, '')
+
 	if ($customElement in node) node.onPropChange(name, value)
 }

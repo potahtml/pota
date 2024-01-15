@@ -79,9 +79,14 @@ import { setProp } from './attribute-property.js'
 	propsPlugin(item, setProp, false),
 )
 
-import { setPropNS, setAttributeNS } from './attribute-property.js'
+import {
+	setPropNS,
+	setAttributeNS,
+	setBoolNS,
+} from './attribute-property.js'
 propsPluginNS('prop', setPropNS, false)
 propsPluginNS('attr', setAttributeNS, false)
+propsPluginNS('bool', setBoolNS, false)
 
 // life-cycles
 
