@@ -591,6 +591,8 @@ export function html(template, ...values) {
 	/** Reverse the result so we process from children to parent */
 	nodes.reverse()
 
+	const nodesWithProps = new Map()
+
 	let index = values.length - 1
 	for (const node of nodes) {
 		if (node.localName === 'pota') {
@@ -651,10 +653,18 @@ export function html(template, ...values) {
 				 * precedence only if `childNodes.length` is 0, same as in
 				 * JSX.
 				 */
-				attr.name === 'children'
-					? defineProperty(node, attr.name, { value })
-					: /** Keep this else onclick wont work */
-						(node[attr.name] = value)
+				if (attr.name === 'children') {
+					defineProperty(node, attr.name, { value })
+				} else {
+					let props = nodesWithProps.get(node)
+					if (!props) {
+						props = empty()
+						nodesWithProps.set(node, props)
+					}
+					props[attr.name] = value
+					/** Keep this else onclick wont work */
+					// node[attr.name] = value
+				}
 			}
 		}
 	}
@@ -693,6 +703,11 @@ export function html(template, ...values) {
 			// `toHTML` because components may return any kind of children
 			element.replaceWith(toHTML(component))
 		}
+	}
+
+	// assign props to elements with interpolated attributes
+	for (const [node, props] of nodesWithProps) {
+		assignProps(node, props)
 	}
 
 	// return a single element if possible to make it more easy to use
