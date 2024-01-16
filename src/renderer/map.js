@@ -170,14 +170,16 @@ export function map(list, callback, sort) {
 			// as for swap, anything in between the swapped elements gets sorted,
 			// so as long as the swapped elements are close to each other is good
 			// must check in reverse as on creation stuff is added to the end
-			let current = rows[rows.length - 1]
-			for (let i = rows.length - 1; i > 0; i--) {
-				const previous = rows[i - 1]
-				if (current.begin.previousSibling !== previous.end) {
-					current.begin.before(...nodesFromRow(previous))
+			untrack(() => {
+				let current = rows[rows.length - 1]
+				for (let i = rows.length - 1; i > 0; i--) {
+					const previous = rows[i - 1]
+					if (current.begin.previousSibling !== previous.end) {
+						current.begin.before(...nodesFromRow(previous))
+					}
+					current = previous
 				}
-				current = previous
-			}
+			})
 		}
 
 		// save sorted list
