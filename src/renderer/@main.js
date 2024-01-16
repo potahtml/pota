@@ -44,6 +44,7 @@ import {
 import { assignProps } from './props/@main.js'
 import { onFinally, onReady } from './scheduler.js'
 import { isReactive } from '../lib/reactivity/isReactive.js'
+import { flat } from '../lib/std/flat.js'
 
 // DOCUMENT
 
@@ -561,7 +562,7 @@ export function html(template, ...values) {
 		cached.innerHTML = template
 			.join('<pota></pota>')
 			.trim()
-			.replace(html.selfClosing, '<$1></$1>')
+			.replace(html.close, '<$1></$1>')
 
 		html.cache.set(template, cached)
 	}
@@ -581,14 +582,28 @@ export function html(template, ...values) {
 
 			// gather props
 			const props = empty()
+			props.children = null
 			for (const { name, value } of node.attributes)
 				props[name] =
 					value === '<pota></pota>' ? values[index++] : value
 
 			// gather children
-			props.children = []
-			for (const child of node.childNodes)
-				props.children.push(nodes(child))
+			/**
+			 * `childNodes` should overwrite any children="" attribute but
+			 * only if childNodes has something
+			 */
+			const length = node.childNodes.length
+			if (length === 1) {
+				/**
+				 * When children is an array, as in >${[0, 1, 2]}< then
+				 * children will end as `[[0,1,3]]`, so flat it
+				 */
+				props.children = nodes(node.childNodes[0])
+			} else if (length) {
+				props.children = []
+				for (const child of node.childNodes)
+					props.children.push(nodes(child))
+			}
 
 			// when it's a registered component use that instead
 			const component = html.components[tag]
@@ -602,14 +617,12 @@ export function html(template, ...values) {
 		}
 	}
 
-	const result = nodes(clone)
-
-	// return a single element if possible to make it more easy to use
-	return result.length === 1 ? result[0] : result
+	// flat to return a single element if possible to make it more easy to use
+	return flat(nodes(clone))
 }
 
 html.cache = new WeakMap()
-html.selfClosing
+html.close
 html.components = empty()
 html.register = components => {
 	for (const [name, component] of entries(components)) {
@@ -619,7 +632,7 @@ html.register = components => {
 	 * Allows to fix self closing custom components tags. In HTML
 	 * undefined elements cannot self close.
 	 */
-	html.selfClosing = new RegExp(
+	html.close = new RegExp(
 		'<(' + keys(html.components).join('|') + ')\\s*/\\s*>',
 		'ig',
 	)

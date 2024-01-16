@@ -45,7 +45,6 @@ export {
 	customElement,
 	render,
 	html,
-	html as template,
 
 	/**
 	 * Do not expose insert. As removal of the element on where you
