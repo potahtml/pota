@@ -1,7 +1,7 @@
 {
   "name": "pota",
   "description": "pota is a small and pluggable Reactive Web Renderer for Reactive Libraries.",
-  "version": "0.5.54",
+  "version": "0.5.55",
   "author": "Tito Bouzout",
   "homepage": "https://pota.quack.uy/",
   "repository": {
