@@ -27,10 +27,7 @@ import {
 	removeFromArray,
 	isFunction,
 	entries,
-	getOwnPropertyNames,
 	keys,
-	defineProperty,
-	assign,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -50,9 +47,10 @@ import { isReactive } from '../lib/reactivity/isReactive.js'
 
 // DOCUMENT
 
-const createElement = tagName => document.createElement(tagName)
+const createElement = tagName =>
+	untrack(() => document.createElement(tagName))
 const createElementNS = (ns, name) =>
-	document.createElementNS(ns, name)
+	untrack(() => document.createElementNS(ns, name))
 const createElementText = text => document.createTextNode(text)
 const createFragment = () => new DocumentFragment()
 
@@ -471,11 +469,14 @@ function insertNode(parent, node, relative) {
 		} else if (name === 'LINK' && node.rel === 'canonical') {
 			prev = querySelector('link[rel="canonical"]')
 		}
-
-		// replace old node if there's any
-		prev ? prev.replaceWith(node) : parent.appendChild(node)
+		untrack(() =>
+			// replace old node if there's any
+			prev ? prev.replaceWith(node) : parent.appendChild(node),
+		)
 	} else {
-		relative ? parent.before(node) : parent.appendChild(node)
+		untrack(() =>
+			relative ? parent.before(node) : parent.appendChild(node),
+		)
 	}
 
 	// get rid of children nodes on cleanup

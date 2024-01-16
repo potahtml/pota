@@ -1,5 +1,8 @@
 import { empty, entries, microtask } from '../../lib/std/@main.js'
-import { withOwner } from '../../lib/reactivity/primitives/solid.js'
+import {
+	untrack,
+	withOwner,
+} from '../../lib/reactivity/primitives/solid.js'
 
 const properties = empty()
 const propertiesNS = empty()
@@ -75,9 +78,9 @@ propsPluginNS('class', setClassNS, false)
 // properties
 
 import { setProp } from './attribute-property.js'
-;['innerHTML', 'textContent', 'value', 'innerText'].forEach(item =>
-	propsPlugin(item, setProp, false),
-)
+;['innerHTML', 'textContent', 'value', 'innerText'].forEach(item => {
+	untrack(() => propsPlugin(item, setProp, false))
+})
 
 import {
 	setPropNS,
