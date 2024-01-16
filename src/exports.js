@@ -17,7 +17,7 @@ export {
 	withOwner,
 } from './lib/reactivity/primitives/solid.js'
 
-export { writableMemo } from './lib/reactivity/writableMemo.js'
+export { writable } from './lib/reactivity/writable.js'
 export { mutable } from './lib/reactivity/mutable.js'
 export { mutableDeep } from './lib/reactivity/mutableDeep.js'
 
