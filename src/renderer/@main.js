@@ -557,179 +557,71 @@ export function html(template, ...values) {
 	let cached = html.cache.get(template)
 	if (!cached) {
 		cached = createElement('template')
-		cached.innerHTML = template.join('<pota></pota>').trim()
+		cached.innerHTML = template
+			.join('<pota></pota>')
+			.trim()
+			.replace(html.selfClosing, '<$1></$1>')
 
 		html.cache.set(template, cached)
 	}
 
-	const clone = cached.cloneNode(true)
-	const content = clone.content
+	const clone = cached.content.cloneNode(true)
 
-	/**
-	 * It searches all nodes with our attribute wildcard OR nodes with
-	 * our name
-	 */
-	const result = document.evaluate(
-		"//*[@*='<pota></pota>']|//pota",
-		content.firstChild,
-		null,
-		// XPathResult.ORDERED_NODE_SNAPSHOT_TYPE
-		7,
-		null,
-	)
+	let index = 0
+	function nodes(node) {
+		const nodeType = node.nodeType
+		if (nodeType === 9 || nodeType === 11) {
+			// Node.DOCUMENT_NODE || Node.DOCUMENT_FRAGMENT_NODE
+			return toArray(node.childNodes).map(nodes)
+		} else if (nodeType === 1) {
+			// Node.ELEMENT_NODE
+			const tag = node.tagName
+			if (tag === 'POTA') return values[index++]
 
-	/**
-	 * As we are going to manipulate the nodes, the snapshot will change
-	 * live, and will get messed up, save it on a temp array
-	 */
-
-	/** @type {Element[]} */
-	const nodes = []
-	for (let i = 0; i < result.snapshotLength; i++) {
-		nodes.push(result.snapshotItem(i))
-	}
-
-	/** Reverse the result so we process from children to parent */
-	nodes.reverse()
-
-	const nodesWithProps = new Map()
-
-	let index = values.length - 1
-	for (const node of nodes) {
-		if (node.localName === 'pota') {
-			// replace full node
-
-			const value = values[index--]
-
-			/**
-			 * Define it as `children` of parent when parent is a registered
-			 * component. This allows components like `Show` to have
-			 * callbacks as children. Else, one would have to set the
-			 * callback as an attribute of the component, as in
-			 *
-			 * `<Show when="${true}" children="${value => value}" />`
-			 *
-			 * By adding it as a children of parent, then we can use it like
-			 * this instead:
-			 *
-			 * `<Show when="${show}">${value => value}</Show>`
-			 */
-			const parent = node.parentNode
-			if (
-				parent &&
-				parent.childNodes.length === 1 &&
-				html.components[parent.tagName]
-			) {
-				// TODO: handle case when childNodes.length > 1
-				defineProperty(parent, 'children', {
-					value,
-				})
-
-				node.remove()
-			} else {
-				/** `toHTML` because components may return any kind of children */
-				node.replaceWith(toHTML(value))
-			}
-		} else {
-			// replace attributes
-
-			/**
-			 * As we are going to manipulate the attributes these will
-			 * change live, and will get messed up, save it on a temp array.
-			 * Reverse result because `index` is reversed.
-			 */
-			const attributes = toArray(node.attributes)
-				.filter(item => item.value === '<pota></pota>')
-				.reverse()
-
-			// replace attributes
-			for (const attr of attributes) {
-				const value = values[index--]
-
-				node.removeAttribute(attr.name)
-
-				/**
-				 * `children` on a `Node` is a getter, it needs to be defined
-				 * as Object.defineProperty. Note `children` will take
-				 * precedence only if `childNodes.length` is 0, same as in
-				 * JSX.
-				 */
-				if (attr.name === 'children') {
-					defineProperty(node, attr.name, { value })
-				} else {
-					let props = nodesWithProps.get(node)
-					if (!props) {
-						props = empty()
-						nodesWithProps.set(node, props)
-					}
-					props[attr.name] = value
-					/** Keep this else onclick wont work */
-					// node[attr.name] = value
-				}
-			}
-		}
-	}
-
-	// replace user components
-	if (html.search) {
-		/**
-		 * Search for user components. Result needs to be reversed so it
-		 * replaces the nested ones first.
-		 */
-		const elements = toArray(
-			content.querySelectorAll(html.search),
-		).reverse()
-
-		for (const element of elements) {
-			// create props
+			// gather props
 			const props = empty()
-			for (const propName of getOwnPropertyNames(element)) {
-				props[propName] = element[propName]
-			}
+			for (const { name, value } of node.attributes)
+				props[name] =
+					value === '<pota></pota>' ? values[index++] : value
 
-			if (nodesWithProps.has(element)) {
-				assign(props, nodesWithProps.get(element))
-			}
+			// gather children
+			props.children = []
+			for (const child of node.childNodes)
+				props.children.push(nodes(child))
 
-			/**
-			 * It should get the children from the `childNodes` as in JSX.
-			 * But if there are no `childNodes`, and a `props.children` was
-			 * provided, then it should use `props.children`
-			 */
-			props.children = element.childNodes.length
-				? toArray(element.childNodes) // from NodeList to Array
-				: props.children !== undefined
-					? props.children
-					: null
+			// when it's a registered component use that instead
+			const component = html.components[tag]
 
-			// create user provided component instance
-			const component = html.components[element.tagName](props)
-
-			// replace node
-			// `toHTML` because components may return any kind of children
-			element.replaceWith(toHTML(component))
+			// needs to return a function so reactivity works properly
+			return component
+				? () => component(props)
+				: () => create(tag)(props)
+		} else {
+			return node
 		}
 	}
 
-	// assign props to elements with interpolated attributes
-	for (const [node, props] of nodesWithProps) {
-		assignProps(node, props)
-	}
+	const result = nodes(clone)
 
 	// return a single element if possible to make it more easy to use
-	return content.childNodes.length === 1
-		? content.childNodes[0]
-		: toArray(content.childNodes) // from NodeList to Array
+	return result.length === 1 ? result[0] : result
 }
 
 html.cache = new WeakMap()
-html.search = ''
+html.selfClosing
 html.components = empty()
 html.register = components => {
 	for (const [name, component] of entries(components)) {
 		html.components[name.toUpperCase()] = create(component)
 	}
-	html.search = keys(html.components).join(',')
+	/**
+	 * Allows to fix self closing custom components tags. In HTML
+	 * undefined elements cannot self close.
+	 */
+	html.selfClosing = new RegExp(
+		'<(' + keys(html.components).join('|') + ')\\s*/\\s*>',
+		'ig',
+	)
 }
 
 /**
