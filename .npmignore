@@ -2,3 +2,5 @@ todo
 .gitignore
 node_modules
 release.bat
+release.mjs
+dist.standalone
