@@ -43,7 +43,7 @@ import('../package.json', {
 		'./releases/note',
 		'v' + version + '\n' + releaseNotes,
 	)
-	execSync('git tag -a v' + version + ' --file="./releases/note"')
+	execSync('git tag -a ' + version + ' --file="./releases/note"')
 	fs.rmSync('./releases/note')
 
 	// git push, tags / npm publish
