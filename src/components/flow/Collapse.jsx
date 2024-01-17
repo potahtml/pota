@@ -1,10 +1,8 @@
 import { customElement } from '../../renderer/@main.js'
 import { getValue } from '../../lib/std/@main.js'
+import { CustomElement } from '../../lib/comp/CustomElement.js'
 
-class CollapseElement extends HTMLElement {
-	constructor() {
-		super(), this.attachShadow({ mode: 'open' })
-	}
+class CollapseElement extends CustomElement {
 	hide() {
 		this.shadowRoot.innerHTML = ''
 	}
