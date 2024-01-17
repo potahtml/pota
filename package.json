@@ -98,10 +98,10 @@
   },
   "scripts": {
     "dev": "concurrently --kill-others \"npm:watch:*\"",
-    "types": "tsc",
     "watch:types": "tsc -w",
-    "standalone": "cd dist.standalone && rollup -c",
-    "watch:standalone": "cd dist.standalone && rollup -c -w",
+    "watch:standalone": "cd releases && rollup -c -w",
+    "types": "tsc",
+    "standalone": "cd releases && rollup -c",
     "prepublishOnly": "npm run types || npm run standalone || echo 1"
   },
   "dependencies": {

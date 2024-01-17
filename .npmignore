@@ -1,6 +1,4 @@
-todo
 .gitignore
 node_modules
+releases
 release.bat
-release.mjs
-dist.standalone

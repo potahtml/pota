@@ -28,14 +28,24 @@ import('./package.json', {
 		'./src/version.js',
 		"export const version = '" + version + "'",
 	)
+	// notes
+	fs.appendFileSync(
+		'./releases/notes',
+		'\nv' + version + '\n\n' + releaseNotes + '\n',
+	)
 
 	// git add, commit with version number
 	execSync('git add --all')
 	execSync('git commit -m "v' + version + '"')
+
 	// tag
-	fs.writeFileSync('./release-notes', releaseNotes)
-	execSync('git tag -a ' + version + ' --file="./release-notes"')
-	fs.rmSync('./release-notes')
+	fs.writeFileSync(
+		'./releases/note',
+		'v' + version + '\n' + releaseNotes,
+	)
+	execSync('git tag -a v' + version + ' --file="./releases/note"')
+	fs.rmSync('./releases/note')
+
 	// git push, tags / npm publish
 	execSync('git push --all --prune')
 	execSync('git push --tags --prune')
