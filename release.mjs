@@ -1,6 +1,20 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
 
+// get last used tag
+const lastTag = fs
+	.readFileSync('./src/version.js', 'utf8')
+	.replace("export const version = '", '')
+	.replace("'", '')
+
+// get all commits since the last tag
+const releaseNotes = execSync(
+	`git log ${lastTag}..HEAD --no-merges --oneline`,
+)
+	.toString()
+	.trim()
+	.replace(/\r\n/g, '\n')
+
 // bump version number
 execSync('npm version patch --git-tag-version false')
 
@@ -15,11 +29,13 @@ import('./package.json', {
 		"export const version = '" + version + "'",
 	)
 
-	// git add, commit, tag with version number
+	// git add, commit with version number
 	execSync('git add --all')
 	execSync('git commit -m "v' + version + '"')
-	execSync('git tag ' + version)
-
+	// tag
+	fs.writeFileSync('./release-notes', releaseNotes)
+	execSync('git tag -a ' + version + ' --file="./release-notes"')
+	fs.rmSync('./release-notes')
 	// git push, tags / npm publish
 	execSync('git push --all --prune')
 	execSync('git push --tags --prune')
