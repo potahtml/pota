@@ -549,94 +549,94 @@ function clearNode(node) {
 }
 
 /**
- * Creates tagged template components
+ * Function to create tagged template components
  *
- * @param {TemplateStringsArray} template
- * @param {...any} values
- * @returns {Children}
+ * @returns {Function & { register: ({}) => void }}
  */
-export function html(template, ...values) {
-	let cached = html.cache.get(template)
-	if (!cached) {
-		cached = createElement('template')
-		cached.innerHTML = template
-			.join('<pota></pota>')
-			.trim()
-			.replace(html.close, '<$1></$1>')
+export function HTML() {
+	const components = empty()
+	/**
+	 * Creates tagged template components
+	 *
+	 * @param {TemplateStringsArray} template
+	 * @param {...any} values
+	 * @returns {Children}
+	 */
+	function html(template, ...values) {
+		let cached = HTML.cache.get(template)
+		if (!cached) {
+			cached = createElement('template')
+			cached.innerHTML = template
+				.join('<pota></pota>')
+				// expand self-closing tags
+				.replace(/<([a-z]+)\s*\/\s*>/gi, '<$1></$1>')
 
-		html.cache.set(template, cached)
+			HTML.cache.set(template, cached)
+		}
+
+		const clone = cached.content.cloneNode(true)
+
+		let index = 0
+		function nodes(node) {
+			const nodeType = node.nodeType
+			if (nodeType === 9 || nodeType === 11) {
+				// Node.DOCUMENT_NODE || Node.DOCUMENT_FRAGMENT_NODE
+				return toArray(node.childNodes).map(nodes)
+			} else if (nodeType === 1) {
+				// Node.ELEMENT_NODE
+				const tag = node.tagName
+				if (tag === 'POTA') return values[index++]
+
+				// gather props
+				const props = empty()
+				props.children = null
+				for (const { name, value } of node.attributes)
+					props[name] =
+						value === '<pota></pota>' ? values[index++] : value
+
+				// gather children
+				/**
+				 * `childNodes` should overwrite any children="" attribute but
+				 * only if childNodes has something
+				 */
+				const length = node.childNodes.length
+				if (length === 1) {
+					/**
+					 * When children is an array, as in >${[0, 1, 2]}< then
+					 * children will end as `[[0,1,3]]`, so flat it
+					 */
+					props.children = nodes(node.childNodes[0])
+				} else if (length) {
+					props.children = []
+					for (const child of node.childNodes)
+						props.children.push(nodes(child))
+				}
+
+				// when it's a registered component use that instead
+				const component = components[tag]
+
+				// needs to return a function so reactivity works properly
+				return component
+					? () => component(props)
+					: () => create(tag)(props)
+			} else {
+				return node
+			}
+		}
+
+		// flat to return a single element if possible to make it more easy to use
+		return flat(nodes(clone))
 	}
 
-	const clone = cached.content.cloneNode(true)
-
-	let index = 0
-	function nodes(node) {
-		const nodeType = node.nodeType
-		if (nodeType === 9 || nodeType === 11) {
-			// Node.DOCUMENT_NODE || Node.DOCUMENT_FRAGMENT_NODE
-			return toArray(node.childNodes).map(nodes)
-		} else if (nodeType === 1) {
-			// Node.ELEMENT_NODE
-			const tag = node.tagName
-			if (tag === 'POTA') return values[index++]
-
-			// gather props
-			const props = empty()
-			props.children = null
-			for (const { name, value } of node.attributes)
-				props[name] =
-					value === '<pota></pota>' ? values[index++] : value
-
-			// gather children
-			/**
-			 * `childNodes` should overwrite any children="" attribute but
-			 * only if childNodes has something
-			 */
-			const length = node.childNodes.length
-			if (length === 1) {
-				/**
-				 * When children is an array, as in >${[0, 1, 2]}< then
-				 * children will end as `[[0,1,3]]`, so flat it
-				 */
-				props.children = nodes(node.childNodes[0])
-			} else if (length) {
-				props.children = []
-				for (const child of node.childNodes)
-					props.children.push(nodes(child))
-			}
-
-			// when it's a registered component use that instead
-			const component = html.components[tag]
-
-			// needs to return a function so reactivity works properly
-			return component
-				? () => component(props)
-				: () => create(tag)(props)
-		} else {
-			return node
+	html.register = userComponents => {
+		for (const [name, component] of entries(userComponents)) {
+			components[name.toUpperCase()] = create(component)
 		}
 	}
 
-	// flat to return a single element if possible to make it more easy to use
-	return flat(nodes(clone))
+	return html
 }
-
-html.cache = new WeakMap()
-html.close
-html.components = empty()
-html.register = components => {
-	for (const [name, component] of entries(components)) {
-		html.components[name.toUpperCase()] = create(component)
-	}
-	/**
-	 * Allows to fix self closing custom components tags. In HTML
-	 * undefined elements cannot self close.
-	 */
-	html.close = new RegExp(
-		'<(' + keys(html.components).join('|') + ')\\s*/\\s*>',
-		'ig',
-	)
-}
+HTML.cache = new WeakMap()
 
 /**
  * Defines a custom Element (if isnt defined already), and returns a
