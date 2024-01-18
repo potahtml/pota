@@ -568,8 +568,13 @@ export function HTML() {
 			cached = createElement('template')
 			cached.innerHTML = template
 				.join('<pota></pota>')
-				// expand self-closing tags
-				.replace(/<([a-z]+)\s*\/\s*>/gi, '<$1></$1>')
+				/**
+				 * Expand self-closing tags that don't contain attributes,
+				 * because self-closing tags with innerHTML won't work.
+				 */
+				.replace(/<([-a-z]+)\s*\/\s*>/gi, '<$1></$1>')
+				// un-expand brs because it causes double lines
+				.replaceAll('<br></br>', '<br/>')
 
 			HTML.cache.set(template, cached)
 		}
