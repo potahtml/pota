@@ -10,7 +10,6 @@ TODO:
 	- LSP
 
 	Reactivity:
-	- flimsy is broken for some reason
 	- abstract equals param on signals
 	- add maverick https://github.com/maverick-js/signals
 

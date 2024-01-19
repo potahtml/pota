@@ -46,7 +46,7 @@ export const signal = (initialValue, options) => {
  * @param {Function} fn - Function to re-run when dependencies change
  * @returns {Signal} - Read only signal
  */
-const memo = fn => markReactive(createMemo(fn))
+const memo = fn => markReactive(createMemo(fn, { equals: false }))
 
 /**
  * Creates a new root
