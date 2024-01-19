@@ -10,10 +10,12 @@ export const $customElement = $()
 
 // supported namespaces
 
+const prefix = 'http://www.w3.org/'
+
 /** @type {Props} */
 export const NS = {
-	svg: 'http://www.w3.org/2000/svg',
-	math: 'http://www.w3.org/1998/Math/MathML',
-	html: 'http://www.w3.org/1999/xhtml',
-	xlink: 'http://www.w3.org/1999/xlink',
+	svg: prefix + '2000/svg',
+	math: prefix + '1998/Math/MathML',
+	html: prefix + '1999/xhtml',
+	xlink: prefix + '1999/xlink',
 }
