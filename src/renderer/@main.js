@@ -27,7 +27,6 @@ import {
 	removeFromArray,
 	isFunction,
 	entries,
-	keys,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -48,6 +47,10 @@ import { flat } from '../lib/std/flat.js'
 
 // DOCUMENT
 
+/**
+ * It needs to untrack because custom elements may have callbacks
+ * reading signals
+ */
 const createElement = tagName =>
 	untrack(() => document.createElement(tagName))
 const createElementNS = (ns, name) =>
@@ -551,7 +554,7 @@ function clearNode(node) {
 /**
  * Function to create tagged template components
  *
- * @returns {Function & { register: ({}) => void }}
+ * @returns {Function & { define: ({}) => void }}
  */
 export function HTML() {
 	const components = empty()
@@ -633,7 +636,7 @@ export function HTML() {
 		return flat(nodes(clone))
 	}
 
-	html.register = userComponents => {
+	html.define = userComponents => {
 		for (const [name, component] of entries(userComponents)) {
 			components[name.toUpperCase()] = create(component)
 		}
@@ -691,7 +694,7 @@ export function toHTML(children) {
 	}
 	const fragment = createFragment()
 	createChildren(fragment, children)
-	return fragment // toArray(elements.childNodes)
+	return fragment
 }
 
 /**
