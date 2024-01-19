@@ -1,7 +1,8 @@
-import { $customElement, NS } from '../../constants.js'
+import { NS } from '../../constants.js'
 import { untrack } from '../../lib/reactivity/primitives/solid.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
+import { onPropChange } from './on-prop-change.js'
 
 // NODE ATTRIBUTES
 
@@ -49,6 +50,6 @@ export function _setAttribute(node, name, value, ns) {
 				? node.setAttributeNS(NS[ns], name, value)
 				: node.setAttribute(name, value)
 		}
-		if ($customElement in node) node.onPropChange(name, value)
+		onPropChange(node, name, value)
 	})
 }

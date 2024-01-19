@@ -1,6 +1,6 @@
-import { $customElement } from '../../constants.js'
 import { untrack } from '../../lib/reactivity/primitives/solid.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
+import { onPropChange } from './on-prop-change.js'
 
 // BOOL ATTRIBUTES
 
@@ -33,6 +33,6 @@ function _setBool(node, name, value) {
 		// if the value is falsy gets removed
 		!value ? node.removeAttribute(name) : node.setAttribute(name, '')
 
-		if ($customElement in node) node.onPropChange(name, value)
+		onPropChange(node, name, value)
 	})
 }
