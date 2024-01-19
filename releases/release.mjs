@@ -19,11 +19,7 @@ import('../package.json', {
 	execSync('git add --all')
 	execSync('git commit -m "v' + version + '"')
 
-	// tag
-	execSync('git tag ' + version)
-
-	// git push, tags / npm publish
+	// git push / npm publish
 	execSync('git push --all --prune')
-	execSync('git push --tags --prune')
 	execSync('npm publish')
 })
