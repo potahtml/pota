@@ -20,6 +20,7 @@ export {
 export { writable } from './lib/reactivity/writable.js'
 export { mutable } from './lib/reactivity/mutable.js'
 export { mutableDeep } from './lib/reactivity/mutableDeep.js'
+export { withValue } from './lib/reactivity/withValue.js'
 
 export {
 	/**
@@ -92,9 +93,10 @@ export {
 export {
 	propsPlugin,
 	propsPluginNS,
-	setElementAttribute,
-	setElementProperty,
-	setElementStyle,
+	setAttribute,
+	setProperty,
+	setStyle,
+	setBool,
 } from './renderer/props/@main.js'
 
 export { propsSplit } from './renderer/props/propsSplit.js'

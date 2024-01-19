@@ -1,103 +1,62 @@
-import { empty, entries, microtask } from '../../lib/std/@main.js'
+import { entries } from '../../lib/std/@main.js'
+import { untrack } from '../../lib/reactivity/primitives/solid.js'
+
 import {
-	untrack,
-	withOwner,
-} from '../../lib/reactivity/primitives/solid.js'
+	plugins,
+	pluginsNS,
+	propsPlugin,
+	propsPluginNS,
+} from './plugin.js'
 
-const properties = empty()
-const propertiesNS = empty()
-
-/**
- * Defines a prop that can be used on any JSX Element
- *
- * @param {string} propName - Name of the prop
- * @param {(
- * 	node: Elements,
- * 	propName: string,
- * 	propValue: Function | any,
- * 	props: object,
- * ) => void} fn
- *   - Function to run when this prop is found on a JSX Element
- *
- * @param {boolean} [runOnMicrotask=true] - To avoid the problem of
- *   needed props not being set, or children elements not created yet.
- *   Default is `true`
- */
-export const propsPlugin = (propName, fn, runOnMicrotask = true) => {
-	plugin(properties, propName, fn, runOnMicrotask)
-}
-
-/**
- * Defines a namespaced prop that can be used on any JSX Element
- *
- * @param {string} NSName - Name of the namespace
- * @param {(
- * 	node: Elements,
- * 	propName: string,
- * 	propValue: Function | any,
- * 	props: object,
- * 	localName: string,
- * 	ns: string,
- * ) => void} fn
- *   - Function to run when this prop is found on a JSX Element
- *
- * @param {boolean} [runOnMicrotask=true] - To avoid the problem of
- *   needed props not being set, or children elements not created yet.
- *   Default is `true`
- */
-export const propsPluginNS = (NSName, fn, runOnMicrotask = true) => {
-	plugin(propertiesNS, NSName, fn, runOnMicrotask)
-}
-
-const plugin = (object, name, fn, runOnMicrotask) => {
-	object[name] = !runOnMicrotask
-		? fn
-		: (...args) => {
-				const owned = withOwner()
-				microtask(() => owned(() => fn(...args)))
-			}
-}
+export { propsPlugin, propsPluginNS }
+export { setProperty } from './property.js'
+export { setAttribute } from './attribute.js'
+export { setBool } from './bool.js'
+export { setElementStyle as setStyle } from './style.js'
 
 // styles
 
-import { setStyle } from './style.js'
+import { setStyle, setStyleNS, setVarNS } from './style.js'
 propsPlugin('style', setStyle, false)
-
-import { setStyleNS, setVarNS } from './style.js'
 propsPluginNS('style', setStyleNS, false)
 propsPluginNS('var', setVarNS, false)
 
 // class
 
-import { setClass } from './class.js'
+import { setClass, setClassNS } from './class.js'
 propsPlugin('class', setClass, false)
-
-import { setClassNS } from './class.js'
 propsPluginNS('class', setClassNS, false)
 
-// properties
+// forced as properties
 
-import { setProp } from './attribute-property.js'
-;['innerHTML', 'textContent', 'value', 'innerText'].forEach(item => {
-	untrack(() => propsPlugin(item, setProp, false))
-})
+import { setProperty } from './property.js'
+for (const item of [
+	'value',
+	'textContent',
+	'innerText',
+	'innerHTML',
+]) {
+	propsPlugin(item, setProperty, false)
+}
 
-import {
-	setPropNS,
-	setAttributeNS,
-	setBoolNS,
-} from './attribute-property.js'
-propsPluginNS('prop', setPropNS, false)
+// namespaced
+
+import { setPropertyNS } from './property.js'
+propsPluginNS('prop', setPropertyNS, false)
+
+import { setAttributeNS } from './attribute.js'
 propsPluginNS('attr', setAttributeNS, false)
+
+import { setBoolNS } from './bool.js'
 propsPluginNS('bool', setBoolNS, false)
 
 // life-cycles
 
 import { setOnMount, setUnmount } from './lifecycles.js'
 propsPlugin('onMount', setOnMount, false)
-propsPlugin('onUnmount', setUnmount, false)
-
 propsPluginNS('onMount', setOnMount, false)
+
+propsPlugin('onUnmount', setUnmount, false)
 propsPluginNS('onUnmount', setUnmount, false)
 
 // ref
@@ -107,12 +66,13 @@ propsPluginNS('ref', setOnMount, false)
 
 // events
 
-import { eventName, setEventNS, addEventListener } from './event.js'
+import { setEventNS } from './event.js'
 propsPluginNS('on', setEventNS, false)
 
 // catch all
 
-import { setNodeProp } from './attribute-property.js'
+import { setUnknownProp } from './unknown.js'
+import { eventName, addEventListener } from './event.js'
 
 /**
  * Assigns props to an Element
@@ -126,8 +86,8 @@ export function assignProps(node, props) {
 		if (name === 'children') continue
 
 		// run plugins
-		if (properties[name]) {
-			properties[name](node, name, value, props)
+		if (plugins[name]) {
+			plugins[name](node, name, value, props)
 			continue
 		}
 
@@ -140,13 +100,12 @@ export function assignProps(node, props) {
 		}
 
 		// with ns
-
 		const [ns, localName] =
 			name.indexOf(':') !== -1 ? name.split(':') : ['', name]
 
 		// run plugins NS
-		if (propertiesNS[ns]) {
-			propertiesNS[ns](node, name, value, props, localName, ns)
+		if (pluginsNS[ns]) {
+			pluginsNS[ns](node, name, value, props, localName, ns)
 			continue
 		}
 
@@ -159,13 +118,6 @@ export function assignProps(node, props) {
 		}
 
 		// catch all
-		setNodeProp(node, name, value, ns)
+		setUnknownProp(node, name, value, ns)
 	}
 }
-
-export {
-	setNodeProperty as setElementProperty,
-	setNodeAttribute as setElementAttribute,
-} from './attribute-property.js'
-
-export { setElementStyle } from './style.js'

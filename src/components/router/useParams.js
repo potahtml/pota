@@ -1,4 +1,4 @@
-import { proxy } from '../../lib/reactivity/@main.js'
+import { proxy } from '../../lib/reactivity/proxy.js'
 import { empty, entries } from '../../lib/std/@main.js'
 import {
 	signal,

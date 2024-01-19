@@ -1,5 +1,5 @@
 import { isArray, isFunction, isNotNullObject } from '../std/@main.js'
-import { isReactive } from '../reactivity/@main.js'
+import { isReactive } from '../reactivity/isReactive.js'
 
 /**
  * Returns true if the value can be made a Component

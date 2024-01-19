@@ -1,11 +1,11 @@
 // node style
 
 import { effect } from '../../lib/reactivity/primitives/solid.js'
+import { withValue } from '../../lib/reactivity/withValue.js'
 
 import {
 	entries,
 	getValue,
-	isFunction,
 	isNotNullObject,
 	isNullUndefined,
 } from '../../lib/std/@main.js'
@@ -51,7 +51,7 @@ export const setVarNS = (node, name, value, props, localName, ns) =>
 function setNodeStyle(style, value) {
 	if (isNotNullObject(value)) {
 		for (const [name, _value] of entries(value))
-			setNodeStyleValue(style, name, _value)
+			setStyleValue(style, name, _value)
 		return
 	}
 	const type = typeof value
@@ -73,26 +73,22 @@ function setNodeStyle(style, value) {
  * @param {unknown} value
  */
 export const setElementStyle = (node, name, value) =>
-	setNodeStyleValue(node.style, name, value)
+	setStyleValue(node.style, name, value)
 
 /**
  * @param {CSSStyleDeclaration} style
  * @param {string} name
  * @param {unknown} value
  */
-const setNodeStyleValue = (style, name, value) =>
-	isFunction(value)
-		? effect(() => {
-				_setNodeStyleValue(style, name, getValue(value))
-			})
-		: _setNodeStyleValue(style, name, value)
+const setStyleValue = (style, name, value) =>
+	withValue(value, value => _setStyleValue(style, name, value))
 
 /**
  * @param {CSSStyleDeclaration} style
  * @param {string} name
- * @param {unknown} value
+ * @param {string | null} value
  */
-const _setNodeStyleValue = (style, name, value) =>
+const _setStyleValue = (style, name, value) =>
 	// if the value is null or undefined it will be removed
 	isNullUndefined(value)
 		? style.removeProperty(name)

@@ -1,6 +1,6 @@
 import { untrack } from '../reactivity/primitives/solid.js'
 import { isArray, isFunction } from '../std/@main.js'
-import { isReactive } from '../reactivity/@main.js'
+import { isReactive } from '../reactivity/isReactive.js'
 import { markComponent } from './markComponent.js'
 
 /**
@@ -20,8 +20,8 @@ export function makeCallback(children) {
 		isReactive(fn)
 			? fn
 			: isFunction(fn)
-			? (...args) => untrack(() => fn(...args))
-			: () => fn,
+				? (...args) => untrack(() => fn(...args))
+				: () => fn,
 	)
 	return markComponent((...args) => children.map(fn => fn(...args)))
 }
