@@ -187,7 +187,11 @@ function eventHandlerDelegated(e) {
  */
 function eventDispatch(node, handlers, e) {
 	for (const handler of handlers) {
-		handler[$meta][0].call(node, ...handler[$meta].slice(1), e)
+		try {
+			handler[$meta][0].call(node, ...handler[$meta].slice(1), e)
+		} catch (e) {
+			console.error(e)
+		}
 		if (e.cancelBubble) break
 	}
 }
