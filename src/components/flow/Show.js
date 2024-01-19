@@ -23,8 +23,5 @@ export function Show(props) {
 		? null
 		: memo(() => resolve(props.fallback))
 
-	return memo(() => {
-		const result = condition()
-		return result ? callback(value) : fallback
-	})
+	return memo(() => (condition() ? callback(value) : fallback))
 }
