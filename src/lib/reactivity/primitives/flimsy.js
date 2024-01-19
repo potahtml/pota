@@ -20,6 +20,8 @@ import {
 	// context
 	// useContext,
 	createContext,
+	getOwner,
+	runWithOwner,
 } from 'flimsy'
 
 /**
@@ -46,7 +48,7 @@ export const signal = (initialValue, options) => {
  * @param {Function} fn - Function to re-run when dependencies change
  * @returns {Signal} - Read only signal
  */
-const memo = fn => markReactive(createMemo(fn, { equals: false }))
+const memo = fn => markReactive(createMemo(fn))
 
 /**
  * Creates a new root
@@ -171,10 +173,12 @@ function lazyMemo(fn) {
 export { lazyMemo as memo }
 
 /**
- * Noop. Flimsy doesnt implement `withOwner`
+ * Returns a function on which you can pass functions to run with the
+ * current owner
  *
  * - @returns {(fn)=>any}
  */
 export const withOwner = () => {
-	return fn => fn()
+	const owner = getOwner()
+	return fn => runWithOwner(owner, fn)
 }

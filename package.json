@@ -105,23 +105,23 @@
     "prepublishOnly": "npm run types || npm run standalone || echo 1"
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "@babel/plugin-transform-react-jsx": "^7.23.4",
     "babel-plugin-transform-rename-import": "^2.3.0",
-    "flimsy": "^1.0.3",
-    "oby": "^14.3.5",
-    "solid-js": "1.x"
+    "flimsy": "^1.1.0",
+    "oby": "^15.1.0",
+    "solid-js": "^1.8.11"
   },
   "peerDependencies": {
     "@babel/core": "7.x",
     "colorjs.io": "^0.4.5"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "typescript": "^5.2.2",
-    "rollup": "^4.1.4",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4"
+    "@rollup/plugin-terser": "^0.4.4",
+    "concurrently": "^8.2.2",
+    "rollup": "^4.9.5",
+    "typescript": "^5.3.3"
   },
   "prettier": {
     "printWidth": 70,
