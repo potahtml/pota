@@ -1,8 +1,8 @@
-import { execSync } from 'child_process'
 import fs from 'fs'
+import { execSync as $ } from 'child_process'
 
 // bump version number
-execSync('npm version patch --git-tag-version false')
+$('npm version patch --git-tag-version false')
 
 // read version number
 import('../package.json', {
@@ -16,10 +16,10 @@ import('../package.json', {
 	)
 
 	// git add, commit with version number
-	execSync('git add --all')
-	execSync('git commit -m "v' + version + '"')
+	$('git add --all')
+	$('git commit -m "v' + version + '"')
 
 	// git push / npm publish
-	execSync('git push --all --prune')
-	execSync('npm publish')
+	$('git push --all --prune')
+	$('npm publish')
 })
