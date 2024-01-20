@@ -1,10 +1,10 @@
 // routes
 
-export { Route } from './Route.jsx'
+export { Route } from './Route.js'
 
 // A
 
-export { A } from './link.jsx'
+export { A } from './link.js'
 
 // navigate
 

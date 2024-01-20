@@ -1,8 +1,10 @@
 // utils
+import { create } from '../../renderer/@renderer.js'
 import { isRelative, replaceParams } from '../../lib/urls/@main.js'
 
 // local
 import { Context } from './context.js'
+import { markComponent } from '../../lib/comp/markComponent.js'
 
 /*
  * // props
@@ -34,10 +36,12 @@ export function A(props) {
 		!isRelative(href[0]) || !base
 			? href
 			: base.includes('/#')
-			? // making link dos/ relative to http://localhost:11433/#uno/
-			  // becomes http://localhost:11433/#uno/dos/
-			  base + href
-			: new URL(href, base).href
+				? // making link dos/ relative to http://localhost:11433/#uno/
+					// becomes http://localhost:11433/#uno/dos/
+					base + href
+				: new URL(href, base).href
 
-	return <a {...{ ...props, href, params: null }} />
+	return markComponent(() =>
+		create('a')({ ...{ ...props, href, params: null } }),
+	)
 }

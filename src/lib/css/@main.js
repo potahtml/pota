@@ -1,3 +1,3 @@
 export { css } from './css.js'
 export { sheet } from './sheet.js'
-export { customElementGroup } from './customElementGroup.jsx'
+export { customElementGroup } from './customElementGroup.js'

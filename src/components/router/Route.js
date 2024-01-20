@@ -14,7 +14,8 @@ import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
 import { onDone } from '../../renderer/scheduler.js'
-
+import { create as createComponent } from '../../renderer/@renderer.js'
+import { markComponent } from '../../lib/comp/markComponent.js'
 /**
  * Renders children if the path matches the current location
  *
@@ -46,7 +47,7 @@ export function Route(props) {
 			props.path === undefined
 				? '(|#.*)$' // ends with nothing or has a hash followed of stuff
 				: // ends with nothing or has a hash followed of stuff
-				  props.path
+					props.path
 						.replace('$', '(|#.*)$')
 						// pathname always starts with /, make sure the hash is considered
 						.replace(/^#/, '/#'),
@@ -102,15 +103,18 @@ export function Route(props) {
 		parent.removeChildren(context)
 	})
 
-	return (
-		<Context.Provider value={context}>
-			<Dynamic
-				component={props.collapse ? Collapse : Show}
-				when={() => show() && optional(props.when)}
-				fallback={props.fallback}
-				children={props.children}
-			/>
-		</Context.Provider>
+	return markComponent(() =>
+		createComponent(Context.Provider)({
+			value: context,
+			children: markComponent(() =>
+				createComponent(Dynamic)({
+					component: props.collapse ? Collapse : Show,
+					when: () => show() && optional(props.when),
+					fallback: props.fallback,
+					children: props.children,
+				}),
+			),
+		}),
 	)
 }
 
