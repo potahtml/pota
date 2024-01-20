@@ -152,12 +152,12 @@ function lazyMemo(fn) {
 		return fn()
 	})
 
-	let read = markReactive(() => {
+	let read = () => {
 		setSleeping(false)
 		read = m
 		return m()
-	})
-	return read
+	}
+	return markReactive(() => read())
 }
 export { lazyMemo as memo }
 
