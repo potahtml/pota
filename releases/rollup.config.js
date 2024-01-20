@@ -39,61 +39,16 @@ export default [
       },
     ],
   },
-  // full
-  {
-    input: './standalone.full.js',
-    plugins,
-    output: [
-      {
-        ...outputOptions,
-        file: '../dist/standalone.full.js',
-      },
-    ],
-  },
+
   // full no min
   {
-    input: './standalone.full.js',
+    input: './standalone.js',
     plugins: pluginsNoMin,
     output: [
       {
         ...outputOptions,
-        file: '../dist/standalone.full.no-min.js',
+        file: '../dist/standalone.no-min.js',
       },
     ],
-  },
-  // no router
-  {
-    input: './standalone.router-no.js',
-    plugins,
-    output: [
-      {
-        ...outputOptions,
-        file: '../dist/standalone.router-no.js',
-      },
-    ],
-  },
-  // without solid
-  {
-    input: './standalone.js',
-    plugins,
-    output: [
-      {
-        ...outputOptions,
-        file: '../dist/standalone.solid-no.js',
-      },
-    ],
-    external: ['solid-js/dist/solid.js'],
-  },
-  // no router without solid
-  {
-    input: './standalone.router-no.js',
-    plugins,
-    output: [
-      {
-        ...outputOptions,
-        file: '../dist/standalone.router-no.solid-no.js',
-      },
-    ],
-    external: ['solid-js/dist/solid.js'],
   },
 ]
