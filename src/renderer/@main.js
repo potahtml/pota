@@ -194,9 +194,7 @@ function Factory(value) {
 			if (value instanceof Node) {
 				// an actual node component <div>
 				component = (props = empty(), scope = Scope()) =>
-					untrack(() =>
-						createNode(value.cloneNode(true), props, scope),
-					)
+					untrack(() => createNode(value, props, scope))
 				break
 			}
 
