@@ -140,10 +140,8 @@ function doScrolls(scrolls) {
  */
 Route.Default = props => {
 	const context = Context()
-	return (
-		<Show
-			when={context.noneMatch}
-			children={props.children}
-		/>
-	)
+	return createComponent(Show)({
+		when: context.noneMatch,
+		children: props.children,
+	})
 }
