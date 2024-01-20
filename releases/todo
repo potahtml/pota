@@ -16,7 +16,6 @@ TODO:
 	Miscellaneous:
 	- provide a rollup template
 	- typings
- 	- allow to use a class in createWebElementsGroup
 
 BUGS:
 
@@ -45,4 +44,3 @@ FUTURE FEATURES:
 	- change some for of for for in
 	- merge effects on equal reactive values
 	- functions that accept arguments of changing types should be split
-	- get rid of the ReactiveMap class as is no longer checking for instanceof ReactiveMap

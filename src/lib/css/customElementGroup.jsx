@@ -1,6 +1,7 @@
 import { create, toHTML } from '../../exports.js'
 import { CustomElement as CustomElementsTemplate } from '../comp/CustomElement.js'
 import { assign } from '../std/assign.js'
+import { empty } from '../std/empty.js'
 import { sheet } from './sheet.js'
 
 /**
@@ -18,7 +19,7 @@ export function customElementGroup(groupCSS, externalSheets) {
 	const groupSheet = sheet(groupCSS)
 
 	// element data (local sheet, component)
-	const data = new Map()
+	const data = empty()
 
 	// element factory
 	class CustomElement extends CustomElementsTemplate {
@@ -26,9 +27,7 @@ export function customElementGroup(groupCSS, externalSheets) {
 			super()
 
 			// get element data
-			const element = data.get(
-				customElements.getName(this.constructor),
-			)
+			const element = data[customElements.getName(this.constructor)]
 
 			// add external sheet
 			this.addExternalStyles(externalSheets)
@@ -61,11 +60,11 @@ export function customElementGroup(groupCSS, externalSheets) {
 			const isClass = component.toString().startsWith('class')
 
 			// save data
-			data.set(name, {
+			data[name] = {
 				sheet: sheet(css),
 				component: isClass ? null : component,
 				isClass,
-			})
+			}
 
 			// define custom element
 			customElements.define(

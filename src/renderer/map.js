@@ -8,22 +8,6 @@ import {
 } from '../lib/reactivity/primitives/solid.js'
 import { getValue, removeFromArray } from '../lib/std/@main.js'
 
-/** Reactive Map */
-export class ReactiveMap {
-	[$map] = null
-	/**
-	 * @param {Each} items
-	 * @param {Function} callback
-	 */
-	constructor(items, callback) {
-		this.mapper = map(items, callback, true)
-	}
-	/** @param {Function} fn */
-	map(fn) {
-		return this.mapper(fn)
-	}
-}
-
 /**
  * Reactive Map
  *
@@ -33,7 +17,7 @@ export class ReactiveMap {
  */
 export function map(list, callback, sort) {
 	const cache = new Map()
-	const duplicates = new Map() // for when caching by value is not possible [1, 2, 1]
+	const duplicates = new Map() // for when caching by value is not possible [1, 2, 1, 1, 1]
 
 	let runId = 0
 
@@ -67,9 +51,9 @@ export function map(list, callback, sort) {
 		// a root is created so we can call dispose to get rid of an item
 		return root(dispose => {
 			/** @type Children[] */
-			const nodes = untrack(() =>
-				fn ? fn(callback(item, index), index) : callback(item, index),
-			)
+			const nodes = fn
+				? fn(callback(item, index), index)
+				: callback(item, index)
 
 			const row = {
 				runId: -1,
@@ -118,59 +102,60 @@ export function map(list, callback, sort) {
 	 * @param {Function} fn
 	 * @returns {Children[] | null}
 	 */
-	return function (fn) {
+	function mapper(fn) {
 		const items = getValue(list) || []
 
-		runId++
-		rows = []
+		return untrack(() => {
+			runId++
+			rows = []
 
-		for (const [index, item] of items.entries()) {
-			let row = cache.get(item)
+			for (const [index, item] of items.entries()) {
+				let row = cache.get(item)
 
-			// if the item doesnt exists, create it
-			if (!row) {
-				row = create(item, index, fn, false)
-				cache.set(item, row)
-			} else if (row.runId === runId) {
-				// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
-				// if the saved value was already used on this run, create a new one
-				let dupes = duplicates.get(item)
-				if (!dupes) {
-					dupes = []
-					duplicates.set(item, dupes)
+				// if the item doesnt exists, create it
+				if (!row) {
+					row = create(item, index, fn, false)
+					cache.set(item, row)
+				} else if (row.runId === runId) {
+					// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
+					// if the saved value was already used on this run, create a new one
+					let dupes = duplicates.get(item)
+					if (!dupes) {
+						dupes = []
+						duplicates.set(item, dupes)
+					}
+					for (row of dupes) {
+						if (row.runId !== runId) break
+					}
+					if (row.runId === runId) {
+						row = create(item, index, fn, true)
+						dupes.push(row)
+					}
 				}
-				for (row of dupes) {
-					if (row.runId !== runId) break
-				}
-				if (row.runId === runId) {
-					row = create(item, index, fn, true)
-					dupes.push(row)
+
+				row.runId = runId // mark used on this run
+				rows.push(row)
+			}
+
+			// remove rows that arent present on the current run
+			if (rows.length === 0) {
+				clear()
+			} else {
+				for (const row of prev) {
+					if (row.runId !== runId) row.dispose()
 				}
 			}
 
-			row.runId = runId // mark used on this run
-			rows.push(row)
-		}
+			// reorder elements
+			// `sort` because `map` doesnt need sorting
+			// `rows.length > 1` because no need for sorting when there are no items
+			// prev.length > 0 to skip sorting on creation as its already sorted
+			if (sort && rows.length > 1 && prev.length > 0) {
+				// best for any combination of: push/pop/shift/unshift/insertion/deletion
+				// as for swap, anything in between the swapped elements gets sorted,
+				// so as long as the swapped elements are close to each other is good
+				// must check in reverse as on creation stuff is added to the end
 
-		// remove rows that arent present on the current run
-		if (rows.length === 0) {
-			clear()
-		} else {
-			for (const row of prev) {
-				if (row.runId !== runId) row.dispose()
-			}
-		}
-
-		// reorder elements
-		// `sort` because `map` doesnt need sorting
-		// `rows.length > 1` because no need for sorting when there are no items
-		// prev.length > 0 to skip sorting on creation as its already sorted
-		if (sort && rows.length > 1 && prev.length > 0) {
-			// best for any combination of: push/pop/shift/unshift/insertion/deletion
-			// as for swap, anything in between the swapped elements gets sorted,
-			// so as long as the swapped elements are close to each other is good
-			// must check in reverse as on creation stuff is added to the end
-			untrack(() => {
 				let current = rows[rows.length - 1]
 				for (let i = rows.length - 1; i > 0; i--) {
 					const previous = rows[i - 1]
@@ -179,24 +164,26 @@ export function map(list, callback, sort) {
 					}
 					current = previous
 				}
-			})
-		}
-
-		// save sorted list
-		prev = rows
-
-		// return external representation
-		// after the first run it lives in an effect
-		if (runId === 1) {
-			try {
-				return rows.map(item => {
-					return item.nodes
-				})
-			} finally {
-				// remove cached nodes as these are not needed after the first run
-				for (const node of rows) node.nodes = null
 			}
-		}
-		return null
+
+			// save sorted list
+			prev = rows
+
+			// return external representation
+			// after the first run it lives in an effect
+			if (runId === 1) {
+				try {
+					return rows.map(item => {
+						return item.nodes
+					})
+				} finally {
+					// remove cached nodes as these are not needed after the first run
+					for (const node of rows) node.nodes = null
+				}
+			}
+			return null
+		})
 	}
+	mapper[$map] = null
+	return mapper
 }

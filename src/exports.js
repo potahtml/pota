@@ -43,11 +43,8 @@ export * from './components/flow/@main.js'
 export {
 	// rendering
 	create,
-	customElement,
 	render,
-	html,
-	HTML,
-	htmlEffect,
+
 	/**
 	 * Do not expose insert. As removal of the element on where you
 	 * inserted into, wont cause disposal of what you inserted.
@@ -57,12 +54,11 @@ export {
 	// children
 	toHTML,
 	resolve,
+} from './renderer/@renderer.js'
+export { context } from './renderer/context.js'
+export { lazy } from './renderer/lazy.js'
 
-	// reactivity
-	context,
-	lazy,
-} from './renderer/@main.js'
-
+export { html, HTML, htmlEffect } from './renderer/html.js'
 export { css } from './lib/css/css.js'
 
 export { onReady } from './renderer/scheduler.js'
@@ -77,7 +73,11 @@ export { Component } from './lib/comp/@main.js'
 export { makeCallback } from './lib/comp/makeCallback.js'
 export { markComponent } from './lib/comp/markComponent.js'
 export { isComponent } from './lib/comp/isComponent.js'
-export { CustomElement } from './lib/comp/CustomElement.js'
+
+export {
+	CustomElement,
+	customElement,
+} from './lib/comp/CustomElement.js'
 
 // reactivity
 export { isReactive } from './lib/reactivity/isReactive.js'

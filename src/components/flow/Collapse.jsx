@@ -1,6 +1,8 @@
-import { customElement } from '../../renderer/@main.js'
 import { getValue } from '../../lib/std/@main.js'
-import { CustomElement } from '../../lib/comp/CustomElement.js'
+import {
+	CustomElement,
+	customElement,
+} from '../../lib/comp/CustomElement.js'
 
 class CollapseElement extends CustomElement {
 	hide() {

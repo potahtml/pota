@@ -1,6 +1,6 @@
 import { makeCallback } from '../../lib/comp/@main.js'
 import { memo } from '../../lib/reactivity/primitives/solid.js'
-import { ReactiveMap } from '../../renderer/map.js'
+import { map } from '../../renderer/map.js'
 
 /**
  * Renders reactive values from an signal that returns an Iterable
@@ -13,5 +13,5 @@ import { ReactiveMap } from '../../renderer/map.js'
  */
 export function For(props) {
 	const callback = makeCallback(props.children)
-	return memo(() => new ReactiveMap(props.each, callback))
+	return memo(() => map(props.each, callback, true))
 }

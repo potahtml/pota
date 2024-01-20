@@ -1,8 +1,23 @@
 import { $customElement } from '../../constants.js'
-
 import { sheet } from '../css/sheet.js'
+import { empty } from '../std/empty.js'
 
-const cachedSheets = new Map()
+/**
+ * Defines a custom Element (if isnt defined already)
+ *
+ * @param {string} name - Name for the custom element
+ * @param {CustomElementConstructor} constructor - Class for the
+ *   custom element
+ * @param {ElementDefinitionOptions} [options] - Options passed to
+ *   `customElements.define`
+ */
+export function customElement(name, constructor, options) {
+	if (customElements.get(name) === undefined) {
+		customElements.define(name, constructor, options)
+	}
+}
+
+const cachedSheets = empty()
 
 export class CustomElement extends HTMLElement {
 	[$customElement] = null
@@ -47,10 +62,10 @@ export class CustomElement extends HTMLElement {
 	 */
 	async addExternalStyles(urls = []) {
 		for (const url of urls) {
-			let styleSheet = cachedSheets.get(url)
+			let styleSheet = cachedSheets[url]
 			if (!styleSheet) {
 				styleSheet = sheet(await fetch(url).then(r => r.text()))
-				cachedSheets.set(url, styleSheet)
+				cachedSheets[url] = styleSheet
 			}
 			this.addSheet(styleSheet)
 		}

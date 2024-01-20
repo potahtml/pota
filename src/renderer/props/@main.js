@@ -1,5 +1,4 @@
 import { entries } from '../../lib/std/@main.js'
-import { untrack } from '../../lib/reactivity/primitives/solid.js'
 
 import {
 	plugins,
