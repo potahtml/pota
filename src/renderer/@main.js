@@ -13,7 +13,7 @@ import {
 
 // CONSTANTS
 
-import { $map, $meta, NS } from '../constants.js'
+import { $internal, $map, $meta, NS } from '../constants.js'
 
 // LIB
 
@@ -688,15 +688,26 @@ export function context(defaultValue = empty()) {
  * Creates and returns HTML Elements for `children`
  *
  * @param {Children} children
- * @returns {DocumentFragment | Node}
+ * @param {Symbol} [removePlaceholder]
+ * @returns {Children}
  */
-export function toHTML(children) {
+export function toHTML(children, removePlaceholder) {
 	if (children instanceof Node) {
 		return children
 	}
 	const fragment = createFragment()
 	createChildren(fragment, children)
-	return fragment
+
+	// workaround for html returning a subfix placeholder
+	removePlaceholder === $internal &&
+		fragment.childNodes.length === 2 &&
+		fragment.childNodes[1].nodeType === 3 &&
+		fragment.childNodes[1].data === '' &&
+		fragment.childNodes[1].remove()
+
+	return fragment.childNodes.length === 1
+		? fragment.childNodes[0]
+		: fragment
 }
 
 /**
