@@ -27,6 +27,7 @@ import {
 	removeFromArray,
 	isFunction,
 	entries,
+	optional,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -556,9 +557,13 @@ function clearNode(node) {
 /**
  * Function to create tagged template components
  *
+ * @param {object} [options]
+ * @param {boolean} [options.wrap] - Wrap the return value in a
+ *   function for playing nicely with context and reactivity. Defaults
+ *   to `true`
  * @returns {Function & { define: ({}) => void }}
  */
-export function HTML() {
+export function HTML(options = empty()) {
 	const components = empty()
 	/**
 	 * Creates tagged template components
@@ -573,6 +578,7 @@ export function HTML() {
 			cached = createElement('template')
 			cached.innerHTML = template
 				.join('<pota></pota>')
+				.trim()
 				/**
 				 * Expand self-closing tags that don't contain attributes,
 				 * because self-closing tags with innerHTML won't work.
@@ -635,7 +641,10 @@ export function HTML() {
 		}
 
 		// flat to return a single element if possible to make it more easy to use
-		return flat(nodes(clone))
+		const children = flat(nodes(clone))
+		return optional(options.wrap)
+			? children
+			: toHTML(children, $internal)
 	}
 
 	html.define = userComponents => {
