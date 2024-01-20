@@ -45,6 +45,7 @@ export {
 	create,
 	customElement,
 	render,
+	html,
 	HTML,
 
 	/**

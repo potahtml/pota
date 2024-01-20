@@ -657,6 +657,7 @@ export function HTML(options = empty()) {
 }
 HTML.cache = new WeakMap()
 
+export const html = HTML({ wrap: false })
 /**
  * Defines a custom Element (if isnt defined already), and returns a
  * `Component` of it that can be used as `myComponent(props)`
