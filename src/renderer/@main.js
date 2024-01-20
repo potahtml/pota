@@ -659,6 +659,15 @@ HTML.cache = new WeakMap()
 
 export const html = HTML({ wrap: false })
 
+/**
+ * Runs an `effect` on an `HTML` template. Reacts to values changes
+ * even if values arent reactive. The effect receives `html` for
+ * template creation.
+ *
+ * @param {(html) => any} fn - Function to run as an effect. It
+ *   receives argument `html` for template creation.
+ * @returns {Children}
+ */
 export const htmlEffect = fn => {
 	const html = HTML({ wrap: false })
 	const getValue = value => (isFunction(value) ? () => value : value)
