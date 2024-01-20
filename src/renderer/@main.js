@@ -658,6 +658,41 @@ export function HTML(options = empty()) {
 HTML.cache = new WeakMap()
 
 export const html = HTML({ wrap: false })
+
+export const htmlEffect = fn => {
+	const html = HTML({ wrap: false })
+	const getValue = value => (isFunction(value) ? () => value : value)
+	const signals = []
+
+	let effect = (template, ...values) => {
+		// html creation happens once, so just swap to signal setters
+		effect = (template, ...values) => {
+			for (const [key, value] of entries(values)) {
+				signals[key][1](getValue(value))
+			}
+		}
+
+		// create html and signals with the initial values
+		return html(
+			template,
+			...values.map((value, key) => {
+				signals[key] = signal(getValue(value))
+				return signals[key][0]
+			}),
+		)
+	}
+
+	// loop the effect
+	let id
+	function loop() {
+		id = requestAnimationFrame(loop)
+		return fn(effect)
+	}
+	cleanup(() => cancelAnimationFrame(id))
+
+	return loop()
+}
+
 /**
  * Defines a custom Element (if isnt defined already), and returns a
  * `Component` of it that can be used as `myComponent(props)`
