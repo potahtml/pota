@@ -344,7 +344,7 @@ function createChildren(parent, child, relative) {
 		}
 
 		case 'object': {
-			// children/fragments/NodeList
+			// children/fragments
 			if (isArray(child)) {
 				return child.map(child =>
 					createChildren(parent, child, relative),
@@ -396,7 +396,11 @@ function createChildren(parent, child, relative) {
 			}
 
 			// iterable
-			if (child instanceof Map || child instanceof Set) {
+			if (
+				child instanceof Map ||
+				child instanceof Set ||
+				child instanceof NodeList
+			) {
 				return toArray(child.values()).map(child =>
 					createChildren(parent, child, relative),
 				)
