@@ -396,12 +396,8 @@ function createChildren(parent, child, relative) {
 				return createChildren(parent, value, relative)
 			}
 
-			// iterable
-			if (
-				child instanceof Map ||
-				child instanceof Set ||
-				child instanceof NodeList
-			) {
+			// iterable/Map/Set/NodeList
+			if (Symbol.iterator in child) {
 				return toArray(child.values()).map(child =>
 					createChildren(parent, child, relative),
 				)
