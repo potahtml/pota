@@ -12,16 +12,13 @@ import { markComponent } from './markComponent.js'
  * @returns {Function}
  */
 export function makeCallback(children) {
-	// ensure is an array
-	// the transformer gives arrays but user components could return anything
-	// function MyComponent() { return 'Something'} // children wont be an array
-
-	children = (isArray(children) ? children : [children]).map(fn =>
-		isReactive(fn)
-			? fn
-			: isFunction(fn)
-				? (...args) => untrack(() => fn(...args))
-				: () => fn,
-	)
-	return markComponent((...args) => children.map(fn => fn(...args)))
+	return markComponent((...args) => {
+		return (isArray(children) ? children : [children]).map(child =>
+			isReactive(child)
+				? child()
+				: isFunction(child)
+					? untrack(() => child(...args))
+					: child,
+		)
+	})
 }
