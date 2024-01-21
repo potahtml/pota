@@ -34,8 +34,9 @@ export function HTML(options = empty()) {
 	function html(template, ...values) {
 		let cached = HTML.cache.get(template)
 		if (!cached) {
-			cached = createElement('template')
-			cached.innerHTML = template
+			cached = empty()
+			cached.template = createElement('template')
+			cached.template.innerHTML = template
 				.join('<pota></pota>')
 				.trim()
 				/**
@@ -49,7 +50,7 @@ export function HTML(options = empty()) {
 			HTML.cache.set(template, cached)
 		}
 
-		const clone = cached.content.cloneNode(true)
+		const clone = cached.template.content.cloneNode(true)
 
 		let index = 0
 		function nodes(node) {
@@ -99,9 +100,12 @@ export function HTML(options = empty()) {
 
 		// flat to return a single element if possible to make it more easy to use
 		const children = flat(nodes(clone))
-		return optional(options.wrap)
+
+		cached.result = optional(options.wrap)
 			? children
-			: toHTML(children, $internal)
+			: toNodes(toHTML(children, $internal))
+
+		return cached.result
 	}
 
 	html.define = userComponents => {
@@ -125,33 +129,57 @@ export const html = HTML({ wrap: false })
  *   receives argument `html` for template creation.
  * @returns {Children}
  */
-export const htmlEffect = (fn, options = empty()) => {
-	const html = HTML({ wrap: false, ...options })
+export const htmlEffect = fn => {
+	const html = HTML()
 
 	const _html = (template, ...values) => {
-		const signals = []
+		// when template is cached just update the signals
+		let cached = HTML.cache.get(template)
+		if (cached) {
+			// update signals with the new values
+			const update = (template, values) => {
+				batch(() => {
+					for (let [key, value] of entries(values)) {
+						cached.signals[key][1](getValue(value)) // read + write
+					}
+				})
+			}
+			update(template, values)
+
+			return cached.result
+		}
 
 		// create signals with the initial values
+		const signals = []
+
 		const valuesToSignals = values.map((value, key) => {
 			signals[key] = signal(getValue(value))
 			return signals[key][0] // read
 		})
 
-		// update signals with the values used in the html
-		const update = (template, ...values) => {
-			batch(() => {
-				for (let [key, value] of entries(values)) {
-					signals[key][1](getValue(value)) // read + write
-				}
-			})
-		}
+		// create html
+		const result = html(template, ...valuesToSignals)
+
+		// save signals
+		cached = HTML.cache.get(template)
+		cached.signals = signals
 
 		// track reads + update signals whenever the values change
-		effect(() => fn(update))
+		effect(() => fn(_html))
 
-		// create html
-		return html(template, ...valuesToSignals)
+		// return result
+		return result
 	}
 
 	return fn(_html)
 }
+
+/**
+ * DocumentFragment is transformed to an array of nodes, that way we
+ * can keep a reference to them. Because using the DocumentFragment
+ * will remove the nodes from the DocumentFragment.
+ */
+const toNodes = nodes =>
+	nodes instanceof DocumentFragment
+		? toArray(nodes.childNodes)
+		: nodes

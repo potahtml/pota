@@ -1,3 +1,4 @@
+
 TODO:
 
 	Documentation:
@@ -16,6 +17,8 @@ TODO:
 	Miscellaneous:
 	- provide a rollup template
 	- typings
+	- make Scope lazy
+	- proxy props plugin .? etc
 
 BUGS:
 
