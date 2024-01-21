@@ -1,5 +1,4 @@
-import { markComponent } from '../../lib/comp/markComponent.js'
-import { create } from '../../renderer/@renderer.js'
+import { Component } from '../../renderer/@renderer.js'
 import { Portal } from './Portal.js'
 
 /**
@@ -11,9 +10,7 @@ import { Portal } from './Portal.js'
  * @returns {Children}
  */
 export const Head = props =>
-	markComponent(() =>
-		create(Portal)({
-			mount: document.head,
-			children: props.children,
-		}),
-	)
+	Component(Portal, {
+		mount: document.head,
+		children: props.children,
+	})

@@ -21,7 +21,7 @@ export const setUnknownProp = (node, name, value, ns) =>
  */
 const _setUnknownProp = (node, name, value, ns) =>
 	// set as property when boolean
-	// if name has a dash is set as a string
+	// if name has a dash is set as an attribute
 	typeof value === 'boolean' && !name.includes('-')
 		? _setProperty(node, name, value)
 		: _setAttribute(node, name, value, ns)

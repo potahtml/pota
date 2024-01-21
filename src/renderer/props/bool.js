@@ -1,6 +1,5 @@
 import { untrack } from '../../lib/reactivity/primitives/solid.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
-import { onPropChange } from './on-prop-change.js'
 
 // BOOL ATTRIBUTES
 
@@ -32,7 +31,5 @@ function _setBool(node, name, value) {
 	untrack(() => {
 		// if the value is falsy gets removed
 		!value ? node.removeAttribute(name) : node.setAttribute(name, '')
-
-		onPropChange(node, name, value)
 	})
 }

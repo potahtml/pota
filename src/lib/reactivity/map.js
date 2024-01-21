@@ -1,12 +1,9 @@
 // MAP
 
-import { $map } from '../constants.js'
-import {
-	cleanup,
-	root,
-	untrack,
-} from '../lib/reactivity/primitives/solid.js'
-import { getValue, removeFromArray } from '../lib/std/@main.js'
+import { $map } from '../../constants.js'
+import { getValue } from '../std/getValue.js'
+import { removeFromArray } from '../std/removeFromArray.js'
+import { cleanup, root, untrack } from './primitives/solid.js'
 
 /**
  * Reactive Map

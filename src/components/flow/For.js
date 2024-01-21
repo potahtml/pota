@@ -1,6 +1,6 @@
 import { makeCallback } from '../../lib/comp/@main.js'
 import { memo } from '../../lib/reactivity/primitives/solid.js'
-import { map } from '../../renderer/map.js'
+import { map } from '../../lib/reactivity/map.js'
 
 /**
  * Renders reactive values from an signal that returns an Iterable

@@ -2,7 +2,6 @@ import { dispatchNativeEvent } from '../../lib/events/dispatchNativeEvent.js'
 import { untrack } from '../../lib/reactivity/primitives/solid.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
-import { onPropChange } from './on-prop-change.js'
 
 /**
  * @param {Elements} node
@@ -46,6 +45,5 @@ export function _setProperty(node, name, value) {
 			dispatchNativeEvent(node, 'input')
 			dispatchNativeEvent(node, 'change')
 		}
-		onPropChange(node, name, value)
 	})
 }

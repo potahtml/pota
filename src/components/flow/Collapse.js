@@ -3,8 +3,7 @@ import {
 	CustomElement,
 	customElement,
 } from '../../lib/comp/CustomElement.js'
-import { create } from '../../renderer/@renderer.js'
-import { markComponent } from '../../lib/comp/markComponent.js'
+import { Component } from '../../renderer/@renderer.js'
 
 class CollapseElement extends CustomElement {
 	hide() {
@@ -32,10 +31,8 @@ class CollapseElement extends CustomElement {
 export function Collapse(props) {
 	customElement('pota-collapse', CollapseElement)
 
-	return markComponent(() =>
-		create('pota-collapse')({
-			when: props.when,
-			children: props.children,
-		}),
-	)
+	return Component('pota-collapse', {
+		when: props.when,
+		children: props.children,
+	})
 }

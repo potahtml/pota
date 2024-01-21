@@ -14,8 +14,7 @@ import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
 import { onDone } from '../../renderer/scheduler.js'
-import { create as createComponent } from '../../renderer/@renderer.js'
-import { markComponent } from '../../lib/comp/markComponent.js'
+import { Component } from '../../renderer/@renderer.js'
 /**
  * Renders children if the path matches the current location
  *
@@ -103,19 +102,15 @@ export function Route(props) {
 		parent.removeChildren(context)
 	})
 
-	return markComponent(() =>
-		createComponent(Context.Provider)({
-			value: context,
-			children: markComponent(() =>
-				createComponent(Dynamic)({
-					component: props.collapse ? Collapse : Show,
-					when: () => show() && optional(props.when),
-					fallback: props.fallback,
-					children: props.children,
-				}),
-			),
+	return Component(Context.Provider, {
+		value: context,
+		children: Component(Dynamic, {
+			component: props.collapse ? Collapse : Show,
+			when: () => show() && optional(props.when),
+			fallback: props.fallback,
+			children: props.children,
 		}),
-	)
+	})
 }
 
 /**
@@ -140,7 +135,7 @@ function doScrolls(scrolls) {
  */
 Route.Default = props => {
 	const context = Context()
-	return createComponent(Show)({
+	return Component(Show, {
 		when: context.noneMatch,
 		children: props.children,
 	})

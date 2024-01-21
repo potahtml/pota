@@ -1,10 +1,9 @@
 // utils
-import { create } from '../../renderer/@renderer.js'
+import { Component } from '../../renderer/@renderer.js'
 import { isRelative, replaceParams } from '../../lib/urls/@main.js'
 
 // local
 import { Context } from './context.js'
-import { markComponent } from '../../lib/comp/markComponent.js'
 
 /*
  * // props
@@ -41,7 +40,5 @@ export function A(props) {
 					base + href
 				: new URL(href, base).href
 
-	return markComponent(() =>
-		create('a')({ ...{ ...props, href, params: null } }),
-	)
+	return Component('a', { ...{ ...props, href, params: null } })
 }

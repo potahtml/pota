@@ -9,12 +9,12 @@ export {
 	cleanup as onCleanup,
 	cleanup,
 	effect,
-	memo,
 	renderEffect,
 	root,
 	signal,
-	untrack,
+	memo,
 	withOwner,
+	untrack,
 } from './lib/reactivity/primitives/solid.js'
 
 export { writable } from './lib/reactivity/writable.js'
@@ -32,9 +32,9 @@ export {
 	functionSignal as ref,
 } from './lib/reactivity/functionSignal.js'
 
-export { map } from './renderer/map.js'
+export { map } from './lib/reactivity/map.js'
 
-// JSX COMPONENTS
+// COMPONENTS
 
 export * from './components/flow/@main.js'
 
@@ -42,9 +42,9 @@ export * from './components/flow/@main.js'
 
 export {
 	// rendering
-	create,
 	render,
-
+	Component,
+	Factory,
 	/**
 	 * Do not expose insert. As removal of the element on where you
 	 * inserted into, wont cause disposal of what you inserted.
@@ -63,9 +63,9 @@ export { css } from './lib/css/css.js'
 
 export { onReady } from './renderer/scheduler.js'
 
-// COMPONENTS
+// COMPONENTS CLASSES
 
-export { Component } from './lib/comp/@main.js'
+export { Pota } from './lib/comp/@main.js'
 
 // COMPONENTS UTILITIES
 

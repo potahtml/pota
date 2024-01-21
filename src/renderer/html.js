@@ -10,7 +10,7 @@ import { isFunction } from '../lib/std/isFunction.js'
 import { optional } from '../lib/std/optional.js'
 import { toArray } from '../lib/std/toArray.js'
 
-import { create, createElement, toHTML } from './@renderer.js'
+import { Component, createElement, toHTML } from './@renderer.js'
 
 /**
  * Function to create tagged template components
@@ -90,9 +90,7 @@ export function HTML(options = empty()) {
 				const component = components[tag]
 
 				// needs to return a function so reactivity works properly
-				return component
-					? () => component(props)
-					: () => create(tag)(props)
+				return Component(component || tag, props)
 			} else {
 				return node
 			}
@@ -107,7 +105,7 @@ export function HTML(options = empty()) {
 
 	html.define = userComponents => {
 		for (const [name, component] of entries(userComponents)) {
-			components[name.toUpperCase()] = create(component)
+			components[name.toUpperCase()] = component
 		}
 	}
 

@@ -51,7 +51,7 @@ propsPluginNS('bool', setBoolNS, false)
 
 // life-cycles
 
-import { setOnMount, setUnmount } from './lifecycles.js'
+import { setOnMount, setUnmount, setRef } from './lifecycles.js'
 propsPlugin('onMount', setOnMount, false)
 propsPluginNS('onMount', setOnMount, false)
 
@@ -60,8 +60,8 @@ propsPluginNS('onUnmount', setUnmount, false)
 
 // ref
 
-propsPlugin('ref', setOnMount, false)
-propsPluginNS('ref', setOnMount, false)
+propsPlugin('ref', setRef, false)
+propsPluginNS('ref', setRef, false)
 
 // events
 

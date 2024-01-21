@@ -1,4 +1,4 @@
-import { create } from '../../renderer/@renderer.js'
+import { Component } from '../../renderer/@renderer.js'
 
 /**
  * Creates components dynamically
@@ -11,4 +11,4 @@ import { create } from '../../renderer/@renderer.js'
 
 export const Dynamic = props =>
 	// `component` needs to be deleted else it will end in the tag as an attribute
-	create(props.component)({ ...props, component: null })
+	Component(props.component, { ...props, component: null })
