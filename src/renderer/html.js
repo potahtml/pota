@@ -1,12 +1,13 @@
 import { $internal } from '../constants.js'
 import {
-	cleanup,
 	signal,
+	effect,
+	batch,
 } from '../lib/reactivity/primitives/solid.js'
 import { empty } from '../lib/std/empty.js'
 import { entries } from '../lib/std/entries.js'
 import { flat } from '../lib/std/flat.js'
-import { isFunction } from '../lib/std/isFunction.js'
+import { getValue } from '../lib/std/getValue.js'
 import { optional } from '../lib/std/optional.js'
 import { toArray } from '../lib/std/toArray.js'
 
@@ -126,34 +127,31 @@ export const html = HTML({ wrap: false })
  */
 export const htmlEffect = (fn, options = empty()) => {
 	const html = HTML({ wrap: false, ...options })
-	const getValue = value => (isFunction(value) ? () => value : value)
-	const signals = []
 
-	let effect = (template, ...values) => {
-		// html creation happens once, so just swap to signal setters
-		effect = (template, ...values) => {
-			for (const [key, value] of entries(values)) {
-				signals[key][1](getValue(value))
-			}
+	const _html = (template, ...values) => {
+		const signals = []
+
+		// create signals with the initial values
+		const valuesToSignals = values.map((value, key) => {
+			signals[key] = signal(getValue(value))
+			return signals[key][0] // read
+		})
+
+		// update signals with the values used in the html
+		const update = (template, ...values) => {
+			batch(() => {
+				for (let [key, value] of entries(values)) {
+					signals[key][1](getValue(value)) // read + write
+				}
+			})
 		}
 
-		// create html and signals with the initial values
-		return html(
-			template,
-			...values.map((value, key) => {
-				signals[key] = signal(getValue(value))
-				return signals[key][0]
-			}),
-		)
+		// track reads + update signals whenever the values change
+		effect(() => fn(update))
+
+		// create html
+		return html(template, ...valuesToSignals)
 	}
 
-	// loop the effect
-	let id
-	function loop() {
-		id = requestAnimationFrame(loop)
-		return fn(effect)
-	}
-	cleanup(() => cancelAnimationFrame(id))
-
-	return loop()
+	return fn(_html)
 }
