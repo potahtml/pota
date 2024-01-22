@@ -10,7 +10,6 @@ import {
 	property,
 	removeFromArray,
 } from '../../lib/std/@main.js'
-import { $meta } from '../../constants.js'
 
 /**
  * @param {Elements} node
@@ -78,8 +77,7 @@ export function addEventListener(
 	delegated = true,
 	external = true,
 ) {
-	const key = delegated ? type : `${type}Native`
-	const handlers = property(node, `${key}Handlers`, [])
+	const handlers = getHandlers(node, type, delegated, true)
 
 	if (delegated) {
 		if (!(type in Delegated) || Delegated[type] === 0) {
@@ -106,10 +104,6 @@ export function addEventListener(
 		removeEventListener(node, type, handler, delegated, false)
 	})
 
-	// handler may be already in use
-	if (handler[$meta] === undefined)
-		handler[$meta] = isArray(handler) ? handler : [handler]
-
 	handlers.unshift(handler)
 
 	if (external)
@@ -135,9 +129,7 @@ export function removeEventListener(
 	delegated = true,
 	external = true,
 ) {
-	const key = delegated ? type : `${type}Native`
-
-	const handlers = property(node, `${key}Handlers`)
+	const handlers = getHandlers(node, type, delegated, false)
 
 	removeFromArray(handlers, handler)
 	if (!delegated && handlers.length === 0) {
@@ -149,16 +141,13 @@ export function removeEventListener(
 
 /** @param {Event} e - Event */
 function eventHandlerNative(e) {
-	const key = `${e.type}Native`
 	const node = e.currentTarget
-	const handlers = property(node, `${key}Handlers`)
+	const handlers = getHandlers(node, e.type, false, false)
 	eventDispatch(e.target, handlers, e)
 }
 
 /** @param {Event} e - Event */
 function eventHandlerDelegated(e) {
-	const key = e.type
-
 	let node = e.target
 
 	// currentTarget has to be the element that has the handlers
@@ -173,13 +162,14 @@ function eventHandlerDelegated(e) {
 	})
 
 	for (node of e.composedPath()) {
-		const handlers = property(node, `${key}Handlers`)
+		const handlers = getHandlers(node, e.type, true, false)
 		if (handlers && !node.disabled) {
 			eventDispatch(node, handlers, e)
 			if (e.cancelBubble) break
 		}
 	}
 }
+
 /**
  * @param {Elements} node
  * @param {Function[]} handlers
@@ -188,10 +178,17 @@ function eventHandlerDelegated(e) {
 function eventDispatch(node, handlers, e) {
 	for (const handler of handlers) {
 		try {
-			handler[$meta][0].call(node, ...handler[$meta].slice(1), e)
+			isArray(handler)
+				? handler[0].call(node, ...handler.slice(1), e)
+				: handler.call(node, e)
 		} catch (e) {
 			console.error(e)
 		}
 		if (e.cancelBubble) break
 	}
+}
+
+function getHandlers(node, type, delegated, create) {
+	const key = delegated ? type : `${type}Native`
+	return property(node, `${key}Handlers`, create ? [] : undefined)
 }
