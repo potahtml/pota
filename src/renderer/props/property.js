@@ -37,7 +37,7 @@ export function _setProperty(node, name, value) {
 	untrack(() => {
 		// if the value is null or undefined it will be removed
 		if (isNullUndefined(value)) {
-			delete node[name]
+			node[name] = null
 		} else {
 			node[name] = value
 		}
