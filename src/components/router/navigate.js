@@ -18,7 +18,9 @@ export async function navigate(href, options = empty()) {
 		if (await canNavigate(href)) {
 			const fn = () => navigateInternal(href, options)
 			// navigate with transition if available
-			document.startViewTransition
+			document.startViewTransition &&
+			window.location.href.replace(/#.*/, '') !==
+				href.replace(/#.*/, '')
 				? document.startViewTransition(fn)
 				: fn()
 		}
