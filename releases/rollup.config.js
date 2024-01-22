@@ -27,8 +27,25 @@ const pluginsNoMin = [
   }),
 ]
 
+const pluginsOby = [
+  resolve({}),
+  babel({
+    babelHelpers: 'bundled',
+    presets: [['pota/babel-preset', { lib: 'oby' }]],
+  }),
+  terser(),
+]
+
+const pluginsNoMinOby = [
+  resolve({}),
+  babel({
+    babelHelpers: 'bundled',
+    presets: [['pota/babel-preset', { lib: 'oby' }]],
+  }),
+]
+
 export default [
-  // regular
+  // full solid
   {
     input: './standalone.js',
     plugins,
@@ -40,7 +57,7 @@ export default [
     ],
   },
 
-  // full no min
+  // full solid no min
   {
     input: './standalone.js',
     plugins: pluginsNoMin,
@@ -48,6 +65,30 @@ export default [
       {
         ...outputOptions,
         file: '../dist/standalone.no-min.js',
+      },
+    ],
+  },
+
+  // full oby
+  {
+    input: './standalone.js',
+    plugins: pluginsOby,
+    output: [
+      {
+        ...outputOptions,
+        file: '../dist/standalone.oby.js',
+      },
+    ],
+  },
+
+  // full oby no min
+  {
+    input: './standalone.js',
+    plugins: pluginsNoMinOby,
+    output: [
+      {
+        ...outputOptions,
+        file: '../dist/standalone.oby.no-min.js',
       },
     ],
   },
