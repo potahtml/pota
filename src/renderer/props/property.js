@@ -35,7 +35,7 @@ export const setProperty = (node, name, value) =>
  */
 export function _setProperty(node, name, value) {
 	untrack(() => {
-		// if the value is null or undefined it will be removed
+		// if the value is null or undefined it will be set to null
 		if (isNullUndefined(value)) {
 			node[name] = null
 		} else {

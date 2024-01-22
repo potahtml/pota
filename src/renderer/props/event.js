@@ -3,6 +3,7 @@
 // to avoid duplicated events that could be added by using `ns` in ease of organization
 
 import { cleanup } from '../../lib/reactivity/primitives/solid.js'
+
 import {
 	defineProperty,
 	empty,
