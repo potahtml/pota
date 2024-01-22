@@ -5,7 +5,7 @@ TODO:
 	- light theme
 	- improve directory
 
-	Playground
+	Playground:
 	- import map
 	- switch reactive library
 	- LSP
@@ -19,6 +19,7 @@ TODO:
 	- typings
 	- make Scope lazy
 	- proxy props plugin .? etc
+	- refactor html to be both types
 
 BUGS:
 
@@ -41,9 +42,27 @@ FUTURE FEATURES:
 	- make the `path` reactive
 
 	Compiler:
-	- write a compiler to make the output smaller
+	- write a compiler to make the output smaller (possibly using `html`)
 
-	Optimizations:
+POSSIBLE DE/OPTIMIZATIONS:
+
+	CONSIDER ALWAYS:
+	- keep the code readable, do not complicate it too much, even if faster
+	- consistency above all
+	- slow and simple is better than fast and super complicated
+
+	CRAZY IDEAS:
 	- change some for of for for in
 	- merge effects on equal reactive values
 	- functions that accept arguments of changing types should be split
+	- add one cleanup call and push nodes to array for cleaning up
+	- add to document fragment then to document (mutation observers)
+	- make a class like untracked and then `new untracked(fn)`
+	- only untrack if the the node is a custom element
+	- recursive functions in a while loop
+	- change some toArray or for loops to be generators
+	- sort on map: console.log(
+		Object.groupBy(rows, (value, index) =>
+			rows[index] === prev[index] ? "sorted" : "unsorted",
+		),
+	);
