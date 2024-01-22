@@ -10,8 +10,11 @@ import { flat } from '../lib/std/flat.js'
 import { getValue } from '../lib/std/getValue.js'
 import { optional } from '../lib/std/optional.js'
 import { toArray } from '../lib/std/toArray.js'
+import { weakStore } from '../lib/std/weakStore.js'
 
 import { Component, createElement, toHTML } from './@renderer.js'
+
+const { get, set } = weakStore()
 
 /**
  * Function to create tagged template components
@@ -32,7 +35,7 @@ export function HTML(options = empty()) {
 	 * @returns {Children}
 	 */
 	function html(template, ...values) {
-		let cached = HTML.cache.get(template)
+		let cached = get(template)
 		if (!cached) {
 			cached = empty()
 			cached.template = createElement('template')
@@ -47,7 +50,7 @@ export function HTML(options = empty()) {
 				// un-expand brs because it causes double lines
 				.replaceAll('<br></br>', '<br/>')
 
-			HTML.cache.set(template, cached)
+			set(template, cached)
 		}
 
 		const clone = cached.template.content.cloneNode(true)
@@ -116,7 +119,6 @@ export function HTML(options = empty()) {
 
 	return html
 }
-HTML.cache = new WeakMap()
 
 export const html = HTML({ wrap: false })
 
@@ -134,7 +136,7 @@ export const htmlEffect = fn => {
 
 	const _html = (template, ...values) => {
 		// when template is cached just update the signals
-		let cached = HTML.cache.get(template)
+		let cached = get(template)
 		if (cached) {
 			// update signals with the new values
 			const update = (template, values) => {
@@ -161,7 +163,7 @@ export const htmlEffect = fn => {
 		const result = html(template, ...valuesToSignals)
 
 		// save signals
-		cached = HTML.cache.get(template)
+		cached = get(template)
 		cached.signals = signals
 
 		// track reads + update signals whenever the values change

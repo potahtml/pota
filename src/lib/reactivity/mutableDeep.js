@@ -3,6 +3,8 @@ import { copy } from '../std/copy.js'
 import { isExtensible } from '../std/isExtensible.js'
 import { batch, signal } from './primitives/solid.js'
 import { isPrototypeProperty } from '../std/isPrototypeProperty.js'
+import { weakStore } from '../std/weakStore.js'
+import { isArray } from '../std/isArray.js'
 
 /**
  * Creates setters and getter signals for an object. Recursive.
@@ -18,7 +20,7 @@ export function mutableDeep(value = empty()) {
 }
 
 // keeps track of what objects have already been made into a proxy.
-const Proxied = new WeakMap()
+const Proxied = new WeakSet()
 
 // ensures a value is made into a proxy only once when is an object
 const getValue = (value, type) =>
@@ -29,7 +31,7 @@ const getValue = (value, type) =>
 // makes a proxy from an object
 function makeProxy(value) {
 	const proxy = new Proxy(value, handler)
-	Proxied.set(proxy, null) // signal(undefined, { equals: false }) to track self
+	Proxied.add(proxy) // signal(undefined, { equals: false }) to track self
 	return proxy
 }
 
@@ -39,18 +41,13 @@ const keyInPrototype = (target, key) =>
 
 // returns true for keys that cannot be redefined
 const cannotRedefine = (target, key) =>
-	Array.isArray(target) && key === 'length'
+	isArray(target) && key === 'length'
 
 // keeps track of properties that already been transformed to getters/setters
 
-const Signals = new WeakMap()
+const { get: getSignal } = weakStore()
 function getSignals(target) {
-	let signals = Signals.get(target)
-	if (!signals) {
-		signals = empty()
-		Signals.set(target, signals)
-	}
-	return signals
+	return getSignal(target, empty())
 }
 
 function setters(target, key, value) {

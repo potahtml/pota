@@ -1,7 +1,6 @@
-const Meta = new WeakMap()
+import { weakStore } from './weakStore.js'
 
-const get = Meta.get.bind(Meta)
-const set = Meta.set.bind(Meta)
+const { get, set } = weakStore()
 
 /**
  * Gets or sets a property for an object stored on a WeakMap
@@ -10,9 +9,11 @@ const set = Meta.set.bind(Meta)
  * @param {PropertyKey} key
  * @param {any} [defaults] - When defaults is given it will create it
  *   if doesnt exits
+ * @param {any} [reSet] - Use as a setter and update property with the
+ *   default value
  * @returns {any}
  */
-export function property(object, key, defaults) {
+export function property(object, key, defaults, reSet) {
 	const meta = get(object)
 
 	// meta doesnt exists
@@ -28,6 +29,8 @@ export function property(object, key, defaults) {
 
 	// the property exists in the object
 	if (key in meta) {
+		// set the property to the new value
+		if (reSet) meta[key] = defaults
 		return meta[key]
 	}
 
