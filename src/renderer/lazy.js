@@ -22,9 +22,11 @@ export const lazy = (component, fallback) =>
 				.catch(e =>
 					// trying again in case it fails due to some network error
 					tryAgain
-						? setTimeout(() => doTry(false), 5000)
+						? new Promise(resolve =>
+								setTimeout(() => resolve(doTry(false)), 5000),
+							)
 						: console.error(e) ||
-							props.fallback ||
+							props?.fallback ||
 							fallback ||
 							(() => component + ' is offline'),
 				)
