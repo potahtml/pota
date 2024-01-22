@@ -9,14 +9,23 @@
     "url": "https://github.com/potaorg/pota"
   },
   "type": "module",
-  "types": "./ts.pota.d.ts",
   "main": "./src/exports.js",
-  "module": "./src/exports.js",
+  "// Using 'typesVersions' here is the only way we could figure out how to get types working for imports of any subpath without any of the problems other approaches have when not using modeResolution:NodeNext (listed in https://stackoverflow.com/questions/77856692/how-to-publish-plain-jsjsdoc-library-for-typescript-consumers)": "",
+  "typesVersions": {
+    "*": {
+      "src/*": ["types/*"]
+    }
+  },
+  "// These exports require moduleResolution:NodeNext to be enabled in the consumer.": "",
   "exports": {
-    "./*": null,
+    "./*": "./*",
     ".": {
-      "types": "./types/src/exports.d.ts",
+      "types": "./types/exports.d.ts",
       "default": "./src/exports.js"
+    },
+    "./src/*": {
+      "types": "./types/*",
+      "default": "./src/*"
     },
     "./babel-preset": "./babel-preset/index.cjs",
     "./jsx-runtime": {
@@ -28,71 +37,71 @@
       "default": "./src/renderer/jsx-runtime.js"
     },
     "./router": {
-      "types": "./types/src/components/router/@main.d.ts",
+      "types": "./types/components/router/@main.d.ts",
       "default": "./src/components/router/@main.js"
     },
     "./hooks": {
-      "types": "./types/src/hooks/@main.d.ts",
+      "types": "./types/hooks/@main.d.ts",
       "default": "./src/hooks/@main.js"
     },
     "./hooks/*": {
-      "types": "./types/src/hooks/*.d.ts",
+      "types": "./types/hooks/*.d.ts",
       "default": "./src/hooks/*.js"
     },
     "./plugins": {
-      "types": "./types/src/plugins/@main.d.ts",
+      "types": "./types/plugins/@main.d.ts",
       "default": "./src/plugins/@main.js"
     },
     "./plugins/*": {
-      "types": "./types/src/plugins/*.d.ts",
+      "types": "./types/plugins/*.d.ts",
       "default": "./src/plugins/*.js"
     },
     "./lib": {
-      "types": "./types/src/lib/std/@main.d.ts",
+      "types": "./types/lib/std/@main.d.ts",
       "default": "./src/lib/std/@main.js"
     },
     "./color": {
-      "types": "./types/src/lib/color/@main.d.ts",
+      "types": "./types/lib/color/@main.d.ts",
       "default": "./src/lib/color/@main.js"
     },
     "./css": {
-      "types": "./types/src/lib/css/@main.d.ts",
+      "types": "./types/lib/css/@main.d.ts",
       "default": "./src/lib/css/@main.js"
     },
     "./data": {
-      "types": "./types/src/lib/data/@main.d.ts",
+      "types": "./types/lib/data/@main.d.ts",
       "default": "./src/lib/data/@main.js"
     },
     "./events": {
-      "types": "./types/src/lib/events/@main.d.ts",
+      "types": "./types/lib/events/@main.d.ts",
       "default": "./src/lib/events/@main.js"
     },
     "./random": {
-      "types": "./types/src/lib/random/@main.d.ts",
+      "types": "./types/lib/random/@main.d.ts",
       "default": "./src/lib/random/@main.js"
     },
     "./scroll": {
-      "types": "./types/src/lib/scroll/@main.d.ts",
+      "types": "./types/lib/scroll/@main.d.ts",
       "default": "./src/lib/scroll/@main.js"
     },
     "./streams": {
-      "types": "./types/src/lib/streams/@main.d.ts",
+      "types": "./types/lib/streams/@main.d.ts",
       "default": "./src/lib/streams/@main.js"
     },
     "./strings": {
-      "types": "./types/src/lib/strings/@main.d.ts",
+      "types": "./types/lib/strings/@main.d.ts",
       "default": "./src/lib/strings/@main.js"
     },
     "./test": {
-      "types": "./types/src/lib/test/@main.d.ts",
+      "types": "./types/lib/test/@main.d.ts",
       "default": "./src/lib/test/@main.js"
     },
     "./time": {
-      "types": "./types/src/lib/time/@main.d.ts",
+      "types": "./types/lib/time/@main.d.ts",
       "default": "./src/lib/time/@main.js"
     },
     "./urls": {
-      "types": "./types/src/lib/urls/@main.d.ts",
+      "types": "./types/lib/urls/@main.d.ts",
       "default": "./src/lib/urls/@main.js"
     }
   },

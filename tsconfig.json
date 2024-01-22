@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": "./",
-    "baseUrl": ".",
     "outDir": "./types",
 
     "allowJs": true,
@@ -22,14 +20,6 @@
     "jsxImportSource": "pota",
 
     "sourceMap": true,
-
-    "types": ["./ts.pota.d.ts", "./ts.jsx.d.ts"]
   },
-  "include": ["src"],
-  "exclude": [
-    "./node_modules/**",
-    "node_modules",
-    "dist",
-    "dist.standalone"
-  ]
+  "include": ["src", "ts.jsx.d.ts", "ts.pota.d.ts"]
 }
