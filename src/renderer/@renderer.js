@@ -236,13 +236,11 @@ function createTag(tagName, props, scope) {
  */
 function createNode(node, props, scope) {
 	if (node.namespaceURI !== NS.html) {
-		// TODO: do not write a property to the node
-
 		/**
 		 * Assign the scope to the node when the namespace is not html .
 		 * Allows to lookup parent node for xmlns
 		 */
-		node[$meta] = scope
+		property(node, $meta, scope, true)
 
 		scope.namespaceURI = node.namespaceURI
 
@@ -254,8 +252,9 @@ function createNode(node, props, scope) {
 		 * the parent, which is already saved on the scope from the
 		 * previous run
 		 */
-		if (parentNode[$meta]) {
-			scope.parent = parentNode[$meta]
+		const parentScope = property(parentNode, $meta)
+		if (parentScope) {
+			scope.parent = parentScope
 		}
 	}
 
