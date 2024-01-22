@@ -1,33 +1,40 @@
-import { empty } from './empty.js'
-
 const Meta = new WeakMap()
 
+const get = Meta.get.bind(Meta)
+const set = Meta.set.bind(Meta)
+
 /**
- * Gets metadata from an object and creates it if needed
+ * Gets or sets a property for an object stored on a WeakMap
  *
  * @param {object} object
- * @param {boolean} [create]
+ * @param {PropertyKey} key
+ * @param {any} [defaults] - When defaults is given it will create it
+ *   if doesnt exits
+ * @returns {any}
  */
-function get(object, create = true) {
-	let meta = Meta.get(object)
-	if (meta === undefined && create) {
-		meta = empty()
-		Meta.set(object, meta)
+export function property(object, key, defaults) {
+	const meta = get(object)
+
+	// meta doesnt exists
+	if (!meta) {
+		// defaults to something so should be created
+		if (defaults !== undefined) {
+			set(object, { [key]: defaults })
+			return defaults
+		}
+		// doesnt default to anything so just return
+		return
 	}
-	return meta
-}
-/**
- * Gets or sets a property for an object on a separated WeakMap
- *
- * @param {object} object
- * @param {PropertyKey} property
- * @param {any} [defaults]
- */
-export function property(object, property, defaults) {
-	const create = defaults !== undefined
-	const meta = get(object, create)
-	if (create && meta[property] === undefined) {
-		meta[property] = defaults
+
+	// the property exists in the object
+	if (key in meta) {
+		return meta[key]
 	}
-	return meta && meta[property]
+
+	// the property doesnt exists in the object
+	// create it if a default was provided
+	if (defaults !== undefined) {
+		meta[key] = defaults
+		return defaults
+	}
 }
