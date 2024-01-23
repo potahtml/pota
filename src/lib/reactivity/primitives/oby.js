@@ -41,9 +41,12 @@ export const signal = (initialValue, options) => {
  * automatically updates
  *
  * @param {Function} fn - Function to re-run when dependencies change
+ * @param {{
+ * 	equals?: false | ((prev: unknown, next: unknown) => boolean)
+ * }} [options]
  * @returns {Signal} - Read only signal
  */
-const memo = fn => markReactive(_memo(fn))
+const memo = (fn, options) => markReactive(_memo(fn, options))
 
 /**
  * Creates a new root
@@ -143,14 +146,18 @@ export function Context(defaultValue = {}) {
  *
  * @author Fabio Spampinato
  * @param {Function} fn - Function to re-run when dependencies change
+ * @param {{
+ * 	equals?: false | ((prev: unknown, next: unknown) => boolean)
+ * }} [options]
+ *
  * @returns {Signal}
  */
-function lazyMemo(fn) {
+function lazyMemo(fn, options) {
 	const [sleeping, setSleeping] = signal(true)
 	const m = memo(() => {
 		if (sleeping()) return
 		return fn()
-	})
+	}, options)
 
 	let read = () => {
 		setSleeping(false)
