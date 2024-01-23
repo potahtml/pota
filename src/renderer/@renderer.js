@@ -453,12 +453,16 @@ function insertNode(parent, node, relative) {
 
 		// search for tags that should be unique
 		let prev
-		if (name === 'META') {
-			prev =
-				querySelector('meta[name="' + node.name + '"]') ||
-				querySelector('meta[property="' + node.property + '"]')
-		} else if (name === 'TITLE') {
+		if (name === 'TITLE') {
 			prev = querySelector('title')
+		} else if (name === 'META') {
+			prev =
+				querySelector(
+					'meta[name="' + node.getAttribute('name') + '"]',
+				) ||
+				querySelector(
+					'meta[property="' + node.getAttribute('property') + '"]',
+				)
 		} else if (name === 'LINK' && node.rel === 'canonical') {
 			prev = querySelector('link[rel="canonical"]')
 		}
