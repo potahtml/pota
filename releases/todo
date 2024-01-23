@@ -6,12 +6,9 @@ TODO:
 	- improve directory
 
 	Playground:
-	- import map
-	- switch reactive library
 	- LSP
 
 	Reactivity:
-	- abstract equals param on signals
 	- add maverick https://github.com/maverick-js/signals
 
 	Miscellaneous:
