@@ -3,12 +3,13 @@ import {
 	signal,
 	effect,
 	batch,
+	cleanup,
+	root,
 } from '../lib/reactivity/primitives/solid.js'
 import { empty } from '../lib/std/empty.js'
 import { entries } from '../lib/std/entries.js'
 import { flat } from '../lib/std/flat.js'
 import { getValue } from '../lib/std/getValue.js'
-import { optional } from '../lib/std/optional.js'
 import { toArray } from '../lib/std/toArray.js'
 import { weakStore } from '../lib/std/weakStore.js'
 
@@ -20,12 +21,11 @@ const { get, set } = weakStore()
  * Function to create tagged template components
  *
  * @param {object} [options]
- * @param {boolean} [options.wrap] - Wrap the return value in a
- *   function for playing nicely with context and reactivity. Defaults
- *   to `true`
- * @returns {Function & { define: ({}) => void }}
+ * @param {boolean} [options.unwrap] - To return a `Node/Element` or
+ *   an array of `Node/Elements`. Defaults to `true`
+ * @returns {Function & { define: ({ components }) => void }}
  */
-export function HTML(options = empty()) {
+export function HTML(options = { unwrap: true }) {
 	const components = empty()
 	/**
 	 * Creates tagged template components
@@ -76,7 +76,7 @@ export function HTML(options = empty()) {
 				// gather children
 				/**
 				 * `childNodes` should overwrite any children="" attribute but
-				 * only if childNodes has something
+				 * only if `childNodes` has something
 				 */
 				const length = node.childNodes.length
 				if (length === 1) {
@@ -91,11 +91,8 @@ export function HTML(options = empty()) {
 						props.children.push(nodes(child))
 				}
 
-				// when it's a registered component use that instead
-				const component = components[tag]
-
 				// needs to return a function so reactivity works properly
-				return Component(component || tag, props)
+				return Component(components[tag] || tag, props)
 			} else {
 				return node
 			}
@@ -104,9 +101,9 @@ export function HTML(options = empty()) {
 		// flat to return a single element if possible to make it more easy to use
 		const children = flat(nodes(clone))
 
-		cached.result = optional(options.wrap)
-			? children
-			: toNodes(toHTML(children, $internal))
+		cached.result = options.unwrap
+			? toNodes(toHTML(children, $internal))
+			: children
 
 		return cached.result
 	}
@@ -120,66 +117,128 @@ export function HTML(options = empty()) {
 	return html
 }
 
-export const html = HTML({ wrap: false })
+export const html = HTML({ unwrap: true })
 
 /**
- * Runs an `effect` on an `HTML` template. Reacts to values changes
- * even if values arent reactive. The effect receives `html` for
- * template creation.
+ * Runs an `effect` on an `html` template. Reacts to reactive
+ * interpolated values, or to the reactivity used in the body of the
+ * function you pass.
  *
  * @param {(html) => any} fn - Function to run as an effect. It
- *   receives argument `html` for template creation.
+ *   receives `html` argument for template creation.
+ * @param {object} [options]
+ * @param {boolean} [options.unwrap] - To return a `Node/Element` or
+ *   an array of `Node/Elements`. Defaults to `true`
  * @returns {Children}
  */
-export const htmlEffect = fn => {
-	const html = HTML()
+export const htmlEffect = (fn, options = { unwrap: true }) => {
+	/** If possible use the global registry */
+	const html_ = options.unwrap ? html : HTML(options)
+
+	let disposeHTMLEffect
 
 	const _html = (template, ...values) => {
 		// when template is cached just update the signals
 		let cached = get(template)
 		if (cached) {
-			// update signals with the new values
-			const update = (template, values) => {
-				batch(() => {
-					for (let [key, value] of entries(values)) {
-						cached.signals[key][1](getValue(value)) // read + write
-					}
-				})
-			}
-			update(template, values)
+			/**
+			 * Purpose:
+			 *
+			 * 1. Track the `values` by reading, so we track the interpolated
+			 *    values.
+			 * 2. Aditionally, this will also rerun when reactive values used
+			 *    on the body of the function you pass to the effect
+			 *    update.
+			 * 3. Update the `signals` when `values` change.
+			 *
+			 * It batches changes so it updates the template in one shot
+			 */
+			batch(() => {
+				for (let [key, value] of entries(values)) {
+					// getValue(value) causes tracking
+					cached.signals[key][1](getValue(value))
+				}
+			})
 
+			/**
+			 * It needs to return the result because when used unwrapped and
+			 * nesting (ex calling html twice inside the htmlEffect), the
+			 * second call will use the value of the first call. The result
+			 * is a reference to the nodes created before, so it always use
+			 * the same nodes, and reactivity on these nodes is live.
+			 *
+			 * ```js
+			 * htmlEffect(html => {
+			 * 	const ELEMENTS = html`<div>
+			 * 		double ${data.test * 2}
+			 * 	</div>`
+			 * 	// ^ these elements are needed in the next line
+			 * 	return html`<div>${data.test} ${ELEMENTS}</div>`
+			 * })
+			 * ```
+			 */
 			return cached.result
 		}
 
-		// create signals with the initial values
+		/**
+		 * Creates the html with `signals` in place of the interpolated
+		 * `values`. This is to avoid having to create the template more
+		 * than once. Once the template is created, then the only thing
+		 * that will update is the `signals`.
+		 *
+		 * It creates a root because when any of the `values` changes
+		 * inside the body of the function that you pass to `htmlEffect`,
+		 * or when the interpolated `values` change, it causes disposal
+		 * (aka removing the elements), and htmlEffect re-runs. To avoid
+		 * having the elements removed by the disposal of the body of your
+		 * own function we create a root.
+		 */
 		const signals = []
+		const result = root(dispose => {
+			disposeHTMLEffect = dispose
 
-		const valuesToSignals = values.map((value, key) => {
-			signals[key] = signal(getValue(value))
-			return signals[key][0] // read
+			/**
+			 * HTML is created with the `signals` in place of the `values`.
+			 * Pota will add one effect for each signal. So this wont
+			 * re-run.
+			 */
+			return html_(
+				template,
+				...values.map((value, key) => {
+					signals[key] = signal(getValue(value))
+					// give accesors to template instead of the `values`
+					return signals[key][0]
+				}),
+			)
 		})
 
-		// create html
-		const result = html(template, ...valuesToSignals)
-
-		// save signals
+		// save the `signals` in the cached template
 		cached = get(template)
 		cached.signals = signals
 
-		// track reads + update signals whenever the values change
-		effect(() => fn(_html))
+		/**
+		 * This effect will re-run when the `values` interpolated change,
+		 * or when any signal that you use on the `htmlEffect` function
+		 * body change. It cause re-runs of what we are batching above.
+		 */
+		effect(() => {
+			fn(_html)
+		})
 
-		// return result
 		return result
 	}
+
+	/** Dispose the effect when whatever started it is disposed. */
+	cleanup(disposeHTMLEffect)
 
 	return fn(_html)
 }
 
 /**
- * DocumentFragment is transformed to an array of nodes, that way we
- * can keep a reference to them. Because using the DocumentFragment
- * will remove the nodes from the DocumentFragment.
+ * DocumentFragment is transformed to an `Array` of `Node/Element`,
+ * that way we can keep a reference to the nodes. Because when the
+ * DocumentFragment is used, it removes the nodes from the
+ * DocumentFragment and then we will lose the reference.
  */
 const toNodes = nodes =>
 	nodes instanceof DocumentFragment

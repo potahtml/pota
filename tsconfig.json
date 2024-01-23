@@ -10,7 +10,6 @@
     "target": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "moduleResolution": "NodeNext",
-    "resolveJsonModule": true,
 
     "declaration": true,
     "declarationMap": true,
@@ -19,7 +18,7 @@
     "jsx": "preserve",
     "jsxImportSource": "pota",
 
-    "sourceMap": true,
+    "sourceMap": true
   },
   "include": ["src", "ts.jsx.d.ts", "ts.pota.d.ts"]
 }
