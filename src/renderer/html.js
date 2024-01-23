@@ -2,6 +2,7 @@ import { $internal } from '../constants.js'
 import {
 	signal,
 	effect,
+	renderEffect,
 	batch,
 	cleanup,
 	root,
@@ -216,22 +217,23 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 		cached = get(template)
 		cached.signals = signals
 
-		/**
-		 * This effect will re-run when the `values` interpolated change,
-		 * or when any signal that you use on the `htmlEffect` function
-		 * body change. It cause re-runs of what we are batching above.
-		 */
-		effect(() => {
-			fn(_html)
-		})
-
 		return result
 	}
+
+	let result
+	/**
+	 * This effect will re-run when the `values` interpolated change, or
+	 * when any signal that you use on the `htmlEffect` function body
+	 * change. It cause re-runs of what we are batching above.
+	 */
+	renderEffect(() => {
+		result = fn(_html)
+	})
 
 	/** Dispose the effect when whatever started it is disposed. */
 	cleanup(disposeHTMLEffect)
 
-	return fn(_html)
+	return result
 }
 
 /**
