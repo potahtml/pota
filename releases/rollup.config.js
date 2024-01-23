@@ -44,6 +44,23 @@ const pluginsNoMinOby = [
   }),
 ]
 
+const pluginsFlimsy = [
+  resolve({}),
+  babel({
+    babelHelpers: 'bundled',
+    presets: [['pota/babel-preset', { lib: 'flimsy' }]],
+  }),
+  terser(),
+]
+
+const pluginsNoMinFlimsy = [
+  resolve({}),
+  babel({
+    babelHelpers: 'bundled',
+    presets: [['pota/babel-preset', { lib: 'flimsy' }]],
+  }),
+]
+
 export default [
   // full solid
   {
@@ -89,6 +106,30 @@ export default [
       {
         ...outputOptions,
         file: '../dist/standalone.oby.no-min.js',
+      },
+    ],
+  },
+
+  // full flimsy
+  {
+    input: './standalone.js',
+    plugins: pluginsFlimsy,
+    output: [
+      {
+        ...outputOptions,
+        file: '../dist/standalone.flimsy.js',
+      },
+    ],
+  },
+
+  // full flimsy no min
+  {
+    input: './standalone.js',
+    plugins: pluginsNoMinFlimsy,
+    output: [
+      {
+        ...outputOptions,
+        file: '../dist/standalone.flimsy.no-min.js',
       },
     ],
   },
