@@ -7,7 +7,7 @@ import { Component } from '../../renderer/@renderer.js'
 
 class CollapseElement extends CustomElement {
 	hide() {
-		this.shadowRoot.innerHTML = ''
+		this.shadowRoot.innerHTML = '<style>:host{display: none;}</style>'
 	}
 	show() {
 		this.shadowRoot.innerHTML = '<slot/>'
