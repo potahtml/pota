@@ -136,7 +136,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 	/** If possible use the global registry */
 	const html_ = options.unwrap ? html : HTML(options)
 
-	let disposeHTMLEffect
+	let disposeHTMLEffect = []
 
 	const _html = (template, ...values) => {
 		// when template is cached just update the signals
@@ -196,7 +196,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 		 */
 		const signals = []
 		const result = root(dispose => {
-			disposeHTMLEffect = dispose
+			disposeHTMLEffect.push(dispose)
 
 			/**
 			 * HTML is created with the `signals` in place of the `values`.
@@ -231,7 +231,11 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 	})
 
 	/** Dispose the effect when whatever started it is disposed. */
-	cleanup(disposeHTMLEffect)
+	cleanup(() => {
+		for (const dispose of disposeHTMLEffect) {
+			dispose()
+		}
+	})
 
 	return result
 }
