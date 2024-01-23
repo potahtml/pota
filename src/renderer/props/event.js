@@ -78,6 +78,8 @@ export function addEventListener(
 	delegated = true,
 	external = true,
 ) {
+	delegated = node === window ? false : delegated
+
 	const handlers = getHandlers(node, type, delegated, true)
 
 	if (delegated) {
@@ -130,6 +132,8 @@ export function removeEventListener(
 	delegated = true,
 	external = true,
 ) {
+	delegated = node === window ? false : delegated
+
 	const handlers = getHandlers(node, type, delegated, false)
 
 	removeFromArray(handlers, handler)
