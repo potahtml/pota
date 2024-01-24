@@ -224,6 +224,9 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 		return result
 	}
 
+	// use the registry of the real `html` function
+	_html.define = components => html_.define(components)
+
 	let result
 	/**
 	 * This effect will re-run when the `values` interpolated change, or
