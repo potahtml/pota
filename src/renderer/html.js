@@ -24,10 +24,12 @@ const { get, set } = weakStore()
  * @param {object} [options]
  * @param {boolean} [options.unwrap] - To return a `Node/Element` or
  *   an array of `Node/Elements`. Defaults to `true`
- * @returns {Function & { define: ({ components }) => void }}
+ * @returns {Function & {
+ * 	define: ({ components }) => void
+ * 	components: {}
+ * }}
  */
 export function HTML(options = { unwrap: true }) {
-	const components = empty()
 	/**
 	 * Creates tagged template components
 	 *
@@ -93,7 +95,7 @@ export function HTML(options = { unwrap: true }) {
 				}
 
 				// needs to return a function so reactivity works properly
-				return Component(components[tag] || tag, props)
+				return Component(html.components[tag] || tag, props)
 			} else {
 				return node
 			}
@@ -109,9 +111,10 @@ export function HTML(options = { unwrap: true }) {
 		return cached.result
 	}
 
+	html.components = empty()
 	html.define = userComponents => {
 		for (const [name, component] of entries(userComponents)) {
-			components[name.toUpperCase()] = component
+			html.components[name.toUpperCase()] = component
 		}
 	}
 
@@ -133,8 +136,9 @@ export const html = HTML({ unwrap: true })
  * @returns {Children}
  */
 export const htmlEffect = (fn, options = { unwrap: true }) => {
-	/** If possible use the global registry */
+	/** Copy the components from the global registry */
 	const html_ = options.unwrap ? html : HTML(options)
+	html_ !== html && (html_.components = { ...html.components })
 
 	let disposeHTMLEffect = []
 

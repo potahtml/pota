@@ -16,18 +16,19 @@ TODO:
 	- typings
 	- make Scope lazy
 	- proxy props plugin .? etc
-	- refactor html to be both types
-
-BUGS:
-
-	classList:
-	- the name of the class is not reactive
 
 	Router:
 	- decide what to do with useParams
+
+BUGS:
+
+	Router:
 	- is not scrolling when reloading to a hash tag when used with `lazy`
 
 FUTURE FEATURES:
+
+	classList:
+	- the name of the class is not reactive
 
 	Mount:
 	- support mount points as a selector
@@ -38,15 +39,15 @@ FUTURE FEATURES:
 	Router:
 	- make the `path` reactive
 
-	Compiler:
-	- write a compiler to make the output smaller (possibly using `html`)
-
 POSSIBLE DE/OPTIMIZATIONS:
 
 	CONSIDER ALWAYS:
 	- keep the code readable, do not complicate it too much, even if faster
 	- consistency above all
 	- slow and simple is better than fast and super complicated
+
+	COMPILER:
+	- write a compiler to make the output smaller (possibly using `html`)
 
 	CRAZY IDEAS:
 	- change some for of for for in
