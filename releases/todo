@@ -15,7 +15,6 @@ TODO:
 	- provide a rollup template
 	- typings
 	- make Scope lazy
-	- proxy props plugin .? etc
 
 	Router:
 	- decide what to do with useParams

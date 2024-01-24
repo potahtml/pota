@@ -8,6 +8,7 @@ import {
 } from './plugin.js'
 
 export { propsPlugin, propsPluginNS }
+export { propsProxy } from './proxy.js'
 export { setProperty } from './property.js'
 export { setAttribute } from './attribute.js'
 export { setBool } from './bool.js'
@@ -73,6 +74,10 @@ propsPluginNS('on', setEventNS, false)
 import { setUnknownProp } from './unknown.js'
 import { eventName, addEventListener } from './event.js'
 
+// proxy
+
+import { hasProxy, proxy } from './proxy.js'
+
 /**
  * Assigns props to an Element
  *
@@ -80,9 +85,14 @@ import { eventName, addEventListener } from './event.js'
  * @param {object} props - Props to assign
  */
 export function assignProps(node, props) {
-	for (const [name, value] of entries(props)) {
+	for (let [name, value] of entries(props)) {
 		// internal props
 		if (name === 'children') continue
+
+		// run proxies
+		if (hasProxy.value) {
+			;({ name, value } = proxy(name, value))
+		}
 
 		// run plugins
 		if (plugins[name]) {
