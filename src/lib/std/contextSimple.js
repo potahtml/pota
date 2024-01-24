@@ -1,12 +1,10 @@
-import { empty } from './empty.js'
-
 /**
  * Creates a context and returns a function to get or set the value
  *
  * @param {any} [defaultValue] - Default value for the context
  * @returns {typeof Context} Context
  */
-export function contextSimple(defaultValue = empty()) {
+export function contextSimple(defaultValue = undefined) {
 	let value = defaultValue
 
 	/**

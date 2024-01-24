@@ -31,6 +31,7 @@ import {
 	removeFromArray,
 	isFunction,
 	weakStore,
+	freeze,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -95,7 +96,7 @@ export function Component(value, props) {
 	value = Factory(value)
 
 	// freeze props so isnt directly writable
-	Object.freeze(props)
+	freeze(props)
 
 	/**
 	 * The scope/context is used to hold the parent to be able to tell
@@ -128,6 +129,8 @@ onFinally(() => Components.clear())
  * @returns {Component}
  */
 
+const emptyProps = freeze(empty())
+
 export function Factory(value) {
 	if (isComponent(value)) {
 		return value
@@ -141,14 +144,14 @@ export function Factory(value) {
 	switch (typeof value) {
 		case 'string': {
 			// a string component, 'div' becomes <div>
-			component = (props = empty(), scope = Scope()) =>
+			component = (props = emptyProps, scope = Scope()) =>
 				createTag(value, props, scope)
 			break
 		}
 		case 'function': {
 			if (isClassComponent(value)) {
 				// a class component <MyComponent../>
-				component = (props = empty()) =>
+				component = (props = emptyProps) =>
 					untrack(() => {
 						const i = new value()
 						i.onReady && onReady(i.onReady.bind(i))
@@ -171,14 +174,14 @@ export function Factory(value) {
 			}
 
 			// a function component <MyComponent../>
-			component = (props = empty(), scope = Scope()) =>
+			component = (props = emptyProps, scope = Scope()) =>
 				untrack(() => value(props, scope))
 			break
 		}
 		default: {
 			if (value instanceof Node) {
 				// an actual node component <div>
-				component = (props = empty(), scope = Scope()) =>
+				component = (props = emptyProps, scope = Scope()) =>
 					createNode(value, props, scope)
 				break
 			}

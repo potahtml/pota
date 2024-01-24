@@ -42,7 +42,7 @@ let querySearch = ''
  */
 
 /** @type location */
-export const location = assign(empty(), {
+export const location = {
 	hash,
 	pathname,
 	path: () => pathname() + hash(),
@@ -62,7 +62,7 @@ export const location = assign(empty(), {
 		return queryParams
 	},
 	href,
-})
+}
 
 /**
  * Returns location data in a reactive object

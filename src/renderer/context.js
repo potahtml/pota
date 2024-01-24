@@ -1,9 +1,8 @@
 import { Context } from '../lib/reactivity/primitives/solid.js'
-import { empty } from '../lib/std/empty.js'
 
 import { toHTML } from './@renderer.js'
 
-export function context(defaultValue = empty()) {
+export function context(defaultValue = undefined) {
 	/** @type {any} */
 	const ctx = Context(defaultValue)
 

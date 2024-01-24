@@ -15,7 +15,14 @@ import { weakStore } from '../lib/std/weakStore.js'
 
 import { Component, createElement, toHTML } from './@renderer.js'
 
-import * as defaultRegistry from '../components/flow/@main.js'
+import * as defaultRegistryTemplate from '../components/flow/@main.js'
+
+const defaultRegistry = Object.fromEntries(
+	Object.entries(defaultRegistryTemplate).map(([k, v]) => [
+		k.toUpperCase(),
+		v,
+	]),
+)
 
 const { get, set } = weakStore()
 
@@ -41,8 +48,11 @@ export function HTML(options = { unwrap: true }) {
 	function html(template, ...values) {
 		let cached = get(template)
 		if (!cached) {
-			cached = empty()
-			cached.template = createElement('template')
+			cached = {
+				template: createElement('template'),
+				result: null,
+				signals: null,
+			}
 			cached.template.innerHTML = template
 				.join('<pota></pota>')
 				.trim()
@@ -112,13 +122,12 @@ export function HTML(options = { unwrap: true }) {
 		return cached.result
 	}
 
-	html.components = empty()
+	html.components = { ...defaultRegistry }
 	html.define = userComponents => {
 		for (const [name, component] of entries(userComponents)) {
 			html.components[name.toUpperCase()] = component
 		}
 	}
-	html.define(defaultRegistry)
 
 	return html
 }
