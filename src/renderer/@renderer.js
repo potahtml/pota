@@ -58,7 +58,7 @@ const createElementNS = (ns, name) =>
 	untrack(() => document.createElementNS(ns, name))
 const createElementText = text => document.createTextNode(text)
 const createFragment = () => new DocumentFragment()
-const nodeRemove = node => node.remove && node.remove()
+
 const nodeClear = node => (node.textContent = '')
 
 // COMPONENTS
@@ -267,7 +267,7 @@ function createNode(node, props, scope) {
 			}
 		}
 		// remove from the document
-		nodeRemove(node)
+		node.remove()
 	})
 
 	// assign the props to the node
@@ -358,6 +358,17 @@ function createChildren(parent, child, relative) {
 
 			// Node/DocumentFragment
 			if (child instanceof Node) {
+				/**
+				 * DocumentFragment are special as only the childs get added
+				 * to the document and the document becomes empty. If we dont
+				 * insert them 1 by 1 then we wont have a reference to them
+				 * for deletion, as DocumentFragment.remove() doesnt exists
+				 */
+				if (child instanceof DocumentFragment) {
+					return toArray(child.childNodes).map(child =>
+						createChildren(parent, child, relative),
+					)
+				}
 				return insertNode(parent, child, relative)
 			}
 
@@ -477,7 +488,7 @@ function insertNode(parent, node, relative) {
 	}
 
 	// get rid of children nodes on cleanup
-	cleanup(() => nodeRemove(node))
+	cleanup(() => node.remove())
 
 	return node
 }
