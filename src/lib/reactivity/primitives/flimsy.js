@@ -189,3 +189,10 @@ export const withOwner = () => {
 	const owner = getOwner()
 	return fn => runWithOwner(owner, fn)
 }
+
+/**
+ * Returns current owner
+ *
+ * - @returns {unknown}
+ */
+export const owner = getOwner

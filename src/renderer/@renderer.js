@@ -8,6 +8,7 @@ import {
 	signal,
 	memo,
 	withOwner,
+	owner,
 } from '../lib/reactivity/primitives/solid.js'
 
 // REACTIVE UTILITIES
@@ -29,6 +30,7 @@ import {
 	property,
 	removeFromArray,
 	isFunction,
+	weakStore,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -258,17 +260,7 @@ function createNode(node, props, scope) {
 		}
 	}
 
-	// get rid of the node on cleanup
-	cleanup(() => {
-		const onUnmount = property(node, 'onUnmount')
-		if (onUnmount) {
-			for (const fn of onUnmount) {
-				call(fn, node)
-			}
-		}
-		// remove from the document
-		node.remove()
-	})
+	nodeCleanup(node)
 
 	// assign the props to the node
 	assignProps(node, props)
@@ -487,10 +479,41 @@ function insertNode(parent, node, relative) {
 		)
 	}
 
-	// get rid of children nodes on cleanup
-	cleanup(() => node.remove())
+	nodeCleanup(node)
 
 	return node
+}
+
+// nodes cleanup
+
+const nodeCleanupStore = weakStore()
+function nodeCleanup(node) {
+	const own = owner()
+	// null owners means its never disposed
+	if (own) {
+		const nodes = nodeCleanupStore.get(own, () => [])
+
+		if (nodes.length === 0) {
+			cleanup(() => {
+				// removal
+				for (const node of nodes) {
+					if (node.isConnected) {
+						// call onUnmount
+						const onUnmount = property(node, 'onUnmount')
+						if (onUnmount) {
+							for (const fn of onUnmount) {
+								call(fn, node)
+							}
+						}
+						node.remove()
+					}
+				}
+				nodes.length = 0
+			})
+		}
+
+		nodes.push(node)
+	}
 }
 
 // RENDERING

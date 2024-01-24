@@ -52,7 +52,6 @@ POSSIBLE DE/OPTIMIZATIONS:
 	- change some for of for for in
 	- merge effects on equal reactive values
 	- functions that accept arguments of changing types should be split
-	- add one cleanup call and push nodes to array for cleaning up
 	- add to document fragment then to document (mutation observers)
 	- make a class like untracked and then `new untracked(fn)`
 	- only untrack if the the node is a custom element

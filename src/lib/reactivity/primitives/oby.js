@@ -18,6 +18,7 @@ import $, {
 	// context
 	context as _context,
 	with as with_,
+	owner as _owner,
 } from 'oby'
 
 /**
@@ -178,3 +179,10 @@ export const withOwner = () => {
 	const owned = with_()
 	return fn => owned(fn)
 }
+
+/**
+ * Returns current owner
+ *
+ * - @returns {unknown}
+ */
+export const owner = _owner

@@ -47,7 +47,7 @@ const cannotRedefine = (target, key) =>
 
 const { get: getSignal } = weakStore()
 function getSignals(target) {
-	return getSignal(target, empty())
+	return getSignal(target, () => empty())
 }
 
 function setters(target, key, value) {

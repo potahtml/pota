@@ -3,7 +3,7 @@
  *
  * @returns {{
  * 	store: WeakMap<WeakKey, any>
- * 	get: (reference, createIfNotExistsAs = undefined) => any
+ * 	get: (reference: WeakKey, createIfNotExistsAs?: () => any) => any
  * 	set: Function
  * 	has: Function
  * }}
@@ -20,6 +20,11 @@ export function weakStore() {
 			const o = get(obj)
 			if (o) return o
 			if (defaults !== undefined) {
+				/**
+				 * Default values should be passed as a function, so we dont
+				 * constantly initialize values when giving them
+				 */
+				defaults = defaults()
 				set(obj, defaults)
 				return defaults
 			}
