@@ -57,8 +57,3 @@ POSSIBLE DE/OPTIMIZATIONS:
 	- only untrack if the the node is a custom element
 	- recursive functions in a while loop
 	- change some toArray or for loops to be generators
-	- sort on map: console.log(
-		Object.groupBy(rows, (value, index) =>
-			rows[index] === prev[index] ? "sorted" : "unsorted",
-		),
-	);
