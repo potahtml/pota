@@ -56,13 +56,12 @@ export function map(list, callback, sort) {
 			const row = {
 				runId: -1,
 				index,
-				// this is held here only to be returned on the first run, but no need to keep it after
-				nodes: runId === 1 ? nodes : null,
+				nodes,
 				// reference nodes, it holds the placeholders that delimit `begin` and `end`
 				// you can quickly check if items are in the right order
 				// by checking if item.end === nextItem.begin.previousSibling
-				begin: !sort ? null : nodes[0],
-				end: !sort ? null : nodes.at(-1),
+				begin: nodes[0],
+				end: nodes[nodes.length - 1],
 				dispose: all => {
 					// skip cache deletion as we are going to clear the full map
 					if (!all) {
@@ -181,8 +180,6 @@ export function map(list, callback, sort) {
 
 				// handles all other cases
 				// best for any combination of: push/pop/shift/unshift/insertion/deletion
-				// as for swap, anything in between the swapped elements gets sorted,
-				// so as long as the swapped elements are close to each other is good
 				// must check in reverse as on creation stuff is added to the end
 
 				let current = rows[rows.length - 1]
@@ -199,18 +196,7 @@ export function map(list, callback, sort) {
 			prev = rows
 
 			// return external representation
-			// after the first run it lives in an effect
-			if (runId === 1) {
-				try {
-					return rows.map(item => {
-						return item.nodes
-					})
-				} finally {
-					// remove cached nodes as these are not needed after the first run
-					for (const node of rows) node.nodes = null
-				}
-			}
-			return null
+			return rows.map(item => item.nodes)
 		})
 	}
 	mapper[$map] = null

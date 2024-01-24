@@ -357,7 +357,7 @@ function createChildren(parent, child, relative) {
 				 * DocumentFragment are special as only the childs get added
 				 * to the document and the document becomes empty. If we dont
 				 * insert them 1 by 1 then we wont have a reference to them
-				 * for deletion, as DocumentFragment.remove() doesnt exists
+				 * for deletion
 				 */
 				if (child instanceof DocumentFragment) {
 					return toArray(child.childNodes).map(child =>
@@ -588,7 +588,6 @@ export function toHTML(children, removePlaceholder) {
 	}
 	const fragment = createFragment()
 	createChildren(fragment, children)
-
 	const childNodes = fragment.childNodes
 
 	// workaround for html returning a sub-fix placeholder
@@ -598,7 +597,7 @@ export function toHTML(children, removePlaceholder) {
 		childNodes[1].data === '' &&
 		childNodes[1].remove()
 
-	return childNodes.length === 1 ? childNodes[0] : fragment
+	return childNodes.length === 1 ? childNodes[0] : childNodes
 }
 
 /**

@@ -1,4 +1,4 @@
-export { rand } from './rand.js'
+export { chance } from './chance.js'
 export { random } from './random.js'
 export { randomSeeded } from './randomSeeded.js'
 export { randomBetween } from './randomBetween.js'

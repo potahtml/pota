@@ -55,5 +55,4 @@ POSSIBLE DE/OPTIMIZATIONS:
 	- add to document fragment then to document (mutation observers)
 	- make a class like untracked and then `new untracked(fn)`
 	- only untrack if the the node is a custom element
-	- recursive functions in a while loop
 	- change some toArray or for loops to be generators
