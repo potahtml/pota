@@ -1,7 +1,6 @@
 import { $internal } from '../constants.js'
 import {
 	signal,
-	effect,
 	renderEffect,
 	batch,
 	cleanup,
@@ -15,6 +14,8 @@ import { toArray } from '../lib/std/toArray.js'
 import { weakStore } from '../lib/std/weakStore.js'
 
 import { Component, createElement, toHTML } from './@renderer.js'
+
+import * as defaultRegistry from '../components/flow/@main.js'
 
 const { get, set } = weakStore()
 
@@ -117,6 +118,7 @@ export function HTML(options = { unwrap: true }) {
 			html.components[name.toUpperCase()] = component
 		}
 	}
+	html.define(defaultRegistry)
 
 	return html
 }
