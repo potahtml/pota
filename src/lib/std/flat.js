@@ -1,10 +1,7 @@
-import { isArray } from './isArray.js'
-
 /**
- * Flats an array to the first children if the length is 1
+ * Flats an array/childNodes to the first children if the length is 1
  *
- * @param {any[]} arr
+ * @param {any[] | NodeListOf<ChildNode>} arr
  * @returns {any}
  */
-export const flat = arr =>
-	isArray(arr) && arr.length === 1 ? arr[0] : arr
+export const flat = arr => (arr.length === 1 ? arr[0] : arr)
