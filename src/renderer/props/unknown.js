@@ -3,6 +3,8 @@
 import { withValue } from '../../lib/reactivity/withValue.js'
 import { _setProperty } from './property.js'
 import { _setAttribute } from './attribute.js'
+import { isNotNullObject } from '../../lib/std/isNotNullObject.js'
+import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
 
 /**
  * @param {Elements} node
@@ -19,9 +21,17 @@ export const setUnknownProp = (node, name, value, ns) =>
  * @param {unknown} value
  * @param {string} ns
  */
-const _setUnknownProp = (node, name, value, ns) =>
-	// set as property when boolean
-	// if name has a dash is set as an attribute
-	typeof value === 'boolean' && !name.includes('-')
-		? _setProperty(node, name, value)
-		: _setAttribute(node, name, value, ns)
+const _setUnknownProp = (node, name, value, ns) => {
+	if (isNotNullObject(value)) {
+		// when not null object
+		_setProperty(node, name, value, true)
+	} else if (typeof value === 'boolean' && !name.includes('-')) {
+		// when boolean and name doesnt have a hyphen
+		_setProperty(node, name, value)
+	} else {
+		// fallback to attribute
+		_setAttribute(node, name, value, ns)
+		// to be able to delete properties
+		isNullUndefined(value) && _setProperty(node, name, value)
+	}
+}
