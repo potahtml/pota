@@ -1,4 +1,3 @@
-
 TODO:
 
 	Documentation:
@@ -14,7 +13,7 @@ TODO:
 	Miscellaneous:
 	- provide a rollup template
 	- typings
-	- make Scope lazy
+	- make Scope lazy the xml stuff
 
 	Router:
 	- decide what to do with useParams
@@ -24,7 +23,7 @@ BUGS:
 	Router:
 	- is not scrolling when reloading to a hash tag when used with `lazy`
 
-FUTURE FEATURES:
+POSSIBLE FEATURES:
 
 	classList:
 	- the name of the class is not reactive
@@ -38,6 +37,9 @@ FUTURE FEATURES:
 	Router:
 	- make the `path` reactive
 
+	`html`:
+	- reuse the cloned node instead of recreating one from scratch
+
 POSSIBLE DE/OPTIMIZATIONS:
 
 	CONSIDER ALWAYS:
@@ -50,9 +52,5 @@ POSSIBLE DE/OPTIMIZATIONS:
 
 	CRAZY IDEAS:
 	- change some for of for for in
-	- merge effects on equal reactive values
-	- functions that accept arguments of changing types should be split
-	- add to document fragment then to document (mutation observers)
-	- make a class like untracked and then `new untracked(fn)`
-	- only untrack if the the node is a custom element
 	- change some toArray or for loops to be generators
+	- functions that accept arguments of changing types should be split
