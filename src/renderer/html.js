@@ -96,7 +96,7 @@ export function HTML(options = { unwrap: true }) {
 				if (node.childNodes.length) {
 					/**
 					 * When children is an array, as in >${[0, 1, 2]}< then
-					 * children will end as `[[0,1,3]]`, so flat it
+					 * children will end as `[[0, 1, 2]]`, so flat it
 					 */
 					props.children = flat(toArray(node.childNodes).map(nodes))
 				}
