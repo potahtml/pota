@@ -4,7 +4,7 @@
  * @returns {{
  * 	store: WeakMap<WeakKey, any>
  * 	get: (reference: WeakKey, createIfNotExistsAs?: () => any) => any
- * 	set: Function
+ * 	set: (key: WeakKey, value: any) => void
  * 	has: Function
  * }}
  */

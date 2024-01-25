@@ -113,7 +113,7 @@ export const untrack = fn => _untrack(fn)
  * @param {unknown} [defaultValue] - Default value for the context
  * @returns {typeof Context} Context
  */
-export function Context(defaultValue = {}) {
+export function Context(defaultValue = undefined) {
 	// const id = Symbol()
 	// const context = { id, defaultValue }
 
