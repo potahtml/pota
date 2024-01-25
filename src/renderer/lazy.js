@@ -11,6 +11,7 @@ import { Component } from './@renderer.js'
  * @param {any} [fallback] - Fallback for in case the promise is
  *   rejected
  * @returns {Component}
+ * @url https://pota.quack.uy/lazy
  */
 export const lazy = (component, fallback) =>
 	markComponent(props => {

@@ -35,6 +35,7 @@ import { Component } from '../../renderer/@renderer.js'
  *   be used.
  * @param {Children} [props.children]
  * @returns {Children}
+ * @url https://pota.quack.uy/Components/Router/Route
  */
 export function Route(props) {
 	const parent = Context()

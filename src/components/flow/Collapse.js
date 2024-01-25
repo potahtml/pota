@@ -27,6 +27,7 @@ class CollapseElement extends CustomElement {
  * 	children?: Children
  * }} props
  * @returns {Children}
+ * @url https://pota.quack.uy/Components/Collapse
  */
 export function Collapse(props) {
 	customElement('pota-collapse', CollapseElement)

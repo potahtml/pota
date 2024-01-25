@@ -11,6 +11,7 @@ import {
  * @param {Children} [props.fallback]
  * @param {Function} [props.children]
  * @returns {Children}
+ * @url https://pota.quack.uy/Components/Promised
  */
 export function Promised(props, fallback) {
 	const [value, setValue] = signal(props.fallback || fallback || '')

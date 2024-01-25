@@ -18,6 +18,7 @@ export const setBoolNS = (node, name, value, props, localName, ns) =>
  * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
+ * @url https://pota.quack.uy/props/setBool
  */
 export const setBool = (node, name, value) =>
 	withValue(value, value => _setBool(node, name, value))

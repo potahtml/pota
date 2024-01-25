@@ -523,6 +523,7 @@ function nodeCleanup(node) {
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  * @returns {Function} Disposer
+ * @url https://pota.quack.uy/render
  */
 export function render(children, parent, options = empty()) {
 	const dispose = root(dispose => {
@@ -572,6 +573,7 @@ function insert(children, parent, options = empty()) {
  *
  * @param {Children} children
  * @returns {Children}
+ * @url https://pota.quack.uy/toHTML
  */
 export function toHTML(children) {
 	const fragment = createFragment()
@@ -590,6 +592,7 @@ export function toHTML(children) {
  *
  * @param {Function | Children} fn
  * @returns {Signal} Memo
+ * @url https://pota.quack.uy/resolve
  */
 export function resolve(fn) {
 	const children = isFunction(fn) ? memo(fn) : () => fn

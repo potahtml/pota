@@ -7,6 +7,7 @@ import { Component } from '../../renderer/@renderer.js'
  * 	component: Componenteable
  * } & Props} props
  * @returns {Component}
+ * @url https://pota.quack.uy/Components/Dynamic
  */
 
 export const Dynamic = props =>

@@ -12,6 +12,7 @@ import { canNavigate } from './useBeforeLeave.js'
  *
  * @param {string} href
  * @param {{ scroll?: boolean; replace?: boolean }} options
+ * @url https://pota.quack.uy/Components/Router/Navigate
  */
 export async function navigate(href, options = empty()) {
 	if (window.location.href !== href) {
@@ -48,6 +49,7 @@ function navigateInternal(href, options) {
  * 	scroll?: boolean
  * 	replace?: boolean
  * }} options
+ * @url https://pota.quack.uy/Components/Router/Navigate
  */
 export function navigateUser(href, options = empty()) {
 	// when the user sets the url it may pass a relative path
@@ -71,5 +73,6 @@ export function navigateUser(href, options = empty()) {
  * 	replace?: boolean
  * 	params?: object
  * }} props
+ * @url https://pota.quack.uy/Components/Router/Navigate
  */
 export const Navigate = props => navigateUser(props.href, props)

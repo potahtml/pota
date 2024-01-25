@@ -11,6 +11,7 @@ import { getValue, isNullUndefined } from '../../lib/std/@main.js'
  * @param {Children} [props.children]
  * @param {Children} [props.fallback]
  * @returns {Children}
+ * @url https://pota.quack.uy/Components/Switch
  */
 export function Switch(props) {
   const children = resolve(() => props.children)

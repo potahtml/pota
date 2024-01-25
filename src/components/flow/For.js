@@ -10,6 +10,7 @@ import { map } from '../../lib/reactivity/map.js'
  * @param {Each} props.each
  * @param {Children} [props.children]
  * @returns {Children}
+ * @url https://pota.quack.uy/Components/For
  */
 export function For(props) {
 	const callback = makeCallback(props.children)

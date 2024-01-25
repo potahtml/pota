@@ -9,6 +9,7 @@ export const hasProxy = { value: false }
  * @param {(prop: { name; value }) => void} fn - Proxy function that
  *   changes by reference the name and/or value of the prop sent as
  *   argument
+ * @url https://pota.quack.uy/props/propsProxy
  */
 export const propsProxy = fn => {
 	proxies.push(fn)

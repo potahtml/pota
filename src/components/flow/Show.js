@@ -12,6 +12,7 @@ import { getValue, isNullUndefined } from '../../lib/std/@main.js'
  * @param {Children} [props.fallback]
  * @param {Children} [props.children]
  * @returns {Children}
+ * @url https://pota.quack.uy/Components/Show
  */
 export function Show(props) {
 	const callback = makeCallback(props.children)

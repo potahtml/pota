@@ -68,6 +68,7 @@ export const location = {
  * Returns location data in a reactive object
  *
  * @returns Location
+ * @url https://pota.quack.uy/Components/Router/useLocation
  */
 export const useLocation = () => location
 

@@ -13,6 +13,7 @@ export {
 	 *
 	 * @param {any} [value] - Initial value
 	 * @returns {Signal}
+	 * @url https://pota.quack.uy/props/plugins/bind
 	 */
 	functionSignal as bind,
 } from '../lib/reactivity/functionSignal.js'

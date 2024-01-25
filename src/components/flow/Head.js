@@ -8,6 +8,7 @@ import { Portal } from './Portal.js'
  * 	children?: Children
  * }} props
  * @returns {Children}
+ * @url https://pota.quack.uy/Components/Head
  */
 export const Head = props =>
 	Component(Portal, {

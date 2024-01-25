@@ -7,6 +7,7 @@ import { Context } from './context.js'
  *
  * @param {Function | Promise<unknown>} callback - Run before leaving
  *   the route
+ * @url https://pota.quack.uy/Components/Router/useBeforeLeave
  */
 export const useBeforeLeave = callback =>
 	Context.beforeLeave.push({

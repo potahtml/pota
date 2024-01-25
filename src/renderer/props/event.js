@@ -70,6 +70,7 @@ const Delegated = empty()
  *   returning an `off` function for the event listener
  * @returns {Function | void} - An `off` function for removing the
  *   event listener
+ * @url https://pota.quack.uy/props/EventListener
  */
 export function addEventListener(
 	node,
@@ -124,6 +125,7 @@ export function addEventListener(
  *   returning an `off` function for the event listener
  * @returns {Function | void} - An `on` function for adding back the
  *   event listener
+ * @url https://pota.quack.uy/props/EventListener
  */
 export function removeEventListener(
 	node,

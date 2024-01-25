@@ -8,6 +8,7 @@ import { empty, keys } from '../../lib/std/@main.js'
  * @param {Props} props
  * @param {...string[]} args
  * @returns {Props[]} - Array of objects
+ * @url https://pota.quack.uy/props/propsSplit
  */
 export function propsSplit(props, ...args) {
 	const result = []

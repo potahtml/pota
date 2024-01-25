@@ -36,6 +36,7 @@ const { get, set } = weakStore()
  * 	define: ({ components }) => void
  * 	components: {}
  * }}
+ * @url https://pota.quack.uy/HTML
  */
 export function HTML(options = { unwrap: true }) {
 	/**
@@ -44,6 +45,7 @@ export function HTML(options = { unwrap: true }) {
 	 * @param {TemplateStringsArray} template
 	 * @param {...any} values
 	 * @returns {Children}
+	 * @url https://pota.quack.uy/HTML
 	 */
 	function html(template, ...values) {
 		let cached = get(template)
@@ -136,6 +138,7 @@ export const html = HTML({ unwrap: true })
  * @param {boolean} [options.unwrap] - To return a `Node/Element` or
  *   an array of `Node/Elements`. Defaults to `true`
  * @returns {Children}
+ * @url https://pota.quack.uy/HTML
  */
 export const htmlEffect = (fn, options = { unwrap: true }) => {
 	/** Copy the components from the global registry */
