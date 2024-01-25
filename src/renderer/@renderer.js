@@ -18,6 +18,7 @@ import { isReactive } from '../lib/reactivity/isReactive.js'
 // CONSTANTS
 
 import { $internal, $map, $meta, NS } from '../constants.js'
+import { $class, $map, $meta, NS } from '../constants.js'
 
 // LIB
 
@@ -37,7 +38,6 @@ import {
 // RENDERER LIB
 
 import {
-	isClassComponent,
 	isComponent,
 	isComponentable,
 	markComponent,
@@ -92,23 +92,15 @@ export function Component(value, props) {
 		return props.children
 	}
 
-	// make a component, a callable function to pass `props`
-	value = Factory(value)
-
 	// freeze props so isnt directly writable
 	freeze(props)
 
 	/**
-	 * The scope/context is used to hold the parent to be able to tell
-	 * if dynamic children are XML
+	 * Create a callable function to pass `props`, and a scope/context
+	 * initially set to an empty object. The scope/context is used to
+	 * hold the parent to be able to tell if dynamic children are XML
 	 */
-	const scope = Scope()
-
-	/**
-	 * Create component instance with props, and a scope/context
-	 * initially set to an empty object
-	 */
-	return markComponent(() => value(props, scope))
+	return Factory(value).bind(null, props, Scope())
 }
 
 const Scope = () => ({
@@ -149,7 +141,7 @@ export function Factory(value) {
 			break
 		}
 		case 'function': {
-			if (isClassComponent(value)) {
+			if ($class in value) {
 				// a class component <MyComponent../>
 				component = (props = emptyProps) =>
 					untrack(() => {
@@ -303,10 +295,11 @@ function createChildren(parent, child, relative) {
 				return createChildren(parent, child(), relative)
 			}
 
+			let node
+
 			// For
 			if ($map in child) {
 				// signal: needs an effect
-				let node
 				renderEffect(() => {
 					node = child(child => {
 						/**
@@ -327,7 +320,7 @@ function createChildren(parent, child, relative) {
 			parent = createPlaceholder(parent, child.name, relative)
 
 			// maybe a signal so needs an effect
-			let node
+
 			renderEffect(() => {
 				node = createChildren(parent, child(), true)
 			})
@@ -354,10 +347,10 @@ function createChildren(parent, child, relative) {
 			// Node/DocumentFragment
 			if (child instanceof Node) {
 				/**
-				 * DocumentFragment are special as only the childs get added
+				 * DocumentFragment are special as only the children get added
 				 * to the document and the document becomes empty. If we dont
 				 * insert them 1 by 1 then we wont have a reference to them
-				 * for deletion
+				 * for deletion on cleanup with node.remove()
 				 */
 				if (child instanceof DocumentFragment) {
 					return toArray(child.childNodes).map(child =>
@@ -401,10 +394,10 @@ function createChildren(parent, child, relative) {
 			// object.toString fancy objects
 			return createChildren(
 				parent,
+				// object.create(null) would fail to convert to string
 				'toString' in child
 					? child.toString()
-					: // object.create(null) would fail to convert to string
-						JSON.stringify(child),
+					: JSON.stringify(child),
 				relative,
 			)
 		}
@@ -552,7 +545,6 @@ export function render(children, parent, options = empty()) {
 	onUnmount.push(disposer)
 
 	// run dispose when the parent scope disposes
-	// todo: should do this only when its owned
 	cleanup(disposer)
 
 	return disposer

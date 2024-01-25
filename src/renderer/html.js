@@ -6,19 +6,20 @@ import {
 	cleanup,
 	root,
 } from '../lib/reactivity/primitives/solid.js'
-import { empty } from '../lib/std/empty.js'
 import { entries } from '../lib/std/entries.js'
 import { flat } from '../lib/std/flat.js'
 import { getValue } from '../lib/std/getValue.js'
 import { toArray } from '../lib/std/toArray.js'
 import { weakStore } from '../lib/std/weakStore.js'
+import { fromEntries } from '../lib/std/fromEntries.js'
 
 import { Component, createElement, toHTML } from './@renderer.js'
 
 import * as defaultRegistryTemplate from '../components/flow/@main.js'
+import { callAll } from '../lib/std/callAll.js'
 
-const defaultRegistry = Object.fromEntries(
-	Object.entries(defaultRegistryTemplate).map(([k, v]) => [
+const defaultRegistry = fromEntries(
+	entries(defaultRegistryTemplate).map(([k, v]) => [
 		k.toUpperCase(),
 		v,
 	]),
@@ -81,8 +82,7 @@ export function HTML(options = { unwrap: true }) {
 				if (tag === 'POTA') return values[index++]
 
 				// gather props
-				const props = empty()
-				props.children = null
+				const props = { children: undefined }
 				for (const { name, value } of node.attributes)
 					props[name] =
 						value === '<pota></pota>' ? values[index++] : value
@@ -151,7 +151,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 	const html_ = options.unwrap ? html : HTML(options)
 	html_ !== html && (html_.components = { ...html.components })
 
-	let disposeHTMLEffect = []
+	const disposeHTMLEffect = []
 
 	const _html = (template, ...values) => {
 		// when template is cached just update the signals
@@ -170,7 +170,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 			 * It batches changes so it updates the template in one shot
 			 */
 			batch(() => {
-				for (let [key, value] of entries(values)) {
+				for (const [key, value] of entries(values)) {
 					// getValue(value) causes tracking
 					cached.signals[key][1](getValue(value))
 				}
@@ -238,22 +238,20 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 	// use the registry of the real `html` function
 	_html.define = components => html_.define(components)
 
-	let result
 	/**
 	 * This effect will re-run when the `values` interpolated change, or
 	 * when any signal that you use on the `htmlEffect` function body
 	 * change. It cause re-runs of what we are batching above.
 	 */
+
+	let result
+
 	renderEffect(() => {
 		result = fn(_html)
 	})
 
 	/** Dispose the effect when whatever started it is disposed. */
-	cleanup(() => {
-		for (const dispose of disposeHTMLEffect) {
-			dispose()
-		}
-	})
+	cleanup(() => callAll(disposeHTMLEffect))
 
 	return result
 }

@@ -1,5 +1,4 @@
 export { CustomElement } from './CustomElement.js'
-export { isClassComponent } from './isClassComponent.js'
 export { isComponent } from './isComponent.js'
 export { isComponentable } from './isComponentable.js'
 export { makeCallback } from './makeCallback.js'
