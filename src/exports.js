@@ -44,7 +44,6 @@ export {
 	// rendering
 	render,
 	Component,
-	Factory,
 	/**
 	 * Do not expose insert. As removal of the element on where you
 	 * inserted into, wont cause disposal of what you inserted.

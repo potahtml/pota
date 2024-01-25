@@ -1,4 +1,4 @@
-import { Factory, toHTML } from '../../renderer/@renderer.js'
+import { Component, toHTML } from '../../renderer/@renderer.js'
 import { CustomElement as CustomElementsTemplate } from '../comp/CustomElement.js'
 import { assign } from '../std/assign.js'
 import { empty } from '../std/empty.js'
@@ -41,7 +41,7 @@ export function customElementGroup(groupCSS, externalSheets) {
 			// add component (in case is not a class what the user defined)
 			!element.isClass &&
 				this.shadowRoot.append(
-					toHTML(Factory(element.component || 'slot')),
+					toHTML(Component(element.component || 'slot')),
 				)
 
 			// set property to empty when the slot is not in use

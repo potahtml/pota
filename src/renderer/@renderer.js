@@ -75,18 +75,25 @@ const nodeClear = node => (node.textContent = '')
 export const Fragment = () => {}
 
 /**
- * Used by the JSX transform. `Component` is not supposed to be used
- * in user land. Returns a function because we need to render from
- * parent to children instead of from children to parent. This allows
- * to properly set the reactivity tree (think of nested effects that
- * clear inner effects, context, etc). Additionally, this reversed
- * flow allows to access parent when creating children
+ * Creates components for things. When props argument is given, the
+ * props become fixed. When props argument is ommited, it allows you
+ * to keep calling the returned function with new props.
  *
  * @param {string | Function | Element | object} value - Component
- * @param {any} props Object
+ * @param {any} [props] Object
+ * @url https://pota.quack.uy/Component
  */
 
-export function Component(value, props) {
+export function Component(value, props = undefined) {
+	/**
+	 * Internal comment: Used by the JSX transform. `Component` is not
+	 * supposed to be used in user land. Returns a function because we
+	 * need to render from parent to children instead of from children
+	 * to parent. This allows to properly set the reactivity tree (think
+	 * of nested effects that clear inner effects, context, etc).
+	 * Additionally, this reversed flow allows to access parent when
+	 * creating children
+	 */
 	// special case fragments, these are arrays and dont need untrack nor props
 	if (value === Fragment) {
 		return props.children
@@ -98,9 +105,13 @@ export function Component(value, props) {
 	/**
 	 * Create a callable function to pass `props`, and a scope/context
 	 * initially set to an empty object. The scope/context is used to
-	 * hold the parent to be able to tell if dynamic children are XML
+	 * hold the parent to be able to tell if dynamic children are XML.
+	 * When props its not defined it allows the user to make a Factory
+	 * of components, when props its defined the props are fixed.
 	 */
-	return Factory(value).bind(null, props, Scope())
+	return props === undefined
+		? Factory(value)
+		: Factory(value).bind(null, props, Scope())
 }
 
 const Scope = () => ({
@@ -113,6 +124,8 @@ const Components = new Map()
 // clear the cache after each run
 onFinally(() => Components.clear())
 
+const emptyProps = freeze(empty())
+
 /**
  * Creates a component which is an untracked function that could be
  * called with a props object
@@ -121,9 +134,7 @@ onFinally(() => Components.clear())
  * @returns {Component}
  */
 
-const emptyProps = freeze(empty())
-
-export function Factory(value) {
+function Factory(value) {
 	if (isComponent(value)) {
 		return value
 	}
