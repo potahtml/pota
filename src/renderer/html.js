@@ -1,4 +1,3 @@
-import { $internal } from '../constants.js'
 import {
 	signal,
 	renderEffect,
@@ -92,17 +91,12 @@ export function HTML(options = { unwrap: true }) {
 				 * `childNodes` should overwrite any children="" attribute but
 				 * only if `childNodes` has something
 				 */
-				const length = node.childNodes.length
-				if (length === 1) {
+				if (node.childNodes.length) {
 					/**
 					 * When children is an array, as in >${[0, 1, 2]}< then
 					 * children will end as `[[0,1,3]]`, so flat it
 					 */
-					props.children = nodes(node.childNodes[0])
-				} else if (length) {
-					props.children = []
-					for (const child of node.childNodes)
-						props.children.push(nodes(child))
+					props.children = flat(toArray(node.childNodes).map(nodes))
 				}
 
 				// needs to return a function so reactivity works properly
@@ -112,12 +106,9 @@ export function HTML(options = { unwrap: true }) {
 			}
 		}
 
-		// flat to return a single element if possible to make it more easy to use
-		const children = flat(nodes(clone))
+		const children = nodes(clone)
 
-		cached.result = options.unwrap
-			? toNodes(toHTML(children, $internal))
-			: children
+		cached.result = options.unwrap ? toHTML(children) : children
 
 		return cached.result
 	}
@@ -255,14 +246,3 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 
 	return result
 }
-
-/**
- * DocumentFragment is transformed to an `Array` of `Node/Element`,
- * that way we can keep a reference to the nodes. Because when the
- * DocumentFragment is used, it removes the nodes from the
- * DocumentFragment and then we will lose the reference.
- */
-const toNodes = nodes =>
-	nodes instanceof DocumentFragment
-		? toArray(nodes.childNodes)
-		: nodes
