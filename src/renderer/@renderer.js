@@ -17,7 +17,6 @@ import { isReactive } from '../lib/reactivity/isReactive.js'
 
 // CONSTANTS
 
-import { $internal, $map, $meta, NS } from '../constants.js'
 import { $class, $map, $meta, NS } from '../constants.js'
 
 // LIB
@@ -33,6 +32,7 @@ import {
 	isFunction,
 	weakStore,
 	freeze,
+	flat,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -571,25 +571,18 @@ function insert(children, parent, options = empty()) {
  * Creates and returns HTML Elements for `children`
  *
  * @param {Children} children
- * @param {Symbol} [removePlaceholder]
  * @returns {Children}
  */
-export function toHTML(children, removePlaceholder) {
-	if (children instanceof Node) {
-		return children
-	}
+export function toHTML(children) {
 	const fragment = createFragment()
 	createChildren(fragment, children)
-	const childNodes = fragment.childNodes
-
-	// workaround for html returning a sub-fix placeholder
-	removePlaceholder === $internal &&
-		childNodes.length === 2 &&
-		childNodes[1].nodeType === 3 &&
-		childNodes[1].data === '' &&
-		childNodes[1].remove()
-
-	return childNodes.length === 1 ? childNodes[0] : childNodes
+	/**
+	 * DocumentFragment is transformed to an `Array` of `Node/Element`,
+	 * that way we can keep a reference to the nodes. Because when the
+	 * DocumentFragment is used, it removes the nodes from the
+	 * DocumentFragment and then we will lose the reference.
+	 */
+	return flat(fragment.childNodes)
 }
 
 /**
