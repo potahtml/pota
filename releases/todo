@@ -13,7 +13,6 @@ TODO:
 	Miscellaneous:
 	- provide a rollup template
 	- typings
-	- make Scope lazy the xml stuff
 
 	Router:
 	- decide what to do with useParams

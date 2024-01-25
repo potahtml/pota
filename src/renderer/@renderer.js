@@ -17,7 +17,7 @@ import { isReactive } from '../lib/reactivity/isReactive.js'
 
 // CONSTANTS
 
-import { $class, $map, $meta, NS } from '../constants.js'
+import { $class, $map, NS } from '../constants.js'
 
 // LIB
 
@@ -26,7 +26,6 @@ import {
 	isArray,
 	call,
 	toArray,
-	contextSimple,
 	property,
 	removeFromArray,
 	isFunction,
@@ -48,6 +47,7 @@ import { onFinally, onReady } from './scheduler.js'
 // PROPERTIES / ATTRIBUTES
 
 import { assignProps } from './props/@main.js'
+import { context } from './context.js'
 
 // DOCUMENT
 
@@ -63,6 +63,12 @@ const createElementText = text => document.createTextNode(text)
 const createFragment = () => new DocumentFragment()
 
 const nodeClear = node => (node.textContent = '')
+
+// STATE
+
+const Components = new Map()
+const emptyProps = freeze(empty())
+const useXMLNS = context()
 
 // COMPONENTS
 
@@ -102,28 +108,18 @@ export function Component(value, props = undefined) {
 	freeze(props)
 
 	/**
-	 * Create a callable function to pass `props`, and a scope/context
-	 * initially set to an empty object. The scope/context is used to
-	 * hold the parent to be able to tell if dynamic children are XML.
-	 * When props its not defined it allows the user to make a Factory
-	 * of components, when props its defined the props are fixed.
+	 * Create a callable function to pass `props`. When props its not
+	 * defined it allows the user to make a Factory of components, when
+	 * props its defined the props are fixed.
 	 */
+
 	return props === undefined
 		? Factory(value)
-		: Factory(value).bind(null, props, Scope())
+		: Factory(value).bind(null, props)
 }
-
-const Scope = () => ({
-	namespaceURI: undefined,
-	parent: undefined,
-})
-
-const Components = new Map()
 
 // clear the cache after each run
 onFinally(() => Components.clear())
-
-const emptyProps = freeze(empty())
 
 /**
  * Creates a component which is an untracked function that could be
@@ -146,8 +142,7 @@ function Factory(value) {
 	switch (typeof value) {
 		case 'string': {
 			// a string component, 'div' becomes <div>
-			component = (props = emptyProps, scope = Scope()) =>
-				createTag(value, props, scope)
+			component = (props = emptyProps) => createTag(value, props)
 			break
 		}
 		case 'function': {
@@ -176,15 +171,13 @@ function Factory(value) {
 			}
 
 			// a function component <MyComponent../>
-			component = (props = emptyProps, scope = Scope()) =>
-				untrack(() => value(props, scope))
+			component = (props = emptyProps) => untrack(() => value(props))
 			break
 		}
 		default: {
 			if (value instanceof Node) {
 				// an actual node component <div>
-				component = (props = emptyProps, scope = Scope()) =>
-					createNode(value, props, scope)
+				component = (props = emptyProps) => createNode(value, props)
 				break
 			}
 
@@ -200,36 +193,30 @@ function Factory(value) {
 }
 
 /**
- * Keeps track of parentNode for `xmlns` spreading to children.
- * Defaults to empty object so parentNode.namespaceURI doesnt throw
- */
-
-const useParentNode = contextSimple(empty())
-
-/**
  * Creates a x/html element from a tagName
  *
  * @param {string} tagName
  * @param {Props} props
- * @param {Props} scope
  * @returns {Elements} Element
  */
-function createTag(tagName, props, scope) {
-	const parentNode = useParentNode()
+function createTag(tagName, props) {
+	// namespace
+	// special case svg, math in case of missing xmlns attribute
+	const ns = props.xmlns || NS[tagName]
+	const nsContext = useXMLNS()
 
-	// get the namespace
-	const ns = props.xmlns
-		? props.xmlns // the prop contains the namespace
-		: parentNode.namespaceURI && parentNode.namespaceURI !== NS.html // this works on first run
-			? parentNode.namespaceURI // the parent contains the namespace
-			: scope.parent?.namespaceURI // used after the first run, once reactivity takes over
-				? scope.parent.namespaceURI // the parent contains the namespace
-				: NS[tagName] // special case svg, math in case of missing xmlns attribute
+	if (ns && ns !== nsContext) {
+		// the ns changed, use the new xmlns
+		return useXMLNS(ns, () =>
+			createNode(createElementNS(ns, tagName), props),
+		)
+	}
 
 	return createNode(
-		ns ? createElementNS(ns, tagName) : createElement(tagName),
+		nsContext
+			? createElementNS(nsContext, tagName)
+			: createElement(tagName),
 		props,
-		scope,
 	)
 }
 
@@ -238,33 +225,10 @@ function createTag(tagName, props, scope) {
  *
  * @param {Elements} node
  * @param {Props} props
- * @param {Props} scope
  * @returns {Elements} Element
  */
-function createNode(node, props, scope) {
-	if (node.namespaceURI !== NS.html) {
-		/**
-		 * Assign the scope to the node when the namespace is not html .
-		 * Allows to lookup parent node for xmlns
-		 */
-		property(node, $meta, scope, true)
-
-		scope.namespaceURI = node.namespaceURI
-
-		const parentNode = useParentNode()
-
-		/**
-		 * On first run this will hold a value. Once reactivity takes over
-		 * (like a Show), then, it wont and we use the old reference to
-		 * the parent, which is already saved on the scope from the
-		 * previous run
-		 */
-		const parentScope = property(parentNode, $meta)
-		if (parentScope) {
-			scope.parent = parentScope
-		}
-	}
-
+function createNode(node, props) {
+	// cleanup the node on disposal
 	nodeCleanup(node)
 
 	// assign the props to the node
@@ -275,9 +239,7 @@ function createNode(node, props, scope) {
 	 * children at all, example `<br/>`
 	 */
 	if (props.children !== undefined) {
-		useParentNode(node, () => {
-			createChildren(node, props.children)
-		})
+		createChildren(node, props.children)
 	}
 
 	return node
