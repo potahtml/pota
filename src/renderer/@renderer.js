@@ -86,13 +86,12 @@ export const Fragment = () => {}
 
 export function Component(value, props = undefined) {
 	/**
-	 * Internal comment: Used by the JSX transform. `Component` is not
-	 * supposed to be used in user land. Returns a function because we
-	 * need to render from parent to children instead of from children
-	 * to parent. This allows to properly set the reactivity tree (think
-	 * of nested effects that clear inner effects, context, etc).
-	 * Additionally, this reversed flow allows to access parent when
-	 * creating children
+	 * Internal comment: Returns a function because we need to render
+	 * from parent to children instead of from children to parent. This
+	 * allows to properly set the reactivity tree (think of nested
+	 * effects that clear inner effects, context, etc). Additionally,
+	 * this reversed flow allows to access parent when creating
+	 * children.
 	 */
 	// special case fragments, these are arrays and dont need untrack nor props
 	if (value === Fragment) {
