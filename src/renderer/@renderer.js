@@ -67,7 +67,8 @@ const nodeClear = node => (node.textContent = '')
 // STATE
 
 const Components = new Map()
-const emptyProps = freeze(empty())
+const WeakComponents = new WeakMap()
+const defaultProps = freeze(empty())
 const useXMLNS = context()
 
 // COMPONENTS
@@ -118,9 +119,6 @@ export function Component(value, props = undefined) {
 		: markComponent(Factory(value).bind(null, props))
 }
 
-// clear the cache after each run
-onFinally(() => Components.clear())
-
 /**
  * Creates a component which is an untracked function that could be
  * called with a props object
@@ -134,7 +132,10 @@ function Factory(value) {
 		return value
 	}
 
-	let component = Components.get(value)
+	let component =
+		typeof value === 'object'
+			? WeakComponents.get(value)
+			: Components.get(value)
 	if (component) {
 		return component
 	}
@@ -142,13 +143,13 @@ function Factory(value) {
 	switch (typeof value) {
 		case 'string': {
 			// a string component, 'div' becomes <div>
-			component = (props = emptyProps) => createTag(value, props)
+			component = (props = defaultProps) => createTag(value, props)
 			break
 		}
 		case 'function': {
 			if ($class in value) {
 				// a class component <MyComponent../>
-				component = (props = emptyProps) =>
+				component = (props = defaultProps) =>
 					untrack(() => {
 						const i = new value()
 						i.onReady && onReady(i.onReady.bind(i))
@@ -171,13 +172,14 @@ function Factory(value) {
 			}
 
 			// a function component <MyComponent../>
-			component = (props = emptyProps) => untrack(() => value(props))
+			component = (props = defaultProps) =>
+				untrack(() => value(props))
 			break
 		}
 		default: {
 			if (value instanceof Node) {
 				// an actual node component <div>
-				component = (props = emptyProps) => createNode(value, props)
+				component = (props = defaultProps) => createNode(value, props)
 				break
 			}
 
@@ -187,7 +189,9 @@ function Factory(value) {
 	}
 
 	// save in cache
-	Components.set(value, component)
+	typeof value === 'object'
+		? WeakComponents.set(value, component)
+		: Components.set(value, component)
 
 	return markComponent(component)
 }
