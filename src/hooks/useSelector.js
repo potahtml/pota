@@ -1,4 +1,8 @@
-import { effect, signal } from '../lib/reactivity/primitives/solid.js'
+import {
+	effect,
+	signal,
+	cleanup,
+} from '../lib/reactivity/primitives/solid.js'
 
 /**
  * Returns a `isSelected`function that will return true when the
@@ -39,6 +43,7 @@ export function useSelector(value) {
 				read,
 				write,
 			})
+			cleanup(() => map.delete(item))
 		}
 
 		return map.get(item).read
