@@ -1,4 +1,3 @@
-import { property } from '../../lib/std/@main.js'
 import { onMount } from '../scheduler.js'
 
 /**
@@ -25,7 +24,3 @@ export const setOnMount = (node, name, value, props) =>
  * @param {Function | []} value
  * @param {object} props
  */
-export const setUnmount = (node, name, value, props) =>
-	// we need to ensure the timing of the cleanup callback
-	// so we queue it to run it at a specific time
-	property(node, 'onUnmount', []).push([value, node])

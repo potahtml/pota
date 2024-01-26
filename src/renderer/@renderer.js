@@ -467,18 +467,8 @@ function nodeCleanup(node) {
 
 		if (nodes.length === 0) {
 			cleanup(() => {
-				// removal
 				for (const node of nodes) {
-					if (node.isConnected) {
-						// call onUnmount
-						const onUnmount = property(node, 'onUnmount')
-						if (onUnmount) {
-							for (const fn of onUnmount) {
-								call(fn, node)
-							}
-						}
-						node.remove()
-					}
+					node.remove()
 				}
 				nodes.length = 0
 			})
@@ -507,24 +497,10 @@ export function render(children, parent, options = empty()) {
 		return dispose
 	})
 
-	/**
-	 * Listener for mount point removal. Assumes that mount point was
-	 * created by this lib, else would need mutation observer
-	 */
-	const onUnmount = parent ? property(parent, 'onUnmount', []) : []
-
-	const disposer = () => {
-		removeFromArray(onUnmount, disposer)
-		dispose()
-	}
-
-	// run dispose when the mount point is removed from the document
-	onUnmount.push(disposer)
-
 	// run dispose when the parent scope disposes
-	cleanup(disposer)
+	cleanup(dispose)
 
-	return disposer
+	return dispose
 }
 
 /**
