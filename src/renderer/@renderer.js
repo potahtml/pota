@@ -115,7 +115,7 @@ export function Component(value, props = undefined) {
 
 	return props === undefined
 		? Factory(value)
-		: Factory(value).bind(null, props)
+		: markComponent(Factory(value).bind(null, props))
 }
 
 // clear the cache after each run
