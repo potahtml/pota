@@ -24,14 +24,12 @@ import { $class, $map, NS } from '../constants.js'
 import {
 	empty,
 	isArray,
-	call,
 	toArray,
-	property,
-	removeFromArray,
 	isFunction,
 	weakStore,
 	freeze,
 	flat,
+	stringify,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -42,12 +40,13 @@ import {
 	markComponent,
 } from '../lib/comp/@main.js'
 
-import { onFinally, onReady } from './scheduler.js'
+import { onReady } from './scheduler.js'
 
 // PROPERTIES / ATTRIBUTES
 
 import { assignProps } from './props/@main.js'
 import { context } from './context.js'
+import { iterator } from '../lib/std/iterator.js'
 
 // DOCUMENT
 
@@ -233,7 +232,7 @@ function createTag(tagName, props) {
  */
 function createNode(node, props) {
 	// cleanup the node on disposal
-	nodeCleanup(node)
+	// nodeCleanup(node)
 
 	// assign the props to the node
 	assignProps(node, props)
@@ -361,7 +360,7 @@ function createChildren(parent, child, relative) {
 			}
 
 			// iterable/Map/Set/NodeList
-			if (Symbol.iterator in child) {
+			if (iterator in child) {
 				return toArray(child.values()).map(child =>
 					createChildren(parent, child, relative),
 				)
@@ -371,9 +370,7 @@ function createChildren(parent, child, relative) {
 			return createChildren(
 				parent,
 				// object.create(null) would fail to convert to string
-				'toString' in child
-					? child.toString()
-					: JSON.stringify(child),
+				'toString' in child ? child.toString() : stringify(child),
 				relative,
 			)
 		}
