@@ -204,7 +204,7 @@ function Factory(value) {
  */
 function createTag(tagName, props) {
 	// namespace
-	// special case svg, math in case of missing xmlns attribute
+	// use props xmlns or special case svg, math, etc in case of missing xmlns attribute
 	const ns = props.xmlns || NS[tagName]
 	const nsContext = useXMLNS()
 
@@ -212,6 +212,14 @@ function createTag(tagName, props) {
 		// the ns changed, use the new xmlns
 		return useXMLNS(ns, () =>
 			createNode(createElementNS(ns, tagName), props),
+		)
+	}
+
+	// foreignObject is created with current xmlns
+	// reset back to html (default browser behaviour)
+	if (nsContext && tagName === 'foreignObject') {
+		return useXMLNS(NS.html, () =>
+			createNode(createElementNS(nsContext, tagName), props),
 		)
 	}
 
