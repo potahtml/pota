@@ -77,7 +77,7 @@ export const onMount = fn => add(0, fn)
 /**
  * Queue a function to run ready (after onMount)
  *
- * @param {Handler} fn
+ * @param {Function} fn
  * @url https://pota.quack.uy/ready
  */
 export const ready = fn => add(1, fn)

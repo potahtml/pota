@@ -30,6 +30,7 @@ import {
 	freeze,
 	flat,
 	stringify,
+	iterator,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -45,8 +46,15 @@ import { ready } from './scheduler.js'
 // PROPERTIES / ATTRIBUTES
 
 import { assignProps } from './props/@main.js'
+
+// STATE
+
 import { context } from './context.js'
-import { iterator } from '../lib/std/iterator.js'
+
+const Components = new Map()
+const WeakComponents = new WeakMap()
+const defaultProps = freeze(empty())
+const useXMLNS = context()
 
 // DOCUMENT
 
@@ -62,13 +70,6 @@ const createElementText = text => document.createTextNode(text)
 const createFragment = () => new DocumentFragment()
 
 const nodeClear = node => (node.textContent = '')
-
-// STATE
-
-const Components = new Map()
-const WeakComponents = new WeakMap()
-const defaultProps = freeze(empty())
-const useXMLNS = context()
 
 // COMPONENTS
 
@@ -95,9 +96,7 @@ export function Component(value, props = undefined) {
 	 * Internal comment: Returns a function because we need to render
 	 * from parent to children instead of from children to parent. This
 	 * allows to properly set the reactivity tree (think of nested
-	 * effects that clear inner effects, context, etc). Additionally,
-	 * this reversed flow allows to access parent when creating
-	 * children.
+	 * effects that clear inner effects, context, etc).
 	 */
 	// special case fragments, these are arrays and dont need untrack nor props
 	if (value === Fragment) {
@@ -463,12 +462,12 @@ function insertNode(parent, node, relative) {
 
 // nodes cleanup
 
-const nodeCleanupStore = weakStore()
+const { get: nodeCleanupStore } = weakStore()
 function nodeCleanup(node) {
 	const own = owner()
 	// null owners means its never disposed
 	if (own) {
-		const nodes = nodeCleanupStore.get(own, () => [])
+		const nodes = nodeCleanupStore(own, () => [])
 
 		if (nodes.length === 0) {
 			cleanup(() => {

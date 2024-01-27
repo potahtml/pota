@@ -13,7 +13,6 @@ export const $internal = $()
 
 const prefix = 'http://www.w3.org/'
 
-/** @type {Props} */
 export const NS = {
 	svg: prefix + '2000/svg',
 	math: prefix + '1998/Math/MathML',

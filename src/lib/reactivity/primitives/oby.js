@@ -53,7 +53,7 @@ const memo = (fn, options) => markReactive(_memo(fn, options))
  * Creates a new root
  *
  * @param {(dispose: Function) => any} fn
- * @returns {unknown}
+ * @returns {any}
  */
 export const root = fn => _root(dispose => fn(dispose))
 
@@ -173,7 +173,7 @@ export { lazyMemo as memo }
  * Returns a function on which you can pass functions to run with the
  * current owner
  *
- * - @returns {(fn)=>any}
+ * @returns {(fn)=>any}
  */
 export const withOwner = () => {
 	const owned = with_()
@@ -183,6 +183,6 @@ export const withOwner = () => {
 /**
  * Returns current owner
  *
- * - @returns {unknown}
+ * @returns {unknown}
  */
 export const owner = _owner

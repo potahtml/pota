@@ -60,8 +60,12 @@ export function map(list, callback, sort) {
 				// reference nodes, it holds the placeholders that delimit `begin` and `end`
 				// you can quickly check if items are in the right order
 				// by checking if item.end === nextItem.begin.previousSibling
-				begin: nodes[0],
-				end: nodes[nodes.length - 1],
+				get begin() {
+					return nodes[0]
+				},
+				get end() {
+					return nodes[nodes.length - 1]
+				},
 				dispose: all => {
 					// skip cache deletion as we are going to clear the full map
 					if (!all) {
@@ -111,7 +115,7 @@ export function map(list, callback, sort) {
 				let row = cache.get(item)
 
 				// if the item doesnt exists, create it
-				if (!row) {
+				if (row === undefined) {
 					row = create(item, index, fn, false)
 					cache.set(item, row)
 				} else if (row.runId === runId) {
@@ -149,7 +153,7 @@ export function map(list, callback, sort) {
 			// `sort` because `map` doesnt need sorting
 			// `rows.length > 1` because no need for sorting when there are no items
 			// prev.length > 0 to skip sorting on creation as its already sorted
-			if (sort && rows.length > 1 && prev.length > 0) {
+			if (sort && rows.length > 1 && prev.length) {
 				// if the planets align it handles swapping
 				// a = sorted
 				// b = unsorted
