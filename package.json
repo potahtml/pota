@@ -121,10 +121,10 @@
     "babel-plugin-transform-rename-import": "^2.3.0",
     "flimsy": "^1.1.0",
     "oby": "^15.1.0",
-    "solid-js": "^1.8.11"
+    "solid-js": "^1.8.12"
   },
   "peerDependencies": {
-    "@babel/core": "7.x",
+    "@babel/core": "^7.23.9",
     "colorjs.io": "^0.4.5"
   },
   "devDependencies": {
@@ -132,7 +132,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "concurrently": "^8.2.2",
-    "rollup": "^4.9.5",
+    "rollup": "^4.9.6",
     "typescript": "^5.3.3"
   },
   "prettier": {
