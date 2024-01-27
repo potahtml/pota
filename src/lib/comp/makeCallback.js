@@ -12,13 +12,13 @@ import { markComponent } from './markComponent.js'
  * @returns {Function}
  */
 export function makeCallback(children) {
-	return markComponent((...args) => {
-		return (isArray(children) ? children : [children]).map(child =>
+	return markComponent((...args) =>
+		(isArray(children) ? children : [children]).map(child =>
 			isReactive(child)
 				? child()
 				: isFunction(child)
 					? untrack(() => child(...args))
 					: child,
-		)
-	})
+		),
+	)
 }

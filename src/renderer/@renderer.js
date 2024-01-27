@@ -40,7 +40,7 @@ import {
 	markComponent,
 } from '../lib/comp/@main.js'
 
-import { onReady } from './scheduler.js'
+import { ready } from './scheduler.js'
 
 // PROPERTIES / ATTRIBUTES
 
@@ -151,7 +151,7 @@ function Factory(value) {
 				component = (props = defaultProps) =>
 					untrack(() => {
 						const i = new value()
-						i.onReady && onReady(i.onReady.bind(i))
+						i.onReady && ready(i.onReady.bind(i))
 						i.onCleanup && cleanup(i.onCleanup.bind(i))
 
 						return i.render(props)

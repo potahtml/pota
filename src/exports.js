@@ -6,7 +6,6 @@ export { version } from './version.js'
 
 export {
 	batch,
-	cleanup as onCleanup,
 	cleanup,
 	effect,
 	renderEffect,
@@ -60,7 +59,7 @@ export { lazy } from './renderer/lazy.js'
 export { html, HTML, htmlEffect } from './renderer/html.js'
 export { css } from './lib/css/css.js'
 
-export { onReady } from './renderer/scheduler.js'
+export { ready } from './renderer/scheduler.js'
 
 // COMPONENTS CLASSES
 

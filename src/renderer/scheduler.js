@@ -7,8 +7,8 @@ import { call, microtask } from '../lib/std/@main.js'
  *
  * `onMount` should only run after a thing has been mounted
  *
- * `onReady` should only run after all pending things to be mounted,
- * has been mounted
+ * `ready` should only run after all pending things to be mounted, has
+ * been mounted
  */
 
 /** @type boolean */
@@ -68,19 +68,19 @@ function run() {
 }
 
 /**
- * Queue a function to run onMount (before onReady)
+ * Queue a function to run onMount (before ready)
  *
  * @param {Handler} fn
  */
 export const onMount = fn => add(0, fn)
 
 /**
- * Queue a function to run onReady (after onMount)
+ * Queue a function to run ready (after onMount)
  *
  * @param {Handler} fn
- * @url https://pota.quack.uy/onReady
+ * @url https://pota.quack.uy/ready
  */
-export const onReady = fn => add(1, fn)
+export const ready = fn => add(1, fn)
 
 /**
  * Queue a function to run after all user defined processes
