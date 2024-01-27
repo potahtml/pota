@@ -13,6 +13,7 @@ TODO:
 	Miscellaneous:
 	- provide a rollup template
 	- typings
+	- automated tests
 
 	Router:
 	- decide what to do with useParams

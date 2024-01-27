@@ -87,8 +87,7 @@ export function map(list, callback, sort) {
 	}
 
 	function nodesFromRow(row) {
-		const begin = row.begin
-		const end = row.end
+		const { begin, end } = row
 		const nodes = [begin]
 
 		let nextSibling = begin.nextSibling

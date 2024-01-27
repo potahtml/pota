@@ -10,21 +10,43 @@ import { flat } from '../lib/std/flat.js'
 import { getValue } from '../lib/std/getValue.js'
 import { toArray } from '../lib/std/toArray.js'
 import { weakStore } from '../lib/std/weakStore.js'
-import { fromEntries } from '../lib/std/fromEntries.js'
 
-import { Component, createElement, toHTML } from './@renderer.js'
+import { Component, toHTML } from './@renderer.js'
 
-import * as defaultRegistryTemplate from '../components/flow/@main.js'
+import * as defaultRegistry from '../components/flow/@main.js'
 import { callAll } from '../lib/std/callAll.js'
 
-const defaultRegistry = fromEntries(
-	entries(defaultRegistryTemplate).map(([k, v]) => [
-		k.toUpperCase(),
-		v,
-	]),
-)
-
 const { get, set } = weakStore()
+
+const xmlns = ns => `xmlns:${ns}="https://pota.quack.uy/"`
+let parseFromString = template => {
+	// DOMParser in xml mode requires definition of namespaces
+	const XMLTemplate = new DOMParser().parseFromString(
+		`<div ${[
+			'class',
+			'on',
+			'prop',
+			'attr',
+			'bool',
+			'style',
+			'var',
+			'onMount',
+			'onUnmount',
+			'ref',
+		]
+			.map(xmlns)
+			.join(' ')}
+				>${template}</div>`,
+		'text/xml',
+	).documentElement
+
+	parseFromString = template => {
+		XMLTemplate.innerHTML = template
+		return XMLTemplate.firstChild
+	}
+
+	return parseFromString(template)
+}
 
 /**
  * Function to create tagged template components
@@ -38,6 +60,7 @@ const { get, set } = weakStore()
  * }}
  * @url https://pota.quack.uy/HTML
  */
+
 export function HTML(options = { unwrap: true }) {
 	/**
 	 * Creates tagged template components
@@ -47,29 +70,29 @@ export function HTML(options = { unwrap: true }) {
 	 * @returns {Children}
 	 * @url https://pota.quack.uy/HTML
 	 */
+
 	function html(template, ...values) {
 		let cached = get(template)
+
 		if (!cached) {
 			cached = {
-				template: createElement('template'),
+				template: null,
 				result: null,
 				signals: null,
 			}
-			cached.template.innerHTML = template
-				.join('<pota></pota>')
-				.trim()
-				/**
-				 * Expand self-closing tags that don't contain attributes,
-				 * because self-closing tags with innerHTML won't work.
-				 */
-				.replace(/<([-a-z]+)\s*\/\s*>/gi, '<$1></$1>')
-				// un-expand brs because it causes double lines
-				.replaceAll('<br></br>', '<br/>')
+
+			cached.template = parseFromString(
+				`${template
+					.join('<POTA></POTA>')
+					.trim()
+					// attributes cant contain `<`
+					.replaceAll('"<POTA></POTA>"', '"__POTA__"')}`,
+			)
 
 			set(template, cached)
 		}
 
-		const clone = cached.template.content.cloneNode(true)
+		const clone = cached.template.cloneNode(true)
 
 		let index = 0
 		function nodes(node) {
@@ -85,8 +108,7 @@ export function HTML(options = { unwrap: true }) {
 				// gather props
 				const props = { children: undefined }
 				for (const { name, value } of node.attributes)
-					props[name] =
-						value === '<pota></pota>' ? values[index++] : value
+					props[name] = value === '__POTA__' ? values[index++] : value
 
 				// gather children
 				/**
@@ -109,7 +131,6 @@ export function HTML(options = { unwrap: true }) {
 		}
 
 		const children = nodes(clone)
-
 		cached.result = options.unwrap ? toHTML(children) : children
 
 		return cached.result
@@ -118,7 +139,7 @@ export function HTML(options = { unwrap: true }) {
 	html.components = { ...defaultRegistry }
 	html.define = userComponents => {
 		for (const [name, component] of entries(userComponents)) {
-			html.components[name.toUpperCase()] = component
+			html.components[name] = component
 		}
 	}
 
