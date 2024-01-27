@@ -52,9 +52,12 @@ propsPluginNS('bool', setBoolNS, false)
 
 // life-cycles
 
-import { setOnMount, setRef } from './lifecycles.js'
+import { setOnMount, setUnmount, setRef } from './lifecycles.js'
 propsPlugin('onMount', setOnMount, false)
 propsPluginNS('onMount', setOnMount, false)
+
+propsPlugin('onUnmount', setUnmount, false)
+propsPluginNS('onUnmount', setUnmount, false)
 
 // ref
 

@@ -10,5 +10,8 @@ export namespace JSX {
     onMount?:
       | ((element: T) => void)
       | [Function | VoidFunction, ...any]
+    onUnmount?:
+      | ((element: T) => void)
+      | [Function | VoidFunction, ...any]
   }
 }
