@@ -1,7 +1,6 @@
-import { withOwner } from '../lib/reactivity/primitives/solid.js'
-import { markComponent } from '../lib/comp/markComponent.js'
-
-import { Component } from './@renderer.js'
+import { Component } from '../../renderer/@renderer.js'
+import { markComponent } from '../comp/markComponent.js'
+import { withOwner } from './primitives/solid.js'
 
 /**
  * Returns a `Component` that has been lazy loaded and can be used as
