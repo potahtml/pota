@@ -52,8 +52,8 @@ export {
 	// children
 	toHTML,
 	resolve,
+	context,
 } from './renderer/@renderer.js'
-export { context } from './renderer/context.js'
 export { lazy } from './renderer/lazy.js'
 
 export { html, HTML, htmlEffect } from './renderer/html.js'
