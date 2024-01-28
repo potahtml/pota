@@ -19,6 +19,6 @@ https://pota.quack.uy/
 ## See also
 
 - https://pota.quack.uy/
-- https://github.com/potaorg/pota
-- https://github.com/potaorg/templates
+- https://github.com/potahtml/pota
+- https://github.com/potahtml/templates
 - https://www.npmjs.com/package/pota

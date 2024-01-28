@@ -6,7 +6,7 @@
   "homepage": "https://pota.quack.uy/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/potaorg/pota"
+    "url": "https://github.com/potahtml/pota"
   },
   "type": "module",
   "main": "./src/exports.js",
