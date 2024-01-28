@@ -32,6 +32,6 @@ const _setUnknownProp = (node, name, value, ns) => {
 		// fallback to attribute
 		_setAttribute(node, name, value, ns)
 		// to be able to delete properties
-		isNullUndefined(value) && _setProperty(node, name, value)
+		isNullUndefined(value) && _setProperty(node, name, value, true)
 	}
 }
