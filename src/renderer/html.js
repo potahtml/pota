@@ -253,6 +253,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 	// use the registry of the real `html` function
 	_html.define = components => html_.define(components)
 
+	const update = () => fn(_html)
 	/**
 	 * This effect will re-run when the `values` interpolated change, or
 	 * when any signal that you use on the `htmlEffect` function body
@@ -262,11 +263,14 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 	let result
 
 	renderEffect(() => {
-		result = fn(_html)
+		result = update()
 	})
 
 	/** Dispose the effect when whatever started it is disposed. */
 	cleanup(() => callAll(disposeHTMLEffect))
+
+	// allow to manually trigger an update
+	result.update = update
 
 	return result
 }
