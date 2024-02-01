@@ -531,15 +531,27 @@ function insert(children, parent, options = empty()) {
  * @url https://pota.quack.uy/toHTML
  */
 export function toHTML(children) {
-	const fragment = createFragment()
-	createChildren(fragment, children)
 	/**
 	 * DocumentFragment is transformed to an `Array` of `Node/Element`,
 	 * that way we can keep a reference to the nodes. Because when the
 	 * DocumentFragment is used, it removes the nodes from the
 	 * DocumentFragment and then we will lose the reference.
 	 */
-	return flat(fragment.childNodes)
+	return flat(toHTMLFragment(children).childNodes)
+}
+
+/**
+ * Creates and returns a DocumentFragment for `children`
+ *
+ * @param {Children} children
+ * @returns {DocumentFragment}
+ * @url https://pota.quack.uy/toHTML
+ */
+export function toHTMLFragment(children) {
+	const fragment = new DocumentFragment()
+	createChildren(fragment, children)
+
+	return fragment
 }
 
 /**
