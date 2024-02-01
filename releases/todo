@@ -13,6 +13,11 @@ TODO:
 	Miscellaneous:
 	- typings
 	- automated tests
+	- check use of childNodes and see if can be changed to "children"
+	- update html function
+	- export mutable from pota/store
+	- lit style props/attributes
+	- update function
 
 	Router:
 	- decide what to do with useParams
