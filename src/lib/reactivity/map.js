@@ -199,7 +199,7 @@ export function map(list, callback, sort) {
 			prev = rows
 
 			// return external representation
-			return rows.map(item => item.nodes)
+			return runId === 1 ? rows.map(item => item.nodes) : null
 		})
 	}
 	mapper[$map] = null
