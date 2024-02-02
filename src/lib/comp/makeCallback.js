@@ -13,7 +13,16 @@ import { markComponent } from './markComponent.js'
  */
 export function makeCallback(children) {
 	return markComponent((...args) =>
-		(isArray(children) ? children : [children]).map(child =>
+		(isArray(children)
+			? /**
+				 * When children is an array, as in >${[0, 1, 2]}< then children will
+				 * end as `[[0, 1, 2]]`, so flat it
+				 */
+				children.length === 1 && isArray(children[0])
+				? children[0]
+				: children
+			: [children]
+		).map(child =>
 			isReactive(child)
 				? child()
 				: isFunction(child)
