@@ -48,6 +48,14 @@ import { ready } from './scheduler.js'
 
 import { assignProps } from './props/@main.js'
 
+// ELEMENTS
+
+import {
+	createElement,
+	createElementNS,
+	createTextNode,
+} from '../lib/dom/elements.js'
+
 // STATE
 
 const Components = new Map()
@@ -61,12 +69,6 @@ const useXMLNS = context()
  * It needs to untrack because custom elements may have callbacks
  * reading signals when elements are created.
  */
-export const createElement = tagName =>
-	untrack(() => document.createElement(tagName))
-const createElementNS = (ns, name) =>
-	untrack(() => document.createElementNS(ns, name))
-const createElementText = text => document.createTextNode(text)
-const createFragment = () => new DocumentFragment()
 
 const nodeClear = node => (node.textContent = '')
 
@@ -267,7 +269,7 @@ function createChildren(parent, child, relative) {
 		// string/number
 		case 'string':
 		case 'number': {
-			return insertNode(parent, createElementText(child), relative)
+			return insertNode(parent, createTextNode(child), relative)
 		}
 
 		case 'function': {
@@ -388,7 +390,7 @@ function createChildren(parent, child, relative) {
 			// toString() is needed for `Symbol`
 			return insertNode(
 				parent,
-				createElementText(child.toString()),
+				createTextNode(child.toString()),
 				relative,
 			)
 		}
@@ -413,7 +415,7 @@ const createPlaceholder = (parent, text, relative) =>
 		relative,
 	)
 	*/
-	insertNode(parent, createElementText(''), relative)
+	insertNode(parent, createTextNode(''), relative)
 
 /**
  * Adds the element to the document

@@ -6,8 +6,12 @@ import {
 import { Component } from '../../renderer/@renderer.js'
 
 class CollapseElement extends CustomElement {
+	constructor() {
+		super()
+		this.addCSS(`:host{display: contents;}`)
+	}
 	hide() {
-		this.shadowRoot.innerHTML = '<style>:host{display: none;}</style>'
+		this.shadowRoot.innerHTML = ''
 	}
 	show() {
 		this.shadowRoot.innerHTML = '<slot/>'
