@@ -1,7 +1,7 @@
 {
   "name": "pota",
   "description": "pota is a small and pluggable Reactive Web Renderer for Reactive Libraries.",
-  "version": "0.7.82",
+  "version": "0.8.82",
   "author": "Tito Bouzout",
   "homepage": "https://pota.quack.uy/",
   "repository": {
@@ -113,7 +113,7 @@
     "dev": "concurrently --kill-others \"npm:watch:*\"",
     "watch:types": "tsc -w",
     "watch:standalone": "cd releases && rollup -c -w",
-    "types": "tsc",
+    "types": "rimraf types/ && tsc",
     "standalone": "cd releases && rollup -c",
     "prepublishOnly": "npm run types || npm run standalone || echo 1",
     "update": "npm update --include=dev && npm run dev"
@@ -134,6 +134,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5",
     "rollup": "^4.9.6",
     "typescript": "^5.3.3"
   },
