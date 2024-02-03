@@ -91,6 +91,8 @@ export function HTML(options = { unwrap: true }) {
 						props['prop:' + camelCase(name.slice(1))] = value
 					} else if (name[0] === '?') {
 						props['bool:' + name.slice(1)] = value
+					} else if (name[0] === '@') {
+						props['on:' + name.slice(1)] = value
 					} else {
 						props[name] = value
 					}

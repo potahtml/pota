@@ -4,6 +4,7 @@
 
 import { cleanup } from '../../lib/reactivity/primitives/solid.js'
 import { empty } from '../../lib/std/empty.js'
+import { isFunction } from '../../lib/std/isFunction.js'
 
 /**
  * @param {Elements} node
@@ -61,7 +62,11 @@ export function addEventListener(
 	handler,
 	external = true,
 ) {
-	node.addEventListener(type, handler)
+	node.addEventListener(
+		type,
+		handler,
+		isFunction(handler) ? null : handler,
+	)
 
 	// remove event on cleanup
 	cleanup(() => {
