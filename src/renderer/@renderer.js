@@ -151,8 +151,8 @@ function Factory(value) {
 				component = (props = defaultProps) =>
 					untrack(() => {
 						const i = new value()
-						i.onReady && ready(i.onReady.bind(i))
-						i.onCleanup && cleanup(i.onCleanup.bind(i))
+						i.ready && ready(i.ready.bind(i))
+						i.cleanup && cleanup(i.cleanup.bind(i))
 
 						return i.render(props)
 					})
