@@ -286,8 +286,12 @@ function createChildren(parent, child, relative) {
 						 * Wrap the item with placeholders, to avoid resolving and
 						 * for easy re-arrangement
 						 */
-						const begin = createPlaceholder(parent, 'begin', true)
-						const end = createPlaceholder(parent, 'end', true)
+						const begin = createPlaceholder(
+							parent,
+							null /*begin*/,
+							true,
+						)
+						const end = createPlaceholder(parent, null /*end*/, true)
 
 						return [begin, createChildren(end, child, true), end]
 					})
@@ -297,7 +301,11 @@ function createChildren(parent, child, relative) {
 
 			// signal/memo/external/user provided function
 			// needs placeholder to stay in position
-			parent = createPlaceholder(parent, child.name, relative)
+			parent = createPlaceholder(
+				parent,
+				null /*child.name*/,
+				relative,
+			)
 
 			// maybe a signal so needs an effect
 
