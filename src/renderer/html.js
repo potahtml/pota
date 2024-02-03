@@ -69,7 +69,7 @@ export function HTML(options = { unwrap: true }) {
 			set(template, cached)
 		}
 
-		const clone = cached[0].cloneNode(true)
+		const clone = cached[0] // .cloneNode(true)
 
 		let index = 0
 		function nodes(node) {
@@ -103,7 +103,7 @@ export function HTML(options = { unwrap: true }) {
 
 				return Component(components[localName] || localName, props)
 			} else {
-				return node
+				return node.cloneNode()
 			}
 		}
 

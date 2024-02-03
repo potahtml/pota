@@ -13,7 +13,6 @@ TODO:
 	Miscellaneous:
 	- typings
 	- automated tests
-	- add auto delete to types folder
 
 	Router:
 	- decide what to do with useParams
@@ -36,9 +35,6 @@ POSSIBLE FEATURES:
 
 	Router:
 	- make the `path` reactive
-
-	`html`:
-	- reuse the cloned node instead of recreating one from scratch
 
 POSSIBLE DE/OPTIMIZATIONS:
 
