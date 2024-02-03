@@ -65,11 +65,6 @@ const useXMLNS = context()
 
 // DOCUMENT
 
-/**
- * It needs to untrack because custom elements may have callbacks
- * reading signals when elements are created.
- */
-
 const nodeClear = node => (node.textContent = '')
 
 // COMPONENTS
@@ -364,11 +359,10 @@ function createChildren(parent, child, relative) {
 				 * an owner. Else it will just use the return value
 				 */
 				const owned = withOwner()
-				child.then(
-					r =>
-						parent.isConnected &&
-						setValue(isFunction(r) ? owned(r) : r),
-				)
+				const onResult = r =>
+					parent.isConnected && setValue(isFunction(r) ? owned(r) : r)
+
+				child.then(onResult).catch(onResult)
 				return createChildren(parent, value, relative)
 			}
 
@@ -469,6 +463,11 @@ function insertNode(parent, node, relative) {
 // nodes cleanup
 
 const { get: nodeCleanupStore } = weakStore()
+/**
+ * Adds an element for cleanup
+ *
+ * @param {Elements} node
+ */
 function nodeCleanup(node) {
 	const own = owner()
 	// null owners means its never disposed

@@ -13,7 +13,7 @@ export const $internal = $()
 
 const prefix = 'http://www.w3.org/'
 
-export const NS = {
+ export const NS = {
 	svg: prefix + '2000/svg',
 	math: prefix + '1998/Math/MathML',
 	html: prefix + '1999/xhtml',
