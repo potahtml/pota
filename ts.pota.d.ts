@@ -1,8 +1,4 @@
-/**
- * PAIN
- *
- * Signatures are added via JSDoc.
- */
+/** Signatures are added via JSDoc. */
 
 // general
 
@@ -19,8 +15,6 @@ type Props = {
   [key: PropertyKey]: any
 }
 
-type Children = any
-
 type When = Signal | boolean | unknown
 
 type Each =
@@ -32,10 +26,9 @@ type Each =
 
 // components
 
-type Component =
-  | ((props?: Props, scope?: unknown) => Children)
-  | ((props?: Props) => Children)
-  | Function
+type Children = any
+
+type Component = ((props?: Props) => Children) | Function
 
 type Componenteable =
   | string
