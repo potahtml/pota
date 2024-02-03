@@ -1,5 +1,7 @@
+import { createElement } from './elements.js'
+
 export function parse(content) {
-	const template = document.createElement('template')
+	const template = createElement('template')
 
 	template.innerHTML = content
 		// avoid double br when self-closing
