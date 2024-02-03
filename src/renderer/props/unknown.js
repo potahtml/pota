@@ -24,7 +24,7 @@ export const setUnknownProp = (node, name, value, ns) =>
 const _setUnknownProp = (node, name, value, ns) => {
 	if (isNotNullObject(value)) {
 		// when not null object
-		_setProperty(node, name, value, true)
+		_setProperty(node, name, value)
 	} else if (typeof value === 'boolean' && !name.includes('-')) {
 		// when boolean and name doesnt have a hyphen
 		_setProperty(node, name, value)
@@ -32,6 +32,6 @@ const _setUnknownProp = (node, name, value, ns) => {
 		// fallback to attribute
 		_setAttribute(node, name, value, ns)
 		// to be able to delete properties
-		isNullUndefined(value) && _setProperty(node, name, value, true)
+		isNullUndefined(value) && _setProperty(node, name, value)
 	}
 }

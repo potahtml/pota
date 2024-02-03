@@ -24,26 +24,18 @@ export const setPropertyNS = (
  * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
- * @param {boolean} [camelCase] - Converts hyphens to camelCase
  * @url https://pota.quack.uy/props/setProperty
  */
-export const setProperty = (node, name, value, camelCase) =>
-	withValue(value, value =>
-		_setProperty(node, name, value, camelCase),
-	)
+export const setProperty = (node, name, value) =>
+	withValue(value, value => _setProperty(node, name, value))
 
 /**
  * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
- * @param {boolean} [camelCase] - Converts hyphens to camelCase case
  */
-export function _setProperty(node, name, value, camelCase) {
+export function _setProperty(node, name, value) {
 	untrack(() => {
-		if (camelCase) {
-			name = name.replace(/-([a-z])/g, g => g[1].toUpperCase())
-		}
-
 		// if the value is null or undefined it will be set to null
 		if (isNullUndefined(value)) {
 			// defaulting to undefined breaks `progress` tag and the whole page
