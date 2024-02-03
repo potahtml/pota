@@ -1,7 +1,7 @@
 {
   "name": "pota",
   "description": "pota is a small and pluggable Reactive Web Renderer for Reactive Libraries.",
-  "version": "0.8.82",
+  "version": "0.8.83",
   "author": "Tito Bouzout",
   "homepage": "https://pota.quack.uy/",
   "repository": {
@@ -13,7 +13,9 @@
   "// Using 'typesVersions' here is the only way we could figure out how to get types working for imports of any subpath without any of the problems other approaches have when not using modeResolution:NodeNext (listed in https://stackoverflow.com/questions/77856692/how-to-publish-plain-jsjsdoc-library-for-typescript-consumers)": "",
   "typesVersions": {
     "*": {
-      "src/*": ["types/*"]
+      "src/*": [
+        "types/*"
+      ]
     }
   },
   "// These exports require moduleResolution:NodeNext to be enabled in the consumer.": "",
