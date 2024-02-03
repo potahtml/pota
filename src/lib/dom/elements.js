@@ -1,10 +1,8 @@
-import { untrack } from '../reactivity/primitives/solid.js'
-
 const bind = fn => document[fn].bind(document)
 
 export let createElement = tagName => {
 	const create = bind('createElement')
-	createElement = tagName => untrack(() => create(tagName))
+	createElement = tagName => create(tagName)
 	return createElement(tagName)
 }
 

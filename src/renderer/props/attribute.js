@@ -39,16 +39,14 @@ export const setAttribute = (node, name, value, ns) =>
  * @param {string} [ns]
  */
 export function _setAttribute(node, name, value, ns) {
-	untrack(() => {
-		// if the value is null or undefined it will be removed
-		if (isNullUndefined(value)) {
-			ns && NS[ns]
-				? node.removeAttributeNS(NS[ns], name)
-				: node.removeAttribute(name)
-		} else {
-			ns && NS[ns]
-				? node.setAttributeNS(NS[ns], name, value)
-				: node.setAttribute(name, value)
-		}
-	})
+	// if the value is null or undefined it will be removed
+	if (isNullUndefined(value)) {
+		ns && NS[ns]
+			? node.removeAttributeNS(NS[ns], name)
+			: node.removeAttribute(name)
+	} else {
+		ns && NS[ns]
+			? node.setAttributeNS(NS[ns], name, value)
+			: node.setAttribute(name, value)
+	}
 }

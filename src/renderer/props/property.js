@@ -35,17 +35,15 @@ export const setProperty = (node, name, value) =>
  * @param {unknown} value
  */
 export function _setProperty(node, name, value) {
-	untrack(() => {
-		// if the value is null or undefined it will be set to null
-		if (isNullUndefined(value)) {
-			// defaulting to undefined breaks `progress` tag and the whole page
-			node[name] = null
-		} else {
-			node[name] = value
-		}
-		if (name === 'value') {
-			dispatchNativeEvent(node, 'input')
-			dispatchNativeEvent(node, 'change')
-		}
-	})
+	// if the value is null or undefined it will be set to null
+	if (isNullUndefined(value)) {
+		// defaulting to undefined breaks `progress` tag and the whole page
+		node[name] = null
+	} else {
+		node[name] = value
+	}
+	if (name === 'value') {
+		dispatchNativeEvent(node, 'input')
+		dispatchNativeEvent(node, 'change')
+	}
 }

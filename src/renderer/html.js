@@ -69,7 +69,7 @@ export function HTML(options = { unwrap: true }) {
 			set(template, cached)
 		}
 
-		const clone = cached[0] // .cloneNode(true)
+		const clone = cached[0]
 
 		let index = 0
 		function nodes(node) {

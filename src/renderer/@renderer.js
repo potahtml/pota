@@ -239,9 +239,6 @@ function createTag(tagName, props) {
  * @returns {Elements} Element
  */
 function createNode(node, props) {
-	// cleanup the node on disposal
-	// nodeCleanup(node)
-
 	// assign the props to the node
 	assignProps(node, props)
 
