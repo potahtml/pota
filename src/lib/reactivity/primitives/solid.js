@@ -186,7 +186,7 @@ export { lazyMemo as memo }
  * Returns a function on which you can pass functions to run with the
  * current owner
  *
- * @returns {(fn)=>any}
+ * @returns {(fn) => any}
  */
 export const withOwner = () => {
 	const owner = getOwner()
