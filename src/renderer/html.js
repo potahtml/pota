@@ -5,48 +5,32 @@ import {
 	cleanup,
 	root,
 } from '../lib/reactivity/primitives/solid.js'
-import { entries } from '../lib/std/entries.js'
-import { flat } from '../lib/std/flat.js'
-import { getValue } from '../lib/std/getValue.js'
-import { toArray } from '../lib/std/toArray.js'
-import { weakStore } from '../lib/std/weakStore.js'
 
 import { Component, toHTML } from './@renderer.js'
 
-import * as defaultRegistry from '../components/flow/@main.js'
 import { callAll } from '../lib/std/callAll.js'
+import { camelCase } from '../lib/strings/camel-case.js'
+import { empty } from '../lib/std/empty.js'
+import { entries } from '../lib/std/entries.js'
+import { fromEntries } from '../lib/std/fromEntries.js'
+import { getValue } from '../lib/std/getValue.js'
+import { parse } from '../lib/dom/parse.js'
+import { toArray } from '../lib/std/toArray.js'
+import { weakStore } from '../lib/std/weakStore.js'
+
+import * as defaultRegistryTemplate from '../components/flow/@main.js'
+
+const defaultRegistry = fromEntries(
+	entries(defaultRegistryTemplate).map(([k, v]) => [
+		k.toLowerCase(),
+		v,
+	]),
+)
 
 const { get, set } = weakStore()
 
-const xmlns = ns => `xmlns:${ns}="https://pota.quack.uy/"`
-let parseFromString = template => {
-	// DOMParser in xml mode requires definition of namespaces
-	const XMLTemplate = new DOMParser().parseFromString(
-		`<div ${[
-			'class',
-			'on',
-			'prop',
-			'attr',
-			'bool',
-			'style',
-			'var',
-			'onMount',
-			'onUnmount',
-			'ref',
-		]
-			.map(xmlns)
-			.join(' ')}
-				>${template}</div>`,
-		'text/xml',
-	).documentElement
-
-	parseFromString = template => {
-		XMLTemplate.innerHTML = template
-		return XMLTemplate.firstChild
-	}
-
-	return parseFromString(template)
-}
+const id = 'pota'
+const tag = `<pota></pota>`
 
 /**
  * Function to create tagged template components
@@ -62,6 +46,7 @@ let parseFromString = template => {
  */
 
 export function HTML(options = { unwrap: true }) {
+	const components = { ...defaultRegistry }
 	/**
 	 * Creates tagged template components
 	 *
@@ -75,71 +60,62 @@ export function HTML(options = { unwrap: true }) {
 		let cached = get(template)
 
 		if (!cached) {
-			cached = {
-				template: null,
-				result: null,
-				signals: null,
-			}
-
-			cached.template = parseFromString(
-				`${template
-					.join('<POTA></POTA>')
-					.trim()
-					// attributes cant contain `<`
-					.replaceAll('"<POTA></POTA>"', '"__POTA__"')}`,
-			)
+			cached = [
+				parse(template.join(tag).replaceAll(`"${tag}"`, `"${id}"`)),
+				null,
+				null,
+			]
 
 			set(template, cached)
 		}
 
-		const clone = cached.template.cloneNode(true)
+		const clone = cached[0].cloneNode(true)
 
 		let index = 0
 		function nodes(node) {
-			const nodeType = node.nodeType
-			if (nodeType === 9 || nodeType === 11) {
-				// Node.DOCUMENT_NODE || Node.DOCUMENT_FRAGMENT_NODE
-				return toArray(node.childNodes).map(nodes)
-			} else if (nodeType === 1) {
-				// Node.ELEMENT_NODE
-				const tag = node.tagName
-				if (tag === 'POTA') return values[index++]
-
-				// gather props
-				const props = { children: undefined }
-				for (const { name, value } of node.attributes)
-					props[name] = value === '__POTA__' ? values[index++] : value
-
-				// gather children
-				/**
-				 * `childNodes` should overwrite any children="" attribute but
-				 * only if `childNodes` has something
-				 */
-				if (node.childNodes.length) {
-					/**
-					 * When children is an array, as in >${[0, 1, 2]}< then
-					 * children will end as `[[0, 1, 2]]`, so flat it
-					 */
-					props.children = flat(toArray(node.childNodes).map(nodes))
+			// Node.ELEMENT_NODE
+			if (node.nodeType === 1) {
+				const localName = node.localName
+				if (localName === id) {
+					return values[index++]
 				}
 
-				// needs to return a function so reactivity works properly
-				return Component(html.components[tag] || tag, props)
+				// gather props
+				const props = empty()
+				for (let { name, value } of node.attributes) {
+					if (value === id) {
+						value = values[index++]
+					}
+
+					if (name[0] === '.') {
+						props['prop:' + camelCase(name.slice(1))] = value
+					} else if (name[0] === '?') {
+						props['bool:' + name.slice(1)] = value
+					} else {
+						props[name] = value
+					}
+				}
+
+				// gather children
+				if (node.childNodes.length) {
+					props.children = toArray(node.childNodes).map(nodes)
+				}
+
+				return Component(components[localName] || localName, props)
 			} else {
 				return node
 			}
 		}
 
-		const children = nodes(clone)
-		cached.result = options.unwrap ? toHTML(children) : children
+		const result = toArray(clone.childNodes).map(nodes)
 
-		return cached.result
+		return options.unwrap ? toHTML(result) : result
 	}
 
-	html.components = { ...defaultRegistry }
+	html.components = components
 	html.define = userComponents => {
 		for (const [name, component] of entries(userComponents)) {
-			html.components[name] = component
+			components[name.toLowerCase()] = component
 		}
 	}
 
@@ -164,11 +140,13 @@ export const html = HTML({ unwrap: true })
 export const htmlEffect = (fn, options = { unwrap: true }) => {
 	/** Copy the components from the global registry */
 	const html_ = options.unwrap ? html : HTML(options)
-	html_ !== html && (html_.components = { ...html.components })
+	if (html_ !== html) {
+		html_.components = html.components
+	}
 
 	const disposeHTMLEffect = []
 
-	const _html = (template, ...values) => {
+	function _html(template, ...values) {
 		// when template is cached just update the signals
 		let cached = get(template)
 		if (cached) {
@@ -187,7 +165,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 			batch(() => {
 				for (const [key, value] of entries(values)) {
 					// getValue(value) causes tracking
-					cached.signals[key][1](getValue(value))
+					cached[1][key][1](getValue(value))
 				}
 			})
 
@@ -208,7 +186,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 			 * })
 			 * ```
 			 */
-			return cached.result
+			return cached[2]
 		}
 
 		/**
@@ -225,7 +203,8 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 		 * own function we create a root.
 		 */
 		const signals = []
-		const result = root(dispose => {
+		let result
+		root(dispose => {
 			disposeHTMLEffect.push(dispose)
 
 			/**
@@ -233,7 +212,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 			 * Pota will add one effect for each signal. So this wont
 			 * re-run.
 			 */
-			return html_(
+			result = html_(
 				template,
 				...values.map((value, key) => {
 					signals[key] = signal(getValue(value))
@@ -245,20 +224,19 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 
 		// save the `signals` in the cached template
 		cached = get(template)
-		cached.signals = signals
+		cached[1] = signals
 
+		cached[2] = result
 		return result
 	}
 
-	// use the registry of the real `html` function
-	_html.define = components => html_.define(components)
-
-	const update = () => fn(_html)
 	/**
 	 * This effect will re-run when the `values` interpolated change, or
 	 * when any signal that you use on the `htmlEffect` function body
 	 * change. It cause re-runs of what we are batching above.
 	 */
+
+	const update = () => fn(_html)
 
 	let result
 
@@ -266,11 +244,11 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 		result = update()
 	})
 
+	/** Allow to manually trigger an update */
+	result.update = update
+
 	/** Dispose the effect when whatever started it is disposed. */
 	cleanup(() => callAll(disposeHTMLEffect))
-
-	// allow to manually trigger an update
-	result.update = update
 
 	return result
 }
