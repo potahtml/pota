@@ -1,8 +1,7 @@
 const bind = fn => document[fn].bind(document)
 
 export let createElement = tagName => {
-	const create = bind('createElement')
-	createElement = tagName => create(tagName)
+	createElement = bind('createElement')
 	return createElement(tagName)
 }
 
