@@ -322,6 +322,8 @@ function createChildren(parent, child, relative) {
 		case 'object': {
 			// children/fragments
 			if (isArray(child)) {
+				if (child.length === 1)
+					return createChildren(parent, child[0], relative)
 				return child.map(child =>
 					createChildren(parent, child, relative),
 				)

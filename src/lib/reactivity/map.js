@@ -37,53 +37,44 @@ export function map(list, callback, sort) {
 	// to get rid of all nodes when parent disposes
 	cleanup(clear)
 
-	/**
-	 * Create an item
-	 *
-	 * @param {unknown} item
-	 * @param {unknown} index
-	 * @param {Function} fn
-	 * @param {boolean} isDupe
-	 */
-	function create(item, index, fn, isDupe) {
-		// a root is created so we can call dispose to get rid of an item
-		return root(dispose => {
-			/** @type Children[] */
-			const nodes = fn
-				? fn(callback(item, index), index)
-				: callback(item, index)
-
-			const row = {
-				runId: -1,
-				index,
-				nodes,
-				// reference nodes, it holds the placeholders that delimit `begin` and `end`
-				// you can quickly check if items are in the right order
-				// by checking if item.end === nextItem.begin.previousSibling
-				get begin() {
-					return nodes[0]
-				},
-				get end() {
-					return nodes[nodes.length - 1]
-				},
-				dispose: all => {
-					// skip cache deletion as we are going to clear the full map
-					if (!all) {
-						// delete from cache
-						if (!isDupe) {
-							cache.delete(item)
-						} else {
-							const arr = duplicates.get(item)
-							arr.length === 1
-								? duplicates.delete(item)
-								: removeFromArray(arr, row)
-						}
-					}
-					dispose()
-				},
+	class Row {
+		constructor(item, index, fn, isDupe) {
+			this.runId = -1
+			this.item = item
+			this.index = index
+			this.isDupe = isDupe
+			this.disposer = null
+			this.nodes = null
+			const self = this
+			this.nodes = root(disposer => {
+				self.disposer = disposer
+				/** @type Children[] */
+				return fn
+					? fn(callback(item, index), index)
+					: callback(item, index)
+			})
+		}
+		get begin() {
+			return this.nodes[0]
+		}
+		get end() {
+			return this.nodes[this.nodes.length - 1]
+		}
+		dispose(all = undefined) {
+			// skip cache deletion as we are going to clear the full map
+			if (all === undefined) {
+				// delete from cache
+				if (!this.isDupe) {
+					cache.delete(this.item)
+				} else {
+					const arr = duplicates.get(this.item)
+					arr.length === 1
+						? duplicates.delete(this.item)
+						: removeFromArray(arr, this)
+				}
 			}
-			return row
-		})
+			this.disposer()
+		}
 	}
 
 	function nodesFromRow(row) {
@@ -109,13 +100,14 @@ export function map(list, callback, sort) {
 		return untrack(() => {
 			runId++
 			rows = []
+			const hasPrev = prev.length
 
 			for (const [index, item] of items.entries()) {
-				let row = cache.get(item)
+				let row = hasPrev ? cache.get(item) : undefined
 
 				// if the item doesnt exists, create it
 				if (row === undefined) {
-					row = create(item, index, fn, false)
+					row = new Row(item, index, fn, false)
 					cache.set(item, row)
 				} else if (row.runId === runId) {
 					// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
@@ -129,7 +121,7 @@ export function map(list, callback, sort) {
 						if (row.runId !== runId) break
 					}
 					if (row.runId === runId) {
-						row = create(item, index, fn, true)
+						row = new Row(item, index, fn, true)
 						dupes.push(row)
 					}
 				}
