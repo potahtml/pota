@@ -482,8 +482,8 @@ function nodeCleanup(node) {
 
 		if (nodes.length === 0) {
 			cleanup(() => {
-				nodes.reverse() // to remove parent first
-				for (const node of nodes) {
+				// reverse to remove parent first
+				for (const node of nodes.reverse()) {
 					node.remove()
 				}
 				nodes.length = 0
