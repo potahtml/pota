@@ -518,7 +518,7 @@ export function render(children, parent, options = empty()) {
  *   Mounting options
  */
 function insert(children, parent, options = empty()) {
-	if (options.clear) parent && parent.textContent = ''
+	if (options.clear && parent) parent.textContent = ''
 
 	return createChildren(
 		parent || document.body,
