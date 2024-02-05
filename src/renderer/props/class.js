@@ -25,11 +25,17 @@ export const setClass = (node, name, value, props) =>
  * @param {string} localName
  * @param {string} ns
  */
-export const setClassNS = (node, name, value, props, localName, ns) =>
-	setClassList(
-		node.classList,
-		isNotNullObject(value) ? value : { [localName]: value },
-	)
+export const setClassNS = (
+	node,
+	name,
+	value,
+	props,
+	localName,
+	ns,
+) =>
+	isNotNullObject(value)
+		? setClassList(node.classList, value)
+		: setClassListValue(node.classList, localName, value)
 
 // todo: the name of the class is not reactive
 
@@ -38,22 +44,24 @@ export const setClassNS = (node, name, value, props, localName, ns) =>
  * @param {unknown | string | ArrayLike<any>} value
  */
 function setClassList(classList, value) {
-	if (isNotNullObject(value)) {
-		for (const [name, _value] of entries(value))
-			setClassListValue(classList, name, _value)
-		return
-	}
-	const type = typeof value
+	switch (typeof value) {
+		case 'string': {
+			_setClassListValue(classList, value, true)
+			break
+		}
 
-	if (type === 'string') {
-		setClassListValue(classList, value, true)
-		return
-	}
-	if (type === 'function') {
-		effect(() => {
-			setClassList(classList, getValue(value))
-		})
-		return
+		case 'object': {
+			for (const [name, _value] of entries(value))
+				setClassListValue(classList, name, _value)
+			break
+		}
+
+		case 'function': {
+			effect(() => {
+				setClassList(classList, getValue(value))
+			})
+			break
+		}
 	}
 }
 /**
