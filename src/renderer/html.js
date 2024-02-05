@@ -19,6 +19,7 @@ import { toArray } from '../lib/std/toArray.js'
 import { weakStore } from '../lib/std/weakStore.js'
 
 import * as defaultRegistryTemplate from '../components/flow/@main.js'
+import { flat } from '../lib/std/flat.js'
 
 const defaultRegistry = fromEntries(
 	entries(defaultRegistryTemplate).map(([k, v]) => [
@@ -100,7 +101,7 @@ export function HTML(options = { unwrap: true }) {
 
 				// gather children
 				if (node.childNodes.length) {
-					props.children = toArray(node.childNodes).map(nodes)
+					props.children = flat(toArray(node.childNodes).map(nodes))
 				}
 
 				return Component(components[localName] || localName, props)
@@ -109,7 +110,7 @@ export function HTML(options = { unwrap: true }) {
 			}
 		}
 
-		const result = toArray(clone.childNodes).map(nodes)
+		const result = flat(toArray(clone.childNodes).map(nodes))
 
 		return options.unwrap ? toHTML(result) : result
 	}
