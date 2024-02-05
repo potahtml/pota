@@ -1,5 +1,5 @@
 // bind is a small helper for binding the value of an element to a signal
-// https://pota.quack.uy/props/bind
+// https://pota.quack.uy/props/plugins/bind
 
 import {
 	addEventListener,
