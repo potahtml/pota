@@ -63,10 +63,6 @@ const WeakComponents = new WeakMap()
 const defaultProps = freeze(empty())
 const useXMLNS = context()
 
-// DOCUMENT
-
-const nodeClear = node => (node.textContent = '')
-
 // COMPONENTS
 
 /**
@@ -522,7 +518,7 @@ export function render(children, parent, options = empty()) {
  *   Mounting options
  */
 function insert(children, parent, options = empty()) {
-	options.clear && nodeClear(parent)
+	if (options.clear) parent && parent.textContent = ''
 
 	return createChildren(
 		parent || document.body,

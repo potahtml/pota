@@ -10,15 +10,9 @@ class CollapseElement extends CustomElement {
 		super()
 		this.addCSS(`:host{display: contents;}`)
 	}
-	hide() {
-		this.shadowRoot.innerHTML = ''
-	}
-	show() {
-		this.shadowRoot.innerHTML = '<slot/>'
-	}
 	/** @param {When} value - To toggle children */
 	set when(value) {
-		getValue(value) ? this.show() : this.hide()
+		this.shadowRoot.innerHTML = getValue(value) ? '<slot/>' : ''
 	}
 }
 

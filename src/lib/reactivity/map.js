@@ -44,10 +44,8 @@ export function map(list, callback, sort) {
 			this.index = index
 			this.isDupe = isDupe
 			this.disposer = null
-			this.nodes = null
-			const self = this
 			this.nodes = root(disposer => {
-				self.disposer = disposer
+				this.disposer = disposer
 				/** @type Children[] */
 				return fn
 					? fn(callback(item, index), index)
