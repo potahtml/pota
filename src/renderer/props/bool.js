@@ -1,4 +1,3 @@
-import { untrack } from '../../lib/reactivity/primitives/solid.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
 
 // BOOL ATTRIBUTES
@@ -28,9 +27,6 @@ export const setBool = (node, name, value) =>
  * @param {string} name
  * @param {unknown} value
  */
-function _setBool(node, name, value) {
-	untrack(() => {
-		// if the value is falsy gets removed
-		!value ? node.removeAttribute(name) : node.setAttribute(name, '')
-	})
-}
+export const _setBool = (node, name, value) =>
+	// if the value is falsy gets removed
+	!value ? node.removeAttribute(name) : node.setAttribute(name, '')

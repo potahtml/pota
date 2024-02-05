@@ -107,24 +107,27 @@ export function assignProps(node, props) {
 			continue
 		}
 
-		// with ns
-		const [ns, localName] =
-			name.indexOf(':') !== -1 ? name.split(':') : ['', name]
+		if (name.includes(':')) {
+			// with ns
+			const [ns, localName] = name.split(':')
 
-		// run plugins NS
-		if (pluginsNS[ns]) {
-			pluginsNS[ns](node, name, value, props, localName, ns)
+			// run plugins NS
+			if (pluginsNS[ns]) {
+				pluginsNS[ns](node, name, value, props, localName, ns)
+				continue
+			}
+
+			// onClick:my-ns={handler}
+			event = eventName(ns)
+			if (event) {
+				addEventListener(node, event, value, false)
+				continue
+			}
+
+			setUnknownProp(node, name, value, ns)
 			continue
 		}
-
-		// onClick:my-ns={handler}
-		event = eventName(ns)
-		if (event) {
-			addEventListener(node, event, value, false)
-			continue
-		}
-
 		// catch all
-		setUnknownProp(node, name, value, ns)
+		setUnknownProp(node, name, value)
 	}
 }

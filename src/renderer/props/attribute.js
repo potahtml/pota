@@ -1,5 +1,4 @@
 import { NS } from '../../constants.js'
-import { untrack } from '../../lib/reactivity/primitives/solid.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
 

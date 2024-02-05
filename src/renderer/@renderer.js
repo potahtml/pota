@@ -237,13 +237,7 @@ function createNode(node, props) {
 	// assign the props to the node
 	assignProps(node, props)
 
-	/**
-	 * Insert children. Children will be `undefined` when there are no
-	 * children at all, example `<br/>`
-	 */
-	if (props.children !== undefined) {
-		createChildren(node, props.children)
-	}
+	createChildren(node, props.children)
 
 	return node
 }
@@ -544,15 +538,15 @@ function insert(children, parent, options = empty()) {
  * @returns {Children}
  * @url https://pota.quack.uy/toHTML
  */
-export function toHTML(children) {
+export const toHTML = children =>
 	/**
 	 * DocumentFragment is transformed to an `Array` of `Node/Element`,
 	 * that way we can keep a reference to the nodes. Because when the
 	 * DocumentFragment is used, it removes the nodes from the
 	 * DocumentFragment and then we will lose the reference.
 	 */
-	return flat(toHTMLFragment(children).childNodes)
-}
+
+	flat(toHTMLFragment(children).childNodes)
 
 /**
  * Creates and returns a DocumentFragment for `children`

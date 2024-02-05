@@ -10,7 +10,7 @@ import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
  * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
- * @param {string} ns
+ * @param {string} [ns]
  */
 export const setUnknownProp = (node, name, value, ns) =>
 	withValue(value, value => _setUnknownProp(node, name, value, ns))
@@ -19,7 +19,7 @@ export const setUnknownProp = (node, name, value, ns) =>
  * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
- * @param {string} ns
+ * @param {string} [ns]
  */
 const _setUnknownProp = (node, name, value, ns) => {
 	if (isNotNullObject(value)) {
