@@ -3,4 +3,4 @@
  *
  * @returns {Props} Empty object
  */
-export const empty = () => Object.create(null)
+export const empty = Object.create.bind(null, null)

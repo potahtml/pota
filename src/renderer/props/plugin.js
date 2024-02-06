@@ -1,8 +1,5 @@
 import { empty, microtask } from '../../lib/std/@main.js'
-import {
-	untrack,
-	withOwner,
-} from '../../lib/reactivity/primitives/solid.js'
+import { withOwner } from '../../lib/reactivity/primitives/solid.js'
 
 export const plugins = empty()
 export const pluginsNS = empty()
@@ -52,9 +49,9 @@ export const propsPluginNS = (NSName, fn, runOnMicrotask = true) => {
 
 const plugin = (plugins, name, fn, runOnMicrotask) => {
 	plugins[name] = !runOnMicrotask
-		? (...args) => untrack(() => fn(...args))
+		? fn
 		: (...args) => {
 				const owned = withOwner()
-				microtask(() => owned(() => untrack(() => fn(...args))))
+				microtask(() => owned(() => fn(...args)))
 			}
 }

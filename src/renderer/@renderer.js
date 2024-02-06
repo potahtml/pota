@@ -442,14 +442,11 @@ function insertNode(parent, node, relative) {
 		} else if (name === 'LINK' && node.rel === 'canonical') {
 			prev = querySelector('link[rel="canonical"]')
 		}
-		untrack(() =>
-			// replace old node if there's any
-			prev ? prev.replaceWith(node) : parent.appendChild(node),
-		)
+
+		// replace old node if there's any
+		prev ? prev.replaceWith(node) : parent.appendChild(node)
 	} else {
-		untrack(() =>
-			relative ? parent.before(node) : parent.appendChild(node),
-		)
+		relative ? parent.before(node) : parent.appendChild(node)
 	}
 
 	nodeCleanup(node)
