@@ -30,7 +30,31 @@ export function makeCallback(children) {
 
 const callback = child =>
 	isReactive(child)
-		? () => child()
+		? args => {
+				/**
+				 * The function inside the `for` is saved inside a signal. The
+				 * result of the signal is our callback
+				 *
+				 * ```js
+				 * htmlEffect(
+				 * 	html =>
+				 * 		html`<table>
+				 * 			<tr>
+				 * 				<th>name</th>
+				 * 			</tr>
+				 * 			<for each="${tests}">
+				 * 				${item =>
+				 * 					html`<tr>
+				 * 						<td>${item.name}</td>
+				 * 					</tr>`}
+				 * 			</for>
+				 * 		</table>`,
+				 * )
+				 * ```
+				 */
+				const r = child()
+				return isFunction(r) ? untrack(() => r(...args)) : r
+			}
 		: isFunction(child)
 			? args => untrack(() => child(...args))
 			: () => child

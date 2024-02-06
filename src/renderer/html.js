@@ -20,6 +20,7 @@ import { weakStore } from '../lib/std/weakStore.js'
 
 import * as defaultRegistryTemplate from '../components/flow/@main.js'
 import { flat } from '../lib/std/flat.js'
+import { isFunction } from '../lib/std/isFunction.js'
 
 const defaultRegistry = fromEntries(
 	entries(defaultRegistryTemplate).map(([k, v]) => [
@@ -168,7 +169,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 			batch(() => {
 				for (const [key, value] of entries(values)) {
 					// getValue(value) causes tracking
-					cached[1][key][1](getValue(value))
+					cached[1][key][1](isFunction(value) ? () => value : value)
 				}
 			})
 
@@ -218,7 +219,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 			result = html_(
 				template,
 				...values.map((value, key) => {
-					signals[key] = signal(getValue(value))
+					signals[key] = signal(value)
 					// give accesors to template instead of the `values`
 					return signals[key][0]
 				}),
