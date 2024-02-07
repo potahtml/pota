@@ -48,7 +48,7 @@ const pluginsFlimsy = [
   resolve({}),
   babel({
     babelHelpers: 'bundled',
-    presets: [['pota/babel-preset', { lib: 'flimsy' }]],
+    presets: [['pota/babel-preset', { lib: 'flimsy-dev' }]],
   }),
   terser(),
 ]
@@ -57,7 +57,7 @@ const pluginsNoMinFlimsy = [
   resolve({}),
   babel({
     babelHelpers: 'bundled',
-    presets: [['pota/babel-preset', { lib: 'flimsy' }]],
+    presets: [['pota/babel-preset', { lib: 'flimsy-dev' }]],
   }),
 ]
 

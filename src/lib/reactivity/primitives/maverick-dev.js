@@ -1,25 +1,20 @@
 import { markReactive } from '../@main.js'
 
-// abstracts oby reactivity
+// abstracts maverick reactivity
 
-import $, {
-	// signals
-	memo as _memo,
-
-	// effects
+import {
 	root as _root,
+	signal as _signal,
+	computed as _memo,
 	effect as _effect,
-	batch as _batch,
-
-	// cleanup/untrack
-	cleanup as _cleanup,
-	untrack as _untrack,
-
-	// context
-	context as _context,
-	with as with_,
-	owner as _owner,
-} from 'oby'
+	onDispose as _cleanup,
+	setContext,
+	getContext,
+	tick,
+	peek as _untrack,
+	getScope as getOwner,
+	scoped as runWithOwner,
+} from '@maverick-js/signals'
 
 /**
  * Creates a signal
@@ -33,8 +28,8 @@ import $, {
  *   - Read/write tuple
  */
 export const signal = (initialValue, options) => {
-	const s = $(initialValue, options)
-	return [markReactive(() => s()), s]
+	const s = _signal(initialValue, options)
+	return [markReactive(() => s()), v => s.set(v)]
 }
 
 /**
@@ -42,18 +37,15 @@ export const signal = (initialValue, options) => {
  * automatically updates
  *
  * @param {Function} fn - Function to re-run when dependencies change
- * @param {{
- * 	equals?: false | ((prev: unknown, next: unknown) => boolean)
- * }} [options]
  * @returns {Signal} - Read only signal
  */
-const memo = (fn, options) => markReactive(_memo(fn, options))
+const memo = fn => markReactive(_memo(fn))
 
 /**
  * Creates a new root
  *
  * @param {(dispose: Function) => any} fn
- * @returns {any}
+ * @returns {unknown}
  */
 export const root = fn => _root(dispose => fn(dispose))
 
@@ -63,7 +55,9 @@ export const root = fn => _root(dispose => fn(dispose))
  * @param {Function} fn
  */
 export const renderEffect = fn => {
-	_effect(fn, { sync: 'init' })
+	_effect(fn)
+	tick()
+	return void 0
 }
 
 /**
@@ -73,6 +67,7 @@ export const renderEffect = fn => {
  */
 export const effect = fn => {
 	_effect(fn)
+	return void 0
 }
 
 /**
@@ -81,7 +76,7 @@ export const effect = fn => {
  * @param {Function} fn
  * @returns {unknown}
  */
-export const batch = fn => _batch(fn)
+export const batch = fn => fn()
 
 /**
  * Runs a callback on cleanup, returns callback
@@ -128,13 +123,17 @@ export function Context(defaultValue = undefined) {
 	 */
 	function Context(newValue, fn) {
 		if (newValue === undefined) {
-			return _context(id) ?? defaultValue
+			return getContext(id) ?? defaultValue
 		} else {
-			let r
-			_context({ [id]: newValue }, () => {
-				r = untrack(fn)
+			let res
+			renderEffect(() => {
+				setContext(id, newValue)
+				_untrack(() => {
+					res = fn()
+				})
 			})
-			return r
+
+			return res
 		}
 	}
 
@@ -146,25 +145,21 @@ export function Context(defaultValue = undefined) {
  *
  * @author Fabio Spampinato
  * @param {Function} fn - Function to re-run when dependencies change
- * @param {{
- * 	equals?: false | ((prev: unknown, next: unknown) => boolean)
- * }} [options]
- *
  * @returns {Signal}
  */
-function lazyMemo(fn, options) {
+function lazyMemo(fn) {
 	const [sleeping, setSleeping] = signal(true)
 	const m = memo(() => {
 		if (sleeping()) return
 		return fn()
-	}, options)
+	})
 
-	let read = () => {
+	let read = markReactive(() => {
 		setSleeping(false)
 		read = m
 		return m()
-	}
-	return markReactive(() => read())
+	})
+	return read
 }
 export { lazyMemo as memo }
 
@@ -172,11 +167,11 @@ export { lazyMemo as memo }
  * Returns a function on which you can pass functions to run with the
  * current owner
  *
- * @returns {(fn) => any}
+ * - @returns {(fn)=>any}
  */
 export const withOwner = () => {
-	const owned = with_()
-	return fn => owned(fn)
+	const owner = getOwner()
+	return fn => runWithOwner(fn, owner)
 }
 
 /**
@@ -184,4 +179,4 @@ export const withOwner = () => {
  *
  * @returns {unknown}
  */
-export const owner = _owner
+export const owner = getOwner

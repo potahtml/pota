@@ -7,9 +7,6 @@ TODO:
 	Playground:
 	- LSP
 
-	Reactivity:
-	- add maverick https://github.com/maverick-js/signals
-
 	Miscellaneous:
 	- typings
 	- automated tests
