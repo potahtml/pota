@@ -6,6 +6,7 @@ import {
 	propsPlugin,
 	propsPluginNS,
 } from '../exports.js'
+import { effect } from '../lib/reactivity/primitives/solid.js'
 
 export {
 	/**
@@ -25,24 +26,26 @@ export {
  * @param {object} props
  */
 function bindValue(node, name, value, props) {
-	// set initial value
-	switch (node.type) {
-		case 'checkbox': {
-			node.checked = value()
-			break
-		}
-		case 'radio': {
-			node.checked = node.value == value()
-			break
-		}
-		default: {
-			if (node.isContentEditable) {
-				node.innerText = value()
-			} else {
-				node.value = value()
+	effect(() => {
+		// set initial value
+		switch (node.type) {
+			case 'checkbox': {
+				node.checked = value()
+				break
+			}
+			case 'radio': {
+				node.checked = node.value == value()
+				break
+			}
+			default: {
+				if (node.isContentEditable) {
+					node.innerText = value()
+				} else {
+					node.value = value()
+				}
 			}
 		}
-	}
+	})
 
 	// listen for changes
 	addEventListener(node, 'input', e => {
