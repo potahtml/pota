@@ -5,8 +5,8 @@
  */
 export function removeVideoTracks(stream) {
 	if (stream) {
-		stream.getVideoTracks().forEach(track => {
-			stream.removeTrack(track)
-		})
+		stream
+			.getVideoTracks()
+			.forEach(track => stream.removeTrack(track))
 	}
 }

@@ -8,7 +8,7 @@ import { removeVideoTracks } from './removeVideoTracks.js'
  */
 export function copyVideoTracks(sourceStream, destinationStream) {
 	removeVideoTracks(destinationStream)
-	sourceStream.getVideoTracks().forEach(track => {
-		destinationStream.addTrack(track.clone())
-	})
+	sourceStream
+		.getVideoTracks()
+		.forEach(track => destinationStream.addTrack(track.clone()))
 }
