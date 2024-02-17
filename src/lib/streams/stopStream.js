@@ -1,3 +1,5 @@
+import { stopTrack } from './stopTrack.js'
+
 /**
  * Stops all tracks of the provided stream.
  *
@@ -6,16 +8,10 @@
 export function stopStream(stream) {
 	if (!stream) return
 
-	/**
-	 * Stops a track.
-	 *
-	 * @param {MediaStreamTrack} track - The track to stop.
-	 */
-	const stop = track => track.stop()
 	if (stream instanceof MediaStream) {
-		stream.getAudioTracks().forEach(stop)
-		stream.getVideoTracks().forEach(stop)
-		stream.getTracks().forEach(stop)
+		stream.getAudioTracks().forEach(stopTrack)
+		stream.getVideoTracks().forEach(stopTrack)
+		stream.getTracks().forEach(stopTrack)
 	}
 	if (stream instanceof MediaRecorder) {
 		stream.stop()
