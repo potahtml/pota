@@ -1,4 +1,4 @@
-import { removeAudio } from './removeAudio.js'
+import { removeAudioTracks } from './removeAudioTracks.js'
 
 /**
  * Copies audio from source stream to destination stream
@@ -6,8 +6,8 @@ import { removeAudio } from './removeAudio.js'
  * @param {MediaStream} sourceStream - The source media stream
  * @param {MediaStream} destinationStream - The destination media stream
  */
-export function copyAudio(sourceStream, destinationStream) {
-	removeAudio(destinationStream)
+export function copyAudioTracks(sourceStream, destinationStream) {
+	removeAudioTracks(destinationStream)
 	sourceStream.getAudioTracks().forEach(track => {
 		destinationStream.addTrack(track.clone())
 	})
