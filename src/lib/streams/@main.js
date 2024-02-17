@@ -1,1 +1,6 @@
+export { copyAudio } from './copyAudio.js'
+export { copyVideo } from './copyVideo.js'
+export { removeAudio } from './removeAudio.js'
+export { removeVideo } from './removeVideo.js'
+export { stopStream } from './stopStream.js'
 export { stopTracks } from './stopTracks.js'
