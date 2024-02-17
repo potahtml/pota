@@ -14,7 +14,7 @@ import { sheet } from './sheet.js'
  *   sheets
  * @returns {(name, css, component) => void}
  */
-export function customElementGroup(groupCSS, externalSheets) {
+export function customElementGroup(groupCSS, externalSheets = []) {
 	// make a sheet of the group css
 	const groupSheet = sheet(groupCSS)
 
