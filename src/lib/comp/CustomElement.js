@@ -11,7 +11,7 @@ import { empty } from '../std/empty.js'
  * @param {ElementDefinitionOptions} [options] - Options passed to
  *   `customElements.define`
  */
-export function customElement(name, constructor, options) {
+export function customElement(name, constructor, options = {}) {
 	if (customElements.get(name) === undefined) {
 		customElements.define(name, constructor, options)
 	}
@@ -52,7 +52,7 @@ export class CustomElement extends HTMLElement {
 	 * to fire a request for each external sheet when used in more than
 	 * one custom element. Also, all reference the same object.
 	 */
-	async addExternalStyles(urls = []) {
+	async addExternalStyles(urls) {
 		for (const url of urls) {
 			let styleSheet = cachedSheets[url]
 			if (!styleSheet) {
