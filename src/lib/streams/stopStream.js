@@ -7,8 +7,6 @@ import { stopTracks } from './stopTracks.js'
  * @param {(MediaStream|MediaRecorder)} stream - The stream to stop.
  */
 export function stopStream(stream) {
-	if (!stream) return
-
 	if (stream instanceof MediaStream) {
 		stopTracks(stream)
 	}
