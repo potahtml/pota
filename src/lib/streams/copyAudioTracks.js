@@ -8,7 +8,7 @@ import { removeAudioTracks } from './removeAudioTracks.js'
  */
 export function copyAudioTracks(sourceStream, destinationStream) {
 	removeAudioTracks(destinationStream)
-	sourceStream.getAudioTracks().forEach(track => {
-		destinationStream.addTrack(track.clone())
-	})
+	sourceStream
+		.getAudioTracks()
+		.forEach(track => destinationStream.addTrack(track.clone()))
 }

@@ -5,8 +5,8 @@
  */
 export function removeAudioTracks(stream) {
 	if (stream) {
-		stream.getAudioTracks().forEach(track => {
-			stream.removeTrack(track)
-		})
+		stream
+			.getAudioTracks()
+			.forEach(track => stream.removeTrack(track))
 	}
 }
