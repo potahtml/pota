@@ -1,4 +1,4 @@
-import { dispatchNativeEvent } from '../../lib/events/dispatchNativeEvent.js'
+import { dispatchEvent } from '../../lib/events/dispatchEvent.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
 
@@ -42,7 +42,7 @@ export function _setProperty(node, name, value) {
 		node[name] = value
 	}
 	if (name === 'value') {
-		dispatchNativeEvent(node, 'input')
-		dispatchNativeEvent(node, 'change')
+		dispatchEvent(node, 'input')
+		dispatchEvent(node, 'change')
 	}
 }
