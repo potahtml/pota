@@ -36,11 +36,9 @@ import {
 
 // RENDERER LIB
 
-import {
-	isComponent,
-	isComponentable,
-	markComponent,
-} from '../lib/comp/@main.js'
+import { isComponent } from '../lib/component/isComponent.js'
+import { isComponentable } from '../lib/component/isComponentable.js'
+import { markComponent } from '../lib/component/markComponent.js'
 
 import { ready } from './scheduler.js'
 

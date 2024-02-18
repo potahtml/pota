@@ -6,14 +6,13 @@ export const $component = $()
 export const $class = $()
 export const $reactive = $()
 export const $map = $()
-export const $customElement = $()
 export const $internal = $()
 
 // supported namespaces
 
 const prefix = 'http://www.w3.org/'
 
- export const NS = {
+export const NS = {
 	svg: prefix + '2000/svg',
 	math: prefix + '1998/Math/MathML',
 	html: prefix + '1999/xhtml',

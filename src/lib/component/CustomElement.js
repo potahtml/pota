@@ -1,4 +1,7 @@
-import { $customElement } from '../../constants.js'
+import {
+	Component,
+	toHTMLFragment,
+} from '../../renderer/@renderer.js'
 import { sheet } from '../css/sheet.js'
 import { empty } from '../std/empty.js'
 
@@ -11,7 +14,7 @@ import { empty } from '../std/empty.js'
  * @param {ElementDefinitionOptions} [options] - Options passed to
  *   `customElements.define`
  */
-export function customElement(name, constructor, options = {}) {
+export function customElement(name, constructor, options) {
 	if (customElements.get(name) === undefined) {
 		customElements.define(name, constructor, options)
 	}
@@ -20,31 +23,47 @@ export function customElement(name, constructor, options = {}) {
 const cachedSheets = empty()
 
 export class CustomElement extends HTMLElement {
-	[$customElement] = null
-
 	constructor() {
 		super()
 
 		this.attachShadow({
 			mode: 'open',
 		})
+
+		const element = this.constructor
+
+		// add external sheet
+		this.addStyleSheetExternal(element.styleSheets)
+
+		// add local sheet
+		this.addStyleSheet(element.styleSheet)
+
+		// add component
+		this.shadowRoot.append(
+			toHTMLFragment(
+				Component(this.component || element.component || 'slot'),
+			),
+		)
 	}
 
 	/**
-	 * Adds a css string as a sheet to the custom element
+	 * Shortcut for shadowRoot.innerHTML
 	 *
-	 * @param {string} css
+	 * @param {string} value
 	 */
-	addCSS(css) {
-		this.addSheet(sheet(css))
+	set html(value) {
+		this.shadowRoot.innerHTML = value
 	}
+
+	/* CSS API */
+
 	/**
 	 * Adds a style sheet to the custom element
 	 *
 	 * @param {CSSStyleSheet} sheet
 	 */
-	addSheet(sheet) {
-		this.shadowRoot.adoptedStyleSheets.push(sheet)
+	addStyleSheet(sheet) {
+		sheet && this.shadowRoot.adoptedStyleSheets.push(sheet)
 	}
 
 	/**
@@ -52,14 +71,18 @@ export class CustomElement extends HTMLElement {
 	 * to fire a request for each external sheet when used in more than
 	 * one custom element. Also, all reference the same object.
 	 */
-	async addExternalStyles(urls) {
+	addStyleSheetExternal(urls = []) {
 		for (const url of urls) {
-			let styleSheet = cachedSheets[url]
-			if (!styleSheet) {
-				styleSheet = sheet(await fetch(url).then(r => r.text()))
-				cachedSheets[url] = styleSheet
-			}
-			this.addSheet(styleSheet)
+			const styleSheet = cachedSheets[url]
+			!styleSheet
+				? fetch(url)
+						.then(r => r.text())
+						.then(css => sheet(css))
+						.then(styleSheet => {
+							cachedSheets[url] = styleSheet
+							this.addStyleSheet(styleSheet)
+						})
+				: this.addStyleSheet(styleSheet)
 		}
 	}
 }

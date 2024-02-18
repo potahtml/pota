@@ -1,7 +1,7 @@
 import { memo } from '../../lib/reactivity/primitives/solid.js'
 import { resolve } from '../../renderer/@renderer.js'
-import { makeCallback } from '../../lib/comp/@main.js'
 import { getValue, isNullUndefined } from '../../lib/std/@main.js'
+import { makeCallback } from '../../lib/component/makeCallback.js'
 
 /**
  * Renders the first child that matches the given `when` condition, or

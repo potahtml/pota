@@ -60,21 +60,20 @@ export { css } from './lib/css/css.js'
 
 export { ready } from './renderer/scheduler.js'
 
-// COMPONENTS CLASSES
-
-export { Pota } from './lib/comp/@main.js'
-
 // COMPONENTS UTILITIES
 
-// comp
-export { makeCallback } from './lib/comp/makeCallback.js'
-export { markComponent } from './lib/comp/markComponent.js'
-export { isComponent } from './lib/comp/isComponent.js'
+export { makeCallback } from './lib/component/makeCallback.js'
+export { markComponent } from './lib/component/markComponent.js'
+export { isComponent } from './lib/component/isComponent.js'
 
 export {
 	CustomElement,
 	customElement,
-} from './lib/comp/CustomElement.js'
+} from './lib/component/CustomElement.js'
+
+// COMPONENTS CLASSES
+
+export { Pota } from './lib/component/Pota.js'
 
 // reactivity
 export { isReactive } from './lib/reactivity/isReactive.js'

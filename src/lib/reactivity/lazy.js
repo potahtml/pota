@@ -1,5 +1,5 @@
 import { Component } from '../../renderer/@renderer.js'
-import { markComponent } from '../comp/markComponent.js'
+import { markComponent } from '../component/markComponent.js'
 import { withOwner } from './primitives/solid.js'
 
 /**
