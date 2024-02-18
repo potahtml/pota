@@ -29,7 +29,7 @@ propsPluginNS('class', setClassNS, false)
 
 // forced as properties
 
-import { setProperty } from './property.js'
+import { _setProperty, setProperty } from './property.js'
 for (const item of [
 	'value',
 	'textContent',
@@ -85,6 +85,8 @@ import { hasProxy, proxy } from './proxy.js'
  * @param {object} props - Props to assign
  */
 export function assignProps(node, props) {
+	const isCustomElement = node.localName.includes('-')
+
 	for (let [name, value] of entries(props)) {
 		// internal props
 		if (name === 'children') continue
@@ -124,10 +126,15 @@ export function assignProps(node, props) {
 				continue
 			}
 
-			setUnknownProp(node, name, value, ns)
+			isCustomElement
+				? _setProperty(node, name, value)
+				: setUnknownProp(node, name, value, ns)
 			continue
 		}
+
 		// catch all
-		setUnknownProp(node, name, value)
+		isCustomElement
+			? _setProperty(node, name, value)
+			: setUnknownProp(node, name, value)
 	}
 }
