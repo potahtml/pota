@@ -1,2 +1,2 @@
 export { stopEvent } from './stopEvent.js'
-export { dispatchEvent } from './dispatchEvent.js'
+export { emit } from './emit.js'

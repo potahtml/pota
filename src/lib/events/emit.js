@@ -4,8 +4,8 @@
  * @param {any} [data]
  */
 
-export const dispatchEvent = (
+export const emit = (
 	node,
 	eventName,
-	data = { bubbles: true, cancelable: false, composed: true },
+	data = { bubbles: true, cancelable: true, composed: true },
 ) => node.dispatchEvent(new CustomEvent(eventName, data))

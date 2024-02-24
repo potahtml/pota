@@ -1,4 +1,4 @@
-import { dispatchEvent } from '../../lib/events/dispatchEvent.js'
+import { emit } from '../../lib/events/emit.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
 
@@ -42,7 +42,7 @@ export function _setProperty(node, name, value) {
 		node[name] = value
 	}
 	if (name === 'value') {
-		dispatchEvent(node, 'input')
-		dispatchEvent(node, 'change')
+		emit(node, 'input')
+		emit(node, 'change')
 	}
 }
