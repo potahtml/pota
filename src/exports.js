@@ -16,6 +16,7 @@ export {
 	untrack,
 } from './lib/reactivity/primitives/solid.js'
 
+export { syncEffect } from './lib/reactivity/syncEffect.js'
 export { writable } from './lib/reactivity/writable.js'
 export { mutable } from './lib/reactivity/mutable.js'
 export { mutableDeep } from './lib/reactivity/mutableDeep.js'
