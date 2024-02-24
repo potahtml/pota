@@ -3,6 +3,8 @@ import {
 	toHTMLFragment,
 } from '../../renderer/@renderer.js'
 import { sheet } from '../css/sheet.js'
+import { emit } from '../events/emit.js'
+import { withValue } from '../reactivity/withValue.js'
 import { empty } from '../std/empty.js'
 
 /**
@@ -30,29 +32,7 @@ export class CustomElement extends HTMLElement {
 			mode: 'open',
 		})
 
-		const element = this.constructor
-
-		// add external sheet
-		this.addStyleSheetExternal(element.styleSheets)
-
-		// add local sheet
-		this.addStyleSheet(element.styleSheet)
-
-		// add component
-		this.shadowRoot.append(
-			toHTMLFragment(
-				Component(this.component || element.component || 'slot'),
-			),
-		)
-	}
-
-	/**
-	 * Shortcut for shadowRoot.innerHTML
-	 *
-	 * @param {string} value
-	 */
-	set html(value) {
-		this.shadowRoot.innerHTML = value
+		this.addStyleSheets(this.constructor.styleSheets)
 	}
 
 	/* CSS API */
@@ -60,29 +40,83 @@ export class CustomElement extends HTMLElement {
 	/**
 	 * Adds a style sheet to the custom element
 	 *
-	 * @param {CSSStyleSheet} sheet
+	 * @param {(CSSStyleSheet | string)[]} styleSheets
 	 */
-	addStyleSheet(sheet) {
-		sheet && this.shadowRoot.adoptedStyleSheets.push(sheet)
+	addStyleSheets(styleSheets = []) {
+		for (const sheet of styleSheets) {
+			sheet instanceof CSSStyleSheet
+				? this.shadowRoot.adoptedStyleSheets.push(sheet)
+				: this.addStyleSheetExternal(sheet)
+		}
 	}
 
 	/**
 	 * Adds the stylesheet from urls. It uses a cache, to avoid having
 	 * to fire a request for each external sheet when used in more than
 	 * one custom element. Also, all reference the same object.
+	 *
+	 * @param {string} url
 	 */
-	addStyleSheetExternal(urls = []) {
-		for (const url of urls) {
-			const styleSheet = cachedSheets[url]
-			!styleSheet
-				? fetch(url)
-						.then(r => r.text())
-						.then(css => sheet(css))
-						.then(styleSheet => {
-							cachedSheets[url] = styleSheet
-							this.addStyleSheet(styleSheet)
-						})
-				: this.addStyleSheet(styleSheet)
+	addStyleSheetExternal(url) {
+		const styleSheet = cachedSheets[url]
+		!styleSheet
+			? fetch(url)
+					.then(r => r.text())
+					.then(css => sheet(css))
+					.then(styleSheet => {
+						cachedSheets[url] = styleSheet
+						this.addStyleSheets([styleSheet])
+					})
+			: this.addStyleSheets([styleSheet])
+	}
+
+	/* DOM API */
+
+	/**
+	 * Shortcut for querySelector
+	 *
+	 * @param {string} query
+	 */
+	query(query) {
+		return this.querySelector(query)
+	}
+	/**
+	 * Shortcut for this.shadowRoot.innerHTML
+	 *
+	 * @param {string} value
+	 */
+	set html(value) {
+		if (typeof value === 'string') {
+			this.shadowRoot.innerHTML = value
+		} else {
+			this.shadowRoot.replaceChildren(
+				toHTMLFragment(Component(value || 'slot')),
+			)
 		}
+	}
+
+	/**
+	 * Toggles attribute `hidden`
+	 *
+	 * @param {boolean} value
+	 */
+	set hidden(value) {
+		withValue(value, value => {
+			value
+				? this.setAttribute('hidden', '')
+				: this.removeAttribute('hidden')
+		})
+	}
+
+	/* EVENTS API */
+
+	emit(eventName, data) {
+		emit(this, eventName, data)
+	}
+
+	/* SLOTS API */
+
+	hasSlot(name) {
+		return this.query(`:scope > [slot="${name}"]`) !== null
 	}
 }

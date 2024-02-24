@@ -13,6 +13,7 @@ class CollapseElement extends CustomElement {
 			display: contents;
 		}
 	`
+
 	/** @param {When} value - To toggle children */
 	set when(value) {
 		withValue(
