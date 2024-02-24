@@ -6,7 +6,7 @@ import {
 import { Show } from '../../flow/Show.js'
 
 import { useTimeout } from '../../../hooks/useTimeout.js'
-import { ref } from '../../../exports.js'
+import { ref } from '../../../@main.js'
 
 import { styleSheet } from './styleSheet.js'
 import { animationsStyleSheet } from '../@theme/animations.js'
@@ -28,6 +28,7 @@ customElement(
 	 * @function hide - Closes the alert
 	 * @function toggle - Toggles alert
 	 * @documentation https://pota.quack.uy/Components/Library/alert
+	 *
 	 *
 	 * @event show - Emitted when the alert shows
 	 * @event hide - Emitted when the alert hides

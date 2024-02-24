@@ -4,7 +4,7 @@ import {
 	addEventListener,
 	propsPlugin,
 	propsPluginNS,
-} from '../exports.js'
+} from '../@main.js'
 import { isFunction } from '../lib/std/isFunction.js'
 import { copyToClipboard } from '../lib/strings/copyToClipboard.js'
 

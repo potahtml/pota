@@ -6,7 +6,7 @@ import {
 	root,
 } from '../lib/reactivity/primitives/solid.js'
 
-import { Component, toHTML } from './@renderer.js'
+import { Component, toHTML } from './@main.js'
 
 import { callAll } from '../lib/std/callAll.js'
 import { camelCase } from '../lib/strings/camel-case.js'

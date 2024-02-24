@@ -4,7 +4,7 @@ import {
 	addEventListener,
 	propsPlugin,
 	propsPluginNS,
-} from '../exports.js'
+} from '../@main.js'
 import { getValueElement } from '../lib/std/getValueElement.js'
 
 /**

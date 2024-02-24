@@ -4,7 +4,7 @@ import {
 	CustomElement,
 	customElement,
 } from '../../lib/component/CustomElement.js'
-import { Component } from '../../renderer/@renderer.js'
+import { Component } from '../../renderer/@main.js'
 import { css } from '../../lib/css/css.js'
 
 class CollapseElement extends CustomElement {

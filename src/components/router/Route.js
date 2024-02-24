@@ -14,7 +14,7 @@ import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
 import { onDone } from '../../renderer/scheduler.js'
-import { Component } from '../../renderer/@renderer.js'
+import { Component } from '../../renderer/@main.js'
 /**
  * Renders children if the path matches the current location
  *

@@ -1,4 +1,4 @@
-import { Component } from '../../renderer/@renderer.js'
+import { Component } from '../../renderer/@main.js'
 
 /**
  * Creates components dynamically

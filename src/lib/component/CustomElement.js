@@ -1,7 +1,7 @@
 import {
 	Component,
 	toHTMLFragment,
-} from '../../renderer/@renderer.js'
+} from '../../renderer/@main.js'
 import { sheet } from '../css/sheet.js'
 import { emit } from '../events/emit.js'
 import { withValue } from '../reactivity/withValue.js'

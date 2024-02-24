@@ -1,5 +1,5 @@
 // utils
-import { Component } from '../../renderer/@renderer.js'
+import { Component } from '../../renderer/@main.js'
 import { isRelative, replaceParams } from '../../lib/urls/@main.js'
 
 // local

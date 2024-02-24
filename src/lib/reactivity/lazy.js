@@ -1,4 +1,4 @@
-import { Component } from '../../renderer/@renderer.js'
+import { Component } from '../../renderer/@main.js'
 import { markComponent } from '../component/markComponent.js'
 import { withOwner } from './primitives/solid.js'
 

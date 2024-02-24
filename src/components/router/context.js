@@ -3,7 +3,7 @@ import {
 	memo,
 } from '../../lib/reactivity/primitives/solid.js'
 import { empty, removeFromArray } from '../../lib/std/@main.js'
-import { context } from '../../renderer/@renderer.js'
+import { context } from '../../renderer/@main.js'
 
 const show = () => false
 

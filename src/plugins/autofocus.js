@@ -1,6 +1,6 @@
 // https://pota.quack.uy/props/plugins/autofocus
 
-import { propsPlugin, propsPluginNS } from '../exports.js'
+import { propsPlugin, propsPluginNS } from '../@main.js'
 
 /**
  * @param {Elements} node

@@ -5,7 +5,7 @@ import {
 	addEventListener,
 	propsPlugin,
 	propsPluginNS,
-} from '../exports.js'
+} from '../@main.js'
 import { effect } from '../lib/reactivity/primitives/solid.js'
 
 export {

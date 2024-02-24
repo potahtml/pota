@@ -1,4 +1,5 @@
-import { withValue, cleanup } from '../exports.js'
+import { cleanup } from '../lib/reactivity/primitives/solid.js'
+import { withValue } from '../lib/reactivity/withValue.js'
 
 export function useTimeout(callabck, timeout, ...args) {
   let id
