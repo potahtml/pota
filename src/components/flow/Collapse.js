@@ -8,11 +8,13 @@ import { Component } from '../../renderer/@renderer.js'
 import { css } from '../../lib/css/css.js'
 
 class CollapseElement extends CustomElement {
-	static styleSheet = css`
-		:host {
-			display: contents;
-		}
-	`
+	static styleSheets = [
+		css`
+			:host {
+				display: contents;
+			}
+		`,
+	]
 
 	/** @param {When} value - To toggle children */
 	set when(value) {
