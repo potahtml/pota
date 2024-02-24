@@ -86,8 +86,7 @@ import { hasProxy, proxy } from './proxy.js'
  */
 export function assignProps(node, props) {
 	// document-fragment wont have a localName
-	const isCustomElement =
-		node.localName && node.localName.includes('-')
+	const isCustomElement = node.localName?.includes('-')
 
 	for (let [name, value] of entries(props)) {
 		// internal props
