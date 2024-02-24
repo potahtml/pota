@@ -1,7 +1,7 @@
 import { sheet } from './sheet.js'
 
 /**
- * Creates tagged css and returns a string. Mostly for css
+ * Creates tagged css and returns a CSSStyleSheet. Mostly for css
  * highlighting in js
  *
  * @param {TemplateStringsArray} template
