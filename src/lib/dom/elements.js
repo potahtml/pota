@@ -5,3 +5,5 @@ export const createElement = bind('createElement')
 export const createElementNS = bind('createElementNS')
 
 export const createTextNode = bind('createTextNode')
+
+export const adoptedStyleSheets = document.adoptedStyleSheets
