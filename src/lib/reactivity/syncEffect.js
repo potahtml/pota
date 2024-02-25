@@ -12,14 +12,7 @@ import { effect } from './primitives/solid.js'
 export function syncEffect(fn) {
 	const queue = []
 	effect(() => {
-		/*
-			Replace with the following once kilo updates Firefox
-			const { promise, resolve } = Promise.withResolvers()
-		*/
-		let resolve
-		const promise = new Promise(res => {
-			resolve = res
-		})
+		const { promise, resolve } = Promise.withResolvers()
 
 		queue.push(promise)
 
