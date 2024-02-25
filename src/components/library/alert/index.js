@@ -29,17 +29,18 @@ customElement(
 	/**
 	 * Alerts are used to display messages that require attention
 	 *
-	 * @function show - Opens the alert
-	 * @function hide - Closes the alert
+	 * @function open - Opens the alert
+	 * @function close - Closes the alert
 	 * @function toggle - Toggles alert
+	 * @property show - Boolean to tell if the alert is showing
 	 * @documentation https://pota.quack.uy/Components/Library/alert
 	 *
 	 *
-	 * @event show - Emitted when the alert shows
-	 * @event hide - Emitted when the alert hides
+	 * @event open - Emitted when the alert opens
+	 * @event close - Emitted when the alert closes
 	 *
 	 * @slot Alert's main content
-	 * @slot icon - An icon to show in the alert
+	 * @slot icon - An icon to display in the alert
 	 *
 	 * @part base - The component base
 	 * @part icon-base - The base that wraps the optional icon
@@ -47,8 +48,8 @@ customElement(
 	 * @part close-base - The close button's exported `base` part
 	 * @part close - The close button
 	 *
-	 * @animations pota-alert::part(animation-show) - to change the animation-name for the show animation
-	 * @animations pota-alert::part(animation-hide) - to change the animation-name for the close animation
+	 * @animations pota-alert::part(animation-open) - to change the animation-name for the open animation
+	 * @animations pota-alert::part(animation-close) - to change the animation-name for the close animation
 	 */
 
 	class extends CustomElement {
@@ -59,7 +60,7 @@ customElement(
 		]
 
 		/** @type boolean */
-		open = false
+		show = false
 
 		/** @type boolean */
 		closable = false
@@ -89,64 +90,66 @@ customElement(
 			// set html
 			this.html = this.render()
 
-			// auto hide alert after duration
+			// auto close alert after duration
 			this.#hideTimeout = useTimeout(
 				() => {
-					this.hide()
+					this.close()
 				},
 				() => this.duration,
 			)
 		}
 
-		/** Shows the alert */
-		show() {
-			this.open = true
+		/** Opens the alert */
+		open() {
+			this.show = true
 		}
 
-		/** Hides the alert */
-		hide() {
-			this.open = false
+		/** Closes the alert */
+		close() {
+			this.show = false
 		}
 
 		/** Toggles the alert */
 		toggle() {
-			this.open = !this.open
+			this.show = !this.show
 		}
 
 		connectedCallback() {
-			this.hidden = !this.open
+			this.hidden = !this.show
+			let firstRun = true
 
 			syncEffect(async currentEffect => {
 				// access for tracking
 				const base = this.#base()
-				const open = this.open
+				const show = this.show
 
 				// to wait for previous running effect if any
 				await currentEffect
 
-				if (open) {
+				if (show) {
 					this.#hideTimeout.start()
 
 					this.hidden = false
 					await animatePartTo(
 						base,
-						'animation-hide',
-						'animation-show',
+						'animation-close',
+						'animation-open',
 					)
 
-					this.emit('open')
+					if (!firstRun) this.emit('open')
 				} else {
 					this.#hideTimeout.stop()
 
 					await animatePartTo(
 						base,
-						'animation-show',
-						'animation-hide',
+						'animation-open',
+						'animation-close',
 					)
 					this.hidden = true
 
-					this.emit('close')
+					if (!firstRun) this.emit('close')
 				}
+				firstRun = false
 			})
 		}
 
@@ -160,7 +163,7 @@ customElement(
 					class:has-icon={() => this.hasSlot('icon')}
 					data-variant={() => this.variant}
 					onMouseMove={() => this.#hideTimeout.start()}
-					aria-hidden={() => (this.open ? 'false' : 'true')}
+					aria-hidden={() => (this.show ? 'false' : 'true')}
 					role="alert"
 				>
 					<div
@@ -185,7 +188,7 @@ customElement(
 							class="close"
 							name="x-lg"
 							label="x"
-							onClick={() => this.hide()}
+							onClick={() => this.close()}
 						>
 							x
 						</pota-icon-button>

@@ -10,10 +10,10 @@ export const styleSheet = css`
 		animation: pota-scale-fade-out var(--sl-transition-fast) ease;
 		animation-fill-mode: forwards;
 	}
-	:host::part(animation-show) {
+	:host::part(animation-open) {
 		animation: pota-scale-fade-in var(--sl-transition-fast) ease;
 	}
-	:host::part(animation-hide) {
+	:host::part(animation-close) {
 		animation: pota-scale-fade-out var(--sl-transition-fast) ease;
 	}
 
