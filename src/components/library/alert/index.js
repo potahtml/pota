@@ -1,17 +1,22 @@
 import { mutable } from '../../../lib/reactivity/mutable.js'
+import { syncEffect } from '../../../lib/reactivity/syncEffect.js'
+
+import { ref } from '../../../@main.js'
+
+import { useTimeout } from '../../../hooks/useTimeout.js'
+import { animatePartTo } from '../../../lib/animations/animatePartTo.js'
+
 import {
 	customElement,
 	CustomElement,
 } from '../../../lib/component/CustomElement.js'
+
 import { Show } from '../../flow/Show.js'
 
-import { useTimeout } from '../../../hooks/useTimeout.js'
-import { ref } from '../../../@main.js'
-
-import { styleSheet } from './styleSheet.js'
+// stylesheets
 import { animationsStyleSheet } from '../@theme/animations.js'
-import { animatePartTo } from '../../../lib/animations/animatePartTo.js'
-import { syncEffect } from '../../../lib/reactivity/syncEffect.js'
+import { baseStyleSheet } from '../@theme/base.js'
+import { styleSheet } from './styleSheet.js'
 
 /*
 TODO
@@ -47,7 +52,11 @@ customElement(
 	 */
 
 	class extends CustomElement {
-		static styleSheets = [styleSheet, animationsStyleSheet]
+		static styleSheets = [
+			animationsStyleSheet,
+			baseStyleSheet,
+			styleSheet,
+		]
 
 		/** @type boolean */
 		open = false
