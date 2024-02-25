@@ -1,10 +1,7 @@
-import './@theme/animations.js'
-import './@theme/base.js'
-import './@theme/utility.js'
-// import './@theme/light.js'
-import './@theme/dark.js'
+/** This file was created for use on the playground */
 
-import './@theme/tokens.js'
+// theme
+import './@theme/@main.js'
 
 // components
 import './alert/index.js'

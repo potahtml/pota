@@ -3,8 +3,8 @@ import { adoptedStyleSheets } from '../../../lib/dom/elements.js'
 
 export const darkStyleSheet = css`
 	:root,
-	:host,
-	.sl-theme-dark {
+	:root.pota-theme-dark,
+	.pota-theme-dark {
 		color-scheme: dark;
 
 		/* Gray */

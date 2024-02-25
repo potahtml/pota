@@ -1,10 +1,10 @@
 import { css } from '../../../lib/css/css.js'
 import { adoptedStyleSheets } from '../../../lib/dom/elements.js'
 
-const lightStyleSheet = css`
+export const lightStyleSheet = css`
 	:root,
-	:host,
-	.sl-theme-light {
+	:root.pota-theme-light,
+	.pota-theme-light {
 		color-scheme: light;
 
 		/* Gray */

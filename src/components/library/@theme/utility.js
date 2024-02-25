@@ -5,7 +5,7 @@ import { adoptedStyleSheets } from '../../../lib/dom/elements.js'
  * This file contains utility classes that can't be contained in a
  * component and must be applied to the light DOM. None of the rules
  * in this stylesheet should target component tags or HTML tags, and
- * all classes _must_ start with ".sl-" to reduce the possibility of
+ * all classes _must_ start with ".pota-" to reduce the possibility of
  * collisions.
  */
 

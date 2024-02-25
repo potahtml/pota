@@ -3,7 +3,8 @@ import { adoptedStyleSheets } from '../../../lib/dom/elements.js'
 
 export const tokensStyleSheet = css`
 	:root,
-	:host {
+	.pota-theme-dark,
+	.pota-theme-light {
 		/* Primary */
 		--sl-color-primary-50: var(--sl-color-sky-50);
 		--sl-color-primary-100: var(--sl-color-sky-100);

@@ -112,6 +112,14 @@
       "types": "./types/components/library/@main.d.ts",
       "default": "./src/components/library/@main.js"
     },
+    "./components/theme-light": {
+      "types": "./types/components/library/theme-light.d.ts",
+      "default": "./src/components/library/theme-light.js"
+    },
+    "./components/theme-dark": {
+      "types": "./types/components/library/theme-dark.d.ts",
+      "default": "./src/components/library/theme-dark.js"
+    },
     "./components/*": {
       "types": "./types/components/library/*/index.d.ts",
       "default": "./src/components/library/*/index.js"
