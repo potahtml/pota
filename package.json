@@ -60,6 +60,10 @@
       "types": "./types/lib/std/@main.d.ts",
       "default": "./src/lib/std/@main.js"
     },
+    "./animations": {
+      "types": "./types/lib/animations/@main.d.ts",
+      "default": "./src/lib/animations/@main.js"
+    },
     "./color": {
       "types": "./types/lib/color/@main.d.ts",
       "default": "./src/lib/color/@main.js"
