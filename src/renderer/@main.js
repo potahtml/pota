@@ -368,6 +368,17 @@ function createChildren(parent, child, relative) {
 				)
 			}
 
+			// CSSStyleSheet
+			if (child instanceof CSSStyleSheet && 'textContent' in child) {
+				return createChildren(
+					parent,
+					Component('style', {
+						children: child.textContent,
+					}),
+					relative,
+				)
+			}
+
 			// object.toString fancy objects
 			return createChildren(
 				parent,
