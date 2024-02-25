@@ -7,13 +7,14 @@ export const styleSheet = css`
 	}
 
 	:host::part(base) {
-		animation: scale-fade-out 0.2s ease;
+		animation: pota-scale-fade-out var(--sl-transition-fast) ease;
+		animation-fill-mode: forwards;
 	}
 	:host::part(animation-show) {
-		animation: scale-fade-in 0.2s ease;
+		animation: pota-scale-fade-in var(--sl-transition-fast) ease;
 	}
 	:host::part(animation-hide) {
-		animation: scale-fade-out 0.2s ease;
+		animation: pota-scale-fade-out var(--sl-transition-fast) ease;
 	}
 
 	.base {
