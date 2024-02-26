@@ -13,7 +13,6 @@ import { camelCase } from '../lib/strings/camel-case.js'
 import { empty } from '../lib/std/empty.js'
 import { entries } from '../lib/std/entries.js'
 import { fromEntries } from '../lib/std/fromEntries.js'
-import { getValue } from '../lib/std/getValue.js'
 import { parse } from '../lib/dom/parse.js'
 import { toArray } from '../lib/std/toArray.js'
 import { weakStore } from '../lib/std/weakStore.js'
@@ -28,8 +27,6 @@ const defaultRegistry = fromEntries(
 		v,
 	]),
 )
-
-const { get, set } = weakStore()
 
 const id = 'pota'
 const tag = `<pota></pota>`
@@ -49,6 +46,9 @@ const tag = `<pota></pota>`
 
 export function HTML(options = { unwrap: true }) {
 	const components = { ...defaultRegistry }
+
+	const { get, set } = weakStore()
+
 	/**
 	 * Creates tagged template components
 	 *
@@ -116,6 +116,8 @@ export function HTML(options = { unwrap: true }) {
 		return options.unwrap ? toHTML(result) : result
 	}
 
+	html.get = get
+
 	html.components = components
 	html.define = userComponents => {
 		for (const [name, component] of entries(userComponents)) {
@@ -126,7 +128,7 @@ export function HTML(options = { unwrap: true }) {
 	return html
 }
 
-export const html = HTML({ unwrap: true })
+export const html = HTML()
 
 /**
  * Runs an `effect` on an `html` template. Reacts to reactive
@@ -143,10 +145,10 @@ export const html = HTML({ unwrap: true })
  */
 export const htmlEffect = (fn, options = { unwrap: true }) => {
 	/** Copy the components from the global registry */
-	const html_ = options.unwrap ? html : HTML(options)
-	if (html_ !== html) {
-		html_.components = html.components
-	}
+	const html_ = HTML(options)
+	html_.components = html.components
+
+	const get = html_.get
 
 	const disposeHTMLEffect = []
 
