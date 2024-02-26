@@ -14,7 +14,6 @@ TODO:
 	Router:
 	- decide what to do with useParams
 
-
 BUGS:
 
 	Router:
@@ -36,9 +35,6 @@ POSSIBLE FEATURES:
 
 	mutable:
 	- mutable doesnt track self, so it wont work with arrays, only works with the values
-	- make it work with getters
-
-	signalify:
 	- make it work with getters
 
 	Posible pollyfills:

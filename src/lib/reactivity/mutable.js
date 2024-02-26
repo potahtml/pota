@@ -124,7 +124,7 @@ const handler = {
 	set(target, key, value, proxy) {
 		// console.log('------- set', key)
 
-		// resolve value (aka creates a proxy for an object if needed)
+		// creates a proxy for the new value if needed)
 		const type = typeof value
 		value = getValue(value, type)
 
