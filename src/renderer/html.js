@@ -121,10 +121,16 @@ export const html = HTML()
  * @param {object} [options]
  * @param {boolean} [options.unwrap] - To return a `Node/Element` or
  *   an array of `Node/Elements`. Defaults to `true`
+ * @param {boolean} [options.updateTrigger] - To return an `update`
+ *   function in case its desired to trigger updates manually.
+ *   Defaults to `false`
  * @returns {Children}
  * @url https://pota.quack.uy/HTML
  */
-export const htmlEffect = (fn, options = { unwrap: true }) => {
+export const htmlEffect = (
+	fn,
+	options = { unwrap: true, updateTrigger: false },
+) => {
 	/** Copy the components from the global registry */
 	const html_ = HTML(options)
 	html_.components = html.components
@@ -228,11 +234,8 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 		result = update()
 	})
 
-	/** Allow to manually trigger an update */
-	result.update = update
-
 	/** Dispose the effect when whatever started it is disposed. */
 	cleanup(() => callAll(disposeHTMLEffect))
 
-	return result
+	return options.updateTrigger ? [result, update] : result
 }
