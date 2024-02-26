@@ -13,7 +13,7 @@ import { camelCase } from '../lib/strings/camel-case.js'
 import { empty } from '../lib/std/empty.js'
 import { entries } from '../lib/std/entries.js'
 import { fromEntries } from '../lib/std/fromEntries.js'
-import { parse } from '../lib/dom/parse.js'
+import { id, parse } from '../lib/dom/parse.js'
 import { toArray } from '../lib/std/toArray.js'
 import { weakStore } from '../lib/std/weakStore.js'
 
@@ -28,11 +28,8 @@ const defaultRegistry = fromEntries(
 	]),
 )
 
-const id = 'pota'
-const tag = `<pota></pota>`
-
 /**
- * Function to create tagged template components
+ * Function to create cached tagged template components
  *
  * @param {object} [options]
  * @param {boolean} [options.unwrap] - To return a `Node/Element` or
@@ -47,8 +44,6 @@ const tag = `<pota></pota>`
 export function HTML(options = { unwrap: true }) {
 	const components = { ...defaultRegistry }
 
-	const { get, set } = weakStore()
-
 	/**
 	 * Creates tagged template components
 	 *
@@ -59,19 +54,7 @@ export function HTML(options = { unwrap: true }) {
 	 */
 
 	function html(template, ...values) {
-		let cached = get(template)
-
-		if (!cached) {
-			cached = [
-				parse(template.join(tag).replaceAll(`"${tag}"`, `"${id}"`)),
-				null,
-				null,
-			]
-
-			set(template, cached)
-		}
-
-		const clone = cached[0]
+		const cached = parse(template)
 
 		let index = 0
 		function nodes(node) {
@@ -111,12 +94,10 @@ export function HTML(options = { unwrap: true }) {
 			}
 		}
 
-		const result = flat(toArray(clone.childNodes).map(nodes))
+		const result = flat(toArray(cached.childNodes).map(nodes))
 
 		return options.unwrap ? toHTML(result) : result
 	}
-
-	html.get = get
 
 	html.components = components
 	html.define = userComponents => {
@@ -148,7 +129,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 	const html_ = HTML(options)
 	html_.components = html.components
 
-	const get = html_.get
+	const { get, set } = weakStore()
 
 	const disposeHTMLEffect = []
 
@@ -171,7 +152,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 			batch(() => {
 				for (const [key, value] of entries(values)) {
 					// getValue(value) causes tracking
-					cached[1][key][1](isFunction(value) ? () => value : value)
+					cached[0][key][1](isFunction(value) ? () => value : value)
 				}
 			})
 
@@ -192,7 +173,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 			 * })
 			 * ```
 			 */
-			return cached[2]
+			return cached[1]
 		}
 
 		/**
@@ -229,10 +210,7 @@ export const htmlEffect = (fn, options = { unwrap: true }) => {
 		})
 
 		// save the `signals` in the cached template
-		cached = get(template)
-		cached[1] = signals
-
-		cached[2] = result
+		set(template, [signals, result])
 		return result
 	}
 
