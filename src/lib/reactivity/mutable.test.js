@@ -1,6 +1,6 @@
 import { describe, test, expect, assertions } from '../test/@main.js'
 
-import { mutableDeep } from './mutableDeep.js'
+import { mutable } from './mutable.js'
 
 import {
 	batch,
@@ -14,7 +14,7 @@ import {
 // tests from
 // https://github.com/solidjs/solid/blob/main/packages/solid/store/test/mutable.spec.ts
 
-const createMutable = mutableDeep
+const createMutable = mutable
 const createRoot = root
 const createEffect = effect
 const createMemo = memo

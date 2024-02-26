@@ -10,7 +10,6 @@ TODO:
 	Miscellaneous:
 	- typings
 	- automated tests
-	- rename mutable to signalify, rename mutableDeep to mutable
 
 	Router:
 	- decide what to do with useParams
@@ -35,8 +34,11 @@ POSSIBLE FEATURES:
 	Router:
 	- make the `path` reactive
 
-	mutableDeep:
-	- mutableDeep doesnt track self, so it wont work with arrays, only works with the values
+	mutable:
+	- mutable doesnt track self, so it wont work with arrays, only works with the values
+	- make it work with getters
+
+	signalify:
 	- make it work with getters
 
 	Posible pollyfills:

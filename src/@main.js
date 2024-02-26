@@ -18,8 +18,8 @@ export {
 
 export { syncEffect } from './lib/reactivity/syncEffect.js'
 export { writable } from './lib/reactivity/writable.js'
+export { signalify } from './lib/reactivity/signalify.js'
 export { mutable } from './lib/reactivity/mutable.js'
-export { mutableDeep } from './lib/reactivity/mutableDeep.js'
 export { withValue } from './lib/reactivity/withValue.js'
 
 export {

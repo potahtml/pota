@@ -1,4 +1,4 @@
-import { mutable } from '../../../lib/reactivity/mutable.js'
+import { signalify } from '../../../lib/reactivity/signalify.js'
 import { syncEffect } from '../../../lib/reactivity/syncEffect.js'
 
 import { ref } from '../../../@main.js'
@@ -85,7 +85,7 @@ customElement(
 			super()
 
 			// make signals from properties
-			mutable(this)
+			signalify(this)
 
 			// set html
 			this.html = this.render()
