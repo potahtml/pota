@@ -10,9 +10,11 @@ TODO:
 	Miscellaneous:
 	- typings
 	- automated tests
+	- rename mutable to signalify, rename mutableDeep to mutable
 
 	Router:
 	- decide what to do with useParams
+
 
 BUGS:
 
@@ -32,6 +34,13 @@ POSSIBLE FEATURES:
 
 	Router:
 	- make the `path` reactive
+
+	mutableDeep:
+	- mutableDeep doesnt track self, so it wont work with arrays, only works with the values
+	- make it work with getters
+
+	Posible pollyfills:
+	- Object.groupBy, Promise.withResolvers, Object.hasOwn
 
 POSSIBLE DE/OPTIMIZATIONS:
 
