@@ -93,14 +93,14 @@ export function map(list, callback, sort) {
 	 * @returns {Children[] | null}
 	 */
 	function mapper(fn) {
-		const items = getValue(list) || []
+		const items = (getValue(list) || []).entries()
 
 		return untrack(() => {
 			runId++
 			rows = []
 			const hasPrev = prev.length
 
-			for (const [index, item] of items.entries()) {
+			for (const [index, item] of items) {
 				let row = hasPrev ? cache.get(item) : undefined
 
 				// if the item doesnt exists, create it
