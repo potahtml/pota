@@ -1,57 +1,36 @@
-import { contextSimple } from '../std/contextSimple.js'
-
-const useContext = contextSimple()
-
 let testTitle = ''
-let describeTitle = ''
 
-export function describe(title, fn) {
-	describeTitle = title
-	fn()
-}
+let skip = false
+export function test(title, fn, skipRest) {
+	if (!skip) {
+		testTitle = title
 
-export function test(title, fn) {
-	testTitle = title
-	console.log(
-		'%c' + describeTitle + ' -> ' + testTitle,
-		'font-weight:bold;color:green',
-	)
-
-	useContext(
-		{ assertionsGot: 0, assertionsExpected: undefined },
-		() => {
-			// test function
+		try {
 			fn()
-
-			const context = useContext()
-
-			if (
-				context.assertionsExpected !== undefined &&
-				context.assertionsExpected !== context.assertionsGot
-			) {
-				error(
-					'expected assertions failed',
-					'expected',
-					context.assertionsExpected,
-					'got',
-					context.assertionsGot,
-				)
-			}
-		},
-	)
+		} catch (e) {
+			error(e)
+		}
+	}
+	skip = skip || skipRest
 }
 
+/**
+ * @param {any} value
+ * @returns {{
+ * 	toBe: (expected: any) => Promise<any>
+ * 	toBeUndefined: () => Promise<any>
+ * 	toJSONEqual: (expected: any) => Promise<any>
+ * 	not: {
+ * 		toBe: (expected: any) => Promise<any>
+ * 		toJSONEqual: (expected: any) => Promise<any>
+ * 	}
+ * }}
+ */
 export function expect(value) {
 	const test = {
-		toBe: (equals, expected) => {
-			pass(expected, value, equals)
-		},
-		toBeUndefined(equals) {
-			pass(undefined, value, equals)
-		},
-		toJSONEqual(equals, expected) {
-			pass(JSON.stringify(expected), JSON.stringify(value), equals)
-		},
+		toBe: (equals, expected) => pass(expected, value, equals),
+		toJSONEqual: (equals, expected) =>
+			pass(JSON.stringify(expected), JSON.stringify(value), equals),
 		not: {},
 	}
 
@@ -64,40 +43,36 @@ export function expect(value) {
 	return test
 }
 
-export const assertions = num => {
-	const context = useContext()
-	context.assertionsExpected = num
-}
-
 function pass(expected, value, equals) {
-	if (
-		(expected !== value && equals) ||
-		(expected === value && !equals)
-	) {
-		error(
-			'expected value was',
-			'`',
-			expected,
-			'`',
-			'got instead',
-			'`',
-			value,
-			'`',
-		)
+	const { promise, resolve, reject } = Promise.withResolvers()
+	if (expected !== value && equals) {
+		error(' expected `', expected, '` got `', value, '`')
+		reject(expected, value)
+	} else if (expected === value && !equals) {
+		error(' expected to be different `', value, '`')
+		reject(expected, value)
 	} else {
-		const context = useContext()
-		context.assertionsGot++
+		resolve(expected, value)
 	}
+
+	// to hide the promise error in case they dont catch it
+	queueMicrotask(() => {
+		promise.catch(() => {})
+	})
+	return promise
 }
 
 function error(...args) {
-	console.error(
-		'\x1b[31m' +
-			describeTitle +
-			' -> ' +
-			testTitle +
-			'\n' +
-			'\x1b[0m',
-		...args,
-	)
+	console.error('\x1b[31m' + testTitle + '\n\x1b[0m', ...args)
 }
+
+Promise.withResolvers ||
+	(Promise.withResolvers = function withResolvers() {
+		var a,
+			b,
+			c = new this(function (resolve, reject) {
+				a = resolve
+				b = reject
+			})
+		return { resolve: a, reject: b, promise: c }
+	})
