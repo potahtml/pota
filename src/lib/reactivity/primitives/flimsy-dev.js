@@ -83,7 +83,7 @@ export const effect = fn => {
  * Batches changes to signals
  *
  * @param {Function} fn
- * @returns {unknown}
+ * @returns {any}
  */
 export const batch = fn => _batch(fn)
 
