@@ -2,10 +2,7 @@ TODO:
 
 	Documentation:
 	- light theme
-	- improve directory
-
-	Playground:
-	- LSP
+	- improve it
 
 	Miscellaneous:
 	- typings
@@ -33,12 +30,11 @@ POSSIBLE FEATURES:
 	Router:
 	- make the `path` reactive
 
-	mutable:
-	- mutable doesnt track self, so it wont work with arrays, only works with the values
-	- make it work with getters
-
 	Posible pollyfills:
 	- Object.groupBy, Promise.withResolvers, Object.hasOwn
+
+	Playground:
+	- LSP
 
 POSSIBLE DE/OPTIMIZATIONS:
 

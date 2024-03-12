@@ -1,4 +1,4 @@
-import { signalify } from '../../../lib/reactivity/signalify.js'
+import { signalify } from '../../../lib/reactivity/store/signalify.js'
 import { syncEffect } from '../../../lib/reactivity/syncEffect.js'
 
 import { ref } from '../../../@main.js'

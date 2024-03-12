@@ -16,11 +16,9 @@ export {
 	untrack,
 } from './lib/reactivity/primitives/solid.js'
 
-export { syncEffect } from './lib/reactivity/syncEffect.js'
-export { writable } from './lib/reactivity/writable.js'
-export { signalify } from './lib/reactivity/signalify.js'
-export { mutable } from './lib/reactivity/mutable.js'
-export { withValue } from './lib/reactivity/withValue.js'
+// store
+export { signalify } from './lib/reactivity/store/signalify.js'
+export { mutable } from './lib/reactivity/store/mutable.js'
 
 export {
 	/**
@@ -33,6 +31,10 @@ export {
 } from './lib/reactivity/functionSignal.js'
 
 export { map } from './lib/reactivity/map.js'
+
+export { syncEffect } from './lib/reactivity/syncEffect.js'
+export { writable } from './lib/reactivity/writable.js'
+export { withValue } from './lib/reactivity/withValue.js'
 
 // COMPONENTS
 
