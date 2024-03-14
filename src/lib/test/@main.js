@@ -1,8 +1,6 @@
 import '../polyfills/withResolvers.js'
 
-let testTitle = ''
-
-let skip = false
+let stop = false
 
 /**
  * Simple test-like function
@@ -12,18 +10,15 @@ let skip = false
  * @param {boolean} [stopTesting] - To stop the tests after this one
  */
 export function test(title, fn, stopTesting) {
-	if (!skip) {
-		testTitle = title
-
-		console.log(testTitle)
-
+	if (!stop) {
+		console.log(title)
 		try {
-			fn()
+			fn(expect.bind(null, title))
 		} catch (e) {
-			error(e)
+			error(title, e)
 		}
 	}
-	skip = skip || stopTesting
+	stop = stop || stopTesting
 }
 
 /**
@@ -39,11 +34,16 @@ export function test(title, fn, stopTesting) {
  * 	}
  * }}
  */
-export function expect(value) {
+export function expect(title, value) {
 	const test = {
-		toBe: (equals, expected) => pass(expected, value, equals),
+		toBe: (equals, expected) => pass(expected, value, equals, title),
 		toJSONEqual: (equals, expected) =>
-			pass(JSON.stringify(expected), JSON.stringify(value), equals),
+			pass(
+				JSON.stringify(expected),
+				JSON.stringify(value),
+				equals,
+				title,
+			),
 		not: {},
 	}
 
@@ -56,16 +56,16 @@ export function expect(value) {
 	return test
 }
 
-function pass(expected, value, equals) {
+function pass(expected, value, equals, title) {
 	const { promise, resolve, reject } = Promise.withResolvers()
 	if (expected !== value && equals) {
-		error(' expected `', expected, '` got `', value, '`')
-		reject(expected, value)
+		error(title, ' expected `', expected, '` got `', value, '`')
+		reject(title, expected, value)
 	} else if (expected === value && !equals) {
-		error(' expected to be different `', value, '`')
-		reject(expected, value)
+		error(title, ' expected to be different `', value, '`')
+		reject(title, expected, value)
 	} else {
-		resolve(expected, value)
+		resolve(title, expected, value)
 	}
 
 	// to hide the promise error in case they dont catch it
@@ -75,6 +75,6 @@ function pass(expected, value, equals) {
 	return promise
 }
 
-function error(...args) {
-	console.error('\x1b[31m' + testTitle + '\n\x1b[0m', ...args)
+function error(title, ...args) {
+	console.error('\x1b[31m' + title + '\n\x1b[0m', ...args)
 }
