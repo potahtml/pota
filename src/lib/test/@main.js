@@ -1,9 +1,21 @@
+import '../polyfills/withResolvers.js'
+
 let testTitle = ''
 
 let skip = false
-export function test(title, fn, skipRest) {
+
+/**
+ * Simple test-like function
+ *
+ * @param {string} title - Test title
+ * @param {Function} fn - Test function
+ * @param {boolean} [stopTesting] - To stop the tests after this one
+ */
+export function test(title, fn, stopTesting) {
 	if (!skip) {
 		testTitle = title
+
+		console.log(testTitle)
 
 		try {
 			fn()
@@ -11,14 +23,15 @@ export function test(title, fn, skipRest) {
 			error(e)
 		}
 	}
-	skip = skip || skipRest
+	skip = skip || stopTesting
 }
 
 /**
+ * Simple expect-like function
+ *
  * @param {any} value
  * @returns {{
  * 	toBe: (expected: any) => Promise<any>
- * 	toBeUndefined: () => Promise<any>
  * 	toJSONEqual: (expected: any) => Promise<any>
  * 	not: {
  * 		toBe: (expected: any) => Promise<any>
@@ -65,14 +78,3 @@ function pass(expected, value, equals) {
 function error(...args) {
 	console.error('\x1b[31m' + testTitle + '\n\x1b[0m', ...args)
 }
-
-Promise.withResolvers ||
-	(Promise.withResolvers = function withResolvers() {
-		var a,
-			b,
-			c = new this(function (resolve, reject) {
-				a = resolve
-				b = reject
-			})
-		return { resolve: a, reject: b, promise: c }
-	})
