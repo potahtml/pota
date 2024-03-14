@@ -183,6 +183,46 @@ test('mutation: object frozen nested', () => {
 	}
 })
 
+test('mutation: object frozen within frozen nested', () => {
+	const source = mutable(
+		Object.freeze({
+			data: Object.freeze({
+				user: { store: { name: 'John', last: 'Snow' } },
+			}),
+		}),
+	)
+
+	let called = 0
+
+	effect(() => {
+		called++
+
+		source.data.user.store.name
+		source.data.user.store.last
+	})
+
+	expect(called).toBe(1)
+
+	expect(source.data.user.store.name).toBe('John')
+	expect(source.data.user.store.last).toBe('Snow')
+
+	source.data.user.store.name = 'quack'
+	expect(called).toBe(2)
+
+	source.data.user.store.last = 'murci'
+	expect(called).toBe(3)
+
+	expect(source.data.user.store.name).toBe('quack')
+	expect(source.data.user.store.last).toBe('murci')
+
+	try {
+		source.data.user = 'something else'
+		expect('frozen value to not be changed').toBe(true)
+	} catch (e) {
+		// this is expected to fail
+	}
+})
+
 test('mutation: array property', () => {
 	const source = [{ cat: 'quack' }]
 	const result = mutable(source)
@@ -667,36 +707,32 @@ test('track: array functions read', () => {
 	expect(called).toBe(4)
 })
 
-test(
-	'track `in`',
-	() => {
-		let access = 0
-		const result = mutable({
-			a: 1,
-			get b() {
-				access++
-				return 2
-			},
-		})
+test('track `in`', () => {
+	let access = 0
+	const result = mutable({
+		a: 1,
+		get b() {
+			access++
+			return 2
+		},
+	})
 
-		let called = 0
-		effect(() => {
-			'a' in result
-			'b' in result
-			called++
-		})
-		expect(called).toBe(1)
+	let called = 0
+	effect(() => {
+		'a' in result
+		'b' in result
+		called++
+	})
+	expect(called).toBe(1)
 
-		delete result.a
-		expect(called).toBe(2)
+	delete result.a
+	expect(called).toBe(2)
 
-		result.a = true
-		expect(called).toBe(3)
+	result.a = true
+	expect(called).toBe(3)
 
-		expect(access).toBe(0)
-	},
-	true,
-)
+	expect(access).toBe(0)
+})
 
 /* classes */
 

@@ -87,6 +87,10 @@ function signalifyKey(
 
 	/** Avoid keys that cannot be redefined */
 	if (!descriptor.configurable) {
+		// to proxy nested configurable objects
+		if ('value' in descriptor) {
+			wrapper(descriptor.value)
+		}
 		return
 	}
 
