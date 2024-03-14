@@ -235,7 +235,10 @@ function testMutable(lib, effect, mutable, memo, batch, signal) {
 
 		try {
 			source.user = 'something else'
-			expect('frozen value to not be changed').toBe(true)
+			// solid by design modifies frozen objects
+			if (lib !== 'solid') {
+				expect('frozen value to not be changed').toBe(true)
+			}
 		} catch (e) {
 			// this is expected to fail
 		}
@@ -273,7 +276,10 @@ function testMutable(lib, effect, mutable, memo, batch, signal) {
 
 		try {
 			source.data.user = 'something else'
-			expect('frozen value to not be changed').toBe(true)
+			// solid by design modifies frozen objects
+			if (lib !== 'solid') {
+				expect('frozen value to not be changed').toBe(true)
+			}
 		} catch (e) {
 			// this is expected to fail
 		}
@@ -315,7 +321,10 @@ function testMutable(lib, effect, mutable, memo, batch, signal) {
 
 			try {
 				source.data.user = 'something else'
-				expect('frozen value to not be changed').toBe(true)
+				// solid by design modifies frozen objects
+				if (lib !== 'solid') {
+					expect('frozen value to not be changed').toBe(true)
+				}
 			} catch (e) {
 				// this is expected to fail
 			}
