@@ -99,9 +99,9 @@ function signalifyKey(
 	const set = descriptor.set?.bind(target)
 
 	/**
-	 * As getters shouldn't be invoked till used, we cannot create a
-	 * signal with a value because we dont know the value. Assume
-	 * `descriptor.value` and then check for getters when read.
+	 * As getters shouldn't be invoked till used, we dont know the
+	 * value. Assume `descriptor.value` and then check for getters once
+	 * read.
 	 */
 
 	let value = wrapper(descriptor.value)
