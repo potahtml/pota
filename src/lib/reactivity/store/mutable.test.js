@@ -1,4 +1,4 @@
-import { test, expect } from '../../test/@main.js'
+import { test } from '../../test/@main.js'
 
 import { mutable } from './mutable.js'
 
@@ -10,37 +10,37 @@ import { batch, effect, memo, signal } from '../primitives/solid.js'
 
 // tests
 
-test('equality: different object', () => {
+test('equality: different object', expect => {
 	const source = { cat: 'quack' }
 	const result = mutable(source)
 	expect(result).not.toBe(source)
 })
 
-test('equality: different object nested', () => {
+test('equality: different object nested', expect => {
 	const source = { cat: 'quack' }
 	const result = mutable({ source })
 	expect(result.source).not.toBe(source)
 })
 
-test('equality: different array', () => {
+test('equality: different array', expect => {
 	const source = []
 	const result = mutable(source)
 	expect(result).not.toBe(source)
 })
 
-test('equality: different array nested', () => {
+test('equality: different array nested', expect => {
 	const source = []
 	const result = mutable({ source })
 	expect(result.source).not.toBe(source)
 })
 
-test('equality: isArray', () => {
+test('equality: isArray', expect => {
 	const source = []
 	const result = mutable(source)
 	expect(Array.isArray(result)).toBe(true)
 })
 
-test('equality: isArray nested', () => {
+test('equality: isArray nested', expect => {
 	const source = { data: [] }
 	const result = mutable(source)
 	expect(Array.isArray(result.data)).toBe(true)
@@ -48,7 +48,7 @@ test('equality: isArray nested', () => {
 
 // value
 
-test('value: object property', () => {
+test('value: object property', expect => {
 	const source = { cat: 'quack' }
 	const result = mutable(source)
 
@@ -56,7 +56,7 @@ test('value: object property', () => {
 	expect(result.cat).toBe('quack')
 })
 
-test('value: array property', () => {
+test('value: array property', expect => {
 	const source = [{ cat: 'quack' }]
 	const obj = mutable(source)
 
@@ -64,13 +64,13 @@ test('value: array property', () => {
 	expect(obj[0].cat).toBe('quack')
 })
 
-test('array: functions', () => {
+test('array: functions', expect => {
 	const list = mutable([0, 1, 2])
 	const filtered = memo(() => list.filter(i => i % 2))
 	expect(filtered()).toJSONEqual([1])
 })
 
-test('array: functions nested', () => {
+test('array: functions nested', expect => {
 	const list = mutable({ data: [0, 1, 2] })
 	const filtered = memo(() => list.data.filter(i => i % 2))
 	expect(filtered()).toJSONEqual([1])
@@ -78,7 +78,7 @@ test('array: functions nested', () => {
 
 // mutation
 
-test('mutation: object property', () => {
+test('mutation: object property', expect => {
 	const source = { cat: 'quack' }
 	const result = mutable(source)
 
@@ -90,7 +90,7 @@ test('mutation: object property', () => {
 	expect(result.cat).toBe('murci')
 })
 
-test('mutation: object nested', () => {
+test('mutation: object nested', expect => {
 	const source = mutable({
 		data: { starting: 1, ending: 1 },
 	})
@@ -107,7 +107,7 @@ test('mutation: object nested', () => {
 	expect(source.data.ending).toBe(2)
 })
 
-test('mutation: object frozen', () => {
+test('mutation: object frozen', expect => {
 	const source = mutable(
 		Object.freeze({
 			user: { name: 'John', last: 'Snow' },
@@ -145,7 +145,7 @@ test('mutation: object frozen', () => {
 	}
 })
 
-test('mutation: object frozen nested', () => {
+test('mutation: object frozen nested', expect => {
 	const source = mutable({
 		data: Object.freeze({
 			user: { name: 'John', last: 'Snow' },
@@ -183,7 +183,7 @@ test('mutation: object frozen nested', () => {
 	}
 })
 
-test('mutation: object frozen within frozen nested', () => {
+test('mutation: object frozen within frozen nested', expect => {
 	const source = mutable(
 		Object.freeze({
 			data: Object.freeze({
@@ -223,7 +223,7 @@ test('mutation: object frozen within frozen nested', () => {
 	}
 })
 
-test('mutation: array property', () => {
+test('mutation: array property', expect => {
 	const source = [{ cat: 'quack' }]
 	const result = mutable(source)
 
@@ -235,7 +235,7 @@ test('mutation: array property', () => {
 	expect(result[0].cat).toBe('murci')
 })
 
-test('mutation: array todos', () => {
+test('mutation: array todos', expect => {
 	const todos = mutable([
 		{ id: 1, title: 'quack', done: true },
 		{ id: 2, title: 'murci', done: false },
@@ -256,7 +256,7 @@ test('mutation: array todos', () => {
 	expect(todos[2].title).toBe('mishu')
 })
 
-test('mutation: array batch', () => {
+test('mutation: array batch', expect => {
 	const result = mutable([1, 2, 3])
 	batch(() => {
 		expect(result.length).toBe(3)
@@ -275,7 +275,7 @@ test('mutation: array batch', () => {
 	expect(result).toJSONEqual([2, 1, 3])
 })
 
-test('mutation: function', () => {
+test('mutation: function', expect => {
 	const result = mutable({
 		fn: () => 1,
 	})
@@ -289,7 +289,7 @@ test('mutation: function', () => {
 
 // getters
 
-test('getters: object', () => {
+test('getters: object', expect => {
 	const result = mutable({
 		cat: 'quack',
 		get greeting() {
@@ -302,7 +302,7 @@ test('getters: object', () => {
 	expect(result.greeting).toBe('hi, murci')
 })
 
-test('getters: array', () => {
+test('getters: array', expect => {
 	const result = mutable([
 		{
 			cat: 'quack',
@@ -317,7 +317,7 @@ test('getters: array', () => {
 	expect(result[0].greeting).toBe('hi, mishu')
 })
 
-test('getter/setters: class', () => {
+test('getter/setters: class', expect => {
 	class Cat {
 		#name = 'quack'
 		get name() {
@@ -337,7 +337,7 @@ test('getter/setters: class', () => {
 	expect(result.greeting).toBe('hi, mishu')
 })
 
-test('getter/setters: class in array', () => {
+test('getter/setters: class in array', expect => {
 	class Cat {
 		#name = 'quack'
 		get name() {
@@ -357,7 +357,7 @@ test('getter/setters: class in array', () => {
 	expect(result[0].greeting).toBe('hi, mishu')
 })
 
-test('getter/setters: object', () => {
+test('getter/setters: object', expect => {
 	const result = mutable({
 		name: 'John',
 		last: 'Smith',
@@ -392,7 +392,7 @@ test('getter/setters: object', () => {
 
 // deleting
 
-test('deleting: undefined object property', () => {
+test('deleting: undefined object property', expect => {
 	const result = mutable({
 		name: 'quack',
 	})
@@ -406,7 +406,7 @@ test('deleting: undefined object property', () => {
 	expect(result.last).toBe(undefined)
 })
 
-test('deleting: defined object property', () => {
+test('deleting: defined object property', expect => {
 	const source = { name: 'quack', last: 'murci' }
 	const result = mutable(source)
 
@@ -433,14 +433,14 @@ test('deleting: defined object property', () => {
 
 /* misc */
 
-test('misc: skipped', () => {
+test('misc: skipped', expect => {
 	const source = new Date()
 	const result = mutable(source)
 
 	expect(result).toBe(source)
 })
 
-test('misc: skipped nested', () => {
+test('misc: skipped nested', expect => {
 	const source = new Date()
 	const result = mutable({ time: source })
 
@@ -449,7 +449,7 @@ test('misc: skipped nested', () => {
 
 /* in */
 
-test('in: getters to not be called', () => {
+test('in: getters to not be called', expect => {
 	let access = 0
 	const result = mutable({
 		a: 1,
@@ -495,7 +495,7 @@ test('in: getters to not be called', () => {
 
 /* tracking */
 
-test('track: value', () => {
+test('track: value', expect => {
 	const source = { name: 'quack' }
 	const result = mutable(source)
 
@@ -526,7 +526,7 @@ test('track: value', () => {
 	expect(result.name).toBe('mishu')
 })
 
-test('track: value nested', () => {
+test('track: value nested', expect => {
 	const source = { data: { name: 'quack' } }
 	const result = mutable(source)
 
@@ -556,7 +556,7 @@ test('track: value nested', () => {
 	expect(result.data.name).toBe('mishu')
 })
 
-test('track: undefined value', () => {
+test('track: undefined value', expect => {
 	const source = {}
 	const result = mutable(source)
 
@@ -588,7 +588,7 @@ test('track: undefined value', () => {
 	expect(called).toBe(4)
 })
 
-test('track: undefined value nested', () => {
+test('track: undefined value nested', expect => {
 	const source = {}
 	const result = mutable(source)
 
@@ -606,7 +606,7 @@ test('track: undefined value nested', () => {
 	expect(result.data.name).toBe('murci')
 })
 
-test('track: state from signal', () => {
+test('track: state from signal', expect => {
 	const [read, write] = signal('init')
 	const result = mutable({ data: '' })
 
@@ -625,7 +625,7 @@ test('track: state from signal', () => {
 	expect(result.data).toBe('signal')
 })
 
-test('track: array functions', () => {
+test('track: array functions', expect => {
 	const result = mutable([{ username: 'lala' }])
 
 	let called = 0
@@ -662,7 +662,7 @@ test('track: array functions', () => {
 	expect(called).toBe(7)
 })
 
-test('track: array functions read vs write', () => {
+test('track: array functions read vs write', expect => {
 	const result = mutable([1])
 
 	let called = 0
@@ -685,7 +685,7 @@ test('track: array functions read vs write', () => {
 	expect(called).toBe(2)
 })
 
-test('track: array functions read', () => {
+test('track: array functions read', expect => {
 	const result = mutable([1])
 
 	let called = 0
@@ -707,7 +707,7 @@ test('track: array functions read', () => {
 	expect(called).toBe(4)
 })
 
-test('track `in`', () => {
+test('track `in`', expect => {
 	let access = 0
 	const result = mutable({
 		a: 1,
@@ -736,7 +736,7 @@ test('track `in`', () => {
 
 /* classes */
 
-test('read and set class', () => {
+test('read and set class', expect => {
 	class D {
 		f = 1
 		get e() {
