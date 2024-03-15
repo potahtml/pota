@@ -122,20 +122,25 @@ function signalifyKey(
 			value = wrapper(get ? get() : value)
 			return track.read(key, value)
 		},
-		set(val) {
-			batch(() => {
-				/**
-				 * For some reason I cannot explain, it breaks if we do:
-				 *
-				 * ```js
-				 * value = wrapper(value)
-				 * ```
-				 */
-				value = wrapper(val)
-				set && set(value)
-				track.write(key, value)
-			})
-		},
+
+		set:
+			/** When it's only a getter it shouldnt have a setter */
+			get && !set
+				? undefined
+				: val => {
+						batch(() => {
+							/**
+							 * For some reason I cannot explain, it breaks if we do:
+							 *
+							 * ```js
+							 * value = wrapper(value)
+							 * ```
+							 */
+							value = wrapper(val)
+							set && set(value)
+							track.write(key, value)
+						})
+					},
 	})
 }
 
