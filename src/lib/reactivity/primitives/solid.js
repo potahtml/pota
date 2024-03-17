@@ -76,7 +76,7 @@ export const renderEffect = fn => {
  * @param {Function} fn
  */
 export const effect = fn => {
-	createEffect(fn)
+	createEffect(() => _batch(fn))
 }
 
 /**
