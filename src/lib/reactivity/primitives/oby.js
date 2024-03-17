@@ -81,7 +81,7 @@ export const effect = fn => {
  * @param {Function} fn
  * @returns {any}
  */
-export const batch = fn => _batch(fn)
+export const batch = fn => fn()
 
 /**
  * Runs a callback on cleanup, returns callback
