@@ -1,13 +1,14 @@
 /** Signatures are added via JSDoc. */
 
+type Elements = HTMLElement | Element | Node | EventTarget
+
 // general
 
 type Signal = Function
-type Elements = HTMLElement | Element | Node | EventTarget
-type Handler =
-  | Function
-  | VoidFunction
-  | [VoidFunction | Function, ...any]
+type SignalOptions = { equals?: false | ((a, b) => boolean) }
+type SignalSetter = (
+  value?: any | ((prevValue?: any) => any),
+) => unknown
 
 // props
 
@@ -36,6 +37,8 @@ type Componenteable =
   | object
   | FunctionConstructor
   | Component
+
+// objects
 
 type GenericObject<T> = {
   [K in keyof T]: T[K]

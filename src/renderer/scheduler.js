@@ -17,11 +17,7 @@ let added
 /** @type [][] */
 let queue
 
-/**
- * @type Function[]
- *
- *   | VoidFunction[]
- */
+/** @type Function[] */
 const finally_ = []
 
 /** Resets the Scheduler */
@@ -36,9 +32,9 @@ reset()
 /**
  * Queues a callback at a priority
  *
- * @param {number} priority - Priority
- * @param {Handler} fn - Function to run once the callbacks at this
- *   priority run
+ * @param {PropertyKey} priority - Priority
+ * @param {Function | Function[]} fn - Function to run once the
+ *   callbacks at this priority run
  */
 function add(priority, fn) {
 	enqueue()
@@ -70,14 +66,14 @@ function run() {
 /**
  * Queue a function to run onMount (before ready)
  *
- * @param {Handler} fn
+ * @param {Function | Function[]} fn
  */
 export const onMount = fn => add(0, fn)
 
 /**
  * Queue a function to run ready (after onMount)
  *
- * @param {Function} fn
+ * @param {Function | Function[]} fn
  * @url https://pota.quack.uy/ready
  */
 export const ready = fn => add(1, fn)
@@ -85,7 +81,7 @@ export const ready = fn => add(1, fn)
 /**
  * Queue a function to run after all user defined processes
  *
- * @param {Handler} fn
+ * @param {Function | Function[]} fn
  */
 export const onDone = fn => add(2, fn)
 

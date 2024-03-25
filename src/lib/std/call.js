@@ -3,7 +3,7 @@ import { isArray } from './isArray.js'
 /**
  * Runs arrays of functions with arguments
  *
- * @param {Handler} fn
+ * @param {Function | Function[]} fn
  * @param {...any} args? - Arguments to pass to the functions
  */
 export const call = (fn, ...args) =>

@@ -19,12 +19,10 @@ import {
 /**
  * Creates a signal
  *
- * @param {unknown} [initialValue] - Initial value of the signal
- * @param {unknown} [options] - Signal options
- * @returns {[
- * 	Signal,
- * 	Function | ((currentValue: unknown) => unknown),
- * ]}
+ * @param {any} [initialValue] - Initial value of the signal
+ * @param {SignalOptions} [options] - Signal options
+ * @returns {[Signal, SignalSetter]}
+ *
  *   - Read/write tuple
  */
 export const signal = (initialValue, options) => {
@@ -45,7 +43,7 @@ const memo = fn => markReactive(_memo(fn))
  * Creates a new root
  *
  * @param {(dispose: Function) => any} fn
- * @returns {unknown}
+ * @returns {any}
  */
 export const root = fn => _root(dispose => fn(dispose))
 
@@ -101,7 +99,7 @@ export const untrack = fn => _untrack(fn)
 /**
  * Creates a context and returns a function to get or set the value
  *
- * @param {unknown} [defaultValue] - Default value for the context
+ * @param {any} [defaultValue] - Default value for the context
  * @returns {typeof Context} Context
  */
 export function Context(defaultValue = undefined) {
@@ -113,12 +111,12 @@ export function Context(defaultValue = undefined) {
 	 */
 	/**
 	 * @overload Runs `fn` with a new value as context
-	 * @param {unknown} newValue - New value for the context
+	 * @param {any} newValue - New value for the context
 	 * @param {Function} fn - Callback to run with the new context value
 	 * @returns {Children} Children
 	 */
 	/**
-	 * @param {unknown | undefined} newValue
+	 * @param {any | undefined} newValue
 	 * @param {Function | undefined} fn
 	 */
 	function Context(newValue, fn) {

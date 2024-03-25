@@ -26,12 +26,10 @@ import {
 /**
  * Creates a signal
  *
- * @param {unknown} [initialValue] - Initial value of the signal
- * @param {unknown} [options] - Signal options
- * @returns {[
- * 	Signal,
- * 	Function | ((currentValue: unknown) => unknown),
- * ]}
+ * @param {any} [initialValue] - Initial value of the signal
+ * @param {SignalOptions} [options] - Signal options
+ * @returns {[Signal, SignalSetter]}
+ *
  *   - Read/write tuple
  */
 export const signal = (initialValue, options) => {
@@ -45,10 +43,7 @@ export const signal = (initialValue, options) => {
  * automatically updates
  *
  * @param {Function} fn - Function to re-run when dependencies change
- * @param {{
- * 	equals?: false | ((prev: unknown, next: unknown) => boolean)
- * }} [options]
- *
+ * @param {SignalOptions} [options]
  * @returns {Signal} - Read only signal
  */
 const memo = (fn, options) => markReactive(createMemo(fn, options))
@@ -110,7 +105,7 @@ export const untrack = fn => _untrack(fn)
 /**
  * Creates a context and returns a function to get or set the value
  *
- * @param {unknown} [defaultValue] - Default value for the context
+ * @param {any} [defaultValue] - Default value for the context
  * @returns {typeof Context} Context
  */
 export function Context(defaultValue = undefined) {
@@ -123,12 +118,12 @@ export function Context(defaultValue = undefined) {
 	 */
 	/**
 	 * @overload Runs `fn` with a new value as context
-	 * @param {unknown} newValue - New value for the context
+	 * @param {any} newValue - New value for the context
 	 * @param {Function} fn - Callback to run with the new context value
 	 * @returns {Children} Children
 	 */
 	/**
-	 * @param {unknown | undefined} newValue
+	 * @param {any} newValue
 	 * @param {Function | undefined} fn
 	 */
 	function Context(newValue, fn) {
@@ -159,10 +154,7 @@ export function Context(defaultValue = undefined) {
  *
  * @author Fabio Spampinato
  * @param {Function} fn - Function to re-run when dependencies change
- * @param {{
- * 	equals?: false | ((prev: unknown, next: unknown) => boolean)
- * }} [options]
- *
+ * @param {SignalOptions} [options]
  * @returns {Signal}
  */
 function lazyMemo(fn, options) {
