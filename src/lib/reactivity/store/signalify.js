@@ -1,17 +1,22 @@
-import { defineProperty } from '../../std/defineProperty.js'
-import { entries } from '../../std/entries.js'
+import {
+	defineProperty,
+	redefineProperty,
+} from '../../std/defineProperty.js'
+import { entriesIncludingSymbols } from '../../std/entriesIncludingSymbols.js'
 import { getOwnAndPrototypePropertyDescriptors } from '../../std/getOwnAndPrototypePropertyDescriptors.js'
 import { isExtensible } from '../../std/isExtensible.js'
 import { isFunction } from '../../std/isFunction.js'
+
 import { batch } from '../primitives/solid.js'
 
-import { tracker } from './tracker.js'
+import { tracker, trackerValueSignal } from './tracker.js'
+import { isKeyBlacklisted } from './blacklist.js'
 
 /**
  * Transforms in place properties of an object into signals via
  * get/set. Is not recursive. Works with getters/setters inherited
  * from the immediate prototype. It only affects own properties
- * (unless inherited directly from its prototype), doesn't affect
+ * (unless inherited directly from its prototype), doesn't track
  * functions.
  *
  * @template T
@@ -36,7 +41,9 @@ export function signalifyObject(target, wrapper) {
 	const descriptors = getOwnAndPrototypePropertyDescriptors(target)
 	const track = tracker(target)
 
-	for (const [key, descriptor] of entries(descriptors)) {
+	for (const [key, descriptor] of entriesIncludingSymbols(
+		descriptors,
+	)) {
 		signalifyKey(target, key, descriptor, wrapper, track)
 	}
 }
@@ -76,7 +83,7 @@ function signalifyKey(
 	wrapper = value => value,
 	track,
 ) {
-	if (key === 'constructor') {
+	if (isKeyBlacklisted(key)) {
 		return
 	}
 
@@ -87,7 +94,7 @@ function signalifyKey(
 
 	/** Avoid keys that cannot be redefined */
 	if (!descriptor.configurable) {
-		// to proxy nested configurable objects
+		/** Proxy nested configurable objects */
 		if ('value' in descriptor) {
 			wrapper(descriptor.value)
 		}
@@ -99,9 +106,6 @@ function signalifyKey(
 		return
 	}
 
-	const get = descriptor.get?.bind(target)
-	const set = descriptor.set?.bind(target)
-
 	/**
 	 * As getters shouldn't be invoked till used, we dont know the
 	 * value. Assume `descriptor.value` and then check for getters once
@@ -110,37 +114,38 @@ function signalifyKey(
 
 	let value = wrapper(descriptor.value)
 
-	track = track || tracker(target)
+	// tracker
+	const [read, write] = trackerValueSignal(target, track, key)
+
+	const getter = descriptor.get?.bind(target)
+	const setter = descriptor.set?.bind(target)
 
 	defineProperty(target, key, {
 		get() {
 			/**
-			 * We cannot know if the getter will return the same thing that
-			 * has been set. We need to ensure the return value is always
-			 * wrapped (for in case of being used as a mutable).
+			 * 1. We cannot know if the getter will return the same thing that
+			 *    has been set. For this reason we cant rely on the return
+			 *    value of the signal.
+			 * 2. We need to ensure the return value is always wrapped (for in
+			 *    case of being used as a mutable).
 			 */
-			value = wrapper(get ? get() : value)
-			return track.read(key, value)
+			value = wrapper(getter ? getter() : value)
+			return read(value)
 		},
 
 		set:
-			/** When it's only a getter it shouldnt have a setter */
-			get && !set
+			/** When it's only a getter it shouldn't have a setter */
+			getter && !setter
 				? undefined
 				: val => {
 						batch(() => {
-							/**
-							 * For some reason I cannot explain, it breaks if we do:
-							 *
-							 * ```js
-							 * value = wrapper(value)
-							 * ```
-							 */
 							value = wrapper(val)
-							set && set(value)
-							track.write(key, value)
+							setter && setter(value)
+							write(value)
 						})
 					},
+		enumerable: descriptor.enumerable,
+		configurable: true,
 	})
 }
 
@@ -152,36 +157,30 @@ function signalifyKey(
  * @param {PropertyKey} key
  * @param {Function} [wrapper] To wrap values
  * @param {any} [track] Tracker
+ * @param {any} [value] Default value
  */
 export function signalifyUndefinedKey(
 	target,
 	key,
 	wrapper = value => value,
 	track,
+	value = undefined,
 ) {
-	if (key === 'constructor') {
+	if (isKeyBlacklisted(key)) {
 		return
 	}
 
 	if (isExtensible(target)) {
-		track = track || tracker(target)
+		const [read, write] = trackerValueSignal(target, track, key)
 
-		let value = undefined
-		defineProperty(target, key, {
+		redefineProperty(target, key, {
 			get() {
-				return track.read(key, value)
+				return read(value)
 			},
 			set(val) {
 				batch(() => {
-					/**
-					 * For some reason I cannot explain, it breaks if we do:
-					 *
-					 * ```js
-					 * value = wrapper(value)
-					 * ```
-					 */
 					value = wrapper(val)
-					track.write(key, value)
+					write(value)
 				})
 			},
 		})

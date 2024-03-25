@@ -1,3 +1,4 @@
+import { Object } from './Object.js'
 import { assign } from './assign.js'
 import { create } from './create.js'
 

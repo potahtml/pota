@@ -1,3 +1,5 @@
+import { Symbol } from '../../std/Symbol.js'
+
 import { markReactive } from '../@main.js'
 
 // abstracts maverick reactivity

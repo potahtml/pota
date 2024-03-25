@@ -382,7 +382,7 @@ function createChildren(parent, child, relative) {
 			// object.toString fancy objects
 			return createChildren(
 				parent,
-				// object.create(null) would fail to convert to string
+				// Object.create(null) would fail to convert to string
 				'toString' in child ? child.toString() : stringify(child),
 				relative,
 			)
@@ -603,13 +603,13 @@ function unwrap(children) {
 /**
  * Creates a context and returns a function to get or set the value
  *
- * @param {unknown} [defaultValue] - Default value for the context
+ * @param {any} [defaultValue] - Default value for the context
  * @returns {Function & { Provider: ({ value }) => Elements }}
  *   Context
  * @url https://pota.quack.uy/Reactivity/Context
  */
 export function context(defaultValue = undefined) {
-	/** @type {any} */
+	/** @type {Function & { Provider: ({ value }) => Elements }} */
 	const ctx = Context(defaultValue)
 
 	/**

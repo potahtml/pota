@@ -1,3 +1,5 @@
+import { Object } from './Object.js'
+
 /**
  * Returns an object without a prototype
  *

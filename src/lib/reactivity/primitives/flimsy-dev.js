@@ -110,9 +110,6 @@ export const untrack = fn => _untrack(fn)
  * @returns {typeof Context} Context
  */
 export function Context(defaultValue = undefined) {
-	// const id = Symbol()
-	// const context = { id, defaultValue }
-
 	const context = createContext(defaultValue)
 
 	/**

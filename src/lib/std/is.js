@@ -1,3 +1,3 @@
 import { Object } from './Object.js'
 
-export const create = Object.create
+export const is = Object.is
