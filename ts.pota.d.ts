@@ -45,3 +45,14 @@ type GenericObject<T> = {
 }
 
 type Generic<T> = T
+
+// tests
+
+type Expect = {
+  toBe: (expected: any) => Promise<any>
+  toHaveShape: (expected: any) => Promise<any>
+  not: {
+    toBe: (expected: any) => Promise<any>
+    toHaveShape: (expected: any) => Promise<any>
+  }
+}

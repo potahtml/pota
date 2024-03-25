@@ -1,48 +1,47 @@
 import '../polyfills/withResolvers.js'
+import { microtask } from '../std/microtask.js'
+import { stringify } from '../std/stringify.js'
 
-let stop = false
+let stop = undefined
+let num = 1
 
 /**
  * Simple test-like function
  *
  * @param {string} title - Test title
- * @param {Function} fn - Test function
+ * @param {(expect: import('./@main.js').expect) => void} fn - Test
+ *   function
  * @param {boolean} [stopTesting] - To stop the tests after this one
  */
 export function test(title, fn, stopTesting) {
 	if (!stop) {
-		console.log(title)
+		stop = stop || stopTesting
+
+		console.log(num++ + ' - ' + title)
 		try {
-			fn(expect.bind(null, title))
+			fn(expect.bind(null, title, { value: 1 }))
 		} catch (e) {
 			error(title, e)
 		}
 	}
-	stop = stop || stopTesting
 }
 
 /**
  * Simple expect-like function
  *
  * @param {any} value
- * @returns {{
- * 	toBe: (expected: any) => Promise<any>
- * 	toJSONEqual: (expected: any) => Promise<any>
- * 	not: {
- * 		toBe: (expected: any) => Promise<any>
- * 		toJSONEqual: (expected: any) => Promise<any>
- * 	}
- * }}
+ * @returns {Expect}
  */
-export function expect(title, value) {
+export function expect(title, num, value) {
 	const test = {
-		toBe: (equals, expected) => pass(expected, value, equals, title),
-		toJSONEqual: (equals, expected) =>
+		toBe: (equals, expected) =>
+			pass(expected, value, equals, title + ' (' + num.value++ + ')'),
+		toHaveShape: (equals, expected) =>
 			pass(
-				JSON.stringify(expected),
-				JSON.stringify(value),
+				stringify(expected),
+				stringify(value),
 				equals,
-				title,
+				title + ' (' + num.value++ + ')',
 			),
 		not: {},
 	}
@@ -69,7 +68,7 @@ function pass(expected, value, equals, title) {
 	}
 
 	// to hide the promise error in case they dont catch it
-	queueMicrotask(() => {
+	microtask(() => {
 		promise.catch(() => {})
 	})
 	return promise
@@ -78,3 +77,23 @@ function pass(expected, value, equals, title) {
 function error(title, ...args) {
 	console.error('\x1b[31m' + title + '\n\x1b[0m', ...args)
 }
+
+// isProxy
+
+const proxies = new WeakSet()
+
+globalThis.Proxy = new Proxy(Proxy, {
+	construct(target, args) {
+		const proxy = new target(...args)
+		proxies.add(proxy)
+		return proxy
+	},
+})
+
+/**
+ * Returns true if value is a proxy. This is defined for debugging
+ * purposes.
+ *
+ * @param {any} value
+ */
+export const isProxy = value => proxies.has(value)
