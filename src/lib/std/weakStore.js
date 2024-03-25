@@ -3,7 +3,10 @@
  *
  * @returns {{
  * 	store: WeakMap<WeakKey, any>
- * 	get: (reference: WeakKey, createIfNotExistsAs?: () => any) => any
+ * 	get: (
+ * 		reference: WeakKey,
+ * 		createIfNotExistsAs?: (target: any) => any,
+ * 	) => any
  * 	set: (key: WeakKey, value: any) => void
  * 	has: Function
  * }}
@@ -16,16 +19,16 @@ export function weakStore() {
 	const has = store.has.bind(store)
 	return {
 		store,
-		get: (obj, defaults = undefined) => {
-			const o = get(obj)
-			if (o) return o
+		get: (target, defaults = undefined) => {
+			const o = get(target)
+			if (o !== undefined) return o
 			if (defaults !== undefined) {
 				/**
 				 * Default values should be passed as a function, so we dont
 				 * constantly initialize values when giving them
 				 */
-				defaults = defaults()
-				set(obj, defaults)
+				defaults = defaults(target)
+				set(target, defaults)
 				return defaults
 			}
 		},
