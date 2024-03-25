@@ -5,7 +5,7 @@ import { withValue } from '../../lib/reactivity/withValue.js'
 import {
 	entries,
 	getValue,
-	isNotNullObject,
+	isObject,
 } from '../../lib/std/@main.js'
 
 /**
@@ -33,7 +33,7 @@ export const setClassNS = (
 	localName,
 	ns,
 ) =>
-	isNotNullObject(value)
+	isObject(value)
 		? setClassList(node.classList, value)
 		: setClassListValue(node.classList, localName, value)
 

@@ -1,4 +1,4 @@
-import { isArray, isFunction, isNotNullObject } from '../std/@main.js'
+import { isArray, isFunction, isObject } from '../std/@main.js'
 import { isReactive } from '../reactivity/isReactive.js'
 
 /**
@@ -11,4 +11,4 @@ export const isComponentable = value =>
 	!isReactive(value) &&
 	(isFunction(value) ||
 		// avoid [1,2] and support { toString(){ return "something"} }
-		(!isArray(value) && isNotNullObject(value) && !value.then))
+		(!isArray(value) && isObject(value) && !value.then))

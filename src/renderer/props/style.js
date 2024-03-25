@@ -6,7 +6,7 @@ import { withValue } from '../../lib/reactivity/withValue.js'
 import {
 	entries,
 	getValue,
-	isNotNullObject,
+	isObject,
 	isNullUndefined,
 } from '../../lib/std/@main.js'
 
@@ -31,7 +31,7 @@ export const setStyle = (node, name, value, props) =>
 export const setStyleNS = (node, name, value, props, localName, ns) =>
 	setNodeStyle(
 		node.style,
-		isNotNullObject(value) ? value : { [localName]: value },
+		isObject(value) ? value : { [localName]: value },
 	)
 
 /**
@@ -50,7 +50,7 @@ export const setVarNS = (node, name, value, props, localName, ns) =>
  * @param {unknown} value
  */
 function setNodeStyle(style, value) {
-	if (isNotNullObject(value)) {
+	if (isObject(value)) {
 		for (const [name, _value] of entries(value))
 			setStyleValue(style, name, _value)
 		return

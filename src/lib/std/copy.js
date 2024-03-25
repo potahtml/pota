@@ -1,3 +1,3 @@
-import { isNotNullObject } from './isNotNullObject.js'
+import { isObject } from './isObject.js'
 
-export const copy = o => (isNotNullObject(o) ? structuredClone(o) : o)
+export const copy = o => (isObject(o) ? structuredClone(o) : o)

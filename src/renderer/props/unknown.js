@@ -3,7 +3,7 @@
 import { withValue } from '../../lib/reactivity/withValue.js'
 import { _setProperty } from './property.js'
 import { _setAttribute } from './attribute.js'
-import { isNotNullObject } from '../../lib/std/isNotNullObject.js'
+import { isObject } from '../../lib/std/isObject.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
 
 /**
@@ -22,7 +22,7 @@ export const setUnknownProp = (node, name, value, ns) =>
  * @param {string} [ns]
  */
 const _setUnknownProp = (node, name, value, ns) => {
-	if (isNotNullObject(value)) {
+	if (isObject(value)) {
 		// when not null object
 		_setProperty(node, name, value)
 	} else if (typeof value === 'boolean' && !name.includes('-')) {
