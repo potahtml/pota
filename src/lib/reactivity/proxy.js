@@ -1,4 +1,4 @@
-import { empty, keys, proxyTrapDefaults } from '../std/@main.js'
+import { empty, keys } from '../std/@main.js'
 
 /**
  * Proxies a signals property access so you dont have to call the
@@ -19,5 +19,7 @@ export const proxy = (signal, target = empty()) =>
 		ownKeys(target) {
 			return keys(signal())
 		},
-		...proxyTrapDefaults,
+		getOwnPropertyDescriptor(target, key) {
+			return { enumerable: true, configurable: true }
+		},
 	})
