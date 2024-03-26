@@ -16,14 +16,18 @@ let num = 1
 export function test(title, fn, stopTesting) {
 	if (!stop) {
 		stop = stop || stopTesting
-
-		console.log(num++ + ' - ' + title)
+		title = num++ + ' - ' + title
+		console.log(title)
 		try {
 			fn(expect.bind(null, title, { value: 1 }))
 		} catch (e) {
 			error(title, e)
 		}
 	}
+}
+
+test.resetCounter = () => {
+	num = 1
 }
 
 /**
