@@ -14,10 +14,8 @@ import { isKeyBlacklisted } from './blacklist.js'
 
 /**
  * Transforms in place properties of an object into signals via
- * get/set. Is not recursive. Works with getters/setters inherited
- * from the immediate prototype. It only affects own properties
- * (unless inherited directly from its prototype), doesn't track
- * functions.
+ * get/set. Is not recursive. Works with inherited getters/setters. It
+ * doesn't track functions.
  *
  * @template T
  * @param {GenericObject<T>} target
