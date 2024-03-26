@@ -1,6 +1,6 @@
 import { weakStore } from './weakStore.js'
 
-const { get, set } = weakStore()
+const [get, set] = weakStore()
 
 /**
  * Gets or sets a property for an object stored on a WeakMap

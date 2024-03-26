@@ -135,7 +135,7 @@ export const htmlEffect = (
 	const html_ = HTML(options)
 	html_.components = html.components
 
-	const { get, set } = weakStore()
+	const [get, set] = weakStore()
 
 	const disposeHTMLEffect = []
 

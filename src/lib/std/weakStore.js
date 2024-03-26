@@ -1,25 +1,23 @@
 /**
  * Creates a WeakMap to store data
  *
- * @returns {{
- * 	store: WeakMap<WeakKey, any>
- * 	get: (
+ * @returns {[
+ * 	(
  * 		reference: WeakKey,
  * 		createIfNotExistsAs?: (target: any) => any,
- * 	) => any
- * 	set: (key: WeakKey, value: any) => void
- * 	has: Function
- * }}
+ * 	) => any,
+ * 	(key: WeakKey, value: any) => void,
+ * 	Function,
+ * 	WeakMap<WeakKey, any>,
+ * ]}
  */
 
 export function weakStore() {
 	const store = new WeakMap()
 	const set = store.set.bind(store)
 	const get = store.get.bind(store)
-	const has = store.has.bind(store)
-	return {
-		store,
-		get: (target, defaults = undefined) => {
+	return [
+		(target, defaults = undefined) => {
 			const o = get(target)
 			if (o !== undefined) return o
 			if (defaults !== undefined) {
@@ -33,6 +31,7 @@ export function weakStore() {
 			}
 		},
 		set,
-		has,
-	}
+		store.has.bind(store),
+		store,
+	]
 }

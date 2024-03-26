@@ -1,7 +1,7 @@
 import { empty } from '../std/empty.js'
 import { weakStore } from '../std/weakStore.js'
 
-const { get, set } = weakStore()
+const [get, set] = weakStore()
 
 /**
  * Waits for an event to be dispatched and runs a callback

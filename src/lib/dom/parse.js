@@ -4,7 +4,7 @@ import { createElement } from './elements.js'
 export const id = 'pota'
 export const tag = `<pota></pota>`
 
-const { get, set } = weakStore()
+const [get, set] = weakStore()
 
 export function parse(content) {
 	let cached = get(content)

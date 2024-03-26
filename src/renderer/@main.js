@@ -465,7 +465,7 @@ function insertNode(parent, node, relative) {
 
 // nodes cleanup
 
-const { get: nodeCleanupStore } = weakStore()
+const [nodeCleanupStore] = weakStore()
 /**
  * Adds an element for cleanup
  *
