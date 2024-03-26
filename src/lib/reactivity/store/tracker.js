@@ -79,10 +79,9 @@ export class Track {
 	#props = empty()
 
 	// #id = Math.random() // debug
-
 	/**
 	 * @param {Object} value
-	 * @param {boolean} isNew
+	 * @param {boolean} [isNew]
 	 */
 	constructor(value, isNew) {
 		if (!isNew) {
