@@ -1,6 +1,9 @@
 import '../polyfills/withResolvers.js'
+import { measure } from '../std/measure.js'
 import { microtask } from '../std/microtask.js'
 import { stringify } from '../std/stringify.js'
+
+export { measure }
 
 let stop = undefined
 let num = 1

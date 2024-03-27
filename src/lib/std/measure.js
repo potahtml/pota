@@ -1,5 +1,6 @@
-export function measure(fn) {
-	const start = performance.now()
-	fn()
-	return performance.now() - start
+export function measure(name, cb) {
+	console.time(name)
+	const r = cb()
+	console.timeEnd(name)
+	return r
 }
