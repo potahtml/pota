@@ -34,7 +34,7 @@ import $, {
  */
 export const signal = (initialValue, options) => {
 	const s = $(initialValue, options)
-	return [markReactive(() => s()), s]
+	return [markReactive(() => s()), value => s(value)]
 }
 
 /**
