@@ -4,6 +4,7 @@ import {
 } from '../../std/defineProperty.js'
 import { entriesIncludingSymbols } from '../../std/entriesIncludingSymbols.js'
 import { getOwnAndPrototypePropertyDescriptors } from '../../std/getOwnAndPrototypePropertyDescriptors.js'
+import { identity } from '../../std/identity.js'
 import { isExtensible } from '../../std/isExtensible.js'
 import { isFunction } from '../../std/isFunction.js'
 
@@ -78,7 +79,7 @@ function signalifyKey(
 	target,
 	key,
 	descriptor,
-	wrapper = value => value,
+	wrapper = identity,
 	track,
 ) {
 	if (isKeyBlacklisted(key)) {
@@ -99,8 +100,16 @@ function signalifyKey(
 		return
 	}
 
-	/** Avoid functions */
-	if ('value' in descriptor && isFunction(descriptor.value)) {
+	/**
+	 * Avoid functions when using `signalify` as it's meant to be used
+	 * in classes. But do not avoid functions when it has a `wrapper`,
+	 * like `mutable`.
+	 */
+	if (
+		wrapper === identity &&
+		'value' in descriptor &&
+		isFunction(descriptor.value)
+	) {
 		return
 	}
 
@@ -160,7 +169,7 @@ function signalifyKey(
 export function signalifyUndefinedKey(
 	target,
 	key,
-	wrapper = value => value,
+	wrapper = identity,
 	track,
 	value = undefined,
 ) {
