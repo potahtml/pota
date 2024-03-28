@@ -27,8 +27,8 @@ export {
 	 * @param {any} [value] - Optional initial value
 	 * @returns {Signal}
 	 */
-	functionSignal as ref,
-} from './lib/reactivity/functionSignal.js'
+	signalFunction as ref,
+} from './lib/reactivity/signalFunction.js'
 
 export { map } from './lib/reactivity/map.js'
 

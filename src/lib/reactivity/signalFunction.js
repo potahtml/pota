@@ -8,7 +8,7 @@ import { signal } from './primitives/solid.js'
  * @param {any} [value] - Optional initial value
  * @returns {Signal}
  */
-export function functionSignal(value) {
+export function signalFunction(value) {
 	const [read, write] = signal(value)
 	return markReactive((...args) =>
 		args.length ? write(args[0]) : read(),

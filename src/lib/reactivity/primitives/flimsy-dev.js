@@ -1,3 +1,4 @@
+import { isFunction } from '../../std/isFunction.js'
 import { markReactive } from '../@main.js'
 
 // abstracts flimsy reactivity
@@ -177,7 +178,7 @@ export { lazyMemo as memo }
  */
 export const withOwner = () => {
 	const owner = getOwner()
-	return fn => runWithOwner(owner, fn)
+	return fn => (isFunction(fn) ? runWithOwner(owner, fn) : fn)
 }
 
 /**

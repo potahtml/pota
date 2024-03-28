@@ -1,4 +1,5 @@
 import { Symbol } from '../../std/Symbol.js'
+import { isFunction } from '../../std/isFunction.js'
 
 import { markReactive } from '../@main.js'
 
@@ -171,7 +172,7 @@ export { lazyMemo as memo }
  */
 export const withOwner = () => {
 	const owner = getOwner()
-	return fn => runWithOwner(fn, owner)
+	return fn => (isFunction(fn) ? runWithOwner(fn, owner) : fn)
 }
 
 /**

@@ -16,8 +16,8 @@ export {
 	 * @returns {Signal}
 	 * @url https://pota.quack.uy/props/plugins/bind
 	 */
-	functionSignal as bind,
-} from '../lib/reactivity/functionSignal.js'
+	signalFunction as bind,
+} from '../lib/reactivity/signalFunction.js'
 
 /**
  * @param {Elements} node
