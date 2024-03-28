@@ -7,14 +7,8 @@ TODO:
 	Miscellaneous:
 	- typings
 	- automated tests
-
-	Router:
-	- decide what to do with useParams
-
-BUGS:
-
-	Router:
-	- is not scrolling when reloading to a hash tag when used with `lazy`
+	- batching stuff
+	- reconcile with andreas algo
 
 POSSIBLE FEATURES:
 
@@ -29,6 +23,7 @@ POSSIBLE FEATURES:
 
 	Router:
 	- make the `path` reactive
+	- decide what to do with useParams
 
 	Posible pollyfills:
 	- Object.groupBy, Promise.withResolvers, Object.hasOwn

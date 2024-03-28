@@ -22,6 +22,10 @@ export { useParams } from './useParams.js'
 
 export { useBeforeLeave } from './useBeforeLeave.js'
 
+// load
+
+export { load } from './load.js'
+
 // side effect adds link click listener
 
 import './onLinkClick.js'

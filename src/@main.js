@@ -57,7 +57,7 @@ export {
 	resolve,
 	context,
 } from './renderer/@main.js'
-export { lazy } from './lib/reactivity/lazy.js'
+export { lazy, Lazy } from './lib/reactivity/lazy.js'
 
 export { css } from './lib/css/css.js'
 

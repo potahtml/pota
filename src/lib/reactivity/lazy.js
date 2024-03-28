@@ -1,35 +1,64 @@
-import { Component } from '../../renderer/@main.js'
+import { isFunction } from '../std/isFunction.js'
+import { isObject } from '../std/isObject.js'
+import { microtask } from '../std/microtask.js'
+import { nothing } from '../std/nothing.js'
+
 import { markComponent } from '../component/markComponent.js'
-import { withOwner } from './primitives/solid.js'
+
+import { signal, withOwner } from './primitives/solid.js'
+
+import { Component } from '../../renderer/@main.js'
 
 /**
- * Returns a `Component` that has been lazy loaded and can be used as
- * `Component(props)`
+ * A Promise loader handler. Allows to display/run something or
+ * nothing while a promise is resolving. Allows to run a callback when
+ * the promise resolves. Allows to get notified of errors, and
+ * display/run something or nothing, if wanted a `retry` function is
+ * given for retrying the promise. All functions run with the original
+ * owner, so it's `Context` friendly.
  *
- * @param {Function} component - Import statement
- * @param {any} [fallback] - Fallback for in case the promise is
- *   rejected
+ * @param {() => Promise<any>} fn - Function that returns a promise
+ * @param {{
+ * 	onLoading?: any
+ * 	onLoaded?: Function
+ * 	onError?: ((e: Error, retry: Function) => any) | any
+ * }} [options]
+ *
  * @returns {Component}
  * @url https://pota.quack.uy/lazy
  */
-export const lazy = (component, fallback) =>
+export const lazy = (fn, options = nothing) =>
 	markComponent(props => {
-		const owned = withOwner()
-		// tries to load the lazy component
-		const doTry = (tryAgain = true) =>
-			component()
-				.then(r => owned(Component(r.default, props)))
-				.catch(e =>
-					// trying again in case it fails due to some network error
-					tryAgain
-						? new Promise(resolve =>
-								setTimeout(() => resolve(doTry(false)), 5000),
-							)
-						: console.error(e) ||
-							props?.fallback ||
-							fallback ||
-							(() => component + ' is offline'),
-				)
+		const { onLoading, onLoaded, onError } = options
 
-		return doTry()
+		const [value, setValue] = signal(onLoading)
+
+		const owned = withOwner()
+
+		const onResolve = fn => {
+			const result = owned(fn)
+			setValue(isFunction(result) ? () => result : result)
+		}
+
+		const retry = () =>
+			fn()
+				.then(r => {
+					onResolve(() => {
+						r = isObject(r) && r.default ? r.default : r
+						return isFunction(r) ? Component(r, props)() : r
+					})
+					microtask(() => owned(onLoaded))
+				})
+				.catch(e =>
+					onError
+						? onResolve(() =>
+								isFunction(onError) ? onError(e, retry) : onError,
+							)
+						: console.error(e),
+				)
+		retry()
+
+		return value
 	})
+
+export const Lazy = props => lazy(props.children, props)

@@ -353,8 +353,7 @@ function createChildren(parent, child, relative) {
 				 * an owner. Else it will just use the return value
 				 */
 				const owned = withOwner()
-				const onResult = r =>
-					parent.isConnected && setValue(isFunction(r) ? owned(r) : r)
+				const onResult = r => parent.isConnected && setValue(owned(r))
 
 				child.then(onResult).catch(onResult)
 				return createChildren(parent, value, relative)

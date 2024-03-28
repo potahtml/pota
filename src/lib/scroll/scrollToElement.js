@@ -4,8 +4,9 @@
  * @param {Elements} item - Element to scroll to
  */
 export function scrollToElement(item) {
-	// scrolls the content to the top
+	/** Scroll children of element to the top */
 	item.scrollTop = 0
-	// make sure the item inside the content is visible in case of hashes
-	item.scrollIntoView({ behavior: 'auto' })
+
+	/** Scroll to element */
+	item.scrollIntoView(true)
 }

@@ -16,7 +16,7 @@ type Props = {
   [key: PropertyKey]: any
 }
 
-type When = Signal | boolean | unknown
+type When = Signal | boolean | any
 
 type Each =
   | Signal

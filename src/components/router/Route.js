@@ -3,18 +3,19 @@ import {
 	cleanup,
 	memo,
 } from '../../lib/reactivity/primitives/solid.js'
-import { scrollToSelectorWithFallback } from '../../lib/scroll/@main.js'
 
 // utils
 import { optional } from '../../lib/std/@main.js'
 import { replaceParams, origin } from '../../lib/urls/@main.js'
+import { scrollToLocationHash } from '../../lib/scroll/scrollToLocationHash.js'
 
 // local
 import { Context, create } from './context.js'
 import { location } from './location.js'
 import { setParams } from './useParams.js'
-import { onDone } from '../../renderer/scheduler.js'
 import { Component } from '../../renderer/@main.js'
+import { onDone } from '../../renderer/scheduler.js'
+import { scroll } from './scroll.js'
 /**
  * Renders children if the path matches the current location
  *
@@ -58,10 +59,6 @@ export function Route(props) {
 		'^' + base.replace(/\:([a-z0-9_\-]+)/gi, '(?<$1>.+)'),
 	)
 
-	const scrolls = props.scrolls
-		? parent.scrolls.concat(props.scrolls)
-		: parent.scrolls
-
 	let href = ''
 	// derived
 	const show = memo(() => {
@@ -81,7 +78,7 @@ export function Route(props) {
 					href
 			}
 
-			onDone(() => doScrolls(scrolls))
+			onDone(() => scroll(context))
 
 			return true
 		} else {
@@ -92,7 +89,7 @@ export function Route(props) {
 	const context = create({
 		base, // the prefix for the children path
 		href: () => href, // the full url of the route
-		scrolls,
+		scrolls: props.scrolls,
 		parent,
 		show,
 	})
@@ -112,19 +109,6 @@ export function Route(props) {
 			children: props.children,
 		}),
 	})
-}
-
-/**
- * Scrolls an array of selectors, taken from the <Route component
- *
- * @param {string[]} scrolls
- */
-
-function doScrolls(scrolls) {
-	for (const item of scrolls) {
-		scrollToSelectorWithFallback(item)
-	}
-	scrollToSelectorWithFallback(window.location.hash)
 }
 
 /**
