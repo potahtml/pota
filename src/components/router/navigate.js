@@ -1,5 +1,5 @@
 // utils
-import { empty, optional } from '../../lib/std/@main.js'
+import { empty, nothing, optional } from '../../lib/std/@main.js'
 import { scrollToSelectorWithFallback } from '../../lib/scroll/@main.js'
 import { replaceParams } from '../../lib/urls/@main.js'
 
@@ -14,7 +14,7 @@ import { canNavigate } from './useBeforeLeave.js'
  * @param {{ scroll?: boolean; replace?: boolean }} options
  * @url https://pota.quack.uy/Components/Router/Navigate
  */
-export async function navigate(href, options = empty()) {
+export async function navigate(href, options = nothing) {
 	if (window.location.href !== href) {
 		if (await canNavigate(href)) {
 			const fn = () => navigateInternal(href, options)
@@ -51,7 +51,7 @@ function navigateInternal(href, options) {
  * }} options
  * @url https://pota.quack.uy/Components/Router/Navigate
  */
-export function navigateUser(href, options = empty()) {
+export function navigateUser(href, options = nothing) {
 	// when the user sets the url it may pass a relative path
 	// this makes it absolute
 	href = replaceParams(href, options.params)

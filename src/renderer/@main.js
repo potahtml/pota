@@ -32,6 +32,7 @@ import {
 	flat,
 	stringify,
 	iterator,
+	nothing,
 } from '../lib/std/@main.js'
 
 // RENDERER LIB
@@ -58,7 +59,7 @@ import {
 
 const Components = new Map()
 const WeakComponents = new WeakMap()
-const defaultProps = freeze(empty())
+const defaultProps = nothing
 const useXMLNS = context()
 
 // COMPONENTS
@@ -504,7 +505,7 @@ function nodeCleanup(node) {
  * @returns {Function} Disposer
  * @url https://pota.quack.uy/render
  */
-export function render(children, parent, options = empty()) {
+export function render(children, parent, options = nothing) {
 	const dispose = root(dispose => {
 		insert(children, parent, options)
 		return dispose
@@ -523,7 +524,7 @@ export function render(children, parent, options = empty()) {
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  */
-function insert(children, parent, options = empty()) {
+function insert(children, parent, options) {
 	if (options.clear && parent) parent.textContent = ''
 
 	return createChildren(

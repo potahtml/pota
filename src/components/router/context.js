@@ -2,12 +2,12 @@ import {
 	signal,
 	memo,
 } from '../../lib/reactivity/primitives/solid.js'
-import { empty, removeFromArray } from '../../lib/std/@main.js'
+import { nothing, removeFromArray } from '../../lib/std/@main.js'
 import { context } from '../../renderer/@main.js'
 
 const show = () => false
 
-export function create(props = empty()) {
+export function create(props = nothing) {
 	const [children, setChildren] = signal([])
 
 	return {

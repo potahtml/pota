@@ -3,6 +3,7 @@ import { assign } from './assign.js'
 import { empty } from './empty.js'
 import { getOwnPropertyDescriptors } from './getOwnPropertyDescriptors.js'
 import { getPrototypeOf } from './getPrototypeOf.js'
+import { nothing } from './nothing.js'
 
 /**
  * It returns `target` descriptors + `target.prototype` descriptors.
@@ -23,7 +24,7 @@ export function getOwnAndPrototypePropertyDescriptors(target) {
 	// blacklisted by default
 	if (isBlacklisted(target)) {
 		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
-		return empty()
+		return nothing
 	}
 
 	// object may be an instance of a class with getters/setters
