@@ -3,7 +3,7 @@ import {
 	signal,
 	memo,
 } from '../../lib/reactivity/primitives/solid.js'
-import { assign, empty } from '../../lib/std/@main.js'
+import { empty } from '../../lib/std/@main.js'
 
 // local
 import { canNavigate } from './useBeforeLeave.js'
