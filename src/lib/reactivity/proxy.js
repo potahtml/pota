@@ -1,4 +1,4 @@
-import { empty, keys } from '../std/@main.js'
+import { keys, nothing } from '../std/@main.js'
 
 /**
  * Proxies a signals property access so you dont have to call the
@@ -6,11 +6,12 @@ import { empty, keys } from '../std/@main.js'
  *
  * @param {Signal} signal - Signal to proxy
  * @param {object} [target] - Target object for the proxy
- * @returns {object} Proxied signal
+ * @returns {object} An object that will read the properties from the
+ *   signal
  */
-export const proxy = (signal, target = empty()) =>
+export const proxy = (signal, target = nothing) =>
 	new Proxy(target, {
-		get(target, key, receiver) {
+		get(target, key) {
 			return signal()[key]
 		},
 		has(target, key) {
@@ -18,8 +19,5 @@ export const proxy = (signal, target = empty()) =>
 		},
 		ownKeys(target) {
 			return keys(signal())
-		},
-		getOwnPropertyDescriptor(target, key) {
-			return { enumerable: true, configurable: true }
 		},
 	})

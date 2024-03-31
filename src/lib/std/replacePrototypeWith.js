@@ -4,9 +4,9 @@ import { setPrototypeOf } from './setPrototypeOf.js'
 /**
  * Replace a prototype in the prototype chain with another prototype
  *
- * @param {Object} target - Target object
- * @param {Object} search - The prototype to replace
- * @param {Object} replacement - The replacement prototype
+ * @param {object} target - Target object
+ * @param {object} search - The prototype to replace
+ * @param {object} replacement - The replacement prototype
  */
 export function replacePrototypeWith(target, search, replacement) {
 	let prototype = target

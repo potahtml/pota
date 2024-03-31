@@ -1,4 +1,5 @@
 import '../polyfills/withResolvers.js'
+import { untrack } from '../reactivity/primitives/solid.js'
 import { measure } from '../std/measure.js'
 import { microtask } from '../std/microtask.js'
 import { stringify } from '../std/stringify.js'
@@ -29,7 +30,7 @@ export function test(title, fn, stopTesting) {
 	}
 }
 
-test.resetCounter = () => {
+test.reset = () => {
 	num = 1
 }
 
@@ -44,11 +45,13 @@ export function expect(title, num, value) {
 		toBe: (equals, expected) =>
 			pass(expected, value, equals, title + ' (' + num.value++ + ')'),
 		toHaveShape: (equals, expected) =>
-			pass(
-				stringify(expected),
-				stringify(value),
-				equals,
-				title + ' (' + num.value++ + ')',
+			untrack(() =>
+				pass(
+					stringify(expected),
+					stringify(value),
+					equals,
+					title + ' (' + num.value++ + ')',
+				),
 			),
 		not: {},
 	}

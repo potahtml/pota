@@ -7,6 +7,7 @@ export function* entriesIncludingSymbols(target) {
 	}
 
 	for (const item of getOwnPropertySymbols(target)) {
+		// todo: causes access!
 		yield [item, target[item]]
 	}
 }

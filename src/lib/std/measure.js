@@ -4,3 +4,9 @@ export function measure(name, cb) {
 	console.timeEnd(name)
 	return r
 }
+
+export function timing(fn) {
+	const start = performance.now()
+	fn()
+	return performance.now() - start
+}

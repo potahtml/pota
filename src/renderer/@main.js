@@ -23,7 +23,6 @@ import { $class, $map, NS } from '../constants.js'
 // LIB
 
 import {
-	empty,
 	isArray,
 	toArray,
 	isFunction,

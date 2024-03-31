@@ -33,7 +33,7 @@ let queryParams = empty()
 let querySearch = ''
 
 /**
- * @typedef {Object} location
+ * @typedef {object} location
  * @property {Signal} hash - Everything after #
  * @property {Signal} href - The full url
  * @property {Signal} pathname - Mirror of window.location.pathname

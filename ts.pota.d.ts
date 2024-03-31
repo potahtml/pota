@@ -5,7 +5,11 @@ type Elements = HTMLElement | Element | Node | EventTarget
 // general
 
 type Signal = Function
-type SignalOptions = { equals?: false | ((a, b) => boolean) }
+type SignalOptions =
+  | { equals?: false }
+  | { equals?: (a, b) => boolean }
+  | undefined
+
 type SignalSetter = (
   value?: any | ((prevValue?: any) => any),
 ) => unknown

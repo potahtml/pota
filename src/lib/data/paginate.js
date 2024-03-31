@@ -3,7 +3,7 @@ import { getValue } from '../std/getValue.js'
 import { toArray } from '../std/toArray.js'
 
 /**
- * @typedef {Object} PaginatePage
+ * @typedef {object} PaginatePage
  * @property {Signal} items - The sliced items
  * @property {Signal} currentPage - The page number
  * @property {Signal} totalPages - Amount of pages
@@ -44,10 +44,10 @@ export function paginateValues(items, numPerPage) {
  *
  * @param {(start, end) => any | Signal} fetch - Function to get items
  *   from
- * @param {Object} options
- * @param {Object} options.numPerPage - How many items are displayed
+ * @param {object} options
+ * @param {object} options.numPerPage - How many items are displayed
  *   at the same time
- * @param {Object} options.numItems - How many items there are in
+ * @param {object} options.numItems - How many items there are in
  *   total
  * @returns {PaginatePage} Page
  */
