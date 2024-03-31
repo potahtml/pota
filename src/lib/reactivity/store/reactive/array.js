@@ -3,6 +3,65 @@ import { iterator } from '../../../std/iterator.js'
 import { mutable } from '../mutable.js'
 import { $track } from '../tracker.js'
 
+/** Dispatch read to specific key */
+function trackKey(target, key) {
+	if (key in target) {
+		target[$track].valueRead(key, target[key])
+	}
+}
+
+/** Dispatch reads to a keys range */
+function trackKeysRange(target, start = 0, end = target.length) {
+	const track = target[$track]
+
+	start = start < 0 ? 0 : start
+	end = end > target.length ? target.length : end
+
+	for (let key = start; key < end; key++) {
+		// console.log('reading', key)
+		track.valueRead(key, target[key])
+	}
+}
+
+/** Dispatch writes to values that changed */
+function trackDiff(target, oldLength = target.length) {
+	const track = target[$track]
+
+	let changed = false
+
+	let key = 0
+	for (let length = target.length; key < length; key++) {
+		if (key > oldLength) {
+			// it's new
+			track.add(key, target[key])
+			changed = true
+		} else {
+			// modify existing
+			if (track.modify(key, target[key])) {
+				changed = true
+			}
+		}
+	}
+	// delete deleted
+	for (; key < oldLength; key++) {
+		track.delete(key)
+		changed = true
+	}
+
+	if (oldLength != target.length) {
+		track.ownKeysWrite()
+
+		// change length
+		track.valueWrite('length', target.length)
+
+		changed = true
+	}
+
+	if (changed) {
+		track.write()
+	}
+}
+
 /**
  * Like Array but tracks.
  *
@@ -15,65 +74,6 @@ import { $track } from '../tracker.js'
 export class ReactiveArray extends Array {
 	/** @type {import('../tracker.js').Track} */
 	[$track]
-
-	/** Dispatch read to specific key */
-	trackKey(k) {
-		if (k in this) {
-			this[$track].valueRead(k, this[k])
-		}
-	}
-
-	/** Dispatch reads to a keys range */
-	trackKeysRange(start = 0, end = this.length) {
-		const track = this[$track]
-
-		start = start < 0 ? 0 : start
-		end = end > this.length ? this.length : end
-
-		for (let k = start; k < end; k++) {
-			// console.log('reading', k)
-			track.valueRead(k, this[k])
-		}
-	}
-
-	/** Dispatch writes to values that changed */
-	trackDiff(oldLength = this.length) {
-		const track = this[$track]
-
-		let changed = false
-
-		let k = 0
-		for (let l = this.length; k < l; k++) {
-			if (k > oldLength) {
-				// it's new
-				track.add(k, this[k])
-				changed = true
-			} else {
-				// modify existing
-				if (track.modify(k, this[k])) {
-					changed = true
-				}
-			}
-		}
-		// delete deleted
-		for (; k < oldLength; k++) {
-			track.delete(k)
-			changed = true
-		}
-
-		if (oldLength != this.length) {
-			track.ownKeysWrite()
-
-			// change length
-			track.valueWrite('length', this.length)
-
-			changed = true
-		}
-
-		if (changed) {
-			track.write()
-		}
-	}
 
 	/** WRITE METHODS */
 
@@ -111,11 +111,11 @@ export class ReactiveArray extends Array {
 
 		// add keys
 		for (
-			let k = this.length, item = 0;
-			k < this.length + items.length;
-			k++, item++
+			let key = this.length, item = 0;
+			key < this.length + items.length;
+			key++, item++
 		) {
-			track.add(k, items[item])
+			track.add(key, items[item])
 		}
 
 		// change length
@@ -128,7 +128,7 @@ export class ReactiveArray extends Array {
 	shift() {
 		if (this.length) {
 			const r = super.shift()
-			this.trackDiff(this.length + 1)
+			trackDiff(this, this.length + 1)
 			return r
 		}
 	}
@@ -140,7 +140,7 @@ export class ReactiveArray extends Array {
 		items = items.map(mutable)
 
 		const r = super.unshift(...items)
-		this.trackDiff(this.length - items.length)
+		trackDiff(this, this.length - items.length)
 
 		return r
 	}
@@ -156,7 +156,7 @@ export class ReactiveArray extends Array {
 				? super.splice(start, deleteCount)
 				: super.splice(start)
 
-		this.trackDiff(oldLength)
+		trackDiff(this, oldLength)
 
 		return r
 	}
@@ -165,14 +165,14 @@ export class ReactiveArray extends Array {
 	sort(compareFn) {
 		const r = super.sort(compareFn)
 
-		this.trackDiff()
+		trackDiff(this)
 
 		return r
 	}
 	reverse() {
 		const r = super.reverse()
 
-		this.trackDiff()
+		trackDiff(this)
 
 		return r
 	}
@@ -207,7 +207,7 @@ export class ReactiveArray extends Array {
 		// @ts-ignore
 		const r = super.fill.apply(this, args)
 
-		this.trackDiff()
+		trackDiff(this)
 
 		return r
 	}
@@ -216,7 +216,7 @@ export class ReactiveArray extends Array {
 		// @ts-ignore
 		const r = super.copyWithin.apply(this, args)
 
-		this.trackDiff()
+		trackDiff(this)
 
 		return r
 	}
@@ -239,7 +239,7 @@ export class ReactiveArray extends Array {
 		start = start > 0 ? start : start < 0 ? start + this.length : 0
 		end = end > 0 ? end : end < 0 ? end + this.length : this.length
 
-		this.trackKeysRange(start, end)
+		trackKeysRange(this, start, end)
 
 		return super.slice(start, end)
 	}
@@ -258,21 +258,21 @@ export class ReactiveArray extends Array {
 	}
 
 	indexOf(searchElement, fromIndex) {
-		const k = super.indexOf(mutable(searchElement), fromIndex)
+		const key = super.indexOf(mutable(searchElement), fromIndex)
 
-		this.trackKey(k)
+		trackKey(this, key)
 
-		return k
+		return key
 	}
 	lastIndexOf(searchElement, fromIndex) {
-		const k = super.lastIndexOf(
+		const key = super.lastIndexOf(
 			mutable(searchElement),
 			fromIndex === undefined ? this.length - 1 : fromIndex,
 		)
 
-		this.trackKey(k)
+		trackKey(this, key)
 
-		return k
+		return key
 	}
 
 	filter(predicate, thisArg) {
@@ -312,7 +312,8 @@ export class ReactiveArray extends Array {
 		return super.entries()
 	}
 	keys() {
-		this[$track].read()
+		// this[$track].read()
+		this[$track].ownKeysRead()
 
 		return super.keys()
 	}
@@ -350,12 +351,12 @@ export class ReactiveArray extends Array {
 
 	// lib.es2022.array.d.ts
 
-	at(index) {
-		index = index < 0 ? index + this.length : index
+	at(key) {
+		key = key < 0 ? key + this.length : key
 
-		this.trackKey(index)
+		trackKey(this, key)
 
-		return super.at(index)
+		return super.at(key)
 	}
 
 	// lib.es2023.array.d.ts
@@ -392,11 +393,11 @@ export class ReactiveArray extends Array {
 				? super.toSpliced(start, deleteCount)
 				: super.toSpliced(start)
 	}
-	with(index, value) {
-		index = index < 0 ? index + this.length : index
+	with(key, value) {
+		key = key < 0 ? key + this.length : key
 
-		this.trackKey(index)
+		trackKey(this, key)
 
-		return super.with(index, mutable(value))
+		return super.with(key, mutable(value))
 	}
 }

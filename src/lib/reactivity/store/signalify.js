@@ -3,7 +3,6 @@ import {
 	redefineProperty,
 } from '../../std/defineProperty.js'
 import { entriesIncludingSymbols } from '../../std/entriesIncludingSymbols.js'
-import { getOwnAndPrototypePropertyDescriptors } from '../../std/getOwnAndPrototypePropertyDescriptors.js'
 import { identity } from '../../std/identity.js'
 import { isExtensible } from '../../std/isExtensible.js'
 import { isFunction } from '../../std/isFunction.js'
@@ -11,7 +10,8 @@ import { isFunction } from '../../std/isFunction.js'
 import { batch } from '../primitives/solid.js'
 
 import { tracker, trackerValueSignal } from './tracker.js'
-import { isKeyBlacklisted } from './blacklist.js'
+import { isKeyBlacklisted, isMethodBlacklisted } from './blacklist.js'
+import { getPropertyDescriptors } from './descriptors.js'
 
 /**
  * Transforms in place properties of an object into signals via
@@ -22,7 +22,7 @@ import { isKeyBlacklisted } from './blacklist.js'
  * @param {GenericObject<T>} target
  * @param {PropertyKey[]} [keys] - To transform specific keys. It is
  *   possible to signalify keys that don't exists yet.
- * @returns {GenericObject<T>}
+ * @returns {T}
  */
 export function signalify(target, keys) {
 	keys ? signalifyKeys(target, keys) : signalifyObject(target)
@@ -37,7 +37,7 @@ export function signalify(target, keys) {
  * @param {Function} [wrapper] To wrap values
  */
 export function signalifyObject(target, wrapper) {
-	const descriptors = getOwnAndPrototypePropertyDescriptors(target)
+	const descriptors = getPropertyDescriptors(target)
 	const track = tracker(target)
 
 	for (const [key, descriptor] of entriesIncludingSymbols(
@@ -57,7 +57,7 @@ export function signalifyObject(target, wrapper) {
  * @param {Function} [wrapper] To wrap values
  */
 export function signalifyKeys(target, keys, wrapper) {
-	const descriptors = getOwnAndPrototypePropertyDescriptors(target)
+	const descriptors = getPropertyDescriptors(target)
 	const track = tracker(target)
 
 	for (const key of keys) {
@@ -94,22 +94,7 @@ function signalifyKey(
 	/** Avoid keys that cannot be redefined */
 	if (!descriptor.configurable) {
 		/** Proxy nested configurable objects */
-		if ('value' in descriptor) {
-			wrapper(descriptor.value)
-		}
-		return
-	}
-
-	/**
-	 * Avoid functions when using `signalify` as it's meant to be used
-	 * in classes. But do not avoid functions when it has a `wrapper`,
-	 * like `mutable`.
-	 */
-	if (
-		wrapper === identity &&
-		'value' in descriptor &&
-		isFunction(descriptor.value)
-	) {
+		wrapper(descriptor.value)
 		return
 	}
 
@@ -121,7 +106,29 @@ function signalifyKey(
 
 	let value = wrapper(descriptor.value)
 
+	/**
+	 * Avoid functions when using `signalify` as it's meant to be used
+	 * in classes.
+	 */
+	if (isFunction(value)) {
+		/**
+		 * But do not avoid functions when it has a `wrapper`, like
+		 * `mutable`.
+		 */
+		if (wrapper === identity) {
+			return
+		}
+
+		// blacklist common prototype methods
+		if (isMethodBlacklisted(value)) {
+			return
+		}
+	}
+
+	// console.log(key, target)
+
 	// tracker
+
 	const [read, write] = trackerValueSignal(target, track, key)
 
 	const getter = descriptor.get?.bind(target)

@@ -3,7 +3,6 @@ import {
 	reflectGet,
 	reflectSet,
 } from '../../../std/reflect.js'
-import { isExtensible } from '../../../std/isExtensible.js'
 import { isFunction } from '../../../std/isFunction.js'
 
 import { batch } from '../../primitives/solid.js'
@@ -63,14 +62,7 @@ export class ProxyHandlerArray extends ProxyHandlerBase {
 				})
 		}
 
-		/**
-		 * A non-extensible object must return the real object, but still
-		 * its children properties must be tracked
-		 */
-		return this.valueRead(
-			key,
-			isExtensible(target) ? mutable(value) : (mutable(value), value),
-		)
+		return this.valueRead(key, this.returnValue(target, key, value))
 	}
 	set(target, key, value, proxy) {
 		return batch(() => {

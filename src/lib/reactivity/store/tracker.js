@@ -1,15 +1,16 @@
 import { create } from '../../std/create.js'
-import { definePropertyValueReadOnly } from '../../std/defineProperty.js'
 import { empty } from '../../std/empty.js'
 import { is } from '../../std/is.js'
-import { isArray } from '../../std/isArray.js'
 import { isFunction } from '../../std/isFunction.js'
 import { Symbol } from '../../std/Symbol.js'
 import { weakStore } from '../../std/weakStore.js'
 
 import { signal } from '../primitives/solid.js'
 
-export const $track = Symbol()
+/** @type symbol */
+export const $track = Symbol('track')
+/** @type symbol */
+export const $trackSlot = Symbol('track-slot')
 
 /** Tracker */
 
@@ -21,7 +22,7 @@ const createTracker = target => new Track(target, true)
  * Returns a tracker for an object. A tracker is unique per object,
  * always the same tracker for the same object.
  *
- * @param {Object} target
+ * @param {object} target
  * @returns {Track}
  */
 export const tracker = target => getTracker(target, createTracker)
@@ -29,7 +30,7 @@ export const tracker = target => getTracker(target, createTracker)
 /**
  * Returns the signal tracking the value.
  *
- * @param {Object} target
+ * @param {object} target
  * @param {Track} track
  * @param {PropertyKey} key
  * @returns {[(newValue) => any, (newValue) => boolean]}
@@ -64,9 +65,9 @@ function signals(property, type, value, equalsType) {
 const All = Symbol()
 const OwnKeys = Symbol()
 
-const Value = '1'
-const Has = '2'
-const isUndefined = '3'
+const Value = 1
+const Has = 2
+const isUndefined = 3
 
 const defaults = {
 	__proto__: null,
@@ -75,25 +76,28 @@ const defaults = {
 	[isUndefined]: undefined,
 }
 
+const debug = false
+
 export class Track {
 	#props = empty()
 
 	// #id = Math.random() // debug
+
 	/**
-	 * @param {Object} value
+	 * @param {object} value
 	 * @param {boolean} [isNew]
 	 */
 	constructor(value, isNew) {
 		if (!isNew) {
+			/**
+			 * An object will already have a tracker when the tracker is
+			 * created outside of mutable. Outside of the proxy handlers.
+			 */
 			const tracker = getTracker(value)
 			if (tracker) {
 				this.#props = tracker.#props
 			} else {
 				setTracker(value, this)
-			}
-
-			if (isArray(value)) {
-				definePropertyValueReadOnly(value, $track, this)
 			}
 		}
 	}
@@ -110,8 +114,11 @@ export class Track {
 	 *
 	 * @param {PropertyKey} key
 	 * @param {any} value
+	 * @returns {any} Value
 	 */
 	valueRead(key, value) {
+		debug && console.log('valueRead', key, value)
+
 		/** Do not write to the signal here it will cause a loop */
 		const signal = signals(this.#prop(key), Value, value, 1)
 		signal[2] = value
@@ -125,6 +132,8 @@ export class Track {
 	 * @returns {boolean} Indicating if the value changed
 	 */
 	valueWrite(key, value) {
+		debug && console.log('valueWrite', key, value)
+
 		/**
 		 * Write the value because tracking will re-execute when this
 		 * value changes
@@ -143,6 +152,8 @@ export class Track {
 	 * @param {boolean} value - Indicating if the property is `in`
 	 */
 	hasRead(key, value) {
+		debug && console.log('hasRead', key, value)
+
 		signals(this.#prop(key), Has, value, 0)[0]()
 	}
 	/**
@@ -152,6 +163,8 @@ export class Track {
 	 * @param {boolean} value - Indicating if the property is `in`
 	 */
 	hasWrite(key, value) {
+		debug && console.log('hasWrite', key, value)
+
 		signals(this.#prop(key), Has, value, 0)[1](value)
 	}
 
@@ -164,6 +177,8 @@ export class Track {
 	 *   `undefined`
 	 */
 	isUndefinedRead(key, value) {
+		debug && console.log('isUndefinedRead', key, value)
+
 		signals(this.#prop(key), isUndefined, value, 0)[0]()
 	}
 	/**
@@ -175,6 +190,8 @@ export class Track {
 	 *   `undefined`
 	 */
 	isUndefinedWrite(key, value) {
+		debug && console.log('isUndefinedWrite', key, value)
+
 		signals(this.#prop(key), isUndefined, value, 0)[1](value)
 	}
 
@@ -189,6 +206,8 @@ export class Track {
 	 * @param {any} value
 	 */
 	add(key, value) {
+		debug && console.log('add', key, value)
+
 		this.hasWrite(key, true) // change has
 		this.isUndefinedWrite(key, value === undefined) // track when is undefined
 		this.valueWrite(key, value) // change value
@@ -201,8 +220,11 @@ export class Track {
 	 * 2. Sets `undefined` state
 	 *
 	 * @param {PropertyKey} key
+	 * @param {any} value
 	 */
 	modify(key, value) {
+		debug && console.log('modify', key, value)
+
 		this.isUndefinedWrite(key, value === undefined) // track when is undefined
 		return this.valueWrite(key, value) // change value
 	}
@@ -217,6 +239,8 @@ export class Track {
 	 * @param {PropertyKey} key
 	 */
 	delete(key) {
+		debug && console.log('delete', key)
+
 		this.hasWrite(key, false) // change has
 		this.isUndefinedWrite(key, true) // track when is undefined
 		this.valueWrite(key, undefined) // change value
@@ -228,19 +252,27 @@ export class Track {
 
 	/** To indicate all values have been read */
 	read(key = All) {
+		debug && console.log('read', key)
+
 		signals(this.#prop(key), Value, undefined, 2)[0]()
 	}
 	/** To indicate all values have changed */
 	write(key = All) {
+		debug && console.log('write', key)
+
 		signals(this.#prop(key), Value, undefined, 2)[1]()
 	}
 
 	/** `ownKeys` read */
 	ownKeysRead() {
+		debug && console.log('ownKeysRead', OwnKeys)
+
 		this.read(OwnKeys)
 	}
 	/** To indicate keys have change */
 	ownKeysWrite() {
+		debug && console.log('ownKeysWrite', OwnKeys)
+
 		this.write(OwnKeys)
 	}
 }
