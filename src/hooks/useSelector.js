@@ -5,7 +5,7 @@ import {
 } from '../lib/reactivity/primitives/solid.js'
 
 /**
- * Returns a `isSelected`function that will return true when the
+ * Returns a `isSelected` function that will return `true` when the
  * argument for it matches the original signal `value`.
  *
  * @param {Signal} value - Signal with the current value
@@ -21,31 +21,37 @@ export function useSelector(value) {
 		if (selected === prev) return
 
 		const previous = map.get(prev)
-		if (previous) previous.write(false)
+		if (previous) previous[1](false)
 
 		const current = map.get(selected)
-		if (current) current.write(true)
+		if (current) current[1](true)
 
 		prev = selected
 	})
 
 	/**
-	 * Is selected function, it will return true when the value matches
-	 * the current signal
+	 * Is selected function, it will return `true` when the value
+	 * matches the current signal.
 	 *
-	 * @param {unknown} item - Values to compare with current
+	 * @param {any} item - Values to compare with current
 	 * @returns {Signal} A signal with a boolean value
 	 */
 	return function isSelected(item) {
-		if (!map.has(item)) {
-			const [read, write] = signal(item === value())
-			map.set(item, {
-				read,
-				write,
-			})
-			cleanup(() => map.delete(item))
+		let selected = map.get(item)
+		if (!selected) {
+			selected = signal(item === value())
+			selected[2] = 0
+			map.set(item, selected)
 		}
 
-		return map.get(item).read
+		selected[2]++
+
+		cleanup(() => {
+			if (--selected[2] === 0) {
+				map.delete(item)
+			}
+		})
+
+		return selected[0]
 	}
 }
