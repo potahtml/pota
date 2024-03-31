@@ -138,10 +138,7 @@ export class ReactiveMap extends Map {
 		slot.read()
 		slot.ownKeysRead()
 	}
-
 	[iterator]() {
-		this[$trackSlot].read()
-
-		return super[iterator]()
+		return this.entries()
 	}
 }

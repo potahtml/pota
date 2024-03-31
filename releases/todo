@@ -13,7 +13,6 @@ TODO:
 	- useSelector cleanup
 	- separate exports to reduce default file size
 
-	- mutable tracking: add iterable on array
 	- mutable: support set, maybe weakmap and weakset
 	- mutable: defineProperty proxy trap
 

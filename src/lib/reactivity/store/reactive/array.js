@@ -306,26 +306,43 @@ export class ReactiveArray extends Array {
 
 	// lib.es2015.iterable.d.ts
 
-	entries() {
-		this[$track].read()
+	*entries() {
+		const track = this[$track]
 
-		return super.entries()
+		for (const entry of super.entries()) {
+			track.valueRead(entry[0], entry[1])
+			yield entry
+		}
+
+		// for when empty and for when iterating all
+		track.read()
+		track.ownKeysRead()
 	}
-	keys() {
-		// this[$track].read()
-		this[$track].ownKeysRead()
+	*keys() {
+		const track = this[$track]
 
-		return super.keys()
+		for (const key of super.keys()) {
+			track.hasRead(key, true)
+			yield key
+		}
+
+		// for when empty and for when iterating all
+		track.ownKeysRead()
 	}
-	values() {
-		this[$track].read()
+	*values() {
+		const track = this[$track]
 
-		return super.values()
+		for (const [key, value] of super.entries()) {
+			track.valueRead(key, value)
+			yield value
+		}
+
+		// for when empty and for when iterating all
+		track.read()
+		track.ownKeysRead()
 	}
 	[iterator]() {
-		this[$track].read()
-
-		return super[iterator]()
+		return this.values()
 	}
 
 	// lib.es2016.array.include.d.ts
