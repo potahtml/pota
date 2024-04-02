@@ -13,6 +13,7 @@ import { ProxyHandlerObject } from './proxies/object.js'
 
 import { ReactiveArray } from './reactive/array.js'
 import { ReactiveMap } from './reactive/map.js'
+import { Track } from './tracker.js'
 
 /**
  * Returns `true` when `object` can't be made mutable.
@@ -43,6 +44,8 @@ export const mutableBlacklist = new Set(
 		ProxyHandlerBase,
 		ProxyHandlerObject,
 		ProxyHandlerArray,
+
+		Track,
 	].filter(identity),
 )
 
