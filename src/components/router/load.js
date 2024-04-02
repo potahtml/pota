@@ -31,7 +31,7 @@ export function load(component, options = nothing) {
 		onLoading,
 		onError: (e, retry) =>
 			tries++ < 10
-				? useTimeout(retry, 5000).start() && null
+				? useTimeout(retry, 5000).start() && undefined
 				: isFunction(onError)
 					? onError(e, retry)
 					: onError,

@@ -1,6 +1,7 @@
 import { isConfigurable } from '../../../std/isConfigurable.js'
 import { isExtensible } from '../../../std/isExtensible.js'
 import {
+	reflectApply,
 	reflectGetOwnPropertyDescriptor,
 	reflectHas,
 	reflectOwnKeys,
@@ -66,5 +67,20 @@ export class ProxyHandlerBase extends Track {
 			!isConfigurable(target, key, value)
 			? (mutable(value), value)
 			: mutable(value)
+	}
+	returnFunction(target, key, value) {
+		return (...args) =>
+			/**
+			 * 1. `Reflect.apply` to correct `receiver`. `TypeError: Method
+			 *    Set.prototype.add called on incompatible receiver #<Set>`
+			 * 2. Run in a batch to react to all changes at the same time.
+			 */
+
+			batch(() => {
+				if (key === 'hasOwnProperty') {
+					this.has(target, args[0])
+				}
+				return mutable(reflectApply(value, target, args))
+			})
 	}
 }

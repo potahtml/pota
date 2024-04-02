@@ -21,7 +21,7 @@ export function Show(props) {
 
 	// needs resolve to avoid re-rendering
 	const fallback = isNullUndefined(props.fallback)
-		? null
+		? undefined
 		: memo(() => resolve(props.fallback))
 
 	return memo(() => (condition() ? callback(value) : fallback))

@@ -13,7 +13,7 @@ export function create(props = nothing) {
 	return {
 		base: '', // the composed base route
 		href: () => '', // the url of the route
-		parent: null, // parent context
+		parent: undefined, // parent context
 		show, // if the route is shown
 		scrolls: [], // elements to scroll
 		// the children routes

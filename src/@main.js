@@ -101,7 +101,6 @@ export {
 	propsPlugin,
 	propsPluginNS,
 } from './renderer/props/plugin.js'
-export { propsProxy } from './renderer/props/proxy.js'
 export { propsSplit } from './renderer/props/propsSplit.js'
 
 // LIB

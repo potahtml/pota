@@ -97,7 +97,7 @@ export const cleanup = fn => {
  * @param {Function} fn - Function to run with tracking disabled
  * @returns {any}
  */
-export const untrack = fn => _untrack(fn)
+export const untrack = _untrack
 
 /**
  * Creates a context and returns a function to get or set the value
@@ -129,9 +129,7 @@ export function Context(defaultValue = undefined) {
 			let res
 			renderEffect(() => {
 				setContext(id, newValue)
-				_untrack(() => {
-					res = fn()
-				})
+				res = fn()
 			})
 
 			return res

@@ -8,9 +8,7 @@ TODO:
 	- typings
 	- automated tests
 	- batching stuff
-	- reconcile with andreas algo
 	- reconcile mutable
-	- useSelector cleanup
 	- separate exports to reduce default file size
 
 	- mutable: support set, maybe weakmap and weakset

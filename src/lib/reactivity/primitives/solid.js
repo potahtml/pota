@@ -64,9 +64,7 @@ export const root = fn => createRoot(dispose => fn(dispose))
  *
  * @param {Function} fn
  */
-export const renderEffect = fn => {
-	createRenderEffect(fn)
-}
+export const renderEffect = createRenderEffect
 
 /**
  * Creates an effect
@@ -83,7 +81,7 @@ export const effect = fn => {
  * @param {Function} fn
  * @returns {any}
  */
-export const batch = fn => _batch(fn)
+export const batch = _batch
 
 /**
  * Runs a callback on cleanup, returns callback
@@ -103,7 +101,7 @@ export const cleanup = fn => {
  * @param {Function} fn - Function to run with tracking disabled
  * @returns {any}
  */
-export const untrack = fn => _untrack(fn)
+export const untrack = _untrack
 
 /**
  * Creates a context and returns a function to get or set the value
@@ -135,14 +133,12 @@ export function Context(defaultValue = undefined) {
 		} else {
 			let res
 			renderEffect(() => {
-				untrack(() => {
-					const owner = getOwner()
-					owner.context = {
-						...owner.context,
-						[id]: newValue,
-					}
-					res = fn()
-				})
+				const owner = getOwner()
+				owner.context = {
+					...owner.context,
+					[id]: newValue,
+				}
+				res = fn()
 			})
 
 			return res

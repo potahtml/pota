@@ -5,13 +5,12 @@
 import { $component } from '../../constants.js'
 
 /**
- * Marks a function as a `Component`. Components untrack, so these
- * dont need effects.
+ * Marks a function as a `Component`.
  *
  * @param {Function} fn - Function to mark as a `Component`
  * @returns {Component}
  */
 export function markComponent(fn) {
-	fn[$component] = null
+	fn[$component] = undefined
 	return fn
 }

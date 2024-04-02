@@ -9,4 +9,4 @@ import { $class } from '../../constants.js'
  */
 export class Pota {}
 
-Pota[$class] = null
+Pota[$class] = undefined

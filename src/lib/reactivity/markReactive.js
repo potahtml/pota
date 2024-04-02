@@ -8,6 +8,6 @@ import { $reactive } from '../../constants.js'
  * @returns {Function}
  */
 export function markReactive(fn) {
-	fn[$reactive] = null
+	fn[$reactive] = undefined
 	return fn
 }

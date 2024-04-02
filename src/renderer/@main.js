@@ -1,20 +1,17 @@
 // REACTIVITE PRIMITIVES
 
 import {
-	root,
-	renderEffect,
 	cleanup,
-	untrack,
-	signal,
-	memo,
-	withOwner,
-	owner,
 	Context,
+	memo,
+	renderEffect,
+	root,
+	signal,
+	untrack,
+	withOwner,
 } from '../lib/reactivity/primitives/solid.js'
 
-// REACTIVE UTILITIES
-
-import { isReactive } from '../lib/reactivity/isReactive.js'
+import { isReactive } from '../@main.js'
 
 // CONSTANTS
 
@@ -23,16 +20,17 @@ import { $class, $map, NS } from '../constants.js'
 // LIB
 
 import {
-	isArray,
-	toArray,
-	isFunction,
-	weakStore,
-	freeze,
 	flat,
-	stringify,
+	freeze,
+	isArray,
+	isFunction,
 	iterator,
 	nothing,
+	stringify,
+	toArray,
 } from '../lib/std/@main.js'
+
+import { Symbol } from '../lib/std/Symbol.js'
 
 // RENDERER LIB
 
@@ -52,6 +50,7 @@ import {
 	createElement,
 	createElementNS,
 	createTextNode,
+	toDiff,
 } from '../lib/dom/elements.js'
 
 // STATE
@@ -63,13 +62,8 @@ const useXMLNS = context()
 
 // COMPONENTS
 
-/**
- * Used by the JSX transform, as <>...</> or <Fragment>...</Fragment>.
- * This function is empty because its given to `Component` via the
- * transformer and we dont even need to run it. Avoid the temptation
- * to replace this for `noop` from `lib`.
- */
-export const Fragment = () => {}
+/** Used by the JSX transform, as <>...</> or <Fragment>...</Fragment>. */
+export const Fragment = Symbol()
 
 /**
  * Creates components for things. When props argument is given, the
@@ -78,22 +72,28 @@ export const Fragment = () => {}
  *
  * @param {string | Function | Element | object} value - Component
  * @param {any} [props] Object
+ * @param {any} [key]
  * @url https://pota.quack.uy/Component
  */
 
-export function Component(value, props = undefined) {
+export function Component(value, props, key) {
 	/**
-	 * Internal comment: Returns a function because we need to render
-	 * from parent to children instead of from children to parent. This
-	 * allows to properly set the reactivity tree (think of nested
-	 * effects that clear inner effects, context, etc).
+	 * Returns a function because we need to render from parent to
+	 * children instead of from children to parent. This allows to
+	 * properly set the reactivity tree (think of nested effects that
+	 * clear inner effects, context, etc).
 	 */
-	// special case fragments, these are arrays and dont need untrack nor props
+
 	if (value === Fragment) {
 		return props.children
 	}
 
-	// freeze props so isnt directly writable
+	/** Freaking automatic transform sends the key via a 3rd argument */
+	if (key !== undefined) {
+		props.key = key
+	}
+
+	/** Freeze props so isnt directly writable */
 	freeze(props)
 
 	/**
@@ -108,8 +108,7 @@ export function Component(value, props = undefined) {
 }
 
 /**
- * Creates a component which is an untracked function that could be
- * called with a props object
+ * Creates a component that could be called with a props object
  *
  * @param {Componenteable} value
  * @returns {Component}
@@ -130,21 +129,20 @@ function Factory(value) {
 
 	switch (typeof value) {
 		case 'string': {
-			// a string component, 'div' becomes <div>
+			// string component, 'div' becomes <div>
 			component = (props = defaultProps) => createTag(value, props)
 			break
 		}
 		case 'function': {
 			if ($class in value) {
-				// a class component <MyComponent../>
-				component = (props = defaultProps) =>
-					untrack(() => {
-						const i = new value()
-						i.ready && ready(i.ready.bind(i))
-						i.cleanup && cleanup(i.cleanup.bind(i))
+				// class component <MyComponent../>
+				component = (props = defaultProps) => {
+					const i = new value()
+					i.ready && ready(i.ready.bind(i))
+					i.cleanup && cleanup(i.cleanup.bind(i))
 
-						return i.render(props)
-					})
+					return i.render(props)
+				}
 				break
 			}
 
@@ -158,15 +156,13 @@ function Factory(value) {
 				component = () => value
 				break
 			}
-
-			// a function component <MyComponent../>
-			component = (props = defaultProps) =>
-				untrack(() => value(props))
+			// function component <MyComponent../>
+			component = value
 			break
 		}
 		default: {
 			if (value instanceof Node) {
-				// an actual node component <div>
+				// node component <div>
 				component = (props = defaultProps) => createNode(value, props)
 				break
 			}
@@ -203,7 +199,6 @@ function createTag(tagName, props) {
 			createNode(createElementNS(ns, tagName), props),
 		)
 	}
-
 	// foreignObject is created with current xmlns
 	// reset back to html (default browser behaviour)
 	if (nsContext && tagName === 'foreignObject') {
@@ -255,46 +250,54 @@ function createChildren(parent, child, relative) {
 		case 'function': {
 			// component
 			if (isComponent(child)) {
-				return createChildren(parent, child(), relative)
+				return createChildren(parent, untrack(child), relative)
 			}
 
 			let node
-
-			// For
-			if ($map in child) {
-				// signal: needs an effect
-				renderEffect(() => {
-					node = child(child => {
-						/**
-						 * Wrap the item with placeholders, to avoid resolving and
-						 * for easy re-arrangement
-						 */
-						const begin = createPlaceholder(
-							parent,
-							null /*begin*/,
-							true,
-						)
-						const end = createPlaceholder(parent, null /*end*/, true)
-
-						return [begin, createChildren(end, child, true), end]
-					})
-				})
-				return node
-			}
 
 			// signal/memo/external/user provided function
 			// needs placeholder to stay in position
 			parent = createPlaceholder(
 				parent,
-				null /*child.name*/,
+				undefined /*child.name*/,
 				relative,
 			)
 
-			// maybe a signal so needs an effect
+			// For
+			if ($map in child) {
+				renderEffect(() => {
+					node = toDiff(
+						node,
+						child(child => {
+							/**
+							 * Wrap the item with placeholders, to avoid resolving
+							 * and for easy re-arrangement
+							 */
+							const begin = createPlaceholder(
+								parent,
+								undefined /*begin*/,
+								true,
+							)
+							const end = createPlaceholder(
+								parent,
+								undefined /*end*/,
+								true,
+							)
+							return [begin, createChildren(end, child, true), end]
+						}),
+					)
+				})
 
+				cleanup(() => toDiff(node))
+				return [node, parent]
+			}
+
+			// maybe a signal so needs an effect
 			renderEffect(() => {
-				node = createChildren(parent, child(), true)
+				node = toDiff(node, createChildren(parent, child(), true))
 			})
+
+			cleanup(() => toDiff(node))
 			/**
 			 * A placeholder is created and added to the document but doesnt
 			 * form part of the children. The placeholder needs to be
@@ -341,12 +344,12 @@ function createChildren(parent, child, relative) {
 			 * `null` on the falsy case
 			 */
 			if (child === null) {
-				return null
+				return undefined
 			}
 
 			// async components
 			if ('then' in child) {
-				const [value, setValue] = signal(null)
+				const [value, setValue] = signal(undefined)
 				/**
 				 * If the result of the promise is a function it runs it with
 				 * an owner. Else it will just use the return value
@@ -387,7 +390,7 @@ function createChildren(parent, child, relative) {
 			)
 		}
 		case 'undefined': {
-			return null
+			return undefined
 		}
 		default: {
 			// boolean/bigint/symbol/catch all
@@ -409,8 +412,10 @@ function createChildren(parent, child, relative) {
  * @param {boolean} [relative]
  * @returns {Elements}
  */
-const createPlaceholder = (parent, text, relative) =>
-	/* dev
+const createPlaceholder = (parent, text, relative) => {
+	return insertNode(parent, createTextNode(''), relative)
+
+	/* dev */
 	return insertNode(
 		parent,
 		document.createComment(
@@ -418,8 +423,10 @@ const createPlaceholder = (parent, text, relative) =>
 		),
 		relative,
 	)
-	*/
-	insertNode(parent, createTextNode(''), relative)
+}
+
+let head
+let headQuerySelector
 
 /**
  * Adds the element to the document
@@ -429,26 +436,30 @@ const createPlaceholder = (parent, text, relative) =>
  * @param {boolean} [relative]
  * @returns {Elements}
  */
+
 function insertNode(parent, node, relative) {
+	if (!head) {
+		head = document.head
+		headQuerySelector = head.querySelector.bind(head)
+	}
 	// special case `head`
-	if (parent === document.head) {
-		const querySelector = parent.querySelector.bind(parent)
+	if (parent === head) {
 		const name = node.tagName
 
 		// search for tags that should be unique
 		let prev
 		if (name === 'TITLE') {
-			prev = querySelector('title')
+			prev = headQuerySelector('title')
 		} else if (name === 'META') {
 			prev =
-				querySelector(
+				headQuerySelector(
 					'meta[name="' + node.getAttribute('name') + '"]',
 				) ||
-				querySelector(
+				headQuerySelector(
 					'meta[property="' + node.getAttribute('property') + '"]',
 				)
 		} else if (name === 'LINK' && node.rel === 'canonical') {
-			prev = querySelector('link[rel="canonical"]')
+			prev = headQuerySelector('link[rel="canonical"]')
 		}
 
 		// replace old node if there's any
@@ -457,37 +468,7 @@ function insertNode(parent, node, relative) {
 		relative ? parent.before(node) : parent.appendChild(node)
 	}
 
-	nodeCleanup(node)
-
 	return node
-}
-
-// nodes cleanup
-
-const [nodeCleanupStore] = weakStore()
-/**
- * Adds an element for cleanup
- *
- * @param {Elements} node
- */
-function nodeCleanup(node) {
-	const own = owner()
-	// null owners means its never disposed
-	if (own) {
-		const nodes = nodeCleanupStore(own, () => [])
-
-		if (nodes.length === 0) {
-			cleanup(() => {
-				// reverse to remove parent first
-				for (const node of nodes.reverse()) {
-					node.remove()
-				}
-				nodes.length = 0
-			})
-		}
-
-		nodes.push(node)
-	}
 }
 
 // RENDERING
@@ -496,8 +477,8 @@ function nodeCleanup(node) {
  * Inserts children into a parent
  *
  * @param {any} children - Thing to render
- * @param {Elements | null | undefined} [parent] - Mount point,
- *   defaults to document.body
+ * @param {Elements | undefined} [parent] - Mount point, defaults to
+ *   document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  * @returns {Function} Disposer
@@ -517,19 +498,23 @@ export function render(children, parent, options = nothing) {
 
 /**
  * @param {any} children - Thing to render
- * @param {Elements | null | undefined} [parent] - Mount point,
- *   defaults to `document.body`
+ * @param {Elements} [parent] - Mount point, defaults to
+ *   `document.body`
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  */
-function insert(children, parent, options) {
+function insert(children, parent = document.body, options) {
 	if (options.clear && parent) parent.textContent = ''
 
-	return createChildren(
-		parent || document.body,
+	const node = createChildren(
+		parent,
 		isComponentable(children) ? Factory(children) : children,
 		options.relative,
 	)
+
+	cleanup(() => toDiff([node].flat(Infinity)))
+
+	return node
 }
 
 /**

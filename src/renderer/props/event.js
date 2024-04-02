@@ -19,21 +19,18 @@ const EventNames = empty()
  * Returns an event name when the string could be mapped to an event
  *
  * @param {string} name - String to check for a mapped event
- * @returns {string | null} Returns the event name or null in case
- *   isnt found
+ * @returns {string | undefined} Returns the event name or null in
+ *   case isnt found
  */
 export function eventName(name) {
 	if (name in EventNames) {
 		return EventNames[name]
 	}
 
-	if (
-		name.startsWith('on') &&
-		window[name.toLowerCase()] !== undefined
-	) {
+	if (name.startsWith('on') && name.toLowerCase() in window) {
 		EventNames[name] = name.slice(2).toLowerCase()
 	} else {
-		EventNames[name] = null
+		EventNames[name] = undefined
 	}
 	return EventNames[name]
 }
@@ -53,13 +50,13 @@ export function addEventListener(node, type, handler) {
 	node.addEventListener(
 		type,
 		handler,
-		isFunction(handler) ? null : handler,
+		isFunction(handler) ? undefined : handler,
 	)
 
 	const off = () => removeEventListener(node, type, handler)
 
-	// remove event on cleanup
-	cleanup(off)
+	// remove event on cleanup?
+	// cleanup(off)
 
 	return off
 }

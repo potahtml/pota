@@ -1,26 +1,23 @@
 // node class / classList
 
-import { effect } from '../../lib/reactivity/primitives/solid.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
-import {
-	entries,
-	getValue,
-	isObject,
-} from '../../lib/std/@main.js'
+import { entries, isObject, isString } from '../../lib/std/@main.js'
 
 /**
  * @param {Elements} node
  * @param {string} name
- * @param {unknown} value
+ * @param {object | string | ArrayLike<any>} value
  * @param {object} props
  */
 export const setClass = (node, name, value, props) =>
-	setClassList(node.classList, value)
+	isString(value)
+		? node.setAttribute('class', value)
+		: setClassList(node, value)
 
 /**
  * @param {Elements} node
  * @param {string} name
- * @param {unknown} value
+ * @param {object | string | ArrayLike<any>} value
  * @param {object} props
  * @param {string} localName
  * @param {string} ns
@@ -34,53 +31,50 @@ export const setClassNS = (
 	ns,
 ) =>
 	isObject(value)
-		? setClassList(node.classList, value)
-		: setClassListValue(node.classList, localName, value)
+		? setClassList(node, value)
+		: setClassListValue(node, localName, value)
 
 // todo: the name of the class is not reactive
 
 /**
- * @param {DOMTokenList} classList
- * @param {unknown | string | ArrayLike<any>} value
+ * @param {Elements} node
+ * @param {object | string | ArrayLike<any>} value
  */
-function setClassList(classList, value) {
+function setClassList(node, value) {
 	switch (typeof value) {
 		case 'string': {
-			_setClassListValue(classList, value, true)
+			_setClassListValue(node, value, true)
 			break
 		}
 
 		case 'object': {
 			for (const [name, _value] of entries(value))
-				setClassListValue(classList, name, _value)
+				setClassListValue(node, name, _value)
 			break
 		}
 
 		case 'function': {
-			effect(() => {
-				setClassList(classList, getValue(value))
-			})
+			withValue(value, value => setClassList(node, value))
 			break
 		}
 	}
 }
 /**
- * @param {DOMTokenList} classList
+ * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
  */
-const setClassListValue = (classList, name, value) =>
-	withValue(value, value =>
-		_setClassListValue(classList, name, value),
-	)
+const setClassListValue = (node, name, value) =>
+	withValue(value, value => _setClassListValue(node, name, value))
 
 /**
- * @param {DOMTokenList} classList
+ * @param {Elements} node
  * @param {string} name
  * @param {unknown} value
  */
-const _setClassListValue = (classList, name, value) =>
-	// null, undefined or false the class is removed
+
+const _setClassListValue = (node, name, value) =>
+	// null, undefined or false, the class is removed
 	!value
-		? classList.remove(name)
-		: classList.add(...name.trim().split(/\s+/))
+		? node.classList.remove(name)
+		: node.classList.add(...name.trim().split(/\s+/))

@@ -21,7 +21,7 @@ export function syncEffect(fn) {
 			resolve()
 		}
 
-		fn(queue.length === 1 ? null : queue[queue.length - 2])
+		fn(queue.length === 1 ? undefined : queue[queue.length - 2])
 			.then(onDone)
 			.catch(onDone)
 	})

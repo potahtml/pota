@@ -41,5 +41,5 @@ export function A(props) {
 					base + href
 				: new URL(href, base).href
 
-	return Component('a', { ...{ ...props, href, params: null } })
+	return Component('a', { ...{ ...props, href, params: undefined } })
 }

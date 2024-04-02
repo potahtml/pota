@@ -16,7 +16,7 @@ export const waitEvent = (element, eventName) =>
 		 * listening the old one because maybe wasn't dispatched and
 		 * running a new transition will make it dispatch twice
 		 */
-		const previous = get(element, () => empty())
+		const previous = get(element, empty)
 		previous.reject && previous.reject()
 		element.removeEventListener(eventName, previous.resolve)
 		set(element, { resolve, reject })

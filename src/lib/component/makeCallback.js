@@ -1,4 +1,3 @@
-import { untrack } from '../reactivity/primitives/solid.js'
 import { flat, isArray, isFunction } from '../std/@main.js'
 import { isReactive } from '../reactivity/isReactive.js'
 import { markComponent } from './markComponent.js'
@@ -16,12 +15,14 @@ export function makeCallback(children) {
 	 * When children is an array, as in >${[0, 1, 2]}< then children
 	 * will end as `[[0, 1, 2]]`, so flat it
 	 */
+
 	children = isArray(children) ? flat(children) : children
-	const asArray = isArray(children)
-	const callbacks = !asArray
+
+	const callbacks = !isArray(children)
 		? callback(children)
 		: children.map(callback)
-	return !asArray
+
+	return !isArray(children)
 		? markComponent((...args) => callbacks(args))
 		: markComponent((...args) =>
 				callbacks.map(callback => callback(args)),
@@ -57,8 +58,8 @@ const callback = child =>
 					return isFunction(r)
 						? isReactive(r)
 							? r()
-							: untrack(() => r(...args))
+							: r(...args)
 						: r
 				}
-			: args => untrack(() => child(...args))
+			: args => child(...args)
 		: () => child

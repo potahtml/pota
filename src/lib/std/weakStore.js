@@ -8,14 +8,15 @@
  * 	) => any,
  * 	(key: WeakKey, value: any) => void,
  * 	Function,
+ * 	Function,
  * 	WeakMap<WeakKey, any>,
  * ]}
  */
 
 export function weakStore() {
 	const store = new WeakMap()
-	const set = store.set.bind(store)
 	const get = store.get.bind(store)
+	const set = store.set.bind(store)
 	return [
 		(target, defaults = undefined) => {
 			const o = get(target)
@@ -32,6 +33,7 @@ export function weakStore() {
 		},
 		set,
 		store.has.bind(store),
+		store.delete.bind(store),
 		store,
 	]
 }

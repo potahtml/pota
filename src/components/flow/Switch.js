@@ -2,6 +2,7 @@ import { memo } from '../../lib/reactivity/primitives/solid.js'
 import { resolve } from '../../renderer/@main.js'
 import { getValue, isNullUndefined } from '../../lib/std/@main.js'
 import { makeCallback } from '../../lib/component/makeCallback.js'
+import { identity } from '../../lib/std/identity.js'
 
 /**
  * Renders the first child that matches the given `when` condition, or
@@ -17,7 +18,7 @@ export function Switch(props) {
   const children = resolve(() => props.children)
 
   const fallback = isNullUndefined(props.fallback)
-    ? null
+    ? undefined
     : memo(() => resolve(props.fallback))
 
   const match = memo(() =>
@@ -38,4 +39,4 @@ export function Switch(props) {
  * @param {Children} [props.children]
  * @returns {Children}
  */
-export const Match = props => props
+export const Match = identity

@@ -70,9 +70,7 @@ export const renderEffect = fn => {
  *
  * @param {Function} fn
  */
-export const effect = fn => {
-	_effect(fn)
-}
+export const effect = _effect
 
 /**
  * Batches changes to signals
@@ -100,7 +98,7 @@ export const cleanup = fn => {
  * @param {Function} fn - Function to run with tracking disabled
  * @returns {any}
  */
-export const untrack = fn => _untrack(fn)
+export const untrack = _untrack
 
 /**
  * Creates a context and returns a function to get or set the value
@@ -129,11 +127,7 @@ export function Context(defaultValue = undefined) {
 		if (newValue === undefined) {
 			return _context(id) ?? defaultValue
 		} else {
-			let r
-			_context({ [id]: newValue }, () => {
-				r = untrack(fn)
-			})
-			return r
+			return _context({ [id]: newValue }, fn)
 		}
 	}
 

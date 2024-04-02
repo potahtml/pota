@@ -8,7 +8,6 @@ import {
 } from './plugin.js'
 
 export { propsPlugin, propsPluginNS }
-export { propsProxy } from './proxy.js'
 export { setProperty } from './property.js'
 export { setAttribute } from './attribute.js'
 export { setBool } from './bool.js'
@@ -74,9 +73,9 @@ propsPluginNS('on', setEventNS, false)
 import { setUnknownProp } from './unknown.js'
 import { eventName, addEventListener } from './event.js'
 
-// proxy
-
-import { hasProxy, proxy } from './proxy.js'
+const isCustomElement = node =>
+	// document-fragment wont have a localName
+	node.localName?.includes('-')
 
 /**
  * Assigns props to an Element
@@ -85,17 +84,15 @@ import { hasProxy, proxy } from './proxy.js'
  * @param {object} props - Props to assign
  */
 export function assignProps(node, props) {
-	// document-fragment wont have a localName
-	const isCustomElement = node.localName?.includes('-')
+	let name
+	let value
+	let event
+	let ns
+	let localName
 
-	for (let [name, value] of entries(props)) {
+	for ([name, value] of entries(props)) {
 		// internal props
 		if (name === 'children') continue
-
-		// run proxies
-		if (hasProxy.value) {
-			;({ name, value } = proxy(name, value))
-		}
 
 		// run plugins
 		if (plugins[name]) {
@@ -104,15 +101,15 @@ export function assignProps(node, props) {
 		}
 
 		// onClick={handler}
-		let event = eventName(name)
+		event = eventName(name)
 		if (event) {
-			addEventListener(node, event, value, false)
+			addEventListener(node, event, value)
 			continue
 		}
 
 		if (name.includes(':')) {
 			// with ns
-			const [ns, localName] = name.split(':')
+			;[ns, localName] = name.split(':')
 
 			// run plugins NS
 			if (pluginsNS[ns]) {
@@ -123,18 +120,18 @@ export function assignProps(node, props) {
 			// onClick:my-ns={handler}
 			event = eventName(ns)
 			if (event) {
-				addEventListener(node, event, value, false)
+				addEventListener(node, event, value)
 				continue
 			}
 
-			isCustomElement
+			isCustomElement(node)
 				? _setProperty(node, name, value)
 				: setUnknownProp(node, name, value, ns)
 			continue
 		}
 
 		// catch all
-		isCustomElement
+		isCustomElement(node)
 			? _setProperty(node, name, value)
 			: setUnknownProp(node, name, value)
 	}

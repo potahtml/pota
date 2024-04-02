@@ -1,8 +1,8 @@
 /**
- * Returns true if the value is null or undefined
+ * Returns `true` if the value is `null` or `undefined`
  *
  * @param {any} value
- * @returns {boolean} True when value is null or undefined
+ * @returns {boolean}
  */
 export const isNullUndefined = value =>
 	value === undefined || value === null
