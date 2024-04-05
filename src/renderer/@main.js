@@ -11,7 +11,7 @@ import {
 	withOwner,
 } from '../lib/reactivity/primitives/solid.js'
 
-import { isReactive } from '../@main.js'
+import { isReactive } from '../lib/reactivity/isReactive.js'
 
 // CONSTANTS
 
@@ -24,6 +24,7 @@ import {
 	freeze,
 	isArray,
 	isFunction,
+	isObject,
 	iterator,
 	nothing,
 	stringify,
@@ -119,10 +120,9 @@ function Factory(value) {
 		return value
 	}
 
-	let component =
-		typeof value === 'object'
-			? WeakComponents.get(value)
-			: Components.get(value)
+	let component = isObject(value)
+		? WeakComponents.get(value)
+		: Components.get(value)
 	if (component) {
 		return component
 	}
@@ -173,7 +173,7 @@ function Factory(value) {
 	}
 
 	// save in cache
-	typeof value === 'object'
+	isObject(value)
 		? WeakComponents.set(value, component)
 		: Components.set(value, component)
 

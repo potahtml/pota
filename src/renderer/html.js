@@ -12,14 +12,14 @@ import { callAll } from '../lib/std/callAll.js'
 import { camelCase } from '../lib/strings/camel-case.js'
 import { empty } from '../lib/std/empty.js'
 import { entries } from '../lib/std/entries.js'
+import { flat } from '../lib/std/flat.js'
 import { fromEntries } from '../lib/std/fromEntries.js'
 import { id, parse } from '../lib/dom/parse.js'
+import { isFunction } from '../lib/std/isFunction.js'
 import { toArray } from '../lib/std/toArray.js'
 import { weakStore } from '../lib/std/weakStore.js'
 
-import * as defaultRegistryTemplate from '../components/flow/@main.js'
-import { flat } from '../lib/std/flat.js'
-import { isFunction } from '../lib/std/isFunction.js'
+import * as defaultRegistryTemplate from '../web/flow/@main.js'
 
 const defaultRegistry = fromEntries(
 	entries(defaultRegistryTemplate).map(([k, v]) => [

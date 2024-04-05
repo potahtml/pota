@@ -7,8 +7,6 @@ import { markComponent } from '../component/markComponent.js'
 
 import { signal, withOwner } from './primitives/solid.js'
 
-import { Component } from '../../renderer/@main.js'
-
 /**
  * A Promise loader handler. Allows to display/run something or
  * nothing while a promise is resolving. Allows to run a callback when
@@ -45,7 +43,7 @@ export const lazy = (fn, options = nothing) =>
 				.then(r => {
 					onResolve(() => {
 						r = isObject(r) && r.default ? r.default : r
-						return isFunction(r) ? Component(r, props)() : r
+						return isFunction(r) ? r(props) : r
 					})
 					microtask(() => owned(onLoaded))
 				})

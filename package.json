@@ -1,7 +1,7 @@
 {
   "name": "pota",
   "description": "pota is a small and pluggable Reactive Web Renderer for Reactive Libraries.",
-  "version": "0.11.117",
+  "version": "0.12.117",
   "author": "Tito Bouzout",
   "homepage": "https://pota.quack.uy/",
   "repository": {
@@ -13,9 +13,7 @@
   "// Using 'typesVersions' here is the only way we could figure out how to get types working for imports of any subpath without any of the problems other approaches have when not using modeResolution:NodeNext (listed in https://stackoverflow.com/questions/77856692/how-to-publish-plain-jsjsdoc-library-for-typescript-consumers)": "",
   "typesVersions": {
     "*": {
-      "src/*": [
-        "types/*"
-      ]
+      "src/*": ["types/*"]
     }
   },
   "// These exports require moduleResolution:NodeNext to be enabled in the consumer.": "",
@@ -39,8 +37,16 @@
       "default": "./src/jsx-runtime.js"
     },
     "./router": {
-      "types": "./types/components/router/@main.d.ts",
-      "default": "./src/components/router/@main.js"
+      "types": "./types/web/router/@main.d.ts",
+      "default": "./src/web/router/@main.js"
+    },
+    "./web": {
+      "types": "./types/web/flow/@main.d.ts",
+      "default": "./src/web/flow/@main.js"
+    },
+    "./store": {
+      "types": "./types/lib/reactivity/store/@main.d.ts",
+      "default": "./src/lib/reactivity/store/@main.js"
     },
     "./hooks": {
       "types": "./types/hooks/@main.d.ts",
@@ -115,20 +121,20 @@
       "default": "./src/lib/urls/@main.js"
     },
     "./components": {
-      "types": "./types/components/library/@main.d.ts",
-      "default": "./src/components/library/@main.js"
+      "types": "./types/web/library/@main.d.ts",
+      "default": "./src/web/library/@main.js"
     },
     "./components/theme-light": {
-      "types": "./types/components/library/theme-light.d.ts",
-      "default": "./src/components/library/theme-light.js"
+      "types": "./types/web/library/theme-light.d.ts",
+      "default": "./src/web/library/theme-light.js"
     },
     "./components/theme-dark": {
-      "types": "./types/components/library/theme-dark.d.ts",
-      "default": "./src/components/library/theme-dark.js"
+      "types": "./types/web/library/theme-dark.d.ts",
+      "default": "./src/web/library/theme-dark.js"
     },
     "./components/*": {
-      "types": "./types/components/library/*/index.d.ts",
-      "default": "./src/components/library/*/index.js"
+      "types": "./types/web/library/*/index.d.ts",
+      "default": "./src/web/library/*/index.js"
     }
   },
   "scripts": {

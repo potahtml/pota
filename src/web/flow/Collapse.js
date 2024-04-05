@@ -7,24 +7,6 @@ import {
 import { Component } from '../../renderer/@main.js'
 import { css } from '../../lib/css/css.js'
 
-class CollapseElement extends CustomElement {
-	static styleSheets = [
-		css`
-			:host {
-				display: contents;
-			}
-		`,
-	]
-
-	/** @param {When} value - To toggle children */
-	set when(value) {
-		withValue(
-			value,
-			value => (this.html = getValue(value) ? '<slot/>' : ''),
-		)
-	}
-}
-
 /**
  * Similar to `Show`, but doesn't remove its children from the
  * document
@@ -37,6 +19,24 @@ class CollapseElement extends CustomElement {
  * @url https://pota.quack.uy/Components/Collapse
  */
 export function Collapse(props) {
+	class CollapseElement extends CustomElement {
+		static styleSheets = [
+			css`
+				:host {
+					display: contents;
+				}
+			`,
+		]
+
+		/** @param {When} value - To toggle children */
+		set when(value) {
+			withValue(
+				value,
+				value => (this.html = getValue(value) ? '<slot/>' : ''),
+			)
+		}
+	}
+
 	customElement('pota-collapse', CollapseElement)
 
 	return Component('pota-collapse', {

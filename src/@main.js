@@ -16,10 +16,6 @@ export {
 	untrack,
 } from './lib/reactivity/primitives/solid.js'
 
-// store
-export { signalify } from './lib/reactivity/store/signalify.js'
-export { mutable } from './lib/reactivity/store/mutable.js'
-
 export {
 	/**
 	 * To set and read refs. To use in ref attribute.
@@ -35,10 +31,6 @@ export { map } from './lib/reactivity/map.js'
 export { syncEffect } from './lib/reactivity/syncEffect.js'
 export { writable } from './lib/reactivity/writable.js'
 export { withValue } from './lib/reactivity/withValue.js'
-
-// COMPONENTS
-
-export * from './components/flow/@main.js'
 
 // RENDERER
 
@@ -68,11 +60,6 @@ export { ready } from './renderer/scheduler.js'
 export { makeCallback } from './lib/component/makeCallback.js'
 export { markComponent } from './lib/component/markComponent.js'
 export { isComponent } from './lib/component/isComponent.js'
-
-export {
-	CustomElement,
-	customElement,
-} from './lib/component/CustomElement.js'
 
 // COMPONENTS CLASSES
 
