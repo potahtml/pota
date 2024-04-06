@@ -7,18 +7,20 @@ TODO:
 	Miscellaneous:
 	- typings
 	- batching stuff
-	- should clean the listeners oncleanup or leave it to the browser?
 	- maybe only track memos and avoid marking stuff as components
 	- For not clearing main placeholder
 	- the fragment being a symbol is just weird
+	- ger rid of renderEffect for the main renderer
 
 	- include: proposal-signals
 	- include: solid-slim
 
-	- mutable: reconcile
 	- mutable: support set, maybe weakmap and weakset
 	- mutable: defineProperty proxy trap
+
+	- mutable: tracker
 	- mutable: figure out a whitelist vs blacklist
+	- mutable: reconcile
 
 POSSIBLE FEATURES:
 

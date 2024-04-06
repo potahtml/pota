@@ -55,8 +55,15 @@ export function addEventListener(node, type, handler) {
 
 	const off = () => removeEventListener(node, type, handler)
 
-	// remove event on cleanup?
-	// cleanup(off)
+	/**
+	 * Removes event on tracking scope disposal.
+	 *
+	 * Situation: the event was added to the `document` manually using
+	 * `addEventListener`, say to listen for clicks as a "click
+	 * outside". The event needs to be removed when the component that
+	 * added it is disposed.
+	 */
+	cleanup(off)
 
 	return off
 }
