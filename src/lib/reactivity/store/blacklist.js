@@ -13,7 +13,7 @@ import { ProxyHandlerObject } from './proxies/object.js'
 
 import { ReactiveArray } from './reactive/array.js'
 import { ReactiveMap } from './reactive/map.js'
-import { Track } from './tracker.js'
+import { $track, $trackSlot, Track } from './tracker.js'
 
 /**
  * Returns `true` when `object` can't be made mutable.
@@ -76,6 +76,8 @@ export const isKeyBlacklisted = key => keyBlacklist.has(key)
 export const keyBlacklist = new Set([
 	'constructor',
 	'__proto__',
+	$track,
+	$trackSlot,
 	...getOwnValues(Symbol).filter(isSymbol),
 ])
 
