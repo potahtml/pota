@@ -288,7 +288,10 @@ function createChildren(parent, child, relative) {
 					)
 				})
 
-				cleanup(() => toDiff(node))
+				cleanup(() => {
+					toDiff(node)
+					parent.remove()
+				})
 				return [node, parent]
 			}
 
@@ -297,7 +300,10 @@ function createChildren(parent, child, relative) {
 				node = toDiff(node, createChildren(parent, child(), true))
 			})
 
-			cleanup(() => toDiff(node))
+			cleanup(() => {
+				toDiff(node)
+				parent.remove()
+			})
 			/**
 			 * A placeholder is created and added to the document but doesnt
 			 * form part of the children. The placeholder needs to be
