@@ -253,7 +253,7 @@ function createChildren(parent, child, relative) {
 				return createChildren(parent, untrack(child), relative)
 			}
 
-			let node
+			let node = []
 
 			// signal/memo/external/user provided function
 			// needs placeholder to stay in position
