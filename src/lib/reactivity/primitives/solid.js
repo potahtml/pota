@@ -21,7 +21,6 @@ import {
 	untrack as _untrack,
 
 	// context
-	useContext,
 	getOwner,
 	runWithOwner,
 } from 'solid-js/dist/solid.js' // /dist/dev.js
@@ -129,7 +128,11 @@ export function Context(defaultValue = undefined) {
 	 */
 	function Context(newValue, fn) {
 		if (newValue === undefined) {
-			return useContext(context)
+			const owner = getOwner()
+
+			return owner && owner.context && owner.context[id] !== undefined
+				? owner.context[id]
+				: defaultValue
 		} else {
 			let res
 			renderEffect(() => {
