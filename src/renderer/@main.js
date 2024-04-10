@@ -3,8 +3,8 @@
 import {
 	cleanup,
 	Context,
+	effect,
 	memo,
-	renderEffect,
 	root,
 	signal,
 	untrack,
@@ -265,7 +265,7 @@ function createChildren(parent, child, relative) {
 
 			// For
 			if ($map in child) {
-				renderEffect(() => {
+				effect(() => {
 					node = toDiff(
 						node,
 						child(child => {
@@ -293,7 +293,7 @@ function createChildren(parent, child, relative) {
 			}
 
 			// maybe a signal so needs an effect
-			renderEffect(() => {
+			effect(() => {
 				node = toDiff(node, createChildren(parent, child(), true))
 			})
 
