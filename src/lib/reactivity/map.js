@@ -11,8 +11,9 @@ import { cleanup, root } from './primitives/solid.js'
  *
  * @param {Each} list
  * @param {Function} callback
+ * @param {boolean} sort
  */
-export function map(list, callback) {
+export function map(list, callback, sort) {
 	const cache = new Map()
 	const duplicates = new Map() // for when caching by value is not possible [1, 2, 1, 1, 1]
 
@@ -129,7 +130,7 @@ export function map(list, callback) {
 		// reorder elements
 		// `rows.length > 1` because no need for sorting when there are no items
 		// prev.length > 0 to skip sorting on creation as its already sorted
-		if (rows.length > 1 && prev.length) {
+		if (sort && rows.length > 1 && prev.length) {
 			// if the planets align it handles swapping
 			// a = sorted
 			// b = unsorted

@@ -9,9 +9,7 @@ TODO:
 
 	fix me
 	- the fragment being a symbol is just weird, fix makeCallback
-	- For not clearing main placeholder
 	- For in createChildren could be simplified?
-	- add back sort on For
 
 	maybe
 	- include: proposal-signals

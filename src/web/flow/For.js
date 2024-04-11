@@ -12,4 +12,4 @@ import { makeCallback } from '../../lib/component/makeCallback.js'
  * @url https://pota.quack.uy/Components/For
  */
 export const For = props =>
-	map(props.each, makeCallback(props.children))
+	map(props.each, makeCallback(props.children), true)
