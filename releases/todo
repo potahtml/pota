@@ -6,21 +6,33 @@ TODO:
 
 	Miscellaneous:
 	- typings
-	- batching stuff
-	- maybe only track memos and avoid marking stuff as components
-	- For not clearing main placeholder
-	- the fragment being a symbol is just weird
-	- ger rid of renderEffect for the main renderer
 
+	fix me
+	- the fragment being a symbol is just weird, fix makeCallback
+	- For not clearing main placeholder
+	- For in createChildren could be simplified?
+	- add back sort on For
+
+	maybe
 	- include: proposal-signals
 	- include: solid-slim
 
-	- mutable: support set, maybe weakmap and weakset
-	- mutable: defineProperty proxy trap
-
+	now
 	- mutable: tracker
 	- mutable: figure out a whitelist vs blacklist
 	- mutable: reconcile
+
+	later
+	- mutable: support set, maybe weakmap and weakset
+	- mutable: defineProperty proxy trap
+
+	ideas
+	- make effects lazy and get rid of markComponent
+
+	almost done
+	- ger rid of renderEffect from the main renderer
+	- write own context
+
 
 POSSIBLE FEATURES:
 
@@ -32,6 +44,7 @@ POSSIBLE FEATURES:
 
 	Components:
 	- provide fallback for collapse
+	- provide fallback for For
 
 	Router:
 	- make the `path` reactive
