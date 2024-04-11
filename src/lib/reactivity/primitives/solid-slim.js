@@ -110,7 +110,6 @@ export const untrack = _untrack
  */
 export function Context(defaultValue = undefined) {
 	const id = Symbol()
-	const context = { id, defaultValue }
 
 	/**
 	 * @overload Gets the context value
