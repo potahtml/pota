@@ -38,13 +38,14 @@ module.exports = function (context, options = { lib: 'solid' }) {
 	if (
 		lib !== 'oby' &&
 		lib !== 'solid' &&
+		lib !== 'solid-slim' &&
 		// the ones marked with "dev" are in progress/broken
 		lib !== 'flimsy-dev' &&
 		lib !== 'maverick-dev'
 	) {
 		throw new Error(`
 \`pota/babel-preset\`: \`lib\` option should be one of the following:
-\`oby\`, \`solid\`, \`flimsy-dev\`, \`maverick-dev\`
+\`oby\`, \`solid\`,\`solid-slim\`, \`flimsy-dev\`, \`maverick-dev\`
 `)
 	}
 

@@ -150,11 +150,12 @@
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.23.4",
+    "@maverick-js/signals": "^5.11.4",
     "babel-plugin-transform-rename-import": "^2.3.0",
+    "flimsy": "^1.1.0",
     "oby": "^15.1.0",
     "solid-js": "^1.8.12",
-    "flimsy": "^1.1.0",
-    "@maverick-js/signals": "^5.11.4"
+    "solid-slim": "^0.0.1"
   },
   "peerDependencies": {
     "@babel/core": "^7.23.9",
