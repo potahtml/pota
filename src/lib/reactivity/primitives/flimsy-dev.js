@@ -70,9 +70,7 @@ export const renderEffect = createEffect
  *
  * @param {Function} fn
  */
-export const effect = fn => {
-	createEffect(() => _batch(fn))
-}
+export const effect = createEffect
 
 /**
  * Batches changes to signals
