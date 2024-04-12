@@ -7,7 +7,6 @@ import {
 // utils
 import { optional } from '../../lib/std/@main.js'
 import { replaceParams, origin } from '../../lib/urls/@main.js'
-import { scrollToLocationHash } from '../../lib/scroll/scrollToLocationHash.js'
 
 // local
 import { Context, create } from './context.js'
