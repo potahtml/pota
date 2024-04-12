@@ -6,7 +6,7 @@ import { PrototypeMap } from '../../std/PrototypeMap.js'
 import { replacePrototypeWith } from '../../std/replacePrototypeWith.js'
 import { weakStore } from '../../std/weakStore.js'
 
-import { untrack } from '../primitives/solid.js'
+import { untrack } from '../reactive.js'
 
 import { ProxyHandlerArray } from './proxies/array.js'
 import { ProxyHandlerObject } from './proxies/object.js'

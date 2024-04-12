@@ -2,7 +2,7 @@ import {
 	effect,
 	signal,
 	cleanup,
-} from '../lib/reactivity/primitives/solid.js'
+} from '../lib/reactivity/reactive.js'
 
 /**
  * Returns a `isSelected` function that will return `true` when the
@@ -21,10 +21,10 @@ export function useSelector(value) {
 		if (selected === prev) return
 
 		const previous = map.get(prev)
-		if (previous) previous[1](false)
+		if (previous) previous.write(false)
 
 		const current = map.get(selected)
-		if (current) current[1](true)
+		if (current) current.write(true)
 
 		prev = selected
 	})
@@ -40,18 +40,18 @@ export function useSelector(value) {
 		let selected = map.get(item)
 		if (!selected) {
 			selected = signal(item === value())
-			selected[2] = 0
+			selected.counter = 0
 			map.set(item, selected)
 		}
 
-		selected[2]++
+		selected.counter++
 
 		cleanup(() => {
-			if (--selected[2] === 0) {
+			if (--selected.counter === 0) {
 				map.delete(item)
 			}
 		})
 
-		return selected[0]
+		return selected.read
 	}
 }

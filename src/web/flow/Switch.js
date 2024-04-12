@@ -1,4 +1,4 @@
-import { memo } from '../../lib/reactivity/primitives/solid.js'
+import { memo } from '../../lib/reactivity/reactive.js'
 import { resolve } from '../../renderer/@main.js'
 import { getValue, isNullUndefined } from '../../lib/std/@main.js'
 import { makeCallback } from '../../lib/component/makeCallback.js'

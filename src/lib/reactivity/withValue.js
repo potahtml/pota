@@ -1,6 +1,6 @@
 import { getValue } from '../std/getValue.js'
 import { isFunction } from '../std/isFunction.js'
-import { effect } from './primitives/solid.js'
+import { effect } from './reactive.js'
 
 /**
  * Runs a function inside an effect if value is a function

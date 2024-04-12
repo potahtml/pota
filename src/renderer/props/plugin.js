@@ -1,5 +1,5 @@
 import { empty, microtask } from '../../lib/std/@main.js'
-import { withOwner } from '../../lib/reactivity/primitives/solid.js'
+import { withOwner } from '../../lib/reactivity/reactive.js'
 
 export const plugins = empty()
 export const pluginsNS = empty()
@@ -39,9 +39,9 @@ export const propsPlugin = (propName, fn, runOnMicrotask = true) => {
  * ) => void} fn
  *   - Function to run when this prop is found on any Element
  *
- * @param {boolean} [runOnMicrotask=true] - To avoid the problem of
- *   needed props not being set, or children elements not created yet.
- *   Default is `true`
+ * @param {boolean} [runOnMicrotask=true] - Set to run on a microtask
+ *   to avoid the problem of needed props not being set, or children
+ *   elements not being created yet. Default is `true`
  */
 export const propsPluginNS = (NSName, fn, runOnMicrotask = true) => {
 	plugin(pluginsNS, NSName, fn, runOnMicrotask)

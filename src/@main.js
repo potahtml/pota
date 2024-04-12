@@ -8,13 +8,13 @@ export {
 	batch,
 	cleanup,
 	effect,
-	renderEffect,
+	syncEffect,
 	root,
 	signal,
 	memo,
 	withOwner,
 	untrack,
-} from './lib/reactivity/primitives/solid.js'
+} from './lib/reactivity/reactive.js'
 
 export {
 	/**
@@ -28,7 +28,7 @@ export {
 
 export { map } from './lib/reactivity/map.js'
 
-export { syncEffect } from './lib/reactivity/syncEffect.js'
+export { asyncEffect } from './lib/reactivity/asyncEffect.js'
 export { writable } from './lib/reactivity/writable.js'
 export { withValue } from './lib/reactivity/withValue.js'
 

@@ -1,5 +1,5 @@
 import { signalify } from '../../../lib/reactivity/store/signalify.js'
-import { syncEffect } from '../../../lib/reactivity/syncEffect.js'
+import { asyncEffect } from '../../../lib/reactivity/asyncEffect.js'
 
 import { ref } from '../../../@main.js'
 
@@ -118,7 +118,7 @@ customElement(
 			this.hidden = !this.show
 			let firstRun = true
 
-			syncEffect(async currentEffect => {
+			asyncEffect(async currentEffect => {
 				// access for tracking
 				const base = this.#base()
 				const show = this.show

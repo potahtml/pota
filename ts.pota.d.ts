@@ -4,7 +4,8 @@ type Elements = HTMLElement | Element | Node | EventTarget
 
 // general
 
-type Signal = Function
+type Signal = () => any
+
 type SignalOptions =
   | { equals?: false }
   | { equals?: (a, b) => boolean }
@@ -13,6 +14,12 @@ type SignalOptions =
 type SignalSetter = (
   value?: any | ((prevValue?: any) => any),
 ) => unknown
+
+type SignalObject<T> = (
+  | [Signal, SignalSetter]
+  | { read: Signal; write: SignalSetter }
+) &
+  Iterable<T>
 
 // props
 

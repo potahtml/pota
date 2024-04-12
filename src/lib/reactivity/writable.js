@@ -1,5 +1,5 @@
 import { markReactive } from './markReactive.js'
-import { memo, signal } from './primitives/solid.js'
+import { memo, signal } from './reactive.js'
 
 /**
  * Lazy and writable version of `memo`, its writable and will run the
@@ -13,6 +13,6 @@ export function writable(fn) {
   const result = memo(() => signal(fn()))
 
   return markReactive((...args) => {
-    return args.length ? result()[1](args[0]) : result()[0]()
+    return args.length ? result().write(args[0]) : result().read()
   })
 }

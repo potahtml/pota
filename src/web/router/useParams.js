@@ -3,7 +3,7 @@ import { empty, entries } from '../../lib/std/@main.js'
 import {
 	signal,
 	memo,
-} from '../../lib/reactivity/primitives/solid.js'
+} from '../../lib/reactivity/reactive.js'
 import { decodeURIComponent } from '../../lib/urls/@main.js'
 
 const [getParams, setParams] = signal(() => empty())

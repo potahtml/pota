@@ -4,7 +4,7 @@ import { $map } from '../../constants.js'
 import { getValue } from '../std/getValue.js'
 import { groupBy } from '../std/groupBy.js'
 import { removeFromArray } from '../std/removeFromArray.js'
-import { cleanup, root } from './primitives/solid.js'
+import { cleanup, root } from './reactive.js'
 
 /**
  * Reactive Map

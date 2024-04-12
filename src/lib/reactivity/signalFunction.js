@@ -1,5 +1,5 @@
 import { markReactive } from './markReactive.js'
-import { signal } from './primitives/solid.js'
+import { signal } from './reactive.js'
 
 /**
  * A self contained signal function, when an argument is present it

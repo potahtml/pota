@@ -6,7 +6,7 @@ import {
 	propsPlugin,
 	propsPluginNS,
 } from '../@main.js'
-import { effect } from '../lib/reactivity/primitives/solid.js'
+import { effect } from '../lib/reactivity/reactive.js'
 
 export {
 	/**

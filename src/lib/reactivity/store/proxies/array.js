@@ -1,7 +1,7 @@
 import { reflectGet, reflectSet } from '../../../std/reflect.js'
 import { isFunction } from '../../../std/isFunction.js'
 
-import { batch } from '../../primitives/solid.js'
+import { batch } from '../../reactive.js'
 
 import { mutable } from '../mutable.js'
 import { ProxyHandlerBase } from './base.js'

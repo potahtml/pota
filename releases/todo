@@ -11,9 +11,6 @@ TODO:
 	- the fragment being a symbol is just weird, fix makeCallback
 	- For in createChildren could be simplified?
 
-	maybe
-	- include: proposal-signals
-
 	now
 	- mutable: tracker
 	- mutable: figure out a whitelist vs blacklist
@@ -26,10 +23,12 @@ TODO:
 	ideas
 	- make effects lazy and get rid of markComponent
 
-	almost done
-	- ger rid of renderEffect from the main renderer
-	- write own context
+	bench
+	 218.90 - 10k
+	 13.94 - 10k
 
+	 20.2 - 1k
+	 1.18 - 1k
 
 POSSIBLE FEATURES:
 

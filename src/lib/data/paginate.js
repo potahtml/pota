@@ -1,4 +1,4 @@
-import { memo, signal } from '../reactivity/primitives/solid.js'
+import { memo, signal } from '../reactivity/reactive.js'
 import { getValue } from '../std/getValue.js'
 import { toArray } from '../std/toArray.js'
 
@@ -53,7 +53,7 @@ export function paginateValues(items, numPerPage) {
  */
 
 export function paginate(fetch, options) {
-	const [page, pageSet] = signal(0)
+	const [page, pageSet, pageUpdate] = signal(0)
 
 	const totalPages = memo(() => {
 		const pages = Math.ceil(
@@ -75,8 +75,8 @@ export function paginate(fetch, options) {
 		currentPage: () => page() + 1,
 		totalPages,
 		hasNext,
-		next: () => hasNext() && pageSet(value => value + 1),
+		next: () => hasNext() && pageUpdate(value => value + 1),
 		hasPrevious,
-		previous: () => hasPrevious() && pageSet(value => value - 1),
+		previous: () => hasPrevious() && pageUpdate(value => value - 1),
 	}
 }

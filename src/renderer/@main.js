@@ -8,8 +8,7 @@ import {
 	root,
 	signal,
 	untrack,
-	withOwner,
-} from '../lib/reactivity/primitives/solid.js'
+} from '../lib/reactivity/reactive.js'
 
 import { isReactive } from '../lib/reactivity/isReactive.js'
 
@@ -71,7 +70,8 @@ export const Fragment = Symbol()
  * props become fixed. When props argument is ommited, it allows you
  * to keep calling the returned function with new props.
  *
- * @param {string | Function | Element | object} value - Component
+ * @param {string | Function | Element | object | symbol} value -
+ *   Component
  * @param {any} [props] Object
  * @param {any} [key]
  * @url https://pota.quack.uy/Component
@@ -356,12 +356,9 @@ function createChildren(parent, child, relative) {
 			// async components
 			if ('then' in child) {
 				const [value, setValue] = signal(undefined)
-				/**
-				 * If the result of the promise is a function it runs it with
-				 * an owner. Else it will just use the return value
-				 */
-				const owned = withOwner()
-				const onResult = r => parent.isConnected && setValue(owned(r))
+
+				const onResult = result =>
+					parent.isConnected && setValue(result)
 
 				child.then(onResult).catch(onResult)
 				return createChildren(parent, value, relative)
@@ -431,7 +428,6 @@ const createPlaceholder = (parent, text, relative) => {
 	)
 }
 
-let head
 let headQuerySelector
 
 /**
@@ -444,12 +440,13 @@ let headQuerySelector
  */
 
 function insertNode(parent, node, relative) {
-	if (!head) {
-		head = document.head
-		headQuerySelector = head.querySelector.bind(head)
-	}
 	// special case `head`
-	if (parent === head) {
+	if (parent === document.head) {
+		if (!headQuerySelector) {
+			const head = document.head
+			headQuerySelector = head.querySelector.bind(head)
+		}
+
 		const name = node.tagName
 
 		// search for tags that should be unique

@@ -1,11 +1,10 @@
 import { create } from '../../std/create.js'
 import { empty } from '../../std/empty.js'
 import { is } from '../../std/is.js'
-import { isFunction } from '../../std/isFunction.js'
 import { Symbol } from '../../std/Symbol.js'
 import { weakStore } from '../../std/weakStore.js'
 
-import { signal } from '../primitives/solid.js'
+import { signal } from '../reactive.js'
 
 /** @type symbol */
 export const $track = Symbol('track')
@@ -121,8 +120,7 @@ export class Track {
 
 		/** Do not write to the signal here it will cause a loop */
 		const signal = signals(this.#prop(key), Value, value, 1)
-		signal[2] = value
-		return signal[0](), value
+		return signal.read(), value
 	}
 	/**
 	 * Keeps track of: a value for a `key`
@@ -139,10 +137,7 @@ export class Track {
 		 * value changes
 		 */
 		const signal = signals(this.#prop(key), Value, value, 1)
-		const changed = signal[2] !== value
-		signal[2] = value
-		signal[1](isFunction(value) ? () => value : value)
-		return changed
+		return signal.write(value)
 	}
 
 	/**
@@ -154,7 +149,7 @@ export class Track {
 	hasRead(key, value) {
 		debug && console.log('hasRead', key, value)
 
-		signals(this.#prop(key), Has, value, 0)[0]()
+		signals(this.#prop(key), Has, value, 0).read()
 	}
 	/**
 	 * Keeps track of: if a `key` is in an object.
@@ -165,7 +160,7 @@ export class Track {
 	hasWrite(key, value) {
 		debug && console.log('hasWrite', key, value)
 
-		signals(this.#prop(key), Has, value, 0)[1](value)
+		signals(this.#prop(key), Has, value, 0).write(value)
 	}
 
 	/**
@@ -179,7 +174,7 @@ export class Track {
 	isUndefinedRead(key, value) {
 		debug && console.log('isUndefinedRead', key, value)
 
-		signals(this.#prop(key), isUndefined, value, 0)[0]()
+		signals(this.#prop(key), isUndefined, value, 0).read()
 	}
 	/**
 	 * Keeps track of: if value is undefined, regardless if the `key`
@@ -192,7 +187,7 @@ export class Track {
 	isUndefinedWrite(key, value) {
 		debug && console.log('isUndefinedWrite', key, value)
 
-		signals(this.#prop(key), isUndefined, value, 0)[1](value)
+		signals(this.#prop(key), isUndefined, value, 0).write(value)
 	}
 
 	/**
@@ -254,13 +249,13 @@ export class Track {
 	read(key = All) {
 		debug && console.log('read', key)
 
-		signals(this.#prop(key), Value, undefined, 2)[0]()
+		signals(this.#prop(key), Value, undefined, 2).read()
 	}
 	/** To indicate all values have changed */
 	write(key = All) {
 		debug && console.log('write', key)
 
-		signals(this.#prop(key), Value, undefined, 2)[1]()
+		signals(this.#prop(key), Value, undefined, 2).write()
 	}
 
 	/** `ownKeys` read */

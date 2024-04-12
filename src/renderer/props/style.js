@@ -1,6 +1,6 @@
 // node style
 
-import { effect } from '../../lib/reactivity/primitives/solid.js'
+import { effect } from '../../lib/reactivity/reactive.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
 
 import {

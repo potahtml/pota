@@ -1,4 +1,4 @@
-import { cleanup } from '../lib/reactivity/primitives/solid.js'
+import { cleanup } from '../lib/reactivity/reactive.js'
 import { withValue } from '../lib/reactivity/withValue.js'
 
 /**

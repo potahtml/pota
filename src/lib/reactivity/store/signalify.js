@@ -7,7 +7,7 @@ import { identity } from '../../std/identity.js'
 import { isExtensible } from '../../std/isExtensible.js'
 import { isFunction } from '../../std/isFunction.js'
 
-import { batch } from '../primitives/solid.js'
+import { batch } from '../reactive.js'
 
 import { tracker, trackerValueSignal } from './tracker.js'
 import { isKeyBlacklisted, isMethodBlacklisted } from './blacklist.js'

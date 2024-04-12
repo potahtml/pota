@@ -1,10 +1,10 @@
 import {
 	signal,
-	renderEffect,
+	syncEffect,
 	batch,
 	cleanup,
 	root,
-} from '../lib/reactivity/primitives/solid.js'
+} from '../lib/reactivity/reactive.js'
 
 import { Component, toHTML } from './@main.js'
 
@@ -15,7 +15,6 @@ import { entries } from '../lib/std/entries.js'
 import { flat } from '../lib/std/flat.js'
 import { fromEntries } from '../lib/std/fromEntries.js'
 import { id, parse } from '../lib/dom/parse.js'
-import { isFunction } from '../lib/std/isFunction.js'
 import { toArray } from '../lib/std/toArray.js'
 import { weakStore } from '../lib/std/weakStore.js'
 
@@ -158,7 +157,7 @@ export const htmlEffect = (
 			batch(() => {
 				for (const [key, value] of entries(values)) {
 					// getValue(value) causes tracking
-					cached[0][key][1](isFunction(value) ? () => value : value)
+					cached[0][key].write(value)
 				}
 			})
 
@@ -210,7 +209,7 @@ export const htmlEffect = (
 				...values.map((value, key) => {
 					signals[key] = signal(value)
 					// give accesors to template instead of the `values`
-					return signals[key][0]
+					return signals[key].read
 				}),
 			)
 		})
@@ -230,7 +229,7 @@ export const htmlEffect = (
 
 	let result
 
-	renderEffect(() => {
+	syncEffect(() => {
 		result = update()
 	})
 

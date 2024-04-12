@@ -1,4 +1,4 @@
-import { cleanup } from '../../lib/reactivity/primitives/solid.js'
+import { cleanup } from '../../lib/reactivity/reactive.js'
 import { empty } from '../../lib/std/empty.js'
 import { isFunction } from '../../lib/std/isFunction.js'
 

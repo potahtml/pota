@@ -1,8 +1,5 @@
 import { Show, Dynamic, Collapse } from '../flow/@main.js'
-import {
-	cleanup,
-	memo,
-} from '../../lib/reactivity/primitives/solid.js'
+import { cleanup, memo } from '../../lib/reactivity/reactive.js'
 
 // utils
 import { optional } from '../../lib/std/@main.js'
@@ -63,7 +60,7 @@ export function Route(props) {
 	const show = memo(() => {
 		const path = location.path()
 		if (route.test(path)) {
-			setParams(() => () => route.exec(path).groups)
+			setParams(() => route.exec(path).groups)
 
 			if (href === '') {
 				href = path.replace(path.replace(route, ''), '')

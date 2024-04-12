@@ -1,14 +1,11 @@
-import {
-	signal,
-	memo,
-} from '../../lib/reactivity/primitives/solid.js'
+import { signal, memo } from '../../lib/reactivity/reactive.js'
 import { nothing, removeFromArray } from '../../lib/std/@main.js'
 import { context } from '../../renderer/@main.js'
 
 const show = () => false
 
 export function create(props = nothing) {
-	const [children, setChildren] = signal([])
+	const [children, setChildren, updateChildren] = signal([])
 
 	return {
 		base: '', // the composed base route
@@ -18,13 +15,13 @@ export function create(props = nothing) {
 		scrolls: [], // elements to scroll
 		// the children routes
 		addChildren: child => {
-			setChildren(children => {
+			updateChildren(children => {
 				children.push(child)
 				return [...children]
 			})
 		},
 		removeChildren: child => {
-			setChildren(children => {
+			updateChildren(children => {
 				removeFromArray(children, child)
 				return [...children]
 			})

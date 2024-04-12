@@ -2,7 +2,7 @@ import { origin } from '../../lib/urls/@main.js'
 import {
 	signal,
 	memo,
-} from '../../lib/reactivity/primitives/solid.js'
+} from '../../lib/reactivity/reactive.js'
 import { empty } from '../../lib/std/@main.js'
 
 // local
