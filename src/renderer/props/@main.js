@@ -73,9 +73,9 @@ propsPluginNS('on', setEventNS, false)
 import { setUnknownProp } from './unknown.js'
 import { eventName, addEventListener } from './event.js'
 
-const isCustomElement = node =>
+const isCustomElement = (node, props) =>
 	// document-fragment wont have a localName
-	node.localName?.includes('-')
+	'is' in props || node.localName?.includes('-')
 
 /**
  * Assigns props to an Element
@@ -86,9 +86,6 @@ const isCustomElement = node =>
 export function assignProps(node, props) {
 	let name
 	let value
-	let event
-	let ns
-	let localName
 
 	for ([name, value] of entries(props)) {
 		// internal props
@@ -101,7 +98,7 @@ export function assignProps(node, props) {
 		}
 
 		// onClick={handler}
-		event = eventName(name)
+		let event = eventName(name)
 		if (event) {
 			addEventListener(node, event, value)
 			continue
@@ -109,7 +106,7 @@ export function assignProps(node, props) {
 
 		if (name.includes(':')) {
 			// with ns
-			;[ns, localName] = name.split(':')
+			let [ns, localName] = name.split(':')
 
 			// run plugins NS
 			if (pluginsNS[ns]) {
@@ -124,14 +121,14 @@ export function assignProps(node, props) {
 				continue
 			}
 
-			isCustomElement(node)
+			isCustomElement(node, props)
 				? _setProperty(node, name, value)
 				: setUnknownProp(node, name, value, ns)
 			continue
 		}
 
 		// catch all
-		isCustomElement(node)
+		isCustomElement(node, props)
 			? _setProperty(node, name, value)
 			: setUnknownProp(node, name, value)
 	}
