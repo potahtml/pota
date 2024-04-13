@@ -68,7 +68,11 @@ export const Fragment = Symbol()
 /**
  * Creates components for things. When props argument is given, the
  * props become fixed. When props argument is ommited, it allows you
- * to keep calling the returned function with new props.
+ * to keep calling the returned function with new props. Returns a
+ * function because we need to render from parent to children instead
+ * of from children to parent. This allows to properly set the
+ * reactivity tree (think of nested effects that clear inner effects,
+ * context, etc).
  *
  * @param {string | Function | Element | object | symbol} value -
  *   Component
@@ -78,13 +82,6 @@ export const Fragment = Symbol()
  */
 
 export function Component(value, props, key) {
-	/**
-	 * Returns a function because we need to render from parent to
-	 * children instead of from children to parent. This allows to
-	 * properly set the reactivity tree (think of nested effects that
-	 * clear inner effects, context, etc).
-	 */
-
 	if (value === Fragment) {
 		return props.children
 	}
@@ -98,9 +95,9 @@ export function Component(value, props, key) {
 	freeze(props)
 
 	/**
-	 * Create a callable function to pass `props`. When props its not
-	 * defined it allows the user to make a Factory of components, when
-	 * props its defined the props are fixed.
+	 * Create a callable function to pass `props`. When `props` its not
+	 * defined it allows the user to make a `Factory` of components,
+	 * when `props` its defined the `props` are fixed.
 	 */
 
 	return props === undefined
