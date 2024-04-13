@@ -12,9 +12,10 @@ export const adoptedStyleSheets = document.adoptedStyleSheets
 
 export function toDiff(prev = [], node = []) {
 	node = isArray(node) ? node.flat(Infinity) : [node]
-	const length = node.length
 	for (const item of prev) {
-		item && (length === 0 || !node.includes(item)) && item.remove()
+		item &&
+			(node.length === 0 || !node.includes(item)) &&
+			item.remove()
 	}
 	return node
 }
