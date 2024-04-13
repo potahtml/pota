@@ -57,7 +57,7 @@ import {
 
 const Components = new Map()
 const WeakComponents = new WeakMap()
-const defaultProps = nothing
+
 const useXMLNS = context()
 
 // COMPONENTS
@@ -88,7 +88,11 @@ export function Component(value, props, key) {
 
 	/** Freaking automatic transform sends the key via a 3rd argument */
 	if (key !== undefined) {
-		props.key = key
+		if (props === undefined) {
+			props = { key }
+		} else {
+			props.key = key
+		}
 	}
 
 	/** Freeze props so isnt directly writable */
@@ -117,9 +121,12 @@ function Factory(value) {
 		return value
 	}
 
-	let component = isObject(value)
+	const isWeak = isObject(value)
+
+	let component = isWeak
 		? WeakComponents.get(value)
 		: Components.get(value)
+
 	if (component) {
 		return component
 	}
@@ -127,19 +134,13 @@ function Factory(value) {
 	switch (typeof value) {
 		case 'string': {
 			// string component, 'div' becomes <div>
-			component = (props = defaultProps) => createTag(value, props)
+			component = createTag.bind(null, value)
 			break
 		}
 		case 'function': {
 			if ($class in value) {
 				// class component <MyComponent../>
-				component = (props = defaultProps) => {
-					const i = new value()
-					i.ready && ready(i.ready.bind(i))
-					i.cleanup && cleanup(i.cleanup.bind(i))
-
-					return i.render(props)
-				}
+				component = createClass.bind(null, value)
 				break
 			}
 
@@ -150,9 +151,10 @@ function Factory(value) {
 			 * ```
 			 */
 			if (isReactive(value)) {
-				component = () => value
+				component = createAnything.bind(null, value)
 				break
 			}
+
 			// function component <MyComponent../>
 			component = value
 			break
@@ -160,21 +162,33 @@ function Factory(value) {
 		default: {
 			if (value instanceof Node) {
 				// node component <div>
-				component = (props = defaultProps) => createNode(value, props)
+				component = createNode.bind(null, value)
 				break
 			}
 
-			component = () => value
+			component = createAnything.bind(null, value)
 			break
 		}
 	}
 
 	// save in cache
-	isObject(value)
+	isWeak
 		? WeakComponents.set(value, component)
 		: Components.set(value, component)
 
 	return markComponent(component)
+}
+
+function createClass(value, props) {
+	const i = new value()
+	i.ready && ready(i.ready.bind(i))
+	i.cleanup && cleanup(i.cleanup.bind(i))
+
+	return i.render(props)
+}
+
+function createAnything(value, props) {
+	return value
 }
 
 /**
@@ -220,11 +234,11 @@ function createTag(tagName, props) {
  * @returns {Elements} Element
  */
 function createNode(node, props) {
-	// assign the props to the node
-	assignProps(node, props)
+	if (props) {
+		assignProps(node, props)
 
-	createChildren(node, props.children)
-
+		createChildren(node, props.children)
+	}
 	return node
 }
 
