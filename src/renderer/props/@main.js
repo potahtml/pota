@@ -1,5 +1,3 @@
-import { entries } from '../../lib/std/@main.js'
-
 import {
 	plugins,
 	pluginsNS,
@@ -87,9 +85,11 @@ export function assignProps(node, props) {
 	let name
 	let value
 
-	for ([name, value] of entries(props)) {
+	for (name in props) {
 		// internal props
 		if (name === 'children') continue
+
+		value = props[name]
 
 		// run plugins
 		if (plugins[name]) {

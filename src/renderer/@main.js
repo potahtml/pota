@@ -429,9 +429,7 @@ function createChildren(parent, child, relative) {
 			// CSSStyleSheet
 			if (child instanceof CSSStyleSheet) {
 				adoptedStyleSheets.push(child)
-				cleanup(() => {
-					removeFromArray(adoptedStyleSheets, child)
-				})
+				cleanup(() => removeFromArray(adoptedStyleSheets, child))
 				return null
 			}
 

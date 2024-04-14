@@ -12,7 +12,8 @@ export const adoptedStyleSheets = document.adoptedStyleSheets
 
 export function toDiff(prev = [], node = []) {
 	node = isArray(node) ? node.flat(Infinity) : [node]
-	for (const item of prev) {
+	for (let i = 0, item; i < prev.length; i++) {
+		item = prev[i]
 		item &&
 			(node.length === 0 || !node.includes(item)) &&
 			item.remove()

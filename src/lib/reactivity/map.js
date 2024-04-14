@@ -24,8 +24,8 @@ export function map(list, callback, sort) {
 	let prev = []
 
 	function clear() {
-		for (const row of prev) {
-			row.dispose(true)
+		for (let i = 0; i < prev.length; i++) {
+			prev[i].dispose(true)
 		}
 		cache.clear()
 		duplicates.clear()
@@ -104,8 +104,11 @@ export function map(list, callback, sort) {
 					dupes = []
 					duplicates.set(item, dupes)
 				}
-				for (row of dupes) {
-					if (row.runId !== runId) break
+				for (let i = 0; i < dupes.length; i++) {
+					if (dupes[i].runId !== runId) {
+						row = dupes[i]
+						break
+					}
 				}
 				if (row.runId === runId) {
 					row = new Row(item, index, cb, true)
@@ -122,8 +125,10 @@ export function map(list, callback, sort) {
 		if (rows.length === 0) {
 			clear()
 		} else {
-			for (const row of prev) {
-				if (row.runId !== runId) row.dispose()
+			for (let i = 0; i < prev.length; i++) {
+				if (prev[i].runId !== runId) {
+					prev[i].dispose()
+				}
 			}
 		}
 

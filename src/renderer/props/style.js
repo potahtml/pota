@@ -4,7 +4,6 @@ import { effect } from '../../lib/reactivity/reactive.js'
 import { withValue } from '../../lib/reactivity/withValue.js'
 
 import {
-	entries,
 	getValue,
 	isObject,
 	isNullUndefined,
@@ -51,8 +50,10 @@ export const setVarNS = (node, name, value, props, localName, ns) =>
  */
 function setNodeStyle(style, value) {
 	if (isObject(value)) {
-		for (const [name, _value] of entries(value))
-			setStyleValue(style, name, _value)
+		let name
+		for (name in value) {
+			setStyleValue(style, name, value[name])
+		}
 		return
 	}
 	const type = typeof value

@@ -231,8 +231,7 @@ class Memo extends Computation {
 			this.value = value
 			if (this.observers && this.observers.length) {
 				runUpdates(() => {
-					let observer
-					for (let i = 0; i < this.observers.length; i++) {
+					for (let i = 0, observer; i < this.observers.length; i++) {
 						observer = this.observers[i]
 
 						if (observer.state === CLEAN) {
@@ -348,8 +347,7 @@ class Signal {
 			this.value = value
 			if (this.observers && this.observers.length) {
 				runUpdates(() => {
-					let observer
-					for (let i = 0; i < this.observers.length; i++) {
+					for (let i = 0, observer; i < this.observers.length; i++) {
 						observer = this.observers[i]
 
 						if (observer.state === CLEAN) {
@@ -549,8 +547,7 @@ function runTop(node) {
 		node = node.owner
 	} while (node && node.updatedAt < Time)
 
-	let updates
-	for (let i = ancestors.length - 1; i >= 0; i--) {
+	for (let i = ancestors.length - 1, updates; i >= 0; i--) {
 		node = ancestors[i]
 
 		switch (node.state) {
@@ -623,8 +620,8 @@ function runQueue(queue) {
 function runEffects(queue) {
 	let i
 
-	let userLength = 0
 	let effect
+	let userLength = 0
 	for (i = 0; i < queue.length; i++) {
 		effect = queue[i]
 
@@ -643,8 +640,7 @@ function runEffects(queue) {
 function upstream(node, ignore) {
 	node.state = CLEAN
 
-	let source
-	for (let i = 0; i < node.sources.length; i++) {
+	for (let i = 0, source; i < node.sources.length; i++) {
 		source = node.sources[i]
 
 		if (source.sources) {
@@ -665,8 +661,7 @@ function upstream(node, ignore) {
 }
 
 function downstream(node) {
-	let observer
-	for (let i = 0; i < node.observers.length; i++) {
+	for (let i = 0, observer; i < node.observers.length; i++) {
 		observer = node.observers[i]
 
 		if (observer.state === CLEAN) {

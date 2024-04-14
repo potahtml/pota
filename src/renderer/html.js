@@ -100,8 +100,9 @@ export function HTML(options = { unwrap: true }) {
 
 	html.components = components
 	html.define = userComponents => {
-		for (const [name, component] of entries(userComponents)) {
-			components[name.toLowerCase()] = component
+		let name
+		for (name in userComponents) {
+			components[name.toLowerCase()] = userComponents[name]
 		}
 	}
 
@@ -155,9 +156,9 @@ export const htmlEffect = (
 			 * It batches changes so it updates the template in one shot
 			 */
 			batch(() => {
-				for (const [key, value] of entries(values)) {
+				for (let key = 0; key < values.length; key++) {
 					// getValue(value) causes tracking
-					cached[0][key].write(value)
+					cached[0][key].write(values[key])
 				}
 			})
 

@@ -9,6 +9,10 @@ TODO:
 
 	fix me
 	- the fragment being a symbol is just weird, fix makeCallback
+	- something is up with the playground
+	- recheck use of untrack
+	- add forbidden signal read
+	-
 
 	now
 	- mutable: tracker
@@ -27,6 +31,11 @@ TODO:
 
 	 165.63 - 10k
 	 13.11 - 10k
+	 14.88 - 1k
+	 1.23 - 1k
+
+	 150.66 - 10k
+	 12.95 - 10k
 	 14.88 - 1k
 	 1.23 - 1k
 
