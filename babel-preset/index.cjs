@@ -17,17 +17,6 @@
 
 module.exports = function () {
 	return {
-		plugins: [
-			[
-				__dirname + '/plugin.cjs',
-				{
-					runtime: 'automatic',
-					importSource: 'pota',
-					throwIfNamespace: false,
-					useSpread: true,
-					useBuiltIns: false,
-				},
-			],
-		],
+		plugins: [[__dirname + '/plugin.cjs']],
 	}
 }
