@@ -47,13 +47,10 @@ function createPlugin({ name }) {
 				Program: {
 					enter(path, state) {
 						const define = (name, id) =>
-							set(
-								state,
-								name,
-								createImportLazily(state, path, id, 'pota'),
-							)
+							set(state, name, createImportLazily(state, path, id))
 						define('id/jsx', 'jsx')
 						define('id/fragment', 'Fragment')
+						define('id/template', 'template')
 					},
 				},
 				JSXFragment: {
@@ -191,31 +188,101 @@ function createPlugin({ name }) {
 
 		function buildJSXElementCall(path, file) {
 			const openingPath = path.get('openingElement')
+
+			const tag = isTag(openingPath)
+			if (tag) {
+				return buildHTMLTemplateCall(openingPath, path, file, tag)
+			}
+
+			// attributes
 			const args = [getTag(openingPath)]
-			const attribsArray = []
+			const attributes = []
+			for (const attr of openingPath.get('attributes')) {
+				attributes.push(attr)
+			}
+
+			// children
+			let children = _core.types.react.buildChildren(path.node)
+			children = mergeText(children)
+			children = mergeTemplates(children)
+			children = mergeTextToTemplate(children)
+
+			// props
+			if (attributes.length || children.length) {
+				let props = buildJSXOpeningElementAttributes(
+					attributes,
+					children,
+				)
+				if (props.length) {
+					args.push(_core.types.objectExpression(props))
+				}
+			}
+
+			// call
+			return call(file, 'jsx', args)
+		}
+
+		function buildHTMLTemplateCall(openingPath, path, file, tag) {
+			const args = []
+
+			// open tag
+			tag.content = `<${tag.name}`
+
+			// attributes
+			const attributes = []
 			for (const attr of openingPath.get('attributes')) {
 				if (
 					attr.isJSXAttribute() &&
 					_core.types.isJSXIdentifier(attr.node.name)
 				) {
-					attribsArray.push(attr)
+					const name = attr.node.name.name
+
+					if (name !== 'xmlns' && isAttributeLiteral(attr.node)) {
+						const value = getAttributeLiteral(attr.node)
+
+						mergeAttributeToTag(tag, name, value)
+
+						continue
+					}
+					attributes.push(attr)
 				} else {
-					attribsArray.push(attr)
+					attributes.push(attr)
 				}
 			}
-			const children = _core.types.react.buildChildren(path.node)
-			let attribs
-			if (attribsArray.length || children.length) {
-				attribs = buildJSXOpeningElementAttributes(
-					attribsArray,
+
+			// close opening tag
+			if (isVoidElement(tag.name)) {
+				tag.content += ` />`
+			} else {
+				tag.content += `>`
+			}
+
+			// children
+			let children = _core.types.react.buildChildren(path.node)
+			children = mergeChildrenToTag(children, tag)
+			children = mergeText(children)
+			children = mergeTemplates(children)
+			children = mergeTextToTemplate(children)
+
+			// props
+			if (attributes.length || children.length) {
+				let props = buildJSXOpeningElementAttributes(
+					attributes,
 					children,
 				)
-			} else {
-				attribs = _core.types.objectExpression([])
+				if (props.length) {
+					args.push(_core.types.objectExpression(props))
+				}
 			}
-			args.push(attribs)
 
-			return call(file, 'jsx', args)
+			// close tag
+			if (!isVoidElement(tag.name)) {
+				tag.content += `</${tag.name}>`
+			}
+
+			// call
+			args.unshift(_core.types.stringLiteral(tag.content))
+			return call(file, 'template', args)
 		}
 
 		function buildJSXOpeningElementAttributes(attribs, children) {
@@ -223,12 +290,17 @@ function createPlugin({ name }) {
 			if ((children == null ? void 0 : children.length) > 0) {
 				props.push(buildChildrenProperty(children))
 			}
-			return _core.types.objectExpression(props)
+			return props
 		}
 
 		function buildJSXFragmentCall(path, file) {
 			const args = [get(file, 'id/fragment')()]
-			const children = _core.types.react.buildChildren(path.node)
+			let children = _core.types.react.buildChildren(path.node)
+
+			children = mergeText(children)
+			children = mergeTemplates(children)
+			children = mergeTextToTemplate(children)
+
 			args.push(
 				_core.types.objectExpression(
 					children.length > 0
@@ -257,20 +329,250 @@ function createPlugin({ name }) {
 				return tagExpr
 			}
 		}
+
+		// tags
+		function isTag(openingPath) {
+			const tagExpr = convertJSXIdentifier(
+				openingPath.node.name,
+				openingPath.node,
+			)
+			let tagName
+			if (_core.types.isIdentifier(tagExpr)) {
+				tagName = tagExpr.name
+			} else if (_core.types.isStringLiteral(tagExpr)) {
+				tagName = tagExpr.value
+			}
+			if (_core.types.react.isCompatTag(tagName)) {
+				return { name: tagName }
+			} else {
+				return false
+			}
+		}
+		function isVoidElement(tagName) {
+			switch (tagName.toLowerCase()) {
+				case 'area':
+				case 'base':
+				case 'br':
+				case 'col':
+				case 'embed':
+				case 'hr':
+				case 'img':
+				case 'input':
+				case 'link':
+				case 'meta':
+				case 'param':
+				case 'source':
+				case 'track':
+				case 'wbr': {
+					return true
+				}
+				default: {
+					return false
+				}
+			}
+		}
+
+		// attributes
+		function isAttributeLiteral(node) {
+			return (
+				_core.types.isStringLiteral(node.value) ||
+				_core.types.isNumericLiteral(node.value) ||
+				_core.types.isStringLiteral(node.value?.expression) ||
+				_core.types.isNumericLiteral(node.value?.expression)
+			)
+		}
+		function getAttributeLiteral(node) {
+			if (
+				_core.types.isStringLiteral(node.value.expression) ||
+				_core.types.isNumericLiteral(node.value.expression)
+			) {
+				return escapeAttribute(String(node.value.expression.value))
+			}
+			return escapeAttribute(String(node.value.value))
+		}
+
+		// children literal
+		function isChildrenLiteral(node) {
+			return (
+				_core.types.isStringLiteral(node) ||
+				_core.types.isNumericLiteral(node) ||
+				_core.types.isStringLiteral(node.value?.expression) ||
+				_core.types.isNumericLiteral(node.value?.expression)
+			)
+		}
+		function getChildrenLiteral(node) {
+			if (
+				_core.types.isStringLiteral(node.value?.expression) ||
+				_core.types.isNumericLiteral(node.value?.expression)
+			) {
+				return escapeHTML(node.value?.expression.value)
+			}
+			return escapeHTML(node.value)
+		}
+
+		// template call
+		function isHTMLTemplateCall(node) {
+			return (
+				_core.types.isCallExpression(node) &&
+				node.arguments.length === 1 &&
+				node.arguments[0].type === 'StringLiteral' &&
+				node.callee?.name === '_template'
+			)
+		}
+		function getHTMLTemplateCall(node) {
+			return node.arguments[0].value
+		}
+
+		// attributes
+		function mergeAttributeToTag(tag, name, value) {
+			if (value.trim() === '') {
+				tag.content += ' ' + name
+				return
+			}
+
+			if (/"|'|=|<|>|`|\s/.test(value)) {
+				tag.content += ' ' + name + '="' + value + '"'
+				return
+			}
+
+			tag.content += ' ' + name + '=' + value
+		}
+
+		// children
+		function mergeChildrenToTag(children, tag) {
+			/**
+			 * ```js
+			 * Component('a', { children: ['1', '2'] })
+			 *
+			 * into`<a>12`
+			 * ```
+			 */
+
+			const toRemove = []
+
+			for (let i = 0; i < children.length; i++) {
+				const node = children[i]
+				if (isChildrenLiteral(node)) {
+					tag.content += getChildrenLiteral(node)
+					toRemove.push(node)
+					continue
+				}
+				if (isHTMLTemplateCall(node)) {
+					tag.content += getHTMLTemplateCall(node)
+					toRemove.push(node)
+					continue
+				}
+				break
+			}
+
+			return children.filter(child => !toRemove.includes(child))
+		}
+
+		function mergeText(children) {
+			/**
+			 * ```js
+			 * ;['1', '2']
+			 *
+			 * into
+			 * ;['12']
+			 * ```
+			 */
+			const toRemove = []
+			for (let i = 0; i < children.length; i++) {
+				const node = children[i]
+				if (isChildrenLiteral(node)) {
+					let nextSibling = children[++i]
+					while (nextSibling && isChildrenLiteral(nextSibling)) {
+						node.value += getChildrenLiteral(nextSibling)
+						toRemove.push(nextSibling)
+						nextSibling = children[++i]
+					}
+				}
+			}
+			return children.filter(child => !toRemove.includes(child))
+		}
+		function mergeTemplates(children) {
+			/**
+			 * ```js
+			 * template('1'), '2', template('3')
+			 *
+			 * into
+			 *
+			 * template('123')
+			 * ```
+			 */
+			const toRemove = []
+			for (let i = 0; i < children.length; i++) {
+				const node = children[i]
+				if (isHTMLTemplateCall(node)) {
+					let nextSibling = children[++i]
+					while (nextSibling) {
+						if (isHTMLTemplateCall(nextSibling)) {
+							node.arguments[0].value +=
+								getHTMLTemplateCall(nextSibling)
+
+							toRemove.push(nextSibling)
+							nextSibling = children[++i]
+						} else if (isChildrenLiteral(nextSibling)) {
+							node.arguments[0].value +=
+								getChildrenLiteral(nextSibling)
+
+							toRemove.push(nextSibling)
+							nextSibling = children[++i]
+						} else {
+							break
+						}
+					}
+				}
+			}
+			return children.filter(child => !toRemove.includes(child))
+		}
+		function mergeTextToTemplate(children) {
+			/**
+			 * ```js
+			 * ;['1', template('2')]
+			 *
+			 * into
+			 *
+			 * template('12')
+			 * ```
+			 */
+			const toRemove = []
+			for (let i = 0; i < children.length; i++) {
+				const node = children[i]
+				let nextSibling = children[++i]
+				if (
+					isChildrenLiteral(node) &&
+					nextSibling &&
+					isHTMLTemplateCall(nextSibling)
+				) {
+					nextSibling.arguments[0].value =
+						getChildrenLiteral(node) +
+						getHTMLTemplateCall(nextSibling)
+					toRemove.push(node)
+				}
+			}
+			return children.filter(child => !toRemove.includes(child))
+		}
+
+		function escapeHTML(s) {
+			return s
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+		}
+		function escapeAttribute(s) {
+			return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+		}
 	})
 
-	function getSource(source, importName) {
-		switch (importName) {
-			case 'Fragment':
-			case 'jsx':
-			case 'template':
-				return `pota/jsx-runtime`
-		}
+	function getSource(importName) {
+		return `pota/jsx-runtime`
 	}
 
-	function createImportLazily(pass, path, importName, source) {
+	function createImportLazily(pass, path, importName) {
 		return () => {
-			const actualSource = getSource(source, importName)
+			const actualSource = getSource(importName)
 			if ((0, _helperModuleImports.isModule)(path)) {
 				let reference = get(pass, `imports/${importName}`)
 				if (reference) return _core.types.cloneNode(reference)

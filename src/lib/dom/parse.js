@@ -20,11 +20,6 @@ export function parse(content) {
 			// self-close
 			.replace(/<([a-z-]+)([^/>]*)\/\s*>/gi, '<$1 $2></$1>')
 
-		/*
-		if (/\/\s*>/.test(content))
-			throw new Error('self-close tag forbidden `' + content + '`')
-		*/
-
 		cached = template.content
 		set(content, cached)
 	}

@@ -9,7 +9,6 @@ TODO:
 
 	fix me
 	- the fragment being a symbol is just weird, fix makeCallback
-	- For in createChildren could be simplified?
 
 	now
 	- mutable: tracker
@@ -20,15 +19,16 @@ TODO:
 	- mutable: support set, maybe weakmap and weakset
 	- mutable: defineProperty proxy trap
 
-	ideas
-	- make effects lazy and get rid of markComponent
-
 	bench
 	 218.90 - 10k
 	 13.94 - 10k
-
 	 20.2 - 1k
 	 1.18 - 1k
+
+	 165.63 - 10k
+	 13.11 - 10k
+	 14.88 - 1k
+	 1.23 - 1k
 
 POSSIBLE FEATURES:
 
