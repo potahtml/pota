@@ -19,7 +19,7 @@ module.exports = function () {
 	return {
 		plugins: [
 			[
-				'@babel/plugin-transform-react-jsx',
+				__dirname + '/plugin.cjs',
 				{
 					runtime: 'automatic',
 					importSource: 'pota',
