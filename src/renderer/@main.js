@@ -26,6 +26,7 @@ import {
 	isObject,
 	iterator,
 	nothing,
+	removeFromArray,
 	stringify,
 	toArray,
 } from '../lib/std/@main.js'
@@ -47,6 +48,7 @@ import { assignProps } from './props/@main.js'
 // ELEMENTS
 
 import {
+	adoptedStyleSheets,
 	createElement,
 	createElementNS,
 	createTextNode,
@@ -385,14 +387,12 @@ function createChildren(parent, child, relative) {
 			}
 
 			// CSSStyleSheet
-			if (child instanceof CSSStyleSheet && 'textContent' in child) {
-				return createChildren(
-					parent,
-					Component('style', {
-						children: child.textContent,
-					}),
-					relative,
-				)
+			if (child instanceof CSSStyleSheet) {
+				adoptedStyleSheets.push(child)
+				cleanup(() => {
+					removeFromArray(adoptedStyleSheets, child)
+				})
+				return null
 			}
 
 			// object.toString fancy objects
