@@ -43,7 +43,7 @@ import { ready } from './scheduler.js'
 
 // PROPERTIES / ATTRIBUTES
 
-import { assignProps } from './props/@main.js'
+import { assignProps, propsPlugin } from './props/@main.js'
 
 // ELEMENTS
 
@@ -278,8 +278,6 @@ function cloneNode(content, props, ns) {
 function createNode(node, props) {
 	if (props) {
 		assignProps(node, props)
-
-		createChildren(node, props.children)
 	}
 	return node
 }
@@ -455,6 +453,12 @@ function createChildren(parent, child, relative) {
 		}
 	}
 }
+
+propsPlugin(
+	'children',
+	(node, propName, propValue) => createChildren(node, propValue),
+	false,
+)
 
 /**
  * Creates placeholder to keep nodes in position

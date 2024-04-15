@@ -86,13 +86,10 @@ export function assignProps(node, props) {
 	let value
 
 	for (name in props) {
-		// internal props
-		if (name === 'children') continue
-
 		value = props[name]
 
 		// run plugins
-		if (plugins[name]) {
+		if (name in plugins) {
 			plugins[name](node, name, value, props)
 			continue
 		}
@@ -109,7 +106,7 @@ export function assignProps(node, props) {
 			let [ns, localName] = name.split(':')
 
 			// run plugins NS
-			if (pluginsNS[ns]) {
+			if (ns in pluginsNS) {
 				pluginsNS[ns](node, name, value, props, localName, ns)
 				continue
 			}
