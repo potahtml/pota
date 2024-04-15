@@ -321,8 +321,11 @@ function createChildren(parent, child, relative) {
 						node,
 						child(child => {
 							/**
-							 * Wrap the item with placeholders, to avoid resolving
-							 * and for easy re-arrangement
+							 * Wrap the item with placeholders, for when stuff in
+							 * between moves. If a `Show` adds and removes nodes, we
+							 * dont have a reference to these nodes. By delimiting
+							 * with a shore, we can just handle anything in between
+							 * as a group.
 							 */
 							const begin = createPlaceholder(
 								parent,

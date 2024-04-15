@@ -8,7 +8,7 @@
  * - Writing to a signal returns `true` when the value changes
  * - Signal is an object that could be used as signal.read/write or
  *   destructured as an array.
- * - Update function on Signal that could be used to save functions
+ * - Update function on Signal that could be used to use the old value
  */
 
 import { Symbol } from '../std/Symbol.js'
@@ -179,6 +179,9 @@ class Memo extends Computation {
 	observers
 	observerSlots
 
+	// options:
+	// equals
+
 	constructor(owner, fn, options) {
 		super(owner, fn)
 
@@ -298,6 +301,12 @@ class Signal {
 
 	observers
 	observerSlots
+
+	// options:
+	// equals
+	// save
+
+	// `prev` if option save was given
 
 	constructor(value, options) {
 		this.value = value
