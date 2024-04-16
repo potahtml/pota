@@ -1,5 +1,5 @@
 import { weakStore } from '../std/weakStore.js'
-import { createElement } from './elements.js'
+import { createElement, createElementNS } from './elements.js'
 
 export const id = 'pota'
 export const tag = `<pota></pota>`
@@ -25,4 +25,30 @@ export function parse(content) {
 	}
 
 	return cached
+}
+
+const Clones = new Map()
+
+export function cloneNode(content, xmlns) {
+	const cached = Clones.get(content)
+
+	if (cached) {
+		return cached.cloneNode(true)
+	}
+
+	let template = xmlns
+		? createElementNS(xmlns, 'template')
+		: createElement('template')
+
+	template.innerHTML = content
+
+	template = xmlns
+		? template.firstChild
+		: template.content.childNodes.length === 1
+			? template.content.firstChild
+			: template.content
+
+	Clones.set(content, template)
+
+	return template.cloneNode(true)
 }

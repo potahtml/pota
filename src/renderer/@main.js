@@ -55,11 +55,12 @@ import {
 	toDiff,
 } from '../lib/dom/elements.js'
 
+import { cloneNode } from '../lib/dom/parse.js'
+
 // STATE
 
 const Components = new Map()
 const WeakComponents = new WeakMap()
-const Clones = new Map()
 
 const useXMLNS = context()
 
@@ -192,80 +193,85 @@ function createAnything(value, props) {
  * @returns {Elements} Element
  */
 function createTag(tagName, props) {
-	// namespace
-	// use props xmlns or special case svg, math, etc in case of missing xmlns attribute
-	const ns = props?.xmlns || NS[tagName]
-	const nsContext = useXMLNS()
+	/**
+	 * Namespace, use props xmlns or special case svg, math, etc in case
+	 * of missing xmlns attribute
+	 */
+	const xmlns = props?.xmlns || NS[tagName]
 
-	if (ns && ns !== nsContext) {
-		// the ns changed, use the new xmlns
-		return useXMLNS(ns, () =>
-			createNode(createElementNS(ns, tagName), props),
-		)
-	}
-	// foreignObject is created with html ns (default browser behaviour)
-	if (nsContext && tagName === 'foreignObject') {
-		return useXMLNS(NS.html, () =>
-			createNode(createElementNS(nsContext, tagName), props),
-		)
-	}
-
-	return createNode(
-		nsContext
-			? createElementNS(nsContext, tagName)
-			: createElement(tagName),
-		props,
+	return withXMLNS(
+		xmlns,
+		xmlns =>
+			createNode(
+				xmlns
+					? createElementNS(xmlns, tagName)
+					: createElement(tagName),
+				props,
+			),
+		tagName,
 	)
 }
 
-export function template(content, props) {
-	return markComponent(() => clone(content, props))
-}
-
-let cleanCloned = false
-
-function clone(content, props) {
-	if (!cleanCloned) {
-		cleanCloned = true
-		queueMicrotask(() => {
-			cleanCloned = false
-			Clones.clear()
-		})
-	}
-
-	const cached = Clones.get(content)
-
-	if (cached) {
-		return createNode(cached.cloneNode(true), props)
-	}
-
-	// use props xmlns if different from current context
-	const ns = props?.xmlns
+function withXMLNS(xmlns, fn, tagName) {
 	const nsContext = useXMLNS()
 
-	if (ns && ns !== nsContext) {
-		// the ns changed, use the new xmlns
-		return useXMLNS(ns, () => cloneNode(content, props, ns))
+	if (xmlns && xmlns !== nsContext) {
+		// the xmlns changed, use the new xmlns
+		return useXMLNS(xmlns, () => fn(xmlns))
 	}
 
-	return cloneNode(content, props, nsContext)
+	/**
+	 * `foreignObject` children are created with html xmlns (default
+	 * browser behaviour)
+	 */
+	if (nsContext && tagName === 'foreignObject') {
+		return useXMLNS(NS.html, () => fn(NS.html))
+	}
+
+	return fn(nsContext)
 }
 
-function cloneNode(content, props, ns) {
-	let template = ns
-		? createElementNS(ns, 'template')
-		: createElement('template')
+export function template(content, extra) {
+	return markComponent(() =>
+		withXMLNS(extra.props?.xmlns, xmlns => {
+			const node = cloneNode(content, xmlns)
 
-	template.innerHTML = content
+			templateProps(node, extra)
 
-	template = ns ? template : template.content
+			return node
+		}),
+	)
+}
 
-	const cached =
-		template.childNodes.length === 1 ? template.firstChild : template
+function templateProps(node, extra) {
+	if (node instanceof DocumentFragment) {
+		node = node.firstElementChild
+	}
 
-	Clones.set(content, cached)
-
-	return createNode(cached.cloneNode(true), props)
+	if (extra.sibling && extra.sibling.length) {
+		for (
+			let i = 0, nextSibling = node;
+			i < extra.sibling.length;
+			i++
+		) {
+			nextSibling = nextSibling.nextElementSibling
+			templateProps(nextSibling, extra.sibling[i])
+		}
+	}
+	if (extra.children && extra.children.length) {
+		for (
+			let i = 0, child = node.firstElementChild, next;
+			i < extra.children.length;
+			i++
+		) {
+			next = child.nextElementSibling
+			templateProps(child, extra.children[i])
+			child = next
+		}
+	}
+	if (extra.props) {
+		assignProps(node, extra.props)
+	}
 }
 
 /**

@@ -145,14 +145,17 @@ function getChildrenLiteral(node) {
 function createLiteralAttribute(name, value) {
   return core.types.jSXAttribute(core.types.jSXIdentifier(name), core.types.stringLiteral(value));
 }
-function buildJSXAttributes(attribs, children) {
+function buildProps(attribs, children) {
   const props = attribs.reduce(accumulateAttribute, []);
   if (children && children.length > 0) {
     props.push(buildChildrenProperty(children));
   }
-  return props;
+  if (props.length) {
+    return core.types.objectExpression(props);
+  }
 }
 function accumulateAttribute(array, attribute) {
+  // when we create an attribute manually, is not attached to a node yet
   attribute = 'node' in attribute ? attribute.node : attribute;
   if (core.types.isJSXSpreadAttribute(attribute)) {
     const arg = attribute.argument;
@@ -199,6 +202,8 @@ function getAttributeLiteral(node) {
 }
 
 function buildHTMLTemplate(path, file) {
+  let isXML = false;
+
   // tag
 
   const tagName = getHTMLTagName(path);
@@ -206,46 +211,54 @@ function buildHTMLTemplate(path, file) {
   // open opening tag
 
   const tag = {
-    content: `<${tagName}`
+    content: `<${tagName}`,
+    children: [],
+    sibling: []
   };
 
   // attributes
 
   const attributes = [];
-  let hasXMLNS = false;
   for (const attr of path.get('openingElement').get('attributes')) {
     if (attr.isJSXAttribute() && core.types.isJSXIdentifier(attr.node.name)) {
       const name = attr.node.name.name;
       if (name === 'xmlns') {
-        hasXMLNS = true;
+        isXML = true;
       }
 
-      // skip `xmlns` so it builds the template with the right namespace
+      /**
+       * Skip inlining `xmlns` attribute so it builds the template
+       * with the right namespace
+       */
       if (name !== 'xmlns' && isAttributeLiteral(attr.node)) {
         const value = getAttributeLiteral(attr.node);
         mergeAttributeToTag(tag, name, value);
         continue;
       }
-      attributes.push(attr);
     }
+    attributes.push(attr);
   }
 
   // add xmlns attribute when missing
-  if (!hasXMLNS) {
+
+  if (!isXML) {
     switch (tagName) {
       case 'svg':
         {
           attributes.push(createLiteralAttribute('xmlns', 'http://www.w3.org/2000/svg'));
+          isXML = true;
           break;
         }
       case 'math':
         {
           attributes.push(createLiteralAttribute('xmlns', 'http://www.w3.org/1998/Math/MathML'));
+          isXML = true;
           break;
         }
       case 'foreignObject':
         {
           attributes.push(createLiteralAttribute('xmlns', 'http://www.w3.org/1999/xhtml'));
+          isXML = true;
           break;
         }
     }
@@ -254,9 +267,12 @@ function buildHTMLTemplate(path, file) {
   // close opening tag
 
   if (isVoidElement(tagName)) {
-    // it needs a space after the last attribute for unquoted attributes
-    // <link href=http://somepath.css/>
-    // browser will load `href=http://somepath.css/` instead of `http://somepath.css`
+    /**
+     * It needs a space after the last attribute for unquoted
+     * attributes `<link href=http://somepath.css/>`, the browser will
+     * load `href=http://somepath.css/` instead of
+     * `http://somepath.css`
+     */
     tag.content += ` />`;
   } else {
     tag.content += `>`;
@@ -275,26 +291,35 @@ function buildHTMLTemplate(path, file) {
   if (!isVoidElement(tagName)) {
     tag.content += `</${tagName}>`;
   }
-  const args = [core.types.stringLiteral(tag.content)];
+
+  // call arguments
+
+  const args = [];
+  args.push(core.types.stringLiteral(tag.content));
 
   // props
 
-  if (attributes.length || children.length) {
-    const props = buildJSXAttributes(attributes, children);
-    if (props.length) {
-      args.push(core.types.objectExpression(props));
-    }
+  const props = buildProps(attributes, children);
+
+  // extra
+
+  const extra = [core.types.objectProperty(core.types.identifier('children'), core.types.arrayExpression(tag.children)), core.types.objectProperty(core.types.identifier('sibling'), core.types.arrayExpression(tag.sibling))];
+  if (props) {
+    extra.push(core.types.objectProperty(core.types.identifier('props'), props));
   }
+  args.push(core.types.objectExpression(extra));
 
   // call
-
-  return call(file, 'template', args);
+  const template = call(file, 'template', args);
+  template.isXML = isXML;
+  template.isTemplate = true;
+  return template;
 }
 
 // template
 
 function isHTMLTemplate(node) {
-  return core.types.isCallExpression(node) && node.arguments.length === 1 && node.arguments[0].type === 'StringLiteral' && node.callee?.name === '_template';
+  return node.isTemplate && !node.isXML;
 }
 function getHTMLTemplate(node) {
   return node.arguments[0].value;
@@ -335,6 +360,7 @@ function mergeChildrenToTag(children, tag) {
     }
     if (isHTMLTemplate(node)) {
       tag.content += getHTMLTemplate(node);
+      tag.children.push(node.arguments[1]);
       toRemove.push(node);
       continue;
     }
@@ -383,6 +409,9 @@ function mergeTemplates(children) {
       while (nextSibling) {
         if (isHTMLTemplate(nextSibling)) {
           node.arguments[0].value += getHTMLTemplate(nextSibling);
+
+          // push to siblings
+          node.arguments[1].properties[1].value.elements.push(nextSibling.arguments[1]);
           toRemove.push(nextSibling);
           nextSibling = children[++i];
         } else if (isChildrenLiteral(nextSibling)) {
@@ -437,11 +466,9 @@ function buildJSXElement(path, file) {
 
   // props
 
-  if (attributes.length || children.length) {
-    const props = buildJSXAttributes(attributes, children);
-    if (props.length) {
-      args.push(core.types.objectExpression(props));
-    }
+  const props = buildProps(attributes, children);
+  if (props) {
+    args.push(props);
   }
 
   // call
@@ -465,7 +492,7 @@ function createPlugin({
   return helperPluginUtils.declare(_ => {
     return {
       name,
-      inherits: 'default' in jsx ? jsx.default : jsx,
+      inherits: jsx.default,
       visitor: {
         JSXNamespacedName(path) {},
         JSXSpreadChild(path) {

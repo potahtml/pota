@@ -40,6 +40,7 @@ export function mergeChildrenToTag(children, tag) {
 		}
 		if (isHTMLTemplate(node)) {
 			tag.content += getHTMLTemplate(node)
+			tag.children.push(node.arguments[1])
 			toRemove.push(node)
 			continue
 		}
@@ -91,6 +92,10 @@ export function mergeTemplates(children) {
 				if (isHTMLTemplate(nextSibling)) {
 					node.arguments[0].value += getHTMLTemplate(nextSibling)
 
+					// push to siblings
+					node.arguments[1].properties[1].value.elements.push(
+						nextSibling.arguments[1],
+					)
 					toRemove.push(nextSibling)
 					nextSibling = children[++i]
 				} else if (isChildrenLiteral(nextSibling)) {
