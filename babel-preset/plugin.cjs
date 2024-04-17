@@ -121,6 +121,63 @@ function convertJSXIdentifier(node, parent) {
   return node;
 }
 
+/**
+ * Removes a value from an array
+ *
+ * @param {any[]} array
+ * @param {any} value To remove from the array
+ * @returns {any[]}
+ */
+function removeFromArray(array, value) {
+  const index = array.indexOf(value);
+  if (index !== -1) array.splice(index, 1);
+  return array;
+}
+
+// clean children from unused extra
+
+function clearEmptyExtra(children) {
+  const toDeleteChild = [];
+  for (const child of children) {
+    if (child.properties) {
+      const toDelete = [];
+      for (const obj of child.properties) {
+        if (obj.key.name === 'children') {
+          clearEmptyExtra(obj.value.elements);
+        }
+        if (obj.key.name === 'sibling') {
+          clearEmptyExtra(obj.value.elements);
+        }
+        if (obj.key.name === 'children' && obj.value.elements.length === 0) {
+          toDelete.push(obj);
+        }
+        if (obj.key.name === 'sibling' && obj.value.elements.length === 0) {
+          toDelete.push(obj);
+        }
+      }
+      for (const obj of toDelete) {
+        removeFromArray(child.properties, obj);
+      }
+      if (child.properties.length === 0) {
+        toDeleteChild.push(child);
+      }
+    }
+  }
+  for (const obj of toDeleteChild) {
+    removeFromArray(children, obj);
+  }
+}
+function clearEmptyExtraChilden(children) {
+  for (const child of children) {
+    if (child.isTemplate) {
+      clearEmptyExtra([child.arguments[1]]);
+      if (child.arguments[1].properties.length === 0) {
+        removeFromArray(child.arguments, child.arguments[1]);
+      }
+    }
+  }
+}
+
 function buildChildrenProperty(children) {
   let childrenNode;
   if (children.length === 1) {
@@ -301,7 +358,12 @@ function buildHTMLTemplate(path, file) {
 
   const props = buildProps(attributes, children);
 
-  // extra
+  // clearn extra
+
+  clearEmptyExtra(tag.children);
+  clearEmptyExtraChilden(children);
+
+  // build extra
 
   const extra = [core.types.objectProperty(core.types.identifier('children'), core.types.arrayExpression(tag.children)), core.types.objectProperty(core.types.identifier('sibling'), core.types.arrayExpression(tag.sibling))];
   if (props) {
@@ -310,6 +372,7 @@ function buildHTMLTemplate(path, file) {
   args.push(core.types.objectExpression(extra));
 
   // call
+
   const template = call(file, 'template', args);
   template.isXML = isXML;
   template.isTemplate = true;
@@ -463,6 +526,7 @@ function buildJSXElement(path, file) {
   children = mergeText(children);
   children = mergeTemplates(children);
   children = mergeTextToTemplate(children);
+  clearEmptyExtraChilden(children);
 
   // props
 
@@ -482,6 +546,7 @@ function buildJSXFragment(path, file) {
   children = mergeText(children);
   children = mergeTemplates(children);
   children = mergeTextToTemplate(children);
+  clearEmptyExtraChilden(children);
   args.push(core.types.objectExpression(children.length > 0 ? [buildChildrenProperty(children)] : []));
   return call(file, 'jsx', args);
 }

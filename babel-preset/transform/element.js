@@ -1,6 +1,6 @@
 import { types as t } from '@babel/core'
 
-import { call, getTag } from './utils.js'
+import { call, clearEmptyExtraChilden, getTag } from './utils.js'
 
 import {
 	mergeTemplates,
@@ -26,6 +26,8 @@ export function buildJSXElement(path, file) {
 	children = mergeText(children)
 	children = mergeTemplates(children)
 	children = mergeTextToTemplate(children)
+
+	clearEmptyExtraChilden(children)
 
 	// props
 

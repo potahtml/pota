@@ -1,6 +1,13 @@
 import { types as t } from '@babel/core'
 
-import { call, getHTMLTagName, isVoidElement } from './utils.js'
+import {
+	call,
+	clearEmptyExtra,
+	clearEmptyExtraChilden,
+	getHTMLTagName,
+	isVoidElement,
+	removeFromArray,
+} from './utils.js'
 
 import {
 	buildProps,
@@ -130,7 +137,12 @@ export function buildHTMLTemplate(path, file) {
 
 	const props = buildProps(attributes, children)
 
-	// extra
+	// clearn extra
+
+	clearEmptyExtra(tag.children)
+	clearEmptyExtraChilden(children)
+
+	// build extra
 
 	const extra = [
 		t.objectProperty(
@@ -149,6 +161,7 @@ export function buildHTMLTemplate(path, file) {
 	args.push(t.objectExpression(extra))
 
 	// call
+
 	const template = call(file, 'template', args)
 	template.isXML = isXML
 	template.isTemplate = true

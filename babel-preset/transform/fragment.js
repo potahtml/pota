@@ -1,6 +1,6 @@
 import { types as t } from '@babel/core'
 
-import { call, get } from './utils.js'
+import { call, clearEmptyExtraChilden, get } from './utils.js'
 
 import {
 	mergeText,
@@ -18,6 +18,8 @@ export function buildJSXFragment(path, file) {
 	children = mergeText(children)
 	children = mergeTemplates(children)
 	children = mergeTextToTemplate(children)
+
+	clearEmptyExtraChilden(children)
 
 	args.push(
 		t.objectExpression(
