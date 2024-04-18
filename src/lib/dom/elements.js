@@ -20,3 +20,14 @@ export function toDiff(prev = [], node = []) {
 	}
 	return node
 }
+
+/** @returns {TreeWalker} */
+export function walker() {
+	const walk = document.createTreeWalker(
+		document,
+		NodeFilter.SHOW_ELEMENT,
+	)
+	walker = () => walk
+
+	return walker()
+}

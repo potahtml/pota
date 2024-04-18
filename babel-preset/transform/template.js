@@ -1,28 +1,20 @@
 import { types as t } from '@babel/core'
 
-import {
-	call,
-	clearEmptyExtra,
-	clearEmptyExtraChilden,
-	getHTMLTagName,
-	isVoidElement,
-	removeFromArray,
-} from './utils.js'
+import { call } from './utils.js'
 
 import {
-	buildProps,
+	buildAttributeIntoTag,
 	createLiteralAttribute,
 	getAttributeLiteral,
 	isAttributeLiteral,
 } from './attributes.js'
-
+import { merge, mergeToTag } from './merge.js'
+import { buildProps } from './props.js'
 import {
-	mergeAttributeToTag,
-	mergeChildrenToTag,
-	mergeTemplates,
-	mergeText,
-	mergeTextToTemplate,
-} from './merge.js'
+	getHTMLTagName,
+	isVoidElement,
+	validateChildrenHTML,
+} from './html.js'
 
 export function buildHTMLTemplate(path, file) {
 	let isXML = false
@@ -33,7 +25,7 @@ export function buildHTMLTemplate(path, file) {
 
 	// open opening tag
 
-	const tag = { content: `<${tagName}`, children: [], sibling: [] }
+	const tag = { tagName, content: `<${tagName} pota`, props: [] }
 
 	// attributes
 
@@ -47,13 +39,14 @@ export function buildHTMLTemplate(path, file) {
 			}
 
 			/**
-			 * Skip inlining `xmlns` attribute so it builds the template
-			 * with the right namespace
+			 * Skip inlining the `xmlns` attribute in the tag, so it builds
+			 * the template with the right namespace without merging this
+			 * template with others
 			 */
 			if (name !== 'xmlns' && isAttributeLiteral(attr.node)) {
 				const value = getAttributeLiteral(attr.node)
 
-				mergeAttributeToTag(tag, name, value)
+				buildAttributeIntoTag(tag, name, value)
 
 				continue
 			}
@@ -116,10 +109,21 @@ export function buildHTMLTemplate(path, file) {
 
 	let children = t.react.buildChildren(path.node)
 
-	children = mergeChildrenToTag(children, tag)
-	children = mergeText(children)
-	children = mergeTemplates(children)
-	children = mergeTextToTemplate(children)
+	validateChildrenHTML(tag.tagName, children)
+
+	children = mergeToTag(children, tag)
+	children = merge(children)
+
+	// props
+
+	const props = buildProps(attributes, children)
+
+	if (props) {
+		tag.props.unshift(props)
+	} else {
+		/** Remove placeholder when it doesnt have props. */
+		tag.content = tag.content.replace(/^<([^\s]+) pota/, '<$1')
+	}
 
 	// close tag
 
@@ -127,48 +131,18 @@ export function buildHTMLTemplate(path, file) {
 		tag.content += `</${tagName}>`
 	}
 
-	// call arguments
-
-	const args = []
-
-	args.push(t.stringLiteral(tag.content))
-
-	// props
-
-	const props = buildProps(attributes, children)
-
-	// clearn extra
-
-	clearEmptyExtra(tag.children)
-	clearEmptyExtraChilden(children)
-
-	// build extra
-
-	const extra = [
-		t.objectProperty(
-			t.identifier('children'),
-			t.arrayExpression(tag.children),
-		),
-		t.objectProperty(
-			t.identifier('sibling'),
-			t.arrayExpression(tag.sibling),
-		),
-	]
-	if (props) {
-		extra.push(t.objectProperty(t.identifier('props'), props))
-	}
-
-	args.push(t.objectExpression(extra))
-
 	// call
 
-	const template = call(file, 'template', args)
+	const template = call(file, 'template', [
+		t.stringLiteral(tag.content),
+		t.arrayExpression(tag.props),
+	])
 	template.isXML = isXML
 	template.isTemplate = true
+	template.tagName = tagName
+	template._path = path
 	return template
 }
-
-// template
 
 export function isHTMLTemplate(node) {
 	return node.isTemplate && !node.isXML

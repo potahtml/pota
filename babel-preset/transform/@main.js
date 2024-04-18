@@ -1,14 +1,14 @@
-import { types as t } from '@babel/core'
+import { declare } from '@babel/helper-plugin-utils'
 import jsx from '@babel/plugin-syntax-jsx'
+import { types as t } from '@babel/core'
 import { addNamed as addNamedImport } from '@babel/helper-module-imports'
 
-import { declare } from '@babel/helper-plugin-utils'
+import { get, removeFromArray, set } from './utils.js'
 
-import { set, get, isHTMLTag } from './utils.js'
-
-import { buildJSXElement } from './element.js'
 import { buildJSXFragment } from './fragment.js'
-import { buildHTMLTemplate } from './template.js'
+import { buildHTMLTemplate, isHTMLTemplate } from './template.js'
+import { isHTMLTag } from './html.js'
+import { buildJSXComponent } from './component.js'
 
 export default function createPlugin({ name }) {
 	return declare(_ => {
@@ -30,6 +30,21 @@ export default function createPlugin({ name }) {
 						define('id/fragment', 'Fragment')
 						define('id/template', 'template')
 					},
+					exit(path) {
+						/** Removes empty argument `[]` from the template call */
+						path.traverse({
+							CallExpression(path) {
+								if (isHTMLTemplate(path.node)) {
+									if (path.node.arguments[1].elements.length === 0) {
+										removeFromArray(
+											path.node.arguments,
+											path.node.arguments[1],
+										)
+									}
+								}
+							},
+						})
+					},
 				},
 				JSXFragment: {
 					exit(path, file) {
@@ -42,7 +57,7 @@ export default function createPlugin({ name }) {
 					exit(path, file) {
 						const callExpr = isHTMLTag(path)
 							? buildHTMLTemplate(path, file)
-							: buildJSXElement(path, file)
+							: buildJSXComponent(path, file)
 
 						path.replaceWith(t.inherits(callExpr, path.node))
 					},

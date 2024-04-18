@@ -63,13 +63,13 @@ propsPluginNS('ref', setRef, false)
 
 // events
 
+import { eventName, addEventListener } from './event.js'
 import { setEventNS } from './event.js'
 propsPluginNS('on', setEventNS, false)
 
 // catch all
 
 import { setUnknownProp } from './unknown.js'
-import { eventName, addEventListener } from './event.js'
 
 const isCustomElement = (node, props) =>
 	// document-fragment wont have a localName

@@ -53,6 +53,7 @@ import {
 	createElementNS,
 	createTextNode,
 	toDiff,
+	walker,
 } from '../lib/dom/elements.js'
 
 import { cloneNode } from '../lib/dom/parse.js'
@@ -231,47 +232,51 @@ function withXMLNS(xmlns, fn, tagName) {
 	return fn(nsContext)
 }
 
-export function template(content, extra) {
+export function template(content, props) {
 	return markComponent(() =>
-		withXMLNS(extra.props?.xmlns, xmlns => {
+		withXMLNS(props ? props[0].xmlns : undefined, xmlns => {
 			const node = cloneNode(content, xmlns)
 
-			templateProps(node, extra)
+			if (props) {
+				const nodes = []
+				let child
+				/** The node could be a fragment */
+				if (
+					node.nodeType === 1 && // element
+					node.hasAttribute('pota')
+				) {
+					nodes.push(node)
+					node.removeAttribute('pota')
+				}
 
+				/**
+				 * First walk then modify it, so the modifications dont make
+				 * the walk worse. It also allows to re-use the same walker,
+				 * as creating children right now could cause a new instance
+				 * of template that will use the same walker and mess up our
+				 * current walk. While this is not optimal is fast enough,
+				 * requires some more work on the babel plugin.
+				 */
+				const walk = walker()
+				walk.currentNode = node
+				while ((child = walk.nextNode())) {
+					if (child.hasAttribute('pota')) {
+						nodes.push(child)
+						child.removeAttribute('pota')
+						if (nodes.length === props.length) {
+							// done
+							break
+						}
+					}
+				}
+				let i = 0
+				for (const child of nodes) {
+					assignProps(child, props[i++])
+				}
+			}
 			return node
 		}),
 	)
-}
-
-function templateProps(node, extra) {
-	if (node instanceof DocumentFragment) {
-		node = node.firstElementChild
-	}
-
-	if (extra.sibling && extra.sibling.length) {
-		for (
-			let i = 0, nextSibling = node;
-			i < extra.sibling.length;
-			i++
-		) {
-			nextSibling = nextSibling.nextElementSibling
-			templateProps(nextSibling, extra.sibling[i])
-		}
-	}
-	if (extra.children && extra.children.length) {
-		for (
-			let i = 0, child = node.firstElementChild, next;
-			i < extra.children.length;
-			i++
-		) {
-			next = child.nextElementSibling
-			templateProps(child, extra.children[i])
-			child = next
-		}
-	}
-	if (extra.props) {
-		assignProps(node, extra.props)
-	}
 }
 
 /**
@@ -437,7 +442,7 @@ function createChildren(parent, child, relative) {
 			if (child instanceof CSSStyleSheet) {
 				adoptedStyleSheets.push(child)
 				cleanup(() => removeFromArray(adoptedStyleSheets, child))
-				return null
+				return undefined
 			}
 
 			// object.toString fancy objects

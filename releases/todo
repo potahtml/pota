@@ -1,10 +1,17 @@
-TODO:
 
-	Documentation:
+CONSIDER ALWAYS
+
+- KEEP THE CODE READABLE, DO NOT COMPLICATE IT TOO MUCH
+- CONSISTENCY ABOVE ALL
+- SLOW AND SIMPLE IS BETTER THAN FAST AND SUPER COMPLICATED
+
+todo
+
+	documentation
 	- light theme
 	- improve it
 
-	Miscellaneous:
+	miscellaneous
 	- typings
 
 	fix me
@@ -13,16 +20,40 @@ TODO:
 	- recheck use of untrack
 	- add forbidden signal read
 
-	now
-	- mutable: tracker
-	- mutable: figure out a whitelist vs blacklist
-	- mutable: reconcile
+	mutable
+	- tracker
+	- figure out a whitelist vs blacklist
+	- reconcile
+	- support set, maybe weakmap and weakset
+	- defineProperty proxy trap
 
-	later
-	- mutable: support set, maybe weakmap and weakset
-	- mutable: defineProperty proxy trap
+some day
 
-	bench
+	classList
+	- the name of the class is not reactive
+
+	mount
+	- support mount points as a selector
+
+	components
+	- provide fallback for collapse
+	- provide fallback for For
+
+	router
+	- make the `path` reactive
+	- decide what to do with useParams
+
+	posible pollyfills
+	- Object.groupBy, Promise.withResolvers, Object.hasOwn
+
+	playground
+	- LSP
+
+	compiler
+	- avoid walking the template
+
+bench
+
 	 218.90 - 10k
 	 13.94 - 10k
 	 20.2 - 1k
@@ -43,39 +74,7 @@ TODO:
 	 11.61 - 1k
 	 1.23 - 1k
 
-POSSIBLE FEATURES:
-
-	classList:
-	- the name of the class is not reactive
-
-	Mount:
-	- support mount points as a selector
-
-	Components:
-	- provide fallback for collapse
-	- provide fallback for For
-
-	Router:
-	- make the `path` reactive
-	- decide what to do with useParams
-
-	Posible pollyfills:
-	- Object.groupBy, Promise.withResolvers, Object.hasOwn
-
-	Playground:
-	- LSP
-
-POSSIBLE DE/OPTIMIZATIONS:
-
-	CONSIDER ALWAYS:
-	- keep the code readable, do not complicate it too much, even if faster
-	- consistency above all
-	- slow and simple is better than fast and super complicated
-
-	COMPILER:
-	- write a compiler to make the output smaller (possibly using `html`)
-
-	CRAZY IDEAS:
-	- change some for of for for in
-	- change some toArray or for loops to be generators
-	- functions that accept arguments of changing types should be split
+	 142 10k
+	 13 10k
+	 12 1k
+	 1 1k

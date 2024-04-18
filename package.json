@@ -13,9 +13,7 @@
   "// Using 'typesVersions' here is the only way we could figure out how to get types working for imports of any subpath without any of the problems other approaches have when not using modeResolution:NodeNext (listed in https://stackoverflow.com/questions/77856692/how-to-publish-plain-jsjsdoc-library-for-typescript-consumers)": "",
   "typesVersions": {
     "*": {
-      "src/*": [
-        "types/*"
-      ]
+      "src/*": ["types/*"]
     }
   },
   "// These exports require moduleResolution:NodeNext to be enabled in the consumer.": "",
@@ -143,13 +141,15 @@
     "dev": "concurrently --kill-others \"npm:watch:*\"",
     "watch:types": "tsc -w",
     "watch:standalone": "cd releases && rollup -c -w",
+    "watch:babel-preset": "cd babel-preset && rollup -c -w",
     "types": "rimraf types/ && tsc",
     "standalone": "cd releases && rollup -c",
     "prepublishOnly": "npm run types || npm run standalone || echo 1",
     "update": "npm update --include=dev && npm run dev"
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.23.4"
+    "@babel/plugin-syntax-jsx": "^7.24.1",
+    "validate-html-nesting": "^1.2.2"
   },
   "peerDependencies": {
     "@babel/core": "^7.23.9",

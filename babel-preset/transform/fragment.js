@@ -1,29 +1,18 @@
 import { types as t } from '@babel/core'
 
-import { call, clearEmptyExtraChilden, get } from './utils.js'
+import { call, get } from './utils.js'
 
-import {
-	mergeText,
-	mergeTemplates,
-	mergeTextToTemplate,
-} from './merge.js'
-
-import { buildChildrenProperty } from './children.js'
+import { merge } from './merge.js'
+import { buildPropChildren } from './props.js'
 
 export function buildJSXFragment(path, file) {
 	const args = [get(file, 'id/fragment')()]
 
-	let children = t.react.buildChildren(path.node)
-
-	children = mergeText(children)
-	children = mergeTemplates(children)
-	children = mergeTextToTemplate(children)
-
-	clearEmptyExtraChilden(children)
+	const children = merge(t.react.buildChildren(path.node))
 
 	args.push(
 		t.objectExpression(
-			children.length > 0 ? [buildChildrenProperty(children)] : [],
+			children.length > 0 ? [buildPropChildren(children)] : [],
 		),
 	)
 

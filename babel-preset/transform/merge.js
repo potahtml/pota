@@ -1,31 +1,15 @@
 import { getChildrenLiteral, isChildrenLiteral } from './children.js'
-
 import { getHTMLTemplate, isHTMLTemplate } from './template.js'
 
-// attributes
-
-export function mergeAttributeToTag(tag, name, value) {
-	if (value.trim() === '') {
-		tag.content += ' ' + name
-		return
-	}
-
-	if (/"|'|=|<|>|`|\s/.test(value)) {
-		tag.content += ' ' + name + '="' + value + '"'
-		return
-	}
-
-	tag.content += ' ' + name + '=' + value
-}
-
-// children
-
-export function mergeChildrenToTag(children, tag) {
+export function mergeToTag(children, tag) {
 	/**
 	 * ```js
-	 * Component('a', { children: ['1', '2'] })
+	 * Component('a', {
+	 * 	children: ['1', '2', template('3')],
+	 * })
 	 *
-	 * into`<a>12`
+	 * into
+	 * // `<a>123`
 	 * ```
 	 */
 
@@ -35,12 +19,17 @@ export function mergeChildrenToTag(children, tag) {
 		const node = children[i]
 		if (isChildrenLiteral(node)) {
 			tag.content += getChildrenLiteral(node)
+
 			toRemove.push(node)
 			continue
 		}
 		if (isHTMLTemplate(node)) {
 			tag.content += getHTMLTemplate(node)
-			tag.children.push(node.arguments[1])
+
+			if (node.arguments[1].elements.length) {
+				tag.props.push(...node.arguments[1].elements)
+			}
+
 			toRemove.push(node)
 			continue
 		}
@@ -50,90 +39,58 @@ export function mergeChildrenToTag(children, tag) {
 	return children.filter(child => !toRemove.includes(child))
 }
 
-export function mergeText(children) {
-	/**
-	 * ```js
-	 * ;['1', '2']
-	 *
-	 * into
-	 * ;['12']
-	 * ```
-	 */
+export function merge(children) {
 	const toRemove = []
-	for (let i = 0; i < children.length; i++) {
-		const node = children[i]
+
+	let i = 0
+	let node = children[i]
+	let next = children[++i]
+
+	while (node && next) {
 		if (isChildrenLiteral(node)) {
-			let nextSibling = children[++i]
-			while (nextSibling && isChildrenLiteral(nextSibling)) {
-				node.value += getChildrenLiteral(nextSibling)
-				toRemove.push(nextSibling)
-				nextSibling = children[++i]
+			if (isChildrenLiteral(next)) {
+				node.value += getChildrenLiteral(next)
+
+				toRemove.push(next)
+				next = children[++i]
+				continue
+			}
+			if (isHTMLTemplate(next)) {
+				next.arguments[0].value =
+					getChildrenLiteral(node) + getHTMLTemplate(next)
+
+				toRemove.push(node)
+				node = next
+				next = children[++i]
+				continue
 			}
 		}
-	}
-	return children.filter(child => !toRemove.includes(child))
-}
-export function mergeTemplates(children) {
-	/**
-	 * ```js
-	 * template('1'), '2', template('3')
-	 *
-	 * into
-	 *
-	 * template('123')
-	 * ```
-	 */
-	const toRemove = []
-	for (let i = 0; i < children.length; i++) {
-		const node = children[i]
+
 		if (isHTMLTemplate(node)) {
-			let nextSibling = children[++i]
-			while (nextSibling) {
-				if (isHTMLTemplate(nextSibling)) {
-					node.arguments[0].value += getHTMLTemplate(nextSibling)
+			if (isChildrenLiteral(next)) {
+				node.arguments[0].value += getChildrenLiteral(next)
 
-					// push to siblings
-					node.arguments[1].properties[1].value.elements.push(
-						nextSibling.arguments[1],
+				toRemove.push(next)
+				next = children[++i]
+				continue
+			}
+			if (isHTMLTemplate(next)) {
+				node.arguments[0].value += getHTMLTemplate(next)
+
+				if (next.arguments[1].elements.length) {
+					node.arguments[1].elements.push(
+						...next.arguments[1].elements,
 					)
-					toRemove.push(nextSibling)
-					nextSibling = children[++i]
-				} else if (isChildrenLiteral(nextSibling)) {
-					node.arguments[0].value += getChildrenLiteral(nextSibling)
-
-					toRemove.push(nextSibling)
-					nextSibling = children[++i]
-				} else {
-					break
 				}
+
+				toRemove.push(next)
+				next = children[++i]
+				continue
 			}
 		}
-	}
-	return children.filter(child => !toRemove.includes(child))
-}
-export function mergeTextToTemplate(children) {
-	/**
-	 * ```js
-	 * ;['1', template('2')]
-	 *
-	 * into
-	 *
-	 * template('12')
-	 * ```
-	 */
-	const toRemove = []
-	for (let i = 0; i < children.length; i++) {
-		const node = children[i]
-		let nextSibling = children[++i]
-		if (
-			isChildrenLiteral(node) &&
-			nextSibling &&
-			isHTMLTemplate(nextSibling)
-		) {
-			nextSibling.arguments[0].value =
-				getChildrenLiteral(node) + getHTMLTemplate(nextSibling)
-			toRemove.push(node)
-		}
+
+		node = next
+		next = children[++i]
 	}
 	return children.filter(child => !toRemove.includes(child))
 }
