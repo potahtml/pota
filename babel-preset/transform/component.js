@@ -5,7 +5,7 @@ import { call, getTag } from './utils.js'
 import { merge } from './merge.js'
 import { buildProps } from './props.js'
 
-export function buildJSXComponent(path, file) {
+export function buildJSXComponent(path, state) {
 	// arguments
 
 	const args = [getTag(path)]
@@ -27,5 +27,5 @@ export function buildJSXComponent(path, file) {
 
 	// call
 
-	return call(file, 'jsx', args)
+	return call(state, 'jsx', args)
 }

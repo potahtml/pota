@@ -5,8 +5,8 @@ import { call, get } from './utils.js'
 import { merge } from './merge.js'
 import { buildPropChildren } from './props.js'
 
-export function buildJSXFragment(path, file) {
-	const args = [get(file, 'id/fragment')()]
+export function buildJSXFragment(path, state) {
+	const args = [get(state, 'id/fragment')()]
 
 	const children = merge(t.react.buildChildren(path.node))
 
@@ -16,5 +16,5 @@ export function buildJSXFragment(path, file) {
 		),
 	)
 
-	return call(file, 'jsx', args)
+	return call(state, 'jsx', args)
 }

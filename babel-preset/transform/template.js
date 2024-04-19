@@ -16,7 +16,7 @@ import {
 	validateChildrenHTML,
 } from './html.js'
 
-export function buildHTMLTemplate(path, file) {
+export function buildHTMLTemplate(path, state) {
 	let isXML = false
 
 	// tag
@@ -133,7 +133,7 @@ export function buildHTMLTemplate(path, file) {
 
 	// call
 
-	const template = call(file, 'template', [
+	const template = call(state, 'template', [
 		t.stringLiteral(tag.content),
 		t.arrayExpression(tag.props),
 	])

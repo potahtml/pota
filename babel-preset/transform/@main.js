@@ -47,17 +47,17 @@ export default function createPlugin({ name }) {
 					},
 				},
 				JSXFragment: {
-					exit(path, file) {
-						const callExpr = buildJSXFragment(path, file)
+					exit(path, state) {
+						const callExpr = buildJSXFragment(path, state)
 
 						path.replaceWith(t.inherits(callExpr, path.node))
 					},
 				},
 				JSXElement: {
-					exit(path, file) {
+					exit(path, state) {
 						const callExpr = isHTMLTag(path)
-							? buildHTMLTemplate(path, file)
-							: buildJSXComponent(path, file)
+							? buildHTMLTemplate(path, state)
+							: buildJSXComponent(path, state)
 
 						path.replaceWith(t.inherits(callExpr, path.node))
 					},
