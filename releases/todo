@@ -24,7 +24,6 @@ todo
 	- support attribute as promises
 	- show gives the memo a signal instead of the value
 	- context could probably use the whole props not just value
-	- playground is broken fix untrack/readonly stuff
 	- improve props handling
 
 	mutable
