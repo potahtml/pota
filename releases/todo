@@ -19,6 +19,13 @@ todo
 	- something is up with the playground
 	- recheck use of untrack
 	- add forbidden signal read
+	- switch expects children to be an array
+	- For doesnt work with objects
+	- support attribute as promises
+	- show gives the memo a signal instead of the value
+	- context could probably use the whole props not just value
+	- playground is broken fix untrack/readonly stuff
+	- improve props handling
 
 	mutable
 	- tracker

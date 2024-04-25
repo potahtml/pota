@@ -743,7 +743,7 @@ function useContext(id, defaultValue, newValue, fn) {
 				...Owner.context,
 				[id]: newValue,
 			}
-			res = fn()
+			res = untrack(fn)
 		})
 
 		return res

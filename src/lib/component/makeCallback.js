@@ -1,6 +1,7 @@
 import { flat, isArray, isFunction } from '../std/@main.js'
 import { isReactive } from '../reactivity/isReactive.js'
 import { markComponent } from './markComponent.js'
+import { untrack } from '../reactivity/reactive.js'
 
 /**
  * Makes of `children` a function. Reactive children will run as is,
@@ -58,8 +59,8 @@ const callback = child =>
 					return isFunction(r)
 						? isReactive(r)
 							? r()
-							: r(...args)
+							: untrack(() => r(...args))
 						: r
 				}
-			: args => child(...args)
+			: args => untrack(() => child(...args))
 		: () => child
