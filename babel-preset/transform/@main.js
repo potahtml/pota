@@ -9,9 +9,10 @@ import { buildJSXFragment } from './fragment.js'
 import { buildHTMLTemplate, isHTMLTemplate } from './template.js'
 import { isHTMLTag } from './html.js'
 import { buildJSXComponent } from './component.js'
+import { devArguments, devProps } from './development.js'
 
 export default function createPlugin({ name }) {
-	return declare(_ => {
+	return declare((_, options) => {
 		return {
 			name,
 			inherits: jsx.default,
@@ -29,6 +30,30 @@ export default function createPlugin({ name }) {
 						define('id/jsx', 'jsx')
 						define('id/fragment', 'Fragment')
 						define('id/template', 'template')
+						define('id/$component', '$component')
+						define('id/$template', '$template')
+
+						if (options?.development) {
+							/** Add debugging arguments to reactive functions */
+							path.traverse(
+								{
+									CallExpression(path, state) {
+										devArguments(path, state)
+									},
+								},
+								state,
+							)
+
+							/** Add debugging properties to components */
+							path.traverse(
+								{
+									JSXOpeningElement(path, state) {
+										devProps(path, state)
+									},
+								},
+								state,
+							)
+						}
 					},
 					exit(path) {
 						/** Removes empty argument `[]` from the template call */

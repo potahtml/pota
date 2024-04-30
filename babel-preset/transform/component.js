@@ -1,4 +1,4 @@
-import { types as t } from '@babel/core'
+import core, { types as t } from '@babel/core'
 
 import { call, getTag } from './utils.js'
 
@@ -26,6 +26,39 @@ export function buildJSXComponent(path, state) {
 	}
 
 	// call
+
+	const identifier = path.scope.generateUidIdentifier('_jsxComponent')
+
+	path.scope.push({
+		id: identifier,
+		init: core.template.expression
+			.ast`() => ${call(state, 'jsx', args)}`,
+	})
+
+	/*const binding = path.scope.getBinding(
+		Object.keys(path.scope.bindings).at(-1),
+	)
+	console.log(binding)
+	binding.insertAfter(
+		t.variableDeclarator({
+			id: identifier,
+			init: core.template.expression
+				.ast`() => ${call(state, 'jsx', args)}`,
+		}),
+	)*/
+
+	/*path.insertAfter(
+		t.variableDeclarator({
+			id: identifier,
+			init: core.template.expression
+				.ast`() => ${call(state, 'jsx', args)}`,
+		}),
+	)*/
+
+	return identifier
+
+	return core.template.expression
+		.ast`() => ${call(state, 'jsx', args)}`
 
 	return call(state, 'jsx', args)
 }

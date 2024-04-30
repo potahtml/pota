@@ -53,6 +53,9 @@ export const set = (pass, name, v) =>
 export function call(pass, name, args) {
 	return t.callExpression(get(pass, `id/${name}`)(), args)
 }
+export function importing(pass, name) {
+	return get(pass, `id/${name}`)()
+}
 
 export function hasProto(node) {
 	return node.properties.some(
