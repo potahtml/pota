@@ -1,4 +1,4 @@
-import { types as t } from '@babel/core'
+import core, { types as t } from '@babel/core'
 
 import { call } from './utils.js'
 
@@ -141,7 +141,9 @@ export function buildHTMLTemplate(path, state) {
 	template.isTemplate = true
 	template.tagName = tagName
 	template._path = path
+
 	return template
+	return core.template.expression.ast`() => ${template}`
 }
 
 export function isHTMLTemplate(node) {

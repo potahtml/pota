@@ -2,8 +2,8 @@ import { types as t } from '@babel/core'
 
 import { convertAttributeValue, hasProto } from './utils.js'
 
-export function buildProps(attribs, children) {
-	const props = attribs.reduce(accumulate, [])
+export function buildProps(attributes, children) {
+	const props = attributes.reduce(accumulate, [])
 	if (children && children.length > 0) {
 		props.push(buildPropChildren(children))
 	}
@@ -22,6 +22,18 @@ export function buildPropChildren(children) {
 		return undefined
 	}
 	return t.objectProperty(t.identifier('children'), childrenNode)
+}
+
+export function buildPropChildren2(children) {
+	let childrenNode
+	if (children.length === 1) {
+		childrenNode = children[0]
+	} else if (children.length > 1) {
+		childrenNode = t.arrayExpression(children)
+	} else {
+		return undefined
+	}
+	return childrenNode
 }
 
 export function accumulate(array, attribute) {
