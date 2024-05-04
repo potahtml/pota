@@ -1,9 +1,8 @@
-import { types as t } from '@babel/core'
 import { isValidHTMLNesting } from 'validate-html-nesting'
 
-import { convertJSXIdentifier } from './utils.js'
+import { error } from './utils.js'
 
-import { isHTMLTemplate } from './template.js'
+import { isPartialHTML } from './partial.js'
 
 const voidElements = new Set([
 	'area',
@@ -32,38 +31,39 @@ export function isVoidElement(tagName) {
 	return voidElements.has(tagName.toLowerCase())
 }
 
+/** Validates html nesting */
 export function validateHTML(parent, child, node) {
 	if (!isValidHTMLNesting(parent, child)) {
-		throw node._path.buildCodeFrameError(
+		error(
+			node._path,
 			`Invalid HTML: <${parent}> cannot be child of <${child}>`,
 		)
 	}
 }
+
+/** Validates if the tags in children are valid nesting for parent tag */
 export function validateChildrenHTML(tagName, children) {
 	for (const child of children) {
-		if (isHTMLTemplate(child)) {
+		if (isPartialHTML(child)) {
 			validateHTML(tagName, child.tagName, child)
 		}
 	}
 }
 
-export function isHTMLTag(path) {
-	const openingPath = path.get('openingElement')
-
-	const tagExpr = convertJSXIdentifier(
-		openingPath.node.name,
-		openingPath.node,
-	)
-	let tagName
-	if (t.isIdentifier(tagExpr)) {
-		tagName = tagExpr.name
-	} else if (t.isStringLiteral(tagExpr)) {
-		tagName = tagExpr.value
+/** Escapes `&`, `<`, `>`, `'`, `"` */
+export const escapeHTML = (() => {
+	const chars = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		"'": '&#39;',
+		'"': '&quot;',
 	}
 
-	return t.react.isCompatTag(tagName) ? tagName : false
-}
+	const search = /[&<>'"]/g
+	const replace = c => chars[c]
 
-export function getHTMLTagName(path) {
-	return isHTMLTag(path)
-}
+	return function (s) {
+		return s.replace(search, replace)
+	}
+})()

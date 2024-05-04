@@ -1,39 +1,15 @@
-import core, { types as t } from '@babel/core'
+import { types as t } from '@babel/core'
 
-import { call, get } from './utils.js'
+import { buildChildren } from './children.js'
 
-import { merge } from './merge.js'
-import { buildPropChildren2 } from './props.js'
+/** Builds children fragment */
+export function buildFragment(path, state) {
+	const children = buildChildren(path)
 
-export function buildJSXFragment(path, state) {
-	const args = [get(state, 'id/fragment')()]
-
-	const children = merge(t.react.buildChildren(path.node))
-
-	/*args.push(
-		t.objectExpression(
-			children.length > 0 ? [buildPropChildren2(children)] : [],
-		),
-	)*/
-
-	return buildPropChildren2(children)
-
-	// return call(state, 'jsx', args)
-
-	return core.template.expression.ast`() => {
-		return ${call(state, 'jsx', args)}
-	}`
-
-	/*	const identifier = path.scope.generateUidIdentifier('_jsxFragment')
-
-	const calling = core.template.expression.ast`() => {
-		return ${call(state, 'jsx', args)}
-	}`
-
-	path.scope.getProgram().push({
-		id: identifier,
-		init: calling,
-	})
-*/
-	return identifier
+	if (children.length === 1) {
+		return children[0]
+	} else if (children.length > 1) {
+		return t.arrayExpression(children)
+	}
+	return undefined
 }

@@ -1,18 +1,9 @@
 import { getChildrenLiteral, isChildrenLiteral } from './children.js'
-import { getHTMLTemplate, isHTMLTemplate } from './template.js'
+import { getPartialLiteral, isPartialHTML } from './partial.js'
+
+/** Merges text/partial childrens to parent */
 
 export function mergeToTag(children, tag) {
-	/**
-	 * ```js
-	 * Component('a', {
-	 * 	children: ['1', '2', template('3')],
-	 * })
-	 *
-	 * into
-	 * // `<a>123`
-	 * ```
-	 */
-
 	const toRemove = []
 
 	for (let i = 0; i < children.length; i++) {
@@ -23,8 +14,8 @@ export function mergeToTag(children, tag) {
 			toRemove.push(node)
 			continue
 		}
-		if (isHTMLTemplate(node)) {
-			tag.content += getHTMLTemplate(node)
+		if (isPartialHTML(node)) {
+			tag.content += getPartialLiteral(node)
 
 			if (node.arguments[1].elements.length) {
 				tag.props.push(...node.arguments[1].elements)
@@ -39,6 +30,7 @@ export function mergeToTag(children, tag) {
 	return children.filter(child => !toRemove.includes(child))
 }
 
+/** Merges all sibling text/partial childrens */
 export function merge(children) {
 	const toRemove = []
 
@@ -55,9 +47,9 @@ export function merge(children) {
 				next = children[++i]
 				continue
 			}
-			if (isHTMLTemplate(next)) {
+			if (isPartialHTML(next)) {
 				next.arguments[0].value =
-					getChildrenLiteral(node) + getHTMLTemplate(next)
+					getChildrenLiteral(node) + getPartialLiteral(next)
 
 				toRemove.push(node)
 				node = next
@@ -66,7 +58,7 @@ export function merge(children) {
 			}
 		}
 
-		if (isHTMLTemplate(node)) {
+		if (isPartialHTML(node)) {
 			if (isChildrenLiteral(next)) {
 				node.arguments[0].value += getChildrenLiteral(next)
 
@@ -74,8 +66,8 @@ export function merge(children) {
 				next = children[++i]
 				continue
 			}
-			if (isHTMLTemplate(next)) {
-				node.arguments[0].value += getHTMLTemplate(next)
+			if (isPartialHTML(next)) {
+				node.arguments[0].value += getPartialLiteral(next)
 
 				if (next.arguments[1].elements.length) {
 					node.arguments[1].elements.push(
