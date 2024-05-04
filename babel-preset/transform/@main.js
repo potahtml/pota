@@ -1,6 +1,6 @@
 import { declare } from '@babel/helper-plugin-utils'
-import jsx from '@babel/plugin-syntax-jsx'
 import { types as t } from '@babel/core'
+import jsx from '@babel/plugin-syntax-jsx'
 
 import { createImport, error } from './utils.js'
 
@@ -24,7 +24,7 @@ export default function createPlugin({ name }) {
 					enter(path, state) {
 						/** Pota babel state */
 
-						state.pota = { partials: {}, components: {} }
+						state.pota = { partials: {}, components: {}, files: {} }
 
 						createImport(path, state, 'createPartial')
 						createImport(path, state, 'createComponent')

@@ -161,14 +161,22 @@ function makeSignalSource(path, state) {
  * @returns {t.ObjectExpression}
  */
 function makeFunctionSource(path, state) {
+	// filename
+
 	const filename = path.scope
 		.getProgramParent()
 		.path.hub.file.opts.filename.replace(/\\/g, '/')
 
+	const file = getFilenameIdentifier(path, state, filename)
+
+	// position
+
 	const line = path.node.loc.start.line || 0
 	const col = path.node.loc?.start?.column + 1 || 0
+	const position = ':' + line + ':' + col
 
-	const file = filename + ':' + line + ':' + col
+	// source
+
 	const name = path.node.callee.name
 
 	return core.template.expression.ast`{
@@ -177,7 +185,7 @@ function makeFunctionSource(path, state) {
 				type: ${t.stringLiteral(name)},
 				name: ${t.stringLiteral(name)},
 
-				file: ${t.stringLiteral(file)}
+				file: ${file} + ${t.stringLiteral(position)}
 			}
 		}
   	}`
@@ -196,14 +204,21 @@ function makeFunctionSource(path, state) {
  */
 
 function makeDynamicSource(path, state) {
+	// filename
+
 	const filename = path.scope
 		.getProgramParent()
 		.path.hub.file.opts.filename.replace(/\\/g, '/')
 
+	const file = getFilenameIdentifier(path, state, filename)
+
+	// position
+
 	const line = path.node.loc.start.line || 0
 	const col = path.node.loc?.start?.column + 1 || 0
+	const position = ':' + line + ':' + col
 
-	const file = filename + ':' + line + ':' + col
+	// component
 
 	const component = path.node.arguments[0]
 	let name
@@ -221,7 +236,7 @@ function makeDynamicSource(path, state) {
 				type: ${t.stringLiteral('Component')},
 				name: ${t.stringLiteral(name)},
 
-				file: ${t.stringLiteral(file)}
+				file: ${file} + ${t.stringLiteral(position)}
 			}
 		}
   	}`
@@ -244,11 +259,19 @@ function makeComponentSource(path, state) {
 		return path.scope.buildUndefinedNode()
 	}
 
+	// filename
+
 	const filename = state.filename.replace(/\\/g, '/')
+	const file = getFilenameIdentifier(path, state, filename)
+
+	// position
+
 	const line = location.start.line || 0
 	const col = location.start?.column + 1 || 0
+	const position = ':' + line + ':' + col
 
-	const file = filename + ':' + line + ':' + col
+	// component
+
 	const name = path.node.name.object
 		? path.node.name.object.name + '.' + path.node.name.property.name
 		: path.node.name.name || 'unknown'
@@ -258,7 +281,23 @@ function makeComponentSource(path, state) {
 			type: ${t.stringLiteral(t.react.isCompatTag(name) && !name.includes('.') ? 'Tag' : 'Component')},
 			name: ${t.stringLiteral(name)},
 
-			file: ${t.stringLiteral(file)}
+			file: ${file} + ${t.stringLiteral(position)}
 		}
   	}`
+}
+
+function getFilenameIdentifier(path, state, filename) {
+	if (!state.pota.files[filename]) {
+		const scope = path.scope.getProgramParent()
+
+		state.pota.files[filename] =
+			scope.generateUidIdentifier('_filename')
+
+		scope.push({
+			id: state.pota.files[filename],
+			init: t.stringLiteral(filename),
+		})
+	}
+
+	return state.pota.files[filename]
 }
