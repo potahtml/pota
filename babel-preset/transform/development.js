@@ -14,6 +14,83 @@ export function devProps(path, state) {
 }
 
 /**
+ * Adds `__dev` argument to declarations
+ *
+ * ```js
+ * const [something] = signal(undefined, {
+ * 	__dev: { __pota: { name: something, etc } },
+ * })
+ * ```
+ */
+
+export function devDeclaration(path, state) {
+	for (const declaration of path.node.declarations) {
+		const fn = declaration.init?.callee?.name
+
+		switch (fn) {
+			case 'signal': {
+				const devToolsArgument = makeDeclarationSource(
+					path,
+					declaration,
+					state,
+				)
+				mergeArguments(
+					declaration.init.arguments,
+					devToolsArgument,
+					2,
+				)
+
+				break
+			}
+			case 'memo': {
+				const devToolsArgument = makeDeclarationSource(
+					path,
+					declaration,
+					state,
+				)
+				mergeArguments(
+					declaration.init.arguments,
+					devToolsArgument,
+					2,
+				)
+
+				break
+			}
+		}
+	}
+}
+
+/**
+ * Adds `__dev` argument to assignements
+ *
+ * ```js
+ * property[type] = signal(undefined, {
+ * 	__dev: { __pota: { name: 'property[type]', etc } },
+ * })
+ * ```
+ */
+
+export function devAssignment(path, state) {
+	const fn = path.node.right.callee?.name
+
+	switch (fn) {
+		case 'signal': {
+			const devToolsArgument = makeAssignementSource(path, state)
+			mergeArguments(path.node.right.arguments, devToolsArgument, 2)
+
+			break
+		}
+
+		case 'memo': {
+			const devToolsArgument = makeAssignementSource(path, state)
+			mergeArguments(path.node.right.arguments, devToolsArgument, 2)
+
+			break
+		}
+	}
+}
+
+/**
  * Adds `__dev` argument to function calls, as
  *
  * ```js
@@ -24,81 +101,51 @@ export function devProps(path, state) {
 export function devArguments(path, state) {
 	const fn = path.node.callee?.name
 
-	if (fn === 'render') {
-		const devToolsArgument = makeFunctionSource(path, state)
+	switch (fn) {
+		// assignements/declarations adds dev args last
+		case 'signal':
+		case 'memo': {
+			const devToolsArgument = makeFunctionSource(path, state)
+			mergeArguments(path.node.arguments, devToolsArgument, 2)
 
-		mergeArguments(
-			path,
-			state,
-			path.node.arguments,
-			devToolsArgument,
-			4,
-		)
-	} else if (fn === 'root') {
-		const devToolsArgument = makeFunctionSource(path, state)
+			break
+		}
 
-		mergeArguments(
-			path,
-			state,
-			path.node.arguments,
-			devToolsArgument,
-			2,
-		)
-	} else if (
-		fn === 'effect' ||
-		fn === 'syncEffect' ||
-		fn === 'asyncEffect'
-	) {
-		const devToolsArgument = makeFunctionSource(path, state)
+		// function calls
+		case 'render': {
+			const devToolsArgument = makeFunctionSource(path, state)
+			mergeArguments(path.node.arguments, devToolsArgument, 4)
 
-		mergeArguments(
-			path,
-			state,
-			path.node.arguments,
-			devToolsArgument,
-			2,
-		)
-	} else if (fn === 'memo') {
-		const devToolsArgument = makeMemoSource(path, state)
+			break
+		}
+		case 'root': {
+			const devToolsArgument = makeFunctionSource(path, state)
+			mergeArguments(path.node.arguments, devToolsArgument, 2)
 
-		mergeArguments(
-			path,
-			state,
-			path.node.arguments,
-			devToolsArgument,
-			2,
-		)
-	} else if (fn === 'signal') {
-		const devToolsArgument = makeSignalSource(path, state)
+			break
+		}
+		case 'effect':
+		case 'syncEffect':
+		case 'asyncEffect': {
+			const devToolsArgument = makeFunctionSource(path, state)
 
-		mergeArguments(
-			path,
-			state,
-			path.node.arguments,
-			devToolsArgument,
-			2,
-		)
-	} else if (fn === 'Component') {
-		const devToolsArgument = makeDynamicSource(path, state)
+			mergeArguments(path.node.arguments, devToolsArgument, 2)
 
-		mergeArguments(
-			path,
-			state,
-			path.node.arguments,
-			devToolsArgument,
-			2,
-		)
+			break
+		}
+
+		case 'Component': {
+			const devToolsArgument = makeDynamicSource(path, state)
+
+			mergeArguments(path.node.arguments, devToolsArgument, 2)
+
+			break
+		}
 	}
 }
 
 // add or merge {__dev:..} into function argument
-function mergeArguments(
-	path,
-	state,
-	args,
-	devToolsArgument,
-	argNumber,
-) {
+function mergeArguments(args, devToolsArgument, argNumber) {
 	argNumber = argNumber - 1
 
 	// pad arguments
@@ -111,6 +158,7 @@ function mergeArguments(
 		args.push(devToolsArgument)
 	} else if (t.isObjectExpression(args[argNumber])) {
 		// the argument is there, if it is an object try to merge it
+
 		// merge current __dev with new __dev
 		for (const prop of args[argNumber].properties) {
 			if (t.isObjectProperty(prop) && prop.key.name === '__dev') {
@@ -135,23 +183,7 @@ function mergeArguments(
 	}
 }
 
-function makeMemoSource(path, state) {
-	// todo take the name from the asignement
-	return makeFunctionSource(path, state)
-}
-
-function makeSignalSource(path, state) {
-	// todo take the name from the asignement
-	return makeFunctionSource(path, state)
-}
-
 /**
- * ```js
- * const [read, write] = signal(val)
- * ```
- *
- * To
- *
  * ```js
  * signal(val, {
  * 	__dev: { name: 'signal' },
@@ -192,12 +224,6 @@ function makeFunctionSource(path, state) {
 }
 
 /**
- * ```js
- * Component(Thing, { one: 1 })
- * ```
- *
- * To
- *
  * ```js
  * Component(Thing, { one: 1, __dev: { name: 'Thing' } })
  * ```
@@ -285,6 +311,114 @@ function makeComponentSource(path, state) {
 		}
   	}`
 }
+
+/**
+ * ```js
+ * property[type] = signal(val, {
+ * 	__dev: { __pota: { name: 'property[type]' } },
+ * })
+ * ```
+ *
+ * @returns {t.ObjectExpression}
+ */
+function makeAssignementSource(path, state) {
+	// filename
+
+	const filename = path.scope
+		.getProgramParent()
+		.path.hub.file.opts.filename.replace(/\\/g, '/')
+
+	const file = getFilenameIdentifier(path, state, filename)
+
+	// position
+
+	const line = path.node.left.loc.start.line || 0
+	const col = path.node.left.loc?.start?.column + 1 || 0
+	const position = ':' + line + ':' + col
+
+	// source
+
+	const type = path.node.right.callee.name
+	const name = state.file.code.slice(
+		path.node.left.start,
+		path.node.left.end,
+	)
+
+	return core.template.expression.ast`{
+		__dev:{
+			__pota: {
+				type: ${t.stringLiteral(type)},
+				name: ${t.stringLiteral(name)},
+
+				file: ${file} + ${t.stringLiteral(position)}
+			}
+		}
+  	}`
+}
+
+/**
+ * ```js
+ * const [something, write] = signal(val, {
+ * 	__dev: { __pota: { name: 'something' } },
+ * })
+ * ```
+ *
+ * @returns {t.ObjectExpression}
+ */
+function makeDeclarationSource(path, declaration, state) {
+	// filename
+
+	const filename = path.scope
+		.getProgramParent()
+		.path.hub.file.opts.filename.replace(/\\/g, '/')
+
+	const file = getFilenameIdentifier(path, state, filename)
+
+	// position
+
+	const line = path.node.loc.start.line || 0
+	const col = path.node.loc?.start?.column + 1 || 0
+	const position = ':' + line + ':' + col
+
+	// source
+
+	const type = declaration.init.callee.name
+
+	let name = 'unknown'
+
+	switch (declaration.id.type) {
+		case 'ArrayPattern': {
+			// array signal destructuring
+			name = declaration.id.elements[0].name
+			break
+		}
+		case 'ObjectPattern': {
+			// object signal destructuring
+			name = declaration.id.properties.find(
+				item => item.key.name === 'read',
+			).value.name
+			break
+		}
+		case 'Identifier': {
+			// memo/signal
+			name = declaration.id.name
+			break
+		}
+	}
+
+	return core.template.expression.ast`{
+		__dev:{
+			__pota: {
+				type: ${t.stringLiteral(type)},
+				name: ${t.stringLiteral(name)},
+
+				file: ${file} + ${t.stringLiteral(position)}
+			}
+		}
+  	}`
+}
+
+// hoists file name
 
 function getFilenameIdentifier(path, state, filename) {
 	if (!state.pota.files[filename]) {

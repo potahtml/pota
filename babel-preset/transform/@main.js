@@ -4,11 +4,17 @@ import jsx from '@babel/plugin-syntax-jsx'
 
 import { createImport, error } from './utils.js'
 
+import { buildComponent } from './component.js'
 import { buildFragment } from './fragment.js'
 import { buildPartial, partialMerge, isPartial } from './partial.js'
 import { isTagXHTML } from './tag.js'
-import { buildComponent } from './component.js'
-import { devArguments, devProps } from './development.js'
+
+import {
+	devArguments,
+	devProps,
+	devAssignment,
+	devDeclaration,
+} from './development.js'
 
 export default function createPlugin({ name }) {
 	return declare((_, options) => {
@@ -30,21 +36,26 @@ export default function createPlugin({ name }) {
 						createImport(path, state, 'createComponent')
 
 						if (options?.development) {
-							/** Add debugging arguments to reactive functions */
 							path.traverse(
 								{
+									/** Add debugging arguments to reactive functions */
 									CallExpression(path, state) {
 										devArguments(path, state)
 									},
-								},
-								state,
-							)
 
-							/** Add debugging properties to components */
-							path.traverse(
-								{
+									/** Add debugging properties to components */
 									JSXOpeningElement(path, state) {
 										devProps(path, state)
+									},
+
+									/** Add debugging properties to assignment */
+									AssignmentExpression(path, state) {
+										devAssignment(path, state)
+									},
+
+									/** Add debugging properties to declaration */
+									VariableDeclaration(path, state) {
+										devDeclaration(path, state)
 									},
 								},
 								state,
