@@ -2,7 +2,6 @@ import { getChildrenLiteral, isChildrenLiteral } from './children.js'
 import { getPartialLiteral, isPartialHTML } from './partial.js'
 
 /** Merges text/partial childrens to parent */
-
 export function mergeToTag(children, tag) {
 	const toRemove = []
 
