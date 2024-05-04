@@ -64,8 +64,8 @@ export function devDeclaration(path, state) {
  * Adds `__dev` argument to assignements
  *
  * ```js
- * property[type] = signal(undefined, {
- * 	__dev: { __pota: { name: 'property[type]', etc } },
+ * property[something] = signal(undefined, {
+ * 	__dev: { __pota: { name: 'property[something]', etc } },
  * })
  * ```
  */
@@ -211,16 +211,7 @@ function makeFunctionSource(path, state) {
 
 	const name = path.node.callee.name
 
-	return core.template.expression.ast`{
-		__dev:{
-			__pota: {
-				type: ${t.stringLiteral(name)},
-				name: ${t.stringLiteral(name)},
-
-				file: ${file} + ${t.stringLiteral(position)}
-			}
-		}
-  	}`
+	return makeDevObject(name, name, file, position)
 }
 
 /**
@@ -256,16 +247,7 @@ function makeDynamicSource(path, state) {
 		name = component.name || 'unknown'
 	}
 
-	return core.template.expression.ast`{
-		__dev:{
-			__pota: {
-				type: ${t.stringLiteral('Component')},
-				name: ${t.stringLiteral(name)},
-
-				file: ${file} + ${t.stringLiteral(position)}
-			}
-		}
-  	}`
+	return makeDevObject('component', name, file, position)
 }
 
 /**
@@ -302,20 +284,20 @@ function makeComponentSource(path, state) {
 		? path.node.name.object.name + '.' + path.node.name.property.name
 		: path.node.name.name || 'unknown'
 
-	return core.template.expression.ast`{
-		__pota: {
-			type: ${t.stringLiteral(t.react.isCompatTag(name) && !name.includes('.') ? 'Tag' : 'Component')},
-			name: ${t.stringLiteral(name)},
-
-			file: ${file} + ${t.stringLiteral(position)}
-		}
-  	}`
+	return makePotaObject(
+		t.react.isCompatTag(name) && !name.includes('.')
+			? 'element'
+			: 'component',
+		name,
+		file,
+		position,
+	)
 }
 
 /**
  * ```js
- * property[type] = signal(val, {
- * 	__dev: { __pota: { name: 'property[type]' } },
+ * property[something] = signal(val, {
+ * 	__dev: { __pota: { name: 'property[something]' } },
  * })
  * ```
  *
@@ -338,22 +320,13 @@ function makeAssignementSource(path, state) {
 
 	// source
 
-	const type = path.node.right.callee.name
+	const kind = path.node.right.callee.name
 	const name = state.file.code.slice(
 		path.node.left.start,
 		path.node.left.end,
 	)
 
-	return core.template.expression.ast`{
-		__dev:{
-			__pota: {
-				type: ${t.stringLiteral(type)},
-				name: ${t.stringLiteral(name)},
-
-				file: ${file} + ${t.stringLiteral(position)}
-			}
-		}
-  	}`
+	return makeDevObject(kind, name, file, position)
 }
 
 /**
@@ -382,7 +355,7 @@ function makeDeclarationSource(path, declaration, state) {
 
 	// source
 
-	const type = declaration.init.callee.name
+	const kind = declaration.init.callee.name
 
 	let name = 'unknown'
 
@@ -406,16 +379,7 @@ function makeDeclarationSource(path, declaration, state) {
 		}
 	}
 
-	return core.template.expression.ast`{
-		__dev:{
-			__pota: {
-				type: ${t.stringLiteral(type)},
-				name: ${t.stringLiteral(name)},
-
-				file: ${file} + ${t.stringLiteral(position)}
-			}
-		}
-  	}`
+	return makeDevObject(kind, name, file, position)
 }
 
 // hoists file name
@@ -434,4 +398,28 @@ function getFilenameIdentifier(path, state, filename) {
 	}
 
 	return state.pota.files[filename]
+}
+
+function makeDevObject(kind, name, file, position) {
+	return core.template.expression.ast`{
+		__dev:{
+			__pota: {
+				kind: ${t.stringLiteral(kind)},
+				name: ${t.stringLiteral(name)},
+
+				file: ${file} + ${t.stringLiteral(position)}
+			}
+		}
+  	}`
+}
+
+function makePotaObject(kind, name, file, position) {
+	return core.template.expression.ast`{
+		__pota: {
+			kind: ${t.stringLiteral(kind)},
+			name: ${t.stringLiteral(name)},
+
+			file: ${file} + ${t.stringLiteral(position)}
+		}
+  	}`
 }
