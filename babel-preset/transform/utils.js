@@ -1,35 +1,40 @@
 import { types as t } from '@babel/core'
+import { addNamed } from '@babel/helper-module-imports'
 
-export const escapeHTML = (() => {
-	const chars = {
-		'&': '&amp;',
-		'<': '&lt;',
-		'>': '&gt;',
-		"'": '&#39;',
-		'"': '&quot;',
+function get(state, name) {
+	return state.get(`@babel/plugin-pota-jsx/${name}`)
+}
+function set(state, name, v) {
+	return state.set(`@babel/plugin-pota-jsx/${name}`, v)
+}
+
+/** Creates an import for a function */
+export const createImport = (path, state, name) =>
+	set(state, 'id/' + name, importLazy(path, state, name))
+
+/**
+ * Calls function that has been created with `createImport` with
+ * arguments
+ */
+export const callFunctionImport = (state, name, args) =>
+	t.callExpression(get(state, `id/${name}`)(), args)
+
+/** Call function it with arguments */
+export const callFunction = (name, args) =>
+	t.callExpression(t.identifier(name), args)
+
+function importLazy(path, state, name) {
+	return () => {
+		let reference = get(state, `imports/${name}`)
+		if (reference) return t.cloneNode(reference)
+		reference = addNamed(path, name, 'pota/src/renderer/@main.js', {
+			importedInterop: 'uncompiled',
+			importPosition: 'after',
+		})
+		set(state, `imports/${name}`, reference)
+		return reference
 	}
-
-	const search = /[&<>'"]/g
-	const replace = c => chars[c]
-
-	return function (s) {
-		return s.replace(search, replace)
-	}
-})()
-
-export const escapeAttribute = (() => {
-	const chars = {
-		"'": '&#39;',
-		'"': '&quot;',
-	}
-
-	const search = /['"]/g
-	const replace = c => chars[c]
-
-	return function (s) {
-		return s.replace(search, replace)
-	}
-})()
+}
 
 /**
  * Removes a value from an array
@@ -44,81 +49,7 @@ export function removeFromArray(array, value) {
 	return array
 }
 
-export const get = (pass, name) =>
-	pass.get(`@babel/plugin-pota-jsx/${name}`)
-
-export const set = (pass, name, v) =>
-	pass.set(`@babel/plugin-pota-jsx/${name}`, v)
-
-export function call(pass, name, args) {
-	return t.callExpression(get(pass, `id/${name}`)(), args)
-}
-export function importing(pass, name) {
-	return get(pass, `id/${name}`)()
-}
-
-export function hasProto(node) {
-	return node.properties.some(
-		value =>
-			t.isObjectProperty(value, {
-				computed: false,
-				shorthand: false,
-			}) &&
-			(t.isIdentifier(value.key, {
-				name: '__proto__',
-			}) ||
-				t.isStringLiteral(value.key, {
-					value: '__proto__',
-				})),
-	)
-}
-
-export function getTag(path) {
-	const openingPath = path.get('openingElement')
-
-	const tagExpr = convertJSXIdentifier(
-		openingPath.node.name,
-		openingPath.node,
-	)
-	let tagName
-	if (t.isIdentifier(tagExpr)) {
-		tagName = tagExpr.name
-	} else if (t.isStringLiteral(tagExpr)) {
-		tagName = tagExpr.value
-	}
-
-	if (t.react.isCompatTag(tagName)) {
-		return t.stringLiteral(tagName)
-	} else {
-		return tagExpr
-	}
-}
-
-export function convertJSXIdentifier(node, parent) {
-	if (t.isJSXIdentifier(node)) {
-		if (node.name === 'this' && t.isReferenced(node, parent)) {
-			return t.thisExpression()
-		} else if (t.isValidIdentifier(node.name, false)) {
-			node.type = 'Identifier'
-			return node
-		} else {
-			return t.stringLiteral(node.name)
-		}
-	} else if (t.isJSXMemberExpression(node)) {
-		return t.memberExpression(
-			convertJSXIdentifier(node.object, node),
-			convertJSXIdentifier(node.property, node),
-		)
-	} else if (t.isJSXNamespacedName(node)) {
-		return t.stringLiteral(`${node.namespace.name}:${node.name.name}`)
-	}
-	return node
-}
-
-export function convertAttributeValue(node) {
-	if (t.isJSXExpressionContainer(node)) {
-		return node.expression
-	} else {
-		return node
-	}
+/** Displays fancy error on path */
+export function error(path, err) {
+	throw path.buildCodeFrameError(err)
 }

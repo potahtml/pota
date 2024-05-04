@@ -1,7 +1,6 @@
 import { types as t } from '@babel/core'
 
-import { convertAttributeValue, hasProto } from './utils.js'
-
+/** Builds props */
 export function buildProps(attributes, children) {
 	const props = attributes.reduce(accumulate, [])
 	if (children && children.length > 0) {
@@ -12,6 +11,7 @@ export function buildProps(attributes, children) {
 	}
 }
 
+/** Builds children prop */
 export function buildPropChildren(children) {
 	let childrenNode
 	if (children.length === 1) {
@@ -22,18 +22,6 @@ export function buildPropChildren(children) {
 		return undefined
 	}
 	return t.objectProperty(t.identifier('children'), childrenNode)
-}
-
-export function buildPropChildren2(children) {
-	let childrenNode
-	if (children.length === 1) {
-		childrenNode = children[0]
-	} else if (children.length > 1) {
-		childrenNode = t.arrayExpression(children)
-	} else {
-		return undefined
-	}
-	return childrenNode
 }
 
 export function accumulate(array, attribute) {
@@ -78,3 +66,26 @@ export function accumulate(array, attribute) {
 	)
 	return array
 }
+
+function convertAttributeValue(node) {
+	if (t.isJSXExpressionContainer(node)) {
+		return node.expression
+	} else {
+		return node
+	}
+}
+
+const hasProto = node =>
+	node.properties.some(
+		value =>
+			t.isObjectProperty(value, {
+				computed: false,
+				shorthand: false,
+			}) &&
+			(t.isIdentifier(value.key, {
+				name: '__proto__',
+			}) ||
+				t.isStringLiteral(value.key, {
+					value: '__proto__',
+				})),
+	)

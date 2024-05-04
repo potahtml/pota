@@ -1,7 +1,6 @@
 import { types as t } from '@babel/core'
 
-import { escapeAttribute } from './utils.js'
-
+/** Merges attributes into partial */
 export function buildAttributeIntoTag(tag, name, value) {
 	if (value.trim() === '') {
 		tag.content += ' ' + name
@@ -13,9 +12,10 @@ export function buildAttributeIntoTag(tag, name, value) {
 		return
 	}
 
-	tag.content += ' ' + name + '=' + escapeAttribute(value)
+	tag.content += ' ' + name + '=' + value
 }
 
+/** If value is string or number */
 export function isAttributeLiteral(node) {
 	return (
 		t.isStringLiteral(node.value) ||
@@ -24,6 +24,8 @@ export function isAttributeLiteral(node) {
 		t.isNumericLiteral(node.value?.expression)
 	)
 }
+
+/** Get attribute string or number */
 export function getAttributeLiteral(node) {
 	if (
 		t.isStringLiteral(node.value.expression) ||
@@ -34,6 +36,22 @@ export function getAttributeLiteral(node) {
 	return String(node.value.value)
 }
 
-export function createLiteralAttribute(name, value) {
+/** Creates a `jSXAttribute` */
+export function createAttribute(name, value) {
 	return t.jSXAttribute(t.jSXIdentifier(name), t.stringLiteral(value))
 }
+
+/** Escapes `'` and `"` */
+const escapeAttribute = (() => {
+	const chars = {
+		"'": '&#39;',
+		'"': '&quot;',
+	}
+
+	const search = /['"]/g
+	const replace = c => chars[c]
+
+	return function (s) {
+		return s.replace(search, replace)
+	}
+})()

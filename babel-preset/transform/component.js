@@ -1,64 +1,53 @@
-import core, { types as t } from '@babel/core'
+import { callFunctionImport, callFunction } from './utils.js'
 
-import { call, getTag } from './utils.js'
-
-import { merge } from './merge.js'
+import { getTagFunction, getTagFunctionName } from './tag.js'
 import { buildProps } from './props.js'
+import { buildChildren } from './children.js'
 
-export function buildJSXComponent(path, state) {
-	// arguments
-
-	const args = [getTag(path)]
-
+/** Hoist and builds call to component with props */
+export function buildComponent(path, state) {
 	// attributes
 
 	const attributes = path.get('openingElement').get('attributes')
 
 	// children
 
-	const children = merge(t.react.buildChildren(path.node))
+	const children = buildChildren(path)
 
 	// props
 
 	const props = buildProps(attributes, children)
-	if (props) {
-		args.push(props)
+
+	// component
+
+	const fn = getTagFunction(path)
+	const name = getTagFunctionName(path)
+
+	// hoist it
+
+	if (!state.pota.components[name]) {
+		// scope
+
+		const scope = path.scope
+
+		// identifier
+
+		state.pota.components[name] = scope.generateUidIdentifier(
+			'_' + name,
+		)
+
+		// call
+
+		scope.push({
+			id: state.pota.components[name],
+			init: callFunctionImport(state, 'createComponent', [fn]),
+		})
 	}
 
 	// call
 
-	const identifier = path.scope.generateUidIdentifier('_jsxComponent')
-
-	path.scope.push({
-		id: identifier,
-		init: core.template.expression
-			.ast`() => ${call(state, 'jsx', args)}`,
-	})
-
-	/*const binding = path.scope.getBinding(
-		Object.keys(path.scope.bindings).at(-1),
+	return callFunction(
+		state.pota.components[name].name,
+		props ? [props] : [],
 	)
-	console.log(binding)
-	binding.insertAfter(
-		t.variableDeclarator({
-			id: identifier,
-			init: core.template.expression
-				.ast`() => ${call(state, 'jsx', args)}`,
-		}),
-	)*/
-
-	/*path.insertAfter(
-		t.variableDeclarator({
-			id: identifier,
-			init: core.template.expression
-				.ast`() => ${call(state, 'jsx', args)}`,
-		}),
-	)*/
-
-	return identifier
-
-	return core.template.expression
-		.ast`() => ${call(state, 'jsx', args)}`
-
-	return call(state, 'jsx', args)
 }

@@ -2,10 +2,6 @@
 
 import createPlugin from './transform/@main.js'
 
-Object.defineProperty(exports, '__esModule', {
-	value: true,
-})
-
-exports.default = createPlugin({
+export default createPlugin({
 	name: 'transform-pota-jsx',
 })
