@@ -1,7 +1,7 @@
 import core, { types as t } from '@babel/core'
 
 /** Adds `__dev` prop to jsx as `<Component __dev={{..}}` */
-export function devProps(path, state) {
+export function devToolsProps(path, state) {
 	const attributes = []
 
 	attributes.push(
@@ -23,7 +23,7 @@ export function devProps(path, state) {
  * ```
  */
 
-export function devDeclaration(path, state) {
+export function devToolsDeclaration(path, state) {
 	for (const declaration of path.node.declarations) {
 		const fn = declaration.init?.callee?.name
 
@@ -61,7 +61,7 @@ export function devDeclaration(path, state) {
 }
 
 /**
- * Adds `__dev` argument to assignements
+ * Adds `__dev` argument to assignments
  *
  * ```js
  * property[something] = signal(undefined, {
@@ -70,7 +70,7 @@ export function devDeclaration(path, state) {
  * ```
  */
 
-export function devAssignment(path, state) {
+export function devToolsAssignment(path, state) {
 	const fn = path.node.right.callee?.name
 
 	switch (fn) {
@@ -98,11 +98,11 @@ export function devAssignment(path, state) {
  * ```
  */
 
-export function devArguments(path, state) {
+export function devToolsArguments(path, state) {
 	const fn = path.node.callee?.name
 
 	switch (fn) {
-		// assignements/declarations adds dev args last
+		// assignments/declarations adds dev args last
 		case 'signal':
 		case 'memo': {
 			const devToolsArgument = makeFunctionSource(path, state)
