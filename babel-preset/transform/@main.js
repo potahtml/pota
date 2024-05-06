@@ -10,11 +10,11 @@ import { buildPartial, partialMerge, isPartial } from './partial.js'
 import { isTagXHTML } from './tag.js'
 
 import {
-	devArguments,
-	devProps,
-	devAssignment,
-	devDeclaration,
-} from './development.js'
+	devToolsArguments,
+	devToolsProps,
+	devToolsAssignment,
+	devToolsDeclaration,
+} from './devTools.js'
 
 export default function createPlugin({ name }) {
 	return declare((_, options) => {
@@ -40,22 +40,22 @@ export default function createPlugin({ name }) {
 								{
 									/** Add debugging arguments to reactive functions */
 									CallExpression(path, state) {
-										devArguments(path, state)
+										devToolsArguments(path, state)
 									},
 
 									/** Add debugging properties to components */
 									JSXOpeningElement(path, state) {
-										devProps(path, state)
+										devToolsProps(path, state)
 									},
 
 									/** Add debugging properties to assignment */
 									AssignmentExpression(path, state) {
-										devAssignment(path, state)
+										devToolsAssignment(path, state)
 									},
 
 									/** Add debugging properties to declaration */
 									VariableDeclaration(path, state) {
-										devDeclaration(path, state)
+										devToolsDeclaration(path, state)
 									},
 								},
 								state,
