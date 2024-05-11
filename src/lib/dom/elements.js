@@ -8,6 +8,8 @@ export const createElementNS = bind('createElementNS')
 
 export const createTextNode = bind('createTextNode')
 
+export const importNode = bind('importNode')
+
 export const adoptedStyleSheets = document.adoptedStyleSheets
 
 export function toDiff(prev = [], node = []) {
