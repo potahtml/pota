@@ -1,10 +1,12 @@
 // NODE UNKNOWN PROPERTIES / ATTRIBUTES
 
-import { withValue } from '../../lib/reactivity/withValue.js'
-import { _setProperty } from './property.js'
-import { _setAttribute } from './attribute.js'
 import { isObject } from '../../lib/std/isObject.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
+
+import { withValue } from './withValue.js'
+
+import { _setProperty } from './property.js'
+import { _setAttribute } from './attribute.js'
 
 /**
  * @param {Elements} node
@@ -13,7 +15,9 @@ import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
  * @param {string} [ns]
  */
 export const setUnknownProp = (node, name, value, ns) =>
-	withValue(value, value => _setUnknownProp(node, name, value, ns))
+	withValue(name, value, value =>
+		_setUnknownProp(node, name, value, ns),
+	)
 
 /**
  * @param {Elements} node

@@ -1,6 +1,7 @@
-import { NS } from '../../constants.js'
-import { withValue } from '../../lib/reactivity/withValue.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
+
+import { NS } from '../../constants.js'
+import { withValue } from './withValue.js'
 
 // NODE ATTRIBUTES
 
@@ -29,7 +30,9 @@ export const setAttributeNS = (
  * @url https://pota.quack.uy/props/setAttribute
  */
 export const setAttribute = (node, name, value, ns) =>
-	withValue(value, value => _setAttribute(node, name, value, ns))
+	withValue(name, value, value =>
+		_setAttribute(node, name, value, ns),
+	)
 
 /**
  * @param {Elements} node
