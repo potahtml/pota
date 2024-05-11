@@ -381,7 +381,7 @@ class Signal {
 	}
 
 	update(value) {
-		if (typeof value === 'function') {
+		if (isFunction(value)) {
 			value = value(this.value)
 		}
 		return this.write(value)
@@ -462,7 +462,7 @@ export function syncEffect(fn, options = undefined) {
  *
  * @param {Function} fn - Function to re-run when dependencies change
  * @param {SignalOptions} [options]
- * @returns {Signal} - Read only signal
+ * @returns {SignalAccessor} - Read only signal
  */
 export function memo(fn, options = undefined) {
 	return new Memo(Owner, fn, options)
