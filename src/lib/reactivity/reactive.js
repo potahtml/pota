@@ -38,9 +38,13 @@ class Root {
 
 	context
 
-	constructor(owner) {
+	constructor(owner, options) {
 		this.owner = owner
 		this.context = owner?.context
+
+		if (options) {
+			assign(this, options)
+		}
 	}
 
 	dispose() {
@@ -75,8 +79,8 @@ class Computation extends Root {
 	sources
 	sourceSlots
 
-	constructor(owner, fn) {
-		super(owner)
+	constructor(owner, fn, options) {
+		super(owner, options)
 
 		this.fn = fn
 
@@ -152,16 +156,16 @@ class Computation extends Root {
 class Effect extends Computation {
 	user = true
 
-	constructor(owner, fn) {
-		super(owner, fn)
+	constructor(owner, fn, options) {
+		super(owner, fn, options)
 
 		Effects ? Effects.push(this) : batch(() => this.update())
 	}
 }
 
 class SyncEffect extends Computation {
-	constructor(owner, fn) {
-		super(owner, fn)
+	constructor(owner, fn, options) {
+		super(owner, fn, options)
 
 		batch(() => this.update())
 	}
@@ -183,10 +187,8 @@ class Memo extends Computation {
 	// equals
 
 	constructor(owner, fn, options) {
-		super(owner, fn)
+		super(owner, fn, options)
 
-		if (options) {
-			assign(this, options)
 		}
 
 		return markReactive(this.read.bind(this))
@@ -402,13 +404,14 @@ class Signal {
  * Creates a new root
  *
  * @param {(dispose: Function) => any} fn
+ * @param {OwnerOptions} options
  * @returns {any}
  */
-export function root(fn) {
+export function root(fn, options) {
 	const prevOwner = Owner
 	const prevListener = Listener
 
-	const root = new Root(Owner)
+	const root = new Root(Owner, options)
 
 	Owner = root
 	Listener = undefined
@@ -437,18 +440,20 @@ export function signal(initialValue, options = undefined) {
  * Creates an effect
  *
  * @param {Function} fn
+ * @param {OwnerOptions} options
  */
-export function effect(fn) {
-	return new Effect(Owner, fn)
+export function effect(fn, options = undefined) {
+	return new Effect(Owner, fn, options)
 }
 
 /**
  * Creates a syncEffect
  *
  * @param {Function} fn
+ * @param {OwnerOptions} options
  */
-export function syncEffect(fn) {
-	return new SyncEffect(Owner, fn)
+export function syncEffect(fn, options = undefined) {
+	return new SyncEffect(Owner, fn, options)
 }
 
 /**
