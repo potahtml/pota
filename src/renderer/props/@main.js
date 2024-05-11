@@ -83,50 +83,61 @@ const isCustomElement = (node, props) =>
  */
 export function assignProps(node, props) {
 	let name
-	let value
 
 	for (name in props) {
-		value = props[name]
+		assignProp(node, name, props[name], props)
+	}
 
-		// run plugins
-		if (name in plugins) {
-			plugins[name](node, name, value, props)
-			continue
+	return node
+}
+
+/**
+ * Assigns a prop to an Element
+ *
+ * @param {Elements} node
+ * @param {PropertyKey} name
+ * @param {any} value
+ * @param {object} props
+ */
+export function assignProp(node, name, value, props) {
+	// run plugins
+	if (name in plugins) {
+		plugins[name](node, name, value, props)
+		return
+	}
+
+	// onClick={handler}
+	let event = eventName(name)
+	if (event) {
+		addEventListener(node, event, value)
+		return
+	}
+
+	if (name.includes(':')) {
+		// with ns
+		let [ns, localName] = name.split(':')
+
+		// run plugins NS
+		if (ns in pluginsNS) {
+			pluginsNS[ns](node, name, value, props, localName, ns)
+			return
 		}
 
-		// onClick={handler}
-		let event = eventName(name)
+		// onClick:my-ns={handler}
+		event = eventName(ns)
 		if (event) {
 			addEventListener(node, event, value)
-			continue
+			return
 		}
 
-		if (name.includes(':')) {
-			// with ns
-			let [ns, localName] = name.split(':')
-
-			// run plugins NS
-			if (ns in pluginsNS) {
-				pluginsNS[ns](node, name, value, props, localName, ns)
-				continue
-			}
-
-			// onClick:my-ns={handler}
-			event = eventName(ns)
-			if (event) {
-				addEventListener(node, event, value)
-				continue
-			}
-
-			isCustomElement(node, props)
-				? _setProperty(node, name, value)
-				: setUnknownProp(node, name, value, ns)
-			continue
-		}
-
-		// catch all
 		isCustomElement(node, props)
 			? _setProperty(node, name, value)
-			: setUnknownProp(node, name, value)
+			: setUnknownProp(node, name, value, ns)
+		return
 	}
+
+	// catch all
+	isCustomElement(node, props)
+		? _setProperty(node, name, value)
+		: setUnknownProp(node, name, value)
 }
