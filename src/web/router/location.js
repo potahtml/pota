@@ -1,8 +1,5 @@
 import { origin } from '../../lib/urls/@main.js'
-import {
-	signal,
-	memo,
-} from '../../lib/reactivity/reactive.js'
+import { signal, memo } from '../../lib/reactivity/reactive.js'
 import { empty } from '../../lib/std/@main.js'
 
 // local
