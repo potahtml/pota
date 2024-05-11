@@ -31,8 +31,6 @@ import {
 	toArray,
 } from '../lib/std/@main.js'
 
-import { Symbol } from '../lib/std/Symbol.js'
-
 // RENDERER LIB
 
 import { isComponent } from '../lib/component/isComponent.js'
@@ -64,8 +62,11 @@ const useXMLNS = context()
 
 // COMPONENTS
 
-/** Used by the JSX transform, as <>...</> or <Fragment>...</Fragment>. */
-export const Fragment = Symbol()
+/**
+ * Used by the regular JSX transform, as <>...</> or
+ * <Fragment>...</Fragment>.
+ */
+export const Fragment = props => props.children
 
 /**
  * Creates components for things. When props argument is given, the
