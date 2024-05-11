@@ -5,7 +5,7 @@
  * @param {Function | any} value - Maybe function
  * @returns {any}
  */
-export const getValue = value => {
+export function getValue(value) {
 	while (typeof value === 'function') value = value()
 	return value
 }
