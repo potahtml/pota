@@ -1,4 +1,4 @@
 import { Object } from './Object.js'
 
-export const type = obj =>
+export const typeString = obj =>
 	Object.prototype.toString.call(obj).slice(8, -1)
