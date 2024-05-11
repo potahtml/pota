@@ -9,7 +9,7 @@ import {
 import { Component, toHTML } from './@main.js'
 
 import { callAll } from '../lib/std/callAll.js'
-import { camelCase } from '../lib/strings/camel-case.js'
+import { camelCase } from '../lib/strings/camelCase.js'
 import { empty } from '../lib/std/empty.js'
 import { entries } from '../lib/std/entries.js'
 import { flat } from '../lib/std/flat.js'
