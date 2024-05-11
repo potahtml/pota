@@ -1,7 +1,8 @@
 // node style
 
 import { effect } from '../../lib/reactivity/reactive.js'
-import { withValue } from '../../lib/reactivity/withValue.js'
+
+import { withValue } from './withValue.js'
 
 import {
 	getValue,
@@ -83,7 +84,7 @@ export const setElementStyle = (node, name, value) =>
  * @param {unknown} value
  */
 const setStyleValue = (style, name, value) =>
-	withValue(value, value => _setStyleValue(style, name, value))
+	withValue(name, value, value => _setStyleValue(style, name, value))
 
 /**
  * @param {CSSStyleDeclaration} style

@@ -1,6 +1,7 @@
 import { emit } from '../../lib/events/emit.js'
-import { withValue } from '../../lib/reactivity/withValue.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
+
+import { withValue } from './withValue.js'
 
 /**
  * @param {Elements} node
@@ -26,7 +27,7 @@ export const setPropertyNS = (
  * @url https://pota.quack.uy/props/setProperty
  */
 export const setProperty = (node, name, value) =>
-	withValue(value, value => _setProperty(node, name, value))
+	withValue(name, value, value => _setProperty(node, name, value))
 
 /**
  * @param {Elements} node

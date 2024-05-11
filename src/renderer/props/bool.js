@@ -1,4 +1,4 @@
-import { withValue } from '../../lib/reactivity/withValue.js'
+import { withValue } from './withValue.js'
 
 // BOOL ATTRIBUTES
 
@@ -20,7 +20,7 @@ export const setBoolNS = (node, name, value, props, localName, ns) =>
  * @url https://pota.quack.uy/props/setBool
  */
 export const setBool = (node, name, value) =>
-	withValue(value, value => _setBool(node, name, value))
+	withValue(name, value, value => _setBool(node, name, value))
 
 /**
  * @param {Elements} node

@@ -1,7 +1,8 @@
 // node class / classList
 
-import { withValue } from '../../lib/reactivity/withValue.js'
 import { isObject, isString } from '../../lib/std/@main.js'
+
+import { withValue } from './withValue.js'
 
 /**
  * @param {Elements} node
@@ -56,7 +57,9 @@ function setClassList(node, value) {
 		}
 
 		case 'function': {
-			withValue(value, value => setClassList(node, value))
+			withValue('classList', value, value =>
+				setClassList(node, value),
+			)
 			break
 		}
 	}
@@ -67,7 +70,9 @@ function setClassList(node, value) {
  * @param {unknown} value
  */
 const setClassListValue = (node, name, value) =>
-	withValue(value, value => _setClassListValue(node, name, value))
+	withValue(name, value, value =>
+		_setClassListValue(node, name, value),
+	)
 
 /**
  * @param {Elements} node
