@@ -60,9 +60,6 @@ import { cloneNode } from '../lib/dom/parse.js'
 
 // STATE
 
-const Components = new Map()
-const WeakComponents = new WeakMap()
-
 const useXMLNS = context()
 
 // COMPONENTS
@@ -98,7 +95,6 @@ export function Component(value, props) {
 	 * defined it allows the user to make a `Factory` of components,
 	 * when `props` its defined the `props` are fixed.
 	 */
-
 	return props === undefined
 		? Factory(value)
 		: markComponent(Factory(value).bind(null, props))
@@ -116,26 +112,16 @@ function Factory(value) {
 		return value
 	}
 
-	const isWeak = isObject(value)
-
-	let component = isWeak
-		? WeakComponents.get(value)
-		: Components.get(value)
-
-	if (component) {
-		return component
-	}
-
 	switch (typeof value) {
 		case 'string': {
 			// string component, 'div' becomes <div>
-			component = createTag.bind(null, value)
+			value = createTag.bind(null, value)
 			break
 		}
 		case 'function': {
 			if ($class in value) {
 				// class component <MyComponent../>
-				component = createClass.bind(null, value)
+				value = createClass.bind(null, value)
 				break
 			}
 
@@ -146,30 +132,28 @@ function Factory(value) {
 			 * ```
 			 */
 			if (isReactive(value)) {
-				component = createAnything.bind(null, value)
+				value = createAnything.bind(null, value)
 				break
 			}
 
 			// function component <MyComponent../>
-			component = value
+			// value = value
 			break
 		}
 		default: {
 			if (value instanceof Node) {
 				// node component <div>
-				component = createNode.bind(null, value)
+				value = createNode.bind(null, value)
 				break
 			}
 
-			component = createAnything.bind(null, value)
+			value = createAnything.bind(null, value)
 			break
 		}
 	}
 
-	// save in cache
-	isWeak
-		? WeakComponents.set(value, component)
-		: Components.set(value, component)
+	return markComponent(value)
+}
 
 	return markComponent(component)
 }
@@ -640,6 +624,7 @@ function unwrap(children) {
 	if (isFunction(children)) {
 		return unwrap(children())
 	}
+
 	if (isArray(children)) {
 		const childrens = []
 		for (let child of children) {
