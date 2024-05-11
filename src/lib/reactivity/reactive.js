@@ -690,8 +690,6 @@ function downstream(node) {
 	}
 }
 
-/*
-
 let readForbid = false
 
 function checkReadForbidden() {
@@ -708,7 +706,6 @@ export function readForbidden(fn, value) {
 		readForbid = prev
 	}
 }
-*/
 
 /**
  * Creates a context and returns a function to get or set the value
