@@ -2,12 +2,10 @@
 
 import { Symbol } from './lib/std/Symbol.js'
 
-export const $meta = Symbol()
 export const $component = Symbol()
 export const $class = Symbol()
 export const $reactive = Symbol()
 export const $map = Symbol()
-export const $internal = Symbol()
 
 // supported namespaces
 
