@@ -27,15 +27,7 @@ export function parse(content) {
 	return cached
 }
 
-const Clones = new Map()
-
 export function cloneNode(content, xmlns) {
-	const cached = Clones.get(content)
-
-	if (cached) {
-		return cached.cloneNode(true)
-	}
-
 	let template = xmlns
 		? createElementNS(xmlns, 'template')
 		: createElement('template')
@@ -48,7 +40,5 @@ export function cloneNode(content, xmlns) {
 			? template.content.firstChild
 			: template.content
 
-	Clones.set(content, template)
-
-	return template.cloneNode(true)
+	return template
 }
