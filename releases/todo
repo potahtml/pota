@@ -25,6 +25,7 @@ todo
 	- show gives the memo a signal instead of the value
 	- context could probably use the whole props not just value
 	- improve props handling
+	- babel preset should be usable on the browser
 
 	mutable
 	- tracker
@@ -83,4 +84,9 @@ bench
 	 142 10k
 	 13 10k
 	 12 1k
+	 1 1k
+
+	 137 10k
+	 15 10k
+	 11 1k
 	 1 1k
