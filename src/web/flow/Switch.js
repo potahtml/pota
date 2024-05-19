@@ -15,16 +15,21 @@ import { identity } from '../../lib/std/identity.js'
  * @url https://pota.quack.uy/Components/Switch
  */
 export function Switch(props) {
-  const children = resolve(() => props.children)
+  const matches = resolve(() => props.children)
 
   const fallback = isNullUndefined(props.fallback)
-    ? undefined
+    ? memo(() => {
+        const r = matches().find(match => !('when' in match))
+        return r && r.children
+      })
     : memo(() => resolve(props.fallback))
 
   const match = memo(() =>
-    children().find(match => !!getValue(match.when)),
+    matches().find(match => !!getValue(match.when)),
   )
+
   const value = memo(() => match() && getValue(match().when))
+
   const callback = memo(
     () => match() && makeCallback(match().children),
   )
