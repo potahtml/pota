@@ -107,6 +107,11 @@ export function assignProps(node, props) {
  * @param {object} props
  */
 export function assignProp(node, name, value, props) {
+	if (typeof value === 'object' && 'then' in value) {
+		value.then(r => assignProp(node, name, r, props))
+		return
+	}
+
 	// run plugins
 	if (name in plugins) {
 		plugins[name](node, name, value, props)
