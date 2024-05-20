@@ -83,7 +83,11 @@ export function map(list, callback, sort) {
 			? (item, index) => fn(callback(item, index), index)
 			: callback
 
-		const items = (getValue(list) || []).entries()
+		const value = getValue(list) || []
+
+		/** To allow iterate objects as if were an array with indexes */
+		const items =
+			'entries' in value ? value.entries() : Object.entries(value)
 
 		runId++
 		rows = []
