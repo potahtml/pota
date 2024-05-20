@@ -28,7 +28,11 @@ export function buildComponent(path, state) {
 	if (!state.pota.components[name]) {
 		// scope
 
-		const scope = path.scope
+		/**
+		 * Bug: the identifier should be added after the binding, not at
+		 * the top of the scope, I have no idea how to do this.
+		 */
+		const scope = path.scope.getProgramParent()
 
 		// identifier
 
