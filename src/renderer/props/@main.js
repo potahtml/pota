@@ -61,6 +61,13 @@ propsPluginNS('onUnmount', setUnmount, false)
 propsPlugin('ref', setRef, false)
 propsPluginNS('ref', setRef, false)
 
+// noop
+
+import { noop } from '../../lib/std/noop.js'
+
+propsPlugin('__dev', noop, false)
+propsPlugin('xmlns', noop, false)
+
 // events
 
 import { eventName, addEventListener } from './event.js'
