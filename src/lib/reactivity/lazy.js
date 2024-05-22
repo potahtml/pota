@@ -5,7 +5,7 @@ import { nothing } from '../std/nothing.js'
 
 import { markComponent } from '../component/markComponent.js'
 
-import { signal, withOwner } from './reactive.js'
+import { owned, signal } from './reactive.js'
 
 /**
  * A Promise loader handler. Allows to display/run something or
@@ -31,7 +31,7 @@ export const lazy = (fn, options = nothing) =>
 
 		const [value, setValue] = signal(onLoading)
 
-		const owned = withOwner()
+		const _onLoaded = owned(onLoaded)
 
 		const retry = () =>
 			fn()
@@ -42,7 +42,7 @@ export const lazy = (fn, options = nothing) =>
 							return isFunction(r) ? r(props) : r
 						}),
 					)
-					microtask(() => owned(onLoaded))
+					microtask(_onLoaded)
 				})
 				.catch(e =>
 					onError
