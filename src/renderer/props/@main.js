@@ -98,6 +98,8 @@ export function assignProps(node, props) {
 	return node
 }
 
+import { owned } from '../../lib/reactivity/reactive.js'
+
 /**
  * Assigns a prop to an Element
  *
@@ -108,7 +110,7 @@ export function assignProps(node, props) {
  */
 export function assignProp(node, name, value, props) {
 	if (typeof value === 'object' && 'then' in value) {
-		value.then(r => assignProp(node, name, r, props))
+		value.then(owned(value => assignProp(node, name, value, props)))
 		return
 	}
 

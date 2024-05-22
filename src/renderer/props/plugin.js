@@ -1,5 +1,5 @@
 import { empty, microtask } from '../../lib/std/@main.js'
-import { withOwner } from '../../lib/reactivity/reactive.js'
+import { owned } from '../../lib/reactivity/reactive.js'
 
 export const plugins = empty()
 export const pluginsNS = empty()
@@ -50,8 +50,5 @@ export const propsPluginNS = (NSName, fn, runOnMicrotask = true) => {
 const plugin = (plugins, name, fn, runOnMicrotask) => {
 	plugins[name] = !runOnMicrotask
 		? fn
-		: (...args) => {
-				const owned = withOwner()
-				microtask(() => owned(() => fn(...args)))
-			}
+		: (...args) => microtask(owned(() => fn(...args)))
 }

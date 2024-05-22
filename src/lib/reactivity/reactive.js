@@ -485,7 +485,7 @@ export function owner() {
 	return Owner
 }
 
-export function runWithOwner(owner, fn) {
+function runWithOwner(owner, fn) {
 	const prevOwner = Owner
 	const prevListener = Listener
 
@@ -761,4 +761,15 @@ function useContext(id, defaultValue, newValue, fn) {
 export const withOwner = () => {
 	const o = Owner
 	return fn => (isFunction(fn) ? runWithOwner(o, fn) : fn)
+}
+
+/**
+ * Returns an owned function
+ *
+ * @param {function | undefined} cb
+ * @returns {() => any}
+ */
+export const owned = cb => {
+	const o = Owner
+	return (...args) => cb && runWithOwner(o, () => cb(...args))
 }
