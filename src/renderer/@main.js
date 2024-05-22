@@ -286,11 +286,15 @@ function createNode(node, props) {
  * @param {boolean} [relative]
  * @returns {Children}
  */
-function createChildren(parent, child, relative) {
+function createChildren(parent, child, relative, prev = undefined) {
 	switch (typeof child) {
 		// string/number
 		case 'string':
 		case 'number': {
+			if (prev instanceof Text) {
+				prev.nodeValue = child
+				return prev
+			}
 			return insertNode(parent, createTextNode(child), relative)
 		}
 
