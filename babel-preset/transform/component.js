@@ -32,7 +32,7 @@ export function buildComponent(path, state) {
 		 * Bug: the identifier should be added after the binding, not at
 		 * the top of the scope, I have no idea how to do this.
 		 */
-		const scope = path.scope.getProgramParent()
+		const scope = path.scope //.getProgramParent()
 
 		// identifier
 
