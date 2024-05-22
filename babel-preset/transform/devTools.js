@@ -161,8 +161,8 @@ function mergeArguments(args, devToolsArgument, argNumber) {
 
 		// merge current __dev with new __dev
 		for (const prop of args[argNumber].properties) {
+			// merge current __dev.pota with new __dev.pota
 			if (t.isObjectProperty(prop) && prop.key.name === '__dev') {
-				// merge current __dev.pota with new __dev.pota
 				for (const _prop of prop.value.properties) {
 					if (
 						t.isObjectProperty(_prop) &&

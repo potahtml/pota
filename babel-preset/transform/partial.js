@@ -159,7 +159,7 @@ export function partialMerge(path, state) {
 	if (!state.pota.partials[partial]) {
 		// scope
 
-		const scope = path.scope.getProgramParent()
+		const scope = path.scope //.getProgramParent()
 
 		// identifier
 
