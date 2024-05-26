@@ -33,6 +33,7 @@ export default function createPlugin({ name }) {
 						state.pota = { partials: {}, components: {}, files: {} }
 
 						createImport(path, state, 'createPartial')
+						createImport(path, state, 'createPartialCustomElement')
 						createImport(path, state, 'createComponent')
 
 						if (false && options?.development) {

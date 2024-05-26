@@ -25,6 +25,10 @@ export function buildPartial(path, state) {
 
 	const tagName = getTagName(path)
 
+	// custom element
+
+	let isCustomElement = tagName.includes('-')
+
 	// open opening tag
 
 	const tag = { tagName, content: `<${tagName} pota`, props: [] }
@@ -35,6 +39,8 @@ export function buildPartial(path, state) {
 	for (const attr of path.get('openingElement').get('attributes')) {
 		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
 			const name = attr.node.name.name
+
+			isCustomElement = isCustomElement || name === 'is'
 
 			if (name === 'xmlns') {
 				isXML = true
@@ -129,11 +135,13 @@ export function buildPartial(path, state) {
 
 	// call
 
-	const partial = callFunctionImport(state, 'createPartial', [
-		t.stringLiteral(tag.content),
-		t.arrayExpression(tag.props),
-	])
+	const partial = callFunctionImport(
+		state,
+		isCustomElement ? 'createPartialCustomElement' : 'createPartial',
+		[t.stringLiteral(tag.content), t.arrayExpression(tag.props)],
+	)
 	partial.isXML = isXML
+	partial.isCustomElement = isCustomElement
 	partial.isPartial = true
 	partial.tagName = tagName
 	/**
@@ -193,7 +201,13 @@ export function partialMerge(path, state) {
 
 		scope.push({
 			id: pota.partials[partial],
-			init: callFunctionImport(state, 'createPartial', args),
+			init: callFunctionImport(
+				state,
+				path.node.isCustomElement
+					? 'createPartialCustomElement'
+					: 'createPartial',
+				args,
+			),
 		})
 	}
 
@@ -203,9 +217,12 @@ export function partialMerge(path, state) {
 	)
 }
 
-/** Returns `true` when `node` is `partial` and not `XML` */
+/**
+ * Returns `true` when `node` is `partial` and not `XML`, not a
+ * `custom element`
+ */
 export function isPartialHTML(node) {
-	return node.isPartial && !node.isXML
+	return node.isPartial && !node.isXML && !node.isCustomElement
 }
 
 /** Returns `true` when `node` is partial */
