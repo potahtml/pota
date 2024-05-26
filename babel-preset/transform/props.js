@@ -7,7 +7,7 @@ export function buildProps(attributes, children) {
 		props.push(buildPropChildren(children))
 	}
 	if (props.length) {
-		return t.objectExpression(props)
+		return t.objectExpression(propsSort(props))
 	}
 }
 
@@ -22,6 +22,17 @@ export function buildPropChildren(children) {
 		return undefined
 	}
 	return t.objectProperty(t.identifier('children'), childrenNode)
+}
+
+function propsSort(props) {
+	if (props) {
+		props.sort((a, b) => {
+			return a.key?.name === 'children'
+				? 2
+				: a.key?.name?.localeCompare(b.key?.name)
+		})
+	}
+	return props
 }
 
 export function accumulate(array, attribute) {
