@@ -35,7 +35,7 @@ export default function createPlugin({ name }) {
 						createImport(path, state, 'createPartial')
 						createImport(path, state, 'createComponent')
 
-						if (options?.development) {
+						if (false && options?.development) {
 							path.traverse(
 								{
 									/** Add debugging arguments to reactive functions */
