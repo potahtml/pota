@@ -23,27 +23,33 @@ export function buildComponent(path, state) {
 	const fn = getTagFunction(path)
 	const name = getTagFunctionName(path)
 
+	// scope
+
+	/**
+	 * Bug: the identifier should be added after the binding, not at the
+	 * top of the scope, I have no idea how to do this.
+	 */
+	const scope = path.scope //.getProgramParent()
+
+	scope.pota = scope.pota || {
+		partials: {},
+		components: {},
+		files: {},
+	}
+
+	const pota = scope.pota
+
 	// hoist it
 
-	if (!state.pota.components[name]) {
-		// scope
-
-		/**
-		 * Bug: the identifier should be added after the binding, not at
-		 * the top of the scope, I have no idea how to do this.
-		 */
-		const scope = path.scope //.getProgramParent()
-
+	if (!pota.components[name]) {
 		// identifier
 
-		state.pota.components[name] = scope.generateUidIdentifier(
-			'_' + name,
-		)
+		pota.components[name] = scope.generateUidIdentifier('_' + name)
 
 		// call
 
 		scope.push({
-			id: state.pota.components[name],
+			id: pota.components[name],
 			init: callFunctionImport(state, 'createComponent', [fn]),
 		})
 	}
@@ -51,7 +57,7 @@ export function buildComponent(path, state) {
 	// call
 
 	return callFunction(
-		state.pota.components[name].name,
+		pota.components[name].name,
 		props ? [props] : [],
 	)
 }

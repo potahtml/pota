@@ -156,15 +156,22 @@ export function partialMerge(path, state) {
 
 	const partial = getPartialLiteral(path.node)
 
-	if (!state.pota.partials[partial]) {
-		// scope
+	// scope
 
-		const scope = path.scope //.getProgramParent()
+	const scope = path.scope.getProgramParent()
 
+	scope.pota = scope.pota || {
+		partials: {},
+		components: {},
+		files: {},
+	}
+
+	const pota = scope.pota
+
+	if (!pota.partials[partial]) {
 		// identifier
 
-		state.pota.partials[partial] =
-			scope.generateUidIdentifier('_partial')
+		pota.partials[partial] = scope.generateUidIdentifier('_partial')
 
 		// args
 
@@ -185,13 +192,13 @@ export function partialMerge(path, state) {
 		// call
 
 		scope.push({
-			id: state.pota.partials[partial],
+			id: pota.partials[partial],
 			init: callFunctionImport(state, 'createPartial', args),
 		})
 	}
 
 	return callFunction(
-		state.pota.partials[partial].name,
+		pota.partials[partial].name,
 		path.node.arguments[1] ? [path.node.arguments[1]] : [],
 	)
 }
