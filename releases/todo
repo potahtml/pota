@@ -15,22 +15,10 @@ todo
 	- typings
 
 	fix me
-	- recheck use of untrack
-	- add forbidden signal read
-	- switch expects children to be an array
-	- For doesnt work with objects
-	- support attribute as promises
-	- show gives the memo a signal instead of the value
-	- context could probably use the whole props not just value
-	- improve props handling
 	- babel preset should be usable on the browser
 
-	mutable
-	- tracker
-	- figure out a whitelist vs blacklist
-	- reconcile
-	- support set, maybe weakmap and weakset
-	- defineProperty proxy trap
+	playground
+	- LSP
 
 some day
 
@@ -51,38 +39,24 @@ some day
 	posible pollyfills
 	- Object.groupBy, Promise.withResolvers, Object.hasOwn
 
-	playground
-	- LSP
 
 	compiler
 	- avoid walking the template
 
+	mutable
+	- tracker
+	- figure out a whitelist vs blacklist
+	- reconcile
+	- support set, maybe weakmap and weakset
+	- defineProperty proxy trap
+
+	reactivity
+	- recheck use of untrack
+	- add forbidden signal read
+	- switch expects children to be an array
+	- show gives the memo a signal instead of the value
+
 bench
-
-	 218.90 - 10k
-	 13.94 - 10k
-	 20.2 - 1k
-	 1.18 - 1k
-
-	 165.63 - 10k
-	 13.11 - 10k
-	 14.88 - 1k
-	 1.23 - 1k
-
-	 150.66 - 10k
-	 12.95 - 10k
-	 14.88 - 1k
-	 1.23 - 1k
-
-	 126.45 - 10k
-	 12.95 - 10k
-	 11.61 - 1k
-	 1.23 - 1k
-
-	 142 10k
-	 13 10k
-	 12 1k
-	 1 1k
 
 	 137 10k
 	 15 10k
