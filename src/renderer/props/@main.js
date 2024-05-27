@@ -97,6 +97,8 @@ export function assignProps(node, props, isCustomElement) {
 
 import { owned } from '../../lib/reactivity/reactive.js'
 
+import { isObject } from '../../lib/std/isObject.js'
+
 /**
  * Assigns a prop to an Element
  *
@@ -107,7 +109,7 @@ import { owned } from '../../lib/reactivity/reactive.js'
  * @param {boolean} [isCE]
  */
 export function assignProp(node, name, value, props, isCE) {
-	if (typeof value === 'object' && 'then' in value) {
+	if (isObject(value) && 'then' in value) {
 		value.then(
 			owned(value => assignProp(node, name, value, props, isCE)),
 		)
