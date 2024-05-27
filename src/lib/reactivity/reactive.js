@@ -189,8 +189,6 @@ class Memo extends Computation {
 	constructor(owner, fn, options) {
 		super(owner, fn, options)
 
-		}
-
 		return markReactive(this.read.bind(this))
 	}
 

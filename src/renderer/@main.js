@@ -23,7 +23,6 @@ import {
 	freeze,
 	isArray,
 	isFunction,
-	isObject,
 	iterator,
 	nothing,
 	removeFromArray,
@@ -50,8 +49,9 @@ import {
 	createElement,
 	createElementNS,
 	createTextNode,
+	importNode,
 	toDiff,
-	walker,
+	walkElements,
 } from '../lib/dom/elements.js'
 
 import { cloneNode } from '../lib/dom/parse.js'
@@ -156,7 +156,14 @@ function Factory(value) {
 	return markComponent(value)
 }
 
-	return markComponent(component)
+export function createComponent(value) {
+	const component = Factory(value)
+
+	return props => {
+		/** Freeze props so isnt directly writable */
+		freeze(props)
+		return markComponent(() => component(props))
+	}
 }
 
 function createClass(value, props) {
@@ -217,51 +224,61 @@ function withXMLNS(xmlns, fn, tagName) {
 	return fn(nsContext)
 }
 
-export function template(content, props) {
-	return markComponent(() =>
-		withXMLNS(props ? props[0].xmlns : undefined, xmlns => {
-			const node = cloneNode(content, xmlns)
+function createPartialComponent(content, xmlns, isCustomElement) {
+	function clone() {
+		const node = withXMLNS(xmlns, xmlns => cloneNode(content, xmlns))
+		clone = isCustomElement
+			? importNode.bind(null, node, true)
+			: node.cloneNode.bind(node, true)
+		return clone()
+	}
 
-			if (props) {
-				const nodes = []
-				let child
-				/** The node could be a fragment */
-				if (
-					node.nodeType === 1 && // element
-					node.hasAttribute('pota')
-				) {
-					nodes.push(node)
-					node.removeAttribute('pota')
-				}
+	return markComponent(props =>
+		assignPropsPartial(xmlns, () => clone(), props, isCustomElement),
+	)
+}
 
-				/**
-				 * First walk then modify it, so the modifications dont make
-				 * the walk worse. It also allows to re-use the same walker,
-				 * as creating children right now could cause a new instance
-				 * of template that will use the same walker and mess up our
-				 * current walk. While this is not optimal is fast enough,
-				 * requires some more work on the babel plugin.
-				 */
-				const walk = walker()
-				walk.currentNode = node
-				while ((child = walk.nextNode())) {
-					if (child.hasAttribute('pota')) {
-						nodes.push(child)
-						child.removeAttribute('pota')
-						if (nodes.length === props.length) {
-							// done
-							break
-						}
-					}
-				}
-				let i = 0
-				for (const child of nodes) {
-					assignProps(child, props[i++])
+export function createPartial(content, xmlns) {
+	return createPartialComponent(content, xmlns, false)
+}
+
+export function createPartialCustomElement(content, xmlns) {
+	return createPartialComponent(content, xmlns, true)
+}
+
+function assignPropsPartial(xmlns, clone, props, isCustomElement) {
+	const node = clone()
+
+	if (props) {
+		/**
+		 * First walk then modify it, so the modifications dont make the
+		 * walk worse. It also allows to re-use the same walker, as
+		 * creating children right now could cause a new instance of
+		 * template that will use the same walker and mess up our current
+		 * walk. While this is not optimal is fast enough, requires some
+		 * more work on the babel plugin.
+		 */
+		const nodes = []
+
+		walkElements(node, node => {
+			if (node.hasAttribute('pota')) {
+				node.removeAttribute('pota')
+				nodes.push(node)
+
+				// done
+				if (nodes.length === props.length) {
+					return false
 				}
 			}
-			return node
-		}),
-	)
+		})
+
+		withXMLNS(xmlns, xmlns => {
+			for (let i = 0; i < nodes.length; i++) {
+				assignProps(nodes[i], props[i], isCustomElement)
+			}
+		})
+	}
+	return node
 }
 
 /**
