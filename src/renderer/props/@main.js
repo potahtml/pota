@@ -78,21 +78,18 @@ propsPluginNS('on', setEventNS, false)
 
 import { setUnknownProp } from './unknown.js'
 
-const isCustomElement = (node, props) =>
-	// document-fragment wont have a localName
-	'is' in props || node.localName?.includes('-')
-
 /**
  * Assigns props to an Element
  *
  * @param {Elements} node - Element to which assign props
  * @param {object} props - Props to assign
+ * @param {boolean} [isCustomElement] - Is custom element
  */
-export function assignProps(node, props) {
+export function assignProps(node, props, isCustomElement) {
 	let name
 
 	for (name in props) {
-		assignProp(node, name, props[name], props)
+		assignProp(node, name, props[name], props, isCustomElement)
 	}
 
 	return node
@@ -107,10 +104,13 @@ import { owned } from '../../lib/reactivity/reactive.js'
  * @param {PropertyKey} name
  * @param {any} value
  * @param {object} props
+ * @param {boolean} [isCE]
  */
-export function assignProp(node, name, value, props) {
+export function assignProp(node, name, value, props, isCE) {
 	if (typeof value === 'object' && 'then' in value) {
-		value.then(owned(value => assignProp(node, name, value, props)))
+		value.then(
+			owned(value => assignProp(node, name, value, props, isCE)),
+		)
 		return
 	}
 
@@ -144,14 +144,20 @@ export function assignProp(node, name, value, props) {
 			return
 		}
 
-		isCustomElement(node, props)
+		isCustomElement(node, props, isCE)
 			? _setProperty(node, name, value)
 			: setUnknownProp(node, name, value, ns)
 		return
 	}
 
 	// catch all
-	isCustomElement(node, props)
+	isCustomElement(node, props, isCE)
 		? _setProperty(node, name, value)
 		: setUnknownProp(node, name, value)
 }
+
+const isCustomElement = (node, props, isCustomElement) =>
+	// DocumentFragment doesn't have a localName
+	isCustomElement !== undefined
+		? isCustomElement
+		: 'is' in props || node.localName?.includes('-')

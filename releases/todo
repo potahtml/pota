@@ -26,7 +26,6 @@ todo
 	- context could probably use the whole props not just value
 	- improve props handling
 	- babel preset should be usable on the browser
-	- resolve if its a custom element at compile time
 
 	mutable
 	- tracker
