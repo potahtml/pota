@@ -25,9 +25,9 @@ export function buildPartial(path, state) {
 
 	const tagName = getTagName(path)
 
-	// custom element
+	// custom elements
 
-	let isCustomElement = tagName.includes('-')
+	let isImportNode = tagName.includes('-')
 
 	// open opening tag
 
@@ -40,7 +40,12 @@ export function buildPartial(path, state) {
 		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
 			const name = attr.node.name.name
 
-			isCustomElement = isCustomElement || name === 'is'
+			isImportNode =
+				isImportNode ||
+				// custom elements need `importNode`
+				name === 'is' ||
+				// Firefox needs `importNode` for images with loading="lazy"
+				(tagName === 'img' && name === 'loading')
 
 			if (name === 'xmlns') {
 				isXML = true
@@ -137,11 +142,11 @@ export function buildPartial(path, state) {
 
 	const partial = callFunctionImport(
 		state,
-		isCustomElement ? 'createPartialCustomElement' : 'createPartial',
+		isImportNode ? 'createPartialImportNode' : 'createPartial',
 		[t.stringLiteral(tag.content), t.arrayExpression(tag.props)],
 	)
 	partial.isXML = isXML
-	partial.isCustomElement = isCustomElement
+	partial.isImportNode = isImportNode
 	partial.isPartial = true
 	partial.tagName = tagName
 	/**
@@ -203,8 +208,8 @@ export function partialMerge(path, state) {
 			id: pota.partials[partial],
 			init: callFunctionImport(
 				state,
-				path.node.isCustomElement
-					? 'createPartialCustomElement'
+				path.node.isImportNode
+					? 'createPartialImportNode'
 					: 'createPartial',
 				args,
 			),
@@ -222,7 +227,7 @@ export function partialMerge(path, state) {
  * `custom element`
  */
 export function isPartialHTML(node) {
-	return node.isPartial && !node.isXML && !node.isCustomElement
+	return node.isPartial && !node.isXML && !node.isImportNode
 }
 
 /** Returns `true` when `node` is partial */

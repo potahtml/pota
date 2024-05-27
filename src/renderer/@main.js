@@ -224,26 +224,28 @@ function withXMLNS(xmlns, fn, tagName) {
 	return fn(nsContext)
 }
 
-function createPartialComponent(content, xmlns, isCustomElement) {
+// PARTIALS
+
+export function createPartial(content, xmlns) {
+	return createPartialComponent(content, xmlns, false)
+}
+
+export function createPartialImportNode(content, xmlns) {
+	return createPartialComponent(content, xmlns, true)
+}
+
+function createPartialComponent(content, xmlns, isImportNode) {
 	function clone() {
 		const node = withXMLNS(xmlns, xmlns => cloneNode(content, xmlns))
-		clone = isCustomElement
+		clone = isImportNode
 			? importNode.bind(null, node, true)
 			: node.cloneNode.bind(node, true)
 		return clone()
 	}
 
 	return markComponent(props =>
-		assignPropsPartial(xmlns, () => clone(), props, isCustomElement),
+		assignPropsPartial(xmlns, () => clone(), props, isImportNode),
 	)
-}
-
-export function createPartial(content, xmlns) {
-	return createPartialComponent(content, xmlns, false)
-}
-
-export function createPartialCustomElement(content, xmlns) {
-	return createPartialComponent(content, xmlns, true)
 }
 
 function assignPropsPartial(xmlns, clone, props, isCustomElement) {
@@ -252,7 +254,8 @@ function assignPropsPartial(xmlns, clone, props, isCustomElement) {
 	if (props) {
 		/**
 		 * First walk then modify it, so the modifications dont make the
-		 * walk worse. It also allows to re-use the same walker, as
+		 * walk worse (example: creating children will increase the number
+		 * of nodes). It also allows to re-use the same walker, as
 		 * creating children right now could cause a new instance of
 		 * template that will use the same walker and mess up our current
 		 * walk. While this is not optimal is fast enough, requires some
@@ -274,7 +277,11 @@ function assignPropsPartial(xmlns, clone, props, isCustomElement) {
 
 		withXMLNS(xmlns, xmlns => {
 			for (let i = 0; i < nodes.length; i++) {
-				assignProps(nodes[i], props[i], isCustomElement)
+				assignProps(
+					nodes[i],
+					props[i],
+					i === 0 ? isCustomElement : undefined,
+				)
 			}
 		})
 	}
