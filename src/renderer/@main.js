@@ -373,12 +373,11 @@ function createChildren(parent, child, relative, prev = undefined) {
 		case 'object': {
 			// children/fragments
 			if (isArray(child)) {
-				if (child.length === 1) {
-					return createChildren(parent, child[0], relative)
-				}
-				return child.map(child =>
-					createChildren(parent, child, relative),
-				)
+				return child.length === 1
+					? createChildren(parent, child[0], relative)
+					: child.map(child =>
+							createChildren(parent, child, relative),
+						)
 			}
 
 			// Node/DocumentFragment
@@ -474,17 +473,18 @@ propsPlugin(
 const createPlaceholder = (parent, text, relative) => {
 	return insertNode(parent, createTextNode(''), relative)
 
-	/* dev */
+	/* dev
 	return insertNode(
 		parent,
 		document.createComment(
 			(text || '') + (relative ? ' relative' : ''),
 		),
 		relative,
-	)
+	) */
 }
 
-let headQuerySelector
+const head = document.head
+const headQuerySelector = head.querySelector.bind(head)
 
 /**
  * Adds the element to the document
@@ -497,19 +497,14 @@ let headQuerySelector
 
 function insertNode(parent, node, relative) {
 	// special case `head`
-	if (parent === document.head) {
-		if (!headQuerySelector) {
-			const head = document.head
-			headQuerySelector = head.querySelector.bind(head)
-		}
-
-		const name = node.tagName
+	if (parent === head) {
+		const name = node.localName
 
 		// search for tags that should be unique
 		let prev
-		if (name === 'TITLE') {
+		if (name === 'title') {
 			prev = headQuerySelector('title')
-		} else if (name === 'META') {
+		} else if (name === 'meta') {
 			prev =
 				headQuerySelector(
 					'meta[name="' + node.getAttribute('name') + '"]',
@@ -517,7 +512,7 @@ function insertNode(parent, node, relative) {
 				headQuerySelector(
 					'meta[property="' + node.getAttribute('property') + '"]',
 				)
-		} else if (name === 'LINK' && node.rel === 'canonical') {
+		} else if (name === 'link' && node.rel === 'canonical') {
 			prev = headQuerySelector('link[rel="canonical"]')
 		}
 

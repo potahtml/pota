@@ -9,8 +9,4 @@ import { effect } from './reactive.js'
  * @param {(value) => any} fn
  */
 export const withValue = (value, fn) =>
-	isFunction(value)
-		? effect(() => {
-				fn(getValue(value))
-			})
-		: fn(value)
+	isFunction(value) ? effect(() => fn(getValue(value))) : fn(value)

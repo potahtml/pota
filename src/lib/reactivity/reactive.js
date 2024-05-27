@@ -320,6 +320,7 @@ class Signal {
 		}
 
 		this.read = markReactive(this.read.bind(this))
+
 		this.write = this.write.bind(this)
 		this.update = this.update.bind(this)
 	}
@@ -407,7 +408,7 @@ class Signal {
  * @param {OwnerOptions} options
  * @returns {any}
  */
-export function root(fn, options) {
+export function root(fn, options = undefined) {
 	const prevOwner = Owner
 	const prevListener = Listener
 
@@ -740,6 +741,7 @@ function useContext(id, defaultValue, newValue, fn) {
 			: defaultValue
 	} else {
 		let res
+
 		syncEffect(() => {
 			Owner.context = {
 				...Owner.context,

@@ -92,9 +92,7 @@ customElement(
 
 			// auto close alert after duration
 			this.#hideTimeout = useTimeout(
-				() => {
-					this.close()
-				},
+				() => this.close(),
 				() => this.duration,
 			)
 		}
