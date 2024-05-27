@@ -285,7 +285,10 @@ function assignPropsPartial(xmlns, clone, props, isCustomElement) {
 			}
 		})
 	}
-	return node
+
+	return node instanceof DocumentFragment
+		? toArray(node.childNodes)
+		: node
 }
 
 /**
