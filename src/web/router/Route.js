@@ -92,9 +92,7 @@ export function Route(props) {
 
 	parent.addChildren(context)
 
-	cleanup(() => {
-		parent.removeChildren(context)
-	})
+	cleanup(() => parent.removeChildren(context))
 
 	return Component(Context.Provider, {
 		value: context,

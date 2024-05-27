@@ -63,9 +63,7 @@ function setNodeStyle(style, value) {
 		return
 	}
 	if (type === 'function') {
-		effect(() => {
-			setNodeStyle(style, getValue(value))
-		})
+		effect(() => setNodeStyle(style, getValue(value)))
 		return
 	}
 }
