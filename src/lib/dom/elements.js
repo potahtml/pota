@@ -10,6 +10,8 @@ export const createTextNode = bind('createTextNode')
 
 export const importNode = bind('importNode')
 
+export const createTreeWalker = bind('createTreeWalker')
+
 export const adoptedStyleSheets = document.adoptedStyleSheets
 
 export function toDiff(prev = [], node = []) {
@@ -24,12 +26,32 @@ export function toDiff(prev = [], node = []) {
 }
 
 /** @returns {TreeWalker} */
+let _walker
 export function walker() {
-	const walk = document.createTreeWalker(
-		document,
-		NodeFilter.SHOW_ELEMENT,
-	)
-	walker = () => walk
+	if (!_walker) {
+		_walker = createTreeWalker(document, NodeFilter.SHOW_ELEMENT)
+	}
 
-	return walker()
+	return _walker
+}
+
+export function walkElements(node, fn) {
+	const walk = walker()
+	walk.currentNode = node
+
+	/**
+	 * The first node is not walked by the walker. Also the first node
+	 * could be a DocumentFragment
+	 */
+	if (node.nodeType === 1) {
+		fn(node)
+	}
+
+	let r
+	while ((node = walk.nextNode())) {
+		r = fn(node)
+		if (!r && r !== undefined) {
+			break
+		}
+	}
 }
