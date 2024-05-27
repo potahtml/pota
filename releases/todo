@@ -15,8 +15,6 @@ todo
 	- typings
 
 	fix me
-	- the fragment being a symbol is just weird, fix makeCallback
-	- something is up with the playground
 	- recheck use of untrack
 	- add forbidden signal read
 	- switch expects children to be an array
