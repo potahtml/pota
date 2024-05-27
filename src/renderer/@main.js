@@ -350,8 +350,12 @@ function createChildren(parent, child, relative, prev = undefined) {
 			}
 
 			// maybe a signal so needs an effect
+
 			effect(() => {
-				node = toDiff(node, createChildren(parent, child(), true))
+				node = toDiff(
+					node,
+					createChildren(parent, child(), true, node[0]),
+				)
 			})
 
 			cleanup(() => {
