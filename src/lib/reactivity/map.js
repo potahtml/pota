@@ -1,8 +1,10 @@
 // MAP
 
 import { $map } from '../../constants.js'
+import { entries } from '../std/entries.js'
 import { getValue } from '../std/getValue.js'
 import { groupBy } from '../std/groupBy.js'
+import { isIterable } from '../std/isIterable.js'
 import { removeFromArray } from '../std/removeFromArray.js'
 import { cleanup, root } from './reactive.js'
 
@@ -86,8 +88,7 @@ export function map(list, callback, sort) {
 		const value = getValue(list) || []
 
 		/** To allow iterate objects as if were an array with indexes */
-		const items =
-			'entries' in value ? value.entries() : Object.entries(value)
+		const items = isIterable(value) ? value.entries() : entries(value)
 
 		runId++
 		rows = []

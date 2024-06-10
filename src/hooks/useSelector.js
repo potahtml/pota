@@ -1,8 +1,10 @@
 import {
-	effect,
 	signal,
 	cleanup,
+	syncEffect,
 } from '../lib/reactivity/reactive.js'
+import { isIterable } from '../lib/std/isIterable.js'
+import { toArray } from '../lib/std/toArray.js'
 
 /**
  * Returns a `isSelected` function that will return `true` when the
@@ -15,16 +17,28 @@ import {
 export function useSelector(value) {
 	const map = new Map()
 
-	let prev
-	effect(() => {
-		const selected = value()
-		if (selected === prev) return
+	let prev = []
 
-		const previous = map.get(prev)
-		if (previous) previous.write(false)
+	syncEffect(() => {
+		const val = value()
 
-		const current = map.get(selected)
-		if (current) current.write(true)
+		const selected = isIterable(val) ? toArray(val.values()) : [val]
+
+		// unselect
+		for (const value of prev) {
+			if (!selected.includes(value)) {
+				const current = map.get(value)
+				current && current.write(false)
+			}
+		}
+
+		// select
+		for (const value of selected) {
+			if (!prev.includes(value)) {
+				const current = map.get(value)
+				current && current.write(true)
+			}
+		}
 
 		prev = selected
 	})
@@ -39,7 +53,7 @@ export function useSelector(value) {
 	return function isSelected(item) {
 		let selected = map.get(item)
 		if (!selected) {
-			selected = signal(item === value())
+			selected = signal(prev.includes(item))
 			selected.counter = 0
 			map.set(item, selected)
 		}
