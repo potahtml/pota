@@ -33,10 +33,14 @@ export function isVoidElement(tagName) {
 
 /** Validates html nesting */
 export function validateHTML(parent, child, node) {
-	if (!isValidHTMLNesting(parent, child)) {
+	if (
+		!parent.includes('-') &&
+		!child.includes('-') &&
+		!isValidHTMLNesting(parent, child)
+	) {
 		error(
 			node._path,
-			`Invalid HTML: <${parent}> cannot be child of <${child}>`,
+			`Invalid HTML: <${child}> cannot be child of <${parent}>`,
 		)
 	}
 }
