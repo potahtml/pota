@@ -1,4 +1,3 @@
-import { emit } from '../../lib/events/emit.js'
 import { isNullUndefined } from '../../lib/std/isNullUndefined.js'
 
 import { withValue } from './withValue.js'
@@ -41,9 +40,5 @@ export function _setProperty(node, name, value) {
 		node[name] = null
 	} else {
 		node[name] = value
-	}
-	if (name === 'value') {
-		emit(node, 'input')
-		emit(node, 'change')
 	}
 }
