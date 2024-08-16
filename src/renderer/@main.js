@@ -235,7 +235,7 @@ export function createPartialImportNode(content, xmlns) {
 }
 
 function createPartialComponent(content, xmlns, isImportNode) {
-	function clone() {
+	let clone = () => {
 		const node = withXMLNS(xmlns, xmlns => cloneNode(content, xmlns))
 		clone = isImportNode
 			? importNode.bind(null, node, true)
@@ -243,9 +243,14 @@ function createPartialComponent(content, xmlns, isImportNode) {
 		return clone()
 	}
 
-	return markComponent(props =>
-		assignPropsPartial(xmlns, () => clone(), props, isImportNode),
-	)
+	return markComponent(props => {
+		/** Freeze props so isnt directly writable */
+		freeze(props)
+
+		return markComponent(() =>
+			assignPropsPartial(xmlns, () => clone(), props, isImportNode),
+		)
+	})
 }
 
 function assignPropsPartial(xmlns, clone, props, isCustomElement) {
