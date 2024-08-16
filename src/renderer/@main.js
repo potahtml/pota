@@ -593,7 +593,11 @@ export function render(children, parent, options = nothing) {
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  */
-function insert(children, parent = document.body, options) {
+export function insert(
+	children,
+	parent = document.body,
+	options = {},
+) {
 	if (options.clear && parent) parent.textContent = ''
 
 	const node = createChildren(
