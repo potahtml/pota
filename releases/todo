@@ -20,6 +20,13 @@ todo
 	playground
 	- LSP
 
+	before 1.0
+	- lower case plugins separated words by dashes
+	- adoptStyleSheet functions
+	- classList add/remove functions
+	- css/form plugins
+	- signal dispatcher to prevent so many events being attached / delegated event dispatcher
+
 some day
 
 	classList
