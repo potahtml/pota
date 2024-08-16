@@ -37,6 +37,7 @@ export { withValue } from './lib/reactivity/withValue.js'
 export {
 	// rendering
 	render,
+	insert,
 	Component,
 	/**
 	 * Do not expose insert. As removal of the element on where you
