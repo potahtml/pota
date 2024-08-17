@@ -76,7 +76,11 @@ export function addEventListener(node, type, handler) {
  * @url https://pota.quack.uy/props/EventListener
  */
 export function removeEventListener(node, type, handler) {
-	node.removeEventListener(type, handler)
+	node.removeEventListener(
+		type,
+		handler,
+		isFunction(handler) && handler,
+	)
 
 	return () => addEventListener(node, type, handler)
 }
