@@ -427,7 +427,7 @@ export function root(fn, options = undefined) {
  * Creates a signal
  *
  * @template T
- * @param {any} [initialValue] - Initial value of the signal
+ * @param {T} [initialValue] - Initial value of the signal
  * @param {SignalOptions} [options] - Signal options
  * @returns {SignalObject<T>}
  */

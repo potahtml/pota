@@ -4,30 +4,33 @@ type Elements =
   | ((HTMLElement | Element | Node) & EventTarget)
   | null
   | undefined
-
-// devTools
-
-type devToolsArguments =
-  | {
-      __dev?: {
-        __pota?: {
-          kind?: string
-          name?: string
-
-          file?: string
-
-          value?: any
-        }
-      }
-    }
-  | undefined
-
-type OwnerOptions = devToolsArguments
+  | Window
+  | typeof globalThis
+  | HTMLElement
+  | Node
+  | Element
 
 // general
 
 type Signal = () => any
-type SignalAccessor = () => any
+
+type SignalAccessor<T> = () => T
+
+type SignalSetter<T> = (value?: T | any) => SignalChanged
+
+type SignalUpdate<T> = (
+  value?: T | any | ((prevValue?: T | any) => any),
+) => SignalChanged
+
+type SignalObject<T> = [
+  SignalAccessor<T>,
+  SignalSetter<T>,
+  SignalUpdate<T>,
+] & {
+  read: SignalAccessor<T>
+  write: SignalSetter<T>
+  update: SignalUpdate<T>
+}
 
 type SignalOptions =
   | ({
@@ -36,13 +39,7 @@ type SignalOptions =
     } & devToolsArguments)
   | undefined
 
-type SignalSetter = (
-  value?: any | ((prevValue?: any) => any),
-) => unknown
-
-type SignalObject<T> =
-  | [Signal, SignalSetter, SignalSetter]
-  | { read: Signal; write: SignalSetter; update: SignalSetter }
+type SignalChanged = true | false
 
 // props
 
@@ -90,3 +87,32 @@ type Expect = {
     toHaveShape: (expected: any) => Promise<any>
   }
 }
+
+// devTools
+
+type devToolsArguments =
+  | {
+      __dev?: {
+        __pota?: {
+          kind?: string
+          name?: string
+
+          file?: string
+
+          value?: any
+        }
+      }
+    }
+  | undefined
+
+type OwnerOptions = devToolsArguments
+
+/*
+
+https://stackoverflow.com/questions/63553724/filter-interface-keys-for-a-sub-list-of-keys-based-on-value-type
+
+type KeysMatching<T, V> = {[K in keyof T]: T[K] extends V ? K : never}[keyof T];
+
+type SubKeyList = KeysMatching<WindowEventMap, KeyboardEvent>
+// type SubkeyList = "keydown" | "keypress" | "keyup"
+*/

@@ -39,15 +39,25 @@ export function eventName(name) {
  * Adds an event listener to a node
  *
  * @param {Elements} node - Element to add the event listener
- * @param {string} type - The name of the event listener
- * @param {EventListenerOrEventListenerObject} handler - Function to
- *   handle the event
+ * @param {keyof WindowEventMap &
+ * 	keyof GlobalEventHandlersEventMap} type
+ *   - The name of the event listener
+ *
+ * @param {EventListener
+ * 	| EventListenerObject
+ * 	| (EventListenerObject & AddEventListenerOptions)} handler
+ *   - Function to handle the event
+ *
  * @returns {Function} - An `off` function for removing the event
  *   listener
  * @url https://pota.quack.uy/props/EventListener
  */
 export function addEventListener(node, type, handler) {
-	node.addEventListener(type, handler, isFunction(handler) && handler)
+	node.addEventListener(
+		type,
+		handler,
+		!isFunction(handler) && handler,
+	)
 
 	const off = () => removeEventListener(node, type, handler)
 
@@ -68,9 +78,15 @@ export function addEventListener(node, type, handler) {
  * Removes an event listener from a node
  *
  * @param {Elements} node - Element to add the event listener
- * @param {string} type - The name of the event listener
- * @param {EventListenerOrEventListenerObject} handler - Function to
- *   handle the event
+ * @param {keyof WindowEventMap &
+ * 	keyof GlobalEventHandlersEventMap} type
+ *   - The name of the event listener
+ *
+ * @param {EventListener
+ * 	| EventListenerObject
+ * 	| (EventListenerObject & AddEventListenerOptions)} handler
+ *   - Function to handle the event
+ *
  * @returns {Function} - An `on` function for adding back the event
  *   listener
  * @url https://pota.quack.uy/props/EventListener
@@ -79,7 +95,7 @@ export function removeEventListener(node, type, handler) {
 	node.removeEventListener(
 		type,
 		handler,
-		isFunction(handler) && handler,
+		!isFunction(handler) && handler,
 	)
 
 	return () => addEventListener(node, type, handler)
