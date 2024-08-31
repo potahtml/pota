@@ -221,14 +221,6 @@ function withXMLNS(xmlns, fn, tagName) {
 
 // PARTIALS
 
-export function createPartial(content, xmlns) {
-	return createPartialComponent(content, xmlns, false)
-}
-
-export function createPartialImportNode(content, xmlns) {
-	return createPartialComponent(content, xmlns, true)
-}
-
 function cloneNode(content, xmlns) {
 	const template = xmlns
 		? createElementNS(xmlns, 'template')
@@ -251,10 +243,17 @@ function cloneNode(content, xmlns) {
 		: template.content
 }
 
-function createPartialComponent(content, xmlns, isImportNode) {
+export function createPartial(
+	content,
+	propsAt = nothing,
+	elementData = nothing,
+) {
 	let clone = () => {
-		const node = withXMLNS(xmlns, xmlns => cloneNode(content, xmlns))
-		clone = isImportNode
+		const node = withXMLNS(elementData.x, xmlns =>
+			cloneNode(content, xmlns),
+		)
+
+		clone = elementData.i
 			? importNode.bind(null, node, true)
 			: node.cloneNode.bind(node, true)
 		return clone()
@@ -264,42 +263,27 @@ function createPartialComponent(content, xmlns, isImportNode) {
 		/** Freeze props so isnt directly writable */
 		freeze(props)
 		return markComponent(() =>
-			assignPropsPartial(clone(), xmlns, props, isImportNode),
+			assignPartialProps(clone(), props, propsAt, elementData),
 		)
 	}
 }
 
-function assignPropsPartial(node, xmlns, props, isCustomElement) {
+function assignPartialProps(node, props, propsAt, elementData) {
 	if (props) {
-		/**
-		 * First walk then modify it, so the modifications dont make the
-		 * walk worse (example: creating children will increase the number
-		 * of nodes). It also allows to re-use the same walker, as
-		 * creating children right now could cause a new instance of
-		 * template that will use the same walker and mess up our current
-		 * walk. While this is not optimal is fast enough, requires some
-		 * more work on the babel plugin.
-		 */
 		const nodes = []
-
 		walkElements(node, node => {
-			if (node.hasAttribute('pota')) {
-				node.removeAttribute('pota')
-				nodes.push(node)
+			nodes.push(node)
 
-				// done
-				if (nodes.length === props.length) {
-					return true
-				}
-			}
+			if (nodes.length === elementData.m) return true
 		})
 
-		withXMLNS(xmlns, xmlns => {
-			for (let i = 0; i < nodes.length; i++) {
+		withXMLNS(elementData.x, xmlns => {
+			for (let i = 0; i < props.length; i++) {
 				assignProps(
-					nodes[i],
+					nodes[propsAt[i] || i],
 					props[i],
-					i === 0 ? isCustomElement : undefined,
+					// only the container may be a custom element
+					i === 0 ? elementData.c : 0,
 				)
 			}
 		})
@@ -629,7 +613,7 @@ export function render(children, parent, options = nothing) {
 export function insert(
 	children,
 	parent = document.body,
-	options = {},
+	options = nothing,
 ) {
 	if (options.clear && parent) parent.textContent = ''
 

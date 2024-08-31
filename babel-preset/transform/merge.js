@@ -16,9 +16,8 @@ export function mergeToTag(children, tag) {
 		if (canMergePartials(node)) {
 			tag.content += getPartialLiteral(node)
 
-			if (node.arguments[1].elements.length) {
-				tag.props.push(...node.arguments[1].elements)
-			}
+			// move props
+			tag.props.push(...node.arguments[1].elements)
 
 			toRemove.push(node)
 			continue
@@ -68,11 +67,8 @@ export function merge(children) {
 			if (canMergePartials(next)) {
 				node.arguments[0].value += getPartialLiteral(next)
 
-				if (next.arguments[1].elements.length) {
-					node.arguments[1].elements.push(
-						...next.arguments[1].elements,
-					)
-				}
+				// move props
+				node.arguments[1].elements.push(...next.arguments[1].elements)
 
 				toRemove.push(next)
 				next = children[++i]

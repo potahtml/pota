@@ -7,8 +7,4 @@ export {
 
 // custom transform
 
-export {
-	createComponent,
-	createPartial,
-	createPartialImportNode,
-} from './renderer.js'
+export { createComponent, createPartial } from './renderer.js'

@@ -1,8 +1,9 @@
-import { types as t } from '@babel/core'
+import core, { types as t } from '@babel/core'
 
 import {
 	callFunction,
 	callFunctionImport,
+	keys,
 	removeFromArray,
 } from './utils.js'
 
@@ -19,31 +20,39 @@ import { getTagName } from './tag.js'
 
 /** Builds partial from jsx */
 export function buildPartial(path, state) {
-	let isXML = false
-
 	// tag
 
 	const tagName = getTagName(path)
 
-	// custom elements
-
-	let isImportNode = tagName.includes('-')
-
 	// open opening tag
 
-	const tag = { tagName, content: `<${tagName} pota`, props: [] }
+	const tag = { tagName, content: `<${tagName}`, props: [] }
+
+	// state
+
+	let isXML = false
+	let isCustomElement = tagName.includes('-')
+	let isImportNode = isCustomElement
+	let xmlns = ''
 
 	// attributes
 
-	const attributes = []
+	/**
+	 * `#pota` default attribute/prop makes sure every single tag has
+	 * props, so that way we can map props to specific nodes. We remove
+	 * the prop at compile time.
+	 */
+
+	const attributes = [createAttribute('#pota', '')]
+
 	for (const attr of path.get('openingElement').get('attributes')) {
 		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
 			const name = attr.node.name.name
 
+			isCustomElement = isCustomElement || name === 'is'
+
 			isImportNode =
 				isImportNode ||
-				// custom elements need `importNode`
-				name === 'is' ||
 				// Firefox needs `importNode` for images with loading="lazy"
 				(tagName === 'img' && name === 'loading')
 
@@ -51,12 +60,16 @@ export function buildPartial(path, state) {
 				isXML = true
 			}
 
-			/**
-			 * Skip inlining the `xmlns` attribute in the tag, so it builds
-			 * the partial with the right namespace without merging this
-			 * partial with others
-			 */
-			if (name !== 'xmlns' && isAttributeLiteral(attr.node)) {
+			if (isAttributeLiteral(attr.node)) {
+				if (name === 'xmlns') {
+					xmlns = getAttributeLiteral(attr.node)
+					/**
+					 * Skip inlining the `xmlns` attribute in the tag when its a
+					 * literal
+					 */
+					continue
+				}
+
 				const value = getAttributeLiteral(attr.node)
 
 				buildAttributeIntoTag(tag, name, value)
@@ -72,27 +85,13 @@ export function buildPartial(path, state) {
 	if (!isXML) {
 		switch (tagName) {
 			case 'svg': {
-				attributes.push(
-					createAttribute('xmlns', 'http://www.w3.org/2000/svg'),
-				)
 				isXML = true
+				xmlns = 'http://www.w3.org/2000/svg'
 				break
 			}
 			case 'math': {
-				attributes.push(
-					createAttribute(
-						'xmlns',
-						'http://www.w3.org/1998/Math/MathML',
-					),
-				)
 				isXML = true
-				break
-			}
-			case 'foreignObject': {
-				attributes.push(
-					createAttribute('xmlns', 'http://www.w3.org/1999/xhtml'),
-				)
-				isXML = true
+				xmlns = 'http://www.w3.org/1998/Math/MathML'
 				break
 			}
 		}
@@ -123,14 +122,7 @@ export function buildPartial(path, state) {
 
 	// props
 
-	const props = buildProps(attributes, children)
-
-	if (props) {
-		tag.props.unshift(props)
-	} else {
-		/** Remove placeholder when it doesnt have props. */
-		tag.content = tag.content.replace(/^<([^\s]+) pota/, '<$1')
-	}
+	tag.props.unshift(buildProps(attributes, children))
 
 	// close tag
 
@@ -140,19 +132,23 @@ export function buildPartial(path, state) {
 
 	// call
 
-	const partial = callFunctionImport(
-		state,
-		isImportNode ? 'createPartialImportNode' : 'createPartial',
-		[t.stringLiteral(tag.content), t.arrayExpression(tag.props)],
-	)
-	partial.isXML = isXML
-	partial.isImportNode = isImportNode
+	const partial = callFunctionImport(state, 'createPartial', [
+		t.stringLiteral(tag.content),
+		t.arrayExpression(tag.props),
+	])
 	partial.isPartial = true
-	partial.tagName = tagName
+
+	partial.isXML = isXML
+	partial.xmlns = xmlns
+	partial.isImportNode = isImportNode
+	partial.isCustomElement = isCustomElement
+
 	/**
-	 * To know the `path` to display an error when children cannot be
-	 * nested
+	 * Used to display an error when children cannot be nested because
+	 * the hierarchy of tags is invalid and template cloning will yield
+	 * results that do not match the desired template
 	 */
+	partial.tagName = tagName
 	partial._path = path
 
 	return partial
@@ -160,14 +156,59 @@ export function buildPartial(path, state) {
 
 /** Hoist and merge partials */
 export function partialMerge(path, state) {
-	// remove empty argument from partial function
-	if (path.node.arguments[1].elements.length === 0) {
-		removeFromArray(path.node.arguments, path.node.arguments[1])
+	const node = path.node
+
+	// create map of props -> nodes, and removes #pota prop
+	const elements = node.arguments[1].elements
+
+	const propsAt = {}
+	const elementData = {}
+
+	let propsKey = 0
+	const toRemove = []
+
+	for (let i = 0; i < elements.length; i++) {
+		const properties = elements[i].properties
+
+		// #find the #pota prop and remove it
+		const potaProp = properties.find(
+			value => value.key.value === '#pota',
+		)
+		if (potaProp) {
+			removeFromArray(properties, potaProp)
+		}
+
+		// if there are other props than #pota then this element has props at
+		if (properties.length) {
+			// do not add the obvious propKeys to make output smaller
+			if (propsKey !== i) {
+				propsAt[propsKey] = i
+			}
+			propsKey++
+		} else {
+			// props object is empty
+			toRemove.push(elements[i])
+		}
+	}
+
+	// save the max number of nodes to walk
+	if (propsAt[propsKey - 1] > -1) {
+		elementData.m = propsAt[propsKey - 1] + 1
+	}
+
+	// remove empty props objects from array
+	for (const remove of toRemove) {
+		removeFromArray(elements, remove)
+	}
+
+	// remove empty array of props from partial function
+	if (node.arguments[1].elements.length === 0) {
+		removeFromArray(node.arguments, node.arguments[1])
 	}
 
 	// hoist it
 
-	const partial = getPartialLiteral(path.node)
+	const partial = getPartialLiteral(node)
 
 	// scope
 
@@ -190,37 +231,50 @@ export function partialMerge(path, state) {
 
 		// args
 
-		const args = [path.node.arguments[0]]
+		const args = [node.arguments[0]]
 
-		// xmlns
+		if (node.xmlns) {
+			elementData.x = node.xmlns
+		}
 
-		const xmlns = !path.node.arguments[1]
-			? undefined
-			: path.node.arguments[1].elements[0].properties.find(
-					property => property?.key?.name === 'xmlns',
-				)?.value?.value
+		// if should use importNode instead of cloneNode
 
-		if (xmlns) {
-			args.push(t.stringLiteral(xmlns))
+		if (node.isCustomElement) {
+			elementData.c = 1
+		}
+		if (node.isImportNode) {
+			elementData.i = 1
+		}
+
+		// push arguments
+
+		if (keys(propsAt).length) {
+			args.push(
+				core.template.expression.ast`${JSON.stringify(propsAt)}`,
+			)
+		} else {
+			if (keys(elementData).length) {
+				args.push(t.objectExpression([]))
+			}
+		}
+
+		if (keys(elementData).length) {
+			args.push(
+				core.template.expression.ast`${JSON.stringify(elementData)}`,
+			)
 		}
 
 		// call
 
 		scope.push({
 			id: pota.partials[partial],
-			init: callFunctionImport(
-				state,
-				path.node.isImportNode
-					? 'createPartialImportNode'
-					: 'createPartial',
-				args,
-			),
+			init: callFunctionImport(state, 'createPartial', args),
 		})
 	}
 
 	return callFunction(
 		pota.partials[partial].name,
-		path.node.arguments[1] ? [path.node.arguments[1]] : [],
+		node.arguments[1] ? [node.arguments[1]] : [],
 	)
 }
 

@@ -24,9 +24,6 @@ todo
 	reconcile
 	mutable giving some errors
 
-	compiler
-	- avoid walking the template
-
 some day
 
 	classList

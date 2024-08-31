@@ -106,7 +106,7 @@ propsPluginNS('class', setClassNS, false)
  *
  * @param {Elements} node - Element to which assign props
  * @param {object} props - Props to assign
- * @param {boolean} [isCustomElement] - Is custom element
+ * @param {number} [isCustomElement] - Is custom element
  */
 export function assignProps(node, props, isCustomElement) {
 	let name
@@ -125,7 +125,7 @@ export function assignProps(node, props, isCustomElement) {
  * @param {string} name
  * @param {any} value
  * @param {object} props
- * @param {boolean} [isCE]
+ * @param {number} [isCE]
  */
 export function assignProp(node, name, value, props, isCE) {
 	if (isObject(value) && 'then' in value) {
