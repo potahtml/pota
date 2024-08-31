@@ -27,13 +27,17 @@ function importLazy(path, state, name) {
 	return () => {
 		let reference = get(state, `imports/${name}`)
 		if (reference) return t.cloneNode(reference)
-		reference = addNamed(path, name, 'pota/src/renderer/@main.js', {
+		reference = addNamed(path, name, 'pota/jsx-runtime', {
 			importedInterop: 'uncompiled',
 			importPosition: 'after',
 		})
 		set(state, `imports/${name}`, reference)
 		return reference
 	}
+}
+/** Displays fancy error on path */
+export function error(path, err) {
+	throw path.buildCodeFrameError(err)
 }
 
 /**
@@ -49,7 +53,4 @@ export function removeFromArray(array, value) {
 	return array
 }
 
-/** Displays fancy error on path */
-export function error(path, err) {
-	throw path.buildCodeFrameError(err)
-}
+export const keys = Object.keys

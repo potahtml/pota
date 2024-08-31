@@ -1,0 +1,68 @@
+
+CONSIDER ALWAYS
+
+- KEEP THE CODE READABLE, DO NOT COMPLICATE IT TOO MUCH
+- CONSISTENCY ABOVE ALL
+- SLOW AND SIMPLE IS BETTER THAN FAST AND HARD TO UNDERSTSAND
+
+todo
+
+	documentation
+	- light theme
+	- improve it
+
+	miscellaneous
+	- typings
+
+	fix me
+	- transform has a bug with hoisting in a special and evident situation
+
+	playground
+	- LSP figure out how to use https://github.com/bigmistqke/repl
+
+	useLocation docs!
+	reconcile
+	mutable giving some errors
+
+	compiler
+	- avoid walking the template
+
+some day
+
+	classList
+	- the name of the class is not reactive
+
+	mount
+	- support mount points as a selector
+
+	components
+	- provide fallback for collapse
+	- provide fallback for For
+	- switch expects children to be an array
+	- show gives the memo a signal instead of the value
+
+	router
+	- make the `path` reactive
+
+	mutable
+	- improve the tracker
+	- figure out a whitelist vs blacklist!
+	- support set, maybe weakmap and weakset
+	- defineProperty proxy trap
+
+	reactivity
+	- recheck use of untrack / add forbidden signal read
+
+	todo
+	- web components WIP
+	- storage
+	- tooltip
+	- forms
+
+bench
+
+	 137 10k
+	 15 10k
+	 11 1k
+	 1 1k
+

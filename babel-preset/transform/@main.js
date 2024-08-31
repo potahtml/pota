@@ -1,19 +1,19 @@
-import { declare } from '@babel/helper-plugin-utils'
 import { types as t } from '@babel/core'
+import { declare } from '@babel/helper-plugin-utils'
 import jsx from '@babel/plugin-syntax-jsx'
 
 import { createImport, error } from './utils.js'
 
 import { buildComponent } from './component.js'
 import { buildFragment } from './fragment.js'
-import { buildPartial, partialMerge, isPartial } from './partial.js'
-import { isTagXHTML } from './tag.js'
+import { buildPartial, isPartial, partialMerge } from './partial.js'
+import { isXHTMLTag } from './tag.js'
 
 import {
 	devToolsArguments,
-	devToolsProps,
 	devToolsAssignment,
 	devToolsDeclaration,
+	devToolsProps,
 } from './devTools.js'
 
 export default function createPlugin({ name }) {
@@ -64,7 +64,7 @@ export default function createPlugin({ name }) {
 						}
 					},
 					exit(path, state) {
-						/** Hoist and merge partial calls */
+						/** Merge and hoist partial calls */
 						path.traverse(
 							{
 								CallExpression(path, state) {
@@ -90,7 +90,7 @@ export default function createPlugin({ name }) {
 				},
 				JSXElement: {
 					exit(path, state) {
-						const expression = isTagXHTML(path)
+						const expression = isXHTMLTag(path)
 							? buildPartial(path, state)
 							: buildComponent(path, state)
 

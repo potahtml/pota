@@ -1,7 +1,7 @@
 import { types as t } from '@babel/core'
 
-import { merge } from './merge.js'
 import { escapeHTML } from './html.js'
+import { merge } from './merge.js'
 
 /** Builds and merge children */
 export function buildChildren(path) {

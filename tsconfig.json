@@ -18,7 +18,8 @@
     "jsx": "preserve",
     "jsxImportSource": "pota",
 
-    "sourceMap": true
+    "sourceMap": true,
+    "incremental": false
   },
   "include": ["src", "ts.jsx.d.ts", "ts.pota.d.ts"]
 }

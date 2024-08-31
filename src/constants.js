@@ -1,15 +1,17 @@
 // symbols
 
-import { Symbol } from './lib/std/Symbol.js'
+import { Symbol } from './lib/std.js'
 
-export const $component = Symbol()
-export const $class = Symbol()
-export const $reactive = Symbol()
-export const $map = Symbol()
+export const $isComponent = Symbol()
+export const $isClass = Symbol()
+export const $isReactive = Symbol()
+export const $isMap = Symbol()
 
 // supported namespaces
 
 const prefix = 'http://www.w3.org/'
+
+// when a tag/attribute is missing the namespace this puts it back in
 
 export const NS = {
 	__proto__: null,

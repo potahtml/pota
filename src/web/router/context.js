@@ -1,18 +1,18 @@
-import { signal, memo } from '../../lib/reactivity/reactive.js'
-import { nothing, removeFromArray } from '../../lib/std/@main.js'
-import { context } from '../../renderer/@main.js'
+import { memo, signal } from '../../lib/reactive.js'
+import { nothing, removeFromArray } from '../../lib/std.js'
 
-const show = () => false
+import { context } from '../../renderer.js'
 
-export function create(props = nothing) {
+/* #__NO_SIDE_EFFECTS__ */ export function create(props = nothing) {
 	const [children, setChildren, updateChildren] = signal([])
 
 	return {
 		base: '', // the composed base route
 		href: () => '', // the url of the route
 		parent: undefined, // parent context
-		show, // if the route is shown
-		scrolls: [], // elements to scroll
+		show: () => false, // if the route is shown
+		params: () => () => nothing, // params of the route
+		scroll: [], // elements to scroll
 		// the children routes
 		addChildren: child => {
 			updateChildren(children => {
@@ -47,5 +47,3 @@ export function create(props = nothing) {
 }
 
 export const Context = context(create())
-
-Context.beforeLeave = []

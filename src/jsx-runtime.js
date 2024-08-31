@@ -1,6 +1,14 @@
 export {
 	Fragment,
 	Component as jsx,
-	Component as jsxs,
 	Component as jsxDEV,
-} from './renderer/@main.js'
+	Component as jsxs,
+} from './renderer.js'
+
+// custom transform
+
+export {
+	createComponent,
+	createPartial,
+	createPartialImportNode,
+} from './renderer.js'

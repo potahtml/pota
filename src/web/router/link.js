@@ -1,13 +1,13 @@
-// utils
-import { Component } from '../../renderer/@main.js'
-import { isRelative, replaceParams } from '../../lib/urls/@main.js'
+import { addListeners } from '../../plugin/useLocation.js'
+import { isRelative, replaceParams } from '../../plugin/useURL.js'
 
-// local
+import { Component } from '../../renderer.js'
+
 import { Context } from './context.js'
 
 /*
  * // props
- * // props.href Url relative to the parent <Route/>
+ * // props.href Url relative to the parent <Router/>
  * // props.params Key-value pair object params to replace in the url
  *   not scroll on location change
  * // props.replace Replace the history entry from the browser} props
@@ -27,6 +27,8 @@ import { Context } from './context.js'
  */
 
 export function A(props) {
+	addListeners()
+
 	let href = replaceParams(props.href, props.params)
 
 	// make it absolute

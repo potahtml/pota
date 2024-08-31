@@ -41,7 +41,7 @@ export function createAttribute(name, value) {
 	return t.jSXAttribute(t.jSXIdentifier(name), t.stringLiteral(value))
 }
 
-/** Escapes `'` and `"` */
+/** Escapes `"` */
 const escapeAttribute = (() => {
 	const chars = {
 		"'": '&#39;',

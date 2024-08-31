@@ -5,92 +5,67 @@ export { version } from './version.js'
 // REACTIVITY
 
 export {
+	asyncEffect,
 	batch,
 	cleanup,
 	effect,
-	syncEffect,
+	isReactive,
+	Lazy,
+	lazy,
+	map,
+	memo,
+	owned,
+	ref,
+	resolve,
 	root,
 	signal,
-	memo,
-	withOwner,
+	syncEffect,
 	untrack,
-} from './lib/reactivity/reactive.js'
-
-export {
-	/**
-	 * To set and read refs. To use in ref attribute.
-	 *
-	 * @param {any} [value] - Optional initial value
-	 * @returns {Signal}
-	 */
-	signalFunction as ref,
-} from './lib/reactivity/signalFunction.js'
-
-export { map } from './lib/reactivity/map.js'
-
-export { asyncEffect } from './lib/reactivity/asyncEffect.js'
-export { writable } from './lib/reactivity/writable.js'
-export { withValue } from './lib/reactivity/withValue.js'
+	withValue,
+	writable,
+} from './lib/reactive.js'
 
 // RENDERER
 
 export {
-	// rendering
-	render,
-	insert,
 	Component,
-	/**
-	 * Do not expose insert. As removal of the element on where you
-	 * inserted into, wont cause disposal of what you inserted.
-	 */
-	// insert,
-
-	// children
-	toHTML,
-	resolve,
 	context,
-} from './renderer/@main.js'
-export { lazy, Lazy } from './lib/reactivity/lazy.js'
+	insert,
+	render,
+	toHTML,
+} from './renderer.js'
 
-export { css } from './lib/css/css.js'
+// COMPONENTS
 
-export { ready } from './renderer/scheduler.js'
-
-// COMPONENTS UTILITIES
-
-export { makeCallback } from './lib/component/makeCallback.js'
-export { markComponent } from './lib/component/markComponent.js'
-export { isComponent } from './lib/component/isComponent.js'
-
-// COMPONENTS CLASSES
-
-export { Pota } from './lib/component/Pota.js'
-
-// reactivity
-export { isReactive } from './lib/reactivity/isReactive.js'
+export {
+	isComponent,
+	makeCallback,
+	markComponent,
+	Pota,
+} from './lib/reactive.js'
 
 // EVENTS
 
 export {
 	addEventListener,
 	removeEventListener,
-} from './renderer/props/event.js'
+} from './lib/reactive.js'
+
+export { ready } from './scheduler.js'
 
 // PROPS
 
 export {
 	setAttribute,
+	setBool,
 	setProperty,
 	setStyle,
-	setBool,
-} from './renderer/props/@main.js'
+} from './props/@main.js'
 
 export {
 	propsPlugin,
+	propsPluginBoth,
 	propsPluginNS,
-} from './renderer/props/plugin.js'
-export { propsSplit } from './renderer/props/propsSplit.js'
+} from './props/plugin.js'
 
-// LIB
-
-export { getValue } from './lib/std/getValue.js'
+export { propsSplit } from './props/propsSplit.js'

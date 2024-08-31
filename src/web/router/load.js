@@ -1,9 +1,7 @@
-import { isFunction } from '../../lib/std/isFunction.js'
-import { nothing } from '../../lib/std/nothing.js'
+import { lazy } from '../../lib/reactive.js'
+import { isFunction, nothing } from '../../lib/std.js'
 
-import { Component, lazy } from '../../@main.js'
-
-import { useTimeout } from '../../hooks/useTimeout.js'
+import { useTimeout } from '../../plugin/useTimeout.js'
 
 import { Context } from './context.js'
 import { scroll } from './scroll.js'

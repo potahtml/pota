@@ -1,7 +1,10 @@
-import { scrollToLocationHash } from '../../lib/scroll/scrollToLocationHash.js'
-import { scrollToSelector } from '../../lib/scroll/scrollToSelector.js'
-import { scrollToTop } from '../../lib/scroll/scrollToTop.js'
-import { walkParent } from '../../lib/std/walkParent.js'
+import {
+	scrollToLocationHash,
+	scrollToSelector,
+	scrollToTop,
+} from '../../plugin/useScroll.js'
+
+import { walkParents } from '../../lib/std.js'
 
 export function scroll(context) {
 	/**
@@ -10,9 +13,9 @@ export function scroll(context) {
 	 */
 	if (!scrollToLocationHash()) {
 		if (
-			!walkParent(context, context => {
-				if (context.scrolls) {
-					for (const item of context.scrolls) {
+			!walkParents(context, 'parent', context => {
+				if (context.scroll) {
+					for (const item of context.scroll) {
 						if (scrollToSelector(item)) {
 							return true
 						}

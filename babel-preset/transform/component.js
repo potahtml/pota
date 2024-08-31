@@ -1,8 +1,8 @@
-import { callFunctionImport, callFunction } from './utils.js'
+import { callFunction, callFunctionImport } from './utils.js'
 
-import { getTagFunction, getTagFunctionName } from './tag.js'
-import { buildProps } from './props.js'
 import { buildChildren } from './children.js'
+import { buildProps } from './props.js'
+import { getTagFunction, getTagFunctionName } from './tag.js'
 
 /** Hoist and builds call to component with props */
 export function buildComponent(path, state) {
@@ -44,7 +44,7 @@ export function buildComponent(path, state) {
 	if (!pota.components[name]) {
 		// identifier
 
-		pota.components[name] = scope.generateUidIdentifier('_' + name)
+		pota.components[name] = scope.generateUidIdentifier(name)
 
 		// call
 

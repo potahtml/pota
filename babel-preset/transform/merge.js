@@ -1,5 +1,5 @@
 import { getChildrenLiteral, isChildrenLiteral } from './children.js'
-import { getPartialLiteral, isPartialHTML } from './partial.js'
+import { getPartialLiteral, canMergePartials } from './partial.js'
 
 /** Merges text/partial childrens to parent */
 export function mergeToTag(children, tag) {
@@ -13,7 +13,7 @@ export function mergeToTag(children, tag) {
 			toRemove.push(node)
 			continue
 		}
-		if (isPartialHTML(node)) {
+		if (canMergePartials(node)) {
 			tag.content += getPartialLiteral(node)
 
 			if (node.arguments[1].elements.length) {
@@ -46,7 +46,7 @@ export function merge(children) {
 				next = children[++i]
 				continue
 			}
-			if (isPartialHTML(next)) {
+			if (canMergePartials(next)) {
 				next.arguments[0].value =
 					getChildrenLiteral(node) + getPartialLiteral(next)
 
@@ -57,7 +57,7 @@ export function merge(children) {
 			}
 		}
 
-		if (isPartialHTML(node)) {
+		if (canMergePartials(node)) {
 			if (isChildrenLiteral(next)) {
 				node.arguments[0].value += getChildrenLiteral(next)
 
@@ -65,7 +65,7 @@ export function merge(children) {
 				next = children[++i]
 				continue
 			}
-			if (isPartialHTML(next)) {
+			if (canMergePartials(next)) {
 				node.arguments[0].value += getPartialLiteral(next)
 
 				if (next.arguments[1].elements.length) {

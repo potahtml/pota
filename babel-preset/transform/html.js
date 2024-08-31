@@ -2,7 +2,7 @@ import { isValidHTMLNesting } from 'validate-html-nesting'
 
 import { error } from './utils.js'
 
-import { isPartialHTML } from './partial.js'
+import { isPartial } from './partial.js'
 
 const voidElements = new Set([
 	'area',
@@ -33,11 +33,7 @@ export function isVoidElement(tagName) {
 
 /** Validates html nesting */
 export function validateHTML(parent, child, node) {
-	if (
-		!parent.includes('-') &&
-		!child.includes('-') &&
-		!isValidHTMLNesting(parent, child)
-	) {
+	if (!isValidHTMLNesting(parent, child)) {
 		error(
 			node._path,
 			`Invalid HTML: <${child}> cannot be child of <${parent}>`,
@@ -48,7 +44,7 @@ export function validateHTML(parent, child, node) {
 /** Validates if the tags in children are valid nesting for parent tag */
 export function validateChildrenHTML(tagName, children) {
 	for (const child of children) {
-		if (isPartialHTML(child)) {
+		if (isPartial(child)) {
 			validateHTML(tagName, child.tagName, child)
 		}
 	}

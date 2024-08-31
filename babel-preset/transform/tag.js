@@ -27,7 +27,7 @@ export function getTagFunctionName(path) {
 	} else if (t.isMemberExpression(tagExpr)) {
 		return tagExpr.object.name + '.' + tagExpr.property.name
 	} else {
-		console.log(tagExpr)
+		console.error(tagExpr)
 		throw path.buildCodeFrameError(
 			'Cannot figure out `tagName` for JSX function.',
 		)
@@ -35,7 +35,7 @@ export function getTagFunctionName(path) {
 }
 
 /** Returns `tagName` for tag when tag is valid XHTML, or `false` */
-export function isTagXHTML(path) {
+export function isXHTMLTag(path) {
 	const openingPath = path.get('openingElement')
 
 	const tagExpr = convertJSXIdentifier(
@@ -49,11 +49,11 @@ export function isTagXHTML(path) {
 		tagName = tagExpr.value
 	}
 
-	return t.react.isCompatTag(tagName) ? tagName : false
+	return t.react.isCompatTag(tagName) ? tagName : ''
 }
 
 /** Returns `tagName` for tag when tag is valid XHTML, or `false` */
-export { isTagXHTML as getTagName }
+export { isXHTMLTag as getTagName }
 
 export function convertJSXIdentifier(node, parent) {
 	if (t.isJSXIdentifier(node)) {

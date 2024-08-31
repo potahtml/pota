@@ -12,9 +12,9 @@ import {
 	getAttributeLiteral,
 	isAttributeLiteral,
 } from './attributes.js'
+import { isVoidElement, validateChildrenHTML } from './html.js'
 import { merge, mergeToTag } from './merge.js'
 import { buildProps } from './props.js'
-import { isVoidElement, validateChildrenHTML } from './html.js'
 import { getTagName } from './tag.js'
 
 /** Builds partial from jsx */
@@ -181,10 +181,12 @@ export function partialMerge(path, state) {
 
 	const pota = scope.pota
 
+	// de-duplicates and hoist calls to partials
+
 	if (!pota.partials[partial]) {
 		// identifier
 
-		pota.partials[partial] = scope.generateUidIdentifier('_partial')
+		pota.partials[partial] = scope.generateUidIdentifier(node.tagName)
 
 		// args
 
@@ -226,8 +228,13 @@ export function partialMerge(path, state) {
  * Returns `true` when `node` is `partial` and not `XML`, not a
  * `custom element`
  */
-export function isPartialHTML(node) {
-	return node.isPartial && !node.isXML && !node.isImportNode
+export function canMergePartials(node) {
+	return (
+		node.isPartial &&
+		!node.isXML &&
+		!node.isImportNode &&
+		!node.isCustomElement
+	)
 }
 
 /** Returns `true` when `node` is partial */
