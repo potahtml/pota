@@ -1,3 +1,5 @@
+import { types as t } from '@babel/core'
+
 import { callFunction, callFunctionImport } from './utils.js'
 
 import { buildChildren } from './children.js'
@@ -25,11 +27,7 @@ export function buildComponent(path, state) {
 
 	// scope
 
-	/**
-	 * Bug: the identifier should be added after the binding, not at the
-	 * top of the scope, I have no idea how to do this.
-	 */
-	const scope = path.scope //.getProgramParent()
+	const scope = path.scope
 
 	scope.pota = scope.pota || {
 		partials: {},
@@ -48,10 +46,44 @@ export function buildComponent(path, state) {
 
 		// call
 
-		scope.push({
-			id: pota.components[name],
-			init: callFunctionImport(state, 'createComponent', [fn]),
-		})
+		const identifier = pota.components[name]
+		const value = callFunctionImport(state, 'createComponent', [fn])
+
+		// push
+
+		const binding = scope.getBinding(name)
+		switch (binding?.kind) {
+			case 'module':
+			case 'const':
+			case 'let': {
+				/*
+					fix this error when using const and let:
+
+						var _Lala = createComponent(Lala);
+						const Lala = () => 'lala';
+
+					into
+
+						const Lala = () => 'lala';
+						const _Lala = createComponent(Lala);
+				*/
+				binding.path.parentPath.insertAfter(
+					t.variableDeclaration('const', [
+						t.variableDeclarator(identifier, value),
+					]),
+				)
+				break
+			}
+			default: {
+				// "undefined" = Router.Default
+				// "hoisted" = fn Comp(){ return <DefinedAfter/>} fn DefinedAfter { .. }
+				scope.push({
+					id: identifier,
+					init: value,
+				})
+				break
+			}
+		}
 	}
 
 	// call

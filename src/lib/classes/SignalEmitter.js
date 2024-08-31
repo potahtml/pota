@@ -13,8 +13,8 @@ export class SignalEmitter {
 	/**
 	 * @param {{
 	 * 	on: (dispatch: Function) => () => void
-	 * 	initialValue: Function
-	 * }}
+	 * 	initialValue?: Function
+	 * }} arg
 	 */
 	constructor({ on, initialValue = () => undefined }) {
 		this.#on = on

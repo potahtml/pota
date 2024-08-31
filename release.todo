@@ -14,9 +14,6 @@ todo
 	miscellaneous
 	- typings
 
-	fix me
-	- transform has a bug with hoisting in a special and evident situation
-
 	playground
 	- LSP figure out how to use https://github.com/bigmistqke/repl
 
