@@ -1,27 +1,42 @@
 # pota
 
-pota is a small Reactive Web Renderer backed by a reactive library.
-The reactive library used to be pluggable.
+pota is a small, pluggable, yet fully-featured Reactive Web Renderer,
+designed to work with web components and xmlns.
 
-The renderer is compiler-less and can be used with an `html` function.
-Also includes a babel preset for transforming JSX.
+pota is compiler-less, allowing you to use it with an `html` function.
+It also includes a Babel preset for transforming `JSX` into fast and
+compact partials. You may still use `transform-react-jsx` or `tsc`, as
+transformation needs no magic.
 
-The API and core components, draw significant inspiration from Solid,
-albeit things differ to an extent based on personal preferences.
+#### Philosophy
 
-pota prioritizes consistency and is subjectively easy to understand.
-Its driven by developer needs, not benchmarks.
+The API and Core components, draw significant inspiration from
+SolidJS, albeit things differ to an extent based on personal
+preferences.
 
-See templates for getting started
-https://github.com/potahtml/templates
+pota prioritizes simplicity, consistency, usage and is subjectively
+easy to understand. It's driven by developer needs, and wont
+compromise these for benchmarks. It is
+[still fast](https://krausest.github.io/js-framework-benchmark/current.html)
+while respecting the core philosophy.
 
-Usage and documentation can be found on the website:
-https://pota.quack.uy/
+#### Links
 
-## See also
+- [Documentation](https://pota.quack.uy/) with editable live examples
+  and a playground
+- For getting started, check out
+  [templates](https://github.com/potahtml/templates)
+
+#### See also
 
 - https://pota.quack.uy/
 - https://github.com/potahtml/
 - https://github.com/potahtml/pota
 - https://github.com/potahtml/templates
 - https://www.npmjs.com/package/pota
+
+Thanks to: Joe, Fabio, Ryan, Erika, kilo, Javier, Paty
+
+_Bug-free till proven otherwise._
+
+ <img src="https://pota.quack.uy/assets/logo-small.png"/>
