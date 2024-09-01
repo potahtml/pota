@@ -19,6 +19,7 @@ todo
 
 	useLocation docs!
 	reconcile
+	debugging!
 
 some day
 
@@ -26,16 +27,16 @@ some day
 	- the name of the class is not reactive
 
 	mount
-	- support mount points as a selector
+	- support mount points as a selector, maybe not
 
 	components
 	- provide fallback for collapse
 	- provide fallback for For
 	- switch expects children to be an array
-	- show gives the memo a signal instead of the value
+	- make the `path` reactive on Router
 
-	router
-	- make the `path` reactive
+	review
+	- show gives the memo a signal instead of the value
 
 	mutable
 	- improve the tracker
@@ -45,12 +46,29 @@ some day
 
 	reactivity
 	- recheck use of untrack / add forbidden signal read
+	- cleaneable cleanup, a cleanup that can be canceled
+	- derived/light signals.
+	- - const s2 = signal(s1, ['key1', ...])
+	- - or s1.derived(['key1', ...])
+	- - or s1.derived((value) => value * 2)
+	- simplify the classes
 
-	todo
-	- web components WIP
-	- storage
-	- tooltip
+	probably never
+	- animations
+	- audio
+	- color picker
+	- drag element
+	- emitter
+	- ensure resize on bounds
+	- favicon
 	- forms
+	- input, keyboard + mouse + controller
+	- linkify
+	- performance
+	- storage
+	- timer
+	- tooltip
+	- web components WIP
 
 bench
 
