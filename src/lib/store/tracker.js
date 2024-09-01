@@ -129,6 +129,19 @@ export class Track {
 	}
 
 	/**
+	 * Return true if the signals has already been created
+	 *
+	 * @returns {boolean}
+	 */
+	#hasSignal(propKey, valueKey) {
+		return (
+			propKey in this.#props &&
+			valueKey in this.#props[propKey] &&
+			this.#props[propKey][valueKey] !== undefined
+		)
+	}
+
+	/**
 	 * Keeps track of: a value for a `key`
 	 *
 	 * @param {PropertyKey} key
@@ -152,12 +165,24 @@ export class Track {
 	valueWrite(key, value) {
 		// log(this, 'valueWrite', key, value)
 
+		const hasSignal = this.#hasSignal(key, Value)
+		/*
+		log(
+			this,
+			'has signal',
+			hasSignal,
+			this.#props[key] ? this.#props[key][Value] : undefined,
+		)
+		*/
 		/**
 		 * Write the value because tracking will re-execute when this
 		 * value changes
 		 */
-		const signal = signals(this.#prop(key), Value, value, 1)
-		return signal.write(value)
+		const signal = signals(this.#prop(key), key, Value, value, 1)
+		const changed = signal.write(value) || !hasSignal
+
+		// log(this, 'valueWrite changed?', changed)
+		return changed
 	}
 
 	/**
