@@ -467,7 +467,21 @@ export function root(fn, options = undefined) {
  * @param {OwnerOptions} options
  */
 export function effect(fn, options = undefined) {
-	return new Effect(Owner, fn, options)
+	new Effect(Owner, fn, options)
+}
+
+/**
+ * Creates an effect with explicit dependencies
+ *
+ * @param {Function} depend - Function that causes tracking
+ * @param {Function} fn - Function that wont cause tracking
+ * @param {OwnerOptions} options
+ */
+export function on(depend, fn, options = undefined) {
+	effect(() => {
+		depend()
+		untrack(fn)
+	}, options)
 }
 
 /**
@@ -488,6 +502,7 @@ export function syncEffect(fn, options = undefined) {
  * @param {SignalOptions} [options]
  * @returns {SignalAccessor} - Read only signal
  */
+
 /* #__NO_SIDE_EFFECTS__ */ export function memo(
 	fn,
 	options = undefined,
