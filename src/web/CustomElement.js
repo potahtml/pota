@@ -2,6 +2,7 @@ import { withValue } from '../lib/reactive.js'
 import {
 	addStyleSheets,
 	emit,
+	isString,
 	querySelector,
 	removeAttribute,
 	setAttribute,
@@ -55,7 +56,7 @@ export class CustomElement extends HTMLElement {
 	 * @param {string} value
 	 */
 	set html(value) {
-		if (typeof value === 'string') {
+		if (isString(value)) {
 			this.shadowRoot.innerHTML = value
 		} else {
 			this.shadowRoot.replaceChildren(

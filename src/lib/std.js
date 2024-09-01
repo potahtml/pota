@@ -359,18 +359,18 @@ export const isConfigurable = (target, key, value) => {
 }
 
 /**
- * Returns true when value is a Function
+ * Returns `true` when `typeof` of `value` is `function`
  *
  * @param {any} value
- * @returns {boolean} True when `value` is a Function
+ * @returns {boolean}
  */
 export const isFunction = value => typeof value === 'function'
 
 /**
- * Returns true when value is Iterable
+ * Returns `true` when value is Iterable
  *
  * @param {any} value
- * @returns {boolean} True when `value` is Iterable
+ * @returns {boolean}
  */
 export const isIterable = value =>
 	isObject(value) && 'values' in value
@@ -385,7 +385,7 @@ export const isNullUndefined = value =>
 	value === undefined || value === null
 
 /**
- * Returns true when value is an Object and not null
+ * Returns `true` when typeof of value is object and not null
  *
  * @param {any} value
  * @returns {boolean}
@@ -394,8 +394,8 @@ export const isObject = value =>
 	value !== null && typeof value === 'object'
 
 /**
- * Returns `true` if the property is defined in the prototype and
- * absent in the object
+ * Returns `true` if the property is defined in the `prototype` and
+ * absent in the `object`
  *
  * @param {{}} target
  * @param {PropertyKey} key
@@ -406,7 +406,7 @@ export const isPrototypeProperty = (target, key) =>
 	key in target && !hasOwnProperty(target, key)
 
 /**
- * Returns true when value is a string
+ * Returns `true` when `typeof` of `value` is `string`
  *
  * @param {any} value
  * @returns {boolean}
@@ -414,12 +414,28 @@ export const isPrototypeProperty = (target, key) =>
 export const isString = value => typeof value === 'string'
 
 /**
- * Returns true when value is a Symbol
+ * Returns `true` when `typeof` of `value` is `number`
+ *
+ * @param {any} value
+ * @returns {boolean}
+ */
+export const isNumber = value => typeof value === 'number'
+
+/**
+ * Returns `true` when `typeof` of `value` is `symbol`
  *
  * @param {any} value
  * @returns {boolean}
  */
 export const isSymbol = value => typeof value === 'symbol'
+
+/**
+ * Returns `true` when `typeof` of `value` is `boolean`
+ *
+ * @param {any} value
+ * @returns {boolean}
+ */
+export const isBoolean = value => typeof value === 'boolean'
 
 export const noop = () => {}
 
@@ -432,7 +448,7 @@ export const nothing = freeze(empty())
 // additionally the value is resolved, for cases like `when={() => show() && optional(props.when)}`
 
 /**
- * Returns true when value is true or undefined
+ * Returns `true` when value is true or undefined
  *
  * @param {Function | boolean | undefined} value
  * @returns {boolean} True when value is true or undefined

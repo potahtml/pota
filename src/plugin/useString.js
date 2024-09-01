@@ -22,11 +22,12 @@ export const label = string =>
 export const short = (string = '') =>
 	string.length > 40 ? string.substr(0, 40) + '…' : string
 
-export const toString = (o, length = 255) =>
-	String(o || '')
-		.trim()
-		.substring(0, length)
-		.trim()
+export const ensureString = s => String(s || '')
+
+export const toString = (s, length = 0) =>
+	length
+		? ensureString(s).trim().substring(0, length).trim()
+		: ensureString(s).trim()
 
 export function validateEmail(s) {
 	// a@a.uy

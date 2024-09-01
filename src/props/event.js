@@ -26,3 +26,8 @@ export const eventName = withState((state, name) =>
 			: null,
 	),
 )
+/*
+const eventNames = new Set(
+	keys(global).filter(prop => prop.startsWith('on')),
+)
+*/

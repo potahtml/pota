@@ -4,6 +4,7 @@ import { withPrevValue, withValue } from '../lib/reactive.js'
 import {
 	classListAdd,
 	classListRemove,
+	isFunction,
 	isObject,
 	isString,
 } from '../lib/std.js'
@@ -35,9 +36,9 @@ export const setClassNS = (
 	localName,
 	ns,
 ) =>
-	isObject(value)
-		? setClassList(node, value)
-		: setClassListValue(node, localName, value)
+	isFunction(value)
+		? setClassListValue(node, localName, value)
+		: setClassList(node, value)
 
 /**
  * @param {Elements} node

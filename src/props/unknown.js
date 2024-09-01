@@ -1,7 +1,7 @@
 // NODE UNKNOWN PROPERTIES / ATTRIBUTES
 
 import { withValue } from '../lib/reactive.js'
-import { isNullUndefined, isObject } from '../lib/std.js'
+import { isBoolean, isNullUndefined, isObject } from '../lib/std.js'
 
 import { _setAttribute } from './attribute.js'
 import { _setProperty } from './property.js'
@@ -25,7 +25,7 @@ const _setUnknownProp = (node, name, value, ns) => {
 	if (isObject(value)) {
 		// when not null object
 		_setProperty(node, name, value)
-	} else if (typeof value === 'boolean' && !name.includes('-')) {
+	} else if (isBoolean(value) && !name.includes('-')) {
 		// when boolean and name doesnt have a hyphen
 		_setProperty(node, name, value)
 	} else {
