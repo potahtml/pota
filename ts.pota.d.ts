@@ -78,9 +78,9 @@ type Componenteable =
 
 type Expect = {
   toBe: (expected: any) => Promise<any>
-  toHaveShape: (expected: any) => Promise<any>
+  toBeLike: (expected: any) => Promise<any>
   not: {
     toBe: (expected: any) => Promise<any>
-    toHaveShape: (expected: any) => Promise<any>
+    toBeLike: (expected: any) => Promise<any>
   }
 }

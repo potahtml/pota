@@ -1,5 +1,6 @@
 import { microtask, untrack } from '../lib/reactive.js'
-import { stringify, withResolvers } from '../lib/std.js'
+import { stringifySorted, withResolvers } from '../lib/std.js'
+import { diff } from './useString.js'
 
 let stop = undefined
 let num = 1
@@ -8,8 +9,7 @@ let num = 1
  * Simple test-like function
  *
  * @param {string} title - Test title
- * @param {(expect: import('./test.js').expect) => void} fn - Test
- *   function
+ * @param {(expect: (arg) => Expect) => void} fn - Test function
  * @param {boolean} [stopTesting] - To stop the tests after this one
  */
 export function test(title, fn, stopTesting) {
@@ -39,11 +39,11 @@ export function expect(title, num, value) {
 	const test = {
 		toBe: (equals, expected) =>
 			pass(expected, value, equals, title + ' (' + num.value++ + ')'),
-		toHaveShape: (equals, expected) =>
+		toBeLike: (equals, expected) =>
 			untrack(() =>
 				pass(
-					stringify(expected),
-					stringify(value),
+					stringifySorted(expected),
+					stringifySorted(value),
 					equals,
 					title + ' (' + num.value++ + ')',
 				),
@@ -63,7 +63,8 @@ export function expect(title, num, value) {
 function pass(expected, value, equals, title) {
 	const { promise, resolve, reject } = withResolvers()
 	if (expected !== value && equals) {
-		error(title, ' expected `', expected, '` got `', value, '`')
+		const [expectedPrt, valuePrt] = diff(expected, value)
+		error(title, ' expected `', expectedPrt, '` got `', valuePrt, '`')
 		reject(title, expected, value)
 	} else if (expected === value && !equals) {
 		error(title, ' expected to be different `', value, '`')

@@ -39,6 +39,25 @@ export const isNaN = Number.isNaN
 export const iterator = Symbol.iterator
 
 export const stringify = JSON.stringify
+export const stringifyReadable = o => stringify(o, null, 2)
+
+export const stringifySorted = o => {
+	function sort(o) {
+		if (!isObject(o)) {
+			return o
+		}
+		const tmp = isArray(o) ? [] : {}
+		keys(o)
+			.sort()
+			.map(k => (tmp[k] = sort(o[k])))
+
+		if (isArray(tmp)) {
+			tmp.sort((a, b) => stringify(a).localeCompare(stringify(b)))
+		}
+		return tmp
+	}
+	return stringifyReadable(sort(o))
+}
 
 export const PrototypeArray = Array.prototype
 export const PrototypeMap = Map.prototype
