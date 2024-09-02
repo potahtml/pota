@@ -1140,6 +1140,7 @@ export function map(list, callback, sort) {
 				rows[index] === prev[index] ? 'a' : 'b',
 			)
 
+			let unsorted = b?.length
 			if (
 				a &&
 				b &&
@@ -1152,26 +1153,30 @@ export function map(list, callback, sort) {
 					for (const sort of a) {
 						if (usort.index === sort.index - 1) {
 							sort.begin.before(...nodesFromRow(usort))
+							unsorted--
 							break
 						} else if (usort.index === sort.index + 1) {
 							sort.end.after(...nodesFromRow(usort))
+							unsorted--
 							break
 						}
 					}
 				}
 			}
 
-			// handles all other cases
-			// best for any combination of: push/pop/shift/unshift/insertion/deletion
-			// must check in reverse as on creation stuff is added to the end
+			if (unsorted) {
+				// handles all other cases
+				// best for any combination of: push/pop/shift/unshift/insertion/deletion
+				// must check in reverse as on creation stuff is added to the end
 
-			let current = rows[rows.length - 1]
-			for (let i = rows.length - 1; i > 0; i--) {
-				const previous = rows[i - 1]
-				if (current.begin.previousSibling !== previous.end) {
-					current.begin.before(...nodesFromRow(previous))
+				let current = rows[rows.length - 1]
+				for (let i = rows.length - 1; i > 0; i--) {
+					const previous = rows[i - 1]
+					if (current.begin.previousSibling !== previous.end) {
+						current.begin.before(...nodesFromRow(previous))
+					}
+					current = previous
 				}
-				current = previous
 			}
 		}
 
