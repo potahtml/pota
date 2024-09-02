@@ -29,6 +29,7 @@ export const hasOwnProperty = Object.hasOwn
 export const is = Object.is
 export const isExtensible = Object.isExtensible
 export const keys = Object.keys
+export const values = Object.values
 export const setPrototypeOf = Object.setPrototypeOf
 
 export const isArray = Array.isArray
@@ -413,6 +414,19 @@ export const isObject = value =>
 	value !== null && typeof value === 'object'
 
 /**
+ * Returns `true` when object morphed between array/object
+ *
+ * @param {any} a
+ * @param {any} b
+ * @returns {boolean}
+ */
+export const morphedBetweenArrayAndObject = (a, b) =>
+	(isObject(a) && !isObject(b)) ||
+	(isObject(b) && !isObject(a)) ||
+	(isArray(a) && !isArray(b)) ||
+	(isArray(b) && !isArray(a))
+
+/**
  * Returns `true` if the property is defined in the `prototype` and
  * absent in the `object`
  *
@@ -514,6 +528,35 @@ export function removeFromArray(array, value) {
 	const index = array.indexOf(value)
 	if (index !== -1) array.splice(index, 1)
 	return array
+}
+/**
+ * Removes values from an array based on a condition
+ *
+ * @template T
+ * @param {T[]} array
+ * @param {(T: any, index: number) => boolean} cb Function with
+ *   condition
+ */
+export function removeFromArrayConditionally(array, cb) {
+	let i = array.length
+	while (i--) {
+		if (cb(array[i], i)) {
+			array.splice(i, 1)
+		}
+	}
+}
+/**
+ * Removes values from an array based on a condition
+ *
+ * @param {Iterable<object | any[]>} iterable
+ * @param {PropertyKey} key Function with condition
+ */
+export function indexByKey(iterable, key) {
+	const byKey = empty()
+	for (const item of iterable) {
+		byKey[item[key]] = item
+	}
+	return byKey
 }
 
 /**

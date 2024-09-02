@@ -17,10 +17,6 @@ todo
 	playground
 	- LSP figure out how to use https://github.com/bigmistqke/repl
 
-	useLocation docs!
-	reconcile
-	debugging!
-
 some day
 
 	classList
@@ -57,6 +53,7 @@ some day
 	- animations
 	- audio
 	- color picker
+	- debugging!
 	- drag element
 	- emitter
 	- ensure resize on bounds
