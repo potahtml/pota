@@ -951,7 +951,8 @@ export function asyncEffect(fn) {
  * given for retrying the promise. All functions run with the original
  * owner, so it's `Context` friendly.
  *
- * @param {() => Promise<any>} fn - Function that returns a promise
+ * @param {(() => Promise<any>) | Promise<any>} fn - Function that
+ *   returns a promise
  * @param {{
  * 	onLoading?: any
  * 	onLoaded?: Function
@@ -970,7 +971,7 @@ export const lazy = (fn, options = nothing) =>
 		const _onLoaded = owned(onLoaded)
 
 		const retry = () =>
-			fn()
+			Promise.resolve(isFunction(fn) ? fn() : fn)
 				.then(r => {
 					setValue(
 						markComponent(() => {
