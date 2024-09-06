@@ -53,8 +53,9 @@ export function buildPartial(path, state) {
 
 			isImportNode =
 				isImportNode ||
-				// Firefox needs `importNode` for images with loading="lazy"
-				(tagName === 'img' && name === 'loading')
+				// Firefox needs `importNode` for images/iframes with loading="lazy"
+				((tagName === 'img' || tagName === 'iframe') &&
+					name === 'loading')
 
 			if (name === 'xmlns') {
 				isXML = true
