@@ -20,7 +20,7 @@ import {
 
 import { dashesToCamelCase } from './plugin/useString.js'
 
-import { Component, toHTML } from './renderer.js'
+import { Component } from './renderer.js'
 
 import * as defaultRegistryTemplate from './web/@main.js'
 
@@ -63,9 +63,6 @@ const parseHTML = withState(
 /**
  * Function to create cached tagged template components
  *
- * @param {object} [options]
- * @param {boolean} [options.unwrap] - To return a `Node/Element` or
- *   an array of `Node/Elements`. Defaults to `true`
  * @returns {Function & {
  * 	define: ({ components }) => void
  * 	components: {}
@@ -73,7 +70,7 @@ const parseHTML = withState(
  * @url https://pota.quack.uy/HTML
  */
 
-export function HTML(options = { unwrap: true }) {
+export function HTML() {
 	const components = { ...defaultRegistry }
 
 	/**
@@ -106,8 +103,10 @@ export function HTML(options = { unwrap: true }) {
 
 					if (name[0] === '.') {
 						props['prop:' + dashesToCamelCase(name.slice(1))] = value
+					} else if (name.startsWith('prop:')) {
+						props['prop:' + dashesToCamelCase(name.slice(5))] = value
 					} else if (name[0] === '?') {
-						props['bool:' + dashesToCamelCase(name.slice(1))] = value
+						props['bool:' + name.slice(1)] = value
 					} else if (name[0] === '@') {
 						props['on:' + name.slice(1)] = value
 					} else {
@@ -126,9 +125,7 @@ export function HTML(options = { unwrap: true }) {
 			}
 		}
 
-		const result = flat(toArray(cached.childNodes).map(nodes))
-
-		return options.unwrap ? toHTML(result) : result
+		return flat(toArray(cached.childNodes).map(nodes))
 	}
 
 	html.components = components
@@ -149,21 +146,12 @@ export function HTML(options = { unwrap: true }) {
  *
  * @param {(html) => any} fn - Function to run as an effect. It
  *   receives `html` argument for template creation.
- * @param {object} [options]
- * @param {boolean} [options.unwrap] - To return a `Node/Element` or
- *   an array of `Node/Elements`. Defaults to `true`
- * @param {boolean} [options.updateTrigger] - To return an `update`
- *   function in case its desired to trigger updates manually.
- *   Defaults to `false`
  * @returns {Children}
  * @url https://pota.quack.uy/HTML
  */
-export const htmlEffect = (
-	fn,
-	options = { unwrap: true, updateTrigger: false },
-) => {
+export const htmlEffect = fn => {
 	/** Copy the components from the global registry */
-	const html_ = HTML(options)
+	const html_ = HTML()
 	html_.components = html.components
 
 	const [get, set] = weakStore()
@@ -194,11 +182,11 @@ export const htmlEffect = (
 			})
 
 			/**
-			 * It needs to return the result because when used unwrapped and
-			 * nesting (ex calling html twice inside the htmlEffect), the
-			 * second call will use the value of the first call. The result
-			 * is a reference to the nodes created before, so it always use
-			 * the same nodes, and reactivity on these nodes is live.
+			 * It needs to return the result because when nesting (ex
+			 * calling html twice inside the htmlEffect), the second call
+			 * will use the value of the first call. The result is a
+			 * reference to the nodes created before, so it always use the
+			 * same nodes, and reactivity on these nodes is live.
 			 *
 			 * ```js
 			 * htmlEffect(html => {
@@ -257,18 +245,16 @@ export const htmlEffect = (
 	 * change. It cause re-runs of what we are batching above.
 	 */
 
-	const update = () => fn(_html)
-
 	let result
 
 	syncEffect(() => {
-		result = update()
+		result = fn(_html)
 	})
 
 	/** Dispose the effect when whatever started it is disposed. */
 	cleanup(() => call(disposeHTMLEffect))
 
-	return options.updateTrigger ? [result, update] : result
+	return result
 }
 
 export const html = HTML()
