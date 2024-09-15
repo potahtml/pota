@@ -1,7 +1,7 @@
 import { isString, noop, resolved } from '../lib/std.js'
 
 export const dashesToCamelCase = s =>
-	s.replace(/-([a-z])/g, g => g[1].toUpperCase())
+	s.replace(/-([a-z0-9])/g, g => g[1].toUpperCase())
 
 export const capitalizeFirstLetter = string =>
 	string.charAt(0).toUpperCase() + string.slice(1)
