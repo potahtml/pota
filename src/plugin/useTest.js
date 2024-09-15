@@ -39,7 +39,7 @@ export function expect(title, num, value) {
 	const test = {
 		toBe: (equals, expected) =>
 			pass(expected, value, equals, title + ' (' + num.value++ + ')'),
-		toBeLike: (equals, expected) =>
+		toEqual: (equals, expected) =>
 			untrack(() =>
 				pass(
 					stringifySorted(expected),
