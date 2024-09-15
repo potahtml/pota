@@ -20,13 +20,13 @@ export const label = string =>
 	string.replace(/[-_]/g, ' ').replace(/\s+/g, ' ')
 
 export const short = (string = '') =>
-	string.length > 40 ? string.substr(0, 40) + '…' : string
+	string.length > 40 ? string.slice(0, 40) + '…' : string
 
 export const ensureString = s => String(s || '')
 
 export const toString = (s, length = 0) =>
 	length
-		? ensureString(s).trim().substring(0, length).trim()
+		? ensureString(s).trim().slice(0, length).trim()
 		: ensureString(s).trim()
 
 export function validateEmail(s) {
