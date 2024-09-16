@@ -7,10 +7,10 @@ export function validatePartial(path, html) {
 	// partial validation
 	const clean = html
 		// remove content that isnt in between tags
-		.replace(/^([^<]+)/, '')
-		.replace(/([^>]+)$/, '')
+		.replace(/^[^<]+/, '#text')
+		.replace(/[^>]+$/, '#text')
 		// remove content in between tags
-		.replace(/>([^<]+)</gi, '><')
+		.replace(/>[^<]+</gi, '>#text<')
 
 		// remove attributes
 		.replace(/<([a-z0-9-]+)\s+[^>]+>/gi, '<$1>')
