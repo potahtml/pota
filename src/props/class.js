@@ -5,12 +5,11 @@ import {
 	classListAdd,
 	classListRemove,
 	isFunction,
-	isObject,
 	isString,
 } from '../lib/std.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {object | string | ArrayLike<any>} value
  * @param {object} props
@@ -21,7 +20,7 @@ export const setClass = (node, name, value, props) =>
 		: setClassList(node, value)
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {object | string | ArrayLike<any>} value
  * @param {object} props
@@ -41,7 +40,7 @@ export const setClassNS = (
 		: setClassList(node, value)
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {object | string | ArrayLike<any>} value
  */
 function setClassList(node, value) {
@@ -66,7 +65,7 @@ function setClassList(node, value) {
 	}
 }
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  */
@@ -80,7 +79,7 @@ const setClassListValue = (node, name, value) =>
 	})
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  */

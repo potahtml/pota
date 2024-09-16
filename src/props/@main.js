@@ -104,7 +104,7 @@ propsPluginNS('class', setClassNS, false)
 /**
  * Assigns props to an Element
  *
- * @param {Elements} node - Element to which assign props
+ * @param {Element} node - Element to which assign props
  * @param {object} props - Props to assign
  * @param {number} [isCustomElement] - Is custom element
  */
@@ -121,7 +121,7 @@ export function assignProps(node, props, isCustomElement) {
 /**
  * Assigns a prop to an Element
  *
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {any} value
  * @param {object} props

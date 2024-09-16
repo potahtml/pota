@@ -20,7 +20,7 @@ import { propsPlugin } from '../props/plugin.js'
 export const bind = value => signalFunction(value)
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {Function} value
  * @param {object} props

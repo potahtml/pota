@@ -8,8 +8,9 @@ import { CustomElement, customElement } from './CustomElement.js'
  * Similar to `Show`, but doesn't remove its children from the
  * document
  *
+ * @template T
  * @param {{
- * 	when: When
+ * 	when: When<T>
  * 	children?: Children
  * }} props
  * @returns {Children}
@@ -26,7 +27,10 @@ export function Collapse(props) {
 			`,
 		]
 
-		/** @param {When} value - To toggle children */
+		/**
+		 * @template T
+		 * @param {When<T>} value - To toggle children
+		 */
 		set when(value) {
 			withValue(value, value => (this.html = value ? '<slot/>' : ''))
 		}

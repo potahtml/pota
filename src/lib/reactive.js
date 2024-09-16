@@ -425,7 +425,7 @@ class Signal {
  * Creates a new root
  *
  * @param {(dispose: Function) => any} fn
- * @param {OwnerOptions} options
+ * @param {object} [options]
  * @returns {any}
  */
 export function root(fn, options = undefined) {
@@ -464,7 +464,7 @@ export function root(fn, options = undefined) {
  * Creates an effect
  *
  * @param {Function} fn
- * @param {OwnerOptions} options
+ * @param {object} [options]
  */
 export function effect(fn, options = undefined) {
 	new Effect(Owner, fn, options)
@@ -475,7 +475,7 @@ export function effect(fn, options = undefined) {
  *
  * @param {Function} depend - Function that causes tracking
  * @param {Function} fn - Function that wont cause tracking
- * @param {OwnerOptions} options
+ * @param {object} [options]
  */
 export function on(depend, fn, options = undefined) {
 	effect(() => {
@@ -488,7 +488,7 @@ export function on(depend, fn, options = undefined) {
  * Creates a syncEffect
  *
  * @param {Function} fn
- * @param {OwnerOptions} options
+ * @param {object} [options]
  */
 export function syncEffect(fn, options = undefined) {
 	return new SyncEffect(Owner, fn, options)
@@ -498,9 +498,10 @@ export function syncEffect(fn, options = undefined) {
  * Creates a read-only signal from the return value of a function that
  * automatically updates
  *
- * @param {Function} fn - Function to re-run when dependencies change
+ * @template T
+ * @param {() => T} fn - Function to re-run when dependencies change
  * @param {SignalOptions} [options]
- * @returns {SignalAccessor} - Read only signal
+ * @returns {SignalAccessor<T>} - Read only signal
  */
 
 /* #__NO_SIDE_EFFECTS__ */ export function memo(
@@ -1004,7 +1005,8 @@ export const microtask = fn => queueMicrotask(owned(fn))
 /**
  * Reactive Map
  *
- * @param {Each} list
+ * @template T
+ * @param {Each<T>} list
  * @param {Function} callback
  * @param {boolean} sort
  */
@@ -1365,7 +1367,7 @@ export function getValueComponent(value) {
 /**
  * Adds an event listener to a node
  *
- * @param {Elements} node - Element to add the event listener
+ * @param {Element} node - Element to add the event listener
  * @param {(keyof WindowEventMap & keyof GlobalEventHandlersEventMap)
  * 	| string} type
  *   - The name of the event listener
@@ -1401,7 +1403,7 @@ export function addEventListener(node, type, handler) {
 /**
  * Removes an event listener from a node
  *
- * @param {Elements} node - Element to add the event listener
+ * @param {Element} node - Element to add the event listener
  * @param {(keyof WindowEventMap & keyof GlobalEventHandlersEventMap)
  * 	| string} type
  *   - The name of the event listener

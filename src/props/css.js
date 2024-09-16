@@ -9,7 +9,7 @@ import {
 import { randomId } from '../plugin/useRandom.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {string} value
  * @param {object} props
@@ -18,7 +18,7 @@ export const setCSS = (node, name, value, props) =>
 	setNodeCSS(node, value)
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} value
  */
 const setNodeCSS = withState((state, node, value) => {

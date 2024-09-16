@@ -2,7 +2,7 @@ import { withValue } from '../lib/reactive.js'
 import { isNullUndefined } from '../lib/std.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -19,7 +19,7 @@ export const setPropertyNS = (
 ) => setProperty(node, localName, value)
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @url https://pota.quack.uy/props/setProperty
@@ -28,7 +28,7 @@ export const setProperty = (node, name, value) =>
 	withValue(value, value => _setProperty(node, name, value))
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  */

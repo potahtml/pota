@@ -4,7 +4,7 @@ import { withValue } from '../lib/reactive.js'
 import { getValue, isNullUndefined, isObject } from '../lib/std.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -14,7 +14,7 @@ export const setStyle = (node, name, value, props) =>
 	setNodeStyle(node.style, value)
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -28,7 +28,7 @@ export const setStyleNS = (node, name, value, props, localName, ns) =>
 	)
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -62,7 +62,7 @@ function setNodeStyle(style, value) {
 }
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  */

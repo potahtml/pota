@@ -58,8 +58,8 @@ const useXMLNS = context()
 // COMPONENTS
 
 /**
- * Used by the regular JSX transform, as <>...</> or
- * <Fragment>...</Fragment>.
+ * Used by the regular JSX transform, as `<>...</>` or
+ * `<Fragment>...</Fragment>`.
  */
 export const Fragment = props => props.children
 
@@ -99,7 +99,8 @@ export function Component(value, props) {
 /**
  * Creates a component that could be called with a props object
  *
- * @param {Componenteable} value
+ * @template T
+ * @param {any} value
  * @returns {Component}
  */
 
@@ -176,9 +177,10 @@ function createAnything(value, props) {
 /**
  * Creates a x/html element from a tagName
  *
- * @param {string} tagName
- * @param {Props} props
- * @returns {Elements} Element
+ * @template P
+ * @param {TagNames} tagName
+ * @param {P} props
+ * @returns {Element} Element
  */
 function createTag(tagName, props) {
 	/**
@@ -297,9 +299,10 @@ function assignPartialProps(node, props, propsAt, elementData) {
 /**
  * Assigns props to an element and creates its children
  *
- * @param {Elements} node
- * @param {Props} props
- * @returns {Elements} Element
+ * @template P
+ * @param {Element} node
+ * @param {P} props
+ * @returns {Element} Element
  */
 function createNode(node, props) {
 	if (props) {
@@ -311,7 +314,7 @@ function createNode(node, props) {
 /**
  * Creates the children for a parent
  *
- * @param {Elements} parent
+ * @param {Element} parent
  * @param {Children} child
  * @param {boolean} [relative]
  * @param {Text | undefined} [prev]
@@ -382,10 +385,9 @@ function createChildren(parent, child, relative, prev = undefined) {
 			// maybe a signal so needs an effect
 
 			effect(() => {
-				node = toDiff(
-					node,
+				node = toDiff(node, [
 					createChildren(parent, child(), true, node[0]),
-				)
+				])
 			})
 
 			cleanup(() => {
@@ -512,10 +514,10 @@ propsPlugin(
 /**
  * Creates placeholder to keep nodes in position
  *
- * @param {Elements} parent
+ * @param {Element} parent
  * @param {unknown} text
  * @param {boolean} [relative]
- * @returns {Elements}
+ * @returns {Element}
  */
 const createPlaceholder = (parent, text, relative) => {
 	return insertNode(parent, createTextNode(''), relative)
@@ -535,10 +537,13 @@ const head = document.head
 /**
  * Adds the element to the document
  *
- * @param {Elements} parent
- * @param {Elements} node
+ * @param {Element} parent
+ * @param {Element &
+ * 	HTMLTitleElement &
+ * 	HTMLMetaElement &
+ * 	HTMLLinkElement} node
  * @param {boolean} [relative]
- * @returns {Elements}
+ * @returns {Element}
  */
 
 function insertNode(parent, node, relative) {
@@ -584,7 +589,7 @@ function insertNode(parent, node, relative) {
  * Inserts children into a parent
  *
  * @param {any} children - Thing to render
- * @param {Elements | undefined} [parent] - Mount point, defaults to
+ * @param {Element | null} [parent] - Mount point, defaults to
  *   document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
@@ -605,7 +610,7 @@ export function render(children, parent, options = nothing) {
 
 /**
  * @param {any} children - Thing to render
- * @param {Elements} [parent] - Mount point, defaults to
+ * @param {Element | null} [parent] - Mount point, defaults to
  *   `document.body`
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
@@ -663,14 +668,14 @@ export function toHTMLFragment(children) {
  * Creates a context and returns a function to get or set the value
  *
  * @param {any} [defaultValue] - Default value for the context
- * @returns {Function & { Provider: ({ value }) => Elements }}
+ * @returns {Function & { Provider: ({ value }) => Children }}
  *   Context
  * @url https://pota.quack.uy/Reactivity/Context
  */
 /* #__NO_SIDE_EFFECTS__ */ export function context(
 	defaultValue = undefined,
 ) {
-	/** @type {Function & { Provider: ({ value }) => Elements }} */
+	/** @type {Function & { Provider: ({ value }) => Children }} */
 	const ctx = Context(defaultValue)
 
 	/**
@@ -691,12 +696,12 @@ export function toHTMLFragment(children) {
 /**
  * Removes from the DOM `prev` elements not found on `next`
  *
- * @param {Elements[]} [prev] - Array with previous elements
- * @param {Elements[]} [next] - Array with next elements
- * @returns {Elements[]}
+ * @param {Element[]} prev - Array with previous elements
+ * @param {Element[]} next - Array with next elements
+ * @returns {Element[]}
  */
 function toDiff(prev = [], next = []) {
-	next = isArray(next) ? next.flat(Infinity) : [next]
+	next = next.flat(Infinity)
 	for (let i = 0, item; i < prev.length; i++) {
 		item = prev[i]
 		item &&

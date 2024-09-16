@@ -7,7 +7,7 @@ import { propsPlugin } from '../props/plugin.js'
 import { toggleFullscreen } from './useFullscreen.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} propName
  * @param {Function} propValue
  * @param {object} props

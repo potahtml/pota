@@ -1,11 +1,10 @@
-
 CONSIDER ALWAYS
 
 - KEEP THE CODE READABLE, DO NOT COMPLICATE IT TOO MUCH
 - CONSISTENCY ABOVE ALL
 - SLOW AND SIMPLE IS BETTER THAN FAST AND HARD TO UNDERSTSAND
 
-todo
+some day
 
 	documentation
 	- light theme
@@ -16,11 +15,26 @@ todo
 
 	playground
 	- LSP figure out how to use https://github.com/bigmistqke/repl
+	- playground is broken
 
-some day
+	stuff
+	- assign/overwrite/patch/whatever
+
+	tools
+	- rethink the dev tools
+	- finish the mpa-archive for generation
+	- mdx
+
+	tests
+	- tests - automated live tests on website
+	- tests - node tests (make it work in node as is)
 
 	classList
 	- the name of the class is not reactive
+
+	transform
+	- validate partial
+	- refactor
 
 	mount
 	- support mount points as a selector, maybe not
@@ -29,7 +43,9 @@ some day
 	- provide fallback for collapse
 	- provide fallback for For
 	- switch expects children to be an array
-	- make the `path` reactive on Router
+	- router
+	- - make the `path` reactive
+	- - take the path from the filename
 
 	review
 	- show gives the memo a signal instead of the value
@@ -50,9 +66,11 @@ some day
 	- simplify the classes
 
 	probably never
+	- animationFrame
 	- animations
 	- audio
 	- color picker
+	- colors library
 	- debugging!
 	- drag element
 	- emitter
@@ -61,16 +79,17 @@ some day
 	- forms
 	- input, keyboard + mouse + controller
 	- linkify
+	- on-element-drag.js
 	- performance
+	- record audio, video
+	- socket webrtc
+	- sockets
 	- storage
 	- timer
 	- tooltip
+	- uploads
+	- web components slots
 	- web components WIP
 
-bench
-
-	 103 10k
-	 13 10k
-	 10 1k
-	 1 1k
-
+	bench
+	- 10k 103 - 10k 13 - 1k 10 - 1k 1

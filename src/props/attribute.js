@@ -6,7 +6,7 @@ import { NS } from '../constants.js'
 // NODE ATTRIBUTES
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -23,7 +23,7 @@ export const setAttributeNS = (
 ) => setAttribute(node, localName, value)
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {string} [ns]
@@ -33,9 +33,9 @@ export const setAttribute = (node, name, value, ns) =>
 	withValue(value, value => _setAttribute(node, name, value, ns))
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
- * @param {unknown} value
+ * @param {string} value
  * @param {string} [ns]
  */
 export function _setAttribute(node, name, value, ns) {

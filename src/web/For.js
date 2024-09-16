@@ -11,8 +11,9 @@ import { onFixes } from '../scheduler.js'
  * Renders reactive values from an signal that returns an Iterable
  * object
  *
+ * @template T
  * @param {object} props
- * @param {Each} props.each
+ * @param {Each<T>} props.each
  * @param {boolean} [props.restoreFocus] - If the focused element
  *   moves it may lose focus
  * @param {Children} [props.children]

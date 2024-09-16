@@ -5,8 +5,9 @@ import { getValue, isNullUndefined } from '../lib/std.js'
 /**
  * Renders its children based on a condition
  *
+ * @template T
  * @param {object} props
- * @param {When} props.when
+ * @param {When<T>} props.when
  * @param {Children} [props.fallback]
  * @param {Children} [props.children]
  * @returns {Children}

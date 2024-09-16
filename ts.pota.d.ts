@@ -1,8 +1,4 @@
-/** sorry, bit messy slowly improving */
-
 // signal
-
-type Signal = () => any
 
 type SignalAccessor<out T> = () => T
 
@@ -11,6 +7,11 @@ type SignalSetter<in T> = (newSignalValue?: T) => SignalChanged
 type SignalUpdate<T> = {
   (newSignalValue?: T): SignalChanged
   (fn: (prevSignalValue: T) => T): SignalChanged
+}
+
+type SignalFunction<T> = {
+  (): T
+  (newValue: T): SignalChanged
 }
 
 type SignalObject<T> = [
@@ -31,48 +32,23 @@ type SignalOptions =
 
 type SignalChanged = true | false
 
-type SignalFunction<T> = {
-  (): T
-  (newValue: T): SignalChanged
-}
-
 // props
 
-type Props = {
-  [key: PropertyKey]: any
-}
+type When<T> = SignalAccessor<T> | boolean
 
-type When = Signal | boolean | any
-
-type Each =
-  | Signal
-  | (() => Each)
-  | unknown[]
-  | Map<unknown, unknown>
-  | Set<unknown>
+type Each<T> = SignalAccessor<T> | Iterable<T>
 
 // components
 
-type Elements =
-  | ((HTMLElement | Element | Node) & EventTarget)
-  | null
-  | undefined
-  | Window
-  | typeof globalThis
-  | HTMLElement
-  | Node
-  | Element
+type Component = (props?) => Children
 
-type Children = any
+type Children = JSX.Element
 
-type Component = ((props?: Props) => Children) | Function
-
-type Componenteable =
-  | string
-  | Elements
-  | object
-  | FunctionConstructor
-  | Component
+type TagNames =
+  | keyof HTMLElementTagNameMap
+  | keyof SVGElementTagNameMap
+  | keyof MathMLElementTagNameMap
+  | keyof HTMLElementDeprecatedTagNameMap
 
 // tests
 

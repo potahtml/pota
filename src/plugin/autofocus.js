@@ -3,7 +3,7 @@
 import { propsPlugin } from '../props/plugin.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} propName
  * @param {Function} propValue
  * @param {object} props

@@ -7,7 +7,7 @@ import { addEventListener } from '../lib/reactive.js'
 import { propsPlugin } from '../props/plugin.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {Function} value
  * @param {object} props

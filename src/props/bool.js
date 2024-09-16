@@ -3,7 +3,7 @@
 import { withValue } from '../lib/reactive.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {object} props
@@ -14,7 +14,7 @@ export const setBoolNS = (node, name, value, props, localName, ns) =>
 	setBool(node, localName, value)
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @url https://pota.quack.uy/props/setBool
@@ -23,7 +23,7 @@ export const setBool = (node, name, value) =>
 	withValue(value, value => _setBool(node, name, value))
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  */

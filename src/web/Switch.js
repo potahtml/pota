@@ -36,8 +36,9 @@ export function Switch(props) {
 /**
  * Renders the content if the `when` condition is true
  *
+ * @template T
  * @param {object} props
- * @param {When} props.when
+ * @param {When<T>} props.when
  * @param {Children} [props.children]
  * @returns {Children}
  */

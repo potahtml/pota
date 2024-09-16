@@ -71,8 +71,6 @@ const parseHTML = withState(
  */
 
 export function HTML() {
-	const components = { ...defaultRegistry }
-
 	/**
 	 * Creates tagged template components
 	 *
@@ -119,7 +117,10 @@ export function HTML() {
 					props.children = flat(toArray(node.childNodes).map(nodes))
 				}
 
-				return Component(components[localName] || localName, props)
+				return Component(
+					html.components[localName] || localName,
+					props,
+				)
 			} else {
 				return node.cloneNode()
 			}
@@ -128,11 +129,11 @@ export function HTML() {
 		return flat(toArray(cached.childNodes).map(nodes))
 	}
 
-	html.components = components
+	html.components = { ...defaultRegistry }
 	html.define = userComponents => {
 		let name
 		for (name in userComponents) {
-			components[name.toLowerCase()] = userComponents[name]
+			html.components[name.toLowerCase()] = userComponents[name]
 		}
 	}
 
@@ -144,15 +145,15 @@ export function HTML() {
  * interpolated values, or to the reactivity used in the body of the
  * function you pass.
  *
- * @param {(html) => any} fn - Function to run as an effect. It
- *   receives `html` argument for template creation.
+ * @param {(html: Function) => Children} fn - Function to run as an
+ *   effect. It receives `html` argument for template creation.
  * @returns {Children}
  * @url https://pota.quack.uy/HTML
  */
 export const htmlEffect = fn => {
 	/** Copy the components from the global registry */
 	const html_ = HTML()
-	html_.components = html.components
+	html_.components = { ...html.components }
 
 	const [get, set] = weakStore()
 

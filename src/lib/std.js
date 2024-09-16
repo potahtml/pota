@@ -294,7 +294,7 @@ export const walkElements = withState(
 /**
  * Returns `document` for element. That could be a `shadowRoot`
  *
- * @param {Elements} node
+ * @param {Element} node
  * @returns {Document | ShadowRoot}
  */
 
@@ -366,7 +366,7 @@ export const identity = x => x
  *
  * @param {object} target
  * @param {PropertyKey} key
- * @param {any} value
+ * @param {boolean | undefined} value
  */
 export const isConfigurable = (target, key, value) => {
 	if (isObject(value)) {
@@ -430,7 +430,7 @@ export const morphedBetweenArrayAndObject = (a, b) =>
  * Returns `true` if the property is defined in the `prototype` and
  * absent in the `object`
  *
- * @param {{}} target
+ * @param {object} target
  * @param {PropertyKey} key
  */
 export const isPrototypeProperty = (target, key) =>
@@ -472,7 +472,11 @@ export const isBoolean = value => typeof value === 'boolean'
 
 export const noop = () => {}
 
-/** An empty frozen object */
+/**
+ * An empty frozen object
+ *
+ * @type object
+ */
 export const nothing = freeze(empty())
 
 // an optional value is `true` by default, so most of the time is undefined which means is `true`
@@ -520,9 +524,10 @@ export const {
 /**
  * Removes a value from an array
  *
- * @param {any[]} array
- * @param {any} value To remove from the array
- * @returns {any[]}
+ * @template T
+ * @param {T[]} array
+ * @param {T} value To remove from the array
+ * @returns {T[]}
  */
 export function removeFromArray(array, value) {
 	const index = array.indexOf(value)
@@ -534,7 +539,7 @@ export function removeFromArray(array, value) {
  *
  * @template T
  * @param {T[]} array
- * @param {(T: any, index: number) => boolean} cb Function with
+ * @param {(value: T, index: number) => boolean} cb Function with
  *   condition
  */
 export function removeFromArrayConditionally(array, cb) {
@@ -750,7 +755,7 @@ export const addStyleSheetExternal = withState(
 /**
  * Swaps classNames and waits for the animation to end
  *
- * @param {HTMLElement} element
+ * @param {Element} element
  * @param {string} oldClass - `class` with the old animation
  * @param {string} newClass - `class` with the new animation
  */
@@ -768,7 +773,7 @@ export const animateClassTo = (element, oldClass, newClass) =>
 /**
  * Swaps parts and waits for the animation to end
  *
- * @param {HTMLElement} element
+ * @param {Element} element
  * @param {string} oldPart - `part` with the old animation
  * @param {string} newPart - `part` with the new animation
  */
@@ -814,7 +819,7 @@ export const sheet = withState((cache, css) =>
 )
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} eventName
  * @param {any} [data]
  */
@@ -839,7 +844,7 @@ export const stopImmediatePropagation = e =>
 /**
  * Waits for an event to be dispatched and runs a callback
  *
- * @param {HTMLElement} element
+ * @param {Element} element
  * @param {string} eventName
  */
 export const waitEvent = withState(

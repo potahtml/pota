@@ -17,6 +17,7 @@ import { scroll } from './scroll.js'
 /**
  * Renders children if the path matches the current location
  *
+ * @template T
  * @param {object} props
  * @param {string} [props.path] - Path to match relative to the parent
  *   Route. When `path` is missing, it will render only when the
@@ -25,9 +26,9 @@ import { scroll } from './scroll.js'
  *   route matches
  * @param {object} [props.params] - Key-value pairs params to encode
  *   and replace on the path
- * @param {When} [props.collapse] - To hide the route instead of
+ * @param {When<T>} [props.collapse] - To hide the route instead of
  *   removing it from the document
- * @param {When} [props.when] - To stop rendering the route even if
+ * @param {When<T>} [props.when] - To stop rendering the route even if
  *   the path matches.
  * @param {Children} [props.fallback] - Fallback for when a `when`
  *   condition is set. If the `when` condition is not set, this wont

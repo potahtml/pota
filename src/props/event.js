@@ -2,7 +2,7 @@ import { addEventListener } from '../lib/reactive.js'
 import { window, withState } from '../lib/std.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {EventListenerOrEventListenerObject} value
  * @param {object} props

@@ -5,6 +5,7 @@ import { empty, keys } from '../lib/std.js'
 /**
  * Split an object into multiple sub objects
  *
+ * @template Props
  * @param {Props} props
  * @param {...string[]} args
  * @returns {Props[]} - Array of objects

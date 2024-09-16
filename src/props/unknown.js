@@ -7,7 +7,7 @@ import { _setAttribute } from './attribute.js'
 import { _setProperty } from './property.js'
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {string} [ns]
@@ -16,7 +16,7 @@ export const setUnknownProp = (node, name, value, ns) =>
 	withValue(value, value => _setUnknownProp(node, name, value, ns))
 
 /**
- * @param {Elements} node
+ * @param {Element} node
  * @param {string} name
  * @param {unknown} value
  * @param {string} [ns]
