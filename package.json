@@ -68,6 +68,7 @@
   },
   "dependencies": {
     "@babel/plugin-syntax-jsx": "^7.24.7",
+    "jsdom": "^25.0.0",
     "validate-html-nesting": "^1.2.2"
   },
   "peerDependencies": {

@@ -17,6 +17,7 @@ import { isVoidElement, validateChildrenHTML } from './html.js'
 import { merge, mergeToTag } from './merge.js'
 import { buildProps } from './props.js'
 import { getTagName } from './tag.js'
+import { validatePartial } from './validate.js'
 
 /** Builds partial from jsx */
 export function buildPartial(path, state) {
@@ -226,6 +227,8 @@ export function partialMerge(path, state) {
 	// de-duplicates and hoist calls to partials
 
 	if (!pota.partials[partial]) {
+		validatePartial(path, partial)
+
 		// identifier
 
 		pota.partials[partial] = scope.generateUidIdentifier(node.tagName)
