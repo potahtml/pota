@@ -1,7 +1,8 @@
 import terser from '@rollup/plugin-terser'
 
+/** Transforms the babel-plugin from es to cjs */
+
 export default [
-	// babel plugin cjs
 	{
 		input: './index.js',
 		plugins: [terser()],
@@ -18,6 +19,7 @@ export default [
 			'@babel/helper-plugin-utils',
 			'@babel/plugin-syntax-jsx',
 			'validate-html-nesting',
+			'jsdom',
 		],
 	},
 ]

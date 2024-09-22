@@ -24,7 +24,7 @@
  * `"presets": [["pota/babel-preset", { "development": true }]]`
  */
 
-/** This file is compiled with rollup to ./plugin.cjs */
+/** This file is compiled with rollup to ./index.cjs */
 
 import createPlugin from './transform/@main.js'
 
