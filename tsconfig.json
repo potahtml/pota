@@ -20,5 +20,5 @@
 
     "sourceMap": true
   },
-  "include": ["src", "ts.jsx.d.ts", "ts.pota.d.ts"]
+  "include": ["src", "jsx.d.ts", "pota.d.ts"]
 }

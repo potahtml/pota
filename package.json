@@ -13,20 +13,18 @@
   "// Using 'typesVersions' here is the only way we could figure out how to get types working for imports of any subpath without any of the problems other approaches have when not using modeResolution:NodeNext (listed in https://stackoverflow.com/questions/77856692/how-to-publish-plain-jsjsdoc-library-for-typescript-consumers)": "",
   "typesVersions": {
     "*": {
-      "src/*": [
-        "types/*"
-      ]
+      "src/*": ["types/*"]
     }
   },
   "// These exports require moduleResolution:NodeNext to be enabled in the consumer.": "",
   "exports": {
     "./babel-preset": "./babel-preset/index.cjs",
     "./jsx-runtime": {
-      "types": "./ts.jsx.d.ts",
+      "types": "./jsx.d.ts",
       "default": "./src/jsx-runtime.js"
     },
     "./jsx-dev-runtime": {
-      "types": "./ts.jsx.d.ts",
+      "types": "./jsx.d.ts",
       "default": "./src/jsx-runtime.js"
     },
     "./html": {
@@ -47,11 +45,7 @@
       "default": "./src/lib/*.js"
     },
     ".": {
-      "types": [
-        "./types/@main.d.ts",
-        "./ts.jsx.d.ts",
-        "./ts.pota.d.ts"
-      ],
+      "types": "./types/@main.d.ts",
       "default": "./src/@main.js"
     },
     "./src/*": {
@@ -70,6 +64,7 @@
   },
   "dependencies": {
     "@babel/plugin-syntax-jsx": "^7.24.7",
+    "csstype": "^3.1.3",
     "jsdom": "^25.0.0",
     "validate-html-nesting": "^1.2.2"
   },

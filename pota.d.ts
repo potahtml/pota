@@ -40,15 +40,9 @@ type Each<T> = SignalAccessor<T> | Iterable<T>
 
 // components
 
-type Component = (props?) => Children
+type Component = import('./jsx.d.ts').JSX.ElementType
 
-type Children = JSX.Element
-
-type TagNames =
-  | keyof HTMLElementTagNameMap
-  | keyof SVGElementTagNameMap
-  | keyof MathMLElementTagNameMap
-  | keyof HTMLElementDeprecatedTagNameMap
+type Children = import('./jsx.d.ts').JSX.Element
 
 // tests
 

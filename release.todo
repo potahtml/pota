@@ -6,19 +6,18 @@ CONSIDER ALWAYS
 
 some day
 
+	stuff
+	- do not commit the transform compiled, build it at install
+	- assign/overwrite/patch
+	- typings
+
 	documentation
 	- light theme
 	- improve it
 
-	miscellaneous
-	- typings
-
 	playground
-	- LSP figure out how to use https://github.com/bigmistqke/repl
 	- playground is broken
-
-	stuff
-	- assign/overwrite/patch/whatever
+	- LSP figure out how to use https://github.com/bigmistqke/repl
 
 	tools
 	- rethink the dev tools

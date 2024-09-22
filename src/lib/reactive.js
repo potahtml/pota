@@ -448,15 +448,13 @@ export function root(fn, options = undefined) {
 /**
  * Creates a signal
  *
- * @template T
+ * @template const T
  * @param {T} [initialValue] - Initial value of the signal
  * @param {SignalOptions} [options] - Signal options
  * @returns {SignalObject<T>}
  */
-/* #__NO_SIDE_EFFECTS__ */ export function signal(
-	initialValue,
-	options = undefined,
-) {
+/* #__NO_SIDE_EFFECTS__ */
+export function signal(initialValue, options = undefined) {
 	return new Signal(initialValue, options)
 }
 
