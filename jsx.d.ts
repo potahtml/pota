@@ -71,8 +71,29 @@ export namespace JSX {
 
 	// explicit attributes/properties
 
+	/**
+	 * Bypass attribute vs property heuristics.
+	 *
+	 * ```html
+	 * <my-element prop:myFoo="bar" />
+	 * ```
+	 */
 	interface ExplicitProperties {}
+	/**
+	 * Bypass attribute vs property heuristics.
+	 *
+	 * ```html
+	 * <my-element attr:foo="bar" />
+	 * ```
+	 */
 	interface ExplicitAttributes {}
+	/**
+	 * Bypass attribute vs property heuristics.
+	 *
+	 * ```html
+	 * <my-element bool:foo="{true}" />
+	 * ```
+	 */
 	interface ExplicitBooleans {}
 
 	// all elements
@@ -90,8 +111,11 @@ export namespace JSX {
 
 	// attributes
 
+	/** To add attributes to all HTML elements */
 	interface IntrinsicHTMLAttributes {}
+	/** To add attributes to all SVG elements */
 	interface IntrinsicSVGAttributes {}
+	/** To add attributes to all MathML elements */
 	interface IntrinsicMathMLAttributes {}
 
 	/*
