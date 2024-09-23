@@ -88,6 +88,12 @@ export namespace JSX {
 		[elementName: string]: any // catch-all
 	}
 
+	// attributes
+
+	interface IntrinsicHTMLAttributes {}
+	interface IntrinsicSVGAttributes {}
+	interface IntrinsicMathMLAttributes {}
+
 	/*
 		JSX.IntrinsicClassAttributes // class attributes
 		JSX.IntrinsicElements // tags
@@ -96,6 +102,12 @@ export namespace JSX {
 }
 
 /* CORE */
+
+interface IntrinsicHTMLAttributes
+	extends JSX.IntrinsicHTMLAttributes {}
+interface IntrinsicSVGAttributes extends JSX.IntrinsicSVGAttributes {}
+interface IntrinsicMathMLAttributes
+	extends JSX.IntrinsicMathMLAttributes {}
 
 interface PotaAttributes<Element> {
 	children?: JSX.Element
@@ -173,7 +185,8 @@ type HTMLAttributes<Element, Attributes, Events> =
 		NSAttributes &
 		AccessorMap<DOMHTMLAttributes> &
 		AccessorMap<AriaAttributes> &
-		AccessorMap<Attributes>
+		AccessorMap<Attributes> &
+		IntrinsicHTMLAttributes
 
 type SVGAttributes<Element, Attributes, Events> = FallbackAttributes &
 	PotaAttributes<Element> &
@@ -182,7 +195,8 @@ type SVGAttributes<Element, Attributes, Events> = FallbackAttributes &
 	NSAttributes &
 	AccessorMap<DOMSVGAttributes> &
 	AccessorMap<AriaAttributes> &
-	AccessorMap<Attributes>
+	AccessorMap<Attributes> &
+	IntrinsicSVGAttributes
 
 type MathMLAttributes<Element, Attributes, Events> =
 	FallbackAttributes &
@@ -192,7 +206,8 @@ type MathMLAttributes<Element, Attributes, Events> =
 		NSAttributes &
 		AccessorMap<DOMMathMLAttributes> &
 		AccessorMap<AriaAttributes> &
-		AccessorMap<Attributes>
+		AccessorMap<Attributes> &
+		IntrinsicMathMLAttributes
 
 /** DOM */
 
