@@ -1,7 +1,25 @@
-import { JSDOM } from 'jsdom'
 import { error } from './utils.js'
 
-const Element = new JSDOM(`<!DOCTYPE html>`).window.document.body
+// import parse5 from 'parse5'
+import parse5 from 'parse5'
+
+const bodyElement = parse5.parse(
+	`<!DOCTYPE html><html><head></head><body></body></html>`,
+	// @ts-ignore
+).childNodes[1].childNodes[1]
+
+function innerHTML(htmlFragment) {
+	/**
+	 * Fragment will be parsed as if it was set to the `bodyElement`'s
+	 * `innerHTML` property.
+	 */
+	const parsedFragment = parse5.parseFragment(
+		bodyElement,
+		htmlFragment,
+	)
+
+	return parse5.serialize(parsedFragment)
+}
 
 export function validatePartial(path, html) {
 	// partial validation
@@ -22,8 +40,7 @@ export function validatePartial(path, html) {
 		.replace(/^<td>/i, '<table><tbody><tr><td>')
 		.replace(/<\/td>$/i, '</td></tr></tbody></table>')
 
-	Element.innerHTML = clean
-	const result = Element.innerHTML
+	const result = innerHTML(clean)
 
 	if (result !== clean) {
 		console.warn('-'.repeat(80))
