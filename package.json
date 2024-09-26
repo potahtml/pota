@@ -13,9 +13,7 @@
   "// Using 'typesVersions' here is the only way we could figure out how to get types working for imports of any subpath without any of the problems other approaches have when not using modeResolution:NodeNext (listed in https://stackoverflow.com/questions/77856692/how-to-publish-plain-jsjsdoc-library-for-typescript-consumers)": "",
   "typesVersions": {
     "*": {
-      "src/*": [
-        "types/*"
-      ]
+      "src/*": ["types/*"]
     }
   },
   "// These exports require moduleResolution:NodeNext to be enabled in the consumer.": "",
@@ -26,36 +24,36 @@
     },
     "./jsx-runtime": {
       "types": "./jsx.d.ts",
-      "default": "./src/jsx-runtime.js"
+      "import": "./src/jsx-runtime.js"
     },
     "./jsx-dev-runtime": {
       "types": "./jsx.d.ts",
-      "default": "./src/jsx-runtime.js"
+      "import": "./src/jsx-runtime.js"
     },
     "./html": {
       "types": "./types/html.d.ts",
-      "default": "./src/html.js"
+      "import": "./src/html.js"
     },
     "./web": {
       "types": "./types/web/@main.d.ts",
-      "default": "./src/web/@main.js"
+      "import": "./src/web/@main.js"
     },
     "./plugin/*": {
       "types": "./types/plugin/*.d.ts",
-      "default": "./src/plugin/*.js"
+      "import": "./src/plugin/*.js"
     },
     "./store/*": null,
     "./*": {
       "types": "./types/lib/*.d.ts",
-      "default": "./src/lib/*.js"
+      "import": "./src/lib/*.js"
     },
     ".": {
       "types": "./types/@main.d.ts",
-      "default": "./src/@main.js"
+      "import": "./src/@main.js"
     },
     "./src/*": {
       "types": "./types/*",
-      "default": "./src/*"
+      "import": "./src/*"
     }
   },
   "scripts": {
