@@ -1,4 +1,5 @@
-import core, { types as t } from '@babel/core'
+import * as core from '@babel/core'
+const t = core.types
 
 import {
 	callFunction,

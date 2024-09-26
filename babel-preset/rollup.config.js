@@ -19,7 +19,7 @@ export default [
 			'@babel/helper-plugin-utils',
 			'@babel/plugin-syntax-jsx',
 			'validate-html-nesting',
-			'jsdom',
+			'parse5',
 		],
 	},
 ]

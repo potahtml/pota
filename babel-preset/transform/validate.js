@@ -1,7 +1,7 @@
 import { error } from './utils.js'
 
 // import parse5 from 'parse5'
-import parse5 from 'parse5'
+import * as parse5 from 'parse5'
 
 const bodyElement = parse5.parse(
 	`<!DOCTYPE html><html><head></head><body></body></html>`,
