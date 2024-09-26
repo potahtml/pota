@@ -13,14 +13,15 @@
   "// Using 'typesVersions' here is the only way we could figure out how to get types working for imports of any subpath without any of the problems other approaches have when not using modeResolution:NodeNext (listed in https://stackoverflow.com/questions/77856692/how-to-publish-plain-jsjsdoc-library-for-typescript-consumers)": "",
   "typesVersions": {
     "*": {
-      "src/*": [
-        "types/*"
-      ]
+      "src/*": ["types/*"]
     }
   },
   "// These exports require moduleResolution:NodeNext to be enabled in the consumer.": "",
   "exports": {
-    "./babel-preset": "./babel-preset/index.cjs",
+    "./babel-preset": {
+      "import": "./babel-preset/index.js",
+      "require": "./babel-preset/index.cjs"
+    },
     "./jsx-runtime": {
       "types": "./jsx.d.ts",
       "default": "./src/jsx-runtime.js"
