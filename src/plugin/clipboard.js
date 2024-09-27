@@ -17,7 +17,7 @@ const clipboard = (node, propName, propValue, props) =>
 	addEventListener(node, 'click', e => {
 		copyToClipboard(
 			isFunction(propValue)
-				? propValue(node)
+				? propValue(e)
 				: propValue !== true
 					? propValue
 					: node.innerText.trim(),
