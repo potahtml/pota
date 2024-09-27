@@ -36,7 +36,7 @@ export const setClassNS = (
 	ns,
 ) =>
 	isFunction(value)
-		? setClassListValue(node, localName, value)
+		? setElementClass(node, localName, value)
 		: setClassList(node, value)
 
 /**
@@ -53,7 +53,7 @@ function setClassList(node, value) {
 		case 'object': {
 			let name
 			for (name in value) {
-				setClassListValue(node, name, value[name])
+				setElementClass(node, name, value[name])
 			}
 			break
 		}
@@ -69,7 +69,7 @@ function setClassList(node, value) {
  * @param {string} name
  * @param {unknown} value
  */
-const setClassListValue = (node, name, value) =>
+export const setElementClass = (node, name, value) =>
 	withPrevValue(value, (value, prev) => {
 		// on initialization do not remove whats not there
 		if (!value && !prev) {

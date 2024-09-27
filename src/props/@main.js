@@ -19,6 +19,7 @@ export { setAttribute } from './attribute.js'
 export { setBool } from './bool.js'
 export { setProperty } from './property.js'
 export { setElementStyle as setStyle } from './style.js'
+export { setElementClass as setClass } from './class.js'
 
 // PLUGINS NS
 

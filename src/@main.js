@@ -60,6 +60,7 @@ export {
 	setBool,
 	setProperty,
 	setStyle,
+	setClass,
 } from './props/@main.js'
 
 export {
@@ -69,3 +70,7 @@ export {
 } from './props/plugin.js'
 
 export { propsSplit } from './props/propsSplit.js'
+
+// std
+
+export { css } from './lib/std.js'
