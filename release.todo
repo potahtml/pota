@@ -16,7 +16,6 @@ some day
 	- improve it
 
 	playground
-	- playground is broken
 	- LSP figure out how to use https://github.com/bigmistqke/repl
 
 	tools
@@ -33,9 +32,6 @@ some day
 
 	transform
 	- refactor
-
-	mount
-	- support mount points as a selector, maybe not
 
 	components
 	- provide fallback for collapse
