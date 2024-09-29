@@ -81,7 +81,7 @@
     "concurrently": "^8.2.2",
     "rimraf": "^5.0.10",
     "rollup": "^4.21.1",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.2"
   },
   "prettier": {
     "printWidth": 70,
