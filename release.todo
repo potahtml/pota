@@ -8,15 +8,16 @@ some day
 
 	stuff
 	- do not commit the transform compiled, build it at install
-	- assign/overwrite/patch
+	- assign/overwrite/patch/diff arrays
 	- typings
 
 	documentation
-	- light theme
 	- improve it
+	- light theme
 
 	playground
 	- LSP figure out how to use https://github.com/bigmistqke/repl
+	- add typescript to the mix
 
 	tools
 	- rethink the dev tools
@@ -79,6 +80,7 @@ some day
 	- socket webrtc
 	- sockets
 	- storage
+	- tabs component
 	- timer
 	- tooltip
 	- uploads
