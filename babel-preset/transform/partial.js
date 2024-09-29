@@ -14,7 +14,11 @@ import {
 	getAttributeLiteral,
 	isAttributeLiteral,
 } from './attributes.js'
-import { isVoidElement, validateChildrenHTML } from './html.js'
+import {
+	escapeHTML,
+	isVoidElement,
+	validateChildrenHTML,
+} from './html.js'
 import { merge, mergeToTag } from './merge.js'
 import { buildProps } from './props.js'
 import { getTagName } from './tag.js'
@@ -36,6 +40,7 @@ export function buildPartial(path, state) {
 	let isCustomElement = tagName.includes('-')
 	let isImportNode = isCustomElement
 	let xmlns = ''
+	let textChildren = ''
 
 	// attributes
 
@@ -51,7 +56,21 @@ export function buildPartial(path, state) {
 		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
 			const name = attr.node.name.name
 
+			/** `isXML` */
+
+			if (name === 'xmlns') {
+				isXML = true
+			}
+
+			/** `isCustomElement` */
+
 			isCustomElement = isCustomElement || name === 'is'
+
+			/**
+			 * Should mark as `importNode`?
+			 *
+			 * @url https://github.com/ryansolid/dom-expressions/pull/349
+			 */
 
 			isImportNode =
 				isImportNode ||
@@ -59,20 +78,30 @@ export function buildPartial(path, state) {
 				((tagName === 'img' || tagName === 'iframe') &&
 					name === 'loading')
 
-			if (name === 'xmlns') {
-				isXML = true
-			}
+			/** Should inline the attribute into the template? */
 
 			if (isAttributeLiteral(attr.node)) {
+				/**
+				 * Skip inlining the `xmlns` attribute in the tag when its a
+				 * literal
+				 */
 				if (name === 'xmlns') {
 					xmlns = getAttributeLiteral(attr.node)
-					/**
-					 * Skip inlining the `xmlns` attribute in the tag when its a
-					 * literal
-					 */
+
 					continue
 				}
 
+				/**
+				 * Do not inline `value` as an attribute when its a `textarea`
+				 *
+				 * @url https://github.com/solidjs/solid/issues/2312
+				 */
+				if (tagName === 'textarea' && name === 'value') {
+					textChildren += getAttributeLiteral(attr.node)
+					continue
+				}
+
+				/** Inline attribute */
 				const value = getAttributeLiteral(attr.node)
 
 				buildAttributeIntoTag(tag, name, value)
@@ -115,6 +144,8 @@ export function buildPartial(path, state) {
 	}
 
 	// children
+
+	tag.content += escapeHTML(textChildren)
 
 	let children = t.react.buildChildren(path.node)
 
