@@ -2,6 +2,11 @@
 
 import { getValue, equals } from './std.js'
 
+/**
+ * This idea: to be used to patch a signal array with data that comes
+ * from a server without losing references to what its already there
+ * avoiding a store
+ */
 export function morphArray(oldData, setData) {
 	return newData => {
 		const fresh = getValue(newData)

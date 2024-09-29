@@ -1,5 +1,5 @@
 import { addEventListener, owned } from '../lib/reactive.js'
-import { isObject } from '../lib/std.js'
+import { getValue, isObject } from '../lib/std.js'
 
 import { eventName } from './event.js'
 
@@ -129,14 +129,17 @@ export function assignProps(node, props, isCustomElement) {
  * @param {number} [isCE]
  */
 export function assignProp(node, name, value, props, isCE) {
+	// unwrap promises
 	if (isObject(value) && 'then' in value) {
 		value.then(
-			owned(value => assignProp(node, name, value, props, isCE)),
+			owned(value =>
+				assignProp(node, name, getValue(value), props, isCE),
+			),
 		)
 		return
 	}
-	// run plugins
 
+	// run plugins
 	let plugin = plugins.get(name)
 	if (plugin) {
 		plugin(node, name, value, props)
