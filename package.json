@@ -1,7 +1,7 @@
 {
   "name": "pota",
   "description": "pota is a small and pluggable Reactive Web Renderer.",
-  "version": "0.14.142",
+  "version": "0.15.142",
   "author": "Tito Bouzout",
   "homepage": "https://pota.quack.uy/",
   "repository": {
@@ -63,8 +63,8 @@
     "watch:build": "cd babel-preset && rollup -c -w",
     "types": "tsc",
     "build": "cd babel-preset && rollup -c",
-    "prepublishOnly": "npm run types || npm run build || echo 1",
-    "update": "npm update --include=dev && npm run dev"
+    "postinstall": "npm run build",
+    "prepublishOnly": "npm run types || echo 1"
   },
   "dependencies": {
     "@babel/plugin-syntax-jsx": "^7.24.7",
