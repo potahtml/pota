@@ -86,14 +86,18 @@ export function Component(value, props) {
 	/** Freeze props so isnt directly writable */
 	freeze(props)
 
-	/**
-	 * Create a callable function to pass `props`. When `props` its not
-	 * defined it allows the user to make a `Factory` of components,
-	 * when `props` its defined the `props` are fixed.
-	 */
+	/** Create a callable function to pass `props` */
+	const component = Factory(value)
+
 	return props === undefined
-		? Factory(value)
-		: markComponent(Factory(value).bind(null, props))
+		? component
+		: markComponent(propsOverride =>
+				component(
+					propsOverride
+						? freeze({ ...props, ...propsOverride })
+						: props,
+				),
+			)
 }
 
 /**
@@ -112,14 +116,12 @@ function Factory(value) {
 	switch (typeof value) {
 		case 'string': {
 			// string component, 'div' becomes <div>
-			value = createTag.bind(null, value)
-			break
+			return markComponent(props => createTag(value, props))
 		}
 		case 'function': {
 			if ($isClass in value) {
 				// class component <MyComponent../>
-				value = createClass.bind(null, value)
-				break
+				return markComponent(props => createClass(value, props))
 			}
 
 			/**
@@ -129,27 +131,22 @@ function Factory(value) {
 			 * ```
 			 */
 			if (isReactive(value)) {
-				value = createAnything.bind(null, value)
-				break
+				return markComponent(() => createAnything(value))
 			}
 
 			// function component <MyComponent../>
 			// value = value
-			break
+			return markComponent(value)
 		}
 		default: {
 			if (value instanceof Node) {
 				// node component <div>
-				value = createNode.bind(null, value)
-				break
+				return markComponent(props => createNode(value, props))
 			}
 
-			value = createAnything.bind(null, value)
-			break
+			return markComponent(() => createAnything(value))
 		}
 	}
-
-	return markComponent(value)
 }
 
 export function createComponent(value) {
@@ -164,13 +161,13 @@ export function createComponent(value) {
 
 function createClass(value, props) {
 	const i = new value()
-	i.ready && ready(i.ready.bind(i))
-	i.cleanup && cleanup(i.cleanup.bind(i))
+	i.ready && ready(() => i.ready())
+	i.cleanup && cleanup(() => i.cleanup())
 
 	return i.render(props)
 }
 
-function createAnything(value, props) {
+function createAnything(value) {
 	return value
 }
 

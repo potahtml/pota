@@ -1006,7 +1006,7 @@ export const microtask = fn => queueMicrotask(owned(fn))
  * @template T
  * @param {Each<T>} list
  * @param {Function} callback
- * @param {boolean} sort
+ * @param {boolean} [sort]
  */
 export function map(list, callback, sort) {
 	const cache = new Map()
