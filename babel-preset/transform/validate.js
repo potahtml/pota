@@ -31,7 +31,7 @@ export function validatePartial(path, html) {
 		.replace(/>[^<]+</gi, '>#text<')
 
 		// remove attributes
-		.replace(/<([a-z0-9-]+)\s+[^>]+>/gi, '<$1>')
+		.replace(/<([a-z0-9-:]+)\s+[^>]+>/gi, '<$1>')
 
 		// fix tables rows
 		.replace(/^<tr>/i, '<table><tbody><tr>')
