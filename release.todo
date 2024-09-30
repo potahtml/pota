@@ -7,7 +7,6 @@ CONSIDER ALWAYS
 some day
 
 	stuff
-	- do not commit the transform compiled, build it at install
 	- assign/overwrite/patch/diff arrays
 	- typings
 

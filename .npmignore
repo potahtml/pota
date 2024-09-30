@@ -1,4 +1,6 @@
 .gitignore
 node_modules
-releases
 release.bat
+release.mjs
+release.todo
+babel-preset/index.cjs
