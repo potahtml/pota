@@ -53,25 +53,36 @@ export function buildComponent(path, state) {
 
 		const binding = scope.getBinding(name)
 		switch (binding?.kind) {
-			case 'module':
-			case 'const':
-			case 'let': {
-				/*
-					fix this error when using const and let:
-
-						var _Lala = createComponent(Lala);
-						const Lala = () => 'lala';
-
-					into
-
-						const Lala = () => 'lala';
-						const _Lala = createComponent(Lala);
-				*/
+			case 'module': {
 				binding.path.parentPath.insertAfter(
 					t.variableDeclaration('const', [
 						t.variableDeclarator(identifier, value),
 					]),
 				)
+				break
+			}
+			case 'const':
+			case 'let': {
+				/*
+					fix this error when using const and let:
+
+						const _Lala = createComponent(Lala);
+						const Lala = () => 'lala';
+
+					also
+
+						const _MyComponent = createComponent(MyComponent);
+						class MyComponent extends Pota {}
+
+				*/
+
+				binding.path
+					.getStatementParent()
+					.insertAfter(
+						t.variableDeclaration('const', [
+							t.variableDeclarator(identifier, value),
+						]),
+					)
 				break
 			}
 			default: {
