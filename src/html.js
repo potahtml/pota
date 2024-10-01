@@ -22,13 +22,32 @@ import { dashesToCamelCase } from './plugin/useString.js'
 
 import { Component } from './renderer.js'
 
-import * as defaultRegistryTemplate from './web/@main.js'
+import {
+	A as RouterA,
+	Collapse,
+	Dynamic,
+	For,
+	Head,
+	Match,
+	Portal,
+	Router,
+	Show,
+	Switch,
+} from './web/@main.js'
 
 const defaultRegistry = fromEntries(
-	entries(defaultRegistryTemplate).map(([k, v]) => [
-		k.toLowerCase(),
-		v,
-	]),
+	entries({
+		RouterA,
+		Collapse,
+		Dynamic,
+		For,
+		Head,
+		Match,
+		Portal,
+		Router,
+		Show,
+		Switch,
+	}).map(([k, v]) => [k.toLowerCase(), v]),
 )
 
 // parseHTML
