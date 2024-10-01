@@ -1,4 +1,8 @@
-import { addEventListener, owned } from '../lib/reactive.js'
+import {
+	addEventListener,
+	owned,
+	ownedEvent,
+} from '../lib/reactive.js'
 import { getValue, isObject } from '../lib/std.js'
 
 import { eventName } from './event.js'
@@ -147,7 +151,7 @@ export function assignProp(node, name, value, props, isCE) {
 	// onClick={handler}
 	let event = eventName(name)
 	if (event) {
-		addEventListener(node, event, value)
+		addEventListener(node, event, ownedEvent(value))
 		return
 	}
 
@@ -165,7 +169,7 @@ export function assignProp(node, name, value, props, isCE) {
 		// onClick:my-ns={handler}
 		event = eventName(ns)
 		if (event) {
-			addEventListener(node, event, value)
+			addEventListener(node, event, ownedEvent(value))
 			return
 		}
 

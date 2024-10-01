@@ -35,7 +35,9 @@ import {
 	removeFromArray,
 	resolved,
 	Symbol,
+	weakStore,
 	withResolvers,
+	withState,
 } from './std.js'
 
 const CLEAN = 0
@@ -1424,3 +1426,20 @@ export function removeEventListener(node, type, handler) {
 
 	return () => addEventListener(node, type, handler)
 }
+
+/**
+ * It gives a handler an owner, so stuff runs batched on it, and
+ * things like context and cleanup work
+ */
+export const ownedEvent = withState(
+	(cache, handler) =>
+		cache.get(handler, handler =>
+			'handleEvent' in handler
+				? {
+						...handler,
+						handleEvent: owned(handler.handleEvent.bind(handler)),
+					}
+				: owned(handler),
+		),
+	weakStore,
+)
