@@ -53,13 +53,16 @@ function createProxy(target, Handler, setTrack = true) {
  *
  * @template T
  * @param {T} value
+ * @param {boolean} [clone] - If to `structureClone` the value first
  * @returns {T}
  */
-export function mutable(value) {
+export function mutable(value, clone) {
 	/** Return value as is when is not an object */
 	if (!isObject(value)) {
 		return value
 	}
+
+	value = clone ? structuredClone(value) : value
 
 	/**
 	 * Return `proxy` if already exists for `value`. It could be
