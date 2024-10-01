@@ -120,8 +120,6 @@ export function HTML() {
 
 					if (name[0] === '.') {
 						props['prop:' + dashesToCamelCase(name.slice(1))] = value
-					} else if (name.startsWith('prop:')) {
-						props['prop:' + dashesToCamelCase(name.slice(5))] = value
 					} else if (name[0] === '?') {
 						props['bool:' + name.slice(1)] = value
 					} else if (name[0] === '@') {
