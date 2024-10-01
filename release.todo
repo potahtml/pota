@@ -7,7 +7,6 @@ CONSIDER ALWAYS
 some day
 
 	stuff
-	- assign/overwrite/patch/diff arrays
 	- typings
 
 	documentation
@@ -20,7 +19,6 @@ some day
 
 	tools
 	- rethink the dev tools
-	- finish the mpa-archive for generation
 	- mdx
 
 	tests
@@ -58,6 +56,7 @@ some day
 	- - or s1.derived(['key1', ...])
 	- - or s1.derived((value) => value * 2)
 	- simplify the classes
+	- diff array for when value comes from server
 
 	probably never
 	- animationFrame
