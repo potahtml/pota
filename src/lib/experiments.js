@@ -7,10 +7,10 @@ import { getValue, equals } from './std.js'
  * from a server without losing references to what its already there
  * avoiding a store
  */
-export function morphArray(oldData, setData) {
+export function diffArrayFromServer(oldData, setData) {
 	return newData => {
-		const fresh = getValue(newData)
 		const stale = getValue(oldData)
+		const fresh = getValue(newData)
 
 		const r = []
 
