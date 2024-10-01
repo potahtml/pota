@@ -54,7 +54,7 @@ function createProxy(target, Handler, setTrack = true) {
  *
  * @template T
  * @param {T} value
- * @param {boolean} [clone] - If to `structureClone` the value first
+ * @param {boolean} [clone] - If to `copy` the value first
  * @returns {T}
  */
 export function mutable(value, clone) {
@@ -63,6 +63,7 @@ export function mutable(value, clone) {
 		return value
 	}
 
+	/** Make a copy to avoid modifying original data (optional) */
 	value = clone ? copy(value) : value
 
 	/**
