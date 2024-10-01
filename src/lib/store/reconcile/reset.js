@@ -1,5 +1,6 @@
 import { batch, untrack } from '../../reactive.js'
 import {
+	copy,
 	isArray,
 	isObject,
 	keys,
@@ -25,7 +26,7 @@ import {
  * @param {object} source
  */
 export const reset = (target, source) =>
-	batch(() => untrack(() => reconcile(target, source)))
+	batch(() => untrack(() => reconcile(target, copy(source))))
 
 function reconcile(target, source, id) {
 	for (id in source) {

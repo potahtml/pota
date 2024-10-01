@@ -2,6 +2,7 @@
 
 import { batch, untrack } from '../../reactive.js'
 import {
+	copy,
 	indexByKey,
 	isArray,
 	isObject,
@@ -58,7 +59,9 @@ import {
  * @param {object} [keys] Keep references on objects with the same key
  */
 export const replace = (target, source, keys) =>
-	batch(() => untrack(() => reconcile(target, source, keys, '')))
+	batch(() =>
+		untrack(() => reconcile(target, copy(source), keys, '')),
+	)
 
 function reconcile(target, source, keys, id, inArray) {
 	for (id in source) {

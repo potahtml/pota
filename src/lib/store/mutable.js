@@ -1,4 +1,5 @@
 import {
+	copy,
 	definePropertyReadOnly,
 	isArray,
 	isObject,
@@ -62,7 +63,7 @@ export function mutable(value, clone) {
 		return value
 	}
 
-	value = clone ? structuredClone(value) : value
+	value = clone ? copy(value) : value
 
 	/**
 	 * Return `proxy` if already exists for `value`. It could be
