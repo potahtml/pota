@@ -70,7 +70,7 @@ const parseHTML = withState(
 				.join(tag)
 				.replaceAll(`"${tag}"`, `"${id}"`)
 				// avoid double br when self-closing
-				.replace(/<br\s*\/\s*>/g, '<br>')
+				.replace(/<(br|hr)\s*\/\s*>/g, '<$1>')
 				// self-close
 				.replace(/<([a-z-]+)([^/>]*)\/\s*>/gi, '<$1 $2></$1>')
 
