@@ -15,6 +15,7 @@ import {
 	fromEntries,
 	toArray,
 	weakStore,
+	withCache,
 	withState,
 } from './lib/std.js'
 
@@ -61,23 +62,19 @@ const tag = `<pota></pota>`
  * @param {TemplateStringsArray} content
  * @returns {Element}
  */
-const parseHTML = withState(
-	(cache, content) =>
-		cache.get(content, content => {
-			const template = createElement('template')
+const parseHTML = withCache(content => {
+	const template = createElement('template')
 
-			template.innerHTML = content
-				.join(tag)
-				.replaceAll(`"${tag}"`, `"${id}"`)
-				// avoid double br when self-closing
-				.replace(/<(br|hr)\s*\/\s*>/g, '<$1>')
-				// self-close
-				.replace(/<([a-z-]+)([^/>]*)\/\s*>/gi, '<$1 $2></$1>')
+	template.innerHTML = content
+		.join(tag)
+		.replaceAll(`"${tag}"`, `"${id}"`)
+		// avoid double br when self-closing
+		.replace(/<(br|hr)\s*\/\s*>/g, '<$1>')
+		// self-close
+		.replace(/<([a-z-]+)([^/>]*)\/\s*>/gi, '<$1 $2></$1>')
 
-			return template.content
-		}),
-	weakStore,
-)
+	return template.content
+})
 
 /**
  * Function to create cached tagged template components

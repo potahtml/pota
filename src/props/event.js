@@ -1,5 +1,5 @@
 import { addEventListener } from '../lib/reactive.js'
-import { window, withState } from '../lib/std.js'
+import { window, withCache } from '../lib/std.js'
 
 /**
  * @param {Element} node
@@ -19,12 +19,10 @@ export const setEventNS = (node, name, value, props, localName, ns) =>
  * @returns {string | undefined} Returns the event name or null in
  *   case isnt found
  */
-export const eventName = withState((state, name) =>
-	state.get(name, name =>
-		name.startsWith('on') && name.toLowerCase() in window
-			? name.slice(2).toLowerCase()
-			: null,
-	),
+export const eventName = withCache(name =>
+	name.startsWith('on') && name.toLowerCase() in window
+		? name.slice(2).toLowerCase()
+		: null,
 )
 /*
 const eventNames = new Set(

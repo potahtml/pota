@@ -305,6 +305,19 @@ export const withState = /* #__NO_SIDE_EFFECTS__ */ (
 	state = cacheStore,
 ) => fn.bind(null, state())
 
+/** Memoize functions with a map cache */
+export const withCache = fn =>
+	withState(
+		(cache, thing) => cache.get(thing, thing => fn(thing)),
+		cacheStore,
+	)
+/** Memoize functions with a weak cache */
+export const withWeakCache = fn =>
+	withState(
+		(cache, thing) => cache.get(thing, thing => fn(thing)),
+		weakStore,
+	)
+
 export const walkElements = withState(
 	(walk, node, fn) => {
 		walk.currentNode = node
@@ -839,18 +852,16 @@ export const css = (template, ...values) =>
  * @param {string} css
  * @returns {CSSStyleSheet}
  */
-export const sheet = withState((cache, css) =>
-	cache.get(css, css => {
-		const sheet = new CSSStyleSheet()
-		/**
-		 * Replace is asynchronous and can accept @import statements
-		 * referencing external resources.
-		 */
-		sheet.replace(css)
+export const sheet = withCache(css => {
+	const sheet = new CSSStyleSheet()
+	/**
+	 * Replace is asynchronous and can accept @import statements
+	 * referencing external resources.
+	 */
+	sheet.replace(css)
 
-		return sheet
-	}),
-)
+	return sheet
+})
 
 /**
  * @param {Element} node

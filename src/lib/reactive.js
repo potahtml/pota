@@ -38,6 +38,7 @@ import {
 	weakStore,
 	withResolvers,
 	withState,
+	withWeakCache,
 } from './std.js'
 
 const CLEAN = 0
