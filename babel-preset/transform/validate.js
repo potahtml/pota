@@ -39,6 +39,13 @@ export function validatePartial(path, html) {
 		// fix tables cells
 		.replace(/^<td>/i, '<table><tbody><tr><td>')
 		.replace(/<\/td>$/i, '</td></tr></tbody></table>')
+		.replace(/^<th>/i, '<table><thead><tr><th>')
+		.replace(/<\/th>$/i, '</th></tr></thead></table>')
+		// fix table components
+		.replace(/^<thead>/i, '<table><thead>')
+		.replace(/<\/thead>$/i, '</thead></table>')
+		.replace(/^<tbody>/i, '<table><tbody>')
+		.replace(/<\/tbody>$/i, '</tbody></table>')
 
 	const result = innerHTML(clean)
 
