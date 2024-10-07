@@ -8,23 +8,18 @@ import {
 
 import {
 	call,
-	createElement,
+	createTextNode,
 	empty,
-	entries,
 	flat,
-	fromEntries,
 	toArray,
 	weakStore,
 	withCache,
-	withState,
 } from './lib/std.js'
-
-import { dashesToCamelCase } from './plugin/useString.js'
 
 import { Component } from './renderer.js'
 
 import {
-	A as RouterA,
+	A,
 	Collapse,
 	Dynamic,
 	For,
@@ -36,25 +31,37 @@ import {
 	Switch,
 } from './web/@main.js'
 
-const defaultRegistry = fromEntries(
-	entries({
-		RouterA,
-		Collapse,
-		Dynamic,
-		For,
-		Head,
-		Match,
-		Portal,
-		Router,
-		Show,
-		Switch,
-	}).map(([k, v]) => [k.toLowerCase(), v]),
-)
+const defaultRegistry = {
+	A,
+	Collapse,
+	Dynamic,
+	For,
+	Head,
+	Match,
+	Portal,
+	Router,
+	Show,
+	Switch,
+}
 
 // parseHTML
 
-const id = 'pota'
-const tag = `<pota></pota>`
+const id = 'pota19611227'
+
+const xmlns = [
+	'class',
+	'on',
+	'prop',
+	'attr',
+	'bool',
+	'style',
+	'var',
+	'onMount',
+	'onUnmount',
+	'ref',
+]
+	.map(ns => `xmlns:${ns}="/"`)
+	.join(' ')
 
 /**
  * Makes Nodes from TemplateStringsArray
@@ -62,19 +69,13 @@ const tag = `<pota></pota>`
  * @param {TemplateStringsArray} content
  * @returns {Element}
  */
-const parseHTML = withCache(content => {
-	const template = createElement('template')
-
-	template.innerHTML = content
-		.join(tag)
-		.replaceAll(`"${tag}"`, `"${id}"`)
-		// avoid double br when self-closing
-		.replace(/<(br|hr)\s*\/\s*>/g, '<$1>')
-		// self-close
-		.replace(/<([a-z-]+)([^/>]*)\/\s*>/gi, '<$1 $2></$1>')
-
-	return template.content
-})
+const parseHTML = withCache(
+	content =>
+		new DOMParser().parseFromString(
+			`<xml ${xmlns}>${content.join(id)}</xml>`,
+			'text/xml',
+		).firstChild,
+)
 
 /**
  * Function to create cached tagged template components
@@ -104,9 +105,6 @@ export function HTML() {
 			// Node.ELEMENT_NODE
 			if (node.nodeType === 1) {
 				const localName = node.localName
-				if (localName === id) {
-					return values[index++]
-				}
 
 				// gather props
 				const props = empty()
@@ -115,15 +113,7 @@ export function HTML() {
 						value = values[index++]
 					}
 
-					if (name[0] === '.') {
-						props['prop:' + dashesToCamelCase(name.slice(1))] = value
-					} else if (name[0] === '?') {
-						props['bool:' + name.slice(1)] = value
-					} else if (name[0] === '@') {
-						props['on:' + name.slice(1)] = value
-					} else {
-						props[name] = value
-					}
+					props[name] = value
 				}
 
 				// gather children
@@ -136,7 +126,21 @@ export function HTML() {
 					props,
 				)
 			} else {
-				return node.cloneNode()
+				if (node.data.includes(id)) {
+					const textNodes = node.data.split(id)
+					const nodes = []
+					for (let i = 0; i < textNodes.length; i++) {
+						const text = textNodes[i]
+						if (text) {
+							nodes.push(createTextNode(text))
+						}
+						if (i < textNodes.length - 1) {
+							nodes.push(values[index++])
+						}
+					}
+					return nodes
+				}
+				return createTextNode(node.data)
 			}
 		}
 
@@ -147,7 +151,7 @@ export function HTML() {
 	html.define = userComponents => {
 		let name
 		for (name in userComponents) {
-			html.components[name.toLowerCase()] = userComponents[name]
+			html.components[name] = userComponents[name]
 		}
 	}
 
