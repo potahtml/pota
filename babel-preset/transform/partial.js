@@ -14,11 +14,7 @@ import {
 	getAttributeLiteral,
 	isAttributeLiteral,
 } from './attributes.js'
-import {
-	escapeHTML,
-	isVoidElement,
-	validateChildrenHTML,
-} from './html.js'
+import { escapeHTML, isVoidElement } from './html.js'
 import { merge, mergeToTag } from './merge.js'
 import { buildProps } from './props.js'
 import { getTagName } from './tag.js'
@@ -148,8 +144,6 @@ export function buildPartial(path, state) {
 	tag.content += escapeHTML(textChildren)
 
 	let children = t.react.buildChildren(path.node)
-
-	validateChildrenHTML(tag.tagName, children)
 
 	children = mergeToTag(children, tag)
 	children = merge(children)

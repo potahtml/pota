@@ -1,5 +1,3 @@
-import { isValidHTMLNesting } from 'validate-html-nesting'
-
 import { error } from './utils.js'
 
 import { isPartial } from './partial.js'
@@ -29,25 +27,6 @@ const voidElements = new Set([
 ])
 export function isVoidElement(tagName) {
 	return voidElements.has(tagName.toLowerCase())
-}
-
-/** Validates html nesting */
-export function validateHTML(parent, child, node) {
-	if (!isValidHTMLNesting(parent, child)) {
-		error(
-			node._path,
-			`Invalid HTML: <${child}> cannot be child of <${parent}>`,
-		)
-	}
-}
-
-/** Validates if the tags in children are valid nesting for parent tag */
-export function validateChildrenHTML(tagName, children) {
-	for (const child of children) {
-		if (isPartial(child)) {
-			validateHTML(tagName, child.tagName, child)
-		}
-	}
 }
 
 /** Escapes `&`, `<`, `>`, `'`, `"` */
