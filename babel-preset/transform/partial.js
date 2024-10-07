@@ -33,8 +33,6 @@ export function buildPartial(path, state) {
 	// state
 
 	let isXML = false
-	let isCustomElement = tagName.includes('-')
-	let isImportNode = isCustomElement
 	let xmlns = ''
 	let textChildren = ''
 
@@ -57,22 +55,6 @@ export function buildPartial(path, state) {
 			if (name === 'xmlns') {
 				isXML = true
 			}
-
-			/** `isCustomElement` */
-
-			isCustomElement = isCustomElement || name === 'is'
-
-			/**
-			 * Should mark as `importNode`?
-			 *
-			 * @url https://github.com/ryansolid/dom-expressions/pull/349
-			 */
-
-			isImportNode =
-				isImportNode ||
-				// Firefox needs `importNode` for images/iframes with loading="lazy"
-				((tagName === 'img' || tagName === 'iframe') &&
-					name === 'loading')
 
 			/** Should inline the attribute into the template? */
 
@@ -168,8 +150,6 @@ export function buildPartial(path, state) {
 
 	partial.isXML = isXML
 	partial.xmlns = xmlns
-	partial.isImportNode = isImportNode
-	partial.isCustomElement = isCustomElement
 
 	/**
 	 * Used to display an error when children cannot be nested because
@@ -190,7 +170,6 @@ export function partialMerge(path, state) {
 	const elements = node.arguments[1].elements
 
 	const propsAt = {}
-	const elementData = {}
 
 	let propsKey = 0
 	const toRemove = []
@@ -221,7 +200,7 @@ export function partialMerge(path, state) {
 
 	// save the max number of nodes to walk
 	if (propsAt[propsKey - 1] > -1) {
-		elementData.m = propsAt[propsKey - 1] + 1
+		propsAt.m = propsAt[propsKey - 1] + 1
 	}
 
 	// remove empty props objects from array
@@ -264,16 +243,20 @@ export function partialMerge(path, state) {
 		const args = [node.arguments[0]]
 
 		if (node.xmlns) {
-			elementData.x = node.xmlns
+			propsAt.x = node.xmlns
 		}
 
 		// if should use importNode instead of cloneNode
+		const isImportNode = // custom element tag
+			/<\/[a-z0-9]+-[a-z0-9]+>/.test(partial) ||
+			// custom element `is`
+			/<[a-z]+[^>]+is=[^>]+>/.test(partial) ||
+			// lazy loading frame/img
+			/<(img|iframe)[^>]+loading[^>]+lazy[^>]+>/.test(partial) ||
+			undefined
 
-		if (node.isCustomElement) {
-			elementData.c = 1
-		}
-		if (node.isImportNode) {
-			elementData.i = 1
+		if (isImportNode) {
+			propsAt.i = 1
 		}
 
 		// push arguments
@@ -281,16 +264,6 @@ export function partialMerge(path, state) {
 		if (keys(propsAt).length) {
 			args.push(
 				core.template.expression.ast`${JSON.stringify(propsAt)}`,
-			)
-		} else {
-			if (keys(elementData).length) {
-				args.push(t.objectExpression([]))
-			}
-		}
-
-		if (keys(elementData).length) {
-			args.push(
-				core.template.expression.ast`${JSON.stringify(elementData)}`,
 			)
 		}
 
@@ -308,17 +281,9 @@ export function partialMerge(path, state) {
 	)
 }
 
-/**
- * Returns `true` when `node` is `partial` and not `XML`, not a
- * `custom element`
- */
+/** Returns `true` when `node` is `partial` and not `XML` */
 export function canMergePartials(node) {
-	return (
-		node.isPartial &&
-		!node.isXML &&
-		!node.isImportNode &&
-		!node.isCustomElement
-	)
+	return node.isPartial && !node.isXML
 }
 
 /** Returns `true` when `node` is partial */

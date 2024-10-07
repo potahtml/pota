@@ -242,17 +242,13 @@ function cloneNode(content, xmlns) {
 		: template.content
 }
 
-export function createPartial(
-	content,
-	propsAt = nothing,
-	elementData = nothing,
-) {
+export function createPartial(content, propsData = nothing) {
 	let clone = () => {
-		const node = withXMLNS(elementData.x, xmlns =>
+		const node = withXMLNS(propsData.x, xmlns =>
 			cloneNode(content, xmlns),
 		)
 
-		clone = elementData.i
+		clone = propsData.i
 			? importNode.bind(null, node, true)
 			: node.cloneNode.bind(node, true)
 		return clone()
@@ -262,28 +258,23 @@ export function createPartial(
 		/** Freeze props so isnt directly writable */
 		freeze(props)
 		return markComponent(() =>
-			assignPartialProps(clone(), props, propsAt, elementData),
+			assignPartialProps(clone(), props, propsData),
 		)
 	}
 }
 
-function assignPartialProps(node, props, propsAt, elementData) {
+function assignPartialProps(node, props, propsData) {
 	if (props) {
 		const nodes = []
 		walkElements(node, node => {
 			nodes.push(node)
 
-			if (nodes.length === elementData.m) return true
+			if (nodes.length === propsData.m) return true
 		})
 
-		withXMLNS(elementData.x, xmlns => {
+		withXMLNS(propsData.x, xmlns => {
 			for (let i = 0; i < props.length; i++) {
-				assignProps(
-					nodes[propsAt[i] || i],
-					props[i],
-					// only the container may be a custom element
-					i === 0 ? elementData.c : 0,
-				)
+				assignProps(nodes[propsData[i] || i], props[i])
 			}
 		})
 	}

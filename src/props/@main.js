@@ -14,8 +14,7 @@ import {
 	propsPluginBoth,
 	propsPluginNS,
 } from './plugin.js'
-import { _setProperty } from './property.js'
-import { setUnknownProp } from './unknown.js'
+import { setUnknown } from './unknown.js'
 
 // exports
 
@@ -111,14 +110,11 @@ propsPluginNS('class', setClassNS, false)
  *
  * @param {Element} node - Element to which assign props
  * @param {object} props - Props to assign
- * @param {number} [isCE] - Is custom element
  */
-export function assignProps(node, props, isCE) {
+export function assignProps(node, props) {
 	for (const name in props) {
-		assignProp(node, name, props[name], props, isCE)
+		assignProp(node, name, props[name], props)
 	}
-
-	return node
 }
 
 /**
@@ -128,15 +124,12 @@ export function assignProps(node, props, isCE) {
  * @param {string} name
  * @param {any} value
  * @param {object} props
- * @param {number} [isCE]
  */
-export function assignProp(node, name, value, props, isCE) {
+export function assignProp(node, name, value, props) {
 	// unwrap promises
 	if (isObject(value) && 'then' in value) {
 		value.then(
-			owned(value =>
-				assignProp(node, name, getValue(value), props, isCE),
-			),
+			owned(value => assignProp(node, name, getValue(value), props)),
 		)
 		return
 	}
@@ -173,20 +166,10 @@ export function assignProp(node, name, value, props, isCE) {
 			return
 		}
 
-		isCustomElement(node, props, isCE)
-			? _setProperty(node, name, value)
-			: setUnknownProp(node, name, value, ns)
+		setUnknown(node, name, value, ns)
 		return
 	}
 
 	// catch all
-	isCustomElement(node, props, isCE)
-		? _setProperty(node, name, value)
-		: setUnknownProp(node, name, value)
+	setUnknown(node, name, value)
 }
-
-const isCustomElement = (node, props, isCustomElement) =>
-	// DocumentFragment doesn't have a `localName?`
-	isCustomElement !== undefined
-		? isCustomElement
-		: 'is' in props || node.localName?.includes('-')
