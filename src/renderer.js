@@ -404,6 +404,11 @@ function createChildren(parent, child, relative, prev = undefined) {
 		}
 
 		case 'object': {
+			// HTMLElement/Text
+			if (child instanceof HTMLElement || child instanceof Text) {
+				return insertNode(parent, child, relative)
+			}
+
 			// children/fragments
 			if (isArray(child)) {
 				return child.length === 1
@@ -411,6 +416,14 @@ function createChildren(parent, child, relative, prev = undefined) {
 					: child.map(child =>
 							createChildren(parent, child, relative),
 						)
+			}
+
+			/**
+			 * The value is `null`, as in {null} or like a show returning
+			 * `null` on the falsy case
+			 */
+			if (child === null) {
+				return undefined
 			}
 
 			// Node/DocumentFragment
@@ -429,14 +442,6 @@ function createChildren(parent, child, relative, prev = undefined) {
 					)
 				}
 				return insertNode(parent, child, relative)
-			}
-
-			/**
-			 * The value is `null`, as in {null} or like a show returning
-			 * `null` on the falsy case
-			 */
-			if (child === null) {
-				return undefined
 			}
 
 			// async components
