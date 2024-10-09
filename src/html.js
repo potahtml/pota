@@ -8,15 +8,18 @@ import {
 
 import {
 	call,
+	createElement,
 	createTextNode,
 	empty,
 	flat,
+	freeze,
 	toArray,
 	weakStore,
-	withCache,
+	withWeakCache,
 } from './lib/std.js'
 
-import { Component } from './renderer.js'
+import { Component, toHTML, toHTMLFragment } from './renderer.js'
+import { assignProps } from './props/@main.js'
 
 import {
 	A,
@@ -69,13 +72,201 @@ const xmlns = [
  * @param {TemplateStringsArray} content
  * @returns {Element}
  */
-const parseHTML = withCache(
-	content =>
-		new DOMParser().parseFromString(
-			`<xml ${xmlns}>${content.join(id)}</xml>`,
-			'text/xml',
-		).firstChild,
+const parseHTML = withWeakCache(content =>
+	new DOMParser().parseFromString(
+		`<xml ${xmlns}>${content.join(id)}</xml>`,
+		'text/xml',
+	),
 )
+
+/**
+ * Recursively walks a template and transforms it to `h` calls
+ *
+ * @param {{ components: {} }} html
+ * @param {HTMLElement} cached
+ * @param {...any} values
+ * @returns {Children}
+ */
+function toH(html, cached, values) {
+	let index = 0
+	function nodes(node) {
+		// Node.ELEMENT_NODE
+		if (node.nodeType === 1) {
+			const localName = node.localName
+
+			// gather props
+			const props = empty()
+			for (let { name, value } of node.attributes) {
+				if (value === id) {
+					value = values[index++]
+				}
+				props[name] = value
+			}
+
+			// gather children
+			if (node.childNodes.length) {
+				props.children = flat(toArray(node.childNodes).map(nodes))
+			}
+
+			return Component(html.components[localName] || localName, props)
+		} else {
+			if (node.data.includes(id)) {
+				const textNodes = node.data.split(id)
+				const nodes = []
+				for (let i = 0; i < textNodes.length; i++) {
+					const text = textNodes[i]
+					if (text) {
+						nodes.push(createTextNode(text))
+					}
+					if (i < textNodes.length - 1) {
+						nodes.push(values[index++])
+					}
+				}
+				return nodes
+			}
+			return createTextNode(node.data)
+		}
+	}
+
+	return flat(toArray(cached.childNodes).map(nodes))
+}
+
+function toPartial(html, cached, values) {
+	if (!cached.partial) {
+		const walker = document.createTreeWalker(cached)
+
+		const actions = []
+		while (walker.nextNode()) {
+			const node = walker.currentNode
+			switch (node.nodeType) {
+				case 1: {
+					const localName = node.localName
+					// its a component
+					if (html.components[localName]) {
+						const props = empty()
+						const propsReplace = []
+						for (let { name, value } of node.attributes) {
+							if (name === id) {
+								propsReplace.push(name)
+							}
+							props[name] = value
+						}
+
+						// gather children
+						if (node.childNodes.length) {
+							props.children = createTextNode('the children') //flat(toArray(node.childNodes).map(nodes))
+						}
+
+						const pota = createElement('pota')
+						node.replaceWith(pota)
+						walker.currentNode = pota
+
+						freeze(props)
+						actions.push((node, values, walker) => {
+							const p = { ...props }
+							for (const name of propsReplace) {
+								p[name] = values()
+							}
+							const replacement = toHTMLFragment(
+								Component(html.components[localName], p),
+							)
+							node.replaceWith(replacement)
+
+							walker.currentNode = replacement
+						})
+					} else {
+						const props = empty()
+						const propsReplace = []
+						const toRemove = []
+						for (let { name, value } of node.attributes) {
+							if (value === id) {
+								propsReplace.push(name)
+								toRemove.push(name)
+							} else if (/^[a-z]+:/.test(name)) {
+								props[name] = value
+								toRemove.push(name)
+							}
+						}
+
+						if (toRemove.length) {
+							node.setAttribute('pota', '')
+							for (const attribute of toRemove) {
+								node.removeAttribute(attribute)
+							}
+							freeze(props)
+							actions.push((node, values) => {
+								const p = { ...props }
+								for (const name of propsReplace) {
+									p[name] = values()
+								}
+								assignProps(node, p)
+							})
+						}
+					}
+
+					break
+				}
+				case 3: {
+					// text
+					if (node.data.includes(id)) {
+						const textNodes = node.data.split(id)
+						const nodes = []
+						for (let i = 0; i < textNodes.length; i++) {
+							const text = textNodes[i]
+							if (text) {
+								nodes.push(createTextNode(text))
+							}
+							if (i < textNodes.length - 1) {
+								actions.push((node, values, walker) => {
+									const replacement = toHTML(values())
+									console.log(replacement)
+									node.replaceWith(replacement)
+									// walker gps
+									walker.currentNode = replacement
+								})
+								nodes.push(createElement('pota'))
+							}
+						}
+						node.replaceWith(...nodes)
+						// walker gps
+						walker.currentNode = nodes[nodes.length - 1]
+					}
+
+					break
+				}
+				default: {
+					console.log('unknown', node, node.nodeType)
+				}
+			}
+		}
+
+		const template = createElement('template')
+		template.innerHTML = cached.firstChild.innerHTML.replace(
+			/pota xmlns="[^"]+"/g,
+			'pota',
+		)
+		cached.partial = function (values) {
+			console.log('clonning', template.content)
+			const clone = template.cloneNode(true)
+			console.log('clone', clone.content)
+			const walker = document.createTreeWalker(clone.content, 1)
+			let index = 0
+			let valueIndex = 0
+			const value = () => values[valueIndex++]
+			while (walker.nextNode()) {
+				const node = walker.currentNode
+				if (node.hasAttribute('pota')) {
+					actions[index++](node, value, walker)
+				} else if (node.localName === 'pota') {
+					actions[index++](node, value, walker)
+				}
+			}
+
+			return clone.content
+		}
+	}
+	return cached.partial(values)
+}
 
 /**
  * Function to create cached tagged template components
@@ -100,57 +291,12 @@ export function HTML() {
 	function html(template, ...values) {
 		const cached = parseHTML(template)
 
-		let index = 0
-		function nodes(node) {
-			// Node.ELEMENT_NODE
-			if (node.nodeType === 1) {
-				const localName = node.localName
-
-				// gather props
-				const props = empty()
-				for (let { name, value } of node.attributes) {
-					if (value === id) {
-						value = values[index++]
-					}
-
-					props[name] = value
-				}
-
-				// gather children
-				if (node.childNodes.length) {
-					props.children = flat(toArray(node.childNodes).map(nodes))
-				}
-
-				return Component(
-					html.components[localName] || localName,
-					props,
-				)
-			} else {
-				if (node.data.includes(id)) {
-					const textNodes = node.data.split(id)
-					const nodes = []
-					for (let i = 0; i < textNodes.length; i++) {
-						const text = textNodes[i]
-						if (text) {
-							nodes.push(createTextNode(text))
-						}
-						if (i < textNodes.length - 1) {
-							nodes.push(values[index++])
-						}
-					}
-					return nodes
-				}
-				return createTextNode(node.data)
-			}
-		}
-
-		return flat(toArray(cached.childNodes).map(nodes))
+		return toH(html, cached.firstChild, values) // toPartial(html, cached, values) //
 	}
 
 	html.components = { ...defaultRegistry }
 	html.define = userComponents => {
-		let name
-		for (name in userComponents) {
+		for (const name in userComponents) {
 			html.components[name] = userComponents[name]
 		}
 	}
