@@ -144,7 +144,8 @@ export function assignProp(node, name, value, props) {
 	// onClick={handler}
 	let event = eventName(name)
 	if (event) {
-		addEventListener(node, event, ownedEvent(value))
+		// `value &&` for when `onClick={handler}` and `handler` is undefined
+		value && addEventListener(node, event, ownedEvent(value))
 		return
 	}
 
@@ -162,7 +163,8 @@ export function assignProp(node, name, value, props) {
 		// onClick:my-ns={handler}
 		event = eventName(ns)
 		if (event) {
-			addEventListener(node, event, ownedEvent(value))
+			// `value &&` for when `onClick={handler}` and `handler` is undefined
+			value && addEventListener(node, event, ownedEvent(value))
 			return
 		}
 
