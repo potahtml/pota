@@ -1,7 +1,3 @@
-import { error } from './utils.js'
-
-import { isPartial } from './partial.js'
-
 const voidElements = new Set([
 	'area',
 	'base',
@@ -13,7 +9,7 @@ const voidElements = new Set([
 	'embed',
 	'frame',
 	'hr',
-	'image',
+	// 'image', in svg is not void
 	'img',
 	'input',
 	'keygen',
