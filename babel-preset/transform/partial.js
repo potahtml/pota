@@ -150,14 +150,7 @@ export function buildPartial(path, state) {
 
 	partial.isXML = isXML
 	partial.xmlns = xmlns
-
-	/**
-	 * Used to display an error when children cannot be nested because
-	 * the hierarchy of tags is invalid and template cloning will yield
-	 * results that do not match the desired template
-	 */
 	partial.tagName = tagName
-	partial._path = path
 
 	return partial
 }
