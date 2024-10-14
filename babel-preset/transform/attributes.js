@@ -21,18 +21,26 @@ export function isAttributeLiteral(node) {
 		t.isStringLiteral(node.value) ||
 		t.isNumericLiteral(node.value) ||
 		t.isStringLiteral(node.value?.expression) ||
-		t.isNumericLiteral(node.value?.expression)
+		t.isNumericLiteral(node.value?.expression) ||
+		// <input autofocus/> (it doesnt have a value)
+		node.value === null
 	)
 }
 
 /** Get attribute string or number */
 export function getAttributeLiteral(node) {
+	// <input autofocus/> (it doesnt have a value)
+	if (node.value === null) {
+		return ''
+	}
+
 	if (
 		t.isStringLiteral(node.value.expression) ||
 		t.isNumericLiteral(node.value.expression)
 	) {
 		return String(node.value.expression.value)
 	}
+
 	return String(node.value.value)
 }
 
