@@ -14,7 +14,7 @@ import {
 	getAttributeLiteral,
 	isAttributeLiteral,
 } from './attributes.js'
-import { escapeHTML, isVoidElement } from './html.js'
+import { isVoidElement } from './html.js'
 import { merge, mergeToTag } from './merge.js'
 import { buildProps } from './props.js'
 import { getTagName } from './tag.js'
@@ -34,7 +34,6 @@ export function buildPartial(path, state) {
 
 	let isXML = false
 	let xmlns = ''
-	let textChildren = ''
 
 	// attributes
 
@@ -59,32 +58,34 @@ export function buildPartial(path, state) {
 			/** Should inline the attribute into the template? */
 
 			if (isAttributeLiteral(attr.node)) {
-				/**
-				 * Skip inlining the `xmlns` attribute in the tag when its a
-				 * literal
-				 */
 				if (name === 'xmlns') {
+					/**
+					 * Skip inlining the `xmlns` attribute in the tag when its a
+					 * literal
+					 */
 					xmlns = getAttributeLiteral(attr.node)
 
 					continue
-				}
+				} else if (tagName === 'textarea' && name === 'value') {
+					/**
+					 * Do not inline `value` as an attribute when its a
+					 * `textarea`.
+					 *
+					 * @url https://github.com/solidjs/solid/issues/2312
+					 */
+				} else if (/[A-Z]/.test(name)) {
+					/**
+					 * Do not inline attributes with upper case letters such
+					 * `innerHTML`
+					 */
+				} else {
+					/** Inline the attribute */
+					const value = getAttributeLiteral(attr.node)
 
-				/**
-				 * Do not inline `value` as an attribute when its a `textarea`
-				 *
-				 * @url https://github.com/solidjs/solid/issues/2312
-				 */
-				if (tagName === 'textarea' && name === 'value') {
-					textChildren += getAttributeLiteral(attr.node)
+					buildAttributeIntoTag(tag, name, value)
+
 					continue
 				}
-
-				/** Inline attribute */
-				const value = getAttributeLiteral(attr.node)
-
-				buildAttributeIntoTag(tag, name, value)
-
-				continue
 			}
 		}
 		attributes.push(attr)
@@ -122,8 +123,6 @@ export function buildPartial(path, state) {
 	}
 
 	// children
-
-	tag.content += escapeHTML(textChildren)
 
 	let children = t.react.buildChildren(path.node)
 
