@@ -67,6 +67,11 @@ import { noop } from '../lib/std.js'
 propsPlugin('__dev', noop, false)
 propsPlugin('xmlns', noop, false)
 
+// value
+
+import { setValue } from './value.js'
+propsPlugin('value', setValue, false)
+
 // PLUGIN BOTH
 
 // css
