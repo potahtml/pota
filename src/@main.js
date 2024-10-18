@@ -59,6 +59,7 @@ export {
 	setAttribute,
 	setBool,
 	setProperty,
+	setUnknown,
 	setStyle,
 	setClass,
 } from './props/@main.js'

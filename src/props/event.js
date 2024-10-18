@@ -24,8 +24,3 @@ export const eventName = withCache(name =>
 		? name.slice(2).toLowerCase()
 		: null,
 )
-/*
-const eventNames = new Set(
-	keys(global).filter(prop => prop.startsWith('on')),
-)
-*/

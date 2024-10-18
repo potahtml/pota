@@ -366,6 +366,18 @@ export const getOwnValues = o =>
 		} catch (e) {}
 	})
 
+export function getSetterNamesFromPrototype(object, set = new Set()) {
+	const descriptors = getOwnPropertyDescriptors(object)
+
+	for (const key in descriptors) {
+		if (descriptors[key].set) {
+			set.add(key)
+		}
+	}
+
+	return set
+}
+
 /**
  * Unwraps values. If the argument is a function then it runs it
  * recursively and returns the value

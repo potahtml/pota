@@ -21,6 +21,7 @@ import { setUnknown } from './unknown.js'
 export { setAttribute } from './attribute.js'
 export { setBool } from './bool.js'
 export { setProperty } from './property.js'
+export { setUnknown } from './unknown.js'
 export { setElementStyle as setStyle } from './style.js'
 export { setElementClass as setClass } from './class.js'
 
@@ -48,18 +49,6 @@ import { setVarNS } from './style.js'
 propsPluginNS('var', setVarNS, false)
 
 // PLUGINS REGULAR
-
-// forced as properties
-
-import { setProperty } from './property.js'
-for (const item of [
-	'value',
-	'textContent',
-	'innerText',
-	'innerHTML',
-]) {
-	propsPlugin(item, setProperty, false)
-}
 
 // noop
 
