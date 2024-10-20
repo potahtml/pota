@@ -46,7 +46,17 @@ export function buildPartial(path, state) {
 	const attributes = [createAttribute('#pota', '')]
 
 	for (const attr of path.get('openingElement').get('attributes')) {
-		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
+		/**
+		 * Cannot inline attributes into the partial for custom-elements
+		 * as we do not know if it's a property or an attribute. This
+		 * makes custom-elements slower than other kind of elements, but
+		 * makes the heuristic more accurate.
+		 */
+		if (
+			!tagName.includes('-') &&
+			attr.isJSXAttribute() &&
+			t.isJSXIdentifier(attr.node.name)
+		) {
 			const name = attr.node.name.name
 
 			/** `isXML` */
@@ -114,8 +124,7 @@ export function buildPartial(path, state) {
 		/**
 		 * It needs a space after the last attribute for unquoted
 		 * attributes `<link href=http://somepath.css/>`, the browser will
-		 * load `href=http://somepath.css/` instead of
-		 * `http://somepath.css`
+		 * load `http://somepath.css/` instead of `http://somepath.css`
 		 */
 		tag.content += ` />`
 	} else {
