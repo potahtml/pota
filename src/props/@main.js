@@ -1,9 +1,4 @@
-import {
-	addEventListener,
-	owned,
-	ownedEvent,
-} from '../lib/reactive.js'
-import { getValue, isObject } from '../lib/std.js'
+import { addEventListener, ownedEvent } from '../lib/reactive.js'
 
 import { eventName } from './event.js'
 

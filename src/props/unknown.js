@@ -25,15 +25,19 @@ export const setUnknown = (node, name, value, ns) => {
  * @param {string} [ns]
  */
 export const _setUnknown = (node, name, value, ns) => {
-	if (typeof value !== 'string' && setters(node).element.has(name)) {
+	const setters = elementSetters(node)
+
+	if (
+		setters.element.has(name) &&
+		(typeof value !== 'string' || node.tagName.includes('-'))
+	) {
 		/**
-		 * 1. First check in element because a custom-element may overwrite
-		 *    builtIn setters
-		 * 2. Only do this when it's different to a string to avoid coarcing
+		 * 1. Only do this when it's different to a string to avoid coarcing
 		 *    on native elements (ex: (img.width = '16px') === 0)
+		 * 2. Or when a custom element has a setter
 		 */
 		setProperty(node, name, value)
-	} else if (setters(node).builtIn.has(name)) {
+	} else if (setters.builtIn.has(name)) {
 		// ex: innerHTML, textContent, draggable={true}
 		setProperty(node, name, value)
 	} else {
@@ -44,7 +48,7 @@ export const _setUnknown = (node, name, value, ns) => {
 const elements = new Map()
 
 /** @param {Element} node */
-function setters(node) {
+function elementSetters(node) {
 	/**
 	 * Use `node.constructor` instead of `node.nodeName` because it
 	 * handles the difference between `a` `HTMLAnchorElement` and `a`
