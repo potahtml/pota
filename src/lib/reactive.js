@@ -873,13 +873,21 @@ export function signalFunction(value) {
 export const ref = () => signalFunction()
 
 /**
- * Runs a function inside an effect if value is a function
+ * Runs a function inside an effect if value is a function.
+ * Aditionally unwraps promises.
  *
  * @param {any} value
  * @param {(value) => any} fn
  */
-export const withValue = (value, fn) =>
-	isFunction(value) ? effect(() => fn(getValue(value))) : fn(value)
+export const withValue = (value, fn) => {
+	if (isFunction(value)) {
+		effect(() => withValue(getValue(value), fn))
+	} else if (isPromise(value)) {
+		value.then(owned(value => withValue(value, fn)))
+	} else {
+		fn(value)
+	}
+}
 
 /**
  * Runs a function inside an effect if value is a function
