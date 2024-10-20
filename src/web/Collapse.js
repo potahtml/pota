@@ -1,4 +1,3 @@
-import { withValue } from '../lib/reactive.js'
 import { css } from '../lib/std.js'
 
 import { Component } from '../renderer.js'
@@ -27,12 +26,9 @@ export function Collapse(props) {
 			`,
 		]
 
-		/**
-		 * @template T
-		 * @param {When<T>} value - To toggle children
-		 */
+		/** @param {any} value - To toggle children */
 		set when(value) {
-			withValue(value, value => (this.html = value ? '<slot/>' : ''))
+			this.html = value ? '<slot/>' : ''
 		}
 	}
 

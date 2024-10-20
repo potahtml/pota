@@ -1,4 +1,3 @@
-import { withValue } from '../lib/reactive.js'
 import {
 	addStyleSheets,
 	emit,
@@ -71,11 +70,9 @@ export class CustomElement extends HTMLElement {
 	 * @param {boolean} value
 	 */
 	set hidden(value) {
-		withValue(value, value => {
-			value
-				? setAttribute(this, 'hidden', '')
-				: removeAttribute(this, 'hidden')
-		})
+		value
+			? setAttribute(this, 'hidden', '')
+			: removeAttribute(this, 'hidden')
 	}
 
 	/* EVENTS API */

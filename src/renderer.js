@@ -325,6 +325,7 @@ function createChildren(parent, child, relative, prev = undefined) {
 			if (isComponent(child)) {
 				return createChildren(parent, untrack(child), relative)
 			}
+
 			let node = []
 
 			// signal/memo/external/user provided function

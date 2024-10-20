@@ -1,4 +1,4 @@
-import { addEventListener } from '../lib/reactive.js'
+import { addEventListener, ownedEvent } from '../lib/reactive.js'
 import { window, withCache } from '../lib/std.js'
 
 /**
@@ -10,7 +10,7 @@ import { window, withCache } from '../lib/std.js'
  * @param {string} ns
  */
 export const setEventNS = (node, name, value, props, localName, ns) =>
-	addEventListener(node, localName, value)
+	addEventListener(node, localName, ownedEvent(value))
 
 /**
  * Returns an event name when the string could be mapped to an event

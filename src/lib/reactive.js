@@ -29,6 +29,7 @@ import {
 	isFunction,
 	isIterable,
 	isObject,
+	isPromise,
 	keys,
 	nothing,
 	queueMicrotask,
@@ -342,13 +343,10 @@ class Signal {
 			}
 		}
 
-		this.read = markReactive(this.read.bind(this))
-
-		this.write = this.write.bind(this)
-		this.update = this.update.bind(this)
+		this.read = markReactive(this.read)
 	}
 
-	read() {
+	read = () => {
 		// checkReadForbidden()
 
 		if (Listener) {
@@ -374,7 +372,7 @@ class Signal {
 		return this.value
 	}
 
-	write(value) {
+	write = value => {
 		if (this.equals === false || !this.equals(this.value, value)) {
 			if (this.save) {
 				this.prev = this.value
@@ -404,7 +402,7 @@ class Signal {
 		return false
 	}
 
-	update(value) {
+	update = value => {
 		if (isFunction(value)) {
 			value = value(this.value)
 		}
@@ -441,7 +439,7 @@ export function root(fn, options = undefined) {
 	Listener = undefined
 
 	try {
-		return runUpdates(() => fn(root.dispose.bind(root)), true)
+		return runUpdates(() => fn(() => root.dispose()), true)
 	} finally {
 		Owner = prevOwner
 		Listener = prevListener

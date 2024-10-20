@@ -1,4 +1,4 @@
-import { cleanup, withValue } from '../lib/reactive.js'
+import { cleanup, owned, withValue } from '../lib/reactive.js'
 
 /**
  * Creates a `setTimeout` that autodisposes. The `delay` could be
@@ -16,7 +16,7 @@ export function useTimeout(callback, delay, ...args) {
 			withValue(delay, delay => {
 				fn.stop()
 				if (delay < Infinity)
-					id = setTimeout(callback, delay, ...args)
+					id = setTimeout(owned(callback), delay, ...args)
 			})
 			return fn
 		},

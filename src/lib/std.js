@@ -529,6 +529,14 @@ export const isSymbol = value => typeof value === 'symbol'
  */
 export const isBoolean = value => typeof value === 'boolean'
 
+/**
+ * Returns `true` when `value` may be a promise
+ *
+ * @param {any} value
+ * @returns {boolean}
+ */
+export const isPromise = value => isObject(value) && 'then' in value
+
 export const noop = () => {}
 
 /**
@@ -669,9 +677,9 @@ class DataStore {
 	constructor(kind) {
 		const store = new kind()
 
-		const get = store.get.bind(store)
-		const set = store.set.bind(store)
-		const has = store.has.bind(store)
+		const get = k => store.get(k)
+		const set = (k, v) => store.set(k, v)
+		const has = k => store.has(k)
 
 		this.get = (target, defaults = undefined) => {
 			const o = get(target)
@@ -693,7 +701,7 @@ class DataStore {
 
 		this.set = set
 		this.has = has
-		this.delete = store.delete.bind(store)
+		this.delete = k => store.delete(k)
 	}
 
 	*[Symbol.iterator]() {

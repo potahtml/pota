@@ -120,14 +120,6 @@ export function assignProps(node, props) {
  * @param {object} props
  */
 export function assignProp(node, name, value, props) {
-	// unwrap promises
-	if (isObject(value) && 'then' in value) {
-		value.then(
-			owned(value => assignProp(node, name, getValue(value), props)),
-		)
-		return
-	}
-
 	// run plugins
 	let plugin = plugins.get(name)
 	if (plugin) {

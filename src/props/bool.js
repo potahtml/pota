@@ -29,4 +29,4 @@ export const setBool = (node, name, value) =>
  */
 export const _setBool = (node, name, value) =>
 	// if the value is falsy gets removed
-	!value ? node.removeAttribute(name) : node.setAttribute(name, '')
+	value ? node.setAttribute(name, '') : node.removeAttribute(name)
