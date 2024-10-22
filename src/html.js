@@ -92,7 +92,7 @@ function toH(html, cached, values) {
 	function nodes(node) {
 		// Node.ELEMENT_NODE
 		if (node.nodeType === 1) {
-			const localName = node.localName
+			const tagName = node.tagName
 
 			// gather props
 			const props = empty()
@@ -108,7 +108,7 @@ function toH(html, cached, values) {
 				props.children = flat(toArray(node.childNodes).map(nodes))
 			}
 
-			return Component(html.components[localName] || localName, props)
+			return Component(html.components[tagName] || tagName, props)
 		} else {
 			if (node.data.includes(id)) {
 				const textNodes = node.data.split(id)
@@ -129,143 +129,6 @@ function toH(html, cached, values) {
 	}
 
 	return flat(toArray(cached.childNodes).map(nodes))
-}
-
-function toPartial(html, cached, values) {
-	if (!cached.partial) {
-		const walker = document.createTreeWalker(cached)
-
-		const actions = []
-		while (walker.nextNode()) {
-			const node = walker.currentNode
-			switch (node.nodeType) {
-				case 1: {
-					const localName = node.localName
-					// its a component
-					if (html.components[localName]) {
-						const props = empty()
-						const propsReplace = []
-						for (let { name, value } of node.attributes) {
-							if (name === id) {
-								propsReplace.push(name)
-							}
-							props[name] = value
-						}
-
-						// gather children
-						if (node.childNodes.length) {
-							props.children = createTextNode('the children') //flat(toArray(node.childNodes).map(nodes))
-						}
-
-						const pota = createElement('pota')
-						node.replaceWith(pota)
-						walker.currentNode = pota
-
-						freeze(props)
-						actions.push((node, values, walker) => {
-							const p = { ...props }
-							for (const name of propsReplace) {
-								p[name] = values()
-							}
-							const replacement = toHTMLFragment(
-								Component(html.components[localName], p),
-							)
-							node.replaceWith(replacement)
-
-							walker.currentNode = replacement
-						})
-					} else {
-						const props = empty()
-						const propsReplace = []
-						const toRemove = []
-						for (let { name, value } of node.attributes) {
-							if (value === id) {
-								propsReplace.push(name)
-								toRemove.push(name)
-							} else if (/^[a-z]+:/.test(name)) {
-								props[name] = value
-								toRemove.push(name)
-							}
-						}
-
-						if (toRemove.length) {
-							node.setAttribute('pota', '')
-							for (const attribute of toRemove) {
-								node.removeAttribute(attribute)
-							}
-							freeze(props)
-							actions.push((node, values) => {
-								const p = { ...props }
-								for (const name of propsReplace) {
-									p[name] = values()
-								}
-								assignProps(node, p)
-							})
-						}
-					}
-
-					break
-				}
-				case 3: {
-					// text
-					if (node.data.includes(id)) {
-						const textNodes = node.data.split(id)
-						const nodes = []
-						for (let i = 0; i < textNodes.length; i++) {
-							const text = textNodes[i]
-							if (text) {
-								nodes.push(createTextNode(text))
-							}
-							if (i < textNodes.length - 1) {
-								actions.push((node, values, walker) => {
-									const replacement = toHTML(values())
-									console.log(replacement)
-									node.replaceWith(replacement)
-									// walker gps
-									walker.currentNode = replacement
-								})
-								nodes.push(createElement('pota'))
-							}
-						}
-						node.replaceWith(...nodes)
-						// walker gps
-						walker.currentNode = nodes[nodes.length - 1]
-					}
-
-					break
-				}
-				default: {
-					console.log('unknown', node, node.nodeType)
-				}
-			}
-		}
-
-		const template = createElement('template')
-		template.innerHTML = cached.firstChild.innerHTML.replace(
-			/pota xmlns="[^"]+"/g,
-			'pota',
-		)
-		cached.partial = function (values) {
-			console.log('clonning', template.content)
-			const clone = template.cloneNode(true)
-			console.log('clone', clone.content)
-			const walker = document.createTreeWalker(clone.content, 1)
-			let index = 0
-			let valueIndex = 0
-			const value = () => values[valueIndex++]
-			while (walker.nextNode()) {
-				const node = walker.currentNode
-				if (node.hasAttribute('pota')) {
-					actions[index++](node, value, walker)
-				} else if (node.localName === 'pota') {
-					actions[index++](node, value, walker)
-				}
-			}
-
-			return clone.content
-		}
-	}
-	return cached.partial(values)
 }
 
 /**
@@ -291,7 +154,7 @@ export function HTML() {
 	function html(template, ...values) {
 		const cached = parseHTML(template)
 
-		return toH(html, cached.firstChild, values) // toPartial(html, cached, values) //
+		return toH(html, cached.firstChild, values)
 	}
 
 	html.components = { ...defaultRegistry }

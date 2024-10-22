@@ -543,13 +543,13 @@ const head = document.head
 function insertNode(parent, node, relative) {
 	// special case `head`
 	if (parent === head) {
-		const name = node.localName
+		const name = node.tagName
 
 		// search for tags that should be unique
 		let prev
-		if (name === 'title') {
+		if (name === 'TITLE') {
 			prev = querySelector(head, 'title')
-		} else if (name === 'meta') {
+		} else if (name === 'META') {
 			prev =
 				querySelector(
 					head,
@@ -559,7 +559,7 @@ function insertNode(parent, node, relative) {
 					head,
 					'meta[property="' + node.getAttribute('property') + '"]',
 				)
-		} else if (name === 'link' && node.rel === 'canonical') {
+		} else if (name === 'LINK' && node.rel === 'canonical') {
 			prev = querySelector(head, 'link[rel="canonical"]')
 		}
 

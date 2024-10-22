@@ -22,7 +22,7 @@ const voidElements = new Set([
 	'wbr',
 ])
 export function isVoidElement(tagName) {
-	return voidElements.has(tagName.toLowerCase())
+	return voidElements.has(tagName)
 }
 
 /** Escapes `&`, `<`, `>`, `'`, `"` */

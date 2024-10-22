@@ -18,12 +18,12 @@ function _setValue(node, name, value) {
 		cleanup(() => defaults.delete(node))
 
 		if (!isNullUndefined(value)) {
-			switch (node.localName) {
-				case 'input': {
+			switch (node.tagName) {
+				case 'INPUT': {
 					node.setAttribute('value', value)
 					return
 				}
-				case 'textarea': {
+				case 'TEXTAREA': {
 					node.textContent = value
 					return
 				}
@@ -32,4 +32,7 @@ function _setValue(node, name, value) {
 	}
 
 	_setProperty(node, name, value)
+	if (!value && node.tagName === 'PROGRESS') {
+		node.removeAttribute('value')
+	}
 }
