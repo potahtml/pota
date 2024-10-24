@@ -18,7 +18,6 @@ export default [
 			'@babel/helper-module-imports',
 			'@babel/helper-plugin-utils',
 			'@babel/plugin-syntax-jsx',
-			'validate-html-nesting',
 			'parse5',
 		],
 	},
