@@ -253,7 +253,7 @@ export function partialMerge(path, state) {
 			// custom element `is`
 			/<[a-z]+[^>]+is=[^>]+>/.test(partial) ||
 			// lazy loading frame/img
-			/<(img|iframe)[^>]+loading[^>]+lazy[^>]+>/.test(partial) ||
+			/<(img|iframe)[^>]+>/.test(partial) ||
 			undefined
 
 		if (isImportNode) {
