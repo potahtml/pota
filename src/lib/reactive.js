@@ -36,10 +36,7 @@ import {
 	removeFromArray,
 	resolved,
 	Symbol,
-	weakStore,
 	withResolvers,
-	withState,
-	withWeakCache,
 } from './std.js'
 
 const CLEAN = 0

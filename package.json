@@ -11,7 +11,7 @@
   "type": "module",
   "main": "./src/@main.js",
   "// Using 'typesVersions' here is the only way we could figure out how to get types working for imports of any subpath without any of the problems other approaches have when not using modeResolution:NodeNext (listed in https://stackoverflow.com/questions/77856692/how-to-publish-plain-jsjsdoc-library-for-typescript-consumers)": "",
-  "typesVersions": {
+  "//typesVersions": {
     "*": {
       "src/*": ["types/*"]
     }
@@ -43,18 +43,17 @@
       "types": "./types/plugin/*.d.ts",
       "default": "./src/plugin/*.js"
     },
-    "./store/*": null,
-    "./*": {
-      "types": "./types/lib/*.d.ts",
-      "default": "./src/lib/*.js"
+    "./store": {
+      "types": "./types/lib/store.d.ts",
+      "default": "./src/lib/store.js"
+    },
+    "./std": {
+      "types": "./types/lib/std.d.ts",
+      "default": "./src/lib/std.js"
     },
     ".": {
       "types": "./types/@main.d.ts",
       "default": "./src/@main.js"
-    },
-    "./src/*": {
-      "types": "./types/*",
-      "default": "./src/*"
     }
   },
   "scripts": {
