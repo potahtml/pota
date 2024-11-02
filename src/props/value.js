@@ -1,6 +1,6 @@
 import { cleanup, withValue } from '../lib/reactive.js'
 import { isNullUndefined } from '../lib/std.js'
-import { _setProperty } from './property.js'
+import { _setUnknown } from './unknown.js'
 
 /**
  * `value` as a prop is special cased so the button `reset` in forms
@@ -31,8 +31,9 @@ function _setValue(node, name, value) {
 		}
 	}
 
-	_setProperty(node, name, value)
 	if (!value && node.tagName === 'PROGRESS') {
 		node.removeAttribute('value')
+	} else {
+		_setUnknown(node, name, value)
 	}
 }
