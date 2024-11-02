@@ -172,7 +172,6 @@ interface CSSAttributes extends NSStyle {
 	style?: CSSProperties | string
 
 	css?: string | CSSStyleSheet
-	cssText?: string
 }
 
 /* Namespaced */
@@ -237,9 +236,15 @@ type MathMLAttributes<Element, Attributes, Events> =
 
 /** DOM */
 
-interface DOMHTMLAttributes {
+interface DOMHTMLProperties {
+	innerHTML?: string | number
+	innerText?: string | number
+	textContent?: string | number
+}
+
+interface DOMHTMLAttributes extends DOMHTMLProperties {
 	about?: string
-	accessKey?: string
+	accesskey?: string
 	autocapitalize?:
 		| 'off'
 		| 'none'
@@ -247,29 +252,18 @@ interface DOMHTMLAttributes {
 		| 'sentences'
 		| 'words'
 		| 'characters'
-	autoCapitalize?:
-		| 'off'
-		| 'none'
-		| 'on'
-		| 'sentences'
-		| 'words'
-		| 'characters'
+
 	color?: string
 	contenteditable?: boolean | 'plaintext-only' | 'inherit'
-	contentEditable?: boolean | 'plaintext-only' | 'inherit'
 	contextmenu?: string
-	contextMenu?: string
 	datatype?: string
 	dir?: 'ltr' | 'rtl' | 'auto'
 	draggable?: boolean | 'false' | 'true'
 	exportparts?: string
-	exportParts?: string
 	hidden?: boolean | 'hidden' | 'until-found'
 	id?: string
 	inert?: boolean
 	inlist?: any
-	innerHTML?: string | number
-	innerText?: string | number
 	inputmode?:
 		| 'none'
 		| 'text'
@@ -279,25 +273,12 @@ interface DOMHTMLAttributes {
 		| 'numeric'
 		| 'decimal'
 		| 'search'
-	inputMode?:
-		| 'none'
-		| 'text'
-		| 'tel'
-		| 'url'
-		| 'email'
-		| 'numeric'
-		| 'decimal'
-		| 'search'
+	is?: string
 	itemid?: string
-	itemId?: string
 	itemprop?: string
-	itemProp?: string
 	itemref?: string
-	itemRef?: string
 	itemscope?: boolean
-	itemScope?: boolean
 	itemtype?: string
-	itemType?: string
 	lang?: string
 	part?: string
 	popover?: boolean | 'manual' | 'auto'
@@ -307,8 +288,6 @@ interface DOMHTMLAttributes {
 	slot?: string
 	spellcheck?: boolean
 	tabindex?: number | string
-	tabIndex?: number | string
-	textContent?: string | number
 	title?: string
 	translate?: 'yes' | 'no'
 	typeof?: string
@@ -745,7 +724,7 @@ interface AriaAttributes {
 interface HTMLWebViewElementAttributes {
 	allowfullscreen?: boolean
 	allowpopups?: boolean
-	autoFocus?: boolean
+	autofocus?: boolean
 	autosize?: boolean
 	blinkfeatures?: string
 	disableblinkfeatures?: string
@@ -772,11 +751,10 @@ interface HTMLWebViewElements {
 interface HTMLMediaHTMLAttributes {
 	autoplay?: boolean
 	controls?: boolean
+	controlslist?: string
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
-	crossOrigin?: 'anonymous' | 'use-credentials' | ''
 	loop?: boolean
 	mediagroup?: string
-	mediaGroup?: string
 	muted?: boolean
 	preload?: 'none' | 'metadata' | 'auto' | ''
 	src?: string
@@ -791,15 +769,6 @@ interface HTMLAnchorElementAttributes {
 	media?: string
 	ping?: string
 	referrerpolicy?:
-		| 'no-referrer'
-		| 'no-referrer-when-downgrade'
-		| 'origin'
-		| 'origin-when-cross-origin'
-		| 'same-origin'
-		| 'strict-origin'
-		| 'strict-origin-when-cross-origin'
-		| 'unsafe-url'
-	referrerPolicy?:
 		| 'no-referrer'
 		| 'no-referrer-when-downgrade'
 		| 'origin'
@@ -828,15 +797,6 @@ interface HTMLAreaElementAttributes {
 		| 'strict-origin'
 		| 'strict-origin-when-cross-origin'
 		| 'unsafe-url'
-	referrerPolicy?:
-		| 'no-referrer'
-		| 'no-referrer-when-downgrade'
-		| 'origin'
-		| 'origin-when-cross-origin'
-		| 'same-origin'
-		| 'strict-origin'
-		| 'strict-origin-when-cross-origin'
-		| 'unsafe-url'
 	rel?: string
 	shape?: 'rect' | 'circle' | 'poly' | 'default'
 	target?: string
@@ -854,26 +814,16 @@ interface HTMLButtonElementAttributes {
 	disabled?: boolean
 	form?: string
 	formaction?: string
-	formAction?: string
-	formEnctype?:
-		| 'application/x-www-form-urlencoded'
-		| 'multipart/form-data'
-		| 'text/plain'
 	formenctype?:
 		| 'application/x-www-form-urlencoded'
 		| 'multipart/form-data'
 		| 'text/plain'
-	formMethod?: 'post' | 'get' | 'dialog'
 	formmethod?: 'post' | 'get' | 'dialog'
 	formnovalidate?: boolean
-	formNoValidate?: boolean
 	formtarget?: string
-	formTarget?: string
 	name?: string
 	popovertarget?: string
-	popoverTarget?: string
 	popovertargetaction?: 'hide' | 'show' | 'toggle'
-	popoverTargetAction?: 'hide' | 'show' | 'toggle'
 	type?: 'submit' | 'reset' | 'button'
 	value?: string
 }
@@ -883,10 +833,11 @@ interface HTMLCanvasElementAttributes {
 }
 interface HTMLDListElementAttributes {}
 interface HTMLDataElementAttributes {
-	value?: string | string[] | number
+	value?: string | number
 }
 interface HTMLDataListElementAttributes {}
 interface HTMLDetailsElementAttributes {
+	name?: string
 	open?: boolean
 }
 interface HTMLDialogElementAttributes {
@@ -920,13 +871,14 @@ interface HTMLFormElementAttributes {
 	method?: 'post' | 'get' | 'dialog'
 	name?: string
 	novalidate?: boolean
-	noValidate?: boolean
 	target?: string
 }
 interface HTMLHRElementAttributes {}
 interface HTMLHeadElementAttributes {}
 interface HTMLHeadingElementAttributes {}
-interface HTMLHtmlElementAttributes {}
+interface HTMLHtmlElementAttributes {
+	manifest?: string
+}
 interface HTMLIFrameElementAttributes {
 	allow?: string
 	allowfullscreen?: boolean
@@ -934,15 +886,6 @@ interface HTMLIFrameElementAttributes {
 	loading?: 'eager' | 'lazy'
 	name?: string
 	referrerpolicy?:
-		| 'no-referrer'
-		| 'no-referrer-when-downgrade'
-		| 'origin'
-		| 'origin-when-cross-origin'
-		| 'same-origin'
-		| 'strict-origin'
-		| 'strict-origin-when-cross-origin'
-		| 'unsafe-url'
-	referrerPolicy?:
 		| 'no-referrer'
 		| 'no-referrer-when-downgrade'
 		| 'origin'
@@ -975,24 +918,13 @@ interface HTMLIFrameElementAttributes {
 interface HTMLImageElementAttributes {
 	alt?: string
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
-	crossOrigin?: 'anonymous' | 'use-credentials' | ''
 	decoding?: 'sync' | 'async' | 'auto'
 	elementtiming?: string
 	fetchpriority?: 'high' | 'low' | 'auto'
 	height?: number | string
 	ismap?: boolean
-	isMap?: boolean
 	loading?: 'eager' | 'lazy'
 	referrerpolicy?:
-		| 'no-referrer'
-		| 'no-referrer-when-downgrade'
-		| 'origin'
-		| 'origin-when-cross-origin'
-		| 'same-origin'
-		| 'strict-origin'
-		| 'strict-origin-when-cross-origin'
-		| 'unsafe-url'
-	referrerPolicy?:
 		| 'no-referrer'
 		| 'no-referrer-when-downgrade'
 		| 'origin'
@@ -1004,9 +936,7 @@ interface HTMLImageElementAttributes {
 	sizes?: string
 	src?: string
 	srcset?: string
-	srcSet?: string
 	usemap?: string
-	useMap?: string
 	width?: number | string
 }
 interface HTMLInputElementAttributes {
@@ -1018,7 +948,6 @@ interface HTMLInputElementAttributes {
 	capture?: boolean | string
 	checked?: boolean
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
-	crossOrigin?: 'anonymous' | 'use-credentials' | ''
 	disabled?: boolean
 	enterkeyhint?:
 		| 'enter'
@@ -1030,43 +959,32 @@ interface HTMLInputElementAttributes {
 		| 'send'
 	form?: string
 	formaction?: string
-	formAction?: string
 	formenctype?:
 		| 'application/x-www-form-urlencoded'
 		| 'multipart/form-data'
 		| 'text/plain'
-	formEnctype?:
-		| 'application/x-www-form-urlencoded'
-		| 'multipart/form-data'
-		| 'text/plain'
 	formmethod?: 'post' | 'get' | 'dialog'
-	formMethod?: 'post' | 'get' | 'dialog'
 	formnovalidate?: boolean
-	formNoValidate?: boolean
 	formtarget?: string
-	formTarget?: string
 	height?: number | string
 	incremental?: boolean
 	list?: string
 	max?: number | string
 	maxlength?: number | string
-	maxLength?: number | string
 	min?: number | string
 	minlength?: number | string
-	minLength?: number | string
 	multiple?: boolean
 	name?: string
 	pattern?: string
 	placeholder?: string
 	readonly?: boolean
-	readOnly?: boolean
 	required?: boolean
 	results?: number
 	size?: number | string
 	src?: string
 	step?: number | string
 	type?: string
-	value?: string | string[] | number
+	value?: string | number
 	width?: number | string
 }
 interface HTMLLIElementAttributes {
@@ -1092,7 +1010,6 @@ interface HTMLLinkElementAttributes {
 		| 'video'
 		| 'worker'
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
-	crossOrigin?: 'anonymous' | 'use-credentials' | ''
 	disabled?: boolean
 	fetchpriority?: 'high' | 'low' | 'auto'
 	href?: string
@@ -1102,15 +1019,6 @@ interface HTMLLinkElementAttributes {
 	integrity?: string
 	media?: string
 	referrerpolicy?:
-		| 'no-referrer'
-		| 'no-referrer-when-downgrade'
-		| 'origin'
-		| 'origin-when-cross-origin'
-		| 'same-origin'
-		| 'strict-origin'
-		| 'strict-origin-when-cross-origin'
-		| 'unsafe-url'
-	referrerPolicy?:
 		| 'no-referrer'
 		| 'no-referrer-when-downgrade'
 		| 'origin'
@@ -1131,9 +1039,9 @@ interface HTMLMenuElementAttributes {
 	type?: 'context' | 'toolbar'
 }
 interface HTMLMetaElementAttributes {
-	'http-equiv'?: string
 	charset?: string
 	content?: string
+	'http-equiv'?: string
 	media?: string
 	name?: string
 }
@@ -1144,11 +1052,11 @@ interface HTMLMeterElementAttributes {
 	max?: number | string
 	min?: number | string
 	optimum?: number | string
-	value?: string | string[] | number
+	value?: string | number
 }
 interface HTMLModElementAttributes {
 	cite?: string
-	dateTime?: string
+	datetime?: string
 }
 interface HTMLOListElementAttributes {
 	reversed?: boolean
@@ -1162,7 +1070,6 @@ interface HTMLObjectElementAttributes {
 	name?: string
 	type?: string
 	usemap?: string
-	useMap?: string
 	width?: number | string
 }
 interface HTMLOptGroupElementAttributes {
@@ -1173,7 +1080,7 @@ interface HTMLOptionElementAttributes {
 	disabled?: boolean
 	label?: string
 	selected?: boolean
-	value?: string | string[] | number
+	value?: string | number
 }
 interface HTMLOutputElementAttributes {
 	for?: string
@@ -1185,7 +1092,7 @@ interface HTMLPictureElementAttributes {}
 interface HTMLPreElementAttributes {}
 interface HTMLProgressElementAttributes {
 	max?: number | string
-	value?: string | string[] | number
+	value?: string | number
 }
 interface HTMLQuoteElementAttributes {
 	cite?: string
@@ -1194,22 +1101,11 @@ interface HTMLScriptElementAttributes {
 	async?: boolean
 	charset?: string
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
-	crossOrigin?: 'anonymous' | 'use-credentials' | ''
 	defer?: boolean
 	integrity?: string
 	nomodule?: boolean
-	noModule?: boolean
 	nonce?: string
 	referrerpolicy?:
-		| 'no-referrer'
-		| 'no-referrer-when-downgrade'
-		| 'origin'
-		| 'origin-when-cross-origin'
-		| 'same-origin'
-		| 'strict-origin'
-		| 'strict-origin-when-cross-origin'
-		| 'unsafe-url'
-	referrerPolicy?:
 		| 'no-referrer'
 		| 'no-referrer-when-downgrade'
 		| 'origin'
@@ -1230,7 +1126,7 @@ interface HTMLSelectElementAttributes {
 	name?: string
 	required?: boolean
 	size?: number | string
-	value?: string | string[] | number
+	value?: string | number
 }
 interface HTMLSlotElementAttributes {
 	name?: string
@@ -1253,12 +1149,11 @@ interface HTMLStyleElementAttributes {
 }
 interface HTMLTableCaptionElementAttributes {}
 interface HTMLTableCellElementAttributes {
+	abbr?: string
 	align?: 'left' | 'center' | 'right' | 'justify' | 'char'
 	colspan?: number | string
-	colSpan?: number | string
 	headers?: string
 	rowspan?: number | string
-	rowSpan?: number | string
 	scope?: 'col' | 'row' | 'rowgroup' | 'colgroup'
 }
 interface HTMLTableColElementAttributes {
@@ -1273,7 +1168,12 @@ interface HTMLTableElementAttributes {
 }
 interface HTMLTableRowElementAttributes {}
 interface HTMLTableSectionElementAttributes {}
-interface HTMLTemplateElementAttributes {}
+interface HTMLTemplateElementAttributes {
+	shadowrootclonable?: boolean
+	shadowrootdelegatesfocus?: boolean
+	shadowrootmode?: 'open' | 'closed'
+	shadowrootserializable?: boolean
+}
 interface HTMLTextAreaElementAttributes {
 	autocomplete?: string
 	autofocus?: boolean
@@ -1290,21 +1190,17 @@ interface HTMLTextAreaElementAttributes {
 		| 'send'
 	form?: string
 	maxlength?: number | string
-	maxLength?: number | string
 	minlength?: number | string
-	minLength?: number | string
 	name?: string
 	placeholder?: string
 	readonly?: boolean
-	readOnly?: boolean
 	required?: boolean
 	rows?: number | string
-	value?: string | string[] | number
+	value?: string | number
 	wrap?: 'hard' | 'soft' | 'off'
 }
 interface HTMLTimeElementAttributes {
 	datetime?: string
-	dateTime?: string
 }
 interface HTMLTitleElementAttributes {}
 interface HTMLTrackElementAttributes {
@@ -1321,8 +1217,8 @@ interface HTMLTrackElementAttributes {
 }
 interface HTMLUListElementAttributes {}
 interface HTMLVideoElementAttributes extends HTMLMediaHTMLAttributes {
-	disablePictureInPicture?: boolean
-	disableRemotePlayback?: boolean
+	disablepictureinpicture?: boolean
+	disableremoteplayback?: boolean
 	height?: number | string
 	playsinline?: boolean
 	poster?: string
@@ -1338,20 +1234,20 @@ interface HTMLFrameElementAttributes {}
 interface HTMLFrameSetElementAttributes {}
 interface HTMLMarqueeElementAttributes {
 	behavior?: 'scroll' | 'slide' | 'alternate'
-	bgColor?: string
+	bgcolor?: string
 	direction?: 'left' | 'right' | 'up' | 'down'
 	height?: number | string
 	hspace?: number | string
 	loop?: number | string
-	scrollAmount?: number | string
-	scrollDelay?: number | string
-	trueSpeed?: boolean
+	scrollamount?: number | string
+	scrolldelay?: number | string
+	truespeed?: boolean
 	vspace?: number | string
 	width?: number | string
 }
 interface HTMLParamElementAttributes {
 	name?: string
-	value?: string | string[] | number
+	value?: string | number
 }
 interface HTMLPreElementAttributes {}
 interface HTMLUnknownElementAttributes {}
