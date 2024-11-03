@@ -21,6 +21,7 @@ import {
 } from './useURL.js'
 
 import { Context } from '../web/router/context.js'
+import { useTimeout } from './useTimeout.js'
 
 // window.location signal
 
@@ -164,6 +165,7 @@ function navigateInternal(href, options) {
  * 	params?: object
  * 	scroll?: boolean
  * 	replace?: boolean
+ * 	delay?: number
  * }} options
  * @url https://pota.quack.uy/Components/Router/Navigate
  */
@@ -172,14 +174,17 @@ function navigateUser(href, options = nothing) {
 
 	href = replaceParams(href, options.params)
 
-	// when the user sets the url it may pass a relative path
-	// this makes it absolute
-	navigate(
-		href.startsWith('http')
-			? href
-			: new URL(href, wLocation.href).href,
-		options,
-	)
+	/**
+	 * When the user provides the url, it may pass a relative path, this
+	 * makes it absolute
+	 */
+	href = href.startsWith('http')
+		? href
+		: new URL(href, wLocation.href).href
+
+	const nav = () => navigate(href, options)
+
+	options.delay ? useTimeout(nav, options.delay).start() : nav()
 }
 export { navigateUser as navigate }
 
@@ -191,6 +196,7 @@ export { navigateUser as navigate }
  * 	scroll?: boolean
  * 	replace?: boolean
  * 	params?: object
+ * 	delay?: number
  * }} props
  * @url https://pota.quack.uy/Components/Router/Navigate
  */
