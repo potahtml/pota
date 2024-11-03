@@ -798,14 +798,14 @@ interface HTMLAreaElementAttributes {
 		| 'unsafe-url'
 	rel?: string
 	shape?: 'rect' | 'circle' | 'poly' | 'default'
-	target?: string
+	target?: '_self' | '_blank' | '_parent' | '_top' | (string & {})
 }
 interface HTMLAudioElementAttributes
 	extends HTMLMediaHTMLAttributes {}
 interface HTMLBRElementAttributes {}
 interface HTMLBaseElementAttributes {
 	href?: string
-	target?: string
+	target?: '_self' | '_blank' | '_parent' | '_top' | (string & {})
 }
 interface HTMLBodyElementAttributes {}
 interface HTMLButtonElementAttributes {
@@ -870,7 +870,7 @@ interface HTMLFormElementAttributes {
 	method?: 'post' | 'get' | 'dialog'
 	name?: string
 	novalidate?: boolean
-	target?: string
+	target?: '_self' | '_blank' | '_parent' | '_top' | (string & {})
 }
 interface HTMLHRElementAttributes {}
 interface HTMLHeadElementAttributes {}
@@ -944,7 +944,7 @@ interface HTMLInputElementAttributes {
 	autocomplete?: string
 	autocorrect?: 'on' | 'off'
 	autofocus?: boolean
-	capture?: boolean | string
+	capture?: 'user' | 'environment'
 	checked?: boolean
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
 	disabled?: boolean
@@ -982,7 +982,29 @@ interface HTMLInputElementAttributes {
 	size?: number | string
 	src?: string
 	step?: number | string
-	type?: string
+	type?:
+		| 'button'
+		| 'checkbox'
+		| 'color'
+		| 'date'
+		| 'datetime-local'
+		| 'email'
+		| 'file'
+		| 'hidden'
+		| 'image'
+		| 'month'
+		| 'number'
+		| 'password'
+		| 'radio'
+		| 'range'
+		| 'reset'
+		| 'search'
+		| 'submit'
+		| 'tel'
+		| 'text'
+		| 'time'
+		| 'url'
+		| 'week'
 	value?: string | number
 	width?: number | string
 }
@@ -1159,12 +1181,7 @@ interface HTMLTableColElementAttributes {
 	span?: number | string
 	width?: number | string
 }
-interface HTMLTableElementAttributes {
-	cellpadding?: number | string
-	cellspacing?: number | string
-	summary?: string
-	width?: number | string
-}
+interface HTMLTableElementAttributes {}
 interface HTMLTableRowElementAttributes {}
 interface HTMLTableSectionElementAttributes {}
 interface HTMLTemplateElementAttributes {
@@ -1205,9 +1222,15 @@ interface HTMLTitleElementAttributes {}
 interface HTMLTrackElementAttributes {
 	default?: boolean
 	kind?:
+		| 'alternative'
+		| 'descriptions'
+		| 'main'
+		| 'main-desc'
+		| 'translation'
+		| 'commentary'
+		// ??
 		| 'subtitles'
 		| 'captions'
-		| 'descriptions'
 		| 'chapters'
 		| 'metadata'
 	label?: string
