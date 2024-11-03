@@ -203,6 +203,7 @@ export { navigateUser as navigate }
 export function Navigate(props) {
 	addListeners()
 	navigateUser(props.href, props)
+	return props.children
 }
 
 // listeners
