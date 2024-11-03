@@ -299,7 +299,6 @@ interface DOMSVGAttributes extends DOMHTMLAttributes {
 }
 
 interface DOMMathMLAttributes extends DOMHTMLAttributes {
-	dir?: 'ltr' | 'rtl'
 	displaystyle?: boolean
 	/**
 	 * @deprecated This feature is non-standard. See
@@ -763,7 +762,7 @@ interface HTMLMediaHTMLAttributes {
 /* HTMLElements */
 
 interface HTMLAnchorElementAttributes {
-	download?: any
+	download?: string
 	href?: string
 	hreflang?: string
 	media?: string
@@ -778,13 +777,13 @@ interface HTMLAnchorElementAttributes {
 		| 'strict-origin-when-cross-origin'
 		| 'unsafe-url'
 	rel?: string
-	target?: string
+	target?: '_self' | '_blank' | '_parent' | '_top' | (string & {})
 	type?: string
 }
 interface HTMLAreaElementAttributes {
 	alt?: string
 	coords?: string
-	download?: any
+	download?: string
 	href?: string
 	hreflang?: string
 	ping?: string
@@ -2372,11 +2371,7 @@ interface MathMLElements {
 		MathMLAnnotationXmlElementAttributes,
 		MathMLElementEvents<MathMLElement>
 	>
-	maction: MathMLAttributes<
-		MathMLElement,
-		MathMLMactionElementAttributes,
-		MathMLElementEvents<MathMLElement>
-	>
+
 	math: MathMLAttributes<
 		MathMLElement,
 		MathMLMathElementAttributes,
@@ -2517,6 +2512,12 @@ interface MathMLElements {
 // MathMLDeprecatedElements (THIS IS AUTO GENERATED!)
 
 interface MathMLDeprecatedElements {
+	/** @deprecated */
+	maction: MathMLAttributes<
+		MathMLElement,
+		MathMLMactionElementAttributes,
+		MathMLElementEvents<MathMLElement>
+	>
 	/** @deprecated */
 	menclose: MathMLAttributes<
 		MathMLElement,
@@ -2970,10 +2971,6 @@ interface GlobalEventHandlersEvents<Element> {
 	onTransitionStart?: Events<TransitionEvent, Element>
 	onVolumeChange?: Events<Event, Element>
 	onWaiting?: Events<Event, Element>
-	onWebKitAnimationEnd?: Events<Event, Element>
-	onWebKitAnimationIteration?: Events<Event, Element>
-	onWebKitAnimationStart?: Events<Event, Element>
-	onWebKitTransitionEnd?: Events<Event, Element>
 	onWheel?: Events<WheelEvent, Element>
 }
 interface HTMLBodyElementEvents<Element>
@@ -2992,8 +2989,8 @@ interface HTMLMediaElementEvents<Element>
 }
 interface HTMLVideoElementEvents<Element>
 	extends HTMLMediaElementEvents<Element> {
-	onEnterPictureInPicture?: Events<Event, Element>
-	onLeavePictureInPicture?: Events<Event, Element>
+	onEnterPictureInPicture?: Events<PictureInPictureEvent, Element>
+	onLeavePictureInPicture?: Events<PictureInPictureEvent, Element>
 }
 interface MathMLElementEvents<Element>
 	extends ElementEvents<Element>,
