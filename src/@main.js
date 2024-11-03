@@ -15,6 +15,7 @@ export {
 	map,
 	memo,
 	owned,
+	on,
 	ref,
 	resolve,
 	root,
