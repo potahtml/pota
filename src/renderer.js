@@ -459,19 +459,10 @@ function createChildren(parent, child, relative, prev = undefined) {
 
 			// CSSStyleSheet
 			if (child instanceof CSSStyleSheet) {
-				/**
-				 * Custom elements wont report a document unless is already
-				 * connected. So our stylesheet would end on the main document
-				 * intead of the shadodRoot
-				 */
-				onFixes(() => {
-					if (isConnected(parent)) {
-						const doc = getDocumentForElement(parent)
-						adoptedStyleSheetsAdd(doc, child)
+				adoptedStyleSheetsAdd(document, child)
 
-						cleanup(() => adoptedStyleSheetsRemove(doc, child))
-					}
-				})
+				// fix me: this need a counter
+				cleanup(() => adoptedStyleSheetsRemove(document, child))
 
 				return undefined
 			}

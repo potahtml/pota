@@ -46,17 +46,7 @@ export function buildPartial(path, state) {
 	const attributes = [createAttribute('#pota', '')]
 
 	for (const attr of path.get('openingElement').get('attributes')) {
-		/**
-		 * Cannot inline attributes into the partial for custom-elements
-		 * as we do not know if it's a property or an attribute. This
-		 * makes custom-elements slower than other kind of elements, but
-		 * makes the heuristic more accurate.
-		 */
-		if (
-			!tagName.includes('-') &&
-			attr.isJSXAttribute() &&
-			t.isJSXIdentifier(attr.node.name)
-		) {
+		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
 			const name = attr.node.name.name
 
 			/** `isXML` */
@@ -248,13 +238,9 @@ export function partialMerge(path, state) {
 		}
 
 		// if should use importNode instead of cloneNode
-		const isImportNode = // custom element tag
-			/<\/[a-z0-9]+-[a-z0-9]+>/.test(partial) ||
-			// custom element `is`
-			/<[a-z]+[^>]+is=[^>]+>/.test(partial) ||
+		const isImportNode =
 			// lazy loading frame/img
-			/<(img|iframe)[^>]+>/.test(partial) ||
-			undefined
+			/<(img|iframe)[^>]+>/.test(partial) || undefined
 
 		if (isImportNode) {
 			propsAt.i = 1

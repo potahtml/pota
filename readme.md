@@ -1,7 +1,7 @@
 # pota
 
 pota is a small, pluggable, yet fully-featured Reactive Web Renderer,
-designed to work with web components and xmlns.
+designed to work with html and xmlns.
 
 pota is compiler-less, allowing you to use it with an `html` function.
 It also includes a Babel preset for transforming `JSX` into fast and
