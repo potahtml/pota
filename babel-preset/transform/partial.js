@@ -238,9 +238,13 @@ export function partialMerge(path, state) {
 		}
 
 		// if should use importNode instead of cloneNode
-		const isImportNode =
+		const isImportNode = // custom element tag
+			/<\/[a-z0-9]+-[a-z0-9]+>/.test(partial) ||
+			// custom element `is`
+			/<[a-z]+[^>]+is=[^>]+>/.test(partial) ||
 			// lazy loading frame/img
-			/<(img|iframe)[^>]+>/.test(partial) || undefined
+			/<(img|iframe)[^>]+>/.test(partial) ||
+			undefined
 
 		if (isImportNode) {
 			propsAt.i = 1

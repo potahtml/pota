@@ -27,10 +27,14 @@ export const setUnknown = (node, name, value, ns) => {
 export const _setUnknown = (node, name, value, ns) => {
 	const setters = elementSetters(node)
 
-	if (setters.element.has(name) && typeof value !== 'string') {
+	if (
+		setters.element.has(name) &&
+		(typeof value !== 'string' || node.isCustomElement)
+	) {
 		/**
 		 * 1. Only do this when it's different to a string to avoid coarcing
 		 *    on native elements (ex: (img.width = '16px') === 0)
+		 * 2. Or when a custom element has a setter
 		 */
 		setProperty(node, name, value)
 	} else if (setters.builtIn.has(name)) {

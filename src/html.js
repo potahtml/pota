@@ -8,18 +8,15 @@ import {
 
 import {
 	call,
-	createElement,
 	createTextNode,
 	empty,
 	flat,
-	freeze,
 	toArray,
 	weakStore,
 	withWeakCache,
 } from './lib/std.js'
 
-import { Component, toHTML, toHTMLFragment } from './renderer.js'
-import { assignProps } from './props/@main.js'
+import { Component } from './renderer.js'
 
 import {
 	A,

@@ -2,6 +2,10 @@
 
 export { version } from './version.js'
 
+// PATCHES
+
+import './patches.js'
+
 // REACTIVITY
 
 export {
