@@ -2,13 +2,17 @@
  * The interfaces for Events and Elements are auto-generated from
  * Typescript. https://github.com/potahtml/namespace-jsx-project
  *
- * The fields of the elements are a mix of:
+ * The fields are a mix of:
  *
  * - MDN - https://developer.mozilla.org/
  * - Solid - https://www.solidjs.com/
  * - Voby - https://github.com/vobyjs/voby
  * - Preact - https://preactjs.com/
  * - Vue - https://vuejs.org/
+ *
+ * Table of Elements:
+ *
+ * - https://potahtml.github.io/namespace-jsx-project/index.html
  *
  * Todo
  *
@@ -164,7 +168,7 @@ type NSStyle = {
 }
 
 interface CSSProperties extends csstype.PropertiesHyphen {
-	[key: `-${string}`]: string | number | undefined
+	[key: `-${string}`]: number | string | undefined
 }
 
 interface CSSAttributes extends NSStyle {
@@ -237,9 +241,9 @@ type MathMLAttributes<Element, Attributes, Events> =
 /** DOM */
 
 interface DOMHTMLProperties {
-	innerHTML?: string | number
-	innerText?: string | number
-	textContent?: string | number
+	innerHTML?: number | string
+	innerText?: number | string
+	textContent?: number | string
 }
 
 interface DOMHTMLAttributes extends DOMHTMLProperties {
@@ -254,15 +258,20 @@ interface DOMHTMLAttributes extends DOMHTMLProperties {
 		| 'characters'
 
 	color?: string
-	contenteditable?: boolean | 'plaintext-only' | 'inherit'
+	contenteditable?:
+		| 'true'
+		| 'false'
+		| 'plaintext-only'
+		| 'inherit'
+		| boolean
 	contextmenu?: string
 	datatype?: string
 	dir?: 'ltr' | 'rtl' | 'auto'
-	draggable?: boolean | 'false' | 'true'
+	draggable?: 'true' | 'false' | boolean
 	exportparts?: string
 	hidden?: boolean | 'hidden' | 'until-found'
 	id?: string
-	inert?: boolean
+	inert?: 'true' | boolean
 	inlist?: any
 	inputmode?:
 		| 'decimal'
@@ -277,7 +286,7 @@ interface DOMHTMLAttributes extends DOMHTMLProperties {
 	itemid?: string
 	itemprop?: string
 	itemref?: string
-	itemscope?: boolean
+	itemscope?: 'true' | boolean
 	itemtype?: string
 	lang?: string
 	part?: string
@@ -286,7 +295,7 @@ interface DOMHTMLAttributes extends DOMHTMLProperties {
 	property?: string
 	resource?: string
 	slot?: string
-	spellcheck?: boolean
+	spellcheck?: 'true' | boolean
 	tabindex?: number | string
 	title?: string
 	translate?: 'yes' | 'no'
@@ -299,7 +308,7 @@ interface DOMSVGAttributes extends DOMHTMLAttributes {
 }
 
 interface DOMMathMLAttributes extends DOMHTMLAttributes {
-	displaystyle?: boolean
+	displaystyle?: 'true' | boolean
 	/** @deprecated */
 	href?: string
 	/** @deprecated */
@@ -709,23 +718,31 @@ interface AriaAttributes {
 /* SPECIAL ELEMENTS */
 
 interface HTMLWebViewElementAttributes {
-	allowfullscreen?: boolean
-	allowpopups?: boolean
-	autofocus?: boolean
-	autosize?: boolean
-	blinkfeatures?: string
+	allowpopups?: 'true' | boolean
 	disableblinkfeatures?: string
-	disableguestresize?: boolean
-	disablewebsecurity?: boolean
-	guestinstance?: string
+	disablewebsecurity?: 'true' | boolean
+	enableblinkfeatures?: string
 	httpreferrer?: string
-	nodeintegration?: boolean
+	nodeintegration?: 'true' | boolean
+	nodeintegrationinsubframes?: 'true' | boolean
 	partition?: string
-	plugins?: boolean
+	plugins?: 'true' | boolean
 	preload?: string
 	src?: string
 	useragent?: string
 	webpreferences?: string
+
+	// does this exists?
+	allowfullscreen?: boolean
+	autofocus?: boolean
+	autosize?: boolean
+
+	/** @deprecated */
+	disableguestresize?: 'true' | boolean
+	/** @deprecated */
+	guestinstance?: string
+	/** @deprecated */
+	blinkfeatures?: string
 }
 interface HTMLWebViewElements {
 	/** @url https://www.electronjs.org/docs/latest/api/webview-tag */
@@ -737,12 +754,12 @@ interface HTMLWebViewElements {
 }
 
 interface HTMLMediaHTMLAttributes {
-	autoplay?: boolean
-	controls?: boolean
+	autoplay?: 'true' | boolean
+	controls?: 'true' | boolean
 	controlslist?: string
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
-	loop?: boolean
-	muted?: boolean
+	loop?: 'true' | boolean
+	muted?: 'true' | boolean
 	preload?: 'none' | 'metadata' | 'auto' | ''
 	src?: string
 
@@ -789,6 +806,7 @@ interface HTMLAreaElementAttributes {
 	coords?: string
 	download?: string
 	href?: string
+	nohref?: 'true' | boolean
 	ping?: string
 	referrerpolicy?:
 		| 'no-referrer'
@@ -813,6 +831,9 @@ interface HTMLBaseElementAttributes {
 	href?: string
 	target?: '_self' | '_blank' | '_parent' | '_top' | (string & {})
 }
+interface HTMLBdoElementAttributes {
+	dir?: 'rtl' | 'ltr'
+}
 interface HTMLBodyElementAttributes {
 	/** @deprecated */
 	alink?: string
@@ -821,17 +842,17 @@ interface HTMLBodyElementAttributes {
 	/** @deprecated */
 	bgcolor?: string
 	/** @deprecated */
-	bottommargin?: string
+	bottommargin?: number | string
 	/** @deprecated */
-	leftmargin?: string
+	leftmargin?: number | string
 	/** @deprecated */
 	link?: string
 	/** @deprecated */
-	rightmargin?: string
+	rightmargin?: number | string
 	/** @deprecated */
 	text?: string
 	/** @deprecated */
-	topmargin?: string
+	topmargin?: number | string
 	/** @deprecated */
 	vlink?: string
 }
@@ -845,7 +866,7 @@ interface HTMLButtonElementAttributes {
 		| 'toggle-popover'
 		| (string & {})
 	commandfor?: string
-	disabled?: boolean
+	disabled?: 'true' | boolean
 	form?: string
 	formaction?: string
 	formenctype?:
@@ -853,13 +874,13 @@ interface HTMLButtonElementAttributes {
 		| 'multipart/form-data'
 		| 'text/plain'
 	formmethod?: 'post' | 'get' | 'dialog'
-	formnovalidate?: boolean
+	formnovalidate?: 'true' | boolean
 	formtarget?: '_self' | '_blank' | '_parent' | '_top' | (string & {})
 	name?: string
 	popovertarget?: string
 	popovertargetaction?: 'hide' | 'show' | 'toggle'
 	type?: 'submit' | 'reset' | 'button' | 'menu'
-	value?: string
+	value?: number | string
 }
 interface HTMLCanvasElementAttributes {
 	height?: number | string
@@ -867,18 +888,18 @@ interface HTMLCanvasElementAttributes {
 }
 interface HTMLDListElementAttributes {
 	/** @deprecated */
-	compact?: boolean
+	compact?: 'true' | boolean
 }
 interface HTMLDataElementAttributes {
-	value?: string | number
+	value?: number | string
 }
 interface HTMLDataListElementAttributes {}
 interface HTMLDetailsElementAttributes {
 	name?: string
-	open?: boolean
+	open?: 'true' | boolean
 }
 interface HTMLDialogElementAttributes {
-	open?: boolean
+	open?: 'true' | boolean
 	tabindex?: never
 }
 interface HTMLDivElementAttributes {
@@ -898,7 +919,7 @@ interface HTMLEmbedElementAttributes {
 	name?: string
 }
 interface HTMLFieldSetElementAttributes {
-	disabled?: boolean
+	disabled?: 'true' | boolean
 	form?: string
 	name?: string
 }
@@ -916,7 +937,7 @@ interface HTMLFormElementAttributes {
 		| 'text/plain'
 	method?: 'post' | 'get' | 'dialog'
 	name?: string
-	novalidate?: boolean
+	novalidate?: 'true' | boolean
 	rel?: string
 	target?: '_self' | '_blank' | '_parent' | '_top' | (string & {})
 
@@ -929,14 +950,20 @@ interface HTMLHRElementAttributes {
 	/** @deprecated */
 	color?: string
 	/** @deprecated */
-	noshade?: string
+	noshade?: 'true' | boolean
 	/** @deprecated */
 	size?: string
 	/** @deprecated */
 	width?: string
 }
-interface HTMLHeadElementAttributes {}
-interface HTMLHeadingElementAttributes {}
+interface HTMLHeadElementAttributes {
+	/** @deprecated */
+	profile?: string
+}
+interface HTMLHeadingElementAttributes {
+	/** @deprecated */
+	align?: 'left' | 'right' | 'justify' | 'center'
+}
 interface HTMLHtmlElementAttributes {
 	manifest?: string
 
@@ -945,7 +972,7 @@ interface HTMLHtmlElementAttributes {
 }
 interface HTMLIFrameElementAttributes {
 	allow?: string
-	allowfullscreen?: boolean
+	allowfullscreen?: 'true' | boolean
 	height?: number | string
 	loading?: 'eager' | 'lazy'
 	name?: string
@@ -979,31 +1006,33 @@ interface HTMLIFrameElementAttributes {
 	srcdoc?: string
 	width?: number | string
 
+	/** @non-standard */
+	browsingtopics?: 'true' | boolean
 	/** @experimental */
-	browsingtopics?: boolean
-	/** @experimental */
-	credentialless?: boolean
+	credentialless?: 'true' | boolean
 	/** @experimental */
 	csp?: string
+	/** @experimental */
+	sharedstoragewritable?: 'true' | boolean
 
 	/** @deprecated */
-	allowpaymentrequest?: boolean
+	allowpaymentrequest?: 'true' | boolean
 	/** @deprecated */
-	allowtransparency?: boolean
+	allowtransparency?: 'true' | boolean
 	/** @deprecated */
 	align?: string
 	/** @deprecated */
-	frameborder?: string
+	frameborder?: number | string
 	/** @deprecated */
 	longdesc?: string
 	/** @deprecated */
-	marginheight?: string
+	marginheight?: number | string
 	/** @deprecated */
-	marginwidth?: string
+	marginwidth?: number | string
 	/** @deprecated */
 	scrolling?: 'yes' | 'no' | 'auto'
 	/** @deprecated */
-	seamless?: boolean
+	seamless?: 'true' | boolean
 }
 interface HTMLImageElementAttributes {
 	alt?: string
@@ -1013,7 +1042,7 @@ interface HTMLImageElementAttributes {
 	elementtiming?: string
 	fetchpriority?: 'high' | 'low' | 'auto'
 	height?: number | string
-	ismap?: boolean
+	ismap?: 'true' | boolean
 	loading?: 'eager' | 'lazy'
 	referrerpolicy?:
 		| 'no-referrer'
@@ -1035,13 +1064,17 @@ interface HTMLImageElementAttributes {
 	/** @deprecated */
 	border?: string
 	/** @deprecated */
-	hspace?: number
+	hspace?: number | string
+	/** @deprecated */
+	intrinsicsize?: string
 	/** @deprecated */
 	longdesc?: string
 	/** @deprecated */
+	lowsrc?: string
+	/** @deprecated */
 	name?: string
 	/** @deprecated */
-	vspace?: number
+	vspace?: number | string
 }
 interface HTMLInputElementAttributes {
 	accept?: string
@@ -1113,10 +1146,10 @@ interface HTMLInputElementAttributes {
 	autocorrect?: 'on' | 'off'
 	autofocus?: boolean
 	capture?: 'user' | 'environment'
-	checked?: boolean
+	checked?: 'true' | boolean
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
 	dirname?: string
-	disabled?: boolean
+	disabled?: 'true' | boolean
 	enterkeyhint?:
 		| 'enter'
 		| 'done'
@@ -1132,23 +1165,24 @@ interface HTMLInputElementAttributes {
 		| 'multipart/form-data'
 		| 'text/plain'
 	formmethod?: 'post' | 'get' | 'dialog'
-	formnovalidate?: boolean
+	formnovalidate?: 'true' | boolean
 	formtarget?: string
 	height?: number | string
-	incremental?: boolean
+	incremental?: 'true' | boolean
 	list?: string
 	max?: number | string
 	maxlength?: number | string
 	min?: number | string
 	minlength?: number | string
-	multiple?: boolean
+	multiple?: 'true' | boolean
 	name?: string
 	pattern?: string
 	placeholder?: string
 	popovertarget?: string
 	popovertargetaction?: 'hide' | 'show' | 'toggle'
-	readonly?: boolean
-	required?: boolean
+	readonly?: 'true' | boolean
+	required?: 'true' | boolean
+	results?: number | string
 	size?: number | string
 	src?: string
 	step?: number | string
@@ -1175,7 +1209,7 @@ interface HTMLInputElementAttributes {
 		| 'time'
 		| 'url'
 		| 'week'
-	value?: string | number
+	value?: number | string
 	width?: number | string
 
 	/** @deprecated */
@@ -1213,7 +1247,7 @@ interface HTMLLinkElementAttributes {
 		| 'worker'
 
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
-	disabled?: boolean
+	disabled?: 'true' | boolean
 	fetchpriority?: 'high' | 'low' | 'auto'
 	href?: string
 	hreflang?: string
@@ -1253,7 +1287,7 @@ interface HTMLMenuElementAttributes {
 	/** @deprecated */
 	type?: 'context' | 'toolbar'
 	/** @deprecated */
-	compact?: boolean
+	compact?: 'true' | boolean
 }
 interface HTMLMetaElementAttributes {
 	charset?: string
@@ -1277,19 +1311,19 @@ interface HTMLMeterElementAttributes {
 	max?: number | string
 	min?: number | string
 	optimum?: number | string
-	value?: string | number
+	value?: number | string
 }
 interface HTMLModElementAttributes {
 	cite?: string
 	datetime?: string
 }
 interface HTMLOListElementAttributes {
-	reversed?: boolean
+	reversed?: 'true' | boolean
 	start?: number | string
 	type?: '1' | 'a' | 'A' | 'i' | 'I'
 
 	/** @deprecated */
-	compact?: boolean
+	compact?: 'true' | boolean
 }
 interface HTMLObjectElementAttributes {
 	data?: string
@@ -1314,27 +1348,27 @@ interface HTMLObjectElementAttributes {
 	/** @deprecated */
 	codetype?: string
 	/** @deprecated */
-	declare?: string
+	declare?: 'true' | boolean
 	/** @deprecated */
-	hspace?: string
+	hspace?: number | string
 	/** @deprecated */
 	standby?: string
 	/** @deprecated */
 	usemap?: string
 	/** @deprecated */
-	vspace?: string
+	vspace?: number | string
 	/** @deprecated */
 	typemustmatch?: boolean
 }
 interface HTMLOptGroupElementAttributes {
-	disabled?: boolean
+	disabled?: 'true' | boolean
 	label?: string
 }
 interface HTMLOptionElementAttributes {
-	disabled?: boolean
+	disabled?: 'true' | boolean
 	label?: string
-	selected?: boolean
-	value?: string | number
+	selected?: 'true' | boolean
+	value?: number | string
 }
 interface HTMLOutputElementAttributes {
 	for?: string
@@ -1348,32 +1382,32 @@ interface HTMLParagraphElementAttributes {
 interface HTMLPictureElementAttributes {}
 interface HTMLPreElementAttributes {
 	/** @deprecated */
-	width?: string
+	width?: number | string
 	/** @deprecated */
 	wrap?: string
 }
 interface HTMLPreElementListingAttributes {
 	/** @deprecated */
-	width?: string
+	width?: number | string
 }
 interface HTMLPreElementXmpAttributes {
 	/** @deprecated */
-	width?: string
+	width?: number | string
 }
 interface HTMLProgressElementAttributes {
 	max?: number | string
-	value?: string | number
+	value?: number | string
 }
 interface HTMLQuoteElementAttributes {
 	cite?: string
 }
 interface HTMLScriptElementAttributes {
-	async?: boolean
+	async?: 'true' | boolean
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
-	defer?: boolean
+	defer?: 'true' | boolean
 	fetchpriority?: 'high' | 'low' | 'auto'
 	integrity?: string
-	nomodule?: boolean
+	nomodule?: 'true' | boolean
 	nonce?: string
 	referrerpolicy?:
 		| 'no-referrer'
@@ -1390,7 +1424,7 @@ interface HTMLScriptElementAttributes {
 	/** @experimental */
 	attributionsrc?: string
 	/** @experimental */
-	blocking?: boolean
+	blocking?: string
 
 	/** @deprecated */
 	charset?: string
@@ -1465,13 +1499,13 @@ interface HTMLSelectElementAttributes {
 		| 'work'
 		| (string & {})
 	autofocus?: boolean
-	disabled?: boolean
+	disabled?: 'true' | boolean
 	form?: string
-	multiple?: boolean
+	multiple?: 'true' | boolean
 	name?: string
-	required?: boolean
+	required?: 'true' | boolean
 	size?: number | string
-	value?: string | number
+	value?: number | string
 }
 interface HTMLSlotElementAttributes {
 	name?: string
@@ -1489,12 +1523,13 @@ interface HTMLSpanElementAttributes {}
 interface HTMLStyleElementAttributes {
 	media?: string
 	nonce?: string
+	title?: string
 
 	/** @experimental */
-	blocking?: boolean
+	blocking?: string
 
 	/** @deprecated */
-	scoped?: boolean
+	scoped?: 'true' | boolean
 	/** @deprecated */
 	type?: string
 }
@@ -1520,9 +1555,9 @@ interface HTMLTableCellTdElementAttributes {
 	/** @deprecated */
 	charoff?: string
 	/** @deprecated */
-	height?: string
+	height?: number | string
 	/** @deprecated */
-	nowrap?: boolean
+	nowrap?: 'true' | boolean
 	/** @deprecated */
 	scope?: 'col' | 'row' | 'rowgroup' | 'colgroup'
 	/** @deprecated */
@@ -1550,7 +1585,7 @@ interface HTMLTableCellThElementAttributes {
 	/** @deprecated */
 	height?: string
 	/** @deprecated */
-	nowrap?: boolean
+	nowrap?: 'true' | boolean
 	/** @deprecated */
 	valign?: 'baseline' | 'bottom' | 'middle' | 'top'
 	/** @deprecated */
@@ -1578,7 +1613,7 @@ interface HTMLTableElementAttributes {
 	/** @deprecated */
 	bgcolor?: string
 	/** @deprecated */
-	border?: string
+	border?: number | string
 	/** @deprecated */
 	cellpadding?: number | string
 	/** @deprecated */
@@ -1651,10 +1686,10 @@ interface HTMLTableSectionHeadElementAttributes {
 	valign?: 'baseline' | 'bottom' | 'middle' | 'top'
 }
 interface HTMLTemplateElementAttributes {
-	shadowrootclonable?: boolean
-	shadowrootdelegatesfocus?: boolean
+	shadowrootclonable?: 'true' | boolean
+	shadowrootdelegatesfocus?: 'true' | boolean
 	shadowrootmode?: 'open' | 'closed'
-	shadowrootserializable?: boolean
+	shadowrootserializable?: 'true' | boolean
 }
 interface HTMLTextAreaElementAttributes {
 	autocomplete?:
@@ -1725,7 +1760,7 @@ interface HTMLTextAreaElementAttributes {
 	autofocus?: boolean
 	cols?: number | string
 	dirname?: string
-	disabled?: boolean
+	disabled?: 'true' | boolean
 	enterkeyhint?:
 		| 'enter'
 		| 'done'
@@ -1739,10 +1774,10 @@ interface HTMLTextAreaElementAttributes {
 	minlength?: number | string
 	name?: string
 	placeholder?: string
-	readonly?: boolean
-	required?: boolean
+	readonly?: 'true' | boolean
+	required?: 'true' | boolean
 	rows?: number | string
-	value?: string | number
+	value?: number | string
 	wrap?: 'hard' | 'soft' | 'off'
 }
 interface HTMLTimeElementAttributes {
@@ -1750,7 +1785,7 @@ interface HTMLTimeElementAttributes {
 }
 interface HTMLTitleElementAttributes {}
 interface HTMLTrackElementAttributes {
-	default?: boolean
+	default?: 'true' | boolean
 	kind?:
 		| 'alternative'
 		| 'descriptions'
@@ -1769,15 +1804,15 @@ interface HTMLTrackElementAttributes {
 }
 interface HTMLUListElementAttributes {
 	/** @deprecated */
-	compact?: boolean
+	compact?: 'true' | boolean
 	/** @deprecated */
 	type?: 'circle' | 'disc' | 'square'
 }
 interface HTMLVideoElementAttributes extends HTMLMediaHTMLAttributes {
-	disablepictureinpicture?: boolean
-	disableremoteplayback?: boolean
+	disablepictureinpicture?: 'true' | boolean
+	disableremoteplayback?: 'true' | boolean
 	height?: number | string
-	playsinline?: boolean
+	playsinline?: 'true' | boolean
 	poster?: string
 	width?: number | string
 }
@@ -1786,7 +1821,7 @@ interface HTMLVideoElementAttributes extends HTMLMediaHTMLAttributes {
 
 interface HTMLDirectoryElementAttributes {
 	/** @deprecated */
-	compact?: boolean
+	compact?: 'true' | boolean
 }
 interface HTMLElementAttributes {}
 interface HTMLFontElementAttributes {
@@ -1809,7 +1844,7 @@ interface HTMLFrameElementAttributes {
 	/** @deprecated */
 	name?: string
 	/** @deprecated */
-	noresize?: boolean
+	noresize?: 'true' | boolean
 	/** @deprecated */
 	scrolling?: 'yes' | 'no'
 	/** @deprecated */
@@ -1817,9 +1852,9 @@ interface HTMLFrameElementAttributes {
 }
 interface HTMLFrameSetElementAttributes {
 	/** @deprecated */
-	cols?: string
+	cols?: number | string
 	/** @deprecated */
-	rows?: string
+	rows?: number | string
 }
 interface HTMLMarqueeElementAttributes {
 	/** @deprecated */
@@ -1839,7 +1874,7 @@ interface HTMLMarqueeElementAttributes {
 	/** @deprecated */
 	scrolldelay?: number | string
 	/** @deprecated */
-	truespeed?: boolean
+	truespeed?: 'true' | boolean
 	/** @deprecated */
 	vspace?: number | string
 	/** @deprecated */
@@ -1849,7 +1884,7 @@ interface HTMLParamElementAttributes {
 	/** @deprecated */
 	name?: string
 	/** @deprecated */
-	value?: string | number
+	value?: number | string
 	/** @deprecated */
 	type?: string
 	/** @deprecated */
@@ -1863,7 +1898,7 @@ interface HTMLKeygenElementAttributes {
 	/** @deprecated */
 	challenge?: string
 	/** @deprecated */
-	disabled?: boolean
+	disabled?: 'true' | boolean
 	/** @deprecated */
 	form?: string
 	/** @deprecated */
@@ -1913,23 +1948,23 @@ interface MathMLMmultiscriptsElementAttributes {
 }
 interface MathMLMnElementAttributes {}
 interface MathMLMoElementAttributes {
-	fence?: boolean
+	fence?: 'true' | boolean
 	form?: 'prefix' | 'infix' | 'postfix'
-	largeop?: boolean
+	largeop?: 'true' | boolean
 	lspace?: string
 	maxsize?: string
 	minsize?: string
-	movablelimits?: boolean
+	movablelimits?: 'true' | boolean
 	rspace?: string
-	separator?: boolean
-	stretchy?: boolean
-	symmetric?: boolean
+	separator?: 'true' | boolean
+	stretchy?: 'true' | boolean
+	symmetric?: 'true' | boolean
 
 	/** @non-standard */
-	accent?: boolean
+	accent?: 'true' | boolean
 }
 interface MathMLMoverElementAttributes {
-	accent?: boolean
+	accent?: 'true' | boolean
 }
 interface MathMLMpaddedElementAttributes {
 	depth?: string
@@ -2007,8 +2042,8 @@ interface MathMLMtableElementAttributes {
 	width?: string
 }
 interface MathMLMtdElementAttributes {
-	columnspan?: number
-	rowspan?: number
+	columnspan?: number | string
+	rowspan?: number | string
 	/** @non-standard */
 	columnalign?: 'center' | 'left' | 'right'
 	/** @non-standard */
@@ -2022,11 +2057,11 @@ interface MathMLMtrElementAttributes {
 	rowalign?: 'axis' | 'baseline' | 'bottom' | 'center' | 'top'
 }
 interface MathMLMunderElementAttributes {
-	accentunder?: boolean
+	accentunder?: 'true' | boolean
 }
 interface MathMLMunderoverElementAttributes {
-	accent?: boolean
-	accentunder?: boolean
+	accent?: 'true' | boolean
+	accentunder?: 'true' | boolean
 }
 interface MathMLSemanticsElementAttributes {}
 
@@ -2218,7 +2253,7 @@ interface HTMLElements {
 
 	bdo: HTMLAttributes<
 		HTMLElement,
-		HTMLElementAttributes,
+		HTMLBdoElementAttributes,
 		HTMLElementEvents<HTMLElement>
 	>
 	/**
