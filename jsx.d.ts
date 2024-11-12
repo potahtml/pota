@@ -188,7 +188,7 @@ interface NSAttributes extends NSProp, NSAttr, NSBool {}
 
 /* UTILS */
 
-type Accessor<T> = T | { (): Accessor<T> } | { (): T }
+type Accessor<T> = { (): Accessor<T> } | { (): T } | T
 
 type AccessorMap<T> = {
 	[Key in keyof T]: Accessor<T[Key]>
@@ -738,11 +738,11 @@ interface HTMLWebViewElementAttributes {
 	autosize?: boolean
 
 	/** @deprecated */
+	blinkfeatures?: string
+	/** @deprecated */
 	disableguestresize?: 'true' | boolean
 	/** @deprecated */
 	guestinstance?: string
-	/** @deprecated */
-	blinkfeatures?: string
 }
 interface HTMLWebViewElements {
 	/** @url https://www.electronjs.org/docs/latest/api/webview-tag */
@@ -758,6 +758,7 @@ interface HTMLMediaHTMLAttributes {
 	controls?: 'true' | boolean
 	controlslist?: string
 	crossorigin?: 'anonymous' | 'use-credentials' | ''
+	disableremoteplayback?: 'true' | boolean
 	loop?: 'true' | boolean
 	muted?: 'true' | boolean
 	preload?: 'none' | 'metadata' | 'auto' | ''
@@ -806,7 +807,6 @@ interface HTMLAreaElementAttributes {
 	coords?: string
 	download?: string
 	href?: string
-	nohref?: 'true' | boolean
 	ping?: string
 	referrerpolicy?:
 		| 'no-referrer'
@@ -820,6 +820,9 @@ interface HTMLAreaElementAttributes {
 	rel?: string
 	shape?: 'rect' | 'circle' | 'poly' | 'default'
 	target?: '_self' | '_blank' | '_parent' | '_top' | (string & {})
+
+	/** @deprecated */
+	nohref?: 'true' | boolean
 }
 interface HTMLAudioElementAttributes
 	extends HTMLMediaHTMLAttributes {}
@@ -885,6 +888,9 @@ interface HTMLButtonElementAttributes {
 interface HTMLCanvasElementAttributes {
 	height?: number | string
 	width?: number | string
+
+	/** @deprecated */
+	'moz-opaque'?: 'true' | boolean
 }
 interface HTMLDListElementAttributes {
 	/** @deprecated */
@@ -1283,11 +1289,11 @@ interface HTMLMapElementAttributes {
 }
 interface HTMLMenuElementAttributes {
 	/** @deprecated */
+	compact?: 'true' | boolean
+	/** @deprecated */
 	label?: string
 	/** @deprecated */
 	type?: 'context' | 'toolbar'
-	/** @deprecated */
-	compact?: 'true' | boolean
 }
 interface HTMLMetaElementAttributes {
 	charset?: string
@@ -1354,11 +1360,11 @@ interface HTMLObjectElementAttributes {
 	/** @deprecated */
 	standby?: string
 	/** @deprecated */
+	typemustmatch?: boolean
+	/** @deprecated */
 	usemap?: string
 	/** @deprecated */
 	vspace?: number | string
-	/** @deprecated */
-	typemustmatch?: boolean
 }
 interface HTMLOptGroupElementAttributes {
 	disabled?: 'true' | boolean
@@ -1810,7 +1816,6 @@ interface HTMLUListElementAttributes {
 }
 interface HTMLVideoElementAttributes extends HTMLMediaHTMLAttributes {
 	disablepictureinpicture?: 'true' | boolean
-	disableremoteplayback?: 'true' | boolean
 	height?: number | string
 	playsinline?: 'true' | boolean
 	poster?: string
