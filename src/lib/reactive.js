@@ -1006,6 +1006,47 @@ export const microtask = fn => queueMicrotask(owned(fn))
 
 // MAP
 
+class Row {
+	runId
+	item
+	index
+	isDupe
+	disposer
+	nodes
+
+	constructor(item, index, fn, isDupe) {
+		this.runId = -1
+		this.item = item
+		this.index = index
+		this.isDupe = isDupe
+
+		root(disposer => {
+			this.disposer = disposer
+			/** @type Children[] */
+			this.nodes = fn(item, index)
+		})
+	}
+	begin() {
+		return this.nodes[0]
+	}
+	end() {
+		return this.nodes[this.nodes.length - 1]
+	}
+	nodesForRow() {
+		const begin = this.begin()
+		const end = this.end()
+		const nodes = [begin]
+
+		let nextSibling = begin
+		while (nextSibling !== end) {
+			nextSibling = nextSibling.nextSibling
+			nodes.push(nextSibling)
+		}
+
+		return nodes
+	}
+}
+
 /**
  * Reactive Map
  *
@@ -1026,7 +1067,7 @@ export function map(list, callback, sort) {
 
 	function clear() {
 		for (let i = 0; i < prev.length; i++) {
-			prev[i].dispose(true)
+			dispose(prev[i], true)
 		}
 		cache.clear()
 		duplicates.clear()
@@ -1038,41 +1079,21 @@ export function map(list, callback, sort) {
 	// to get rid of all nodes when parent disposes
 	cleanup(clear)
 
-	class Row {
-		constructor(item, index, fn, isDupe) {
-			this.runId = -1
-			this.item = item
-			this.index = index
-			this.isDupe = isDupe
-			this.disposer = undefined
-			this.nodes = root(disposer => {
-				this.disposer = disposer
-				/** @type Children[] */
-				return fn(item, index)
-			})
-		}
-		get begin() {
-			return this.nodes[0]
-		}
-		get end() {
-			return this.nodes[this.nodes.length - 1]
-		}
-		dispose(all) {
-			// skip cache deletion as we are going to clear the full map
-			if (all === undefined) {
-				// delete from cache
-				if (!this.isDupe) {
-					cache.delete(this.item)
-				} else {
-					const arr = duplicates.get(this.item)
-					arr.length === 1
-						? duplicates.delete(this.item)
-						: removeFromArray(arr, this)
-				}
+	function dispose(row, all) {
+		// skip cache deletion as we are going to clear the full map
+		if (all === undefined) {
+			// delete from cache
+			if (!row.isDupe) {
+				cache.delete(row.item)
+			} else {
+				const arr = duplicates.get(row.item)
+				arr.length === 1
+					? duplicates.delete(row.item)
+					: removeFromArray(arr, row)
 			}
-
-			this.disposer()
 		}
+
+		row.disposer()
 	}
 
 	/**
@@ -1131,7 +1152,7 @@ export function map(list, callback, sort) {
 		} else {
 			for (let i = 0; i < prev.length; i++) {
 				if (prev[i].runId !== runId) {
-					prev[i].dispose()
+					dispose(prev[i])
 				}
 			}
 		}
@@ -1170,11 +1191,11 @@ export function map(list, callback, sort) {
 					for (const usort of b) {
 						for (const sort of a) {
 							if (usort.index === sort.index - 1) {
-								sort.begin.before(...nodesFromRow(usort))
+								sort.begin().before(...usort.nodesForRow())
 								unsorted--
 								break
 							} else if (usort.index === sort.index + 1) {
-								sort.end.after(...nodesFromRow(usort))
+								sort.end().after(...usort.nodesForRow())
 								unsorted--
 								break
 							}
@@ -1190,8 +1211,8 @@ export function map(list, callback, sort) {
 					let current = rows[rows.length - 1]
 					for (let i = rows.length - 1; i > 0; i--) {
 						const previous = rows[i - 1]
-						if (current.begin.previousSibling !== previous.end) {
-							current.begin.before(...nodesFromRow(previous))
+						if (current.begin().previousSibling !== previous.end()) {
+							current.begin().before(...previous.nodesForRow())
 						}
 						current = previous
 					}
@@ -1207,19 +1228,6 @@ export function map(list, callback, sort) {
 	}
 	mapper[$isMap] = undefined
 	return mapper
-}
-
-function nodesFromRow(row) {
-	const { begin, end } = row
-	const nodes = [begin]
-
-	let nextSibling = begin
-	while (nextSibling !== end) {
-		nextSibling = nextSibling.nextSibling
-		nodes.push(nextSibling)
-	}
-
-	return nodes
 }
 
 /**
