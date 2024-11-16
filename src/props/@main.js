@@ -47,7 +47,7 @@ propsPluginNS('var', setVarNS, false)
 
 // noop
 
-import { noop } from '../lib/std.js'
+import { empty, noop } from '../lib/std.js'
 propsPlugin('__dev', noop, false)
 propsPlugin('xmlns', noop, false)
 
@@ -106,6 +106,8 @@ export function assignProps(node, props) {
 	}
 }
 
+const propNS = empty()
+
 /**
  * Assigns a prop to an Element
  *
@@ -130,9 +132,10 @@ export function assignProp(node, name, value, props) {
 		return
 	}
 
-	if (name.includes(':')) {
+	if (propNS[name] || name.includes(':')) {
 		// with ns
-		const [ns, localName] = name.split(':')
+		propNS[name] = propNS[name] || name.split(':')
+		const [ns, localName] = propNS[name]
 
 		// run plugins NS
 		plugin = pluginsNS.get(ns)
