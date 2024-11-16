@@ -136,7 +136,7 @@ class Computation extends Root {
 			Listener = prevListener
 		}
 
-		if (this.updatedAt <= time) {
+		if (this.updatedAt < time) {
 			this.updatedAt = time
 		}
 	}

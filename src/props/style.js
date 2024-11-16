@@ -44,8 +44,7 @@ export const setVarNS = (node, name, value, props, localName, ns) =>
  */
 function setNodeStyle(style, value) {
 	if (isObject(value)) {
-		let name
-		for (name in value) {
+		for (const name in value) {
 			setStyleValue(style, name, value[name])
 		}
 		return

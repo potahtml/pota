@@ -313,6 +313,16 @@ function createChildren(parent, child, relative, prev = undefined) {
 		// string/number
 		case 'string':
 		case 'number': {
+			/**
+			 * The text node could be created by just doing
+			 * `parent.textContent = value` when the parent node has no
+			 * children.
+			 */
+			if (!relative && parent.childNodes.length === 0) {
+				parent.textContent = child
+				return parent.firstChild
+			}
+
 			if (prev instanceof Text) {
 				prev.nodeValue = child
 				return prev
@@ -361,6 +371,7 @@ function createChildren(parent, child, relative, prev = undefined) {
 							)
 							return [begin, createChildren(end, child, true), end]
 						}),
+						true,
 					)
 				})
 
@@ -374,9 +385,11 @@ function createChildren(parent, child, relative, prev = undefined) {
 			// maybe a signal so needs an effect
 
 			effect(() => {
-				node = toDiff(node, [
-					createChildren(parent, child(), true, node[0]),
-				])
+				node = toDiff(
+					node,
+					[createChildren(parent, child(), true, node[0])],
+					true,
+				)
 			})
 
 			cleanup(() => {
@@ -694,8 +707,20 @@ export function toHTMLFragment(children) {
  * @param {Element[]} next - Array with next elements
  * @returns {Element[]}
  */
-function toDiff(prev = [], next = []) {
+function toDiff(prev = [], next = [], short = false) {
 	next = next.flat(Infinity)
+	// fast clear
+	if (short && prev.length && next.length === 0) {
+		// + 1 because of the original placeholder
+		if (prev.length + 1 === prev[0].parentNode.childNodes.length) {
+			const parent = prev[0].parentNode
+			// save the placeholder
+			const child = parent.lastChild
+			parent.textContent = ''
+			parent.append(child)
+			return
+		}
+	}
 	for (let i = 0, item; i < prev.length; i++) {
 		item = prev[i]
 		item &&
