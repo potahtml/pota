@@ -8,9 +8,9 @@ import {
 
 import {
 	call,
-	createTextNode,
 	empty,
 	flat,
+	getValue,
 	toArray,
 	weakStore,
 	withWeakCache,
@@ -47,6 +47,7 @@ const defaultRegistry = {
 // parseHTML
 
 const id = 'pota19611227'
+const splitId = /(pota19611227)/
 
 const xmlns = [
 	'class',
@@ -96,6 +97,12 @@ function toH(html, cached, values) {
 			for (let { name, value } of node.attributes) {
 				if (value === id) {
 					value = values[index++]
+				} else if (value.includes(id)) {
+					const val = value
+						.split(splitId)
+						.map(x => (x === id ? values[index++] : x))
+
+					value = () => val.map(getValue).join('')
 				}
 				props[name] = value
 			}
@@ -107,21 +114,12 @@ function toH(html, cached, values) {
 
 			return Component(html.components[tagName] || tagName, props)
 		} else {
-			if (node.data.includes(id)) {
-				const textNodes = node.data.split(id)
-				const nodes = []
-				for (let i = 0; i < textNodes.length; i++) {
-					const text = textNodes[i]
-					if (text) {
-						nodes.push(createTextNode(text))
-					}
-					if (i < textNodes.length - 1) {
-						nodes.push(values[index++])
-					}
-				}
-				return nodes
-			}
-			return createTextNode(node.data)
+			const value = node.nodeValue
+			return value.includes(id)
+				? value
+						.split(splitId)
+						.map(x => (x === id ? values[index++] : x))
+				: value
 		}
 	}
 
