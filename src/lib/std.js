@@ -67,7 +67,7 @@ export const history = global.history
 export const location = global.location
 export const navigator = global.navigator
 
-export const origin = location.origin
+export const origin = location?.origin
 
 export const promise = fn => new Promise(fn)
 
@@ -106,7 +106,7 @@ export const isConnected = node => node.isConnected
 
 export const activeElement = () => document.activeElement
 
-export const documentElement = document.documentElement
+export const documentElement = document?.documentElement
 
 /**
  * Runs an array of functions
@@ -192,7 +192,7 @@ const defaultsReadOnly = {
 	value: undefined,
 }
 
-const bind = fn => document[fn].bind(document)
+const bind = fn => document && document[fn].bind(document)
 
 export const createElement = bind('createElement')
 
