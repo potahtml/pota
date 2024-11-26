@@ -31,6 +31,7 @@ import {
 	isObject,
 	isPromise,
 	keys,
+	moveBefore,
 	nothing,
 	queueMicrotask,
 	removeFromArray,
@@ -1188,14 +1189,28 @@ export function map(list, callback, sort) {
 					b.length < a.length &&
 					b.every(item => prev.includes(item))
 				) {
+					let parent
 					for (const usort of b) {
 						for (const sort of a) {
 							if (usort.index === sort.index - 1) {
-								sort.begin().before(...usort.nodesForRow())
+								// sort.begin().before(...usort.nodesForRow())
+								const ref = sort.begin()
+								parent = parent || ref.parentNode
+								for (const node of usort.nodesForRow()) {
+									// parent.insertBefore(node, ref)
+									moveBefore(parent, node, ref)
+								}
 								unsorted--
 								break
 							} else if (usort.index === sort.index + 1) {
-								sort.end().after(...usort.nodesForRow())
+								// sort.end().after(...usort.nodesForRow())
+								let ref = sort.end()
+								parent = parent || ref.parentNode
+								ref = ref.nextSibling
+								for (const node of usort.nodesForRow()) {
+									// parent.insertBefore(node, ref)
+									moveBefore(parent, node, ref)
+								}
 								unsorted--
 								break
 							}
@@ -1207,12 +1222,19 @@ export function map(list, callback, sort) {
 					// handles all other cases
 					// best for any combination of: push/pop/shift/unshift/insertion/deletion
 					// must check in reverse as on creation stuff is added to the end
+					let parent
 
 					let current = rows[rows.length - 1]
 					for (let i = rows.length - 1; i > 0; i--) {
 						const previous = rows[i - 1]
 						if (current.begin().previousSibling !== previous.end()) {
-							current.begin().before(...previous.nodesForRow())
+							// current.begin().before(...previous.nodesForRow())
+							const ref = current.begin()
+							parent = parent || ref.parentNode
+							for (const node of previous.nodesForRow()) {
+								// parent.insertBefore(node, ref)
+								moveBefore(parent, node, ref)
+							}
 						}
 						current = previous
 					}
