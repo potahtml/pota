@@ -6,7 +6,7 @@ $('npm version patch --git-tag-version false')
 
 // read version number
 import('./package.json', {
-	assert: { type: 'json' },
+	with: { type: 'json' },
 }).then(json => {
 	// write version number to ./src/version.js
 	const version = json.default.version
