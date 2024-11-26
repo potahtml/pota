@@ -108,14 +108,6 @@ export const activeElement = () => document.activeElement
 
 export const documentElement = document?.documentElement
 
-export function moveBefore(parent, node, ref) {
-	try {
-		parent.moveBefore(node, ref)
-	} catch (bs) {
-		parent.insertBefore(node, ref)
-	}
-}
-
 /**
  * Runs an array of functions
  *
