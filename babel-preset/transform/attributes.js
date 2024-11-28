@@ -15,13 +15,26 @@ export function buildAttributeIntoTag(tag, name, value) {
 	tag.content += ' ' + name + '=' + value
 }
 
+/** If the attribute should be skipped */
+export function shouldSkipAttribute(node) {
+	// boolean `false` gets skipped from the partial
+	return (
+		(t.isBooleanLiteral(node.value) &&
+			getAttributeLiteral(node) === 'false') ||
+		(t.isBooleanLiteral(node.value?.expression) &&
+			getAttributeLiteral(node) === 'false')
+	)
+}
+
 /** If value is string or number */
 export function isAttributeLiteral(node) {
 	return (
 		t.isStringLiteral(node.value) ||
 		t.isNumericLiteral(node.value) ||
+		t.isBooleanLiteral(node.value) ||
 		t.isStringLiteral(node.value?.expression) ||
 		t.isNumericLiteral(node.value?.expression) ||
+		t.isBooleanLiteral(node.value?.expression) ||
 		// <input autofocus/> (it doesnt have a value)
 		node.value === null
 	)
@@ -36,6 +49,7 @@ export function getAttributeLiteral(node) {
 
 	if (
 		t.isStringLiteral(node.value.expression) ||
+		t.isBooleanLiteral(node.value.expression) ||
 		t.isNumericLiteral(node.value.expression)
 	) {
 		return String(node.value.expression.value)

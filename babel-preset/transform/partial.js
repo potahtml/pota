@@ -13,6 +13,7 @@ import {
 	createAttribute,
 	getAttributeLiteral,
 	isAttributeLiteral,
+	shouldSkipAttribute,
 } from './attributes.js'
 import { isVoidElement } from './html.js'
 import { merge, mergeToTag } from './merge.js'
@@ -58,7 +59,9 @@ export function buildPartial(path, state) {
 			/** Should inline the attribute into the template? */
 
 			if (isAttributeLiteral(attr.node)) {
-				if (name === 'xmlns') {
+				if (shouldSkipAttribute(attr.node)) {
+					continue
+				} else if (name === 'xmlns') {
 					/**
 					 * Skip inlining the `xmlns` attribute in the tag when its a
 					 * literal
