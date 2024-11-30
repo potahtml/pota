@@ -451,8 +451,7 @@ export const isFunction = value => typeof value === 'function'
  * @param {any} value
  * @returns {boolean}
  */
-export const isIterable = value =>
-	isObject(value) && 'values' in value
+export const isIterable = value => value?.[Symbol.iterator]
 
 /**
  * Returns `true` if the value is `null` or `undefined`
