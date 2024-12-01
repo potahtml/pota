@@ -108,8 +108,9 @@ function toH(html, cached, values) {
 			}
 
 			// gather children
-			if (node.childNodes.length) {
-				props.children = flat(toArray(node.childNodes).map(nodes))
+			const childNodes = node.childNodes
+			if (childNodes.length) {
+				props.children = flat(toArray(childNodes, nodes))
 			}
 
 			;/[A-Z]/.test(tagName) &&
@@ -127,7 +128,7 @@ function toH(html, cached, values) {
 		}
 	}
 
-	return flat(toArray(cached.childNodes).map(nodes))
+	return flat(toArray(cached, nodes))
 }
 
 /**

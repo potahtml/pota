@@ -459,10 +459,8 @@ function createChildren(parent, child, relative, prev = undefined) {
 
 			// iterable/Map/Set/NodeList
 			if (iterator in child) {
-				return createChildren(
-					parent,
-					toArray(child.values()),
-					relative,
+				return toArray(child.values(), child =>
+					createChildren(parent, child, relative),
 				)
 			}
 
