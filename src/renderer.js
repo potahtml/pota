@@ -228,18 +228,20 @@ function parseHTML(content, xmlns) {
 	template.innerHTML = content
 
 	// xml
-	if (!template.content) {
-		if (template.childNodes.length === 1) {
+	let tlpContent = template.content
+	if (!tlpContent) {
+		const childNodes = template.childNodes
+		if (childNodes.length === 1) {
 			return template.firstChild
 		}
 
-		template.content = new DocumentFragment()
-		template.content.append(...template.childNodes)
+		tlpContent = new DocumentFragment()
+		tlpContent.append(...childNodes)
 	}
 
-	return template.content.childNodes.length === 1
-		? template.content.firstChild
-		: template.content
+	return tlpContent.childNodes.length === 1
+		? tlpContent.firstChild
+		: tlpContent
 }
 
 export function createPartial(content, propsData = nothing) {
