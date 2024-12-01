@@ -112,6 +112,10 @@ function toH(html, cached, values) {
 				props.children = flat(toArray(node.childNodes).map(nodes))
 			}
 
+			;/[A-Z]/.test(tagName) &&
+				!html.components[tagName] &&
+				console.warn(`Forgot to ´html.define({ ${tagName} })´?`)
+
 			return Component(html.components[tagName] || tagName, props)
 		} else {
 			const value = node.nodeValue
