@@ -315,6 +315,11 @@ function createChildren(parent, child, relative, prev = undefined) {
 		// string/number
 		case 'string':
 		case 'number': {
+			if (prev instanceof Text) {
+				prev.nodeValue = child
+				return prev
+			}
+
 			/**
 			 * The text node could be created by just doing
 			 * `parent.textContent = value` when the parent node has no
@@ -325,10 +330,6 @@ function createChildren(parent, child, relative, prev = undefined) {
 				return parent.firstChild
 			}
 
-			if (prev instanceof Text) {
-				prev.nodeValue = child
-				return prev
-			}
 			return insertNode(parent, createTextNode(child), relative)
 		}
 
