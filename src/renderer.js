@@ -412,8 +412,19 @@ function createChildren(parent, child, relative, prev = undefined) {
 		}
 
 		case 'object': {
-			// HTMLElement/Text
-			if (child instanceof HTMLElement || child instanceof Text) {
+			// Node/DocumentFragment
+			if (child instanceof Node) {
+				/**
+				 * DocumentFragment are special as only the children get added
+				 * to the document and the document becomes empty. If we dont
+				 * insert them 1 by 1 then we wont have a reference to them
+				 * for deletion on cleanup with node.remove()
+				 */
+				if (child instanceof DocumentFragment) {
+					return toArray(child.childNodes, child =>
+						createChildren(parent, child, relative),
+					)
+				}
 				return insertNode(parent, child, relative)
 			}
 
@@ -432,24 +443,6 @@ function createChildren(parent, child, relative, prev = undefined) {
 			 */
 			if (child === null) {
 				return undefined
-			}
-
-			// Node/DocumentFragment
-			if (child instanceof Node) {
-				/**
-				 * DocumentFragment are special as only the children get added
-				 * to the document and the document becomes empty. If we dont
-				 * insert them 1 by 1 then we wont have a reference to them
-				 * for deletion on cleanup with node.remove()
-				 */
-				if (child instanceof DocumentFragment) {
-					return createChildren(
-						parent,
-						toArray(child.childNodes),
-						relative,
-					)
-				}
-				return insertNode(parent, child, relative)
 			}
 
 			// async components
