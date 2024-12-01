@@ -195,10 +195,9 @@ const defaultsReadOnly = {
 const bind = fn => document && document[fn].bind(document)
 
 export const createElement = bind('createElement')
-
 export const createElementNS = bind('createElementNS')
-
 export const createTextNode = bind('createTextNode')
+export const createComment = bind('createComment')
 
 export const importNode = bind('importNode')
 

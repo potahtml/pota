@@ -8,6 +8,8 @@ import {
 
 import {
 	call,
+	createComment,
+	createTextNode,
 	empty,
 	flat,
 	getValue,
@@ -70,12 +72,21 @@ const xmlns = [
  * @param {TemplateStringsArray} content
  * @returns {Element}
  */
-const parseHTML = withWeakCache(content =>
-	new DOMParser().parseFromString(
+const parseHTML = withWeakCache(content => {
+	const html = new DOMParser().parseFromString(
 		`<xml ${xmlns}>${content.join(id)}</xml>`,
 		'text/xml',
-	),
-)
+	).firstChild.childNodes
+
+	if (html[0].tagName === 'parsererror') {
+		const err = html[0]
+		err.style.padding = '1em'
+		err.firstChild.textContent = 'HTML Syntax Error:'
+		err.firstChild.nextSibling.style.cssText = ''
+		err.lastChild.replaceWith(createTextNode(content))
+	}
+	return html
+})
 
 /**
  * Recursively walks a template and transforms it to `h` calls
@@ -88,8 +99,8 @@ const parseHTML = withWeakCache(content =>
 function toH(html, cached, values) {
 	let index = 0
 	function nodes(node) {
-		// Node.ELEMENT_NODE
 		if (node.nodeType === 1) {
+			// element
 			const tagName = node.tagName
 
 			// gather props
@@ -118,7 +129,8 @@ function toH(html, cached, values) {
 				console.warn(`Forgot to ´html.define({ ${tagName} })´?`)
 
 			return Component(html.components[tagName] || tagName, props)
-		} else {
+		} else if (node.nodeType === 3) {
+			// text
 			const value = node.nodeValue
 			return value.includes(id)
 				? value
@@ -154,7 +166,7 @@ export function HTML() {
 	function html(template, ...values) {
 		const cached = parseHTML(template)
 
-		return toH(html, cached.firstChild, values)
+		return toH(html, cached, values)
 	}
 
 	html.components = { ...defaultRegistry }
