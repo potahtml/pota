@@ -137,6 +137,21 @@ function toH(html, cached, values) {
 						.split(splitId)
 						.map(x => (x === id ? values[index++] : x))
 				: value
+		} else if (node.nodeType === 8) {
+			// comment
+			const value = node.nodeValue
+			if (value.includes(id)) {
+				const val = value
+					.split(splitId)
+					.map(x => (x === id ? values[index++] : x))
+				return () => createComment(val.map(getValue).join(''))
+			} else {
+				return createComment(value)
+			}
+		} else {
+			console.error(
+				`html: ´nodeType´ not supported ´${node.nodeType}´`,
+			)
 		}
 	}
 
