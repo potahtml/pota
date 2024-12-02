@@ -23,13 +23,15 @@ some day
 
 	tests
 	- tests - automated live tests on website
-	- tests - node tests (make it work in node as is)
 
 	classList
 	- the name of the class is not reactive
 
 	transform
 	- refactor
+
+	plugins:
+	- namespace the plugins to prevent inlining
 
 	components
 	- provide fallback for collapse
@@ -44,7 +46,7 @@ some day
 
 	mutable
 	- improve the tracker
-	- figure out a whitelist vs blacklist!
+	- figure out a whitelist vs blacklist! use a whitelist
 	- support set, maybe weakmap and weakset
 	- defineProperty proxy trap
 
