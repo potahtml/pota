@@ -469,7 +469,7 @@ function createChildren(parent, child, relative, prev = undefined) {
 				/**
 				 * Custom elements wont report a document unless is already
 				 * connected. So our stylesheet would end on the main document
-				 * intead of the shadodRoot
+				 * instead of the shadowRoot
 				 */
 				onFixes(() => {
 					if (isConnected(parent)) {
@@ -594,7 +594,7 @@ function insertNode(parent, node, relative) {
  *   document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
- * @returns {Function} Disposer
+ * @returns {() => void} Disposer
  * @url https://pota.quack.uy/render
  */
 export function render(children, parent, options = nothing) {

@@ -1,9 +1,11 @@
-// const [others, local] = propsSplit(props, ['children'])
-
 import { empty, keys } from '../lib/std.js'
 
 /**
  * Split an object into multiple sub objects
+ *
+ * ```js
+ * const [others, local] = propsSplit(props, ['children'])
+ * ```
  *
  * @template Props
  * @param {Props} props

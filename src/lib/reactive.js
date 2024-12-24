@@ -422,7 +422,7 @@ class Signal {
 /**
  * Creates a new root
  *
- * @param {(dispose: Function) => any} fn
+ * @param {(dispose: () => void) => any} fn
  * @param {object} [options]
  * @returns {any}
  */

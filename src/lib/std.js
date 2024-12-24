@@ -157,7 +157,8 @@ export function copy(o) {
  * Object.defineProperty with `enumerable` and `configurable` set to
  * `true` unless overwriten by `descriptor` argument
  *
- * @param {object} target
+ * @template T
+ * @param {T} target
  * @param {PropertyKey} key
  * @param {PropertyDescriptor} descriptor
  */
@@ -174,7 +175,8 @@ const defaults = {
  * Object.defineProperty with `configurable`, `writable` and
  * `enumerable` as `false`
  *
- * @param {object} target
+ * @template T
+ * @param {T} target
  * @param {PropertyKey} key
  * @param {any} value
  */
