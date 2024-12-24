@@ -47,7 +47,19 @@ export function buildPartial(path, state) {
 	const attributes = [createAttribute('#pota', '')]
 
 	for (const attr of path.get('openingElement').get('attributes')) {
-		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
+		/**
+		 * Wont inline attributes into the partial for custom-elements as
+		 * we do not know if it's a property or an attribute. This makes
+		 * custom-elements slower than other kind of elements, but makes
+		 * the heuristic more accurate when we do not want to be so
+		 * explicit about its types. In any case `prop:` and `attr:` can
+		 * be used
+		 */
+		if (
+			!tagName.includes('-') &&
+			attr.isJSXAttribute() &&
+			t.isJSXIdentifier(attr.node.name)
+		) {
 			const name = attr.node.name.name
 
 			/** `isXML` */
