@@ -1,7 +1,3 @@
-import { addEventListener, ownedEvent } from '../lib/reactive.js'
-
-import { eventName } from './event.js'
-
 import {
 	plugins,
 	pluginsNS,
@@ -124,14 +120,6 @@ export function assignProp(node, name, value, props) {
 		return
 	}
 
-	// onClick={handler}
-	let event = eventName(name)
-	if (event) {
-		// `value &&` for when `onClick={handler}` and `handler` is undefined
-		value && addEventListener(node, event, ownedEvent(value))
-		return
-	}
-
 	if (propNS[name] || name.includes(':')) {
 		// with ns
 		propNS[name] = propNS[name] || name.split(':')
@@ -141,14 +129,6 @@ export function assignProp(node, name, value, props) {
 		plugin = pluginsNS.get(ns)
 		if (plugin) {
 			plugin(node, name, value, props, localName, ns)
-			return
-		}
-
-		// onClick:my-ns={handler}
-		event = eventName(ns)
-		if (event) {
-			// `value &&` for when `onClick={handler}` and `handler` is undefined
-			value && addEventListener(node, event, ownedEvent(value))
 			return
 		}
 
