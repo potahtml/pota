@@ -158,9 +158,7 @@ interface PotaAttributes<Element> {
 
 	onMount?: (element: Element) => void
 	onUnmount?: (element: Element) => void
-}
 
-interface FallbackAttributes {
 	// events
 	[attr: `on:${string}`]: any
 
@@ -218,18 +216,17 @@ type NSAttributeMap<attr, Map> = {
 
 /* Attributes */
 
-type HTMLAttributes<Element, Attributes, Events> =
-	FallbackAttributes &
-		PotaAttributes<Element> &
-		Events &
-		CSSAttributes &
-		NSAttributes &
-		AccessorMap<DOMHTMLAttributes> &
-		AccessorMap<AriaAttributes> &
-		AccessorMap<Attributes> &
-		IntrinsicHTMLAttributes
+type HTMLAttributes<Element, Attributes, Events> = SharedAttributes &
+	Events &
+	PotaAttributes<Element> &
+	CSSAttributes &
+	NSAttributes &
+	AccessorMap<DOMHTMLAttributes> &
+	AccessorMap<AriaAttributes> &
+	AccessorMap<Attributes> &
+	IntrinsicHTMLAttributes
 
-type SVGAttributes<Element, Attributes, Events> = FallbackAttributes &
+type SVGAttributes<Element, Attributes, Events> = SharedAttributes &
 	PotaAttributes<Element> &
 	Events &
 	CSSAttributes &
@@ -240,7 +237,7 @@ type SVGAttributes<Element, Attributes, Events> = FallbackAttributes &
 	IntrinsicSVGAttributes
 
 type MathMLAttributes<Element, Attributes, Events> =
-	FallbackAttributes &
+	SharedAttributes &
 		PotaAttributes<Element> &
 		Events &
 		CSSAttributes &
