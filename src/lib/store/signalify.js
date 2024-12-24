@@ -135,7 +135,7 @@ function signalifyKey(
 	const setter = descriptor.set?.bind(target)
 
 	defineProperty(target, key, {
-		get() {
+		get:
 			/**
 			 * 1. We cannot know if the getter will return the same thing that
 			 *    has been set. For this reason we cant rely on the return
@@ -143,21 +143,34 @@ function signalifyKey(
 			 * 2. We need to ensure the return value is always wrapped (for in
 			 *    case of being used as a mutable).
 			 */
-			value = wrapper(getter ? getter() : value)
-			return read(value)
-		},
+			getter
+				? () => {
+						value = wrapper(getter())
+						return read(value)
+					}
+				: () => {
+						value = wrapper(value)
+						return read(value)
+					},
 
 		set:
 			/** When it's only a getter it shouldn't have a setter */
 			getter && !setter
 				? undefined
-				: val => {
-						batch(() => {
-							value = wrapper(val)
-							setter && setter(value)
-							write(value)
-						})
-					},
+				: setter
+					? val => {
+							batch(() => {
+								value = wrapper(val)
+								setter(value)
+								write(value)
+							})
+						}
+					: val => {
+							batch(() => {
+								value = wrapper(val)
+								write(value)
+							})
+						},
 		enumerable: descriptor.enumerable,
 		configurable: true,
 	})
