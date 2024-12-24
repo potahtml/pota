@@ -64,11 +64,13 @@ export namespace JSX {
 		| symbol
 		| undefined
 		| void
+		// fancy
+		| object // such CSSStyleSheet
 		// recurse
 		| (() => Element)
 		| Promise<Element>
 		| Element[]
-	// | object // unsure
+
 	// | DOMElements // unsure
 
 	/* Interfaces */
