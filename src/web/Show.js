@@ -24,7 +24,7 @@ export function Show(props) {
 
 	// shortcircuit non-functions
 	if (!isFunction(props.when)) {
-		return props.when ? callback(props.when) : fallback
+		return props.when ? callback(() => props.when) : fallback
 	}
 
 	// signals/functions
