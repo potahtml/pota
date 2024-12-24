@@ -102,7 +102,9 @@ export namespace JSX {
 	 * <my-element bool:foo="{true}" />
 	 * ```
 	 */
-	interface ExplicitBooleans {}
+	interface ExplicitBooleans {
+		[attr: `${string}`]: any // catch all booleans
+	}
 
 	// all elements
 
