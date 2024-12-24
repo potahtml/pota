@@ -19,6 +19,8 @@
  * - Export JSX from main
  * - CSS typings could be improved
  * - SVG typings are non-existent
+ * - `HTMLDialogElementAttributes.tabindex : never` could maybe be
+ *   improved
  */
 
 import * as csstype from 'csstype'
