@@ -190,28 +190,22 @@ interface CSSAttributes extends NSStyle {
 
 /* Namespaced */
 
+type NSAttributeMap<attr, Map> = {
+	[Key in keyof Map as `${string & attr}:${string & Key}`]?: Map[Key]
+}
+
 type NSProp = NSAttributeMap<'prop', JSX.ExplicitProperties>
 type NSAttr = NSAttributeMap<'attr', JSX.ExplicitAttributes>
 type NSBool = NSAttributeMap<'bool', JSX.ExplicitBooleans>
 
 interface NSAttributes extends NSProp, NSAttr, NSBool {}
 
-/* UTILS */
+/* ACCESOR */
 
 type Accessor<T> = { (): Accessor<T> } | { (): T } | T
 
 type AccessorMap<T> = {
 	[Key in keyof T]: Accessor<T[Key]>
-}
-
-type Events<Event, Element> =
-	| ((e: Event & { currentTarget: Element }) => void)
-	| ({
-			handleEvent: (e: Event & { currentTarget: Element }) => void
-	  } & AddEventListenerOptions)
-
-type NSAttributeMap<attr, Map> = {
-	[Key in keyof Map as `${string & attr}:${string & Key}`]?: Map[Key]
 }
 
 /* Attributes */
@@ -4372,6 +4366,12 @@ interface SVGElements {
 }
 
 /* EVENTS (THIS IS AUTO GENERATED!) */
+
+type Events<Event, Element> =
+	| ((e: Event & { currentTarget: Element }) => void)
+	| ({
+			handleEvent: (e: Event & { currentTarget: Element }) => void
+	  } & AddEventListenerOptions)
 
 interface ElementEvents<Element> {
 	'on:fullscreenchange'?: Events<Event, Element>
