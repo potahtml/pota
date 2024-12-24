@@ -71,9 +71,7 @@ export function buildPartial(path, state) {
 			/** Should inline the attribute into the template? */
 
 			if (isAttributeLiteral(attr.node)) {
-				if (shouldSkipAttribute(attr.node)) {
-					continue
-				} else if (name === 'xmlns') {
+				if (name === 'xmlns') {
 					/**
 					 * Skip inlining the `xmlns` attribute in the tag when its a
 					 * literal
@@ -93,6 +91,8 @@ export function buildPartial(path, state) {
 					 * Do not inline attributes with upper case letters such
 					 * `innerHTML`
 					 */
+				} else if (shouldSkipAttribute(attr.node)) {
+					continue
 				} else {
 					/** Inline the attribute */
 					const value = getAttributeLiteral(attr.node)
