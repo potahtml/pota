@@ -108,18 +108,16 @@ export function buildPartial(path, state) {
 
 	// add xmlns attribute when missing
 
-	if (!isXML) {
-		switch (tagName) {
-			case 'svg': {
-				isXML = true
-				xmlns = 'http://www.w3.org/2000/svg'
-				break
-			}
-			case 'math': {
-				isXML = true
-				xmlns = 'http://www.w3.org/1998/Math/MathML'
-				break
-			}
+	switch (tagName) {
+		case 'svg': {
+			isXML = true
+			xmlns = 'http://www.w3.org/2000/svg'
+			break
+		}
+		case 'math': {
+			isXML = true
+			xmlns = 'http://www.w3.org/1998/Math/MathML'
+			break
 		}
 	}
 
