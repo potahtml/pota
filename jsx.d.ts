@@ -145,6 +145,12 @@ interface IntrinsicSVGAttributes extends JSX.IntrinsicSVGAttributes {}
 interface IntrinsicMathMLAttributes
 	extends JSX.IntrinsicMathMLAttributes {}
 
+interface SharedAttributes {
+	// xlmns
+	[attr: `xmlns:${string}`]: string
+	xmlns?: string
+}
+
 interface PotaAttributes<Element> {
 	children?: JSX.Element
 
