@@ -939,3 +939,6 @@ export const removeEventNative = (where, type, handler) =>
 
 /** @param {EventListener} fn */
 export const passiveEvent = fn => ({ handleEvent: fn, passive: true })
+
+export const warn = (...args) => console.warn(...args)
+export const error = (...args) => console.error(...args)

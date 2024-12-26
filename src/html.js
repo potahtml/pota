@@ -126,7 +126,7 @@ function toH(html, cached, values) {
 
 			;/[A-Z]/.test(tagName) &&
 				!html.components[tagName] &&
-				console.warn(`Forgot to ´html.define({ ${tagName} })´?`)
+				warn(`html: Forgot to ´html.define({ ${tagName} })´?`)
 
 			return Component(html.components[tagName] || tagName, props)
 		} else if (node.nodeType === 3) {
@@ -149,9 +149,7 @@ function toH(html, cached, values) {
 				return createComment(value)
 			}
 		} else {
-			console.error(
-				`html: ´nodeType´ not supported ´${node.nodeType}´`,
-			)
+			error(`html: ´nodeType´ not supported ´${node.nodeType}´`)
 		}
 	}
 
