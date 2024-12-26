@@ -153,6 +153,20 @@ export namespace JSX {
 		SharedAttributes<Element, Attributes, Events> &
 			AccessorMap<DOMMathMLAttributes> &
 			IntrinsicMathMLAttributes
+
+	/* exports */
+
+	interface HTMLEvents<Element>
+		extends ElementEvents<Element>,
+			GlobalEvents<Element> {}
+
+	interface MathMLEvents<Element>
+		extends ElementEvents<Element>,
+			GlobalEvents<Element> {}
+
+	interface SVGEvents<Element>
+		extends ElementEvents<Element>,
+			GlobalEvents<Element> {}
 }
 
 /* CORE */
@@ -213,8 +227,6 @@ type AccessorMap<T> = {
 
 /* Attributes */
 
-/* MAP */
-
 type SharedAttributes<Element, Attributes, Events> = Events &
 	PotaAttributes<Element> &
 	CSSAttributes &
@@ -225,6 +237,8 @@ type SharedAttributes<Element, Attributes, Events> = Events &
 	AccessorMap<DOMHTMLAttributes> &
 	AccessorMap<AriaAttributes> &
 	AccessorMap<Attributes>
+
+/* MAP */
 
 type HTMLAttributes<Element, Attributes, Events> = JSX.HTMLAttributes<
 	Element,
@@ -4382,19 +4396,11 @@ type Events<Event, Element> =
 			handleEvent: (e: Event & { currentTarget: Element }) => void
 	  } & AddEventListenerOptions)
 
-/* exports */
+/* MAP */
 
-export interface HTMLEvents<Element>
-	extends ElementEvents<Element>,
-		GlobalEvents<Element> {}
-
-export interface MathMLEvents<Element>
-	extends ElementEvents<Element>,
-		GlobalEvents<Element> {}
-
-export interface SVGEvents<Element>
-	extends ElementEvents<Element>,
-		GlobalEvents<Element> {}
+interface HTMLEvents<Element> extends JSX.HTMLEvents<Element> {}
+interface SVGEvents<Element> extends JSX.SVGEvents<Element> {}
+interface MathMLEvents<Element> extends JSX.MathMLEvents<Element> {}
 
 /* global events */
 
