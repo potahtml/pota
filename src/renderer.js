@@ -256,13 +256,8 @@ export function createPartial(content, propsData = nothing) {
 		return clone()
 	}
 
-	return props => {
-		/** Freeze props so isnt directly writable */
-		freeze(props)
-		return markComponent(() =>
-			assignPartialProps(clone(), props, propsData),
-		)
-	}
+	return props =>
+		markComponent(() => assignPartialProps(clone(), props, propsData))
 }
 
 function assignPartialProps(node, props, propsData) {
