@@ -4,8 +4,10 @@ const t = core.types
 import {
 	callFunction,
 	callFunctionImport,
+	eventNames,
 	keys,
 	removeFromArray,
+	warn,
 } from './utils.js'
 
 import {
@@ -47,59 +49,64 @@ export function buildPartial(path, state) {
 	const attributes = [createAttribute('#pota', '')]
 
 	for (const attr of path.get('openingElement').get('attributes')) {
-		/**
-		 * Wont inline attributes into the partial for custom-elements as
-		 * we do not know if it's a property or an attribute. This makes
-		 * custom-elements slower than other kind of elements, but makes
-		 * the heuristic more accurate when we do not want to be so
-		 * explicit about its types. In any case `prop:` and `attr:` can
-		 * be used
-		 */
-		if (
-			!tagName.includes('-') &&
-			attr.isJSXAttribute() &&
-			t.isJSXIdentifier(attr.node.name)
-		) {
+		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
 			const name = attr.node.name.name
 
-			/** `isXML` */
-
-			if (name === 'xmlns') {
-				isXML = true
+			if (eventNames.has(name.toLowerCase())) {
+				warn(
+					attr,
+					`´${name}´ form is deprecated, use ´${name.toLowerCase().replace('on', 'on:')}´ instead`,
+				)
 			}
 
-			/** Should inline the attribute into the template? */
+			/**
+			 * Wont inline attributes into the partial for custom-elements
+			 * as we do not know if it's a property or an attribute. This
+			 * makes custom-elements slower than other kind of elements, but
+			 * makes the heuristic more accurate when we do not want to be
+			 * so explicit about its types. In any case `prop:` and `attr:`
+			 * can be used
+			 */
+			if (!tagName.includes('-')) {
+				/** `isXML` */
 
-			if (isAttributeLiteral(attr.node)) {
 				if (name === 'xmlns') {
-					/**
-					 * Skip inlining the `xmlns` attribute in the tag when its a
-					 * literal
-					 */
-					xmlns = getAttributeLiteral(attr.node)
+					isXML = true
+				}
 
-					continue
-				} else if (tagName === 'textarea' && name === 'value') {
-					/**
-					 * Do not inline `value` as an attribute when its a
-					 * `textarea`.
-					 *
-					 * @url https://github.com/solidjs/solid/issues/2312
-					 */
-				} else if (/[A-Z]/.test(name)) {
-					/**
-					 * Do not inline attributes with upper case letters such
-					 * `innerHTML`
-					 */
-				} else if (shouldSkipAttribute(attr.node)) {
-					continue
-				} else {
-					/** Inline the attribute */
-					const value = getAttributeLiteral(attr.node)
+				/** Should inline the attribute into the template? */
 
-					buildAttributeIntoTag(tag, name, value)
+				if (isAttributeLiteral(attr.node)) {
+					if (name === 'xmlns') {
+						/**
+						 * Skip inlining the `xmlns` attribute in the tag when its
+						 * a literal
+						 */
+						xmlns = getAttributeLiteral(attr.node)
 
-					continue
+						continue
+					} else if (tagName === 'textarea' && name === 'value') {
+						/**
+						 * Do not inline `value` as an attribute when its a
+						 * `textarea`.
+						 *
+						 * @url https://github.com/solidjs/solid/issues/2312
+						 */
+					} else if (/[A-Z]/.test(name)) {
+						/**
+						 * Do not inline attributes with upper case letters such
+						 * `innerHTML`
+						 */
+					} else if (shouldSkipAttribute(attr.node)) {
+						continue
+					} else {
+						/** Inline the attribute */
+						const value = getAttributeLiteral(attr.node)
+
+						buildAttributeIntoTag(tag, name, value)
+
+						continue
+					}
 				}
 			}
 		}
