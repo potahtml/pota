@@ -1,11 +1,7 @@
 // bind is a small helper for binding the value of an element to a signal
 // https://pota.quack.uy/plugin/bind
 
-import {
-	addEventListener,
-	effect,
-	signalFunction,
-} from '../lib/reactive.js'
+import { addEvent, effect, signalFunction } from '../lib/reactive.js'
 
 import { propsPlugin } from '../props/plugin.js'
 
@@ -49,7 +45,7 @@ function bindValue(node, name, value, props) {
 	})
 
 	// listen for changes
-	addEventListener(node, 'input', e => {
+	addEvent(node, 'input', e => {
 		switch (node.type) {
 			case 'checkbox': {
 				value(node.checked)

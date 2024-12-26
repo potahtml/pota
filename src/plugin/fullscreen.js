@@ -2,7 +2,7 @@
 
 import { getValueElement } from '../lib/std.js'
 
-import { addEventListener } from '../lib/reactive.js'
+import { addEvent } from '../lib/reactive.js'
 import { propsPlugin } from '../props/plugin.js'
 import { toggleFullscreen } from './useFullscreen.js'
 
@@ -13,7 +13,7 @@ import { toggleFullscreen } from './useFullscreen.js'
  * @param {object} props
  */
 const fullscreen = (node, propName, propValue, props) =>
-	addEventListener(node, 'click', e => {
+	addEvent(node, 'click', e => {
 		toggleFullscreen(getValueElement(propValue, e, node))
 	})
 

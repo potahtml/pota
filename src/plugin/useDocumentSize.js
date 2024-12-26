@@ -1,8 +1,8 @@
 import {
-	addEventListenerObject,
+	addEventNative,
 	documentElement,
 	passiveEvent,
-	removeEventListenerObject,
+	removeEventNative,
 	window,
 } from '../lib/std.js'
 
@@ -18,10 +18,10 @@ export const { on: onDocumentSize, use: useDocumentSize } =
 		on: dispatch => {
 			const handler = passiveEvent(() => dispatch(documentSize()))
 
-			addEventListenerObject(window, 'resize', handler)
+			addEventNative(window, 'resize', handler)
 
 			return () => {
-				removeEventListenerObject(window, 'resize', handler)
+				removeEventNative(window, 'resize', handler)
 			}
 		},
 		initialValue: documentSize,

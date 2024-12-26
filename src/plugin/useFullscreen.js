@@ -1,9 +1,9 @@
 import {
-	addEventListenerObject,
+	addEventNative,
 	document,
 	documentElement,
 	passiveEvent,
-	removeEventListenerObject,
+	removeEventNative,
 } from '../lib/std.js'
 
 import { SignalEmitter } from '../lib/classes/SignalEmitter.js'
@@ -16,14 +16,10 @@ export const { on: onFullscreen, use: useFullscreen } =
 		on: dispatch => {
 			const handler = passiveEvent(() => dispatch(isFullscreen()))
 
-			addEventListenerObject(document, 'fullscreenchange', handler)
+			addEventNative(document, 'fullscreenchange', handler)
 
 			return () => {
-				removeEventListenerObject(
-					document,
-					'fullscreenchange',
-					handler,
-				)
+				removeEventNative(document, 'fullscreenchange', handler)
 			}
 		},
 		initialValue: isFullscreen,

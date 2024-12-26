@@ -1405,7 +1405,7 @@ export function getValueComponent(value) {
  *   listener
  * @url https://pota.quack.uy/props/EventListener
  */
-export function addEventListener(node, type, handler) {
+export function addEvent(node, type, handler) {
 	node.addEventListener(
 		type,
 		handler,
@@ -1415,13 +1415,13 @@ export function addEventListener(node, type, handler) {
 	/**
 	 * Removes event on tracking scope disposal.
 	 *
-	 * Situation: the event was added to the `document` manually using
-	 * `addEventListener`, say to listen for clicks as a "click
+	 * Situation: the event was added to the `document` or `window`
+	 * manually using `addEvent`, say to listen for clicks as a "click
 	 * outside". The event needs to be removed when the component that
 	 * added it is disposed.
 	 */
 
-	return cleanup(() => removeEventListener(node, type, handler))
+	return cleanup(() => removeEvent(node, type, handler))
 }
 
 /**
@@ -1441,14 +1441,14 @@ export function addEventListener(node, type, handler) {
  *   listener
  * @url https://pota.quack.uy/props/EventListener
  */
-export function removeEventListener(node, type, handler) {
+export function removeEvent(node, type, handler) {
 	node.removeEventListener(
 		type,
 		handler,
 		!isFunction(handler) && handler,
 	)
 
-	return () => addEventListener(node, type, handler)
+	return () => addEvent(node, type, handler)
 }
 
 /**

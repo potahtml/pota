@@ -1,8 +1,8 @@
 import {
-	addEventListenerObject,
+	addEventNative,
 	document,
 	passiveEvent,
-	removeEventListenerObject,
+	removeEventNative,
 } from '../lib/std.js'
 
 import { SignalEmitter } from '../lib/classes/SignalEmitter.js'
@@ -17,14 +17,10 @@ export const { on: onDocumentVisible, use: useDocumentVisible } =
 				dispatch(isDocumentVisible()),
 			)
 
-			addEventListenerObject(document, 'visibilitychange', handler)
+			addEventNative(document, 'visibilitychange', handler)
 
 			return () => {
-				removeEventListenerObject(
-					document,
-					'visibilitychange',
-					handler,
-				)
+				removeEventNative(document, 'visibilitychange', handler)
 			}
 		},
 		initialValue: isDocumentVisible,

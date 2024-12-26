@@ -4,7 +4,7 @@ import { isFunction } from '../lib/std.js'
 
 import { copyToClipboard } from '../plugin/useString.js'
 
-import { addEventListener } from '../lib/reactive.js'
+import { addEvent } from '../lib/reactive.js'
 import { propsPlugin } from '../props/plugin.js'
 
 /**
@@ -14,7 +14,7 @@ import { propsPlugin } from '../props/plugin.js'
  * @param {object} props
  */
 const clipboard = (node, propName, propValue, props) =>
-	addEventListener(node, 'click', e => {
+	addEvent(node, 'click', e => {
 		copyToClipboard(
 			isFunction(propValue)
 				? propValue(e)

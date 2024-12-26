@@ -931,10 +931,10 @@ export const waitEvent = withState(
 	weakStore,
 )
 
-export const addEventListenerObject = (where, type, handler) =>
+export const addEventNative = (where, type, handler) =>
 	where.addEventListener(type, handler, handler)
 
-export const removeEventListenerObject = (where, type, handler) =>
+export const removeEventNative = (where, type, handler) =>
 	where.removeEventListener(type, handler, handler)
 
 /** @param {EventListener} fn */

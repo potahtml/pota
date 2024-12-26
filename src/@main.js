@@ -51,10 +51,7 @@ export {
 
 // EVENTS
 
-export {
-	addEventListener,
-	removeEventListener,
-} from './lib/reactive.js'
+export { addEvent, removeEvent } from './lib/reactive.js'
 
 export { ready } from './scheduler.js'
 

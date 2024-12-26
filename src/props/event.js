@@ -1,4 +1,4 @@
-import { addEventListener, ownedEvent } from '../lib/reactive.js'
+import { addEvent, ownedEvent } from '../lib/reactive.js'
 
 /**
  * @param {Element} node
@@ -10,4 +10,4 @@ import { addEventListener, ownedEvent } from '../lib/reactive.js'
  */
 export const setEventNS = (node, name, value, props, localName, ns) =>
 	// `value &&` because avoids crash when `on:click={bla}` and `bla === null`
-	value && addEventListener(node, localName, ownedEvent(value))
+	value && addEvent(node, localName, ownedEvent(value))

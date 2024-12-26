@@ -1,8 +1,8 @@
 import {
-	addEventListenerObject,
+	addEventNative,
 	document,
 	passiveEvent,
-	removeEventListenerObject,
+	removeEventNative,
 	window,
 } from '../lib/std.js'
 
@@ -19,12 +19,12 @@ export const { on: onDocumentFocus, use: useDocumentFocus } =
 				}
 			})
 
-			addEventListenerObject(window, 'focus', handler)
-			addEventListenerObject(window, 'blur', handler)
+			addEventNative(window, 'focus', handler)
+			addEventNative(window, 'blur', handler)
 
 			return () => {
-				removeEventListenerObject(window, 'focus', handler)
-				removeEventListenerObject(window, 'blur', handler)
+				removeEventNative(window, 'focus', handler)
+				removeEventNative(window, 'blur', handler)
 			}
 		},
 		initialValue,
