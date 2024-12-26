@@ -121,7 +121,7 @@ function toH(html, cached, values) {
 			// gather children
 			const childNodes = node.childNodes
 			if (childNodes.length) {
-				props.children = flat(toArray(childNodes, nodes))
+				props.children = flat(toArray(childNodes).map(nodes))
 			}
 
 			;/[A-Z]/.test(tagName) &&
@@ -153,7 +153,7 @@ function toH(html, cached, values) {
 		}
 	}
 
-	return flat(toArray(cached, nodes))
+	return flat(toArray(cached).map(nodes))
 }
 
 /**
@@ -177,9 +177,7 @@ export function HTML() {
 	 */
 
 	function html(template, ...values) {
-		const cached = parseHTML(template)
-
-		return toH(html, cached, values)
+		return toH(html, parseHTML(template), values)
 	}
 
 	html.components = { ...defaultRegistry }

@@ -421,8 +421,10 @@ function createChildren(parent, child, relative, prev = undefined) {
 				 * for deletion on cleanup with node.remove()
 				 */
 				if (child instanceof DocumentFragment) {
-					return toArray(child.childNodes, child =>
-						createChildren(parent, child, relative),
+					return createChildren(
+						parent,
+						toArray(child.childNodes),
+						relative,
 					)
 				}
 				return insertNode(parent, child, relative)
@@ -459,9 +461,19 @@ function createChildren(parent, child, relative, prev = undefined) {
 
 			// iterable/Map/Set/NodeList
 			if (iterator in child) {
-				return toArray(child.values(), child =>
-					createChildren(parent, child, relative),
+				return createChildren(
+					parent,
+					toArray(child.values()),
+					relative,
 				)
+				/**
+				 * For some reason this breaks with a node list in the
+				 * `Context` example of the `html` docs section.
+				 *
+				 *     return toArray(child.values(), child =>
+				 *     	createChildren(parent, child, relative),
+				 *     )
+				 */
 			}
 
 			// CSSStyleSheet
