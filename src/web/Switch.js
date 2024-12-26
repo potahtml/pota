@@ -1,5 +1,10 @@
 import { makeCallback, memo, resolve } from '../lib/reactive.js'
-import { getValue, identity, isNullUndefined } from '../lib/std.js'
+import {
+  getValue,
+  identity,
+  isArray,
+  isNullUndefined,
+} from '../lib/std.js'
 
 /**
  * Renders the first child that matches the given `when` condition, or
@@ -12,7 +17,9 @@ import { getValue, identity, isNullUndefined } from '../lib/std.js'
  * @url https://pota.quack.uy/Components/Switch
  */
 export function Switch(props) {
-  const matches = resolve(() => props.children)
+  const matches = resolve(() =>
+    isArray(props.children) ? props.children : [props.children],
+  )
 
   const fallback = isNullUndefined(props.fallback)
     ? memo(() => {
