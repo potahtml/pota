@@ -1,6 +1,7 @@
 /**
- * The interfaces for Events and Elements are auto-generated from
- * Typescript. https://github.com/potahtml/namespace-jsx-project
+ * Table of Elements:
+ *
+ * - https://potahtml.github.io/namespace-jsx-project/index.html
  *
  * The fields are a mix of:
  *
@@ -9,21 +10,18 @@
  * - Voby - https://github.com/vobyjs/voby
  * - Preact - https://preactjs.com/
  * - Vue - https://vuejs.org/
+ * - Chrome - https://www.google.com/chrome/
+ * - Firefox - https://www.mozilla.org/
  *
- * Table of Elements:
+ * TODO
  *
- * - https://potahtml.github.io/namespace-jsx-project/index.html
- *
- * Todo
- *
- * - Export JSX from main
  * - CSS typings could be improved
  * - SVG typings are non-existent
- * - `HTMLDialogElementAttributes.tabindex : never` could maybe be
- *   improved
  */
 
 import * as csstype from 'csstype'
+
+type DOMElement = Element
 
 export namespace JSX {
 	// JSX.ElementAttributesProperty - name of the `props` argument
@@ -68,12 +66,12 @@ export namespace JSX {
 		| void
 		// fancy
 		| object // such CSSStyleSheet
+		// html
+		| DOMElement
 		// recurse
 		| (() => Element)
 		| Promise<Element>
 		| Element[]
-
-	// | DOMElements // unsure
 
 	/* Interfaces */
 
@@ -116,10 +114,10 @@ export namespace JSX {
 			SVGElements,
 			HTMLElements {
 		// typing custom elements
-		[elementName: string]: any // catch-all
+		[tagName: string]: any // catch-all
 	}
 
-	// attributes
+	// custom attributes
 
 	/** To add attributes to all HTML elements */
 	interface IntrinsicHTMLAttributes {}
@@ -135,21 +133,29 @@ export namespace JSX {
 		JSX.IntrinsicElements // tags
 		JSX.IntrinsicAttributes // leaks to class and functional components
 	*/
+
+	type HTMLAttributes<Element, Attributes, Events> = SharedAttributes<
+		Element,
+		Attributes,
+		Events
+	> &
+		IntrinsicHTMLAttributes
+
+	type SVGAttributes<Element, Attributes, Events> = SharedAttributes<
+		Element,
+		Attributes,
+		Events
+	> &
+		AccessorMap<DOMSVGAttributes> &
+		IntrinsicSVGAttributes
+
+	type MathMLAttributes<Element, Attributes, Events> =
+		SharedAttributes<Element, Attributes, Events> &
+			AccessorMap<DOMMathMLAttributes> &
+			IntrinsicMathMLAttributes
 }
 
 /* CORE */
-
-interface IntrinsicHTMLAttributes
-	extends JSX.IntrinsicHTMLAttributes {}
-interface IntrinsicSVGAttributes extends JSX.IntrinsicSVGAttributes {}
-interface IntrinsicMathMLAttributes
-	extends JSX.IntrinsicMathMLAttributes {}
-
-interface SharedAttributes {
-	// xlmns
-	[attr: `xmlns:${string}`]: string
-	xmlns?: string
-}
 
 interface PotaAttributes<Element> {
 	children?: JSX.Element
@@ -158,14 +164,6 @@ interface PotaAttributes<Element> {
 
 	onMount?: (element: Element) => void
 	onUnmount?: (element: Element) => void
-
-	// events
-	[attr: `on:${string}`]: any
-
-	// css
-	[attr: `class:${string}`]: any
-	[attr: `style:${string}`]: any
-	[attr: `var:${string}`]: any
 }
 
 /* CSS */
@@ -186,6 +184,11 @@ interface CSSAttributes extends NSStyle {
 	style?: CSSProperties | string
 
 	css?: string | CSSStyleSheet
+
+	// css
+	[attr: `class:${string}`]: any
+	[attr: `style:${string}`]: any
+	[attr: `var:${string}`]: any
 }
 
 /* Namespaced */
@@ -200,7 +203,7 @@ type NSBool = NSAttributeMap<'bool', JSX.ExplicitBooleans>
 
 interface NSAttributes extends NSProp, NSAttr, NSBool {}
 
-/* ACCESOR */
+/* ACCESSOR */
 
 type Accessor<T> = { (): Accessor<T> } | { (): T } | T
 
@@ -210,46 +213,51 @@ type AccessorMap<T> = {
 
 /* Attributes */
 
-type HTMLAttributes<Element, Attributes, Events> = SharedAttributes &
-	Events &
+/* MAP */
+
+type SharedAttributes<Element, Attributes, Events> = Events &
 	PotaAttributes<Element> &
 	CSSAttributes &
 	NSAttributes &
+	DOMEvents &
+	AccessorMap<DOMProperties> &
+	AccessorMap<DOMXMLAttributes> &
 	AccessorMap<DOMHTMLAttributes> &
 	AccessorMap<AriaAttributes> &
-	AccessorMap<Attributes> &
-	IntrinsicHTMLAttributes
+	AccessorMap<Attributes>
 
-type SVGAttributes<Element, Attributes, Events> = SharedAttributes &
-	PotaAttributes<Element> &
-	Events &
-	CSSAttributes &
-	NSAttributes &
-	AccessorMap<DOMSVGAttributes> &
-	AccessorMap<AriaAttributes> &
-	AccessorMap<Attributes> &
-	IntrinsicSVGAttributes
-
+type HTMLAttributes<Element, Attributes, Events> = JSX.HTMLAttributes<
+	Element,
+	Attributes,
+	Events
+>
+type SVGAttributes<Element, Attributes, Events> = JSX.SVGAttributes<
+	Element,
+	Attributes,
+	Events
+>
 type MathMLAttributes<Element, Attributes, Events> =
-	SharedAttributes &
-		PotaAttributes<Element> &
-		Events &
-		CSSAttributes &
-		NSAttributes &
-		AccessorMap<DOMMathMLAttributes> &
-		AccessorMap<AriaAttributes> &
-		AccessorMap<Attributes> &
-		IntrinsicMathMLAttributes
+	JSX.MathMLAttributes<Element, Attributes, Events>
 
-/** DOM */
+/* DOM */
 
-interface DOMHTMLProperties {
+interface DOMEvents {
+	// events
+	[attr: `on:${string}`]: any
+}
+
+interface DOMProperties {
 	innerHTML?: number | string
 	innerText?: number | string
 	textContent?: number | string
 }
 
-interface DOMHTMLAttributes extends DOMHTMLProperties {
+interface DOMXMLAttributes {
+	[attr: `xmlns:${string}`]: string
+	xmlns?: string
+}
+
+interface DOMHTMLAttributes {
 	about?: string
 	accesskey?: string
 	autocapitalize?:
@@ -306,11 +314,11 @@ interface DOMHTMLAttributes extends DOMHTMLProperties {
 	vocab?: string
 }
 
-interface DOMSVGAttributes extends DOMHTMLAttributes {
+interface DOMSVGAttributes {
 	[attr: `${string}`]: any // catch all
 }
 
-interface DOMMathMLAttributes extends DOMHTMLAttributes {
+interface DOMMathMLAttributes {
 	displaystyle?: 'true' | boolean
 	/** @deprecated */
 	href?: string
@@ -716,7 +724,22 @@ interface AriaAttributes {
 		| 'treeitem'
 }
 
-/** ELEMENTS */
+/* SPECIAL ATTRIBUTES */
+
+interface HTMLMediaHTMLAttributes {
+	autoplay?: 'true' | boolean
+	controls?: 'true' | boolean
+	controlslist?: string
+	crossorigin?: 'anonymous' | 'use-credentials' | ''
+	disableremoteplayback?: 'true' | boolean
+	loop?: 'true' | boolean
+	muted?: 'true' | boolean
+	preload?: 'none' | 'metadata' | 'auto' | ''
+	src?: string
+
+	/** @deprecated */
+	mediagroup?: string
+}
 
 /* SPECIAL ELEMENTS */
 
@@ -746,29 +769,6 @@ interface HTMLWebViewElementAttributes {
 	disableguestresize?: 'true' | boolean
 	/** @deprecated */
 	guestinstance?: string
-}
-interface HTMLWebViewElements {
-	/** @url https://www.electronjs.org/docs/latest/api/webview-tag */
-	webview: HTMLAttributes<
-		HTMLElement,
-		HTMLWebViewElementAttributes,
-		HTMLElementEvents<HTMLElement>
-	>
-}
-
-interface HTMLMediaHTMLAttributes {
-	autoplay?: 'true' | boolean
-	controls?: 'true' | boolean
-	controlslist?: string
-	crossorigin?: 'anonymous' | 'use-credentials' | ''
-	disableremoteplayback?: 'true' | boolean
-	loop?: 'true' | boolean
-	muted?: 'true' | boolean
-	preload?: 'none' | 'metadata' | 'auto' | ''
-	src?: string
-
-	/** @deprecated */
-	mediagroup?: string
 }
 
 /* HTMLElements */
@@ -2158,7 +2158,16 @@ interface SVGTitleElementAttributes {}
 interface SVGUseElementAttributes {}
 interface SVGViewElementAttributes {}
 
-// HTMLElements (THIS IS AUTO GENERATED!)
+// HTMLElements
+
+interface HTMLWebViewElements {
+	/** @url https://www.electronjs.org/docs/latest/api/webview-tag */
+	webview: HTMLAttributes<
+		HTMLElement,
+		HTMLWebViewElementAttributes,
+		HTMLEvents<HTMLElement>
+	>
+}
 
 interface HTMLElements {
 	/**
@@ -2168,7 +2177,7 @@ interface HTMLElements {
 	a: HTMLAttributes<
 		HTMLAnchorElement,
 		HTMLAnchorElementAttributes,
-		HTMLElementEvents<HTMLAnchorElement>
+		HTMLEvents<HTMLAnchorElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/abbr
@@ -2177,7 +2186,7 @@ interface HTMLElements {
 	abbr: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/address
@@ -2186,7 +2195,7 @@ interface HTMLElements {
 	address: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/area
@@ -2195,7 +2204,7 @@ interface HTMLElements {
 	area: HTMLAttributes<
 		HTMLAreaElement,
 		HTMLAreaElementAttributes,
-		HTMLElementEvents<HTMLAreaElement>
+		HTMLEvents<HTMLAreaElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article
@@ -2204,7 +2213,7 @@ interface HTMLElements {
 	article: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside
@@ -2213,7 +2222,7 @@ interface HTMLElements {
 	aside: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio
@@ -2232,7 +2241,7 @@ interface HTMLElements {
 	b: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
@@ -2242,7 +2251,7 @@ interface HTMLElements {
 	base: HTMLAttributes<
 		HTMLBaseElement,
 		HTMLBaseElementAttributes,
-		HTMLElementEvents<HTMLBaseElement>
+		HTMLEvents<HTMLBaseElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdi
@@ -2252,7 +2261,7 @@ interface HTMLElements {
 	bdi: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdo
@@ -2262,7 +2271,7 @@ interface HTMLElements {
 	bdo: HTMLAttributes<
 		HTMLElement,
 		HTMLBdoElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote
@@ -2272,7 +2281,7 @@ interface HTMLElements {
 	blockquote: HTMLAttributes<
 		HTMLQuoteElement,
 		HTMLQuoteElementAttributes,
-		HTMLElementEvents<HTMLQuoteElement>
+		HTMLEvents<HTMLQuoteElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body
@@ -2292,7 +2301,7 @@ interface HTMLElements {
 	br: HTMLAttributes<
 		HTMLBRElement,
 		HTMLBRElementAttributes,
-		HTMLElementEvents<HTMLBRElement>
+		HTMLEvents<HTMLBRElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button
@@ -2302,7 +2311,7 @@ interface HTMLElements {
 	button: HTMLAttributes<
 		HTMLButtonElement,
 		HTMLButtonElementAttributes,
-		HTMLElementEvents<HTMLButtonElement>
+		HTMLEvents<HTMLButtonElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas
@@ -2312,7 +2321,7 @@ interface HTMLElements {
 	canvas: HTMLAttributes<
 		HTMLCanvasElement,
 		HTMLCanvasElementAttributes,
-		HTMLElementEvents<HTMLCanvasElement>
+		HTMLEvents<HTMLCanvasElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption
@@ -2322,7 +2331,7 @@ interface HTMLElements {
 	caption: HTMLAttributes<
 		HTMLTableCaptionElement,
 		HTMLTableCaptionElementAttributes,
-		HTMLElementEvents<HTMLTableCaptionElement>
+		HTMLEvents<HTMLTableCaptionElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite
@@ -2332,7 +2341,7 @@ interface HTMLElements {
 	cite: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code
@@ -2342,7 +2351,7 @@ interface HTMLElements {
 	code: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/col
@@ -2352,7 +2361,7 @@ interface HTMLElements {
 	col: HTMLAttributes<
 		HTMLTableColElement,
 		HTMLTableColElementAttributes,
-		HTMLElementEvents<HTMLTableColElement>
+		HTMLEvents<HTMLTableColElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup
@@ -2362,7 +2371,7 @@ interface HTMLElements {
 	colgroup: HTMLAttributes<
 		HTMLTableColElement,
 		HTMLTableColElementAttributes,
-		HTMLElementEvents<HTMLTableColElement>
+		HTMLEvents<HTMLTableColElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data
@@ -2372,7 +2381,7 @@ interface HTMLElements {
 	data: HTMLAttributes<
 		HTMLDataElement,
 		HTMLDataElementAttributes,
-		HTMLElementEvents<HTMLDataElement>
+		HTMLEvents<HTMLDataElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
@@ -2381,7 +2390,7 @@ interface HTMLElements {
 	datalist: HTMLAttributes<
 		HTMLDataListElement,
 		HTMLDataListElementAttributes,
-		HTMLElementEvents<HTMLDataListElement>
+		HTMLEvents<HTMLDataListElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dd
@@ -2390,7 +2399,7 @@ interface HTMLElements {
 	dd: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del
@@ -2399,7 +2408,7 @@ interface HTMLElements {
 	del: HTMLAttributes<
 		HTMLModElement,
 		HTMLModElementAttributes,
-		HTMLElementEvents<HTMLModElement>
+		HTMLEvents<HTMLModElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details
@@ -2408,7 +2417,7 @@ interface HTMLElements {
 	details: HTMLAttributes<
 		HTMLDetailsElement,
 		HTMLDetailsElementAttributes,
-		HTMLElementEvents<HTMLDetailsElement>
+		HTMLEvents<HTMLDetailsElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dfn
@@ -2417,7 +2426,7 @@ interface HTMLElements {
 	dfn: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
@@ -2426,7 +2435,7 @@ interface HTMLElements {
 	dialog: HTMLAttributes<
 		HTMLDialogElement,
 		HTMLDialogElementAttributes,
-		HTMLElementEvents<HTMLDialogElement>
+		HTMLEvents<HTMLDialogElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div
@@ -2435,7 +2444,7 @@ interface HTMLElements {
 	div: HTMLAttributes<
 		HTMLDivElement,
 		HTMLDivElementAttributes,
-		HTMLElementEvents<HTMLDivElement>
+		HTMLEvents<HTMLDivElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl
@@ -2444,7 +2453,7 @@ interface HTMLElements {
 	dl: HTMLAttributes<
 		HTMLDListElement,
 		HTMLDListElementAttributes,
-		HTMLElementEvents<HTMLDListElement>
+		HTMLEvents<HTMLDListElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt
@@ -2453,7 +2462,7 @@ interface HTMLElements {
 	dt: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em
@@ -2462,7 +2471,7 @@ interface HTMLElements {
 	em: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/embed
@@ -2471,7 +2480,7 @@ interface HTMLElements {
 	embed: HTMLAttributes<
 		HTMLEmbedElement,
 		HTMLEmbedElementAttributes,
-		HTMLElementEvents<HTMLEmbedElement>
+		HTMLEvents<HTMLEmbedElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset
@@ -2480,7 +2489,7 @@ interface HTMLElements {
 	fieldset: HTMLAttributes<
 		HTMLFieldSetElement,
 		HTMLFieldSetElementAttributes,
-		HTMLElementEvents<HTMLFieldSetElement>
+		HTMLEvents<HTMLFieldSetElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figcaption
@@ -2489,7 +2498,7 @@ interface HTMLElements {
 	figcaption: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure
@@ -2498,7 +2507,7 @@ interface HTMLElements {
 	figure: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer
@@ -2507,7 +2516,7 @@ interface HTMLElements {
 	footer: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form
@@ -2516,7 +2525,7 @@ interface HTMLElements {
 	form: HTMLAttributes<
 		HTMLFormElement,
 		HTMLFormElementAttributes,
-		HTMLElementEvents<HTMLFormElement>
+		HTMLEvents<HTMLFormElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1
@@ -2525,7 +2534,7 @@ interface HTMLElements {
 	h1: HTMLAttributes<
 		HTMLHeadingElement,
 		HTMLHeadingElementAttributes,
-		HTMLElementEvents<HTMLHeadingElement>
+		HTMLEvents<HTMLHeadingElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h2
@@ -2534,7 +2543,7 @@ interface HTMLElements {
 	h2: HTMLAttributes<
 		HTMLHeadingElement,
 		HTMLHeadingElementAttributes,
-		HTMLElementEvents<HTMLHeadingElement>
+		HTMLEvents<HTMLHeadingElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h3
@@ -2543,7 +2552,7 @@ interface HTMLElements {
 	h3: HTMLAttributes<
 		HTMLHeadingElement,
 		HTMLHeadingElementAttributes,
-		HTMLElementEvents<HTMLHeadingElement>
+		HTMLEvents<HTMLHeadingElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h4
@@ -2552,7 +2561,7 @@ interface HTMLElements {
 	h4: HTMLAttributes<
 		HTMLHeadingElement,
 		HTMLHeadingElementAttributes,
-		HTMLElementEvents<HTMLHeadingElement>
+		HTMLEvents<HTMLHeadingElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h5
@@ -2561,7 +2570,7 @@ interface HTMLElements {
 	h5: HTMLAttributes<
 		HTMLHeadingElement,
 		HTMLHeadingElementAttributes,
-		HTMLElementEvents<HTMLHeadingElement>
+		HTMLEvents<HTMLHeadingElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h6
@@ -2570,7 +2579,7 @@ interface HTMLElements {
 	h6: HTMLAttributes<
 		HTMLHeadingElement,
 		HTMLHeadingElementAttributes,
-		HTMLElementEvents<HTMLHeadingElement>
+		HTMLEvents<HTMLHeadingElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head
@@ -2579,7 +2588,7 @@ interface HTMLElements {
 	head: HTMLAttributes<
 		HTMLHeadElement,
 		HTMLHeadElementAttributes,
-		HTMLElementEvents<HTMLHeadElement>
+		HTMLEvents<HTMLHeadElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header
@@ -2588,7 +2597,7 @@ interface HTMLElements {
 	header: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hgroup
@@ -2597,7 +2606,7 @@ interface HTMLElements {
 	hgroup: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr
@@ -2606,7 +2615,7 @@ interface HTMLElements {
 	hr: HTMLAttributes<
 		HTMLHRElement,
 		HTMLHRElementAttributes,
-		HTMLElementEvents<HTMLHRElement>
+		HTMLEvents<HTMLHRElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/html
@@ -2615,7 +2624,7 @@ interface HTMLElements {
 	html: HTMLAttributes<
 		HTMLHtmlElement,
 		HTMLHtmlElementAttributes,
-		HTMLElementEvents<HTMLHtmlElement>
+		HTMLEvents<HTMLHtmlElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/i
@@ -2624,7 +2633,7 @@ interface HTMLElements {
 	i: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe
@@ -2633,7 +2642,7 @@ interface HTMLElements {
 	iframe: HTMLAttributes<
 		HTMLIFrameElement,
 		HTMLIFrameElementAttributes,
-		HTMLElementEvents<HTMLIFrameElement>
+		HTMLEvents<HTMLIFrameElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img
@@ -2642,7 +2651,7 @@ interface HTMLElements {
 	img: HTMLAttributes<
 		HTMLImageElement,
 		HTMLImageElementAttributes,
-		HTMLElementEvents<HTMLImageElement>
+		HTMLEvents<HTMLImageElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
@@ -2651,7 +2660,7 @@ interface HTMLElements {
 	input: HTMLAttributes<
 		HTMLInputElement,
 		HTMLInputElementAttributes,
-		HTMLElementEvents<HTMLInputElement>
+		HTMLEvents<HTMLInputElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins
@@ -2660,7 +2669,7 @@ interface HTMLElements {
 	ins: HTMLAttributes<
 		HTMLModElement,
 		HTMLModElementAttributes,
-		HTMLElementEvents<HTMLModElement>
+		HTMLEvents<HTMLModElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd
@@ -2669,7 +2678,7 @@ interface HTMLElements {
 	kbd: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label
@@ -2678,7 +2687,7 @@ interface HTMLElements {
 	label: HTMLAttributes<
 		HTMLLabelElement,
 		HTMLLabelElementAttributes,
-		HTMLElementEvents<HTMLLabelElement>
+		HTMLEvents<HTMLLabelElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend
@@ -2687,7 +2696,7 @@ interface HTMLElements {
 	legend: HTMLAttributes<
 		HTMLLegendElement,
 		HTMLLegendElementAttributes,
-		HTMLElementEvents<HTMLLegendElement>
+		HTMLEvents<HTMLLegendElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li
@@ -2696,7 +2705,7 @@ interface HTMLElements {
 	li: HTMLAttributes<
 		HTMLLIElement,
 		HTMLLIElementAttributes,
-		HTMLElementEvents<HTMLLIElement>
+		HTMLEvents<HTMLLIElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link
@@ -2705,7 +2714,7 @@ interface HTMLElements {
 	link: HTMLAttributes<
 		HTMLLinkElement,
 		HTMLLinkElementAttributes,
-		HTMLElementEvents<HTMLLinkElement>
+		HTMLEvents<HTMLLinkElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main
@@ -2714,7 +2723,7 @@ interface HTMLElements {
 	main: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/map
@@ -2723,7 +2732,7 @@ interface HTMLElements {
 	map: HTMLAttributes<
 		HTMLMapElement,
 		HTMLMapElementAttributes,
-		HTMLElementEvents<HTMLMapElement>
+		HTMLEvents<HTMLMapElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark
@@ -2732,7 +2741,7 @@ interface HTMLElements {
 	mark: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/menu
@@ -2741,7 +2750,7 @@ interface HTMLElements {
 	menu: HTMLAttributes<
 		HTMLMenuElement,
 		HTMLMenuElementAttributes,
-		HTMLElementEvents<HTMLMenuElement>
+		HTMLEvents<HTMLMenuElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
@@ -2750,7 +2759,7 @@ interface HTMLElements {
 	meta: HTMLAttributes<
 		HTMLMetaElement,
 		HTMLMetaElementAttributes,
-		HTMLElementEvents<HTMLMetaElement>
+		HTMLEvents<HTMLMetaElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter
@@ -2759,7 +2768,7 @@ interface HTMLElements {
 	meter: HTMLAttributes<
 		HTMLMeterElement,
 		HTMLMeterElementAttributes,
-		HTMLElementEvents<HTMLMeterElement>
+		HTMLEvents<HTMLMeterElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav
@@ -2768,7 +2777,7 @@ interface HTMLElements {
 	nav: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noscript
@@ -2777,7 +2786,7 @@ interface HTMLElements {
 	noscript: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object
@@ -2786,7 +2795,7 @@ interface HTMLElements {
 	object: HTMLAttributes<
 		HTMLObjectElement,
 		HTMLObjectElementAttributes,
-		HTMLElementEvents<HTMLObjectElement>
+		HTMLEvents<HTMLObjectElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol
@@ -2795,7 +2804,7 @@ interface HTMLElements {
 	ol: HTMLAttributes<
 		HTMLOListElement,
 		HTMLOListElementAttributes,
-		HTMLElementEvents<HTMLOListElement>
+		HTMLEvents<HTMLOListElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup
@@ -2804,7 +2813,7 @@ interface HTMLElements {
 	optgroup: HTMLAttributes<
 		HTMLOptGroupElement,
 		HTMLOptGroupElementAttributes,
-		HTMLElementEvents<HTMLOptGroupElement>
+		HTMLEvents<HTMLOptGroupElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option
@@ -2813,7 +2822,7 @@ interface HTMLElements {
 	option: HTMLAttributes<
 		HTMLOptionElement,
 		HTMLOptionElementAttributes,
-		HTMLElementEvents<HTMLOptionElement>
+		HTMLEvents<HTMLOptionElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output
@@ -2822,7 +2831,7 @@ interface HTMLElements {
 	output: HTMLAttributes<
 		HTMLOutputElement,
 		HTMLOutputElementAttributes,
-		HTMLElementEvents<HTMLOutputElement>
+		HTMLEvents<HTMLOutputElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p
@@ -2831,7 +2840,7 @@ interface HTMLElements {
 	p: HTMLAttributes<
 		HTMLParagraphElement,
 		HTMLParagraphElementAttributes,
-		HTMLElementEvents<HTMLParagraphElement>
+		HTMLEvents<HTMLParagraphElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture
@@ -2840,7 +2849,7 @@ interface HTMLElements {
 	picture: HTMLAttributes<
 		HTMLPictureElement,
 		HTMLPictureElementAttributes,
-		HTMLElementEvents<HTMLPictureElement>
+		HTMLEvents<HTMLPictureElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre
@@ -2849,7 +2858,7 @@ interface HTMLElements {
 	pre: HTMLAttributes<
 		HTMLPreElement,
 		HTMLPreElementAttributes,
-		HTMLElementEvents<HTMLPreElement>
+		HTMLEvents<HTMLPreElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress
@@ -2858,7 +2867,7 @@ interface HTMLElements {
 	progress: HTMLAttributes<
 		HTMLProgressElement,
 		HTMLProgressElementAttributes,
-		HTMLElementEvents<HTMLProgressElement>
+		HTMLEvents<HTMLProgressElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q
@@ -2867,7 +2876,7 @@ interface HTMLElements {
 	q: HTMLAttributes<
 		HTMLQuoteElement,
 		HTMLQuoteElementAttributes,
-		HTMLElementEvents<HTMLQuoteElement>
+		HTMLEvents<HTMLQuoteElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rp
@@ -2876,7 +2885,7 @@ interface HTMLElements {
 	rp: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rt
@@ -2885,7 +2894,7 @@ interface HTMLElements {
 	rt: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ruby
@@ -2894,7 +2903,7 @@ interface HTMLElements {
 	ruby: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/s
@@ -2903,7 +2912,7 @@ interface HTMLElements {
 	s: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/samp
@@ -2912,7 +2921,7 @@ interface HTMLElements {
 	samp: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script
@@ -2921,7 +2930,7 @@ interface HTMLElements {
 	script: HTMLAttributes<
 		HTMLScriptElement,
 		HTMLScriptElementAttributes,
-		HTMLElementEvents<HTMLScriptElement>
+		HTMLEvents<HTMLScriptElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
@@ -2930,7 +2939,7 @@ interface HTMLElements {
 	search: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section
@@ -2939,7 +2948,7 @@ interface HTMLElements {
 	section: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select
@@ -2948,7 +2957,7 @@ interface HTMLElements {
 	select: HTMLAttributes<
 		HTMLSelectElement,
 		HTMLSelectElementAttributes,
-		HTMLElementEvents<HTMLSelectElement>
+		HTMLEvents<HTMLSelectElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot
@@ -2957,7 +2966,7 @@ interface HTMLElements {
 	slot: HTMLAttributes<
 		HTMLSlotElement,
 		HTMLSlotElementAttributes,
-		HTMLElementEvents<HTMLSlotElement>
+		HTMLEvents<HTMLSlotElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/small
@@ -2966,7 +2975,7 @@ interface HTMLElements {
 	small: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source
@@ -2975,7 +2984,7 @@ interface HTMLElements {
 	source: HTMLAttributes<
 		HTMLSourceElement,
 		HTMLSourceElementAttributes,
-		HTMLElementEvents<HTMLSourceElement>
+		HTMLEvents<HTMLSourceElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span
@@ -2984,7 +2993,7 @@ interface HTMLElements {
 	span: HTMLAttributes<
 		HTMLSpanElement,
 		HTMLSpanElementAttributes,
-		HTMLElementEvents<HTMLSpanElement>
+		HTMLEvents<HTMLSpanElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong
@@ -2993,7 +3002,7 @@ interface HTMLElements {
 	strong: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style
@@ -3002,7 +3011,7 @@ interface HTMLElements {
 	style: HTMLAttributes<
 		HTMLStyleElement,
 		HTMLStyleElementAttributes,
-		HTMLElementEvents<HTMLStyleElement>
+		HTMLEvents<HTMLStyleElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
@@ -3011,7 +3020,7 @@ interface HTMLElements {
 	sub: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary
@@ -3020,7 +3029,7 @@ interface HTMLElements {
 	summary: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
@@ -3029,7 +3038,7 @@ interface HTMLElements {
 	sup: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table
@@ -3038,7 +3047,7 @@ interface HTMLElements {
 	table: HTMLAttributes<
 		HTMLTableElement,
 		HTMLTableElementAttributes,
-		HTMLElementEvents<HTMLTableElement>
+		HTMLEvents<HTMLTableElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody
@@ -3047,7 +3056,7 @@ interface HTMLElements {
 	tbody: HTMLAttributes<
 		HTMLTableSectionElement,
 		HTMLTableSectionBodyElementAttributes,
-		HTMLElementEvents<HTMLTableSectionElement>
+		HTMLEvents<HTMLTableSectionElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td
@@ -3056,7 +3065,7 @@ interface HTMLElements {
 	td: HTMLAttributes<
 		HTMLTableCellElement,
 		HTMLTableCellTdElementAttributes,
-		HTMLElementEvents<HTMLTableCellElement>
+		HTMLEvents<HTMLTableCellElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template
@@ -3065,7 +3074,7 @@ interface HTMLElements {
 	template: HTMLAttributes<
 		HTMLTemplateElement,
 		HTMLTemplateElementAttributes,
-		HTMLElementEvents<HTMLTemplateElement>
+		HTMLEvents<HTMLTemplateElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea
@@ -3074,7 +3083,7 @@ interface HTMLElements {
 	textarea: HTMLAttributes<
 		HTMLTextAreaElement,
 		HTMLTextAreaElementAttributes,
-		HTMLElementEvents<HTMLTextAreaElement>
+		HTMLEvents<HTMLTextAreaElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot
@@ -3083,7 +3092,7 @@ interface HTMLElements {
 	tfoot: HTMLAttributes<
 		HTMLTableSectionElement,
 		HTMLTableSectionFootElementAttributes,
-		HTMLElementEvents<HTMLTableSectionElement>
+		HTMLEvents<HTMLTableSectionElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th
@@ -3092,7 +3101,7 @@ interface HTMLElements {
 	th: HTMLAttributes<
 		HTMLTableCellElement,
 		HTMLTableCellThElementAttributes,
-		HTMLElementEvents<HTMLTableCellElement>
+		HTMLEvents<HTMLTableCellElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead
@@ -3101,7 +3110,7 @@ interface HTMLElements {
 	thead: HTMLAttributes<
 		HTMLTableSectionElement,
 		HTMLTableSectionHeadElementAttributes,
-		HTMLElementEvents<HTMLTableSectionElement>
+		HTMLEvents<HTMLTableSectionElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time
@@ -3110,7 +3119,7 @@ interface HTMLElements {
 	time: HTMLAttributes<
 		HTMLTimeElement,
 		HTMLTimeElementAttributes,
-		HTMLElementEvents<HTMLTimeElement>
+		HTMLEvents<HTMLTimeElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title
@@ -3119,7 +3128,7 @@ interface HTMLElements {
 	title: HTMLAttributes<
 		HTMLTitleElement,
 		HTMLTitleElementAttributes,
-		HTMLElementEvents<HTMLTitleElement>
+		HTMLEvents<HTMLTitleElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr
@@ -3128,7 +3137,7 @@ interface HTMLElements {
 	tr: HTMLAttributes<
 		HTMLTableRowElement,
 		HTMLTableRowElementAttributes,
-		HTMLElementEvents<HTMLTableRowElement>
+		HTMLEvents<HTMLTableRowElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track
@@ -3137,7 +3146,7 @@ interface HTMLElements {
 	track: HTMLAttributes<
 		HTMLTrackElement,
 		HTMLTrackElementAttributes,
-		HTMLElementEvents<HTMLTrackElement>
+		HTMLEvents<HTMLTrackElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/u
@@ -3146,7 +3155,7 @@ interface HTMLElements {
 	u: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul
@@ -3155,7 +3164,7 @@ interface HTMLElements {
 	ul: HTMLAttributes<
 		HTMLUListElement,
 		HTMLUListElementAttributes,
-		HTMLElementEvents<HTMLUListElement>
+		HTMLEvents<HTMLUListElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/var
@@ -3164,7 +3173,7 @@ interface HTMLElements {
 	var: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video
@@ -3182,11 +3191,11 @@ interface HTMLElements {
 	wbr: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 }
 
-// HTMLDeprecatedElements (THIS IS AUTO GENERATED!)
+// HTMLDeprecatedElements
 
 interface HTMLDeprecatedElements {
 	/**
@@ -3197,7 +3206,7 @@ interface HTMLDeprecatedElements {
 	acronym: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3207,7 +3216,7 @@ interface HTMLDeprecatedElements {
 	applet: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLUnknownElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3217,7 +3226,7 @@ interface HTMLDeprecatedElements {
 	basefont: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3227,7 +3236,7 @@ interface HTMLDeprecatedElements {
 	bgsound: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLUnknownElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3237,7 +3246,7 @@ interface HTMLDeprecatedElements {
 	big: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3247,7 +3256,7 @@ interface HTMLDeprecatedElements {
 	blink: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLUnknownElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3257,7 +3266,7 @@ interface HTMLDeprecatedElements {
 	center: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3267,7 +3276,7 @@ interface HTMLDeprecatedElements {
 	dir: HTMLAttributes<
 		HTMLDirectoryElement,
 		HTMLDirectoryElementAttributes,
-		HTMLElementEvents<HTMLDirectoryElement>
+		HTMLEvents<HTMLDirectoryElement>
 	>
 	/**
 	 * @deprecated
@@ -3277,7 +3286,7 @@ interface HTMLDeprecatedElements {
 	font: HTMLAttributes<
 		HTMLFontElement,
 		HTMLFontElementAttributes,
-		HTMLElementEvents<HTMLFontElement>
+		HTMLEvents<HTMLFontElement>
 	>
 	/**
 	 * @deprecated
@@ -3287,7 +3296,7 @@ interface HTMLDeprecatedElements {
 	frame: HTMLAttributes<
 		HTMLFrameElement,
 		HTMLFrameElementAttributes,
-		HTMLElementEvents<HTMLFrameElement>
+		HTMLEvents<HTMLFrameElement>
 	>
 	/**
 	 * @deprecated
@@ -3307,7 +3316,7 @@ interface HTMLDeprecatedElements {
 	isindex: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLUnknownElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3317,7 +3326,7 @@ interface HTMLDeprecatedElements {
 	keygen: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLKeygenElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3327,7 +3336,7 @@ interface HTMLDeprecatedElements {
 	listing: HTMLAttributes<
 		HTMLPreElement,
 		HTMLPreElementListingAttributes,
-		HTMLElementEvents<HTMLPreElement>
+		HTMLEvents<HTMLPreElement>
 	>
 	/**
 	 * @deprecated
@@ -3337,7 +3346,7 @@ interface HTMLDeprecatedElements {
 	marquee: HTMLAttributes<
 		HTMLMarqueeElement,
 		HTMLMarqueeElementAttributes,
-		HTMLElementEvents<HTMLMarqueeElement>
+		HTMLEvents<HTMLMarqueeElement>
 	>
 	/**
 	 * @deprecated
@@ -3347,7 +3356,7 @@ interface HTMLDeprecatedElements {
 	menuitem: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3357,7 +3366,7 @@ interface HTMLDeprecatedElements {
 	multicol: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLUnknownElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3367,7 +3376,7 @@ interface HTMLDeprecatedElements {
 	nextid: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLUnknownElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3377,7 +3386,7 @@ interface HTMLDeprecatedElements {
 	nobr: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3387,7 +3396,7 @@ interface HTMLDeprecatedElements {
 	noembed: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3397,7 +3406,7 @@ interface HTMLDeprecatedElements {
 	noindex: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLUnknownElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3407,7 +3416,7 @@ interface HTMLDeprecatedElements {
 	noframes: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3417,7 +3426,7 @@ interface HTMLDeprecatedElements {
 	param: HTMLAttributes<
 		HTMLParamElement,
 		HTMLParamElementAttributes,
-		HTMLElementEvents<HTMLParamElement>
+		HTMLEvents<HTMLParamElement>
 	>
 	/**
 	 * @deprecated
@@ -3427,7 +3436,7 @@ interface HTMLDeprecatedElements {
 	plaintext: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3437,7 +3446,7 @@ interface HTMLDeprecatedElements {
 	rb: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3447,7 +3456,7 @@ interface HTMLDeprecatedElements {
 	rtc: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3457,7 +3466,7 @@ interface HTMLDeprecatedElements {
 	spacer: HTMLAttributes<
 		HTMLUnknownElement,
 		HTMLUnknownElementAttributes,
-		HTMLElementEvents<HTMLUnknownElement>
+		HTMLEvents<HTMLUnknownElement>
 	>
 	/**
 	 * @deprecated
@@ -3467,7 +3476,7 @@ interface HTMLDeprecatedElements {
 	strike: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3477,7 +3486,7 @@ interface HTMLDeprecatedElements {
 	tt: HTMLAttributes<
 		HTMLElement,
 		HTMLElementAttributes,
-		HTMLElementEvents<HTMLElement>
+		HTMLEvents<HTMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3487,11 +3496,11 @@ interface HTMLDeprecatedElements {
 	xmp: HTMLAttributes<
 		HTMLPreElement,
 		HTMLPreElementXmpAttributes,
-		HTMLElementEvents<HTMLPreElement>
+		HTMLEvents<HTMLPreElement>
 	>
 }
 
-// MathMLElements (THIS IS AUTO GENERATED!)
+// MathMLElements
 
 interface MathMLElements {
 	/**
@@ -3501,7 +3510,7 @@ interface MathMLElements {
 	annotation: MathMLAttributes<
 		MathMLElement,
 		MathMLAnnotationElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/annotation-xml
@@ -3510,7 +3519,7 @@ interface MathMLElements {
 	'annotation-xml': MathMLAttributes<
 		MathMLElement,
 		MathMLAnnotationXmlElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/math
@@ -3519,7 +3528,7 @@ interface MathMLElements {
 	math: MathMLAttributes<
 		MathMLElement,
 		MathMLMathElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/merror
@@ -3528,7 +3537,7 @@ interface MathMLElements {
 	merror: MathMLAttributes<
 		MathMLElement,
 		MathMLMerrorElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfrac
@@ -3537,7 +3546,7 @@ interface MathMLElements {
 	mfrac: MathMLAttributes<
 		MathMLElement,
 		MathMLMfracElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mi
@@ -3546,7 +3555,7 @@ interface MathMLElements {
 	mi: MathMLAttributes<
 		MathMLElement,
 		MathMLMiElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mmultiscripts
@@ -3555,7 +3564,7 @@ interface MathMLElements {
 	mmultiscripts: MathMLAttributes<
 		MathMLElement,
 		MathMLMmultiscriptsElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mn
@@ -3564,7 +3573,7 @@ interface MathMLElements {
 	mn: MathMLAttributes<
 		MathMLElement,
 		MathMLMnElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mo
@@ -3573,7 +3582,7 @@ interface MathMLElements {
 	mo: MathMLAttributes<
 		MathMLElement,
 		MathMLMoElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mover
@@ -3582,7 +3591,7 @@ interface MathMLElements {
 	mover: MathMLAttributes<
 		MathMLElement,
 		MathMLMoverElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mpadded
@@ -3591,7 +3600,7 @@ interface MathMLElements {
 	mpadded: MathMLAttributes<
 		MathMLElement,
 		MathMLMpaddedElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mphantom
@@ -3600,7 +3609,7 @@ interface MathMLElements {
 	mphantom: MathMLAttributes<
 		MathMLElement,
 		MathMLMphantomElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mprescripts
@@ -3609,7 +3618,7 @@ interface MathMLElements {
 	mprescripts: MathMLAttributes<
 		MathMLElement,
 		MathMLMprescriptsElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mroot
@@ -3618,7 +3627,7 @@ interface MathMLElements {
 	mroot: MathMLAttributes<
 		MathMLElement,
 		MathMLMrootElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mrow
@@ -3627,7 +3636,7 @@ interface MathMLElements {
 	mrow: MathMLAttributes<
 		MathMLElement,
 		MathMLMrowElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/ms
@@ -3636,7 +3645,7 @@ interface MathMLElements {
 	ms: MathMLAttributes<
 		MathMLElement,
 		MathMLMsElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mspace
@@ -3645,7 +3654,7 @@ interface MathMLElements {
 	mspace: MathMLAttributes<
 		MathMLElement,
 		MathMLMspaceElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msqrt
@@ -3654,7 +3663,7 @@ interface MathMLElements {
 	msqrt: MathMLAttributes<
 		MathMLElement,
 		MathMLMsqrtElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mstyle
@@ -3663,7 +3672,7 @@ interface MathMLElements {
 	mstyle: MathMLAttributes<
 		MathMLElement,
 		MathMLMstyleElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msub
@@ -3672,7 +3681,7 @@ interface MathMLElements {
 	msub: MathMLAttributes<
 		MathMLElement,
 		MathMLMsubElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msubsup
@@ -3681,7 +3690,7 @@ interface MathMLElements {
 	msubsup: MathMLAttributes<
 		MathMLElement,
 		MathMLMsubsupElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msup
@@ -3690,7 +3699,7 @@ interface MathMLElements {
 	msup: MathMLAttributes<
 		MathMLElement,
 		MathMLMsupElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtable
@@ -3699,7 +3708,7 @@ interface MathMLElements {
 	mtable: MathMLAttributes<
 		MathMLElement,
 		MathMLMtableElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd
@@ -3708,7 +3717,7 @@ interface MathMLElements {
 	mtd: MathMLAttributes<
 		MathMLElement,
 		MathMLMtdElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtext
@@ -3717,7 +3726,7 @@ interface MathMLElements {
 	mtext: MathMLAttributes<
 		MathMLElement,
 		MathMLMtextElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtr
@@ -3726,7 +3735,7 @@ interface MathMLElements {
 	mtr: MathMLAttributes<
 		MathMLElement,
 		MathMLMtrElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/munder
@@ -3735,7 +3744,7 @@ interface MathMLElements {
 	munder: MathMLAttributes<
 		MathMLElement,
 		MathMLMunderElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/munderover
@@ -3744,7 +3753,7 @@ interface MathMLElements {
 	munderover: MathMLAttributes<
 		MathMLElement,
 		MathMLMunderoverElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/semantics
@@ -3753,7 +3762,7 @@ interface MathMLElements {
 	semantics: MathMLAttributes<
 		MathMLElement,
 		MathMLSemanticsElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @non-standard
@@ -3763,11 +3772,11 @@ interface MathMLElements {
 	menclose: MathMLAttributes<
 		MathMLElement,
 		MathMLMencloseElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 }
 
-// MathMLDeprecatedElements (THIS IS AUTO GENERATED!)
+// MathMLDeprecatedElements
 
 interface MathMLDeprecatedElements {
 	/**
@@ -3778,7 +3787,7 @@ interface MathMLDeprecatedElements {
 	maction: MathMLAttributes<
 		MathMLElement,
 		MathMLMactionElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 	/**
 	 * @deprecated
@@ -3789,11 +3798,11 @@ interface MathMLDeprecatedElements {
 	mfenced: MathMLAttributes<
 		MathMLElement,
 		MathMLMfencedElementAttributes,
-		MathMLElementEvents<MathMLElement>
+		MathMLEvents<MathMLElement>
 	>
 }
 
-// SVGElements (THIS IS AUTO GENERATED!)
+// SVGElements
 
 interface SVGElements {
 	/*
@@ -3801,7 +3810,7 @@ interface SVGElements {
 	a: SVGAttributes<
 		SVGAElement,
 		SVGAElementAttributes,
-		SVGElementEvents<SVGAElement>
+		SVGEvents<SVGAElement>
 	>
 	*/
 
@@ -3812,7 +3821,7 @@ interface SVGElements {
 	animate: SVGAttributes<
 		SVGAnimateElement,
 		SVGAnimateElementAttributes,
-		SVGElementEvents<SVGAnimateElement>
+		SVGEvents<SVGAnimateElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateMotion
@@ -3821,7 +3830,7 @@ interface SVGElements {
 	animateMotion: SVGAttributes<
 		SVGAnimateMotionElement,
 		SVGAnimateMotionElementAttributes,
-		SVGElementEvents<SVGAnimateMotionElement>
+		SVGEvents<SVGAnimateMotionElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform
@@ -3830,7 +3839,7 @@ interface SVGElements {
 	animateTransform: SVGAttributes<
 		SVGAnimateTransformElement,
 		SVGAnimateTransformElementAttributes,
-		SVGElementEvents<SVGAnimateTransformElement>
+		SVGEvents<SVGAnimateTransformElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
@@ -3839,7 +3848,7 @@ interface SVGElements {
 	circle: SVGAttributes<
 		SVGCircleElement,
 		SVGCircleElementAttributes,
-		SVGElementEvents<SVGCircleElement>
+		SVGEvents<SVGCircleElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/clipPath
@@ -3848,7 +3857,7 @@ interface SVGElements {
 	clipPath: SVGAttributes<
 		SVGClipPathElement,
 		SVGClipPathElementAttributes,
-		SVGElementEvents<SVGClipPathElement>
+		SVGEvents<SVGClipPathElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs
@@ -3857,7 +3866,7 @@ interface SVGElements {
 	defs: SVGAttributes<
 		SVGDefsElement,
 		SVGDefsElementAttributes,
-		SVGElementEvents<SVGDefsElement>
+		SVGEvents<SVGDefsElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/desc
@@ -3866,7 +3875,7 @@ interface SVGElements {
 	desc: SVGAttributes<
 		SVGDescElement,
 		SVGDescElementAttributes,
-		SVGElementEvents<SVGDescElement>
+		SVGEvents<SVGDescElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/ellipse
@@ -3875,7 +3884,7 @@ interface SVGElements {
 	ellipse: SVGAttributes<
 		SVGEllipseElement,
 		SVGEllipseElementAttributes,
-		SVGElementEvents<SVGEllipseElement>
+		SVGEvents<SVGEllipseElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feBlend
@@ -3884,7 +3893,7 @@ interface SVGElements {
 	feBlend: SVGAttributes<
 		SVGFEBlendElement,
 		SVGFEBlendElementAttributes,
-		SVGElementEvents<SVGFEBlendElement>
+		SVGEvents<SVGFEBlendElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feColorMatrix
@@ -3893,7 +3902,7 @@ interface SVGElements {
 	feColorMatrix: SVGAttributes<
 		SVGFEColorMatrixElement,
 		SVGFEColorMatrixElementAttributes,
-		SVGElementEvents<SVGFEColorMatrixElement>
+		SVGEvents<SVGFEColorMatrixElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feComponentTransfer
@@ -3902,7 +3911,7 @@ interface SVGElements {
 	feComponentTransfer: SVGAttributes<
 		SVGFEComponentTransferElement,
 		SVGFEComponentTransferElementAttributes,
-		SVGElementEvents<SVGFEComponentTransferElement>
+		SVGEvents<SVGFEComponentTransferElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feComposite
@@ -3911,7 +3920,7 @@ interface SVGElements {
 	feComposite: SVGAttributes<
 		SVGFECompositeElement,
 		SVGFECompositeElementAttributes,
-		SVGElementEvents<SVGFECompositeElement>
+		SVGEvents<SVGFECompositeElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feConvolveMatrix
@@ -3920,7 +3929,7 @@ interface SVGElements {
 	feConvolveMatrix: SVGAttributes<
 		SVGFEConvolveMatrixElement,
 		SVGFEConvolveMatrixElementAttributes,
-		SVGElementEvents<SVGFEConvolveMatrixElement>
+		SVGEvents<SVGFEConvolveMatrixElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDiffuseLighting
@@ -3929,7 +3938,7 @@ interface SVGElements {
 	feDiffuseLighting: SVGAttributes<
 		SVGFEDiffuseLightingElement,
 		SVGFEDiffuseLightingElementAttributes,
-		SVGElementEvents<SVGFEDiffuseLightingElement>
+		SVGEvents<SVGFEDiffuseLightingElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDisplacementMap
@@ -3938,7 +3947,7 @@ interface SVGElements {
 	feDisplacementMap: SVGAttributes<
 		SVGFEDisplacementMapElement,
 		SVGFEDisplacementMapElementAttributes,
-		SVGElementEvents<SVGFEDisplacementMapElement>
+		SVGEvents<SVGFEDisplacementMapElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDistantLight
@@ -3947,7 +3956,7 @@ interface SVGElements {
 	feDistantLight: SVGAttributes<
 		SVGFEDistantLightElement,
 		SVGFEDistantLightElementAttributes,
-		SVGElementEvents<SVGFEDistantLightElement>
+		SVGEvents<SVGFEDistantLightElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDropShadow
@@ -3956,7 +3965,7 @@ interface SVGElements {
 	feDropShadow: SVGAttributes<
 		SVGFEDropShadowElement,
 		SVGFEDropShadowElementAttributes,
-		SVGElementEvents<SVGFEDropShadowElement>
+		SVGEvents<SVGFEDropShadowElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFlood
@@ -3965,7 +3974,7 @@ interface SVGElements {
 	feFlood: SVGAttributes<
 		SVGFEFloodElement,
 		SVGFEFloodElementAttributes,
-		SVGElementEvents<SVGFEFloodElement>
+		SVGEvents<SVGFEFloodElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncA
@@ -3974,7 +3983,7 @@ interface SVGElements {
 	feFuncA: SVGAttributes<
 		SVGFEFuncAElement,
 		SVGFEFuncAElementAttributes,
-		SVGElementEvents<SVGFEFuncAElement>
+		SVGEvents<SVGFEFuncAElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncB
@@ -3983,7 +3992,7 @@ interface SVGElements {
 	feFuncB: SVGAttributes<
 		SVGFEFuncBElement,
 		SVGFEFuncBElementAttributes,
-		SVGElementEvents<SVGFEFuncBElement>
+		SVGEvents<SVGFEFuncBElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncG
@@ -3992,7 +4001,7 @@ interface SVGElements {
 	feFuncG: SVGAttributes<
 		SVGFEFuncGElement,
 		SVGFEFuncGElementAttributes,
-		SVGElementEvents<SVGFEFuncGElement>
+		SVGEvents<SVGFEFuncGElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncR
@@ -4001,7 +4010,7 @@ interface SVGElements {
 	feFuncR: SVGAttributes<
 		SVGFEFuncRElement,
 		SVGFEFuncRElementAttributes,
-		SVGElementEvents<SVGFEFuncRElement>
+		SVGEvents<SVGFEFuncRElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feGaussianBlur
@@ -4010,7 +4019,7 @@ interface SVGElements {
 	feGaussianBlur: SVGAttributes<
 		SVGFEGaussianBlurElement,
 		SVGFEGaussianBlurElementAttributes,
-		SVGElementEvents<SVGFEGaussianBlurElement>
+		SVGEvents<SVGFEGaussianBlurElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feImage
@@ -4019,7 +4028,7 @@ interface SVGElements {
 	feImage: SVGAttributes<
 		SVGFEImageElement,
 		SVGFEImageElementAttributes,
-		SVGElementEvents<SVGFEImageElement>
+		SVGEvents<SVGFEImageElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMerge
@@ -4028,7 +4037,7 @@ interface SVGElements {
 	feMerge: SVGAttributes<
 		SVGFEMergeElement,
 		SVGFEMergeElementAttributes,
-		SVGElementEvents<SVGFEMergeElement>
+		SVGEvents<SVGFEMergeElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMergeNode
@@ -4037,7 +4046,7 @@ interface SVGElements {
 	feMergeNode: SVGAttributes<
 		SVGFEMergeNodeElement,
 		SVGFEMergeNodeElementAttributes,
-		SVGElementEvents<SVGFEMergeNodeElement>
+		SVGEvents<SVGFEMergeNodeElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMorphology
@@ -4046,7 +4055,7 @@ interface SVGElements {
 	feMorphology: SVGAttributes<
 		SVGFEMorphologyElement,
 		SVGFEMorphologyElementAttributes,
-		SVGElementEvents<SVGFEMorphologyElement>
+		SVGEvents<SVGFEMorphologyElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feOffset
@@ -4055,7 +4064,7 @@ interface SVGElements {
 	feOffset: SVGAttributes<
 		SVGFEOffsetElement,
 		SVGFEOffsetElementAttributes,
-		SVGElementEvents<SVGFEOffsetElement>
+		SVGEvents<SVGFEOffsetElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/fePointLight
@@ -4064,7 +4073,7 @@ interface SVGElements {
 	fePointLight: SVGAttributes<
 		SVGFEPointLightElement,
 		SVGFEPointLightElementAttributes,
-		SVGElementEvents<SVGFEPointLightElement>
+		SVGEvents<SVGFEPointLightElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feSpecularLighting
@@ -4073,7 +4082,7 @@ interface SVGElements {
 	feSpecularLighting: SVGAttributes<
 		SVGFESpecularLightingElement,
 		SVGFESpecularLightingElementAttributes,
-		SVGElementEvents<SVGFESpecularLightingElement>
+		SVGEvents<SVGFESpecularLightingElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feSpotLight
@@ -4082,7 +4091,7 @@ interface SVGElements {
 	feSpotLight: SVGAttributes<
 		SVGFESpotLightElement,
 		SVGFESpotLightElementAttributes,
-		SVGElementEvents<SVGFESpotLightElement>
+		SVGEvents<SVGFESpotLightElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTile
@@ -4091,7 +4100,7 @@ interface SVGElements {
 	feTile: SVGAttributes<
 		SVGFETileElement,
 		SVGFETileElementAttributes,
-		SVGElementEvents<SVGFETileElement>
+		SVGEvents<SVGFETileElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTurbulence
@@ -4100,7 +4109,7 @@ interface SVGElements {
 	feTurbulence: SVGAttributes<
 		SVGFETurbulenceElement,
 		SVGFETurbulenceElementAttributes,
-		SVGElementEvents<SVGFETurbulenceElement>
+		SVGEvents<SVGFETurbulenceElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/filter
@@ -4109,7 +4118,7 @@ interface SVGElements {
 	filter: SVGAttributes<
 		SVGFilterElement,
 		SVGFilterElementAttributes,
-		SVGElementEvents<SVGFilterElement>
+		SVGEvents<SVGFilterElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject
@@ -4118,7 +4127,7 @@ interface SVGElements {
 	foreignObject: SVGAttributes<
 		SVGForeignObjectElement,
 		SVGForeignObjectElementAttributes,
-		SVGElementEvents<SVGForeignObjectElement>
+		SVGEvents<SVGForeignObjectElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g
@@ -4127,7 +4136,7 @@ interface SVGElements {
 	g: SVGAttributes<
 		SVGGElement,
 		SVGGElementAttributes,
-		SVGElementEvents<SVGGElement>
+		SVGEvents<SVGGElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image
@@ -4136,7 +4145,7 @@ interface SVGElements {
 	image: SVGAttributes<
 		SVGImageElement,
 		SVGImageElementAttributes,
-		SVGElementEvents<SVGImageElement>
+		SVGEvents<SVGImageElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/line
@@ -4145,7 +4154,7 @@ interface SVGElements {
 	line: SVGAttributes<
 		SVGLineElement,
 		SVGLineElementAttributes,
-		SVGElementEvents<SVGLineElement>
+		SVGEvents<SVGLineElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient
@@ -4154,7 +4163,7 @@ interface SVGElements {
 	linearGradient: SVGAttributes<
 		SVGLinearGradientElement,
 		SVGLinearGradientElementAttributes,
-		SVGElementEvents<SVGLinearGradientElement>
+		SVGEvents<SVGLinearGradientElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/marker
@@ -4163,7 +4172,7 @@ interface SVGElements {
 	marker: SVGAttributes<
 		SVGMarkerElement,
 		SVGMarkerElementAttributes,
-		SVGElementEvents<SVGMarkerElement>
+		SVGEvents<SVGMarkerElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/mask
@@ -4172,7 +4181,7 @@ interface SVGElements {
 	mask: SVGAttributes<
 		SVGMaskElement,
 		SVGMaskElementAttributes,
-		SVGElementEvents<SVGMaskElement>
+		SVGEvents<SVGMaskElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/metadata
@@ -4181,7 +4190,7 @@ interface SVGElements {
 	metadata: SVGAttributes<
 		SVGMetadataElement,
 		SVGMetadataElementAttributes,
-		SVGElementEvents<SVGMetadataElement>
+		SVGEvents<SVGMetadataElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/mpath
@@ -4190,7 +4199,7 @@ interface SVGElements {
 	mpath: SVGAttributes<
 		SVGMPathElement,
 		SVGMPathElementAttributes,
-		SVGElementEvents<SVGMPathElement>
+		SVGEvents<SVGMPathElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path
@@ -4199,7 +4208,7 @@ interface SVGElements {
 	path: SVGAttributes<
 		SVGPathElement,
 		SVGPathElementAttributes,
-		SVGElementEvents<SVGPathElement>
+		SVGEvents<SVGPathElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/pattern
@@ -4208,7 +4217,7 @@ interface SVGElements {
 	pattern: SVGAttributes<
 		SVGPatternElement,
 		SVGPatternElementAttributes,
-		SVGElementEvents<SVGPatternElement>
+		SVGEvents<SVGPatternElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polygon
@@ -4217,7 +4226,7 @@ interface SVGElements {
 	polygon: SVGAttributes<
 		SVGPolygonElement,
 		SVGPolygonElementAttributes,
-		SVGElementEvents<SVGPolygonElement>
+		SVGEvents<SVGPolygonElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
@@ -4226,7 +4235,7 @@ interface SVGElements {
 	polyline: SVGAttributes<
 		SVGPolylineElement,
 		SVGPolylineElementAttributes,
-		SVGElementEvents<SVGPolylineElement>
+		SVGEvents<SVGPolylineElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/radialGradient
@@ -4235,7 +4244,7 @@ interface SVGElements {
 	radialGradient: SVGAttributes<
 		SVGRadialGradientElement,
 		SVGRadialGradientElementAttributes,
-		SVGElementEvents<SVGRadialGradientElement>
+		SVGEvents<SVGRadialGradientElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect
@@ -4244,14 +4253,14 @@ interface SVGElements {
 	rect: SVGAttributes<
 		SVGRectElement,
 		SVGRectElementAttributes,
-		SVGElementEvents<SVGRectElement>
+		SVGEvents<SVGRectElement>
 	>
 	/*
 	// clashes with `html`
 	script: SVGAttributes<
 		SVGScriptElement,
 		SVGScriptElementAttributes,
-		SVGElementEvents<SVGScriptElement>
+		SVGEvents<SVGScriptElement>
 	>
 	*/
 
@@ -4262,7 +4271,7 @@ interface SVGElements {
 	set: SVGAttributes<
 		SVGSetElement,
 		SVGSetElementAttributes,
-		SVGElementEvents<SVGSetElement>
+		SVGEvents<SVGSetElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/stop
@@ -4271,7 +4280,7 @@ interface SVGElements {
 	stop: SVGAttributes<
 		SVGStopElement,
 		SVGStopElementAttributes,
-		SVGElementEvents<SVGStopElement>
+		SVGEvents<SVGStopElement>
 	>
 
 	/*
@@ -4279,7 +4288,7 @@ interface SVGElements {
 	style: SVGAttributes<
 		SVGStyleElement,
 		SVGStyleElementAttributes,
-		SVGElementEvents<SVGStyleElement>
+		SVGEvents<SVGStyleElement>
 	>
 	*/
 
@@ -4299,7 +4308,7 @@ interface SVGElements {
 	switch: SVGAttributes<
 		SVGSwitchElement,
 		SVGSwitchElementAttributes,
-		SVGElementEvents<SVGSwitchElement>
+		SVGEvents<SVGSwitchElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/symbol
@@ -4308,7 +4317,7 @@ interface SVGElements {
 	symbol: SVGAttributes<
 		SVGSymbolElement,
 		SVGSymbolElementAttributes,
-		SVGElementEvents<SVGSymbolElement>
+		SVGEvents<SVGSymbolElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
@@ -4317,7 +4326,7 @@ interface SVGElements {
 	text: SVGAttributes<
 		SVGTextElement,
 		SVGTextElementAttributes,
-		SVGElementEvents<SVGTextElement>
+		SVGEvents<SVGTextElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/textPath
@@ -4326,14 +4335,14 @@ interface SVGElements {
 	textPath: SVGAttributes<
 		SVGTextPathElement,
 		SVGTextPathElementAttributes,
-		SVGElementEvents<SVGTextPathElement>
+		SVGEvents<SVGTextPathElement>
 	>
 	/*
 	// clashes with `html`
 	title: SVGAttributes<
 		SVGTitleElement,
 		SVGTitleElementAttributes,
-		SVGElementEvents<SVGTitleElement>
+		SVGEvents<SVGTitleElement>
 	>*/
 
 	/**
@@ -4343,7 +4352,7 @@ interface SVGElements {
 	tspan: SVGAttributes<
 		SVGTSpanElement,
 		SVGTSpanElementAttributes,
-		SVGElementEvents<SVGTSpanElement>
+		SVGEvents<SVGTSpanElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use
@@ -4352,7 +4361,7 @@ interface SVGElements {
 	use: SVGAttributes<
 		SVGUseElement,
 		SVGUseElementAttributes,
-		SVGElementEvents<SVGUseElement>
+		SVGEvents<SVGUseElement>
 	>
 	/**
 	 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/view
@@ -4361,11 +4370,11 @@ interface SVGElements {
 	view: SVGAttributes<
 		SVGViewElement,
 		SVGViewElementAttributes,
-		SVGElementEvents<SVGViewElement>
+		SVGEvents<SVGViewElement>
 	>
 }
 
-/* EVENTS (THIS IS AUTO GENERATED!) */
+/* EVENTS */
 
 type Events<Event, Element> =
 	| ((e: Event & { currentTarget: Element }) => void)
@@ -4373,11 +4382,28 @@ type Events<Event, Element> =
 			handleEvent: (e: Event & { currentTarget: Element }) => void
 	  } & AddEventListenerOptions)
 
+/* exports */
+
+export interface HTMLEvents<Element>
+	extends ElementEvents<Element>,
+		GlobalEvents<Element> {}
+
+export interface MathMLEvents<Element>
+	extends ElementEvents<Element>,
+		GlobalEvents<Element> {}
+
+export interface SVGEvents<Element>
+	extends ElementEvents<Element>,
+		GlobalEvents<Element> {}
+
+/* global events */
+
 interface ElementEvents<Element> {
 	'on:fullscreenchange'?: Events<Event, Element>
 	'on:fullscreenerror'?: Events<Event, Element>
 }
-interface GlobalEventHandlersEvents<Element> {
+
+interface GlobalEvents<Element> {
 	'on:abort'?: Events<UIEvent, Element>
 	'on:animationcancel'?: Events<AnimationEvent, Element>
 	'on:animationend'?: Events<AnimationEvent, Element>
@@ -4481,35 +4507,10 @@ interface GlobalEventHandlersEvents<Element> {
 	'on:waiting'?: Events<Event, Element>
 	'on:wheel'?: Events<WheelEvent, Element>
 }
-interface HTMLBodyElementEvents<Element>
-	extends HTMLElementEvents<Element>,
-		WindowEventHandlersEvents<Element> {}
-interface HTMLElementEvents<Element>
-	extends ElementEvents<Element>,
-		GlobalEventHandlersEvents<Element> {}
-interface HTMLFrameSetElementEvents<Element>
-	extends HTMLElementEvents<Element>,
-		WindowEventHandlersEvents<Element> {}
-interface HTMLMediaElementEvents<Element>
-	extends HTMLElementEvents<Element> {
-	'on:encrypted'?: Events<MediaEncryptedEvent, Element>
-	'on:waitingforkey'?: Events<Event, Element>
-}
-interface HTMLVideoElementEvents<Element>
-	extends HTMLMediaElementEvents<Element> {
-	'on:enterpictureinpicture'?: Events<PictureInPictureEvent, Element>
-	'on:leavepictureinpicture'?: Events<PictureInPictureEvent, Element>
-}
-interface MathMLElementEvents<Element>
-	extends ElementEvents<Element>,
-		GlobalEventHandlersEvents<Element> {}
-interface SVGElementEvents<Element>
-	extends ElementEvents<Element>,
-		GlobalEventHandlersEvents<Element> {}
-interface SVGSVGElementEvents<Element>
-	extends SVGElementEvents<Element>,
-		WindowEventHandlersEvents<Element> {}
-interface WindowEventHandlersEvents<Element> {
+
+// window
+
+interface WindowEvents<Element> {
 	'on:afterprint'?: Events<Event, Element>
 	'on:beforeprint'?: Events<Event, Element>
 	'on:beforeunload'?: Events<BeforeUnloadEvent, Element>
@@ -4522,7 +4523,9 @@ interface WindowEventHandlersEvents<Element> {
 	'on:offline'?: Events<Event, Element>
 	'on:online'?: Events<Event, Element>
 	'on:pagehide'?: Events<PageTransitionEvent, Element>
+	'on:pagereveal'?: Events<Event, Element>
 	'on:pageshow'?: Events<PageTransitionEvent, Element>
+	'on:pageswap'?: Events<Event, Element>
 	'on:popstate'?: Events<PopStateEvent, Element>
 	'on:rejectionhandled'?: Events<PromiseRejectionEvent, Element>
 	'on:storage'?: Events<StorageEvent, Element>
@@ -4530,15 +4533,32 @@ interface WindowEventHandlersEvents<Element> {
 	'on:unload'?: Events<Event, Element>
 }
 
-/*
-	type ElementsFilter<TagNameMap> = Pick<TagNameMap, Exclude<keyof TagNameMap, keyof HTMLElementTagNameMap>>
-	type EventsCapitalMap<Events> = {
-		[Key in keyof Events as `on${Capitalize<string & Key>}`]?: (e: Events[Key]) => void
-	}
-	type EventsNSMap<Events> = {
-		[Key in keyof Events as `on:${string & Key}`]?: (e: Events[Key]) => void
-	}
-*/
+// html
+
+interface HTMLBodyElementEvents<Element>
+	extends HTMLEvents<Element>,
+		WindowEvents<Element> {}
+interface HTMLFrameSetElementEvents<Element>
+	extends HTMLEvents<Element>,
+		WindowEvents<Element> {}
+
+interface HTMLMediaElementEvents<Element>
+	extends HTMLEvents<Element> {
+	'on:encrypted'?: Events<MediaEncryptedEvent, Element>
+	'on:waitingforkey'?: Events<Event, Element>
+}
+
+interface HTMLVideoElementEvents<Element>
+	extends HTMLMediaElementEvents<Element> {
+	'on:enterpictureinpicture'?: Events<PictureInPictureEvent, Element>
+	'on:leavepictureinpicture'?: Events<PictureInPictureEvent, Element>
+}
+
+// SVG
+
+interface SVGSVGElementEvents<Element>
+	extends SVGEvents<Element>,
+		WindowEvents<Element> {}
 
 /**
  * 1. This prevents the other types in this file from leaking.
