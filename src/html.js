@@ -92,7 +92,7 @@ const parseHTML = withWeakCache(content => {
  * Recursively walks a template and transforms it to `h` calls
  *
  * @param {{ components: {} }} html
- * @param {HTMLElement} cached
+ * @param {Element[]} cached
  * @param {...any} values
  * @returns {Children}
  */

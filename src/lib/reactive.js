@@ -1391,7 +1391,8 @@ export function getValueComponent(value) {
 /**
  * Adds an event listener to a node
  *
- * @param {Element} node - Element to add the event listener
+ * @param {Element | Document | typeof window} node - Element to add
+ *   the event listener
  * @param {(keyof WindowEventMap & keyof GlobalEventHandlersEventMap)
  * 	| string} type
  *   - The name of the event listener
@@ -1427,7 +1428,8 @@ export function addEvent(node, type, handler) {
 /**
  * Removes an event listener from a node
  *
- * @param {Element} node - Element to add the event listener
+ * @param {Element | Document | typeof window} node - Element to add
+ *   the event listener
  * @param {(keyof WindowEventMap & keyof GlobalEventHandlersEventMap)
  * 	| string} type
  *   - The name of the event listener

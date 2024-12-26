@@ -3,7 +3,9 @@ import { addEvent, ownedEvent } from '../lib/reactive.js'
 /**
  * @param {Element} node
  * @param {string} name
- * @param {EventListenerOrEventListenerObject} value
+ * @param {EventListener
+ * 	| EventListenerObject
+ * 	| (EventListenerObject & AddEventListenerOptions)} value
  * @param {object} props
  * @param {string} localName
  * @param {string} ns
