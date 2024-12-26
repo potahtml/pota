@@ -29,6 +29,8 @@ some day
 
 	transform
 	- slight refactor
+	- `_div([{props}, {props}])` doesnt need to be an array,
+	- - it could be `_div({props}, {props})`
 
 	plugins:
 	- namespace the plugins to prevent inlining
