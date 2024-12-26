@@ -54,7 +54,7 @@
       "default": "./src/lib/std.js"
     },
     ".": {
-      "types": "./types/@main.d.ts",
+      "types": "./@main.d.ts",
       "node": "./src/lib/reactive.js",
       "import": "./src/@main.js",
       "default": "./src/@main.js"
