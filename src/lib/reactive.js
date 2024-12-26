@@ -319,6 +319,11 @@ class Memo extends Computation {
 
 // SIGNAL
 
+/**
+ * @template const T
+ * @type SignalObject<T>
+ * @returns {SignalObject<T>}
+ */
 class Signal {
 	value
 
@@ -342,7 +347,7 @@ class Signal {
 
 		this.read = markReactive(this.read)
 	}
-
+	/** @type SignalAccessor<T> */
 	read = () => {
 		// checkReadForbidden()
 
@@ -368,7 +373,7 @@ class Signal {
 
 		return this.value
 	}
-
+	/** @type SignalSetter<T> */
 	write = value => {
 		if (this.equals === false || !this.equals(this.value, value)) {
 			if (this.save) {
@@ -398,7 +403,7 @@ class Signal {
 		}
 		return false
 	}
-
+	/** @type SignalUpdate<T> */
 	update = value => {
 		if (isFunction(value)) {
 			value = value(this.value)
