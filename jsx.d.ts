@@ -219,7 +219,11 @@ interface NSAttributes extends NSProp, NSAttr, NSBool {}
 
 /* ACCESSOR */
 
-type Accessor<T> = { (): Accessor<T> } | { (): T } | T
+export type Accessor<T> =
+	| { (): Accessor<T> }
+	| { (): T }
+	| T
+	| { (): SignalAccessor<T> }
 
 type AccessorMap<T> = {
 	[Key in keyof T]: Accessor<T[Key]>

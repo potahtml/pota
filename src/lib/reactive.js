@@ -319,15 +319,13 @@ class Memo extends Computation {
 
 // SIGNAL
 
-/**
- * @template const T
- * @type SignalObject<T>
- * @returns {SignalObject<T>}
- */
+/** @template in T */
 class Signal {
+	/** @private */
 	value
-
+	/** @private */
 	observers
+	/** @private */
 	observerSlots
 
 	// options:
@@ -335,19 +333,23 @@ class Signal {
 	// save
 
 	// `prev` if option save was given
-
+	/**
+	 * @param {T} [value]
+	 * @param {SignalOptions} [options]
+	 */
 	constructor(value, options) {
 		this.value = value
 		if (options) {
 			assign(this, options)
 			if (this.save) {
+				/** @private */
 				this.prev = value
 			}
 		}
 
 		this.read = markReactive(this.read)
 	}
-	/** @type SignalAccessor<T> */
+	/** @returns SignalAccessor<T> */
 	read = () => {
 		// checkReadForbidden()
 
@@ -373,7 +375,10 @@ class Signal {
 
 		return this.value
 	}
-	/** @type SignalSetter<T> */
+	/**
+	 * @param {T} [value]
+	 * @returns SignalSetter<T>
+	 */
 	write = value => {
 		if (this.equals === false || !this.equals(this.value, value)) {
 			if (this.save) {
@@ -403,21 +408,27 @@ class Signal {
 		}
 		return false
 	}
-	/** @type SignalUpdate<T> */
+	/**
+	 * @param {T} [value]
+	 * @returns SignalUpdate<T>
+	 */
 	update = value => {
 		if (isFunction(value)) {
 			value = value(this.value)
 		}
 		return this.write(value)
 	}
-
+	/** @private */
 	equals(a, b) {
 		return a === b
 	}
 
 	*[Symbol.iterator]() {
+		/** @type SignalAccessor<T> */
 		yield this.read
+		/** @type SignalSetter<T> */
 		yield this.write
+		/** @type SignalUpdate<T> */
 		yield this.update
 	}
 }
@@ -451,10 +462,9 @@ export function root(fn, options = undefined) {
 /**
  * Creates a signal
  *
- * @template const T
+ * @template T
  * @param {T} [initialValue] - Initial value of the signal
  * @param {SignalOptions} [options] - Signal options
- * @returns {SignalObject<T>}
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function signal(initialValue, options = undefined) {
