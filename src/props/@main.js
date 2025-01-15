@@ -117,25 +117,18 @@ export function assignProp(node, name, value, props) {
 	let plugin = plugins.get(name)
 	if (plugin) {
 		plugin(node, name, value, props)
-		return
-	}
-
-	if (propNS[name] || name.includes(':')) {
+	} else if (propNS[name] || name.includes(':')) {
 		// with ns
 		propNS[name] = propNS[name] || name.split(':')
 		const [ns, localName] = propNS[name]
 
 		// run plugins NS
 		plugin = pluginsNS.get(ns)
-		if (plugin) {
-			plugin(node, name, value, props, localName, ns)
-			return
-		}
-
-		setUnknown(node, name, value, ns)
-		return
+		plugin
+			? plugin(node, name, value, props, localName, ns)
+			: setUnknown(node, name, value, ns)
+	} else {
+		// catch all
+		setUnknown(node, name, value)
 	}
-
-	// catch all
-	setUnknown(node, name, value)
 }
