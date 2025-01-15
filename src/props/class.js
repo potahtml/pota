@@ -14,10 +14,11 @@ import {
  * @param {object | string | ArrayLike<any>} value
  * @param {object} props
  */
-export const setClass = (node, name, value, props) =>
+export const setClass = (node, name, value, props) => {
 	isString(value)
 		? node.setAttribute('class', value)
 		: setClassList(node, value)
+}
 
 /**
  * @param {Element} node
@@ -34,10 +35,11 @@ export const setClassNS = (
 	props,
 	localName,
 	ns,
-) =>
+) => {
 	isFunction(value)
 		? setElementClass(node, localName, value)
 		: setClassList(node, value)
+}
 
 /**
  * @param {Element} node
@@ -69,7 +71,7 @@ function setClassList(node, value) {
  * @param {string} name
  * @param {unknown} value
  */
-export const setElementClass = (node, name, value) =>
+export const setElementClass = (node, name, value) => {
 	withPrevValue(value, (value, prev) => {
 		// on initialization do not remove whats not there
 		if (!value && !prev) {
@@ -77,6 +79,7 @@ export const setElementClass = (node, name, value) =>
 			_setClassListValue(node, name, value)
 		}
 	})
+}
 
 /**
  * @param {Element} node
@@ -84,8 +87,9 @@ export const setElementClass = (node, name, value) =>
  * @param {unknown} value
  */
 
-const _setClassListValue = (node, name, value) =>
+const _setClassListValue = (node, name, value) => {
 	// null, undefined or false, the class is removed
 	!value
 		? classListRemove(node, name)
 		: classListAdd(node, ...name.trim().split(/\s+/))
+}

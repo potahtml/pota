@@ -878,7 +878,7 @@ export const ref = () => signalFunction()
  * @param {any} value
  * @param {(value) => any} fn
  */
-export const withValue = (value, fn) => {
+export function withValue(value, fn) {
 	if (isFunction(value)) {
 		effect(() => withValue(getValue(value), fn))
 	} else if (isPromise(value)) {
@@ -892,7 +892,7 @@ export const withValue = (value, fn) => {
  * Runs a function inside an effect if value is a function
  *
  * @param {any} value
- * @param {(value) => any} fn
+ * @param {(value: any, prev?: any) => any} fn
  */
 export function withPrevValue(value, fn) {
 	if (isFunction(value)) {
@@ -1297,7 +1297,7 @@ export const isComponentable = value =>
 	!isReactive(value) &&
 	(isFunction(value) ||
 		// avoid [1,2] and support { toString(){ return "something"} }
-		(!isArray(value) && isObject(value) && !value.then))
+		(!isArray(value) && isObject(value) && !isPromise(value)))
 
 /**
  * Makes of `children` a function. Reactive children will run as is,

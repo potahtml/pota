@@ -550,7 +550,7 @@ export const isBoolean = value => typeof value === 'boolean'
  * @param {any} value
  * @returns {boolean}
  */
-export const isPromise = value => isObject(value) && 'then' in value
+export const isPromise = value => isFunction(value?.then)
 
 export const noop = () => {}
 
