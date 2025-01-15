@@ -348,7 +348,7 @@ export const walkElements = withState(
 		}
 
 		while ((node = walk.nextNode())) {
-			if (fn(node)) break
+			if (fn(node)) return
 		}
 	},
 	() => createTreeWalker(document, 1 /*NodeFilter.SHOW_ELEMENT*/),
