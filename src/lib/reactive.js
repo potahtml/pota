@@ -63,11 +63,12 @@ class Root {
 
 	constructor(owner, options) {
 		this.owner = owner
-		this.context = owner?.context
 
-		if (options) {
-			assign(this, options)
+		if (owner?.context) {
+			this.context = owner.context
 		}
+
+		options && assign(this, options)
 	}
 
 	dispose() {
@@ -75,13 +76,13 @@ class Root {
 
 		const { owned, cleanups } = this
 
-		if (owned) {
+		if (owned && owned.length) {
 			for (i = owned.length - 1; i >= 0; i--) {
 				owned[i].dispose()
 			}
 			owned.length = 0
 		}
-		if (cleanups) {
+		if (cleanups && cleanups.length) {
 			for (i = cleanups.length - 1; i >= 0; i--) {
 				cleanups[i]()
 			}
@@ -144,7 +145,7 @@ class Computation extends Root {
 	dispose() {
 		const { sources, sourceSlots } = this
 
-		if (sources) {
+		if (sources && sources.length) {
 			let source
 			let observers
 			let index
@@ -212,10 +213,10 @@ class Memo extends Computation {
 	constructor(owner, fn, options) {
 		super(owner, fn, options)
 
-		return markReactive(this.read.bind(this))
+		return markReactive(this.read)
 	}
 
-	read() {
+	read = () => {
 		// checkReadForbidden()
 
 		if (this.state) {
@@ -240,12 +241,14 @@ class Memo extends Computation {
 				Listener.sourceSlots = [sourceSlot]
 			}
 
+			const observerSlot = Listener.sources.length - 1
+
 			if (this.observers) {
 				this.observers.push(Listener)
-				this.observerSlots.push(Listener.sources.length - 1)
+				this.observerSlots.push(observerSlot)
 			} else {
 				this.observers = [Listener]
-				this.observerSlots = [Listener.sources.length - 1]
+				this.observerSlots = [observerSlot]
 			}
 		}
 
@@ -255,20 +258,18 @@ class Memo extends Computation {
 	write(value) {
 		if (this.equals === false || !this.equals(this.value, value)) {
 			this.value = value
-			if (this.observers && this.observers.length) {
-				runUpdates(() => {
-					for (let i = 0, observer; i < this.observers.length; i++) {
-						observer = this.observers[i]
 
+			const { observers } = this
+
+			if (observers && observers.length) {
+				runUpdates(() => {
+					for (const observer of observers) {
 						if (observer.state === CLEAN) {
-							if (observer.pure) {
-								Updates.push(observer)
-							} else {
-								Effects.push(observer)
-							}
-							if (observer.observers) {
-								downstream(observer)
-							}
+							observer.pure
+								? Updates.push(observer)
+								: Effects.push(observer)
+
+							observer.observers && downstream(observer)
 						}
 						observer.state = STALE
 					}
@@ -296,7 +297,9 @@ class Memo extends Computation {
 		} catch (err) {
 			this.state = STALE
 			if (this.owned) {
-				this.owned.forEach(node => node.dispose())
+				for (const node of this.owned) {
+					node.dispose()
+				}
 				this.owned.length = 0
 			}
 			this.updatedAt = time + 1
@@ -347,7 +350,7 @@ class Signal {
 			}
 		}
 
-		this.read = markReactive(this.read)
+		markReactive(this.read)
 	}
 	/** @returns SignalAccessor<T> */
 	read = () => {
@@ -364,12 +367,14 @@ class Signal {
 				Listener.sourceSlots = [sourceSlot]
 			}
 
+			const observerSlot = Listener.sources.length - 1
+
 			if (this.observers) {
 				this.observers.push(Listener)
-				this.observerSlots.push(Listener.sources.length - 1)
+				this.observerSlots.push(observerSlot)
 			} else {
 				this.observers = [Listener]
-				this.observerSlots = [Listener.sources.length - 1]
+				this.observerSlots = [observerSlot]
 			}
 		}
 
@@ -385,20 +390,18 @@ class Signal {
 				this.prev = this.value
 			}
 			this.value = value
-			if (this.observers && this.observers.length) {
-				runUpdates(() => {
-					for (let i = 0, observer; i < this.observers.length; i++) {
-						observer = this.observers[i]
 
+			const { observers } = this
+
+			if (observers && observers.length) {
+				runUpdates(() => {
+					for (const observer of observers) {
 						if (observer.state === CLEAN) {
-							if (observer.pure) {
-								Updates.push(observer)
-							} else {
-								Effects.push(observer)
-							}
-							if (observer.observers) {
-								downstream(observer)
-							}
+							observer.pure
+								? Updates.push(observer)
+								: Effects.push(observer)
+
+							observer.observers && downstream(observer)
 						}
 						observer.state = STALE
 					}
@@ -609,9 +612,8 @@ function runTop(node) {
 	const ancestors = []
 
 	do {
-		if (node.state) {
-			ancestors.push(node)
-		}
+		node.state && ancestors.push(node)
+
 		node = node.owner
 	} while (node && node.updatedAt < Time)
 
@@ -657,15 +659,16 @@ function runUpdates(fn, init = false) {
 		const res = fn()
 
 		if (Updates) {
-			runQueue(Updates)
-			Updates = null
+			for (const update of Updates) {
+				runTop(update)
+			}
 		}
+		Updates = null
+
 		if (!wait) {
 			const effects = Effects
 			Effects = null
-			if (effects.length) {
-				runUpdates(() => runEffects(effects))
-			}
+			effects.length && runUpdates(() => runEffects(effects))
 		}
 
 		return res
@@ -679,20 +682,9 @@ function runUpdates(fn, init = false) {
 	}
 }
 
-function runQueue(queue) {
-	for (let i = 0; i < queue.length; i++) {
-		runTop(queue[i])
-	}
-}
-
 function runEffects(queue) {
-	let i
-
-	let effect
 	let userLength = 0
-	for (i = 0; i < queue.length; i++) {
-		effect = queue[i]
-
+	for (const effect of queue) {
 		if (!effect.user) {
 			runTop(effect)
 		} else {
@@ -700,7 +692,7 @@ function runEffects(queue) {
 		}
 	}
 
-	for (i = 0; i < userLength; i++) {
+	for (let i = 0; i < userLength; i++) {
 		runTop(queue[i])
 	}
 }
@@ -708,9 +700,7 @@ function runEffects(queue) {
 function upstream(node, ignore) {
 	node.state = CLEAN
 
-	for (let i = 0, source; i < node.sources.length; i++) {
-		source = node.sources[i]
-
+	for (const source of node.sources) {
 		if (source.sources) {
 			switch (source.state) {
 				case STALE: {
@@ -729,16 +719,11 @@ function upstream(node, ignore) {
 }
 
 function downstream(node) {
-	for (let i = 0, observer; i < node.observers.length; i++) {
-		observer = node.observers[i]
-
+	for (const observer of node.observers) {
 		if (observer.state === CLEAN) {
 			observer.state = CHECK
-			if (observer.pure) {
-				Updates.push(observer)
-			} else {
-				Effects.push(observer)
-			}
+			observer.pure ? Updates.push(observer) : Effects.push(observer)
+
 			observer.observers && downstream(observer)
 		}
 	}
