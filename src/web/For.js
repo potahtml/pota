@@ -17,6 +17,7 @@ import { onFixes } from '../scheduler.js'
  * @param {boolean} [props.restoreFocus] - If the focused element
  *   moves it may lose focus
  * @param {Children} [props.children]
+ * @param {Children} [props.fallback]
  * @returns {Children}
  * @url https://pota.quack.uy/Components/For
  */
@@ -29,6 +30,7 @@ export const For = props =>
 		},
 		makeCallback(props.children),
 		true,
+		props.fallback,
 	)
 
 let queued

@@ -214,6 +214,20 @@ export const createTreeWalker = bind('createTreeWalker')
  */
 export const empty = Object.create.bind(null, null)
 
+/**
+ * An empty frozen array
+ *
+ * @type {readonly []}
+ */
+export const emptyArray = freeze([])
+
+/**
+ * An empty frozen object
+ *
+ * @type object
+ */
+export const nothing = freeze(empty())
+
 export function* entriesIncludingSymbols(target) {
 	for (const item of entries(target)) {
 		yield item
@@ -539,13 +553,6 @@ export const isBoolean = value => typeof value === 'boolean'
 export const isPromise = value => isObject(value) && 'then' in value
 
 export const noop = () => {}
-
-/**
- * An empty frozen object
- *
- * @type object
- */
-export const nothing = freeze(empty())
 
 // an optional value is `true` by default, so most of the time is undefined which means is `true`
 // to avoid having conditions like `if(something.bla === undefined || something.bla)`

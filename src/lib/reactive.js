@@ -21,6 +21,7 @@ import {
 
 import {
 	assign,
+	emptyArray,
 	entries,
 	flat,
 	getValue,
@@ -1008,7 +1009,7 @@ export const microtask = fn => queueMicrotask(owned(fn))
 // MAP
 
 class Row {
-	runId
+	runId = -1
 	item
 	index
 	isDupe
@@ -1016,7 +1017,6 @@ class Row {
 	nodes
 
 	constructor(item, index, fn, isDupe) {
-		this.runId = -1
 		this.item = item
 		this.index = index
 		this.isDupe = isDupe
@@ -1055,8 +1055,9 @@ class Row {
  * @param {Each<T>} list
  * @param {Function} callback
  * @param {boolean} [sort]
+ * @param {Children} [fallback]
  */
-export function map(list, callback, sort) {
+export function map(list, callback, sort, fallback) {
 	const cache = new Map()
 	const duplicates = new Map() // for when caching by value is not possible [1, 2, 1, 1, 1]
 
@@ -1067,8 +1068,8 @@ export function map(list, callback, sort) {
 	let prev = []
 
 	function clear() {
-		for (let i = 0; i < prev.length; i++) {
-			dispose(prev[i], true)
+		for (const row of prev) {
+			row.disposer()
 		}
 		cache.clear()
 		duplicates.clear()
@@ -1080,18 +1081,15 @@ export function map(list, callback, sort) {
 	// to get rid of all nodes when parent disposes
 	cleanup(clear)
 
-	function dispose(row, all) {
-		// skip cache deletion as we are going to clear the full map
-		if (all === undefined) {
-			// delete from cache
-			if (!row.isDupe) {
-				cache.delete(row.item)
-			} else {
-				const arr = duplicates.get(row.item)
-				arr.length === 1
-					? duplicates.delete(row.item)
-					: removeFromArray(arr, row)
-			}
+	function dispose(row) {
+		// delete from cache
+		if (!row.isDupe) {
+			cache.delete(row.item)
+		} else {
+			const arr = duplicates.get(row.item)
+			arr.length === 1
+				? duplicates.delete(row.item)
+				: removeFromArray(arr, row)
 		}
 
 		row.disposer()
@@ -1147,14 +1145,17 @@ export function map(list, callback, sort) {
 			rows.push(row)
 		}
 
-		// remove rows that arent present on the current run
+		// fast clear
 		if (rows.length === 0) {
 			clear()
-		} else {
-			for (let i = 0; i < prev.length; i++) {
-				if (prev[i].runId !== runId) {
-					dispose(prev[i])
-				}
+			prev = rows
+			return fallback ? fn(fallback) : emptyArray
+		}
+
+		// remove rows that arent present on the current run
+		for (let i = 0; i < prev.length; i++) {
+			if (prev[i].runId !== runId) {
+				dispose(prev[i])
 			}
 		}
 
