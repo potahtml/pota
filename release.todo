@@ -16,6 +16,7 @@ some day
 	playground
 	- LSP figure out how to use https://github.com/bigmistqke/repl
 	- add typescript to the mix
+	- cdns are funky
 
 	tools
 	- rethink the dev tools
@@ -24,21 +25,7 @@ some day
 	tests
 	- tests - automated live tests on website
 
-	classList
-	- the name of the class is not reactive
-
-	transform
-	- slight refactor
-	- `_div([{props}, {props}])` doesnt need to be an array,
-	- - it could be `_div({props}, {props})`
-
-	plugins:
-	- namespace the plugins to prevent inlining
-	- prefix plugins
-
 	components
-	- provide fallback for collapse
-	- provide fallback for For
 	- router
 	- - make the `path` reactive
 
@@ -82,4 +69,4 @@ some day
 	- web components WIP
 
 	bench
-	- pos 41 / 10k 103~ - 10k 10~ - 1k 9~ - 1k 1~
+	- position 31 / 10k 73ms~ 9ms~ - 1k 6ms~ 0.6ms~
