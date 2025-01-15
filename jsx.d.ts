@@ -178,6 +178,8 @@ interface PotaAttributes<Element> {
 
 	onMount?: (element: Element) => void
 	onUnmount?: (element: Element) => void
+
+	[attr: `plugin:${string}`]: any
 }
 
 /* CSS */
@@ -233,9 +235,9 @@ type AccessorMap<T> = {
 
 type SharedAttributes<Element, Attributes, Events> = Events &
 	PotaAttributes<Element> &
-	CSSAttributes &
 	NSAttributes &
 	DOMEvents &
+	AccessorMap<CSSAttributes> &
 	AccessorMap<DOMProperties> &
 	AccessorMap<DOMXMLAttributes> &
 	AccessorMap<DOMHTMLAttributes> &

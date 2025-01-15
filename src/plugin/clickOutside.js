@@ -1,5 +1,3 @@
-// https://pota.quack.uy/plugin/clickOutside
-
 import { addEvent } from '../lib/reactive.js'
 import { propsPlugin } from '../props/plugin.js'
 
@@ -8,12 +6,13 @@ import { propsPlugin } from '../props/plugin.js'
  * @param {string} propName
  * @param {Function} propValue
  * @param {object} props
+ * @url https://pota.quack.uy/plugin/clickoutside
  */
-const clickOutside = (node, propName, propValue, props) =>
+const clickoutside = (node, propName, propValue, props) =>
 	addEvent(document, 'pointerdown', e => {
 		if (!node.contains(e.target)) {
 			propValue(e, node)
 		}
 	})
 
-propsPlugin('clickOutside', clickOutside)
+propsPlugin('plugin:clickoutside', clickoutside)

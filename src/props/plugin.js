@@ -9,7 +9,7 @@ export const pluginsNS = cacheStore()
  *
  * @param {string} propName - Name of the prop
  * @param {(
- * 	node: Elements,
+ * 	node: Element,
  * 	propName: string,
  * 	propValue: Function | any,
  * 	props: object,
@@ -30,7 +30,7 @@ export const propsPlugin = (propName, fn, onMicrotask) => {
  *
  * @param {string} NSName - Name of the namespace
  * @param {(
- * 	node: Elements,
+ * 	node: Element,
  * 	propName: string,
  * 	propValue: Function | any,
  * 	props: object,

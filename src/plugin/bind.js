@@ -1,6 +1,3 @@
-// bind is a small helper for binding the value of an element to a signal
-// https://pota.quack.uy/plugin/bind
-
 import { addEvent, effect, signalFunction } from '../lib/reactive.js'
 
 import { propsPlugin } from '../props/plugin.js'
