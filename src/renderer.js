@@ -700,24 +700,28 @@ export function toHTMLFragment(children) {
  * @returns {Element[]}
  */
 function toDiff(prev = [], next = [], short = false) {
-	next = next.flat(Infinity)
-	// fast clear
-	if (short && prev.length && next.length === 0) {
-		// + 1 because of the original placeholder
-		if (prev.length + 1 === prev[0].parentNode.childNodes.length) {
-			const parent = prev[0].parentNode
-			// save the placeholder
-			const child = parent.lastChild
-			parent.textContent = ''
-			parent.append(child)
-			return
+	next = next.length ? next.flat(Infinity) : next
+
+	// if theres something to remove
+	if (prev.length) {
+		// fast clear
+		if (short && next.length === 0) {
+			// + 1 because of the original placeholder
+			if (prev.length + 1 === prev[0].parentNode.childNodes.length) {
+				const parent = prev[0].parentNode
+				// save the placeholder
+				const child = parent.lastChild
+				parent.textContent = ''
+				parent.append(child)
+				return next
+			}
 		}
-	}
-	for (let i = 0, item; i < prev.length; i++) {
-		item = prev[i]
-		item &&
-			(next.length === 0 || !next.includes(item)) &&
-			item.remove()
+		for (let i = 0, item; i < prev.length; i++) {
+			item = prev[i]
+			item &&
+				(next.length === 0 || !next.includes(item)) &&
+				item.remove()
+		}
 	}
 	return next
 }
