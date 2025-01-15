@@ -2,16 +2,11 @@
 
 type SignalAccessor<out T> = () => T
 
-type SignalSetter<in T> = (newSignalValue?: T) => SignalChanged
+type SignalSetter<in T> = (newValue?: T) => SignalChanged
 
 type SignalUpdate<T> = {
-  (newSignalValue?: T): SignalChanged
-  (fn: (prevSignalValue: T) => T): SignalChanged
-}
-
-type SignalFunction<T> = {
-  (): T
-  (newValue: T): SignalChanged
+  (newValue?: T): SignalChanged
+  (fn: (prevValue: T) => T): SignalChanged
 }
 
 type SignalObject<T> = [
@@ -31,6 +26,11 @@ type SignalOptions =
   | undefined
 
 type SignalChanged = true | false
+
+type SignalFunction<T> = {
+  (): T
+  (newValue: T): SignalChanged
+}
 
 // props
 

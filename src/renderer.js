@@ -300,10 +300,9 @@ function createNode(node, props) {
  * Creates the children for a parent
  *
  * @param {Element} parent
- * @param {Children} child
+ * @param {Component} child
  * @param {boolean} [relative]
  * @param {Text | undefined} [prev]
- * @returns {Children}
  */
 function createChildren(parent, child, relative, prev = undefined) {
 	switch (typeof child) {
@@ -702,7 +701,7 @@ export function toHTMLFragment(children) {
 }
 
 /**
- * Removes from the DOM `prev` elements not found on `next`
+ * Removes from the DOM `prev` elements not found in `next`
  *
  * @param {Element[]} prev - Array with previous elements
  * @param {Element[]} next - Array with next elements

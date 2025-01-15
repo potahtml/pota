@@ -510,7 +510,7 @@ export function syncEffect(fn, options = undefined) {
  * automatically updates
  *
  * @template T
- * @param {() => T} fn - Function to re-run when dependencies change
+ * @param {T} fn - Function to re-run when dependencies change
  * @param {SignalOptions} [options]
  * @returns {SignalAccessor<T>} - Read only signal
  */
@@ -810,7 +810,7 @@ function useContext(id, defaultValue, newValue, fn) {
 /**
  * Returns an owned function
  *
- * @param {function | undefined} cb
+ * @param {Function | undefined} cb
  * @returns {() => any}
  */
 export const owned = cb => {
@@ -843,7 +843,8 @@ export function markReactive(fn) {
  * Proxies a signals property access so you dont have to call the
  * function
  *
- * @param {Signal} snigal - Signal to proxy
+ * @template T
+ * @param {SignalAccessor<T>} snigal - Signal to proxy
  * @param {object} [target] - Target object for the proxy
  * @returns {object} An object that will read the properties from the
  *   signal
@@ -1248,8 +1249,7 @@ export function map(list, callback, sort) {
 /**
  * Resolves and returns `children` in a memo
  *
- * @param {Function | Children} fn
- * @returns {Function} Memo
+ * @param {Component | Children} fn
  * @url https://pota.quack.uy/resolve
  */
 export function resolve(fn) {
@@ -1260,8 +1260,7 @@ export function resolve(fn) {
 /**
  * Recursively unwrap children functions
  *
- * @param {Children} children
- * @returns {Children}
+ * @param {Component} children
  */
 function unwrap(children) {
 	if (isFunction(children)) {
@@ -1383,8 +1382,8 @@ const callback = child =>
 /**
  * Marks a function as a `Component`.
  *
- * @param {Function} fn - Function to mark as a `Component`
- * @returns {Component}
+ * @template T
+ * @param {T} fn - Function to mark as a `Component`
  */
 export function markComponent(fn) {
 	fn[$isComponent] = undefined
