@@ -11,6 +11,7 @@ import { CustomElement, customElement } from './CustomElement.js'
  * @param {{
  * 	when: When<T>
  * 	children?: Children
+ * 	fallback?: Children
  * }} props
  * @returns {Children}
  * @url https://pota.quack.uy/Components/Collapse
@@ -28,7 +29,7 @@ export function Collapse(props) {
 
 		/** @param {any} value - To toggle children */
 		set when(value) {
-			this.html = value ? '<slot/>' : ''
+			this.html = value ? '<slot/>' : props.fallback || ''
 		}
 	}
 

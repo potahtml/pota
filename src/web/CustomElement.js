@@ -52,7 +52,7 @@ export class CustomElement extends HTMLElement {
 	/**
 	 * Shortcut for this.shadowRoot.innerHTML
 	 *
-	 * @param {string} value
+	 * @param {string | Component} value
 	 */
 	set html(value) {
 		if (isString(value)) {
