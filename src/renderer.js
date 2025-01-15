@@ -343,56 +343,48 @@ function createChildren(parent, child, relative, prev = undefined) {
 				relative,
 			)
 
-			// For
-			if ($isMap in child) {
-				effect(() => {
-					node = toDiff(
-						node,
-						child(child => {
-							/**
-							 * Wrap the item with placeholders, for when stuff in
-							 * between moves. If a `Show` adds and removes nodes, we
-							 * dont have a reference to these nodes. By delimiting
-							 * with a shore, we can just handle anything in between
-							 * as a group.
-							 */
-							const begin = createPlaceholder(
-								parent,
-								undefined /*begin*/,
-								true,
-							)
-							const end = createPlaceholder(
-								parent,
-								undefined /*end*/,
-								true,
-							)
-							return [begin, createChildren(end, child, true), end]
-						}),
-						true,
-					)
-				})
-
-				cleanup(() => {
-					toDiff(node)
-					parent.remove()
-				})
-				return [node, parent]
-			}
-
-			// maybe a signal so needs an effect
-
-			effect(() => {
-				node = toDiff(
-					node,
-					[createChildren(parent, child(), true, node[0])],
-					true,
-				)
-			})
+			// For - TODO move this to the `For` component
+			$isMap in child
+				? effect(() => {
+						node = toDiff(
+							node,
+							child(child => {
+								/**
+								 * Wrap the item with placeholders, for when stuff in
+								 * between moves. If a `Show` adds and removes nodes,
+								 * we dont have a reference to these nodes. By
+								 * delimiting with a shore, we can just handle
+								 * anything in between as a group.
+								 */
+								const begin = createPlaceholder(
+									parent,
+									undefined /*begin*/,
+									true,
+								)
+								const end = createPlaceholder(
+									parent,
+									undefined /*end*/,
+									true,
+								)
+								return [begin, createChildren(end, child, true), end]
+							}),
+							true,
+						)
+					})
+				: effect(() => {
+						// maybe a signal (at least a function) so needs an effect
+						node = toDiff(
+							node,
+							[createChildren(parent, child(), true, node[0])],
+							true,
+						)
+					})
 
 			cleanup(() => {
 				toDiff(node)
 				parent.remove()
 			})
+
 			/**
 			 * A placeholder is created and added to the document but doesnt
 			 * form part of the children. The placeholder needs to be
@@ -402,7 +394,7 @@ function createChildren(parent, child, relative, prev = undefined) {
 			 * wrong place. wrong place: where the placeholder is and not
 			 * where the children were moved to
 			 */
-			return [node, parent]
+			return parent
 		}
 
 		case 'object': {
