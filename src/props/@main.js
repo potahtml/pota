@@ -52,6 +52,9 @@ propsPlugin('xmlns', noop, false)
 import { setValue } from './value.js'
 propsPlugin('value', setValue, false)
 
+import { setProperty } from './property.js'
+propsPlugin('textContent', setProperty, false)
+
 // PLUGIN BOTH
 
 // css
