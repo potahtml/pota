@@ -334,24 +334,27 @@ export const withWeakCache = fn =>
 		weakStore,
 	)
 
-export const walkElements = withState(
-	(walk, node, fn) => {
-		walk.currentNode = node
+export const walkElements = function (walk, node, max = Infinity) {
+	const nodes = []
 
-		/**
-		 * The first node is not walked by the walker.
-		 *
-		 * Also the first node could be a DocumentFragment
-		 */
-		if (node.nodeType === 1) {
-			if (fn(node)) return
-		}
+	/**
+	 * The first node is not walked by the walker.
+	 *
+	 * Also the first node could be a DocumentFragment
+	 */
+	node.nodeType === 1 && nodes.push(node)
 
-		while ((node = walk.nextNode())) {
-			if (fn(node)) return
-		}
-	},
-	() => createTreeWalker(document, 1 /*NodeFilter.SHOW_ELEMENT*/),
+	walk.currentNode = node
+
+	while (nodes.length !== max && (node = walk.nextNode())) {
+		nodes.push(node)
+	}
+
+	return nodes
+}.bind(
+	null,
+	createTreeWalker &&
+		createTreeWalker(document, 1 /*NodeFilter.SHOW_ELEMENT*/),
 )
 
 /**
@@ -602,12 +605,10 @@ export const {
  * @template T
  * @param {T[]} array
  * @param {T} value To remove from the array
- * @returns {T[]}
  */
 export function removeFromArray(array, value) {
 	const index = array.indexOf(value)
 	if (index !== -1) array.splice(index, 1)
-	return array
 }
 /**
  * Removes values from an array based on a condition
@@ -665,6 +666,44 @@ export function walkParents(context, propertyName, cb) {
 	}
 }
 
+class DataStore {
+	/** @param {WeakMap | Map} kind */
+	constructor(kind) {
+		const store = new kind()
+
+		const get = store.get.bind(store)
+		const set = store.set.bind(store)
+		const has = store.has.bind(store)
+		const del = store.delete.bind(store)
+
+		this.set = set
+		this.has = has
+		this.delete = del
+
+		this.get = (target, defaults = null) => {
+			const o = get(target)
+
+			if (defaults !== null && o === undefined) {
+				/**
+				 * Default values should be passed as a function, so we dont
+				 * constantly initialize values when giving them
+				 */
+				defaults = defaults(target)
+				set(target, defaults)
+				return defaults
+			}
+			return o
+		}
+	}
+
+	*[Symbol.iterator]() {
+		yield this.get
+		yield this.set
+		yield this.has
+		yield this.delete
+	}
+}
+
 /**
  * Store template
  *
@@ -679,51 +718,8 @@ export function walkParents(context, propertyName, cb) {
  * @typedef {(key: any) => boolean} DataStoreHas
  *
  * @typedef {(key: any) => boolean} DataStoreDelete
- */
-
-class DataStore {
-	constructor(kind) {
-		const store = new kind()
-
-		const get = k => store.get(k)
-		const set = (k, v) => store.set(k, v)
-		const has = k => store.has(k)
-
-		this.get = (target, defaults = undefined) => {
-			const o = get(target)
-
-			if (o !== undefined) {
-				return o
-			}
-
-			if (defaults !== undefined) {
-				/**
-				 * Default values should be passed as a function, so we dont
-				 * constantly initialize values when giving them
-				 */
-				defaults = defaults(target)
-				set(target, defaults)
-				return defaults
-			}
-		}
-
-		this.set = set
-		this.has = has
-		this.delete = k => store.delete(k)
-	}
-
-	*[Symbol.iterator]() {
-		yield this.get
-		yield this.set
-		yield this.has
-		yield this.delete
-	}
-}
-
-/**
- * Creates a WeakMap to store data
  *
- * @returns {[
+ * @typedef {[
  * 	DataStoreGet,
  * 	DataStoreSet,
  * 	DataStoreHas,
@@ -733,24 +729,20 @@ class DataStore {
  * 	set: DataStoreSet
  * 	has: DataStoreHas
  * 	delete: DataStoreDelete
- * }}
+ * }} DataStoreT
+ */
+
+/**
+ * Creates a WeakMap to store data
+ *
+ * @returns {DataStoreT}
  */
 export const weakStore = () => new DataStore(WeakMap)
 
 /**
  * Creates a Map to store data
  *
- * @returns {[
- * 	DataStoreGet,
- * 	DataStoreSet,
- * 	DataStoreHas,
- * 	DataStoreDelete,
- * ] & {
- * 	get: DataStoreGet
- * 	set: DataStoreSet
- * 	has: DataStoreHas
- * 	del: DataStoreDelete
- * }}
+ * @returns {DataStoreT}
  */
 export const cacheStore = () => new DataStore(Map)
 

@@ -33,7 +33,6 @@ const saveProxy = (value, proxy) => {
 function createProxy(target, Handler, setTrack = true) {
 	const handler = new Handler(target)
 	setTrack && definePropertyReadOnly(target, $track, handler)
-	const proxy = new Proxy(target, handler)
 
 	/**
 	 * Before mutating the content of it (for example calling
@@ -42,9 +41,8 @@ function createProxy(target, Handler, setTrack = true) {
 	 * chance to save it as a proxy. To avoid the posible situation of
 	 * having 2 different proxies for the same value.
 	 */
-	saveProxy(target, proxy)
 
-	return proxy
+	return saveProxy(target, new Proxy(target, handler))
 }
 
 /**
@@ -85,7 +83,7 @@ export function mutable(value, clone) {
 	}
 
 	/**
-	 * Arrays methods are proxied by changing their prototype to be
+	 * Array methods are proxied by changing their prototype to be
 	 * `ReactiveArray extends Array`. ReactiveArray is also proxied so
 	 * functions can be batched.
 	 */
@@ -130,6 +128,8 @@ export function mutable(value, clone) {
 
 			proxy = createProxy(value, ProxyHandlerObject)
 
+			// well I didnt comment this, now I wonder whats going on here
+			// seems like its tracking the map object but I wonder if thats needed at all
 			signalifyObject(value, mutable)
 
 			return proxy
@@ -142,17 +142,19 @@ export function mutable(value, clone) {
 
 		/** Make the content mutable. */
 		untrack(() =>
-			value.forEach((value, key, map) =>
-				map.set(key, mutable(value)),
-			),
+			value.forEach((value, key, map) => {
+				map.set(key, value)
+			}),
 		)
 
+		// well I didnt comment this, now I wonder whats going on here
+		// seems like its tracking the map object but I wonder if thats needed at all
 		signalifyObject(value, mutable)
 
 		return proxy
 	}
 
-	/** Its an intance of something we dont have a special handler for it */
+	/** An intance of something we dont have a special handler for it */
 	proxy = createProxy(value, ProxyHandlerObject, false)
 
 	signalifyObject(value, mutable)

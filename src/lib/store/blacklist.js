@@ -1,12 +1,8 @@
 import {
 	Promise,
-	PrototypeArray,
-	PrototypeMap,
 	Symbol,
 	getOwnValues,
 	global,
-	identity,
-	isFunction,
 	isSymbol,
 } from '../std.js'
 
@@ -19,39 +15,55 @@ import { ReactiveMap } from './reactive/map.js'
 
 import { $track, $trackSlot, Track } from './tracker.js'
 
+const { Iterator } = global
+
+export const mutableBlacklist = [
+	Date,
+	Promise,
+	RegExp,
+
+	Set,
+	// Map,
+
+	Iterator,
+
+	// handlers - to avoid walking the prototype
+	ProxyHandlerBase,
+	ProxyHandlerObject,
+	ProxyHandlerArray,
+
+	Track,
+]
+
+export const prototypeBlacklist = [
+	Object,
+	Array,
+	Map,
+	...mutableBlacklist,
+]
+
+export const keyBlacklist = [
+	'constructor',
+	'__proto__',
+	$track,
+	$trackSlot,
+	...getOwnValues(Symbol).filter(isSymbol),
+]
+
+export const methodsBlacklist = [
+	...getOwnValues(ReactiveMap.prototype),
+	...getOwnValues(ReactiveArray.prototype),
+]
+
 /**
  * Returns `true` when `object` can't be made mutable.
  *
  * @param {any} target
  */
-export function isMutationBlacklisted(target) {
-	return mutableBlacklist.has(target.constructor)
-}
-
-const { HTMLElement, HTMLDivElement, Iterator } = global
-
-export const mutableBlacklist = new Set(
-	[
-		Date,
-		Promise,
-		RegExp,
-
-		HTMLElement,
-		HTMLDivElement,
-
-		Set,
-		// Map,
-
-		Iterator,
-
-		// handlers - to avoid walking the prototype
-		ProxyHandlerBase,
-		ProxyHandlerObject,
-		ProxyHandlerArray,
-
-		Track,
-	].filter(identity),
-)
+export const isMutationBlacklisted = target =>
+	target === globalThis ||
+	target instanceof Node ||
+	mutableBlacklist.includes(target.constructor)
 
 /**
  * Returns `true` when prototype is blacklisted. We won't gather
@@ -59,31 +71,16 @@ export const mutableBlacklist = new Set(
  *
  * @param {any} target
  */
-export function isPrototypeBlacklisted(target) {
-	return (
-		prototypeBlacklist.has(target.constructor) ||
-		target[Symbol.toStringTag] === 'Generator'
-	)
-}
-
-export const prototypeBlacklist = new Set(
-	[Object, Array, Map, ...mutableBlacklist].filter(identity),
-)
+export const isPrototypeBlacklisted = target =>
+	prototypeBlacklist.includes(target.constructor) ||
+	target[Symbol.toStringTag] === 'Generator'
 
 /**
  * Returns `true` when `key` is blacklisted. It won't be signalified.
  *
  * @param {PropertyKey} key
  */
-export const isKeyBlacklisted = key => keyBlacklist.has(key)
-
-export const keyBlacklist = new Set([
-	'constructor',
-	'__proto__',
-	$track,
-	$trackSlot,
-	...getOwnValues(Symbol).filter(isSymbol),
-])
+export const isKeyBlacklisted = key => keyBlacklist.includes(key)
 
 /**
  * Returns `true` when `method` is blacklisted. It won't be
@@ -92,15 +89,4 @@ export const keyBlacklist = new Set([
  * @param {Function} value
  */
 export const isMethodBlacklisted = value =>
-	methodsBlacklist.has(value)
-
-export const methodsBlacklist = new Set(
-	[
-		...getOwnValues(ReactiveMap.prototype),
-		...getOwnValues(ReactiveArray.prototype),
-		...getOwnValues(PrototypeMap),
-		...getOwnValues(PrototypeArray),
-	]
-		.filter(identity)
-		.filter(isFunction),
-)
+	methodsBlacklist.includes(value)

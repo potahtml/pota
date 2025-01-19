@@ -5,9 +5,7 @@ import { isIterable, toArray } from '../lib/std.js'
  * Returns a `isSelected` function that will return `true` when the
  * argument for it matches the original signal `value`.
  *
- * @param {Signal} value - Signal with the current value
- * @returns {(item: any) => Signal} Signal that you can run with a
- *   value to know if matches the original signal
+ * @param {SignalAccessor<any>} value - Signal with the current value
  */
 export function useSelector(value) {
 	const map = new Map()
@@ -17,7 +15,11 @@ export function useSelector(value) {
 	syncEffect(() => {
 		const val = value()
 
-		const selected = isIterable(val) ? toArray(val.values()) : [val]
+		const selected = isIterable(val)
+			? toArray(val.values())
+			: val === undefined
+				? []
+				: [val]
 
 		// unselect
 		for (const value of prev) {
@@ -34,7 +36,6 @@ export function useSelector(value) {
 				current && current.write(true)
 			}
 		}
-
 		prev = selected
 	})
 
@@ -42,18 +43,19 @@ export function useSelector(value) {
 	 * Is selected function, it will return `true` when the value
 	 * matches the current signal.
 	 *
-	 * @param {any} item - Values to compare with current
-	 * @returns {Signal} A signal with a boolean value
+	 * @template T
+	 * @param {T} item - Values to compare with current
+	 * @returns {SignalAccessor<T>} A signal with a boolean value
 	 */
 	return function isSelected(item) {
 		let selected = map.get(item)
 		if (!selected) {
 			selected = signal(prev.includes(item))
-			selected.counter = 0
+			selected.counter = 1
 			map.set(item, selected)
+		} else {
+			selected.counter++
 		}
-
-		selected.counter++
 
 		cleanup(() => {
 			if (--selected.counter === 0) {

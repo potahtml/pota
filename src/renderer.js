@@ -140,7 +140,7 @@ function Factory(value) {
 			return markComponent(value)
 		}
 		default: {
-			if (value instanceof Node) {
+			if (value instanceof Element) {
 				// node component <div>
 				return markComponent(props => createNode(value, props))
 			}
@@ -245,6 +245,14 @@ function parseHTML(content, xmlns) {
 		: tlpContent
 }
 
+/**
+ * @param {string} content
+ * @param {{
+ * 	x?: string
+ * 	i?: boolean
+ * 	m?: number
+ * }} propsData
+ */
 export function createPartial(content, propsData = nothing) {
 	let clone = () => {
 		const node = withXMLNS(propsData.x, xmlns =>
@@ -263,12 +271,7 @@ export function createPartial(content, propsData = nothing) {
 
 function assignPartialProps(node, props, propsData) {
 	if (props) {
-		const nodes = []
-		walkElements(node, node => {
-			nodes.push(node)
-
-			if (nodes.length === propsData.m) return true
-		})
+		const nodes = walkElements(node, propsData.m)
 
 		withXMLNS(propsData.x, xmlns => {
 			for (let i = 0; i < props.length; i++) {
@@ -291,9 +294,8 @@ function assignPartialProps(node, props, propsData) {
  * @returns {Element} Element
  */
 function createNode(node, props) {
-	if (props) {
-		assignProps(node, props)
-	}
+	props && assignProps(node, props)
+
 	return node
 }
 
@@ -301,11 +303,16 @@ function createNode(node, props) {
  * Creates the children for a parent
  *
  * @param {Element} parent
- * @param {Component} child
+ * @param {Children} child
  * @param {boolean} [relative]
  * @param {Text | undefined} [prev]
  */
-function createChildren(parent, child, relative, prev = undefined) {
+function createChildren(
+	parent,
+	child,
+	relative = false,
+	prev = undefined,
+) {
 	switch (typeof child) {
 		// string/number
 		case 'string':
@@ -338,11 +345,7 @@ function createChildren(parent, child, relative, prev = undefined) {
 
 			// signal/memo/external/user provided function
 			// needs placeholder to stay in position
-			parent = createPlaceholder(
-				parent,
-				undefined /*child.name*/,
-				relative,
-			)
+			parent = createPlaceholder(parent, relative)
 
 			// For - TODO move this to the `For` component
 			$isMap in child
@@ -357,16 +360,8 @@ function createChildren(parent, child, relative, prev = undefined) {
 								 * delimiting with a shore, we can just handle
 								 * anything in between as a group.
 								 */
-								const begin = createPlaceholder(
-									parent,
-									undefined /*begin*/,
-									true,
-								)
-								const end = createPlaceholder(
-									parent,
-									undefined /*end*/,
-									true,
-								)
+								const begin = createPlaceholder(parent, true)
+								const end = createPlaceholder(parent, true)
 								return [begin, createChildren(end, child, true), end]
 							}),
 							true,
@@ -376,7 +371,9 @@ function createChildren(parent, child, relative, prev = undefined) {
 						// maybe a signal (at least a function) so needs an effect
 						node = toDiff(
 							node,
-							[createChildren(parent, child(), true, node[0])],
+							[createChildren(parent, child(), true, node[0])].flat(
+								Infinity,
+							),
 							true,
 						)
 					})
@@ -450,7 +447,7 @@ function createChildren(parent, child, relative, prev = undefined) {
 			if (iterator in child) {
 				return createChildren(
 					parent,
-					toArray(child.values()),
+					toArray(/** @type Iterator */ child.values()),
 					relative,
 				)
 				/**
@@ -498,7 +495,7 @@ function createChildren(parent, child, relative, prev = undefined) {
 			// toString() is needed for `Symbol`
 			return insertNode(
 				parent,
-				createTextNode(child.toString()),
+				createTextNode(/** @type object */ child.toString()),
 				relative,
 			)
 		}
@@ -515,22 +512,11 @@ propsPlugin(
  * Creates placeholder to keep nodes in position
  *
  * @param {Element} parent
- * @param {unknown} text
  * @param {boolean} [relative]
  * @returns {Element}
  */
-const createPlaceholder = (parent, text, relative) => {
-	return insertNode(parent, createTextNode(''), relative)
-
-	/* dev
-	return insertNode(
-		parent,
-		document.createComment(
-			(text || '') + (relative ? ' relative' : ''),
-		),
-		relative,
-	) */
-}
+const createPlaceholder = (parent, relative) =>
+	insertNode(parent, createTextNode(''), relative)
 
 const head = document.head
 
@@ -538,10 +524,7 @@ const head = document.head
  * Adds the element to the document
  *
  * @param {Element} parent
- * @param {Element &
- * 	HTMLTitleElement &
- * 	HTMLMetaElement &
- * 	HTMLLinkElement} node
+ * @param {Element} node
  * @param {boolean} [relative]
  * @returns {Element}
  */
@@ -589,8 +572,7 @@ function insertNode(parent, node, relative) {
  * Inserts children into a parent
  *
  * @param {any} children - Thing to render
- * @param {Element | null} [parent] - Mount point, defaults to
- *   document.body
+ * @param {Element} [parent] - Mount point, defaults to document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  * @returns {() => void} Disposer
@@ -610,7 +592,7 @@ export function render(children, parent, options = nothing) {
 
 /**
  * @param {any} children - Thing to render
- * @param {Element | null} [parent] - Mount point, defaults to
+ * @param {Element} [parent] - Mount point, defaults to
  *   `document.body`
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
@@ -701,27 +683,28 @@ export function toHTMLFragment(children) {
  * @returns {Element[]}
  */
 function toDiff(prev = [], next = [], short = false) {
-	next = next.length ? next.flat(Infinity) : next
-
 	// if theres something to remove
 	if (prev.length) {
+		const nextLength = next.length
+
 		// fast clear
-		if (short && next.length === 0) {
+		if (
+			short &&
+			nextLength === 0 &&
 			// + 1 because of the original placeholder
-			if (prev.length + 1 === prev[0].parentNode.childNodes.length) {
-				const parent = prev[0].parentNode
-				// save the placeholder
-				const child = parent.lastChild
-				parent.textContent = ''
-				parent.append(child)
-				return next
+			prev.length + 1 === prev[0].parentNode.childNodes.length
+		) {
+			const parent = prev[0].parentNode
+			// save the placeholder
+			const lastChild = parent.lastChild
+			parent.textContent = ''
+			parent.appendChild(lastChild)
+		} else {
+			for (const item of prev) {
+				if (item && (nextLength === 0 || !next.includes(item))) {
+					item.remove()
+				}
 			}
-		}
-		for (let i = 0, item; i < prev.length; i++) {
-			item = prev[i]
-			item &&
-				(next.length === 0 || !next.includes(item)) &&
-				item.remove()
 		}
 	}
 	return next

@@ -44,6 +44,8 @@ type Component = import('./jsx.d.ts').JSX.ElementType
 
 type Children = import('./jsx.d.ts').JSX.Element
 
+type TagNames = keyof import('./jsx.d.ts').JSX.IntrinsicElements
+
 // tests
 
 type Expect = {

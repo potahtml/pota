@@ -32,6 +32,7 @@ import {
 	isObject,
 	isPromise,
 	keys,
+	noop,
 	nothing,
 	queueMicrotask,
 	removeFromArray,
@@ -39,6 +40,27 @@ import {
 	Symbol,
 	withResolvers,
 } from './std.js'
+
+/**
+ * Returns true when value is reactive (a signal)
+ *
+ * @param {any} value
+ * @returns {boolean}
+ */
+export const isReactive = value =>
+	isFunction(value) && $isReactive in value
+
+/**
+ * Marks a function as reactive. Reactive functions are ran inside
+ * effects.
+ *
+ * @param {Function} fn - Function to mark as reactive
+ * @returns {Function}
+ */
+export function markReactive(fn) {
+	fn[$isReactive] = undefined
+	return fn
+}
 
 const CLEAN = 0
 const STALE = 1
@@ -55,39 +77,79 @@ let Time = 0
 // ROOT
 
 class Root {
+	/** @type {Root} */
 	owner
+
+	/** @type {Root | Root[] | null} */
 	owned
 
+	/** @type {Function | Function[] | | null} */
 	cleanups
 
+	/** @type {any} */
 	context
 
+	/** @param {undefined | Root} owner */
 	constructor(owner, options) {
-		this.owner = owner
+		if (owner) {
+			this.owner = owner
 
-		if (owner?.context) {
-			this.context = owner.context
+			if (owner.context) {
+				this.context = owner.context
+			}
 		}
 
 		options && assign(this, options)
 	}
 
-	dispose() {
-		let i
-
-		const { owned, cleanups } = this
-
-		if (owned && owned.length) {
-			for (i = owned.length - 1; i >= 0; i--) {
-				owned[i].dispose()
-			}
-			owned.length = 0
+	addCleanups(fn) {
+		if (!this.cleanups) {
+			this.cleanups = fn
+		} else if (isArray(this.cleanups)) {
+			this.cleanups.push(fn)
+		} else {
+			this.cleanups = [this.cleanups, fn]
 		}
-		if (cleanups && cleanups.length) {
-			for (i = cleanups.length - 1; i >= 0; i--) {
-				cleanups[i]()
+	}
+
+	addOwned(value) {
+		if (!this.owned) {
+			this.owned = value
+		} else if (isArray(this.owned)) {
+			this.owned.push(value)
+		} else {
+			this.owned = [this.owned, value]
+		}
+	}
+
+	dispose() {
+		this.disposeOwned()
+		this.doCleanups()
+	}
+
+	disposeOwned() {
+		if (!this.owned) {
+		} else if (isArray(this.owned)) {
+			for (let i = this.owned.length - 1; i >= 0; i--) {
+				this.owned[i].dispose()
 			}
-			cleanups.length = 0
+			this.owned = null
+		} else {
+			this.owned.dispose()
+			this.owned = null
+		}
+	}
+
+	doCleanups() {
+		if (!this.cleanups) {
+		} else if (isArray(this.cleanups)) {
+			for (let i = this.cleanups.length - 1; i >= 0; i--) {
+				this.cleanups[i]()
+			}
+			this.cleanups = null
+		} else {
+			this.cleanups()
+			this.cleanups = null
 		}
 	}
 }
@@ -109,13 +171,7 @@ class Computation extends Root {
 
 		this.fn = fn
 
-		if (owner) {
-			if (owner.owned) {
-				owner.owned.push(this)
-			} else {
-				owner.owned = [this]
-			}
-		}
+		owner && owner.addOwned(this)
 	}
 
 	update() {
@@ -176,6 +232,9 @@ class Computation extends Root {
 
 		this.state = CLEAN
 	}
+	queue() {
+		Effects.push(this)
+	}
 }
 
 class Effect extends Computation {
@@ -199,10 +258,6 @@ class SyncEffect extends Computation {
 // SIGNALS
 
 class Memo extends Computation {
-	state = STALE
-
-	pure = true
-
 	value
 
 	observers
@@ -214,12 +269,10 @@ class Memo extends Computation {
 	constructor(owner, fn, options) {
 		super(owner, fn, options)
 
-		return markReactive(this.read)
+		return this.read
 	}
 
-	read = () => {
-		// checkReadForbidden()
-
+	read = markReactive(() => {
 		if (this.state) {
 			if (this.state === STALE) {
 				this.update()
@@ -244,7 +297,7 @@ class Memo extends Computation {
 
 			const observerSlot = Listener.sources.length - 1
 
-			if (this.observers) {
+			if (sourceSlot) {
 				this.observers.push(Listener)
 				this.observerSlots.push(observerSlot)
 			} else {
@@ -254,22 +307,17 @@ class Memo extends Computation {
 		}
 
 		return this.value
-	}
+	})
 
 	write(value) {
 		if (this.equals === false || !this.equals(this.value, value)) {
 			this.value = value
 
-			const { observers } = this
-
-			if (observers && observers.length) {
+			if (this.observers && this.observers.length) {
 				runUpdates(() => {
-					for (const observer of observers) {
+					for (const observer of this.observers) {
 						if (observer.state === CLEAN) {
-							observer.pure
-								? Updates.push(observer)
-								: Effects.push(observer)
-
+							observer.queue()
 							observer.observers && downstream(observer)
 						}
 						observer.state = STALE
@@ -297,12 +345,8 @@ class Memo extends Computation {
 			nextValue = this.fn()
 		} catch (err) {
 			this.state = STALE
-			if (this.owned) {
-				for (const node of this.owned) {
-					node.dispose()
-				}
-				this.owned.length = 0
-			}
+			this.disposeOwned()
+
 			this.updatedAt = time + 1
 
 			throw err
@@ -319,13 +363,15 @@ class Memo extends Computation {
 			this.updatedAt = time
 		}
 	}
+	queue() {
+		Updates.push(this)
+	}
 }
 
 // SIGNAL
 
 /** @template in T */
 class Signal {
-	/** @private */
 	value
 	/** @private */
 	observers
@@ -350,11 +396,9 @@ class Signal {
 				this.prev = value
 			}
 		}
-
-		markReactive(this.read)
 	}
 	/** @returns SignalAccessor<T> */
-	read = () => {
+	read = markReactive(() => {
 		// checkReadForbidden()
 
 		if (Listener) {
@@ -370,7 +414,7 @@ class Signal {
 
 			const observerSlot = Listener.sources.length - 1
 
-			if (this.observers) {
+			if (sourceSlot) {
 				this.observers.push(Listener)
 				this.observerSlots.push(observerSlot)
 			} else {
@@ -380,7 +424,8 @@ class Signal {
 		}
 
 		return this.value
-	}
+	})
+
 	/**
 	 * @param {T} [value]
 	 * @returns SignalSetter<T>
@@ -392,16 +437,11 @@ class Signal {
 			}
 			this.value = value
 
-			const { observers } = this
-
-			if (observers && observers.length) {
+			if (this.observers && this.observers.length) {
 				runUpdates(() => {
-					for (const observer of observers) {
+					for (const observer of this.observers) {
 						if (observer.state === CLEAN) {
-							observer.pure
-								? Updates.push(observer)
-								: Effects.push(observer)
-
+							observer.queue()
 							observer.observers && downstream(observer)
 						}
 						observer.state = STALE
@@ -446,21 +486,9 @@ class Signal {
  * @param {object} [options]
  * @returns {any}
  */
-export function root(fn, options = undefined) {
-	const prevOwner = Owner
-	const prevListener = Listener
-
+export function root(fn, options) {
 	const root = new Root(Owner, options)
-
-	Owner = root
-	Listener = undefined
-
-	try {
-		return runUpdates(() => fn(() => root.dispose()), true)
-	} finally {
-		Owner = prevOwner
-		Listener = prevListener
-	}
+	return runWithOwner(root, () => fn(() => root.dispose()))
 }
 
 /**
@@ -471,7 +499,7 @@ export function root(fn, options = undefined) {
  * @param {SignalOptions} [options] - Signal options
  */
 /* #__NO_SIDE_EFFECTS__ */
-export function signal(initialValue, options = undefined) {
+export function signal(initialValue, options) {
 	return new Signal(initialValue, options)
 }
 
@@ -481,7 +509,7 @@ export function signal(initialValue, options = undefined) {
  * @param {Function} fn
  * @param {object} [options]
  */
-export function effect(fn, options = undefined) {
+export function effect(fn, options) {
 	new Effect(Owner, fn, options)
 }
 
@@ -492,7 +520,7 @@ export function effect(fn, options = undefined) {
  * @param {Function} fn - Function that wont cause tracking
  * @param {object} [options]
  */
-export function on(depend, fn, options = undefined) {
+export function on(depend, fn, options) {
 	effect(() => {
 		depend()
 		untrack(fn)
@@ -505,7 +533,7 @@ export function on(depend, fn, options = undefined) {
  * @param {Function} fn
  * @param {object} [options]
  */
-export function syncEffect(fn, options = undefined) {
+export function syncEffect(fn, options) {
 	return new SyncEffect(Owner, fn, options)
 }
 
@@ -588,13 +616,8 @@ export function untrack(fn) {
  * @returns {T}
  */
 export function cleanup(fn) {
-	if (Owner) {
-		if (Owner.cleanups) {
-			Owner.cleanups.push(fn)
-		} else {
-			Owner.cleanups = [fn]
-		}
-	}
+	Owner && Owner.addCleanups(fn)
+
 	return fn
 }
 
@@ -603,35 +626,38 @@ export function cleanup(fn) {
 function runTop(node) {
 	switch (node.state) {
 		case CLEAN: {
-			return
+			break
 		}
 		case CHECK: {
-			return upstream(node)
+			upstream(node)
+			break
 		}
-	}
 
-	const ancestors = []
+		default: {
+			const ancestors = []
 
-	do {
-		node.state && ancestors.push(node)
+			do {
+				node.state && ancestors.push(node)
 
-		node = node.owner
-	} while (node && node.updatedAt < Time)
+				node = node.owner
+			} while (node && node.updatedAt < Time)
 
-	for (let i = ancestors.length - 1, updates; i >= 0; i--) {
-		node = ancestors[i]
+			for (let i = ancestors.length - 1, updates; i >= 0; i--) {
+				node = ancestors[i]
 
-		switch (node.state) {
-			case STALE: {
-				node.update()
-				break
-			}
-			case CHECK: {
-				updates = Updates
-				Updates = null
-				runUpdates(() => upstream(node, ancestors[0]))
-				Updates = updates
-				break
+				switch (node.state) {
+					case STALE: {
+						node.update()
+						break
+					}
+					case CHECK: {
+						updates = Updates
+						Updates = null
+						runUpdates(() => upstream(node, ancestors[0]))
+						Updates = updates
+						break
+					}
+				}
 			}
 		}
 	}
@@ -686,10 +712,10 @@ function runUpdates(fn, init = false) {
 function runEffects(queue) {
 	let userLength = 0
 	for (const effect of queue) {
-		if (!effect.user) {
-			runTop(effect)
-		} else {
+		if (effect.user) {
 			queue[userLength++] = effect
+		} else {
+			runTop(effect)
 		}
 	}
 
@@ -723,27 +749,9 @@ function downstream(node) {
 	for (const observer of node.observers) {
 		if (observer.state === CLEAN) {
 			observer.state = CHECK
-			observer.pure ? Updates.push(observer) : Effects.push(observer)
-
+			observer.queue()
 			observer.observers && downstream(observer)
 		}
-	}
-}
-
-let readForbid = false
-
-function checkReadForbidden() {
-	if (readForbid) {
-		console.trace('Signal Read!')
-	}
-}
-export function readForbidden(fn, value) {
-	const prev = readForbid
-	try {
-		readForbid = value
-		return fn()
-	} finally {
-		readForbid = prev
 	}
 }
 
@@ -751,13 +759,9 @@ export function readForbidden(fn, value) {
  * Creates a context and returns a function to get or set the value
  *
  * @param {any} [defaultValue] - Default value for the context
- * @returns {typeof Context} Context
  */
-export function Context(defaultValue = undefined) {
-	const id = Symbol()
-
-	return useContext.bind(null, id, defaultValue)
-}
+export const Context = (defaultValue = undefined) =>
+	useContext.bind(null, Symbol(), defaultValue)
 
 /**
  * @overload Gets the context value
@@ -801,28 +805,7 @@ function useContext(id, defaultValue, newValue, fn) {
  */
 export const owned = cb => {
 	const o = Owner
-	return (...args) => cb && runWithOwner(o, () => cb(...args))
-}
-
-/**
- * Returns true when value is reactive (a signal)
- *
- * @param {any} value
- * @returns {boolean}
- */
-export const isReactive = value =>
-	isFunction(value) && $isReactive in value
-
-/**
- * Marks a function as reactive. Reactive functions are ran inside
- * effects.
- *
- * @param {Function} fn - Function to mark as reactive
- * @returns {Function}
- */
-export function markReactive(fn) {
-	fn[$isReactive] = undefined
-	return fn
+	return cb ? (...args) => runWithOwner(o, () => cb(...args)) : noop
 }
 
 /**
@@ -896,7 +879,7 @@ export function withValue(value, fn) {
  */
 export function withPrevValue(value, fn) {
 	if (isFunction(value)) {
-		let prev = undefined
+		let prev
 		effect(() => {
 			const val = getValue(value)
 			fn(val, prev)
@@ -1009,7 +992,7 @@ export const microtask = fn => queueMicrotask(owned(fn))
 // MAP
 
 class Row {
-	runId = -1
+	runId
 	item
 	index
 	isDupe
@@ -1036,6 +1019,7 @@ class Row {
 	nodesForRow() {
 		const begin = this.begin()
 		const end = this.end()
+
 		const nodes = [begin]
 
 		let nextSibling = begin
@@ -1128,9 +1112,9 @@ export function map(list, callback, sort, fallback) {
 					dupes = []
 					duplicates.set(item, dupes)
 				}
-				for (let i = 0; i < dupes.length; i++) {
-					if (dupes[i].runId !== runId) {
-						row = dupes[i]
+				for (const dupe of dupes) {
+					if (dupe.runId !== runId) {
+						row = dupe
 						break
 					}
 				}
@@ -1156,6 +1140,7 @@ export function map(list, callback, sort, fallback) {
 		for (let i = 0; i < prev.length; i++) {
 			if (prev[i].runId !== runId) {
 				dispose(prev[i])
+				removeFromArray(prev, prev[i--])
 			}
 		}
 
@@ -1226,7 +1211,7 @@ export function map(list, callback, sort, fallback) {
 		prev = rows
 
 		// return external representation
-		return rows.map(item => item.nodes)
+		return rows.flatMap(item => item.nodes)
 	}
 	mapper[$isMap] = undefined
 	return mapper
@@ -1374,18 +1359,6 @@ const callback = child =>
 export function markComponent(fn) {
 	fn[$isComponent] = undefined
 	return fn
-}
-
-/**
- * Unwraps components till it gets a value. To keep context relevant
- * to the component
- *
- * @param {Function | any} value - Maybe function
- * @returns {any}
- */
-export function getValueComponent(value) {
-	while ($isComponent in value) value = value()
-	return value
 }
 
 /**
