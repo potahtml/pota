@@ -26,7 +26,7 @@
 
 /** This file is compiled with rollup to ./index.cjs */
 
-import createPlugin from './transform/@main.js'
+import createPlugin from './transform/main.js'
 
 export default function (ctx, options = { development: false }) {
 	return {

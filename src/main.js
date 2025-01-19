@@ -44,7 +44,6 @@ export {
 
 export {
 	isComponent,
-	isComponentable,
 	makeCallback,
 	markComponent,
 	Pota,
@@ -65,7 +64,7 @@ export {
 	setUnknown,
 	setStyle,
 	setClass,
-} from './props/@main.js'
+} from './props/main.js'
 
 export {
 	propsPlugin,

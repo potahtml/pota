@@ -48,7 +48,7 @@ import { onFixes, ready } from './scheduler.js'
 
 // PROPERTIES / ATTRIBUTES
 
-import { assignProps } from './props/@main.js'
+import { assignProps } from './props/main.js'
 import { propsPlugin } from './props/plugin.js'
 
 // STATE
