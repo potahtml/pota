@@ -1,5 +1,5 @@
 /** The original typings of the export */
-export * from './types/main.d.ts'
+export * from './types/@main.d.ts'
 
 /**
  * Needed to support `JSX` from default export, such

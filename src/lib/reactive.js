@@ -760,8 +760,9 @@ function downstream(node) {
  *
  * @param {any} [defaultValue] - Default value for the context
  */
-export const Context = (defaultValue = undefined) =>
-	useContext.bind(null, Symbol(), defaultValue)
+export function Context(defaultValue = undefined) {
+	return useContext.bind(null, Symbol(), defaultValue)
+}
 
 /**
  * @overload Gets the context value
@@ -1278,10 +1279,13 @@ export const isComponent = value =>
  * @param {any} value
  * @returns {boolean}
  */
-export const isComponentable = value =>
-	!isReactive(value) &&
-	(isFunction(value) ||
-		(!isArray(value) && isObject(value) && !isPromise(value)))
+export function isComponentable(value) {
+	return (
+		!isReactive(value) &&
+		(isFunction(value) ||
+			(!isArray(value) && isObject(value) && !isPromise(value)))
+	)
+}
 
 // avoid [1,2] and support { toString(){ return "something"} }
 

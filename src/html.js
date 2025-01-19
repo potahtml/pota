@@ -31,7 +31,7 @@ import {
 	Router,
 	Show,
 	Switch,
-} from './web/main.js'
+} from './web/@main.js'
 
 const defaultRegistry = {
 	A,
