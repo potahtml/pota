@@ -44,6 +44,7 @@ export {
 
 export {
 	isComponent,
+	isComponentable,
 	makeCallback,
 	markComponent,
 	Pota,
