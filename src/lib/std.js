@@ -334,9 +334,12 @@ export const withWeakCache = fn =>
 		weakStore,
 	)
 
-export const walkElements = function (walk, node, max = Infinity) {
-	const nodes = []
-
+export const walkElements = function (
+	walk,
+	node,
+	max = Infinity,
+	nodes = [],
+) {
 	/**
 	 * The first node is not walked by the walker.
 	 *
@@ -349,7 +352,6 @@ export const walkElements = function (walk, node, max = Infinity) {
 	while (nodes.length !== max && (node = walk.nextNode())) {
 		nodes.push(node)
 	}
-
 	return nodes
 }.bind(
 	null,
