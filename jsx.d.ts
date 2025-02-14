@@ -101,7 +101,7 @@ export namespace JSX {
 	 * ```
 	 */
 	interface ExplicitBooleans {
-		[attr: `${string}`]: any // catch all booleans
+		// [attr: `${string}`]: any // catch all booleans
 	}
 
 	// all elements
@@ -114,7 +114,7 @@ export namespace JSX {
 			SVGElements,
 			HTMLElements {
 		// typing custom elements
-		[tagName: string]: any // catch-all
+		// [tagName: string]: any // catch-all
 	}
 
 	// custom attributes
@@ -222,7 +222,7 @@ interface NSAttributes extends NSProp, NSAttr, NSBool {}
 /* ACCESSOR */
 
 export type Accessor<T> =
-	| { (): Accessor<T> }
+	| { (): Accessor<T> } // is this line needed?
 	| { (): T }
 	| T
 	| { (): SignalAccessor<T> }
@@ -263,7 +263,7 @@ type MathMLAttributes<Element, Attributes, Events> =
 
 interface DOMEvents {
 	// events
-	[attr: `on:${string}`]: any
+	// [attr: `on:${string}`]: any
 }
 
 interface DOMProperties {
