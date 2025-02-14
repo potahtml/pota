@@ -1,12 +1,18 @@
 // node style
 
 import { withValue } from '../lib/reactive.js'
-import { getValue, isNullUndefined, isObject } from '../lib/std.js'
+import {
+	getValue,
+	isFunction,
+	isNullUndefined,
+	isObject,
+	isString,
+} from '../lib/std.js'
 
 /**
- * @param {Element} node
+ * @param {DOMElement} node
  * @param {string} name
- * @param {unknown} value
+ * @param {StylePropertyValue} value
  * @param {object} props
  * @url https://pota.quack.uy/props/setStyle
  */
@@ -14,9 +20,9 @@ export const setStyle = (node, name, value, props) =>
 	setNodeStyle(node.style, value)
 
 /**
- * @param {Element} node
+ * @param {DOMElement} node
  * @param {string} name
- * @param {unknown} value
+ * @param {StylePropertyValue} value
  * @param {object} props
  * @param {string} localName
  * @param {string} ns
@@ -28,9 +34,9 @@ export const setStyleNS = (node, name, value, props, localName, ns) =>
 	)
 
 /**
- * @param {Element} node
+ * @param {DOMElement} node
  * @param {string} name
- * @param {unknown} value
+ * @param {StylePropertyValue} value
  * @param {object} props
  * @param {string} localName
  * @param {string} ns
@@ -40,28 +46,22 @@ export const setVarNS = (node, name, value, props, localName, ns) =>
 
 /**
  * @param {CSSStyleDeclaration} style
- * @param {unknown} value
+ * @param {StylePropertyValue} value
  */
 function setNodeStyle(style, value) {
-	if (isObject(value)) {
+	if (isString(value)) {
+		style.cssText = value
+	} else if (isFunction(value)) {
+		withValue(value, value => setNodeStyle(style, getValue(value)))
+	} else if (isObject(value)) {
 		for (const name in value) {
 			setStyleValue(style, name, value[name])
 		}
-		return
-	}
-	const type = typeof value
-	if (type === 'string') {
-		style.cssText = value
-		return
-	}
-	if (type === 'function') {
-		withValue(value, value => setNodeStyle(style, getValue(value)))
-		return
 	}
 }
 
 /**
- * @param {Element} node
+ * @param {DOMElement} node
  * @param {string} name
  * @param {unknown} value
  */

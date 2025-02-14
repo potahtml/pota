@@ -7,7 +7,6 @@ import { Component } from '../renderer.js'
  * @param {{
  * 	component: Component
  * } & props} props
- * @returns {Component}
  * @url https://pota.quack.uy/Components/Dynamic
  */
 

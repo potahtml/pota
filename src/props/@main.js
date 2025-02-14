@@ -60,7 +60,7 @@ propsPlugin('textContent', setProperty, false)
 // css
 
 import { setCSS } from './css.js'
-propsPluginBoth('css', setCSS, false)
+propsPlugin('plugin:css', setCSS, false)
 
 // mount
 
@@ -95,9 +95,9 @@ propsPluginNS('class', setClassNS, false)
 
 /**
  * Assigns props to an Element
- *
+ * @template T
  * @param {Element} node - Element to which assign props
- * @param {object} props - Props to assign
+ * @param {T} props - Props to assign
  */
 export function assignProps(node, props) {
 	for (const name in props) {
@@ -109,11 +109,12 @@ const propNS = empty()
 
 /**
  * Assigns a prop to an Element
- *
+
+ * @template T
  * @param {Element} node
  * @param {string} name
  * @param {any} value
- * @param {object} props
+ * @param {T} props
  */
 export function assignProp(node, name, value, props) {
 	// run plugins

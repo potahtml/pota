@@ -2,6 +2,7 @@ import { microtask, untrack } from '../lib/reactive.js'
 import { stringifySorted, withResolvers } from '../lib/std.js'
 import { diff } from './useString.js'
 
+/** @type boolean | undefined */
 let stop = undefined
 let num = 1
 
@@ -11,17 +12,23 @@ let num = 1
  * @param {string} title - Test title
  * @param {(expect: (arg) => Expect) => void} fn - Test function
  * @param {boolean} [stopTesting] - To stop the tests after this one
+ * @returns {Promise<any> | undefined}
  */
 export function test(title, fn, stopTesting) {
 	if (!stop) {
 		stop = stop || stopTesting
 		title = num++ + ' - ' + title
 		console.log(title)
+		/** @type Promise<any>[] */
+		const promises = []
+
 		try {
-			fn(expect.bind(null, title, { value: 1 }))
+			fn(expect.bind(null, title, { value: 1 }, promises))
 		} catch (e) {
 			error(title, e)
 		}
+
+		return Promise.all(promises)
 	}
 }
 
@@ -32,13 +39,22 @@ test.reset = () => {
 /**
  * Simple expect-like function
  *
+ * @param {string} title
+ * @param {{value:number}} num
+ * @param {Promise<any>[]} promises
  * @param {any} value
  * @returns {Expect}
  */
-export function expect(title, num, value) {
+export function expect(title, num, promises, value) {
 	const test = {
 		toBe: (equals, expected) =>
-			pass(expected, value, equals, title + ' (' + num.value++ + ')'),
+			pass(
+				expected,
+				value,
+				equals,
+				title + ' (' + num.value++ + ')',
+				promises,
+			),
 		toEqual: (equals, expected) =>
 			untrack(() =>
 				pass(
@@ -46,6 +62,7 @@ export function expect(title, num, value) {
 					stringifySorted(value),
 					equals,
 					title + ' (' + num.value++ + ')',
+					promises,
 				),
 			),
 		not: {},
@@ -60,8 +77,9 @@ export function expect(title, num, value) {
 	return test
 }
 
-function pass(expected, value, equals, title) {
+function pass(expected, value, equals, title, promises) {
 	const { promise, resolve, reject } = withResolvers()
+	promises.push(promise)
 	if (expected !== value && equals) {
 		const [expectedPrt, valuePrt] = diff(expected, value)
 		error(title, ' expected `', expectedPrt, '` got `', valuePrt, '`')
@@ -74,9 +92,7 @@ function pass(expected, value, equals, title) {
 	}
 
 	// to hide the promise error in case they dont catch it
-	microtask(() => {
-		promise.catch(() => {})
-	})
+	microtask(() => promise.catch(() => {}))
 	return promise
 }
 
@@ -97,8 +113,8 @@ globalThis.Proxy = new Proxy(Proxy, {
 })
 
 /**
- * Returns true if value is a proxy. This is defined for debugging
- * purposes.
+ * Returns true if value is a proxy. This is defined for
+ * debugging/testing purposes.
  *
  * @param {any} value
  */

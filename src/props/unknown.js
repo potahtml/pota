@@ -32,13 +32,14 @@ export const _setUnknown = (node, name, value, ns) => {
 		(typeof value !== 'string' || node.isCustomElement)
 	) {
 		/**
-		 * 1. Only do this when it's different to a string to avoid coarcing
+		 * 1. when it's different to a string to avoid coarcing
 		 *    on native elements (ex: (img.width = '16px') === 0)
-		 * 2. Or when a custom element has a setter
+		 * 2. when a native element has a setter
+		 * 3. when a custom element has a setter
 		 */
 		setProperty(node, name, value)
 	} else if (setters.builtIn.has(name)) {
-		// ex: innerHTML, textContent, draggable={true}
+		// ex: innerHTML, textContent, etc
 		setProperty(node, name, value)
 	} else {
 		setAttribute(node, name, value, ns)

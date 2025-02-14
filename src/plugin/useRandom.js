@@ -7,8 +7,11 @@ export const chance = (chance = 50, generator = random) => {
 export const random = () =>
 	crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1)
 
-export const randomBetween = (min, max, generator = random) =>
-	Math.floor(generator() * (max - min + 1)) + min
+export const randomBetween = (
+	min = 0,
+	max = 100,
+	generator = random,
+) => Math.floor(generator() * (max - min + 1)) + min
 
 export const randomColor = (min = 0, max = 255) =>
 	'rgb(' +
@@ -23,8 +26,10 @@ export const randomId = () =>
 	crypto.getRandomValues(new BigUint64Array(1))[0].toString(36)
 
 /**
- * Returns a random number generator based no a seed that generates
+ * Returns a random number generator based on a seed that generates
  * numbers between 0 and 1
+ *
+ * @param {number} seed
  */
 export function randomSeeded(seed) {
 	const m = 2 ** 35 - 31

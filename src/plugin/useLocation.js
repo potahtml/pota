@@ -44,11 +44,11 @@ const hash = memo(() =>
 
 /**
  * @typedef {object} location
- * @property {Signal} href - The full url
- * @property {Signal} pathname - Mirror of window.location.pathname
- * @property {Signal} hash - Everything after #
- * @property {Signal} path - Pathname + hash
- * @property {Signal} query - Key value pairs with search params
+ * @property {SignalAccessor<string>} href - The full url
+ * @property {SignalAccessor<string>} pathname - Mirror of window.location.pathname
+ * @property {SignalAccessor<string>} hash - Everything after #
+ * @property {SignalAccessor<string>} path - Pathname + hash
+ * @property {SignalAccessor<string>} query - Key value pairs with search params
  * @property {Function} params - Key value pairs with route params
  */
 

@@ -402,9 +402,8 @@ export function getSetterNamesFromPrototype(object, set = new Set()) {
 /**
  * Unwraps values. If the argument is a function then it runs it
  * recursively and returns the value
- *
- * @param {Function | any} value - Maybe function
- * @returns {any}
+ * @template T
+ * @param {MaybeAccessor<T>} value - Maybe function
  */
 export function getValue(value) {
 	while (typeof value === 'function') value = value()
@@ -877,7 +876,7 @@ export const css = (template, ...values) =>
 export const sheet = withCache(css => {
 	const sheet = new CSSStyleSheet()
 	/**
-	 * Replace is asynchronous and can accept @import statements
+	 * Replace is asynchronous and can accept `@import` statements
 	 * referencing external resources.
 	 */
 	sheet.replace(css)

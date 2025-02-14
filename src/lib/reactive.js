@@ -41,6 +41,8 @@ import {
 	withResolvers,
 } from './std.js'
 
+/** SORRY TYPES KIND OF MESSY AROUND HERE, IM BUSY WITH SOMEHTING ELSE */
+
 /**
  * Returns true when value is reactive (a signal)
  *
@@ -66,10 +68,16 @@ const CLEAN = 0
 const STALE = 1
 const CHECK = 2
 
+/** @type {Computation} */
 let Owner
+/** @type {Computation} */
 let Listener
 
+/** @type {undefined | null | any[]} */
+
 let Updates = null
+/** @type {undefined | null | any[]} */
+
 let Effects = null
 
 let Time = 0
@@ -77,19 +85,22 @@ let Time = 0
 // ROOT
 
 class Root {
-	/** @type {Root} */
+	/** @type {Root | undefined} */
 	owner
 
-	/** @type {Root | Root[] | null} */
+	/** @type {Root | Root[] | null | undefined} */
 	owned
 
-	/** @type {Function | Function[] | | null} */
+	/** @type {Function | Function[] | null | undefined} */
 	cleanups
 
 	/** @type {any} */
 	context
 
-	/** @param {undefined | Root} owner */
+	/**
+	 * @param {undefined | Root} owner
+	 * @param {object} [options]
+	 */
 	constructor(owner, options) {
 		if (owner) {
 			this.owner = owner
@@ -101,7 +112,7 @@ class Root {
 
 		options && assign(this, options)
 	}
-
+	/** @param {Function} fn */
 	addCleanups(fn) {
 		if (!this.cleanups) {
 			this.cleanups = fn
@@ -111,7 +122,7 @@ class Root {
 			this.cleanups = [this.cleanups, fn]
 		}
 	}
-
+	/** @param {Root} value */
 	addOwned(value) {
 		if (!this.owned) {
 			this.owned = value
@@ -161,11 +172,17 @@ class Computation extends Root {
 
 	updatedAt = 0
 
+	/** @type {Function | undefined} */
 	fn
 
 	sources
 	sourceSlots
 
+	/**
+	 * @param {Root} [owner]
+	 * @param {Function} [fn]
+	 * @param {object} [options]
+	 */
 	constructor(owner, fn, options) {
 		super(owner, options)
 
@@ -240,6 +257,11 @@ class Computation extends Root {
 class Effect extends Computation {
 	user = true
 
+	/**
+	 * @param {Root} [owner]
+	 * @param {Function} [fn]
+	 * @param {object} [options]
+	 */
 	constructor(owner, fn, options) {
 		super(owner, fn, options)
 
@@ -248,6 +270,11 @@ class Effect extends Computation {
 }
 
 class SyncEffect extends Computation {
+	/**
+	 * @param {Root} [owner]
+	 * @param {Function} [fn]
+	 * @param {object} [options]
+	 */
 	constructor(owner, fn, options) {
 		super(owner, fn, options)
 
@@ -265,7 +292,11 @@ class Memo extends Computation {
 
 	// options:
 	// equals
-
+	/**
+	 * @param {Root} [owner]
+	 * @param {Function} [fn]
+	 * @param {object} [options]
+	 */
 	constructor(owner, fn, options) {
 		super(owner, fn, options)
 
@@ -326,6 +357,10 @@ class Memo extends Computation {
 			}
 		}
 	}
+	/**
+	 * @param {any} a
+	 * @param {any} b
+	 */
 	equals(a, b) {
 		return a === b
 	}
@@ -542,7 +577,7 @@ export function syncEffect(fn, options) {
  * automatically updates
  *
  * @template T
- * @param {T} fn - Function to re-run when dependencies change
+ * @param {() => T} fn - Function to re-run when dependencies change
  * @param {SignalOptions} [options]
  * @returns {SignalAccessor<T>} - Read only signal
  */
@@ -1147,7 +1182,7 @@ export function map(list, callback, sort, fallback) {
 
 		// reorder elements
 		// `rows.length > 1` because no need for sorting when there are no items
-		// prev.length > 0 to skip sorting on creation as its already sorted
+		// `prev.length > 0` to skip sorting on creation as its already sorted
 		if (sort && rows.length > 1 && prev.length) {
 			// when appending to already created it shouldnt sort
 			// as its already sorted

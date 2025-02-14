@@ -4,6 +4,7 @@ import { documentSize, useDocumentSize } from './useDocumentSize.js'
 
 import { SignalEmitter } from '../lib/classes/SignalEmitter.js'
 
+/** @param {{width:number, height:number}} e*/
 function value(e) {
 	return e.width >= e.height ? 'horizontal' : 'vertical'
 }

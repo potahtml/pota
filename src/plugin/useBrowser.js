@@ -1,6 +1,6 @@
 import { navigator } from '../lib/std.js'
 
-const userAgent =  navigator.userAgent
+const userAgent = navigator.userAgent
 
 export const isMobile = /mobile|iphone|ipod|ios|ipad|android/i.test(
 	userAgent,

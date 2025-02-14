@@ -21,9 +21,9 @@
 
 import * as csstype from 'csstype'
 
-type DOMElement = Element
-
 export namespace JSX {
+	type DOMElement = HTMLElement | SVGElement | MathMLElement
+
 	// JSX.ElementAttributesProperty - name of the `props` argument
 
 	interface ElementAttributesProperty {
@@ -67,7 +67,7 @@ export namespace JSX {
 		// fancy
 		| object // such CSSStyleSheet
 		// html
-		| DOMElement
+		| globalThis.Element
 		// recurse
 		| (() => Element)
 		| Promise<Element>

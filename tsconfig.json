@@ -1,24 +1,24 @@
 {
-  "compilerOptions": {
-    "outDir": "./types",
+	"compilerOptions": {
+		"outDir": "./types",
 
-    "allowJs": true,
-    "checkJs": true,
-    "strict": true,
+		"allowJs": true,
+		"checkJs": true,
+		"strict": true,
 
-    "module": "NodeNext",
-    "target": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "moduleResolution": "NodeNext",
+		"module": "NodeNext",
+		"target": "ESNext",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"moduleResolution": "NodeNext",
 
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
+		"declaration": true,
+		"declarationMap": true,
+		"emitDeclarationOnly": true,
 
-    "jsx": "preserve",
-    "jsxImportSource": "pota",
+		"jsx": "preserve",
+		"jsxImportSource": "pota",
 
-    "sourceMap": true
-  },
-  "include": ["src", "jsx.d.ts", "pota.d.ts"]
+		"sourceMap": true
+	},
+	"include": ["src", "jsx.d.ts", "pota.d.ts"]
 }

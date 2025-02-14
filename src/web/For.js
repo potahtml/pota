@@ -33,6 +33,7 @@ export const For = props =>
 		props.fallback,
 	)
 
+/** @type {boolean} */
 let queued
 
 // because re-ordering the elements trashes focus

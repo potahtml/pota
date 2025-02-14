@@ -1,9 +1,9 @@
 import { makeCallback, memo, resolve } from '../lib/reactive.js'
 import {
-  getValue,
-  identity,
-  isArray,
-  isNullUndefined,
+	getValue,
+	identity,
+	isArray,
+	isNullUndefined,
 } from '../lib/std.js'
 
 /**
@@ -17,27 +17,27 @@ import {
  * @url https://pota.quack.uy/Components/Switch
  */
 export function Switch(props) {
-  const matches = resolve(() =>
-    isArray(props.children) ? props.children : [props.children],
-  )
+	const matches = resolve(() =>
+		isArray(props.children) ? props.children : [props.children],
+	)
 
-  const fallback = isNullUndefined(props.fallback)
-    ? memo(() => {
-        const r = matches().find(match => !('when' in match))
-        return r && r.children
-      })
-    : memo(() => resolve(props.fallback))
+	const fallback = isNullUndefined(props.fallback)
+		? memo(() => {
+				const r = matches().find(match => !('when' in match))
+				return r && r.children
+			})
+		: memo(() => resolve(props.fallback))
 
-  const match = memo(() =>
-    matches().find(match => !!getValue(match.when)),
-  )
+	const match = memo(() =>
+		matches().find(match => !!getValue(match.when)),
+	)
 
-  const value = memo(() => match() && getValue(match().when))
+	const value = memo(() => match() && getValue(match().when))
 
-  const callback = memo(
-    () => match() && makeCallback(match().children),
-  )
-  return memo(() => (match() ? callback()(value) : fallback))
+	const callback = memo(
+		() => match() && makeCallback(match().children),
+	)
+	return memo(() => (match() ? callback()(value) : fallback))
 }
 
 /**

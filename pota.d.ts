@@ -1,23 +1,38 @@
 // signal
 
+type MaybeAccessor<T> = SignalAccessor<T> | T
+
 type SignalAccessor<out T> = () => T
 
 type SignalSetter<in T> = (newValue?: T) => SignalChanged
 
-type SignalUpdate<T> = {
+type SignalUpdate<in out T> = {
   (newValue?: T): SignalChanged
   (fn: (prevValue: T) => T): SignalChanged
 }
 
-type SignalObject<T> = [
+// signal as object/function/tuple
+
+type SignalObject<T> = SignalTuple<T> & SignalClass<T>
+
+type SignalTuple<T> = [
   SignalAccessor<T>,
   SignalSetter<T>,
   SignalUpdate<T>,
-] & {
+]
+
+type SignalClass<T> = {
   read: SignalAccessor<T>
   write: SignalSetter<T>
   update: SignalUpdate<T>
 }
+
+type SignalFunction<T> = {
+  (): T
+  (newValue: T): SignalChanged
+}
+
+// signal properties
 
 type SignalOptions =
   | {
@@ -26,11 +41,6 @@ type SignalOptions =
   | undefined
 
 type SignalChanged = true | false
-
-type SignalFunction<T> = {
-  (): T
-  (newValue: T): SignalChanged
-}
 
 // props
 
@@ -56,3 +66,16 @@ type Expect = {
     toEqual: (expected: any) => Promise<any>
   }
 }
+
+// overrides
+
+//  (sorry not sorry)
+interface Element {
+  isCustomElement: boolean
+}
+
+// globals
+
+type DOMElement = import('./jsx.d.ts').JSX.DOMElement
+
+type StylePropertyValue = string | Function | object

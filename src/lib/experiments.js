@@ -5,9 +5,14 @@ import { getValue, equals } from './std.js'
 /**
  * This idea: to be used to patch a signal array with data that comes
  * from a server without losing references to what its already there
- * avoiding a store
+ * avoiding a store.
+ *
+ * @template T
+ * @param {T} oldData
+ * @param {SignalSetter<T>} setData
  */
-export function diffArrayFromServer(oldData, setData) {
+export function diffCrossRealm(oldData, setData) {
+	/** @param {T} newData */
 	return newData => {
 		const stale = getValue(oldData)
 		const fresh = getValue(newData)

@@ -36,7 +36,7 @@ export const setAttribute = (node, name, value, ns) =>
  * @param {Element} node
  * @param {string} name
  * @param {string} value
- * @param {string} [ns]
+ * @param {string } [ns]
  */
 function _setAttribute(node, name, value, ns) {
 	// if the value is null or undefined it will be removed

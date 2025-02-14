@@ -14,8 +14,9 @@ import { randomId } from '../plugin/useRandom.js'
  * @param {string} value
  * @param {object} props
  */
-export const setCSS = (node, name, value, props) =>
+export const setCSS = (node, name, value, props) => {
 	setNodeCSS(node, value)
+}
 
 /**
  * @param {Element} node

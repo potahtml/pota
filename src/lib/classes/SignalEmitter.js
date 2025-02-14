@@ -28,7 +28,7 @@ export class SignalEmitter {
 
 		return this.#signal.read
 	}
-
+	/** @param {Function} fn */
 	on = fn => {
 		this.#add()
 
