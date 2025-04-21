@@ -759,7 +759,7 @@ export const classListRemove = (node, className) =>
  * @param {Document | ShadowRoot} document
  */
 export const adoptedStyleSheetsGet = document =>
-	document.adoptedStyleSheets
+	document?.adoptedStyleSheets
 
 export const adoptedStyleSheets =
 	/* #__PURE__*/ adoptedStyleSheetsGet(document)

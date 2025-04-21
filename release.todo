@@ -12,6 +12,7 @@ some day
 	documentation
 	- improve it
 	- light theme
+	- online tests, a page full of tests
 
 	playground
 	- LSP figure out how to use https://github.com/bigmistqke/repl
@@ -34,6 +35,7 @@ some day
 	- figure out a whitelist vs blacklist! use a whitelist
 	- support set, maybe weakmap and weakset
 	- defineProperty proxy trap
+	- support a readonly
 
 	reactivity
 	- recheck use of untrack / add forbidden signal read
@@ -41,6 +43,9 @@ some day
 	- derived/light signals (make signals easier to use)
 	- diff array for when value comes and doesnt come from server
 	- simplify the classes
+	- use internally runWithOwner more
+	- maybe at compile time wrap in owned anything bellow a `await`, do similar to promises?
+	- try to remove `options` object from root/memo/effects
 
 	probably never
 	- animationFrame

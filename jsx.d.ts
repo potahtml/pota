@@ -199,7 +199,7 @@ interface CSSAttributes extends NSStyle {
 	class?: string
 	style?: CSSProperties | string
 
-	css?: string | CSSStyleSheet
+	css?: string | CSSStyleSheet // TODO
 
 	// css
 	[attr: `class:${string}`]: any
@@ -263,7 +263,7 @@ type MathMLAttributes<Element, Attributes, Events> =
 
 interface DOMEvents {
 	// events
-	// [attr: `on:${string}`]: any
+	// [attr: `on:${string}`]: any // catch-all
 }
 
 interface DOMProperties {
