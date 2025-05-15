@@ -31,24 +31,30 @@ const [getLocation, setLocation] = signal(wLocation, {
 
 // only trigger on what changed
 
-const pathname = memo(() => getLocation().pathname)
+const protocol = wLocation.protocol
+const protocolIsBlob = protocol === 'blob:' // for playgrounds
+const protocolIsFile = protocol === 'file:' // for electron
+
+const pathname = memo(() =>
+	protocolIsFile ? '' : getLocation().pathname,
+)
 const search = memo(() => getLocation().search)
 const href = memo(() => getLocation().href)
 
 // http://location/# reports hash to be empty
 // http://location/ reports hash to be empty
 // handle this difference by checking if "#" is at the end of `href`
-const hash = memo(() =>
-	href().endsWith('#') ? '#' : getLocation().hash,
-)
+const hash = memo(() => getLocation().hash || '#')
 
 /**
  * @typedef {object} location
  * @property {SignalAccessor<string>} href - The full url
- * @property {SignalAccessor<string>} pathname - Mirror of window.location.pathname
+ * @property {SignalAccessor<string>} pathname - Mirror of
+ *   window.location.pathname
  * @property {SignalAccessor<string>} hash - Everything after #
  * @property {SignalAccessor<string>} path - Pathname + hash
- * @property {SignalAccessor<string>} query - Key value pairs with search params
+ * @property {SignalAccessor<string>} query - Key value pairs with
+ *   search params
  * @property {Function} params - Key value pairs with route params
  */
 
@@ -261,11 +267,13 @@ function onLinkClick(e) {
 		!node.href ||
 		node.download ||
 		node.target ||
-		!node.href.startsWith('http') || // when using other protocol than "http"
+		// !node.href.startsWith('http') || // when using a different protocol
+		(!protocolIsBlob && protocol !== node.protocol) ||
 		isExternal(node.href) ||
 		(node.rel && node.rel.split(/\s/).includes('external'))
-	)
+	) {
 		return
+	}
 
 	preventDefault(e)
 

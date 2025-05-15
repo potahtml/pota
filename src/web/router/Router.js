@@ -49,10 +49,7 @@ export function Router(props) {
 			props.path === undefined
 				? '(|#.*)$' // ends with nothing or has a hash followed of stuff
 				: // ends with nothing or has a hash followed of stuff
-					props.path
-						.replace('$', '(|#.*)$')
-						// pathname always starts with /, make sure the hash is considered
-						.replace(/^#/, '/#'),
+					props.path.replace('$', '(|#.*)$'),
 			props.params,
 		)
 
