@@ -584,9 +584,16 @@ export const querySelectorAll = (node, query) =>
 	node.querySelectorAll(query)
 
 export function* range(start, stop, step = 1) {
+	if (step < 0) step = Math.abs(step)
 	yield start
-	while (start < stop) {
-		yield (start += step)
+	if (start < stop) {
+		while (start < stop) {
+			yield (start += step)
+		}
+	} else {
+		while (start > stop) {
+			yield (start -= step)
+		}
 	}
 }
 
