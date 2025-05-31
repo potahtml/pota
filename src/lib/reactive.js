@@ -492,10 +492,7 @@ class Signal {
 	 * @returns SignalUpdate<T>
 	 */
 	update = value => {
-		if (isFunction(value)) {
-			value = value(this.value)
-		}
-		return this.write(value)
+		return this.write(isFunction(value) ? value(this.value) : value)
 	}
 	/** @private */
 	equals(a, b) {
