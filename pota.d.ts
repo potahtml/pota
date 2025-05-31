@@ -40,7 +40,7 @@ type SignalOptions =
     }
   | undefined
 
-type SignalChanged = true | false
+type SignalChanged = boolean
 
 // props
 
@@ -76,6 +76,6 @@ interface Element {
 
 // globals
 
-type DOMElement = import('./jsx.d.ts').JSX.DOMElement
+type DOMElement = import('./jsx.d.ts').JSX.DOMElement // TODO
 
-type StylePropertyValue = string | Function | object
+type StylePropertyValue = string | Function | object // TODO
