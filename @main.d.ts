@@ -1,4 +1,7 @@
 /** The original typings of the export */
+export * from './pota.d.ts'
+
+/** The original typings of the export */
 export * from './types/@main.d.ts'
 
 /**

@@ -56,8 +56,9 @@ export const isReactive = value =>
  * Marks a function as reactive. Reactive functions are ran inside
  * effects.
  *
- * @param {Function} fn - Function to mark as reactive
- * @returns {Function}
+ * @template T
+ * @param {T} fn - Function to mark as reactive
+ * @returns {T}
  */
 export function markReactive(fn) {
 	fn[$isReactive] = undefined
@@ -405,9 +406,13 @@ class Memo extends Computation {
 
 // SIGNAL
 
-/** @template in T */
+/**
+ * @template in T
+ * @type SignalObject<T>
+ */
 class Signal {
 	value
+
 	/** @private */
 	observers
 	/** @private */
@@ -460,7 +465,6 @@ class Signal {
 
 		return this.value
 	})
-
 	/**
 	 * @param {T} [value]
 	 * @returns SignalSetter<T>
@@ -488,13 +492,17 @@ class Signal {
 		return false
 	}
 	/**
-	 * @param {T} [value]
+	 * @type SignalUpdate<T>
 	 * @returns SignalUpdate<T>
 	 */
 	update = value => {
-		return this.write(isFunction(value) ? value(this.value) : value)
+		return this.write(value(this.value))
 	}
-	/** @private */
+
+	/**
+	 * @private
+	 * @type {((a, B) => boolean) | false}
+	 */
 	equals(a, b) {
 		return a === b
 	}
@@ -532,7 +540,9 @@ export function root(fn, options) {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function signal(initialValue, options) {
-	return new Signal(initialValue, options)
+	/** @type {SignalObject<T>} */
+	const s = new Signal(initialValue, options)
+	return s
 }
 
 /**

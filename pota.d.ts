@@ -2,17 +2,15 @@
 
 type MaybeAccessor<T> = SignalAccessor<T> | T
 
-type SignalAccessor<in out T> = () => T
+type SignalAccessor<T> = () => T
 
-type SignalSetter<in T> = (newValue?: T) => SignalChanged
+type SignalSetter<T> = (newValue?: T) => SignalChanged
 
-type SignalUpdate<in out T> = (
-  newValue: T | ((prevValue: T) => T),
+type SignalUpdate<T> = (
+  updateFunction: (prevValue: T) => T,
 ) => SignalChanged
 
 // signal as object/function/tuple
-
-type SignalObject<T> = SignalTuple<T> & SignalClass<T>
 
 type SignalTuple<T> = [
   SignalAccessor<T>,
@@ -20,13 +18,15 @@ type SignalTuple<T> = [
   SignalUpdate<T>,
 ]
 
-type SignalClass<in out T> = {
+type SignalClass<T> = {
   read: SignalAccessor<T>
   write: SignalSetter<T>
   update: SignalUpdate<T>
 }
 
-type SignalFunction<in out T> = {
+type SignalObject<T> = SignalTuple<T> & SignalClass<T>
+
+type SignalFunction<T> = {
   (): T
   (newValue: T): SignalChanged
 }
