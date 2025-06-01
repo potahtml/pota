@@ -192,6 +192,7 @@ export namespace JSX {
 		elementtiming?: Accessor<string>
 		id?: Accessor<string>
 		nonce?: Accessor<string>
+		part?: Accessor<string>
 		slot?: Accessor<string>
 		tabindex?: Accessor<number | string>
 	}
@@ -236,7 +237,6 @@ export namespace JSX {
 		>
 		is?: Accessor<string>
 		lang?: Accessor<string>
-		part?: Accessor<string>
 		popover?: Accessor<'' | 'manual' | 'auto' | 'hint'>
 		spellcheck?: Accessor<'' | EnumeratedPseudoBoolean>
 		title?: Accessor<string>
@@ -258,6 +258,11 @@ export namespace JSX {
 		resource?: Accessor<string>
 		typeof?: Accessor<string>
 		vocab?: Accessor<string>
+
+		/** @experimental */
+		virtualkeyboardpolicy?: Accessor<'' | 'auto' | 'manual'>
+		/** @experimental */
+		writingsuggestions?: Accessor<EnumeratedPseudoBoolean>
 
 		/** @deprecated */
 		contextmenu?: Accessor<string>
@@ -287,7 +292,13 @@ export namespace JSX {
 	interface HTMLMediaHTMLAttributes<Element> {
 		autoplay?: Accessor<BooleanAttribute>
 		controls?: Accessor<BooleanAttribute>
-		controlslist?: Accessor<string>
+		controlslist?: Accessor<
+			| 'nodownload'
+			| 'nofullscreen'
+			| 'noplaybackrate'
+			| 'noremoteplayback'
+			| (string & {})
+		>
 		crossorigin?: Accessor<'anonymous' | 'use-credentials' | ''>
 		disableremoteplayback?: Accessor<BooleanAttribute>
 		loop?: Accessor<BooleanAttribute>
@@ -393,6 +404,9 @@ export namespace JSX {
 			'_self' | '_blank' | '_parent' | '_top' | (string & {})
 		>
 
+		/** @experimental */
+		attributionsrc?: Accessor<string>
+
 		/** @deprecated */
 		nohref?: Accessor<BooleanAttribute>
 	}
@@ -495,6 +509,9 @@ export namespace JSX {
 		extends HTMLAttributes<Element> {
 		open?: Accessor<BooleanAttribute>
 		tabindex?: never
+
+		/** @experimental */
+		closedby?: Accessor<'any' | 'closerequest' | 'none'>
 	}
 	interface HTMLDivElementAttributes<Element>
 		extends HTMLAttributes<Element> {
@@ -572,8 +589,6 @@ export namespace JSX {
 	}
 	interface HTMLHtmlElementAttributes<Element>
 		extends HTMLAttributes<Element> {
-		manifest?: Accessor<string>
-
 		/** @deprecated */
 		version?: Accessor<string>
 	}
@@ -618,12 +633,17 @@ export namespace JSX {
 
 		/** @non-standard */
 		browsingtopics?: Accessor<BooleanAttribute>
+
 		/** @experimental */
 		credentialless?: Accessor<BooleanAttribute>
 		/** @experimental */
 		csp?: Accessor<string>
 		/** @experimental */
 		sharedstoragewritable?: Accessor<BooleanAttribute>
+		/** @experimental */
+		adauctionheaders?: Accessor<BooleanAttribute>
+		/** @experimental */
+		privatetoken?: Accessor<string>
 
 		/** @deprecated */
 		allowpaymentrequest?: Accessor<BooleanAttribute>
@@ -648,6 +668,7 @@ export namespace JSX {
 		extends HTMLAttributes<Element> {
 		alt?: Accessor<string>
 		attributionsrc?: Accessor<string>
+		browsingtopics?: Accessor<string>
 		crossorigin?: Accessor<'anonymous' | 'use-credentials' | ''>
 		decoding?: Accessor<'sync' | 'async' | 'auto'>
 		fetchpriority?: Accessor<'high' | 'low' | 'auto'>
@@ -670,6 +691,9 @@ export namespace JSX {
 		usemap?: Accessor<string>
 		width?: Accessor<number | string>
 
+		/** @experimental */
+		sharedstoragewritable?: Accessor<boolean>
+
 		/** @deprecated */
 		align?: Accessor<'top' | 'middle' | 'bottom' | 'left' | 'right'>
 		/** @deprecated */
@@ -691,6 +715,7 @@ export namespace JSX {
 		extends HTMLAttributes<Element> {
 		accept?: Accessor<string>
 		alt?: Accessor<string>
+		alpha?: Accessor<BooleanAttribute>
 		autocomplete?: Accessor<
 			| 'additional-name'
 			| 'address-level1'
@@ -758,7 +783,7 @@ export namespace JSX {
 		>
 		capture?: Accessor<'user' | 'environment'>
 		checked?: Accessor<BooleanAttribute>
-		crossorigin?: Accessor<'anonymous' | 'use-credentials' | ''>
+		colorspace?: Accessor<string>
 		dirname?: Accessor<string>
 		disabled?: Accessor<BooleanAttribute>
 		form?: Accessor<string>
@@ -855,7 +880,7 @@ export namespace JSX {
 			| 'video'
 			| 'worker'
 		>
-
+		color?: Accessor<string>
 		crossorigin?: Accessor<'anonymous' | 'use-credentials' | ''>
 		disabled?: Accessor<BooleanAttribute>
 		fetchpriority?: Accessor<'high' | 'low' | 'auto'>
@@ -951,6 +976,7 @@ export namespace JSX {
 		name?: Accessor<string>
 		type?: Accessor<string>
 		width?: Accessor<number | string>
+		wmode?: Accessor<string>
 
 		/** @deprecated */
 		align?: Accessor<string>
@@ -1036,6 +1062,7 @@ export namespace JSX {
 		crossorigin?: Accessor<'anonymous' | 'use-credentials' | ''>
 		defer?: Accessor<BooleanAttribute>
 		fetchpriority?: Accessor<'high' | 'low' | 'auto'>
+		for?: Accessor<string>
 		integrity?: Accessor<string>
 		nomodule?: Accessor<BooleanAttribute>
 		referrerpolicy?: Accessor<
@@ -1056,7 +1083,7 @@ export namespace JSX {
 		/** @experimental */
 		attributionsrc?: Accessor<string>
 		/** @experimental */
-		blocking?: Accessor<string>
+		blocking?: Accessor<'render'>
 
 		/** @deprecated */
 		charset?: Accessor<string>
@@ -1161,7 +1188,7 @@ export namespace JSX {
 		media?: Accessor<string>
 
 		/** @experimental */
-		blocking?: Accessor<string>
+		blocking?: Accessor<'render'>
 
 		/** @deprecated */
 		scoped?: Accessor<BooleanAttribute>
@@ -1171,7 +1198,7 @@ export namespace JSX {
 	interface HTMLTableCaptionElementAttributes<Element>
 		extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'top' | 'right' | 'bottom'>
+		align?: Accessor<'left' | 'center' | 'right'>
 	}
 	interface HTMLTableCellTdElementAttributes<Element>
 		extends HTMLAttributes<Element> {
@@ -1334,6 +1361,7 @@ export namespace JSX {
 	interface HTMLTemplateElementAttributes<Element>
 		extends HTMLAttributes<Element> {
 		shadowrootclonable?: Accessor<BooleanAttribute>
+		shadowrootcustomelementregistry?: Accessor<BooleanAttribute>
 		shadowrootdelegatesfocus?: Accessor<BooleanAttribute>
 		shadowrootmode?: Accessor<'open' | 'closed'>
 		shadowrootserializable?: Accessor<BooleanAttribute>
@@ -1416,7 +1444,6 @@ export namespace JSX {
 		readonly?: Accessor<BooleanAttribute>
 		required?: Accessor<BooleanAttribute>
 		rows?: Accessor<number | string>
-		value?: Accessor<number | string>
 		wrap?: Accessor<'hard' | 'soft' | 'off'>
 	}
 	interface HTMLTimeElementAttributes<Element>
@@ -3172,7 +3199,7 @@ export namespace JSX {
 		'on:animationstart'?: Events<AnimationEvent, Element>
 		'on:auxclick'?: Events<MouseEvent, Element>
 		'on:beforeinput'?: Events<InputEvent, Element>
-		'on:beforetoggle'?: Events<Event, Element>
+		'on:beforetoggle'?: Events<ToggleEvent, Element>
 		'on:blur'?: Events<FocusEvent, Element>
 		'on:cancel'?: Events<Event, Element>
 		'on:canplay'?: Events<Event, Element>
@@ -3257,7 +3284,7 @@ export namespace JSX {
 		'on:submit'?: Events<SubmitEvent, Element>
 		'on:suspend'?: Events<Event, Element>
 		'on:timeupdate'?: Events<Event, Element>
-		'on:toggle'?: Events<Event, Element>
+		'on:toggle'?: Events<ToggleEvent, Element>
 		'on:touchcancel'?: Events<TouchEvent, Element>
 		'on:touchend'?: Events<TouchEvent, Element>
 		'on:touchmove'?: Events<TouchEvent, Element>
@@ -3313,6 +3340,32 @@ export namespace JSX {
 		 */
 		'aria-atomic'?: Accessor<EnumeratedPseudoBoolean>
 		/**
+		 * Similar to the global aria-label. Defines a string value that
+		 * labels the current element, which is intended to be converted
+		 * into Braille.
+		 *
+		 * @see aria-label.
+		 */
+		'aria-braillelabel'?: Accessor<string>
+		/**
+		 * Defines a human-readable, author-localized abbreviated
+		 * description for the role of an element intended to be converted
+		 * into Braille. Braille is not a one-to-one transliteration of
+		 * letters and numbers, but rather it includes various
+		 * abbreviations, contractions, and characters that represent
+		 * words (known as logograms).
+		 *
+		 * Instead of converting long role descriptions to Braille, the
+		 * aria-brailleroledescription attribute allows for providing an
+		 * abbreviated version of the aria-roledescription value, which is
+		 * a human-readable, author-localized description for the role of
+		 * an element, for improved user experience with braille
+		 * interfaces.
+		 *
+		 * @see aria-roledescription.
+		 */
+		'aria-brailleroledescription'?: Accessor<string>
+		/**
 		 * Indicates whether inputting text could trigger display of one
 		 * or more predictions of the user's intended value for an input
 		 * and specifies how predictions would be presented if they are
@@ -3349,6 +3402,11 @@ export namespace JSX {
 		 */
 		'aria-colindex'?: Accessor<number | string>
 		/**
+		 * Defines a human-readable text alternative of the numeric
+		 * aria-colindex.
+		 */
+		'aria-colindextext'?: Accessor<number | string>
+		/**
 		 * Defines the number of columns spanned by a cell or gridcell
 		 * within a table, grid, or treegrid.
 		 *
@@ -3380,6 +3438,13 @@ export namespace JSX {
 		 * @see aria-labelledby
 		 */
 		'aria-describedby'?: Accessor<string>
+		/**
+		 * Defines a string value that describes or annotates the current
+		 * element.
+		 *
+		 * @see aria-describedby
+		 */
+		'aria-description'?: Accessor<string>
 		/**
 		 * Identifies the element that provides a detailed, extended
 		 * description for the object.
@@ -3582,6 +3647,8 @@ export namespace JSX {
 		 * @see aria-rowcount @see aria-rowspan.
 		 */
 		'aria-rowindex'?: Accessor<number | string>
+		/** Defines a human-readable text alternative of aria-rowindex. */
+		'aria-rowindextext'?: Accessor<number | string>
 		/**
 		 * Defines the number of rows spanned by a cell or gridcell within
 		 * a table, grid, or treegrid.
