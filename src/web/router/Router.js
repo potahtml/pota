@@ -54,7 +54,7 @@ export function Router(props) {
 		)
 
 	const route = new RegExp(
-		'^' + base.replace(/\:([a-z0-9_\-]+)/gi, '(?<$1>[^/#]+)'),
+		'^/?' + base.replace(/\:([a-z0-9_\-]+)/gi, '(?<$1>[^/#]+)'),
 	)
 
 	let href = ''

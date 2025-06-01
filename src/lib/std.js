@@ -163,9 +163,13 @@ export function copy(o) {
  * @param {PropertyDescriptor} descriptor
  */
 export const redefineProperty = (target, key, descriptor) =>
-	defineProperty(target, key, assign(create(defaults), descriptor))
+	defineProperty(
+		target,
+		key,
+		assign(create(redefinePropertyDefailts), descriptor),
+	)
 
-const defaults = {
+const redefinePropertyDefailts = {
 	__proto__: null,
 	configurable: true,
 	enumerable: true,
@@ -181,12 +185,12 @@ const defaults = {
  * @param {any} value
  */
 export const definePropertyReadOnly = (target, key, value) => {
-	const descriptor = create(defaultsReadOnly)
+	const descriptor = create(definePropertyReadOnlyDefaults)
 	descriptor.value = value
 	defineProperty(target, key, descriptor)
 }
 
-const defaultsReadOnly = {
+const definePropertyReadOnlyDefaults = {
 	__proto__: null,
 	configurable: false,
 	enumerable: false,
@@ -402,6 +406,7 @@ export function getSetterNamesFromPrototype(object, set = new Set()) {
 /**
  * Unwraps values. If the argument is a function then it runs it
  * recursively and returns the value
+ *
  * @template T
  * @param {MaybeAccessor<T>} value - Maybe function
  */

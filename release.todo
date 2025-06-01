@@ -12,19 +12,15 @@ some day
 	documentation
 	- improve it
 	- light theme
-	- online tests, a page full of tests
+	- PRIORITY - online tests, a page full of tests
 
 	playground
-	- LSP figure out how to use https://github.com/bigmistqke/repl
-	- add typescript to the mix
-	- cdns are funky
+	- PRIORITY - LSP figure out how to use https://github.com/bigmistqke/repl
+	- PRIORITY - cdns are funky
 
 	tools
 	- rethink the dev tools
 	- mdx
-
-	tests
-	- tests - automated live tests on website
 
 	components
 	- router
@@ -35,7 +31,7 @@ some day
 	- figure out a whitelist vs blacklist! use a whitelist
 	- support set, maybe weakmap and weakset
 	- defineProperty proxy trap
-	- support a readonly
+	- PRIORITY - support a readonly
 
 	reactivity
 	- recheck use of untrack / add forbidden signal read
@@ -43,15 +39,14 @@ some day
 	- derived/light signals (make signals easier to use)
 	- diff array for when value comes and doesnt come from server
 	- simplify the classes
-	- use internally runWithOwner more
+	- PRIORITY - use internally runWithOwner more
 	- maybe at compile time wrap in owned anything bellow a `await`, do similar to promises?
-	- try to remove `options` object from root/memo/effects
+	- PRIORITY - try to remove `options` object from root/memo/effects
 
 	probably never
 	- animationFrame
 	- animations
 	- audio
-	- color picker
 	- colors library
 	- debugging!
 	- drag element
@@ -60,18 +55,21 @@ some day
 	- favicon
 	- forms
 	- input, keyboard + mouse + controller
-	- linkify
 	- on-element-drag.js
 	- performance
 	- record audio, video
 	- socket webrtc
 	- storage
-	- tabs component
 	- timer
 	- tooltip
-	- uploads
 	- web components slots
 	- web components WIP
+
+	components:
+	- color picker
+	- tabs component
+	- linkify
+	- uploads
 
 	bench
 	- position 31 / 10k - 75ms~ 11ms~ / 1k - 7ms~ 0.7ms~
