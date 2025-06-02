@@ -653,7 +653,7 @@ export function untrack(fn) {
  * Runs a callback on cleanup, returns callback
  *
  * @template T
- * @param {T} fn
+ * @param {T extends Function} fn
  * @returns {T}
  */
 export function cleanup(fn) {

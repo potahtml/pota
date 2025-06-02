@@ -1,12 +1,4 @@
 import {
-	batch,
-	cleanup,
-	root,
-	signal,
-	syncEffect,
-} from './lib/reactive.js'
-
-import {
 	createComment,
 	createTextNode,
 	empty,

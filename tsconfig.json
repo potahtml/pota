@@ -3,25 +3,22 @@
 		"rootDir": ".",
 		"outDir": "./types",
 
+		"declaration": true,
+		"declarationMap": false,
+		"emitDeclarationOnly": true,
+		"sourceMap": false,
+
 		"allowJs": true,
 		"checkJs": true,
 		"strict": true,
-		"strictNullChecks": false,
-		"strictPropertyInitialization": false,
 
 		"module": "NodeNext",
 		"target": "ESNext",
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"moduleResolution": "NodeNext",
 
-		"declaration": true,
-		"declarationMap": true,
-		"emitDeclarationOnly": true,
-
 		"jsx": "preserve",
-		"jsxImportSource": "pota",
-
-		"sourceMap": true
+		"jsxImportSource": "pota"
 	},
-	"include": ["src", "jsx.d.ts", "pota.d.ts"]
+	"include": ["src", "jsx.d.ts", "@main.d.ts", "pota.d.ts"]
 }

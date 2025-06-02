@@ -97,23 +97,23 @@ export namespace JSX {
 	// JSX.ElementChildrenAttribute - name of the `children` prop
 
 	interface ElementChildrenAttribute {
-		children: Element
+		children
 	}
 
 	// JSX.ElementType - shape of a `component`
 
 	type ElementType =
 		| keyof IntrinsicElements
-		| ((props?: unknown) => Element)
-		| ((props?: unknown) => ElementClass)
-		| (new (props?: unknown) => ElementClass)
+		| ((props?) => Element)
+		| ((props?) => ElementClass)
+		| (new (props?) => ElementClass)
 
 	// JSX.ElementClass - shape of `class` component
 
 	type ElementClass = {
 		ready?: () => void
 		cleanup?: () => void
-		render: (props?: unknown) => Element
+		render: (props?) => Element
 
 		// [prop: string]: any // catch-all
 	}

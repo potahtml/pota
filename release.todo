@@ -6,17 +6,10 @@ CONSIDER ALWAYS
 
 some day
 
-	stuff
-	- typings
-
 	documentation
 	- improve it
 	- light theme
 	- PRIORITY - online tests, a page full of tests
-
-	playground
-	- PRIORITY - LSP figure out how to use https://github.com/bigmistqke/repl
-	- PRIORITY - cdns are funky
 
 	tools
 	- rethink the dev tools

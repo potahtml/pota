@@ -28,14 +28,6 @@ export {
 	untrack,
 	withValue,
 	writable,
-	// COMPONENTS
-	isComponent,
-	makeCallback,
-	markComponent,
-	Pota,
-	// EVENTS
-	addEvent,
-	removeEvent,
 } from './lib/reactive.js'
 
 // RENDERER
@@ -48,7 +40,18 @@ export {
 	toHTML,
 } from './renderer.js'
 
+// COMPONENTS
+
+export {
+	isComponent,
+	makeCallback,
+	markComponent,
+	Pota,
+} from './lib/reactive.js'
+
 // EVENTS
+
+export { addEvent, removeEvent } from './lib/reactive.js'
 
 export { ready } from './scheduler.js'
 
