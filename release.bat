@@ -4,6 +4,6 @@
 call node --no-warnings ./release.mjs
 
 :: publish docs
-cd ../pota.docs/
-call release.bat
+:: cd ../pota.docs/
+:: call release.bat
 
