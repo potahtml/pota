@@ -26,6 +26,15 @@ some day
 	- defineProperty proxy trap
 	- PRIORITY - support a readonly
 
+	html
+	- css plugin missbehaving
+	- default props to prop: (also in JSX)
+	-
+
+	typescript
+	- type lib/reactive.js
+	-
+
 	reactivity
 	- recheck use of untrack / add forbidden signal read
 	- a cleanup that can be canceled
@@ -35,6 +44,7 @@ some day
 	- maybe at compile time wrap in owned anything bellow a `await`, do similar to promises?
 	- PRIORITY - use internally runWithOwner more
 	- PRIORITY - try to remove `options` object from root/memo/effects
+	- Error component
 
 	probably never
 	- animationFrame
@@ -50,7 +60,6 @@ some day
 	- input, keyboard + mouse + controller
 	- on-element-drag.js
 	- performance
-	- record audio, video
 	- socket webrtc
 	- storage
 	- timer
@@ -60,9 +69,10 @@ some day
 
 	components:
 	- color picker
-	- tabs component
+	- tabs
 	- linkify
 	- uploads
+	- record audio, video
 
 	bench
 	- position 31 / 10k - 75ms~ 11ms~ / 1k - 7ms~ 0.7ms~
