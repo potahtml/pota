@@ -41,12 +41,10 @@ import {
 	withResolvers,
 } from './std.js'
 
-/** SORRY TYPES KIND OF MESSY AROUND HERE, IM BUSY WITH SOMEHTING ELSE */
-
 /**
  * Returns true when value is reactive (a signal)
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isReactive = value =>
@@ -71,14 +69,14 @@ const CHECK = 2
 
 /** @type {Computation} */
 let Owner
+
 /** @type {Computation} */
 let Listener
 
-/** @type {undefined | null | any[]} */
-
+/** @type {Memo[]} */
 let Updates = null
-/** @type {undefined | null | any[]} */
 
+/** @type {undefined | null | any[]} */
 let Effects = null
 
 let Time = 0
@@ -89,17 +87,17 @@ class Root {
 	/** @type {Root | undefined} */
 	owner
 
-	/** @type {Root | Root[] | null | undefined} */
+	/** @type {Computation | Computation[]} */
 	owned
 
-	/** @type {Function | Function[] | null | undefined} */
+	/** @type {Function | Function[]} */
 	cleanups
 
-	/** @type {any} */
+	/** @type {Record<string, unknown>} */
 	context
 
 	/**
-	 * @param {undefined | Root} owner
+	 * @param {Root} owner
 	 * @param {object} [options]
 	 */
 	constructor(owner, options) {
@@ -123,7 +121,7 @@ class Root {
 			this.cleanups = [this.cleanups, fn]
 		}
 	}
-	/** @param {Root} value */
+	/** @param {Computation} value */
 	addOwned(value) {
 		if (!this.owned) {
 			this.owned = value
@@ -359,8 +357,8 @@ class Memo extends Computation {
 		}
 	}
 	/**
-	 * @param {any} a
-	 * @param {any} b
+	 * @param {unknown} a
+	 * @param {unknown} b
 	 */
 	equals(a, b) {
 		return a === b
@@ -586,14 +584,15 @@ export function syncEffect(fn, options) {
  * @template T
  * @param {() => T} fn - Function to re-run when dependencies change
  * @param {SignalOptions} [options]
- * @returns {SignalAccessor<T>} - Read only signal
  */
 
 /* #__NO_SIDE_EFFECTS__ */ export function memo(
 	fn,
 	options = undefined,
 ) {
-	return new Memo(Owner, fn, options)
+	/** @type {SignalAccessor<T>} */
+	const s = new Memo(Owner, fn, options)
+	return s
 }
 
 /**
@@ -607,7 +606,7 @@ export const batch = runUpdates
 /**
  * Returns current owner
  *
- * @returns {typeof Owner}
+ * @returns {Computation}
  */
 export function owner() {
 	return Owner
@@ -843,8 +842,9 @@ function useContext(id, defaultValue, newValue, fn) {
 /**
  * Returns an owned function
  *
- * @param {Function | undefined} cb
- * @returns {() => any}
+ * @template T
+ * @param {(...args: unknown[]) => T} cb
+ * @returns {() => T}
  */
 export const owned = cb => {
 	const o = Owner
@@ -901,8 +901,8 @@ export const ref = () => signalFunction()
  * Runs a function inside an effect if value is a function.
  * Aditionally unwraps promises.
  *
- * @param {any} value
- * @param {(value) => any} fn
+ * @param {unknown | Promise<unknown>} value
+ * @param {(value) => unknown} fn
  */
 export function withValue(value, fn) {
 	if (isFunction(value)) {
@@ -917,8 +917,8 @@ export function withValue(value, fn) {
 /**
  * Runs a function inside an effect if value is a function
  *
- * @param {any} value
- * @param {(value: any, prev?: any) => any} fn
+ * @param {unknown} value
+ * @param {(value: unknown, prev?: unknown) => unknown} fn
  */
 export function withPrevValue(value, fn) {
 	if (isFunction(value)) {
@@ -938,8 +938,10 @@ export function withPrevValue(value, fn) {
  * function only when used
  *
  * @author ryansolid
- * @param {Function} fn - Function to re-run when dependencies change
- * @returns {((...args) => any) | (() => any)}
+ * @template T
+ * @type SignalFunction<T>
+ * @param {() => T} fn - Function to re-run when dependencies change
+ * @returns {SignalFunction<T>}
  */
 export function writable(fn) {
 	const result = memo(() => signal(fn()))

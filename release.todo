@@ -24,7 +24,7 @@ some day
 
 	components
 	- router
-	- - make the `path` reactive
+	- PRIORITY - make it work with blob: file: and pretty much anything else
 
 	mutable
 	- improve the tracker
@@ -39,8 +39,8 @@ some day
 	- derived/light signals (make signals easier to use)
 	- diff array for when value comes and doesnt come from server
 	- simplify the classes
-	- PRIORITY - use internally runWithOwner more
 	- maybe at compile time wrap in owned anything bellow a `await`, do similar to promises?
+	- PRIORITY - use internally runWithOwner more
 	- PRIORITY - try to remove `options` object from root/memo/effects
 
 	probably never

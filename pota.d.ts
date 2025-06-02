@@ -35,7 +35,7 @@ type SignalFunction<T> = {
 
 type SignalOptions =
   | {
-      equals?: false | ((a, b) => boolean)
+      equals?: false | ((a: unknown, b: unknown) => boolean)
     }
   | undefined
 

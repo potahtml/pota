@@ -465,7 +465,7 @@ export const isConfigurable = (target, key, value) => {
 /**
  * Returns `true` when `typeof` of `value` is `function`
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isFunction = value => typeof value === 'function'
@@ -473,7 +473,7 @@ export const isFunction = value => typeof value === 'function'
 /**
  * Returns `true` when value is Iterable
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isIterable = value => value?.[Symbol.iterator]
@@ -481,7 +481,7 @@ export const isIterable = value => value?.[Symbol.iterator]
 /**
  * Returns `true` if the value is `null` or `undefined`
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isNullUndefined = value =>
@@ -490,7 +490,7 @@ export const isNullUndefined = value =>
 /**
  * Returns `true` when typeof of value is object and not null
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isObject = value =>
@@ -499,8 +499,8 @@ export const isObject = value =>
 /**
  * Returns `true` when object morphed between array/object
  *
- * @param {any} a
- * @param {any} b
+ * @param {unknown} a
+ * @param {unknown} b
  * @returns {boolean}
  */
 export const morphedBetweenArrayAndObject = (a, b) =>
@@ -524,7 +524,7 @@ export const isPrototypeProperty = (target, key) =>
 /**
  * Returns `true` when `typeof` of `value` is `string`
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isString = value => typeof value === 'string'
@@ -532,7 +532,7 @@ export const isString = value => typeof value === 'string'
 /**
  * Returns `true` when `typeof` of `value` is `number`
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isNumber = value => typeof value === 'number'
@@ -540,7 +540,7 @@ export const isNumber = value => typeof value === 'number'
 /**
  * Returns `true` when `typeof` of `value` is `symbol`
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isSymbol = value => typeof value === 'symbol'
@@ -548,7 +548,7 @@ export const isSymbol = value => typeof value === 'symbol'
 /**
  * Returns `true` when `typeof` of `value` is `boolean`
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isBoolean = value => typeof value === 'boolean'
@@ -556,7 +556,7 @@ export const isBoolean = value => typeof value === 'boolean'
 /**
  * Returns `true` when `value` may be a promise
  *
- * @param {any} value
+ * @param {unknown} value
  * @returns {boolean}
  */
 export const isPromise = value => isFunction(value?.then)
@@ -571,7 +571,7 @@ export const noop = () => {}
 /**
  * Returns `true` when value is true or undefined
  *
- * @param {Function | boolean | undefined} value
+ * @param {unknown} value
  * @returns {boolean} True when value is true or undefined
  */
 export const optional = value =>
@@ -588,7 +588,7 @@ export const querySelector = (node, query) =>
 export const querySelectorAll = (node, query) =>
 	node.querySelectorAll(query)
 
-export function* range(start, stop, step = 1) {
+export function* range(start, stop, step) {
 	if (step < 0) step = Math.abs(step)
 	yield start
 	if (start < stop) {
