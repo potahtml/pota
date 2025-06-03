@@ -19,24 +19,29 @@ export function buildAttributeIntoTag(tag, name, value) {
 export function shouldSkipAttribute(node) {
 	// boolean `false` gets skipped from the partial
 	return (
-		(t.isBooleanLiteral(node.value) &&
-			getAttributeLiteral(node) === 'false') ||
+		(t.isIdentifier(node.value) && node.value.name === 'undefined') ||
+		(t.isIdentifier(node.value?.expression) &&
+			node.value.expression.name === 'undefined') ||
+		(t.isBooleanLiteral(node.value) && node.value.value === false) ||
 		(t.isBooleanLiteral(node.value?.expression) &&
-			getAttributeLiteral(node) === 'false')
+			node.value.expression.value === false)
 	)
 }
 
-/** If value is string or number */
+/** If value is string/number/boolean/undefined/null */
 export function isAttributeLiteral(node) {
 	return (
+		// <input autofocus/> (it doesnt have a value)
+		node.value === null ||
+		(t.isIdentifier(node.value) && node.value.name === 'undefined') ||
+		(t.isIdentifier(node.value?.expression) &&
+			node.value.expression.name === 'undefined') ||
 		t.isStringLiteral(node.value) ||
 		t.isNumericLiteral(node.value) ||
 		t.isBooleanLiteral(node.value) ||
 		t.isStringLiteral(node.value?.expression) ||
 		t.isNumericLiteral(node.value?.expression) ||
-		t.isBooleanLiteral(node.value?.expression) ||
-		// <input autofocus/> (it doesnt have a value)
-		node.value === null
+		t.isBooleanLiteral(node.value?.expression)
 	)
 }
 
@@ -48,8 +53,14 @@ export function getAttributeLiteral(node) {
 	}
 
 	if (
+		t.isBooleanLiteral(node.value) ||
+		t.isBooleanLiteral(node.value.expression)
+	) {
+		return ''
+	}
+
+	if (
 		t.isStringLiteral(node.value.expression) ||
-		t.isBooleanLiteral(node.value.expression) ||
 		t.isNumericLiteral(node.value.expression)
 	) {
 		return String(node.value.expression.value)

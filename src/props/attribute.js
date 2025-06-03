@@ -35,18 +35,20 @@ export const setAttribute = (node, name, value, ns) =>
 /**
  * @param {Element} node
  * @param {string} name
- * @param {string} value
- * @param {string } [ns]
+ * @param {string | boolean} value
+ * @param {string} [ns]
  */
 function _setAttribute(node, name, value, ns) {
-	// if the value is null or undefined it will be removed
-	if (isNullUndefined(value)) {
+	// @ts-ignore
+
+	// if the value is false/null/undefined it will be removed
+	if (value === false || isNullUndefined(value)) {
 		ns && NS[ns]
 			? node.removeAttributeNS(NS[ns], name)
 			: node.removeAttribute(name)
 	} else {
 		ns && NS[ns]
-			? node.setAttributeNS(NS[ns], name, value)
-			: node.setAttribute(name, value)
+			? node.setAttributeNS(NS[ns], name, value === true ? '' : value)
+			: node.setAttribute(name, value === true ? '' : value)
 	}
 }

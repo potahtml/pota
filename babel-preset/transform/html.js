@@ -39,6 +39,6 @@ export const escapeHTML = (() => {
 	const replace = c => chars[c]
 
 	return function (s) {
-		return s.toString().replace(search, replace)
+		return String(s).replace(search, replace)
 	}
 })()

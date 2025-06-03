@@ -2,10 +2,6 @@
 
 export { version } from './version.js'
 
-// PATCHES
-
-import './patches.js'
-
 // REACTIVITY
 
 export {
@@ -59,9 +55,7 @@ export { ready } from './scheduler.js'
 
 export {
 	setAttribute,
-	setBool,
 	setProperty,
-	setUnknown,
 	setStyle,
 	setClass,
 } from './props/@main.js'

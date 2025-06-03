@@ -19,17 +19,16 @@ import { CustomElement, customElement } from './CustomElement.js'
 export function Collapse(props) {
 	// need to include the class here because else its not treeshaked
 	class CollapseElement extends CustomElement {
-		static styleSheets = [
-			css`
-				:host {
-					display: contents;
-				}
-			`,
-		]
+		static styleSheets = [css`:host { display: contents; }`]
 
 		/** @param {any} value - To toggle children */
 		set when(value) {
-			this.html = value ? '<slot/>' : props.fallback || ''
+			this.html = value ? '<slot/>' : this.fb || ''
+		}
+		/** @param {any} fallback - To toggle children */
+		set fallback(fallback) {
+			// TODO make this reactive
+			this.fb = fallback
 		}
 	}
 
@@ -38,7 +37,8 @@ export function Collapse(props) {
 	customElement(name, CollapseElement)
 
 	return Component(name, {
-		when: props.when,
+		'prop:when': props.when,
+		'prop:fallback': props.fallback,
 		children: props.children,
 	})
 }

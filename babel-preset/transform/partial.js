@@ -58,55 +58,39 @@ export function buildPartial(path, state) {
 					`´${name}´ form is deprecated, use ´${name.toLowerCase().replace('on', 'on:')}´ instead`,
 				)
 			}
+			if (tagName === 'textarea' && name === 'value') {
+				warn(
+					attr,
+					`´${name}´ doesn't exists as an attribute in ´textarea´, put the ´value´ inside the textarea`,
+				)
+			}
 
-			/**
-			 * Wont inline attributes into the partial for custom-elements
-			 * as we do not know if it's a property or an attribute. This
-			 * makes custom-elements slower than other kind of elements, but
-			 * makes the heuristic more accurate when we do not want to be
-			 * so explicit about its types. In any case `prop:` and `attr:`
-			 * can be used
-			 */
-			if (!tagName.includes('-')) {
-				/** `isXML` */
+			/** `isXML` */
 
+			if (name === 'xmlns') {
+				isXML = true
+			}
+
+			/** Should inline the attribute into the template? */
+
+			if (isAttributeLiteral(attr.node)) {
 				if (name === 'xmlns') {
-					isXML = true
-				}
+					/**
+					 * Skip inlining the `xmlns` attribute in the tag when its a
+					 * literal
+					 */
+					xmlns = getAttributeLiteral(attr.node)
 
-				/** Should inline the attribute into the template? */
+					continue
+				} else if (shouldSkipAttribute(attr.node)) {
+					continue
+				} else {
+					/** Inline the attribute */
+					const value = getAttributeLiteral(attr.node)
 
-				if (isAttributeLiteral(attr.node)) {
-					if (name === 'xmlns') {
-						/**
-						 * Skip inlining the `xmlns` attribute in the tag when its
-						 * a literal
-						 */
-						xmlns = getAttributeLiteral(attr.node)
+					buildAttributeIntoTag(tag, name, value)
 
-						continue
-					} else if (tagName === 'textarea' && name === 'value') {
-						/**
-						 * Do not inline `value` as an attribute when its a
-						 * `textarea`.
-						 *
-						 * @url https://github.com/solidjs/solid/issues/2312
-						 */
-					} else if (/[A-Z]/.test(name)) {
-						/**
-						 * Do not inline attributes with upper case letters such
-						 * `innerHTML`
-						 */
-					} else if (shouldSkipAttribute(attr.node)) {
-						continue
-					} else {
-						/** Inline the attribute */
-						const value = getAttributeLiteral(attr.node)
-
-						buildAttributeIntoTag(tag, name, value)
-
-						continue
-					}
+					continue
 				}
 			}
 		}

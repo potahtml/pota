@@ -45,18 +45,7 @@ const defaultRegistry = {
 const id = 'pota19611227'
 const splitId = /(pota19611227)/
 
-const xmlns = [
-	'class',
-	'on',
-	'prop',
-	'attr',
-	'bool',
-	'style',
-	'var',
-	'onMount',
-	'onUnmount',
-	'ref',
-]
+const xmlns = ['class', 'on', 'prop', 'style', 'var', 'ref']
 	.map(ns => `xmlns:${ns}="/"`)
 	.join(' ')
 

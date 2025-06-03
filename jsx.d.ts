@@ -23,9 +23,6 @@ import * as csstype from 'csstype'
 
 /* ACCESSOR */
 
-/*
-export type Accessor<T> = { (): Accessor<T> } | { (): T } | T | { (): SignalAccessor<T> } | SignalAccessor<T>
- */
 export type Accessor<T> = T | SignalAccessor<T> | (() => Accessor<T>)
 
 /* CORE */
@@ -35,8 +32,8 @@ interface PotaAttributes<Element> {
 
 	ref?: SignalSetter<Element> | ((element: Element) => void)
 
-	onMount?: (element: Element) => void
-	onUnmount?: (element: Element) => void
+	'on:mount'?: (element: Element) => void
+	'on:unmount'?: (element: Element) => void
 
 	// [attr: `plugin:${string}`]: any - TODO
 }
@@ -114,8 +111,6 @@ export namespace JSX {
 		ready?: () => void
 		cleanup?: () => void
 		render: (props?) => Element
-
-		// [prop: string]: any // catch-all
 	}
 
 	// JSX.Element - return `value` of components
@@ -147,20 +142,15 @@ export namespace JSX {
 			HTMLWebViewElements,
 			MathMLElements,
 			SVGElements,
-			HTMLElements {
-		// typing custom elements
-		// [tagName: string]: any // catch-all
-	}
+			HTMLElements {}
 
 	/* Namespaced */
 
 	/**
-	 * Bypass attribute vs property heuristics. Such
+	 * Force as property.
 	 *
 	 * ```html
 	 * <my-element prop:myFoo="bar" />
-	 * <my-element attr:foo="bar" />
-	 * <my-element bool:foo="{true}" />
 	 * ```
 	 */
 	interface NSAttributes<Element> {}
@@ -180,8 +170,8 @@ export namespace JSX {
 			ElementEventHandlers<Element>,
 			NSAttributes<Element> {
 		// properties
-		innerHTML?: Accessor<number | string>
-		textContent?: Accessor<number | string>
+		'prop:innerHTML'?: Accessor<number | string>
+		'prop:textContent'?: Accessor<number | string>
 
 		// xml
 		[attr: `xmlns:${string}`]: Accessor<string>
@@ -200,7 +190,7 @@ export namespace JSX {
 	interface HTMLAttributes<Element>
 		extends ElementAttributes<Element> {
 		// properties
-		innerText?: Accessor<number | string>
+		'prop:innerText'?: Accessor<number | string>
 
 		// attributes
 		accesskey?: Accessor<string>
@@ -1368,6 +1358,8 @@ export namespace JSX {
 	}
 	interface HTMLTextAreaElementAttributes<Element>
 		extends HTMLAttributes<Element> {
+		'prop:value'?: Accessor<string>
+
 		autocomplete?: Accessor<
 			| 'additional-name'
 			| 'address-level1'
