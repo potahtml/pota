@@ -3,4 +3,4 @@ node_modules
 release.bat
 release.mjs
 release.todo
-babel-preset/index.cjs
+src/babel-preset/index.cjs

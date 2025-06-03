@@ -1,5 +1,5 @@
 types
-babel-preset/index.cjs
+src/babel-preset/index.cjs
 
 # Logs
 logs

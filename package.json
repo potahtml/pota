@@ -13,9 +13,9 @@
   "sideEffects": false,
   "exports": {
     "./babel-preset": {
-      "require": "./babel-preset/index.cjs",
-      "import": "./babel-preset/index.js",
-      "default": "./babel-preset/index.js"
+      "require": "./src/babel-preset/index.cjs",
+      "import": "./src/babel-preset/index.js",
+      "default": "./src/babel-preset/index.js"
     },
     "./jsx-runtime": {
       "types": "./jsx.d.ts",
@@ -55,9 +55,9 @@
   "scripts": {
     "dev": "rimraf types/ && concurrently --kill-others \"npm:watch:*\"",
     "watch:types": "tsc -w",
-    "watch:build": "cd babel-preset && rollup -c -w",
+    "watch:build": "cd src/babel-preset && rollup -c -w",
     "types": "tsc",
-    "build": "cd babel-preset && rollup -c",
+    "build": "cd src/babel-preset && rollup -c",
     "postinstall": "npm run build",
     "prepublishOnly": "npm run types || echo 1"
   },
