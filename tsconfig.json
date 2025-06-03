@@ -1,10 +1,11 @@
 {
 	"compilerOptions": {
-		"rootDir": ".",
+		// DO NOT FIX rootDir it breaks autocomplete
+		// "rootDir": ".",
 		"outDir": "./types",
-
 		"declaration": true,
-		"declarationMap": false,
+		// helps to click "implementation" and go to the source code
+		"declarationMap": true,
 		"emitDeclarationOnly": true,
 		"sourceMap": false,
 

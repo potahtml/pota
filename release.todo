@@ -10,14 +10,11 @@ some day
 	- improve it
 	- light theme
 	- PRIORITY - online tests, a page full of tests
+	- add proper 404
 
 	tools
 	- rethink the dev tools
 	- mdx
-
-	components
-	- router
-	- PRIORITY - make it work with blob: file: and pretty much anything else
 
 	mutable
 	- improve the tracker
@@ -28,12 +25,9 @@ some day
 
 	html
 	- css plugin missbehaving
-	- default props to prop: (also in JSX)
-	-
 
 	typescript
 	- type lib/reactive.js
-	-
 
 	reactivity
 	- recheck use of untrack / add forbidden signal read
@@ -44,6 +38,7 @@ some day
 	- maybe at compile time wrap in owned anything bellow a `await`, do similar to promises?
 	- PRIORITY - use internally runWithOwner more
 	- PRIORITY - try to remove `options` object from root/memo/effects
+	- PRIORITY - export a createReactiveSystem or something like that (will help with the dev tools)
 	- Error component
 
 	probably never
@@ -73,6 +68,9 @@ some day
 	- linkify
 	- uploads
 	- record audio, video
+	- splitter
+	- router
+		- PRIORITY - make it work with blob: file: and pretty much anything else
 
 	bench
 	- position 31 / 10k - 75ms~ 11ms~ / 1k - 7ms~ 0.7ms~

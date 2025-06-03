@@ -26,23 +26,23 @@
       "default": "./src/jsx-runtime.js"
     },
     "./html": {
-      "types": "./types/src/html.d.ts",
+      "types": "./types/html.d.ts",
       "default": "./src/html.js"
     },
     "./web": {
-      "types": "./types/src/web/@main.d.ts",
+      "types": "./types/web/@main.d.ts",
       "default": "./src/web/@main.js"
     },
     "./plugin/*": {
-      "types": "./types/src/plugin/*.d.ts",
+      "types": "./types/plugin/*.d.ts",
       "default": "./src/plugin/*.js"
     },
     "./store": {
-      "types": "./types/src/lib/store.d.ts",
+      "types": "./types/lib/store.d.ts",
       "default": "./src/lib/store.js"
     },
     "./std": {
-      "types": "./types/src/lib/std.d.ts",
+      "types": "./types/lib/std.d.ts",
       "default": "./src/lib/std.js"
     },
     ".": {
