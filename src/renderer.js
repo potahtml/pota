@@ -685,12 +685,10 @@ export function toHTMLFragment(children) {
 function toDiff(prev = [], next = [], short = false) {
 	// if theres something to remove
 	if (prev.length) {
-		const nextLength = next.length
-
 		// fast clear
 		if (
 			short &&
-			nextLength === 0 &&
+			next.length === 0 &&
 			// + 1 because of the original placeholder
 			prev.length + 1 === prev[0].parentNode.childNodes.length
 		) {
@@ -699,9 +697,13 @@ function toDiff(prev = [], next = [], short = false) {
 			const lastChild = parent.lastChild
 			parent.textContent = ''
 			parent.appendChild(lastChild)
+		} else if (next.length === 0) {
+			for (const item of prev) {
+				item && item.remove()
+			}
 		} else {
 			for (const item of prev) {
-				if (item && (nextLength === 0 || !next.includes(item))) {
+				if (item && !next.includes(item)) {
 					item.remove()
 				}
 			}
