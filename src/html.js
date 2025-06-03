@@ -24,7 +24,7 @@ import {
 	Router,
 	Show,
 	Switch,
-} from './web/@main.js'
+} from './components/@main.js'
 
 const defaultRegistry = {
 	A,

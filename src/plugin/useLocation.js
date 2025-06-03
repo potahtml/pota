@@ -20,7 +20,7 @@ import {
 	replaceParams,
 } from './useURL.js'
 
-import { Context } from '../web/router/context.js'
+import { Context } from '../components/router/context.js'
 import { useTimeout } from './useTimeout.js'
 
 // window.location signal

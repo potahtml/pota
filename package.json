@@ -30,8 +30,12 @@
       "default": "./src/html.js"
     },
     "./web": {
-      "types": "./types/web/@main.d.ts",
-      "default": "./src/web/@main.js"
+      "types": "./types/components/@main.d.ts",
+      "default": "./src/components/web.js"
+    },
+    "./components": {
+      "types": "./types/components/@main.d.ts",
+      "default": "./src/components/@main.js"
     },
     "./plugin/*": {
       "types": "./types/plugin/*.d.ts",
