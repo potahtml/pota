@@ -49,11 +49,12 @@ type Each<T> = SignalAccessor<T> | Iterable<T>
 
 // components
 
-type Component = import('./jsx.d.ts').JSX.ElementType
+type Component = import('./src/jsx/jsx.d.ts').JSX.ElementType
 
-type Children = import('./jsx.d.ts').JSX.Element
+type Children = import('./src/jsx/jsx.d.ts').JSX.Element
 
-type TagNames = keyof import('./jsx.d.ts').JSX.IntrinsicElements
+type TagNames =
+  keyof import('./src/jsx/jsx.d.ts').JSX.IntrinsicElements
 
 // tests
 
@@ -75,6 +76,6 @@ interface Element {
 
 // globals
 
-type DOMElement = import('./jsx.d.ts').JSX.DOMElement // TODO
+type DOMElement = import('./src/jsx/jsx.d.ts').JSX.DOMElement // TODO
 
 type StylePropertyValue = string | Function | object // TODO

@@ -15,10 +15,10 @@ export * from './types/@main.d.ts'
  * }
  * ```
  */
-export * from './jsx.d.ts'
+export * from './src/jsx/jsx.d.ts'
 
 /**
  * Needed so LSP works with `JSX` element tags, typescript needs the
  * `jsxs` functions to be defined.
  */
-export * from './types/jsx-runtime.d.ts'
+export * from './types/jsx/jsx-runtime.d.ts'

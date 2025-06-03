@@ -18,12 +18,12 @@
       "default": "./src/babel-preset/index.js"
     },
     "./jsx-runtime": {
-      "types": "./jsx.d.ts",
-      "default": "./src/jsx-runtime.js"
+      "types": "./src/jsx/jsx.d.ts",
+      "default": "./src/jsx/jsx-runtime.js"
     },
     "./jsx-dev-runtime": {
-      "types": "./jsx.d.ts",
-      "default": "./src/jsx-runtime.js"
+      "types": "./src/jsx/jsx.d.ts",
+      "default": "./src/jsx/jsx-runtime.js"
     },
     "./html": {
       "types": "./types/html.d.ts",
