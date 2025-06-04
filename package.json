@@ -10,7 +10,7 @@
   },
   "type": "module",
   "types": "./pota.d.ts",
-  "main": "./src/@main.js",
+  "main": "./src/exports.js",
   "sideEffects": false,
   "exports": {
     "./babel-preset": {
@@ -27,8 +27,8 @@
       "default": "./src/jsx/jsx-runtime.js"
     },
     "./html": {
-      "types": "./types/html.d.ts",
-      "default": "./src/html.js"
+      "types": "./types/core/html.d.ts",
+      "default": "./src/core/html.js"
     },
     "./web": {
       "types": "./types/components/@main.d.ts",
@@ -53,8 +53,8 @@
     ".": {
       "types": "./pota.d.ts",
       "node": "./src/lib/reactive.js",
-      "import": "./src/@main.js",
-      "default": "./src/@main.js"
+      "import": "./src/exports.js",
+      "default": "./src/exports.js"
     }
   },
   "scripts": {

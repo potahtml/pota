@@ -5,7 +5,7 @@ import {
 	isConnected,
 } from '../lib/std.js'
 
-import { onFixes } from '../scheduler.js'
+import { onFixes } from '../core/scheduler.js'
 
 /**
  * Renders reactive values from an signal that returns an Iterable

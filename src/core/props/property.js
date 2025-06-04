@@ -1,5 +1,5 @@
-import { withValue } from '../lib/reactive.js'
-import { isNullUndefined } from '../lib/std.js'
+import { withValue } from '../../lib/reactive.js'
+import { isNullUndefined } from '../../lib/std.js'
 
 /**
  * @param {Element} node

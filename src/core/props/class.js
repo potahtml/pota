@@ -1,12 +1,12 @@
 // node class / classList
 
-import { withPrevValue, withValue } from '../lib/reactive.js'
+import { withPrevValue, withValue } from '../../lib/reactive.js'
 import {
 	classListAdd,
 	classListRemove,
 	isFunction,
 	isString,
-} from '../lib/std.js'
+} from '../../lib/std.js'
 
 /**
  * @param {Element} node

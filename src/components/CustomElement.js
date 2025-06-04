@@ -7,7 +7,7 @@ import {
 	setAttribute,
 } from '../lib/std.js'
 
-import { Component, toHTMLFragment } from '../renderer.js'
+import { Component, toHTMLFragment } from '../core/renderer.js'
 
 /**
  * Defines a custom Element (if isnt defined already)

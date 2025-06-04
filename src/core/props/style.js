@@ -1,13 +1,13 @@
 // node style
 
-import { withValue } from '../lib/reactive.js'
+import { withValue } from '../../lib/reactive.js'
 import {
 	getValue,
 	isFunction,
 	isNullUndefined,
 	isObject,
 	isString,
-} from '../lib/std.js'
+} from '../../lib/std.js'
 
 /**
  * @param {DOMElement} node

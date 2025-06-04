@@ -1,4 +1,4 @@
-import { cleanup } from '../lib/reactive.js'
+import { cleanup } from '../../lib/reactive.js'
 
 import { onMount, onRef } from '../scheduler.js'
 

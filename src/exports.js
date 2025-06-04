@@ -24,6 +24,14 @@ export {
 	untrack,
 	withValue,
 	writable,
+	// components
+	isComponent,
+	makeCallback,
+	markComponent,
+	Pota,
+	// events
+	addEvent,
+	removeEvent,
 } from './lib/reactive.js'
 
 // RENDERER
@@ -34,22 +42,11 @@ export {
 	insert,
 	render,
 	toHTML,
-} from './renderer.js'
-
-// COMPONENTS
-
-export {
-	isComponent,
-	makeCallback,
-	markComponent,
-	Pota,
-} from './lib/reactive.js'
+} from './core/renderer.js'
 
 // EVENTS
 
-export { addEvent, removeEvent } from './lib/reactive.js'
-
-export { ready } from './scheduler.js'
+export { ready } from './core/scheduler.js'
 
 // PROPS
 
@@ -58,15 +55,15 @@ export {
 	setProperty,
 	setStyle,
 	setClass,
-} from './props/@main.js'
+} from './core/props/@main.js'
 
 export {
 	propsPlugin,
 	propsPluginBoth,
 	propsPluginNS,
-} from './props/plugin.js'
+} from './core/props/plugin.js'
 
-export { propsSplit } from './props/propsSplit.js'
+export { propsSplit } from './core/props/propsSplit.js'
 
 // std
 

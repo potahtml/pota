@@ -1,6 +1,6 @@
 import { addEvent, effect, signalFunction } from '../lib/reactive.js'
 
-import { propsPlugin } from '../props/plugin.js'
+import { propsPlugin } from '../core/props/plugin.js'
 import { getSelection, restoreSelection } from './useSelection.js'
 
 /**

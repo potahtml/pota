@@ -33,9 +33,11 @@ some day
 	- maybe doesnt need to recurse on initialization
 
 	html
+	- rename html function to xml so prettier stops lowercasing props
 
 	plugins
 	- css plugin missbehaving
+	- bind contenteditable doesnt keep selection
 
 	typescript
 	- type lib/solid.js

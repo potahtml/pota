@@ -1,5 +1,5 @@
 import { addEvent } from '../lib/reactive.js'
-import { propsPlugin } from '../props/plugin.js'
+import { propsPlugin } from '../core/props/plugin.js'
 
 /**
  * @param {Element} node

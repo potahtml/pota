@@ -1,4 +1,4 @@
-import { addEvent, ownedEvent } from '../lib/reactive.js'
+import { addEvent, ownedEvent } from '../../lib/reactive.js'
 
 /**
  * @param {Element} node

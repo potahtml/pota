@@ -1,5 +1,5 @@
 import { range, toArray } from '../lib/std.js'
-import { Component } from '../renderer.js'
+import { Component } from '../core/renderer.js'
 import { For } from './For.js'
 
 /**

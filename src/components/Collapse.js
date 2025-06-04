@@ -1,6 +1,6 @@
 import { css } from '../lib/std.js'
 
-import { Component } from '../renderer.js'
+import { Component } from '../core/renderer.js'
 import { CustomElement, customElement } from './CustomElement.js'
 
 /**

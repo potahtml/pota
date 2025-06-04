@@ -1,7 +1,7 @@
 import { memo, signal } from '../../lib/reactive.js'
 import { nothing, removeFromArray } from '../../lib/std.js'
 
-import { context } from '../../renderer.js'
+import { context } from '../../core/renderer.js'
 
 /* #__NO_SIDE_EFFECTS__ */ export function create(props = nothing) {
 	const [children, setChildren, updateChildren] = signal([])

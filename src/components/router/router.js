@@ -8,8 +8,8 @@ import { Collapse } from '../Collapse.js'
 import { Dynamic } from '../Dynamic.js'
 import { Show } from '../Show.js'
 
-import { Component } from '../../renderer.js'
-import { onDone } from '../../scheduler.js'
+import { Component } from '../../core/renderer.js'
+import { onDone } from '../../core/scheduler.js'
 
 import { Context, create } from './context.js'
 import { scroll } from './scroll.js'

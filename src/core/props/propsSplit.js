@@ -1,4 +1,4 @@
-import { empty, keys } from '../lib/std.js'
+import { empty, keys } from '../../lib/std.js'
 
 /**
  * Split an object into multiple sub objects

@@ -1,6 +1,6 @@
 // CONSTANTS
 
-import { $isClass, $isMap, NS } from './constants.js'
+import { $isClass, $isMap, NS } from '../constants.js'
 
 // LIB
 
@@ -12,7 +12,10 @@ import {
 	root,
 	signal,
 	untrack,
-} from './lib/reactive.js'
+	isComponent,
+	isComponentable,
+	markComponent,
+} from '../lib/reactive.js'
 
 import {
 	adoptedStyleSheetsAdd,
@@ -36,13 +39,7 @@ import {
 	stringify,
 	toArray,
 	walkElements,
-} from './lib/std.js'
-
-import {
-	isComponent,
-	isComponentable,
-	markComponent,
-} from './lib/reactive.js'
+} from '../lib/std.js'
 
 import { onFixes, ready } from './scheduler.js'
 

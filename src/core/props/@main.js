@@ -1,4 +1,4 @@
-import { empty } from '../lib/std.js'
+import { empty } from '../../lib/std.js'
 
 import {
 	plugins,

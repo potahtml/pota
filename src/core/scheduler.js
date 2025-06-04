@@ -1,5 +1,5 @@
-import { owned } from './lib/reactive.js'
-import { call, queueMicrotask } from './lib/std.js'
+import { owned } from '../lib/reactive.js'
+import { call, queueMicrotask } from '../lib/std.js'
 
 /**
  * The purpose of this file is to guarantee the timing of some

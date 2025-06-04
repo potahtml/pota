@@ -1,7 +1,7 @@
 import { addListeners } from '../../plugin/useLocation.js'
 import { isRelative, replaceParams } from '../../plugin/useURL.js'
 
-import { Component } from '../../renderer.js'
+import { Component } from '../../core/renderer.js'
 
 import { Context } from './context.js'
 

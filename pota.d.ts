@@ -104,7 +104,7 @@ export {
 }
 
 /** Pota library */
-export * from './src/@main.js'
+export * from './src/exports.js'
 
 // namespace JSX
 export type * from './src/jsx/jsx.d.ts'

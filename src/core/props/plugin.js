@@ -1,4 +1,4 @@
-import { cacheStore } from '../lib/std.js'
+import { cacheStore } from '../../lib/std.js'
 import { onProps } from '../scheduler.js'
 
 export const plugins = cacheStore()

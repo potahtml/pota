@@ -1,7 +1,7 @@
-import { withValue } from '../lib/reactive.js'
-import { isNullUndefined } from '../lib/std.js'
+import { withValue } from '../../lib/reactive.js'
+import { isNullUndefined } from '../../lib/std.js'
 
-import { NS } from '../constants.js'
+import { NS } from '../../constants.js'
 
 // NODE ATTRIBUTES
 

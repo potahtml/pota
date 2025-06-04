@@ -8,7 +8,7 @@ import {
 	toArray,
 	warn,
 	withWeakCache,
-} from './lib/std.js'
+} from '../lib/std.js'
 
 import { Component } from './renderer.js'
 
@@ -24,7 +24,7 @@ import {
 	Router,
 	Show,
 	Switch,
-} from './components/@main.js'
+} from '../components/@main.js'
 
 const defaultRegistry = {
 	A,

@@ -1,4 +1,4 @@
-import { insert } from '../renderer.js'
+import { insert } from '../core/renderer.js'
 
 /**
  * Portals children to a different element while keeping the original

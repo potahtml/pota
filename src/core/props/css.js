@@ -4,9 +4,9 @@ import {
 	getDocumentForElement,
 	sheet,
 	withState,
-} from '../lib/std.js'
+} from '../../lib/std.js'
 
-import { randomId } from '../plugin/useRandom.js'
+import { randomId } from '../../plugin/useRandom.js'
 
 /**
  * @param {Element} node

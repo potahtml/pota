@@ -1,5 +1,5 @@
 import { document } from '../lib/std.js'
-import { Component } from '../renderer.js'
+import { Component } from '../core/renderer.js'
 import { Portal } from './Portal.js'
 
 /**
