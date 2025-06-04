@@ -1,81 +1,116 @@
-// signal
+import type { JSX } from './src/jsx/jsx.d.ts'
 
-type MaybeAccessor<T> = SignalAccessor<T> | T
+declare global {
+  // signal
 
-type SignalAccessor<T> = () => T
+  type Accessor<T> = (() => Accessor<T>) | SignalAccessor<T> | T
 
-type SignalSetter<T> = (newValue?: T) => SignalChanged
+  type SignalAccessor<T> = () => T
 
-type SignalUpdate<T> = (
-  updateFunction: (prevValue: T) => T,
-) => SignalChanged
+  type SignalSetter<T> = (newValue?: T) => SignalChanged
 
-// signal as object/function/tuple
+  type SignalUpdate<T> = (
+    updateFunction: (prevValue: T) => T,
+  ) => SignalChanged
 
-type SignalTuple<T> = [
-  SignalAccessor<T>,
-  SignalSetter<T>,
-  SignalUpdate<T>,
-]
+  // signal as object/function/tuple
 
-type SignalClass<T> = {
-  read: SignalAccessor<T>
-  write: SignalSetter<T>
-  update: SignalUpdate<T>
-}
+  type SignalTuple<T> = [
+    SignalAccessor<T>,
+    SignalSetter<T>,
+    SignalUpdate<T>,
+  ]
 
-type SignalObject<T> = SignalTuple<T> & SignalClass<T>
+  type SignalClass<T> = {
+    read: SignalAccessor<T>
+    write: SignalSetter<T>
+    update: SignalUpdate<T>
+  }
 
-type SignalFunction<T> = {
-  (): T
-  (newValue: T): SignalChanged
-}
+  type SignalObject<T> = SignalTuple<T> & SignalClass<T>
 
-// signal properties
+  type SignalFunction<T> = {
+    (): T
+    (newValue: T): SignalChanged
+  }
 
-type SignalOptions =
-  | {
-      equals?: false | ((a: unknown, b: unknown) => boolean)
-    }
-  | undefined
+  // signal properties
 
-type SignalChanged = boolean
+  type SignalOptions =
+    | {
+        equals?: false | ((a: unknown, b: unknown) => boolean)
+      }
+    | undefined
 
-// props
+  type SignalChanged = boolean
 
-type When<T> = SignalAccessor<T> | boolean
+  // props
 
-type Each<T> = SignalAccessor<T> | Iterable<T>
+  type When<T extends boolean> = Accessor<T>
+  type Each<T extends Iterable<T, T, T>> = Accessor<Iterable<T>>
 
-// components
+  // components
 
-type Component = import('./src/jsx/jsx.d.ts').JSX.ElementType
+  type Component = JSX.ElementType
+  type Children = JSX.Element
 
-type Children = import('./src/jsx/jsx.d.ts').JSX.Element
+  // tests
 
-type TagNames =
-  keyof import('./src/jsx/jsx.d.ts').JSX.IntrinsicElements
-
-// tests
-
-type Expect = {
-  toBe: (expected: any) => Promise<any>
-  toEqual: (expected: any) => Promise<any>
-  not: {
+  type Expect = {
     toBe: (expected: any) => Promise<any>
     toEqual: (expected: any) => Promise<any>
+    not: {
+      toBe: (expected: any) => Promise<any>
+      toEqual: (expected: any) => Promise<any>
+    }
   }
+
+  // dom
+
+  type DOMElement = JSX.DOMElement // TODO
+
+  type TagNames = keyof JSX.IntrinsicElements
+
+  type StylePropertyValue = string | Function | object // TODO
 }
 
-// overrides
+export {
+  // signals
+  Accessor,
+  SignalAccessor,
+  SignalSetter,
+  SignalUpdate,
+  SignalTuple,
+  SignalClass,
+  SignalObject,
+  SignalFunction,
+  SignalOptions,
+  SignalChanged,
 
-//  (sorry not sorry)
-interface Element {
-  isCustomElement: boolean
+  // flow control
+  When,
+  Each,
+
+  // components
+  Component,
+  Children,
+
+  // test
+  Expect,
+
+  // dom
+  DOMElement,
+  StylePropertyValue,
 }
 
-// globals
+/** Pota library */
+export * from './src/@main.js'
 
-type DOMElement = import('./src/jsx/jsx.d.ts').JSX.DOMElement // TODO
+// namespace JSX
+export type * from './src/jsx/jsx.d.ts'
 
-type StylePropertyValue = string | Function | object // TODO
+/**
+ * Needed so LSP works with `JSX` element tags, typescript needs the
+ * `jsxs` functions to be defined.
+ */
+export * from './src/jsx/jsx-runtime.js'

@@ -408,7 +408,7 @@ export function getSetterNamesFromPrototype(object, set = new Set()) {
  * recursively and returns the value
  *
  * @template T
- * @param {MaybeAccessor<T>} value - Maybe function
+ * @param {Accessor<T>} value - Maybe function
  */
 export function getValue(value) {
 	while (typeof value === 'function') value = value()

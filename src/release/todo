@@ -15,6 +15,10 @@ some day
 	- light theme
 	- add proper 404
 
+	typescript
+	- css typings
+	-
+
 	tools
 	- rethink the dev tools
 	- mdx
@@ -35,6 +39,7 @@ some day
 
 	typescript
 	- type lib/solid.js
+	- type bind
 
 	reactivity
 	- PRIORITY - use internally runWithOwner more
@@ -74,6 +79,7 @@ some day
 
 	components:
 	- PRIORITY - router make it work with blob: file: and pretty much anything else
+	- PRIORITY - router move Navigate component to components
 	- PRIORITY - rename web to components
 
 	- color picker

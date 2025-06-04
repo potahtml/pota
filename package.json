@@ -9,6 +9,7 @@
     "url": "git+https://github.com/potahtml/pota.git"
   },
   "type": "module",
+  "types": "./pota.d.ts",
   "main": "./src/@main.js",
   "sideEffects": false,
   "exports": {
@@ -50,7 +51,7 @@
       "default": "./src/lib/std.js"
     },
     ".": {
-      "types": "./@main.d.ts",
+      "types": "./pota.d.ts",
       "node": "./src/lib/reactive.js",
       "import": "./src/@main.js",
       "default": "./src/@main.js"

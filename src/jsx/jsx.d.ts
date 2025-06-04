@@ -21,10 +21,6 @@
 
 import * as csstype from 'csstype'
 
-/* ACCESSOR */
-
-export type Accessor<T> = T | SignalAccessor<T> | (() => Accessor<T>)
-
 /* CORE */
 
 interface PotaAttributes<Element> {

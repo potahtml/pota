@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		// DO NOT FIX rootDir it breaks autocomplete
-		// "rootDir": ".",
-		"outDir": "./types",
+		"rootDir": "src",
+		"outDir": "types",
+
 		"declaration": true,
 		// helps to click "implementation" and go to the source code
 		"declarationMap": true,
@@ -22,5 +22,5 @@
 		"jsx": "preserve",
 		"jsxImportSource": "pota"
 	},
-	"include": ["src", "jsx.d.ts", "@main.d.ts", "pota.d.ts"]
+	"include": ["src", "pota.d.ts"]
 }
