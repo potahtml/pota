@@ -1,0 +1,12 @@
+# breaking changes
+
+0.17.184
+
+- renamed onMount to on:mount
+- renamed onUnmount to on:unmount
+- renamed pota/web to pota/components
+- defaults to attributes instead of properties
+- - use `prop:innerHTML` instead of `innerHTML`
+- - use `prop:textContent` instead of `textContent`
+- - use `prop:value` instead of `value` in `<textarea/>` (textareas dont have an attribute named value)
+- - `<textarea value="value here"/>` doesnt work anymore, use `<textarea>value here</textarea>` instead

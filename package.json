@@ -63,7 +63,8 @@
     "types": "tsc",
     "build": "cd src/babel-preset && rollup -c",
     "postinstall": "npm run build",
-    "prepublishOnly": "npm run types || echo 1"
+    "prepublishOnly": "npm run types || echo 1",
+    "release": "node src/release/release.mjs"
   },
   "dependencies": {
     "@babel/plugin-syntax-jsx": "^7.25.9",

@@ -5,7 +5,7 @@ import { execSync as $ } from 'child_process'
 $('npm version patch --git-tag-version false')
 
 // read version number
-import('./package.json', {
+import('../../package.json', {
 	with: { type: 'json' },
 }).then(json => {
 	// write version number to ./src/version.js
