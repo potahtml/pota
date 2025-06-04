@@ -1,6 +1,15 @@
-# breaking changes
+v0.18.184
 
-0.17.184
+## changes
+
+- default to attributes instead of properties. This aligns with the possible upcoming Solid 2.0. Fixes a lot of problems and makes the code smaller.
+- Finally understood a bunch of stuff and tunned typescript setup. Typings are still work in progress for lib stuff.
+- restructured the project
+- export a `createReactiveSystem`, will use in dev-tools to hide dev-tools from reports.
+- new `<Range start={0} stop={10} step={2}/>` component! by @boredofnames . Thanks!
+- Trying to setup releases, not sure if will work. Mostly to comment breaking changes, as api shape is being researched.
+
+## breaking changes
 
 - renamed onMount to on:mount
 - renamed onUnmount to on:unmount
