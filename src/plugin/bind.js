@@ -1,6 +1,7 @@
 import { addEvent, effect, signalFunction } from '../lib/reactive.js'
 
 import { propsPlugin } from '../props/plugin.js'
+import { getSelection, restoreSelection } from './useSelection.js'
 
 /**
  * To use in bind attribute on JSX elements.
@@ -32,8 +33,11 @@ function bindValue(node, name, value, props) {
 			}
 			default: {
 				if (node.isContentEditable) {
-					// todo retore selection
-					node.innerText = value()
+					if (node.innerText !== value()) {
+						const selection = getSelection()
+						node.innerText = value()
+						restoreSelection(selection)
+					}
 				} else {
 					node.value = value()
 				}
