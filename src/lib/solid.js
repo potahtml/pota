@@ -1,5 +1,11 @@
 import { $isReactive } from '../constants.js'
-import { assign, isArray, noop, Symbol } from './std.js'
+import {
+	assign,
+	isArray,
+	noop,
+	removeFromArray,
+	Symbol,
+} from './std.js'
 
 /**
  * This is so far the core of Solid JS 1.x Reactivity, but ported to
@@ -78,6 +84,15 @@ export function createReactiveSystem() {
 				this.cleanups.push(fn)
 			} else {
 				this.cleanups = [this.cleanups, fn]
+			}
+		}
+		/** @param {Function} fn */
+		removeCleanups(fn) {
+			if (!this.cleanups) {
+			} else if (this.cleanups === fn) {
+				this.cleanups = null
+			} else {
+				removeFromArray(this.cleanups, fn)
 			}
 		}
 		/** @param {Computation} value */
@@ -613,8 +628,19 @@ export function createReactiveSystem() {
 	 * @returns {T}
 	 */
 	function cleanup(fn) {
-		Owner && Owner.addCleanups(fn)
+		Owner?.addCleanups(fn)
+		return fn
+	}
 
+	/**
+	 * Cancels a cleanup
+	 *
+	 * @template T
+	 * @param {T extends Function} fn
+	 * @returns {T}
+	 */
+	function cancelCleanup(fn) {
+		Owner?.removeCleanups(fn)
 		return fn
 	}
 
@@ -812,6 +838,7 @@ export function createReactiveSystem() {
 	return {
 		batch,
 		cleanup,
+		cancelCleanup,
 		Context,
 		effect,
 		memo,
