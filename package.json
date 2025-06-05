@@ -26,9 +26,6 @@
       "types": "./src/jsx/jsx.d.ts",
       "default": "./src/jsx/jsx-runtime.js"
     },
-    "./web": {
-      "types": "./types/components/@main.d.ts",
-      "default": "./src/components/web.js"
     "./xml": {
       "types": "./types/core/xml.d.ts",
       "default": "./src/core/xml.js"
