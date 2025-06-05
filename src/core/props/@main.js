@@ -24,22 +24,22 @@ propsPluginNS('on', setEventNS, false)
 // css
 
 import { setCSS } from './css.js'
-propsPlugin('plugin:css', setCSS, false)
+propsPlugin('use:css', setCSS, false)
 
 // mount
 
 import { setConnected } from './lifecycle.js'
-propsPlugin('connected', setConnected, false)
+propsPlugin('use:connected', setConnected, false)
 
 // unmount
 
 import { setDisconnected } from './lifecycle.js'
-propsPlugin('disconnected', setDisconnected, false)
+propsPlugin('use:disconnected', setDisconnected, false)
 
 // ref
 
 import { setRef } from './lifecycle.js'
-propsPlugin('ref', setRef, false)
+propsPlugin('use:ref', setRef, false)
 
 // PLUGIN BOTH DIFFERENT
 
