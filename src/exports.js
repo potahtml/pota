@@ -51,12 +51,11 @@ export { ready } from './core/scheduler.js'
 
 // PROPS
 
-export {
-	setAttribute,
-	setProperty,
-	setStyle,
-	setClass,
-} from './core/props/@main.js'
+export { setAttribute } from './core/props/attribute.js'
+export { setProperty } from './core/props/property.js'
+
+export { setElementStyle as setStyle } from './core/props/style.js'
+export { setElementClass as setClass } from './core/props/class.js'
 
 export {
 	propsPlugin,

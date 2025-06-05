@@ -31,6 +31,7 @@ interface PotaAttributes<Element> {
 	connected?: Accessor<Element>
 	disconnected?: Accessor<Element>
 
+	bind?: Accessor<Element>
 }
 
 /* CSS */

@@ -4,16 +4,8 @@ import {
 	plugins,
 	pluginsNS,
 	propsPlugin,
-	propsPluginBoth,
 	propsPluginNS,
 } from './plugin.js'
-
-// exports
-
-export { setAttribute } from './attribute.js'
-export { setProperty } from './property.js'
-export { setElementStyle as setStyle } from './style.js'
-export { setElementClass as setClass } from './class.js'
 
 // PLUGINS NS
 
@@ -91,13 +83,19 @@ export function assignProp(node, name, value, props) {
 	} else if (propNS[name] || name.includes(':')) {
 		// with ns
 		propNS[name] = propNS[name] || name.split(':')
-		const [ns, localName] = propNS[name]
 
 		// run plugins NS
-		plugin = pluginsNS.get(ns)
+		plugin = pluginsNS.get(propNS[name][0])
 		plugin
-			? plugin(node, name, value, props, localName, ns)
-			: setAttribute(node, name, value, ns)
+			? plugin(
+					node,
+					name,
+					value,
+					props,
+					propNS[name][1],
+					propNS[name][0],
+				)
+			: setAttribute(node, name, value, propNS[name][0])
 	} else {
 		// catch all
 		setAttribute(node, name, value)

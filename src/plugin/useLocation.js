@@ -203,6 +203,7 @@ export { navigateUser as navigate }
  * 	replace?: boolean
  * 	params?: object
  * 	delay?: number
+ * 	children?: Children
  * }} props
  * @url https://pota.quack.uy/Components/Router/Navigate
  */
