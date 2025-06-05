@@ -31,7 +31,7 @@ import { createReactiveSystem, markReactive } from './solid.js'
 const {
 	batch,
 	cleanup,
-	cancelCleanup,
+	cleanupCancel,
 	Context,
 	effect,
 	memo,
@@ -49,7 +49,7 @@ const {
 export {
 	batch,
 	cleanup,
-	cancelCleanup,
+	cleanupCancel,
 	Context,
 	effect,
 	memo,

@@ -639,7 +639,7 @@ export function createReactiveSystem() {
 	 * @param {T extends Function} fn
 	 * @returns {T}
 	 */
-	function cancelCleanup(fn) {
+	function cleanupCancel(fn) {
 		Owner?.removeCleanups(fn)
 		return fn
 	}
@@ -838,7 +838,7 @@ export function createReactiveSystem() {
 	return {
 		batch,
 		cleanup,
-		cancelCleanup,
+		cleanupCancel,
 		Context,
 		effect,
 		memo,

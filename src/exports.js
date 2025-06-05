@@ -8,7 +8,7 @@ export {
 	asyncEffect,
 	batch,
 	cleanup,
-	cancelCleanup,
+	cleanupCancel,
 	effect,
 	isReactive,
 	Lazy,
