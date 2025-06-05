@@ -15,14 +15,14 @@ import { scroll } from './scroll.js'
  * @param {() => Promise<any>} component - Import statement
  * @param {{
  * 	onLoading?: any
- * 	onLoaded?: Function
+ * 	onLoad?: Function
  * 	onError?: ((e: Error, retry: Function) => any) | any
  * }} [options]
  * @returns {Component}
  * @url https://pota.quack.uy/load
  */
 export function load(component, options = nothing) {
-	const { onLoading, onLoaded, onError } = options
+	const { onLoading, onLoad, onError } = options
 
 	let tries = 0
 	return lazy(component, {
@@ -33,13 +33,13 @@ export function load(component, options = nothing) {
 				: isFunction(onError)
 					? onError(e, retry)
 					: onError,
-		onLoaded: () => {
+		onLoad: () => {
 			let context = Context()
 
 			scroll(context)
 
 			// user function
-			onLoaded && onLoaded()
+			onLoad && onLoad()
 		},
 	})
 }

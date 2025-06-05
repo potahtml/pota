@@ -214,7 +214,7 @@ export function asyncEffect(fn) {
  *   returns a promise
  * @param {{
  * 	onLoading?: any
- * 	onLoaded?: Function
+ * 	onLoad?: Function
  * 	onError?: ((e: Error, retry: Function) => any) | any
  * }} [options]
  *
@@ -223,11 +223,11 @@ export function asyncEffect(fn) {
  */
 export const lazy = (fn, options = nothing) =>
 	markComponent(props => {
-		const { onLoading, onLoaded, onError } = options
+		const { onLoading, onLoad, onError } = options
 
 		const [value, setValue] = signal(onLoading)
 
-		const _onLoaded = owned(onLoaded)
+		const onLoaded = owned(onLoad)
 
 		const retry = () =>
 			Promise.resolve(isFunction(fn) ? fn() : fn)
@@ -238,7 +238,7 @@ export const lazy = (fn, options = nothing) =>
 							return isFunction(r) ? r(props) : r
 						}),
 					)
-					microtask(_onLoaded)
+					microtask(onLoaded)
 				})
 				.catch(e =>
 					onError
