@@ -8,7 +8,7 @@ import {
 import {
 	emptyArray,
 	entries,
-	flat,
+	unwrapArray,
 	getValue,
 	groupBy,
 	isArray,
@@ -569,7 +569,7 @@ export function makeCallback(children) {
 	 * will end as `[[0, 1, 2]]`, so flat it
 	 */
 
-	children = isArray(children) ? flat(children) : children
+	children = isArray(children) ? unwrapArray(children) : children
 
 	const callbacks = !isArray(children)
 		? callback(children)

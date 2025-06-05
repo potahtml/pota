@@ -26,7 +26,7 @@ import {
 	CSSStyleSheet,
 	document,
 	DocumentFragment,
-	flat,
+	unwrapArray,
 	freeze,
 	getDocumentForElement,
 	importNode,
@@ -39,6 +39,7 @@ import {
 	stringify,
 	toArray,
 	walkElements,
+	flatToArray,
 } from '../lib/std.js'
 
 import { onFixes, ready } from './scheduler.js'
@@ -368,8 +369,8 @@ function createChildren(
 						// maybe a signal (at least a function) so needs an effect
 						node = toDiff(
 							node,
-							[createChildren(parent, child(), true, node[0])].flat(
-								Infinity,
+							flatToArray(
+								createChildren(parent, child(), true, node[0]),
 							),
 							true,
 						)
@@ -607,7 +608,7 @@ export function insert(
 		options.relative,
 	)
 
-	cleanup(() => toDiff([node].flat(Infinity)))
+	cleanup(() => toDiff(flatToArray(node)))
 
 	return node
 }
@@ -627,7 +628,7 @@ export const toHTML = children =>
 	 * DocumentFragment and then we will lose the reference.
 	 */
 
-	flat(toHTMLFragment(children).childNodes)
+	unwrapArray(toHTMLFragment(children).childNodes)
 
 /**
  * Creates and returns a DocumentFragment for `children`

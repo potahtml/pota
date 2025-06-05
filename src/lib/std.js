@@ -304,12 +304,21 @@ export function equals(a, b) {
 }
 
 /**
- * Flats an array/childNodes to the first children if the length is 1
+ * Unwraps an array/childNodes to the first item if the length is 1
  *
  * @param {any[] | NodeListOf<ChildNode>} arr
  * @returns {any}
  */
-export const flat = arr => (arr.length === 1 ? arr[0] : arr)
+export const unwrapArray = arr => (arr.length === 1 ? arr[0] : arr)
+
+/**
+ * Flats an array/childNodes recursively
+ *
+ * @param {any[]} arr
+ * @returns {any}
+ */
+export const flatToArray = arr =>
+	isArray(arr) ? arr.flat(Infinity) : [arr]
 
 /**
  * Keeps state in the function as the first param
