@@ -219,7 +219,7 @@ function withXMLNS(xmlns, fn, tagName) {
 
 // PARTIALS
 
-function parseHTML(content, xmlns) {
+function parseXML(content, xmlns) {
 	const template = xmlns
 		? createElementNS(xmlns, 'template')
 		: createElement('template')
@@ -254,7 +254,7 @@ function parseHTML(content, xmlns) {
 export function createPartial(content, propsData = nothing) {
 	let clone = () => {
 		const node = withXMLNS(propsData.x, xmlns =>
-			parseHTML(content, xmlns),
+			parseXML(content, xmlns),
 		)
 
 		clone = propsData.i
