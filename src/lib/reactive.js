@@ -591,22 +591,22 @@ const callback = child =>
 					 * result of the signal is our callback
 					 *
 					 * ```js
-					 * htmlEffect(
-					 * 	html =>
-					 * 		html`<table>
-					 * 			<tr>
-					 * 				<th>name</th>
-					 * 			</tr>
-					 * 			<for each="${tests}">
-					 * 				${item =>
-					 * 					html`<tr>
-					 * 						<td>${item.name}</td>
-					 * 					</tr>`}
-					 * 			</for>
-					 * 		</table>`,
-					 * )
+					 * xml`
+					 * <table>
+					 * 		<tr>
+					 * 			<th>name</th>
+					 * 		</tr>
+					 * 		<for each="${tests}">
+					 * 			${item =>
+					 * 				xml`<tr>
+					 * 					<td>${item.name}</td>
+					 * 				</tr>`}
+					 * 		</for>
+					 * 	</table>
+					 * `
 					 * ```
 					 */
+					// TODO this may be simplified to call itself again as `callback(r)`
 					const r = child()
 					return isFunction(r)
 						? isReactive(r)

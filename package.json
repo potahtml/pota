@@ -26,13 +26,12 @@
       "types": "./src/jsx/jsx.d.ts",
       "default": "./src/jsx/jsx-runtime.js"
     },
-    "./html": {
-      "types": "./types/core/html.d.ts",
-      "default": "./src/core/html.js"
-    },
     "./web": {
       "types": "./types/components/@main.d.ts",
       "default": "./src/components/web.js"
+    "./xml": {
+      "types": "./types/core/xml.d.ts",
+      "default": "./src/core/xml.js"
     },
     "./components": {
       "types": "./types/components/@main.d.ts",

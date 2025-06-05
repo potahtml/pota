@@ -3,7 +3,7 @@ import {
 	createTextNode,
 	empty,
 	error,
-	flat,
+	unwrapArray,
 	getValue,
 	toArray,
 	warn,
@@ -40,10 +40,10 @@ const defaultRegistry = {
 	Switch,
 }
 
-// parseHTML
+// parseXML
 
-const id = 'pota19611227'
-const splitId = /(pota19611227)/
+const id = 'rosa19611227'
+const splitId = /(rosa19611227)/
 
 const xmlns = ['class', 'on', 'prop', 'style', 'var', 'ref']
 	.map(ns => `xmlns:${ns}="/"`)
@@ -55,7 +55,7 @@ const xmlns = ['class', 'on', 'prop', 'style', 'var', 'ref']
  * @param {TemplateStringsArray} content
  * @returns {Element}
  */
-const parseHTML = withWeakCache(content => {
+const parseXML = withWeakCache(content => {
 	const html = new DOMParser().parseFromString(
 		`<xml ${xmlns}>${content.join(id)}</xml>`,
 		'text/xml',
@@ -74,21 +74,22 @@ const parseHTML = withWeakCache(content => {
 /**
  * Recursively walks a template and transforms it to `h` calls
  *
- * @param {{ components: {} }} html
+ * @param {typeof xml} xml
  * @param {Element[]} cached
  * @param {...any} values
  * @returns {Children}
  */
-function toH(html, cached, values) {
+function toH(xml, cached, values) {
 	let index = 0
 	function nodes(node) {
-		if (node.nodeType === 1) {
+		const { nodeType } = node
+		if (nodeType === 1) {
 			// element
-			const tagName = node.tagName
+			const { tagName, attributes, childNodes } = node
 
 			// gather props
 			const props = empty()
-			for (let { name, value } of node.attributes) {
+			for (let { name, value } of attributes) {
 				if (value === id) {
 					value = values[index++]
 				} else if (value.includes(id)) {
@@ -102,17 +103,16 @@ function toH(html, cached, values) {
 			}
 
 			// gather children
-			const childNodes = node.childNodes
 			if (childNodes.length) {
-				props.children = flat(toArray(childNodes).map(nodes))
+				props.children = unwrapArray(toArray(childNodes).map(nodes))
 			}
 
 			;/[A-Z]/.test(tagName) &&
-				!html.components[tagName] &&
-				warn(`html: Forgot to ´html.define({ ${tagName} })´?`)
+				!xml.components[tagName] &&
+				warn(`xml: Forgot to ´xml.define({ ${tagName} })´?`)
 
-			return Component(html.components[tagName] || tagName, props)
-		} else if (node.nodeType === 3) {
+			return Component(xml.components[tagName] || tagName, props)
+		} else if (nodeType === 3) {
 			// text
 			const value = node.nodeValue
 			return value.includes(id)
@@ -120,7 +120,7 @@ function toH(html, cached, values) {
 						.split(splitId)
 						.map(x => (x === id ? values[index++] : x))
 				: value
-		} else if (node.nodeType === 8) {
+		} else if (nodeType === 8) {
 			// comment
 			const value = node.nodeValue
 			if (value.includes(id)) {
@@ -132,11 +132,11 @@ function toH(html, cached, values) {
 				return createComment(value)
 			}
 		} else {
-			error(`html: ´nodeType´ not supported ´${node.nodeType}´`)
+			error(`xml: ´nodeType´ not supported ´${nodeType}´`)
 		}
 	}
 
-	return flat(toArray(cached).map(nodes))
+	return unwrapArray(toArray(cached).map(nodes))
 }
 
 /**
@@ -146,31 +146,31 @@ function toH(html, cached, values) {
  * 	define: ({ components }) => void
  * 	components: {}
  * }}
- * @url https://pota.quack.uy/HTML
+ * @url https://pota.quack.uy/XML
  */
 
-export function HTML() {
+export function XML() {
 	/**
 	 * Creates tagged template components
 	 *
 	 * @param {TemplateStringsArray} template
 	 * @param {...any} values
 	 * @returns {Children}
-	 * @url https://pota.quack.uy/HTML
+	 * @url https://pota.quack.uy/XML
 	 */
 
-	function html(template, ...values) {
-		return toH(html, parseHTML(template), values)
+	function xml(template, ...values) {
+		return toH(xml, parseXML(template), values)
 	}
 
-	html.components = { ...defaultRegistry }
-	html.define = userComponents => {
+	xml.components = { ...defaultRegistry }
+	xml.define = userComponents => {
 		for (const name in userComponents) {
-			html.components[name] = userComponents[name]
+			xml.components[name] = userComponents[name]
 		}
 	}
 
-	return html
+	return xml
 }
 
-export const html = HTML()
+export const xml = XML()
