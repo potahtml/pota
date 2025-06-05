@@ -34,17 +34,6 @@ export const setStyleNS = (node, name, value, props, localName, ns) =>
 	)
 
 /**
- * @param {DOMElement} node
- * @param {string} name
- * @param {StylePropertyValue} value
- * @param {object} props
- * @param {string} localName
- * @param {string} ns
- */
-export const setVarNS = (node, name, value, props, localName, ns) =>
-	setNodeStyle(node.style, { ['--' + localName]: value })
-
-/**
  * @param {CSSStyleDeclaration} style
  * @param {StylePropertyValue} value
  */

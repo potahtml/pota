@@ -16,7 +16,7 @@ import {
  */
 export const setClass = (node, name, value, props) => {
 	isString(value)
-		? node.setAttribute('class', value)
+		? node.setAttribute(name, value)
 		: setClassList(node, value)
 }
 

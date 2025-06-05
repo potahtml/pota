@@ -19,11 +19,6 @@ propsPluginNS('prop', setPropertyNS, false)
 import { setEventNS } from './event.js'
 propsPluginNS('on', setEventNS, false)
 
-// var
-
-import { setVarNS } from './style.js'
-propsPluginNS('var', setVarNS, false)
-
 // PLUGIN BOTH
 
 // css
