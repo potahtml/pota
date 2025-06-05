@@ -9,7 +9,7 @@ some day
 	documentation
 	- PRIORITY - online tests, a page full of tests
 	- PRIORITY - the attributes page is out of date
-	- PRIORITY - playground doesnt accept typescript
+	- PRIORITY - restore publishing
 
 	- improve it
 	- light theme
@@ -17,7 +17,7 @@ some day
 
 	typescript
 	- css typings
-	-
+	- there are 936 errors
 
 	tools
 	- rethink the dev tools
@@ -33,7 +33,7 @@ some day
 	- maybe doesnt need to recurse on initialization
 
 	html
-	- rename html function to xml so prettier stops lowercasing props
+	- maybe make a <WithDocument document={document}/> so stuff stops breaking with popups
 
 	plugins
 	- css plugin missbehaving
@@ -46,7 +46,6 @@ some day
 	reactivity
 	- PRIORITY - use internally runWithOwner more
 	- PRIORITY - try to remove `options` object from root/memo/effects
-	- PRIORITY - a cleanup that can be canceled
 
 	- recheck use of untrack / add forbidden signal read
 	- figure out if possible to prevent writing to signals inside effects
@@ -57,6 +56,7 @@ some day
 	- when `owner` is exported, it should be a reference to the real owner, instead of being the real owner.
 	- figure out if other things should be wrapped in `createReactiveSystem`
 	- figure out if top level runs the same as when owned, or make top level owned, even if doesnt garbage collects
+	- rename resolve to inspect
 
 	probably never
 	- animationFrame
@@ -81,8 +81,6 @@ some day
 
 	components:
 	- PRIORITY - router make it work with blob: file: and pretty much anything else
-	- PRIORITY - router move Navigate component to components
-	- PRIORITY - rename web to components
 
 	- color picker
 	- tabs
@@ -93,4 +91,5 @@ some day
 	- Error component
 
 	bench
-	- position 31 / 10k - 75ms~ 11ms~ / 1k - 7ms~ 0.7ms~
+	- v0.17.177 - position 31 / 10k - 75ms  11ms  / 1k - 7ms  0.7ms
+	- v0.18.184 - position X  / 10k - 86ms   9ms  / 1k - 7ms  0.5ms
