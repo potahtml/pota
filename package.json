@@ -55,7 +55,7 @@
   },
   "scripts": {
     "dev": "rimraf types/ && concurrently --kill-others \"npm:watch:*\"",
-    "watch:types": "tsc -w",
+    "watch:types": "tsc -w --preserveWatchOutput",
     "watch:build": "cd src/babel-preset && rollup -c -w",
     "types": "tsc",
     "build": "cd src/babel-preset && rollup -c",
