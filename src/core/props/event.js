@@ -11,5 +11,5 @@ import { addEvent, ownedEvent } from '../../lib/reactive.js'
  * @param {string} ns
  */
 export const setEventNS = (node, name, value, props, localName, ns) =>
-	// `value &&` because avoids crash when `on:click={bla}` and `bla === null`
+	// `value &&` because avoids crash when `on:click={prop.onClick}` and `prop.onClick === null`
 	value && addEvent(node, localName, ownedEvent(value))

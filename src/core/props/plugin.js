@@ -1,8 +1,17 @@
-import { cacheStore } from '../../lib/std.js'
+import { cacheStore, toArray } from '../../lib/std.js'
 import { onProps } from '../scheduler.js'
 
 export const plugins = cacheStore()
 export const pluginsNS = cacheStore()
+/** @type {Set<string> & { xmlns?: string }} */
+export const namespaces = new Set([
+	'class',
+	'on',
+	'prop',
+	'style',
+	'use',
+	'plugin',
+])
 
 /**
  * Defines a prop that can be used on any Element
@@ -44,6 +53,10 @@ export const propsPlugin = (propName, fn, onMicrotask) => {
  *   elements not being created yet. Default is `true`
  */
 export const propsPluginNS = (NSName, fn, onMicrotask) => {
+	namespaces.add(NSName)
+	namespaces.xmlns = toArray(namespaces)
+		.map(ns => `xmlns:${ns}="/"`)
+		.join(' ')
 	plugin(pluginsNS, NSName, fn, onMicrotask)
 }
 
@@ -58,8 +71,8 @@ export const propsPluginNS = (NSName, fn, onMicrotask) => {
  *   elements not being created yet. Default is `true`
  */
 export const propsPluginBoth = (propName, fn, onMicrotask) => {
-	plugin(plugins, propName, fn, onMicrotask)
-	plugin(pluginsNS, propName, fn, onMicrotask)
+	propsPlugin(propName, fn, onMicrotask)
+	propsPluginNS(propName, fn, onMicrotask)
 }
 
 const plugin = (plugins, name, fn, onMicrotask = true) => {

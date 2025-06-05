@@ -10,6 +10,8 @@ import {
 	withWeakCache,
 } from '../lib/std.js'
 
+import { namespaces } from './props/plugin.js'
+
 import { Component } from './renderer.js'
 
 import {
@@ -45,10 +47,6 @@ const defaultRegistry = {
 const id = 'rosa19611227'
 const splitId = /(rosa19611227)/
 
-const xmlns = ['class', 'on', 'prop', 'style', 'var', 'ref']
-	.map(ns => `xmlns:${ns}="/"`)
-	.join(' ')
-
 /**
  * Makes Nodes from TemplateStringsArray
  *
@@ -57,7 +55,7 @@ const xmlns = ['class', 'on', 'prop', 'style', 'var', 'ref']
  */
 const parseXML = withWeakCache(content => {
 	const html = new DOMParser().parseFromString(
-		`<xml ${xmlns}>${content.join(id)}</xml>`,
+		`<xml ${namespaces.xmlns}>${content.join(id)}</xml>`,
 		'text/xml',
 	).firstChild.childNodes
 
