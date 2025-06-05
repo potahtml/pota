@@ -41,13 +41,13 @@ propsPlugin('plugin:css', setCSS, false)
 
 // mount
 
-import { setOnMount } from './lifecycle.js'
-propsPlugin('on:mount', setOnMount, false)
+import { setConnected } from './lifecycle.js'
+propsPlugin('connected', setConnected, false)
 
 // unmount
 
-import { setUnmount } from './lifecycle.js'
-propsPlugin('on:unmount', setUnmount, false)
+import { setDisconnected } from './lifecycle.js'
+propsPlugin('disconnected', setDisconnected, false)
 
 // ref
 

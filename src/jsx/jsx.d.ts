@@ -26,12 +26,11 @@ import * as csstype from 'csstype'
 interface PotaAttributes<Element> {
 	children?: JSX.Element
 
-	ref?: SignalSetter<Element> | ((element: Element) => void)
+	// lifecycles
+	ref?: Accessor<Element>
+	connected?: Accessor<Element>
+	disconnected?: Accessor<Element>
 
-	'on:mount'?: (element: Element) => void
-	'on:unmount'?: (element: Element) => void
-
-	// [attr: `plugin:${string}`]: any - TODO
 }
 
 /* CSS */

@@ -17,7 +17,7 @@ export const setRef = (node, name, value, props) =>
  * @param {Function} value
  * @param {object} props
  */
-export const setOnMount = (node, name, value, props) =>
+export const setConnected = (node, name, value, props) =>
 	onMount(() => value(node))
 
 /**
@@ -26,5 +26,5 @@ export const setOnMount = (node, name, value, props) =>
  * @param {Function} value
  * @param {object} props
  */
-export const setUnmount = (node, name, value, props) =>
+export const setDisconnected = (node, name, value, props) =>
 	cleanup(() => value(node))
