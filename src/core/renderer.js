@@ -174,7 +174,7 @@ function createAnything(value) {
  * Creates a x/html element from a tagName
  *
  * @template P
- * @param {TagNames} tagName
+ * @param {string} tagName
  * @param {P} props
  * @returns {Element} Element
  */

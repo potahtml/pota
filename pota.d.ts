@@ -29,10 +29,7 @@ declare global {
 
   type SignalObject<T> = SignalTuple<T> & SignalClass<T>
 
-  type SignalFunction<T> = {
-    (): T
-    (newValue: T): SignalChanged
-  }
+  type SignalFunction<T> = SignalAccessor<T> | SignalSetter<T>
 
   // signal properties
 
@@ -64,14 +61,6 @@ declare global {
       toEqual: (expected: any) => Promise<any>
     }
   }
-
-  // dom
-
-  type DOMElement = JSX.DOMElement // TODO
-
-  type TagNames = keyof JSX.IntrinsicElements
-
-  type StylePropertyValue = string | Function | object // TODO
 }
 
 export {
@@ -97,10 +86,6 @@ export {
 
   // test
   Expect,
-
-  // dom
-  DOMElement,
-  StylePropertyValue,
 }
 
 /** Pota library */

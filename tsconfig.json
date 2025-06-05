@@ -7,16 +7,15 @@
 		// helps to click "implementation" and go to the source code
 		"declarationMap": true,
 		"emitDeclarationOnly": true,
-		"sourceMap": false,
 
 		"allowJs": true,
 		"checkJs": true,
 		"strict": true,
 
 		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
 		"target": "ESNext",
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
-		"moduleResolution": "NodeNext",
 		"resolveJsonModule": true,
 
 		"jsx": "preserve",
