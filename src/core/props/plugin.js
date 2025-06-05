@@ -13,6 +13,13 @@ export const namespaces = new Set([
 	'plugin',
 ])
 
+function updateNamespaces() {
+	namespaces.xmlns = toArray(namespaces)
+		.map(ns => `xmlns:${ns}="/"`)
+		.join(' ')
+}
+updateNamespaces()
+
 /**
  * Defines a prop that can be used on any Element
  *
@@ -54,9 +61,7 @@ export const propsPlugin = (propName, fn, onMicrotask) => {
  */
 export const propsPluginNS = (NSName, fn, onMicrotask) => {
 	namespaces.add(NSName)
-	namespaces.xmlns = toArray(namespaces)
-		.map(ns => `xmlns:${ns}="/"`)
-		.join(' ')
+	updateNamespaces()
 	plugin(pluginsNS, NSName, fn, onMicrotask)
 }
 
