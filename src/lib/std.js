@@ -117,40 +117,36 @@ export const call = fns => {
 	for (const fn of fns) fn()
 }
 
-export function copy(o) {
-	const seen = new Map()
-	function copy(o) {
-		if (!isObject(o)) {
-			return o
-		}
-
-		if (
-			o instanceof Node ||
-			o instanceof Date ||
-			o instanceof Set ||
-			o instanceof Map ||
-			o instanceof WeakSet ||
-			o instanceof WeakMap ||
-			o instanceof Promise ||
-			o instanceof RegExp
-		) {
-			return o
-		}
-
-		if (seen.has(o)) {
-			return seen.get(o)
-		}
-
-		const c = isArray(o) ? [] : {}
-
-		seen.set(o, c)
-
-		for (const k in o) {
-			c[k] = copy(o[k])
-		}
-		return c
+export function copy(o, seen = new Map()) {
+	if (!isObject(o)) {
+		return o
 	}
-	return copy(o)
+
+	if (
+		o instanceof Node ||
+		o instanceof Date ||
+		o instanceof Set ||
+		o instanceof Map ||
+		o instanceof WeakSet ||
+		o instanceof WeakMap ||
+		o instanceof Promise ||
+		o instanceof RegExp
+	) {
+		return o
+	}
+
+	if (seen.has(o)) {
+		return seen.get(o)
+	}
+
+	const c = isArray(o) ? [] : {}
+
+	seen.set(o, c)
+
+	for (const k in o) {
+		c[k] = copy(o[k], seen)
+	}
+	return c
 }
 
 /**
