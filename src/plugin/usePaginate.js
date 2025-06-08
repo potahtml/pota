@@ -3,24 +3,26 @@ import { getValue, toArray } from '../lib/std.js'
 
 /**
  * @typedef {object} PaginatePage
- * @property {Signal} items - The sliced items
- * @property {Signal} currentPage - The page number
- * @property {Signal} totalPages - Amount of pages
- * @property {Signal} hasNext - Returns a boolean indicating if has a
- *   next page
- * @property {Signal} next - To go to next page updating the items
- * @property {Signal} hasPrevious - Returns a boolean indicating if
- *   has a previous page
- * @property {Signal} previous - To go to prev page updating the items
+ * @property {Accessor<unknown[]>} items - The sliced items
+ * @property {Accessor<number>} currentPage - The page number
+ * @property {Accessor<number>} totalPages - Amount of pages
+ * @property {() => boolean} hasNext - Returns a boolean indicating if
+ *   has a next page
+ * @property {() => void} next - To go to next page updating the items
+ * @property {() => boolean} hasPrevious - Returns a boolean
+ *   indicating if has a previous page
+ * @property {() => void} previous - To go to prev page updating the
+ *   items
  */
 
 /**
  * Paginates `items` and provides "prev" and "next" functions to use
  * on pagination buttons
  *
- * @param {any[] | Signal} items - List of items to paginate
- * @param {number} numPerPage - How many to display at the same time
- * @returns {PaginatePage} Page
+ * @param {Accessor<unknown[]>} items - List of items to paginate
+ * @param {Accessor<number>} numPerPage - How many to display at the
+ *   same time
+ * @returns {PaginatePage}
  */
 
 export function paginateValues(items, numPerPage) {
@@ -41,16 +43,15 @@ export function paginateValues(items, numPerPage) {
  * Paginates items and provides "prev" and "next" functions to use on
  * pagination buttons
  *
- * @param {(start, end) => any | Signal} fetch - Function to get items
- *   from
+ * @param {(start, end) => Accessor<unknown[]>} fetch - Function to
+ *   get items from
  * @param {object} options
- * @param {object} options.numPerPage - How many items are displayed
- *   at the same time
- * @param {object} options.numItems - How many items there are in
- *   total
- * @returns {PaginatePage} Page
+ * @param {Accessor<number>} options.numPerPage - How many items are
+ *   displayed at the same time
+ * @param {Accessor<number>} options.numItems - How many items there
+ *   are in total
+ * @returns {PaginatePage}
  */
-
 export function paginate(fetch, options) {
 	const [page, pageSet, pageUpdate] = signal(0)
 

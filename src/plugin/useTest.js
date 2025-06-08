@@ -2,7 +2,11 @@ import { microtask, untrack } from '../lib/reactive.js'
 import { stringifySorted, withResolvers } from '../lib/std.js'
 import { diff } from './useString.js'
 
-/** @type boolean | undefined */
+/**
+ * @type boolean
+ *
+ *   | undefined
+ */
 let stop = undefined
 let num = 1
 
@@ -10,9 +14,10 @@ let num = 1
  * Simple test-like function
  *
  * @param {string} title - Test title
- * @param {(expect: (arg) => Expect) => void} fn - Test function
+ * @param {(expect: (arg: unknown) => Expect) => void} fn - Test
+ *   function
  * @param {boolean} [stopTesting] - To stop the tests after this one
- * @returns {Promise<any> | undefined}
+ * @returns {Promise<unknown> | undefined}
  */
 export function test(title, fn, stopTesting) {
 	if (!stop) {
@@ -40,9 +45,9 @@ test.reset = () => {
  * Simple expect-like function
  *
  * @param {string} title
- * @param {{value:number}} num
- * @param {Promise<any>[]} promises
- * @param {any} value
+ * @param {{ value: number }} num
+ * @param {Promise<unknown>[]} promises
+ * @param {unknown} value
  * @returns {Expect}
  */
 export function expect(title, num, promises, value) {
@@ -116,6 +121,6 @@ globalThis.Proxy = new Proxy(Proxy, {
  * Returns true if value is a proxy. This is defined for
  * debugging/testing purposes.
  *
- * @param {any} value
+ * @param {object} value
  */
 export const isProxy = value => proxies.has(value)

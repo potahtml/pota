@@ -5,10 +5,7 @@ import { Portal } from './Portal.js'
 /**
  * Mounts children on `document.head`
  *
- * @param {{
- * 	children?: Children
- * }} props
- * @returns {Children}
+ * @param {Props} props
  * @url https://pota.quack.uy/Components/Head
  */
 export const Head = props =>

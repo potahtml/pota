@@ -61,7 +61,7 @@ export namespace JSX {
 	// JSX.ElementChildrenAttribute - name of the `children` prop
 
 	interface ElementChildrenAttribute {
-		children
+		children: {}
 	}
 
 	/*
@@ -116,6 +116,8 @@ export namespace JSX {
 		| SVGElement
 		| MathMLElement
 		| globalThis.Element
+
+	type StyleAttribute = Accessor<CSSProperties | string>
 
 	// CORE
 

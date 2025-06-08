@@ -11,6 +11,7 @@ import { isAbsolute } from '../../plugin/useURL.js'
  * @returns {RouteContextValue}
  */
 export function create(props) {
+	/** @type SignalObject<RouteContextValue[]> */
 	const [children, _, updateChildren] = signal([])
 
 	return {

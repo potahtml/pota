@@ -76,7 +76,7 @@ const parseXML = withWeakCache(content => {
  *
  * @param {typeof xml} xml
  * @param {Element[]} cached
- * @param {...any} values
+ * @param {...unknown} values
  * @returns {Children}
  */
 function toH(xml, cached, values) {
@@ -142,23 +142,16 @@ function toH(xml, cached, values) {
 /**
  * Function to create cached tagged template components
  *
- * @returns {Function & {
- * 	define: ({ components }) => void
- * 	components: {}
- * }}
  * @url https://pota.quack.uy/XML
  */
-
 export function XML() {
 	/**
 	 * Creates tagged template components
 	 *
 	 * @param {TemplateStringsArray} template
-	 * @param {...any} values
-	 * @returns {Children}
+	 * @param {...Children} values
 	 * @url https://pota.quack.uy/XML
 	 */
-
 	function xml(template, ...values) {
 		return toH(xml, parseXML(template), values)
 	}

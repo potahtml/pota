@@ -51,15 +51,18 @@ declare global {
   type Component = JSX.ElementType
   type Children = JSX.Element
   type Elements = JSX.Elements
+  type DOMElement = JSX.DOMElement
+  type Props = Record<string, unknown> & { children?: Children }
+  type StyleAttribute = JSX.StyleAttribute
 
   // tests
 
   type Expect = {
-    toBe: (expected: any) => Promise<any>
-    toEqual: (expected: any) => Promise<any>
+    toBe: (expected: unknown) => Promise<unknown>
+    toEqual: (expected: unknown) => Promise<unknown>
     not: {
-      toBe: (expected: any) => Promise<any>
-      toEqual: (expected: any) => Promise<any>
+      toBe: (expected: unknown) => Promise<unknown>
+      toEqual: (expected: unknown) => Promise<unknown>
     }
   }
 

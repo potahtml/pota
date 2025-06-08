@@ -12,7 +12,7 @@ import {
 /**
  * @param {DOMElement} node
  * @param {string} name
- * @param {StylePropertyValue} value
+ * @param {StyleAttribute} value
  * @param {object} props
  * @url https://pota.quack.uy/props/setStyle
  */
@@ -22,7 +22,7 @@ export const setStyle = (node, name, value, props) =>
 /**
  * @param {DOMElement} node
  * @param {string} name
- * @param {StylePropertyValue} value
+ * @param {StyleAttribute} value
  * @param {object} props
  * @param {string} localName
  * @param {string} ns
@@ -35,7 +35,7 @@ export const setStyleNS = (node, name, value, props, localName, ns) =>
 
 /**
  * @param {CSSStyleDeclaration} style
- * @param {StylePropertyValue} value
+ * @param {StyleAttribute} value
  */
 function setNodeStyle(style, value) {
 	if (isString(value)) {

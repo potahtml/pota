@@ -514,7 +514,6 @@ export const isNullUndefined = value =>
  * Returns `true` when typeof of value is object and not null
  *
  * @param {unknown} value
- * @returns {boolean}
  */
 export const isObject = value =>
 	value !== null && typeof value === 'object'

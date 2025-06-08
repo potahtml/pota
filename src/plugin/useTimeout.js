@@ -4,9 +4,11 @@ import { cleanup, owned, withValue } from '../lib/reactive.js'
  * Creates a `setTimeout` that autodisposes. The `delay` could be
  * reactive. The timeout is NOT started automatically.
  *
- * @param {Function} callback - Callback to run once delay completes
- * @param {Signal | number} delay - Delay number or signal
- * @param {any[]} args - Arguments to pass to the callback
+ * @template T
+ * @param {(...args: unknown[]) => void} callback - Callback to run
+ *   once delay completes
+ * @param {number} delay - Delay number or signal
+ * @param {unknown[]} args - Arguments to pass to the callback
  * @returns {{ start: Function; stop: Function }}
  */
 export function useTimeout(callback, delay, ...args) {

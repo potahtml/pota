@@ -6,9 +6,9 @@ import { addEvent } from '../lib/reactive.js'
 import { propsPlugin } from '../core/props/plugin.js'
 
 /**
- * @param {Element} node
+ * @param {Element & Node} node
  * @param {string} propName
- * @param {Function} propValue
+ * @param {Function | boolean} propValue
  * @param {object} props
  * @url https://pota.quack.uy/plugin/clipboard
  */

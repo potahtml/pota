@@ -73,7 +73,7 @@ export const Fragment = props => props.children
  *
  * @param {string | Function | Element | object | symbol} value -
  *   Component
- * @param {any} [props] Object
+ * @param {Props} [props] Object
  * @returns {Children}
  * @url https://pota.quack.uy/Component
  */
