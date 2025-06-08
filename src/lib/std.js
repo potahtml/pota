@@ -51,11 +51,7 @@ export const toValues = value =>
  * @param {T} value
  */
 export const toEntries = value =>
-	isArray(value)
-		? value
-		: 'entries' in value
-			? value.entries()
-			: toArray(value)
+	'entries' in value ? value.entries() : toArray(value)
 
 export const isNaN = Number.isNaN
 
