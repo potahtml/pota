@@ -43,7 +43,6 @@ const {
 	signal,
 	syncEffect,
 	untrack,
-	useContext,
 } = createReactiveSystem()
 
 export {
@@ -61,7 +60,6 @@ export {
 	signal,
 	syncEffect,
 	untrack,
-	useContext,
 	markReactive,
 	createReactiveSystem,
 }
@@ -169,7 +167,6 @@ export function withPrevValue(value, fn) {
  */
 export function writable(fn) {
 	const result = memo(() => signal(fn()))
-
 	return markReactive((...args) => {
 		return args.length ? result().write(args[0]) : result().read()
 	})

@@ -5,6 +5,7 @@ import {
 	noop,
 	removeFromArray,
 	Symbol,
+	walkParents,
 } from './std.js'
 
 /**
@@ -58,7 +59,7 @@ export function createReactiveSystem() {
 		/** @type {Function | Function[]} */
 		cleanups
 
-		/** @type {Record<string, unknown>} */
+		/** @type {Record<symbol, unknown>} */
 		context
 
 		/**
@@ -777,44 +778,67 @@ export function createReactiveSystem() {
 	/**
 	 * Creates a context and returns a function to get or set the value
 	 *
-	 * @param {any} [defaultValue] - Default value for the context
+	 * @template T
+	 * @param {T} [defaultValue] - Default value for the context
 	 */
 	function Context(defaultValue = undefined) {
-		return useContext.bind(null, Symbol(), defaultValue)
-	}
+		const id = Symbol()
 
-	/**
-	 * @overload Gets the context value
-	 * @returns {any} Context value
-	 */
-	/**
-	 * @overload Runs `fn` with a new value as context
-	 * @param {any} newValue - New value for the context
-	 * @param {Function} fn - Callback to run with the new context value
-	 * @returns {Children} Children
-	 */
-	/**
-	 * @param {any} newValue
-	 * @param {Function} fn
-	 */
-	function useContext(id, defaultValue, newValue, fn) {
-		if (newValue === undefined) {
-			return Owner?.context && Owner.context[id] !== undefined
-				? Owner.context[id]
-				: defaultValue
-		} else {
-			let res
+		/**
+		 * @overload Runs `fn` with a new value as context
+		 * @param {T} newValue - New value for the context
+		 * @param {() => Children} fn - Callback to run with the new
+		 *   context value
+		 * @returns {Children} Context value
+		 */
+		/**
+		 * @overload Gets the context value
+		 * @returns {T} Context value
+		 */
 
-			syncEffect(() => {
-				Owner.context = {
-					...Owner.context,
-					[id]: newValue,
-				}
-				res = untrack(fn)
-			})
+		function useContext(newValue, fn) {
+			if (newValue === undefined) {
+				return Owner?.context && Owner.context[id] !== undefined
+					? Owner.context[id]
+					: defaultValue
+			} else {
+				let res
 
-			return res
+				syncEffect(() => {
+					Owner.context = {
+						...Owner.context,
+						[id]: newValue,
+					}
+					res = untrack(fn)
+				})
+
+				return res
+			}
 		}
+
+		/**
+		 * Sets the `value` for the context
+		 *
+		 * @param {object} props
+		 * @param {T} props.value
+		 * @param {Children} props.children
+		 * @returns {Children} Children
+		 * @url https://pota.quack.uy/Reactivity/Context
+		 */
+		useContext.Provider = props =>
+			useContext(props.value, () => useContext.toHTML(props.children))
+
+		/**
+		 * Maps context following `parent` property (if any). When `true`
+		 * is returned from the callback it stops walking.
+		 *
+		 * @param {(context: T) => boolean | void} callback
+		 * @param {T} [context]
+		 */
+		useContext.walk = (callback, context) =>
+			walkParents(context || useContext(), 'parent', callback)
+
+		return useContext
 	}
 
 	/**
@@ -846,7 +870,6 @@ export function createReactiveSystem() {
 		signal,
 		syncEffect,
 		untrack,
-		useContext,
 	}
 }
 

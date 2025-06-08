@@ -620,7 +620,7 @@ export function insert(
  * @returns {Children}
  * @url https://pota.quack.uy/toHTML
  */
-export const toHTML = children =>
+export function toHTML(children) {
 	/**
 	 * DocumentFragment is transformed to an `Array` of `Node/Element`,
 	 * that way we can keep a reference to the nodes. Because when the
@@ -628,7 +628,8 @@ export const toHTML = children =>
 	 * DocumentFragment and then we will lose the reference.
 	 */
 
-	unwrapArray(toHTMLFragment(children).childNodes)
+	return unwrapArray(toHTMLFragment(children).childNodes)
+}
 
 /**
  * Creates and returns a DocumentFragment for `children`
@@ -647,28 +648,16 @@ export function toHTMLFragment(children) {
 /**
  * Creates a context and returns a function to get or set the value
  *
- * @param {any} [defaultValue] - Default value for the context
- * @returns {Function & { Provider: ({ value }) => Children }}
- *   Context
+ * @template T
+ * @param {T} [defaultValue] - Default value for the context
  * @url https://pota.quack.uy/Reactivity/Context
  */
 /* #__NO_SIDE_EFFECTS__ */ export function context(
 	defaultValue = undefined,
 ) {
-	/** @type {Function & { Provider: ({ value }) => Children }} */
 	const ctx = Context(defaultValue)
-
-	/**
-	 * Sets the `value` for the context
-	 *
-	 * @param {object} props
-	 * @param {any} props.value
-	 * @param {Children} [props.children]
-	 * @returns {Children} Children
-	 * @url https://pota.quack.uy/Reactivity/Context
-	 */
-	ctx.Provider = props =>
-		ctx(props.value, () => toHTML(props.children))
+	// @ts-ignore
+	ctx.toHTML = toHTML
 
 	return ctx
 }
