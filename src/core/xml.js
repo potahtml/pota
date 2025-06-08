@@ -21,9 +21,10 @@ import {
 	For,
 	Head,
 	Match,
+	Navigate,
 	Portal,
 	Range,
-	Router,
+	Route,
 	Show,
 	Switch,
 } from '../components/@main.js'
@@ -35,9 +36,10 @@ const defaultRegistry = {
 	For,
 	Head,
 	Match,
+	Navigate,
 	Portal,
 	Range,
-	Router,
+	Route,
 	Show,
 	Switch,
 }

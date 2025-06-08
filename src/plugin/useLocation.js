@@ -1,95 +1,87 @@
 import { memo, signal } from '../lib/reactive.js'
+import { mutable, replace } from '../lib/store.js'
 import {
 	document,
 	empty,
 	entries,
+	freeze,
+	fromEntries,
 	history,
 	nothing,
 	optional,
-	origin,
 	preventDefault,
-	walkParents,
 	location as wLocation,
 } from '../lib/std.js'
 
 import { scrollToSelectorWithFallback } from './useScroll.js'
-
 import {
 	decodeURIComponent,
+	isAbsolute,
 	isExternal,
+	removeNestedProtocol,
 	replaceParams,
 } from './useURL.js'
-
-import { Context } from '../components/router/context.js'
 import { useTimeout } from './useTimeout.js'
+
+import { RouteContext } from '../components/route/context.js'
 
 // window.location signal
 
-const [getLocation, setLocation] = signal(wLocation, {
-	equals: false,
-})
+const [getLocation, setLocation] = signal(wLocation.href)
 
 // only trigger on what changed
-
-const protocol = wLocation.protocol
-const protocolIsBlob = protocol === 'blob:' // for playgrounds
-const protocolIsFile = protocol === 'file:' // for electron
-
-const pathname = memo(() =>
-	protocolIsFile ? '' : getLocation().pathname,
+const locationObject = memo(
+	() => new URL(removeNestedProtocol(getLocation())),
 )
-const search = memo(() => getLocation().search)
-const href = memo(() => getLocation().href)
-
+const href = memo(() => locationObject().href)
+const pathname = memo(() => locationObject().pathname)
 // http://location/# reports hash to be empty
 // http://location/ reports hash to be empty
-// handle this difference by checking if "#" is at the end of `href`
-const hash = memo(() => getLocation().hash || '#')
+const hash = memo(() => locationObject().hash || '#')
+const path = memo(() => pathname() + hash())
+const search = memo(() => locationObject().search)
 
-/**
- * @typedef {object} location
- * @property {SignalAccessor<string>} href - The full url
- * @property {SignalAccessor<string>} pathname - Mirror of
- *   window.location.pathname
- * @property {SignalAccessor<string>} hash - Everything after #
- * @property {SignalAccessor<string>} path - Pathname + hash
- * @property {SignalAccessor<string>} query - Key value pairs with
- *   search params
- * @property {Function} params - Key value pairs with route params
- */
+const searchParams = mutable({})
+const searchParamsMemo = memo(() => {
+	const entries = fromEntries(locationObject().searchParams.entries())
 
-/** @type location */
-export const location = {
+	replace(searchParams, entries)
+
+	return entries
+})
+searchParamsMemo()
+
+const params = mutable({})
+const paramsMemo = memo(() => {
+	const values = empty()
+
+	RouteContext.walk(context => {
+		for (const [key, value] of entries(context.params()())) {
+			values[key] =
+				value !== undefined ? decodeURIComponent(value) : value
+		}
+	})
+
+	replace(params, values)
+
+	return values
+})
+paramsMemo()
+
+export const location = freeze({
+	protocol: locationObject().protocol,
+	origin: locationObject().origin,
+	//
 	href,
 	pathname,
+	path,
 	hash,
-	path: memo(() => pathname() + hash()),
-	query: memo(() => {
-		const value = search()
-		const searchParams = empty()
-		const params = new URL(origin + '/' + value).searchParams
-		for (const [key, value] of params.entries()) {
-			searchParams[key] = value
-		}
-		return searchParams
-	}),
-	params: () => {
-		const routes = []
-		walkParents(Context(), 'parent', context => {
-			routes.push(context.params)
-		})
-		const params = empty()
-
-		for (const param of routes) {
-			// `|| params` because when nothing is found the result is undefined
-			for (const [key, value] of entries(param()() || nothing)) {
-				params[key] =
-					value !== undefined ? decodeURIComponent(value) : value
-			}
-		}
-		return params
-	},
-}
+	search,
+	searchParams,
+	// searchParamsMemo,
+	params,
+	// paramsMemo,
+})
 
 let BeforeLeave = []
 
@@ -97,16 +89,16 @@ let BeforeLeave = []
  * Run code before leaving the route, return or resolve to false to
  * reject, return true to continue
  *
- * @param {Function | Promise<unknown>} callback - Run before leaving
- *   the route
- * @url https://pota.quack.uy/Components/Router/useBeforeLeave
+ * @param {Function | Promise<unknown>} cb - Run before leaving the
+ *   route
+ * @url https://pota.quack.uy/Components/Route/useBeforeLeave
  */
-export const useBeforeLeave = callback => {
+export const useBeforeLeave = cb => {
 	addListeners()
 
 	BeforeLeave.push({
-		href: Context().href() || wLocation.href,
-		callback,
+		href: RouteContext().href() || wLocation.href,
+		cb,
 	})
 }
 
@@ -120,8 +112,9 @@ async function canNavigate(href) {
 	const newBeforeLeave = []
 	for (const beforeLeave of BeforeLeave) {
 		if (href.indexOf(beforeLeave.href) !== 0) {
-			if (!(await beforeLeave.callback().catch(() => false)))
+			if (!(await beforeLeave.cb().catch(() => false))) {
 				return false
+			}
 		} else {
 			newBeforeLeave.push(beforeLeave)
 		}
@@ -134,29 +127,34 @@ async function canNavigate(href) {
  * Navigates to a new location
  *
  * @param {string} href
- * @param {{ scroll?: boolean; replace?: boolean }} options
- * @url https://pota.quack.uy/Components/Router/Navigate
+ * @param {{
+ * 	scroll?: boolean
+ * 	replace?: boolean
+ * }} options
+ * @url https://pota.quack.uy/Components/Route/Navigate
  */
 async function navigate(href, options = nothing) {
 	if (wLocation.href !== href) {
 		if (await canNavigate(href)) {
 			const fn = () => navigateInternal(href, options)
+			const transition =
+				document.startViewTransition &&
+				document.startViewTransition.bind(document)
 			// navigate with transition if available
-			document.startViewTransition &&
+			transition &&
 			wLocation.href.replace(/#.*/, '') !== href.replace(/#.*/, '')
-				? document.startViewTransition(fn)
+				? transition(fn)
 				: fn()
 		}
 	}
 }
 
 function navigateInternal(href, options) {
-	if (options.replace) {
-		history.replaceState(null, '', href)
-	} else {
-		history.pushState(null, '', href)
-	}
-	setLocation(wLocation)
+	options.replace
+		? history.replaceState(null, '', href)
+		: history.pushState(null, '', href)
+
+	setLocation(wLocation.href)
 
 	if (optional(options.scroll)) {
 		scrollToSelectorWithFallback(wLocation.hash)
@@ -173,7 +171,7 @@ function navigateInternal(href, options) {
  * 	replace?: boolean
  * 	delay?: number
  * }} options
- * @url https://pota.quack.uy/Components/Router/Navigate
+ * @url https://pota.quack.uy/Components/Route/Navigate
  */
 function navigateUser(href, options = nothing) {
 	addListeners()
@@ -184,34 +182,13 @@ function navigateUser(href, options = nothing) {
 	 * When the user provides the url, it may pass a relative path, this
 	 * makes it absolute
 	 */
-	href = href.startsWith('http')
-		? href
-		: new URL(href, wLocation.href).href
+	href = isAbsolute(href) ? href : new URL(href, wLocation.href).href
 
 	const nav = () => navigate(href, options)
 
 	options.delay ? useTimeout(nav, options.delay).start() : nav()
 }
 export { navigateUser as navigate }
-
-/**
- * Navigates to a new location from JSX
- *
- * @param {{
- * 	href: string
- * 	scroll?: boolean
- * 	replace?: boolean
- * 	params?: object
- * 	delay?: number
- * 	children?: Children
- * }} props
- * @url https://pota.quack.uy/Components/Router/Navigate
- */
-export function Navigate(props) {
-	addListeners()
-	navigateUser(props.href, props)
-	return props.children
-}
 
 // listeners
 
@@ -240,7 +217,7 @@ async function onLocationChange() {
 	document.title = title
 
 	if (await canNavigate(wLocation.href)) {
-		setLocation(wLocation)
+		setLocation(wLocation.href)
 	} else {
 		history.pushState(null, '', location.href())
 	}
@@ -264,14 +241,11 @@ function onLinkClick(e) {
 
 	// validate
 	if (
-		!node ||
-		!node.href ||
+		!node?.href ||
 		node.download ||
 		node.target ||
-		// !node.href.startsWith('http') || // when using a different protocol
-		(!protocolIsBlob && protocol !== node.protocol) ||
 		isExternal(node.href) ||
-		(node.rel && node.rel.split(/\s/).includes('external'))
+		node.rel.includes('external')
 	) {
 		return
 	}
@@ -279,6 +253,6 @@ function onLinkClick(e) {
 	preventDefault(e)
 
 	navigate(node.href, {
-		replace: node.replace,
+		replace: node.hasAttribute('replace'),
 	})
 }

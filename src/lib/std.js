@@ -64,9 +64,9 @@ export const PrototypeArray = Array.prototype
 export const PrototypeMap = Map.prototype
 
 export const history = global.history
-export const location = global.location
 export const navigator = global.navigator
 
+export const location = global.location
 export const origin = location?.origin
 
 export const promise = fn => new Promise(fn)
@@ -224,7 +224,7 @@ export const emptyArray = freeze([])
 /**
  * An empty frozen object
  *
- * @type object
+ * @type {Record<string, unknown>}
  */
 export const nothing = freeze(empty())
 
@@ -574,7 +574,7 @@ export const noop = () => {}
 // additionally the value is resolved, for cases like `when={() => show() && optional(props.when)}`
 
 /**
- * Returns `true` when value is true or undefined
+ * Returns `true` when value is `true` or `undefined`
  *
  * @param {unknown} value
  * @returns {boolean} True when value is true or undefined
@@ -682,6 +682,7 @@ export function walkParents(context, propertyName, cb) {
 		if (cb(context)) return true
 		context = context[propertyName]
 	}
+	return false
 }
 
 class DataStore {

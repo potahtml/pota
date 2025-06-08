@@ -86,7 +86,7 @@ export function buildComponent(path, state) {
 				break
 			}
 			default: {
-				// "undefined" = Router.Default
+				// "undefined" = Route.Default
 				// "hoisted" = fn Comp(){ return <DefinedAfter/>} fn DefinedAfter { .. }
 				scope.push({
 					id: identifier,
