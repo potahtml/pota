@@ -363,11 +363,7 @@ export function createReactiveSystem() {
 				Listener = prevListener
 			}
 			if (this.updatedAt <= time) {
-				if (this.updatedAt !== 0) {
-					this.write(nextValue)
-				} else {
-					this.value = nextValue
-				}
+				this.write(nextValue)
 				this.updatedAt = time
 			}
 		}
