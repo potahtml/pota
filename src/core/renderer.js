@@ -71,13 +71,13 @@ export const Fragment = props => props.children
  * reactivity tree (think of nested effects that clear inner effects,
  * context, etc).
  *
+ * @template T
  * @param {string | Function | Element | object | symbol} value -
  *   Component
- * @param {Props} [props] Object
+ * @param {Props<T>} [props] - Props object
  * @returns {Children}
  * @url https://pota.quack.uy/Component
  */
-
 export function Component(value, props) {
 	if (value === Fragment) {
 		return props.children
@@ -104,10 +104,10 @@ export function Component(value, props) {
  * Creates a component that could be called with a props object
  *
  * @template T
- * @param {any} value
- * @returns {Component}
+ * @param {string | Function | Element | object | symbol} value -
+ *   Component value
+ * @returns {(props?: Props<T>) => Children}
  */
-
 function Factory(value) {
 	if (isComponent(value)) {
 		return value
@@ -199,6 +199,12 @@ function createTag(tagName, props) {
 	)
 }
 
+/**
+ * @param {string} [xmlns]
+ * @param {(xmlns: string) => Element} fn
+ * @param {string} tagName
+ * @returns {Element}
+ */
 function withXMLNS(xmlns, fn, tagName) {
 	const nsContext = useXMLNS()
 
@@ -245,12 +251,14 @@ function parseXML(content, xmlns) {
 }
 
 /**
+ * @template T
  * @param {string} content
  * @param {{
  * 	x?: string
  * 	i?: boolean
  * 	m?: number
- * }} propsData
+ * }} [propsData]
+ * @returns {(props: T) => Children}
  */
 export function createPartial(content, propsData = nothing) {
 	let clone = () => {
@@ -268,6 +276,17 @@ export function createPartial(content, propsData = nothing) {
 		markComponent(() => assignPartialProps(clone(), props, propsData))
 }
 
+/**
+ * @template T
+ * @param {Element} node
+ * @param {T[]} [props]
+ * @param {{
+ * 	x?: string
+ * 	i?: boolean
+ * 	m?: number
+ * } & Record<number, unknown>} propsData
+ * @returns {Element | Element[]}
+ */
 function assignPartialProps(node, props, propsData) {
 	if (props) {
 		const nodes = walkElements(node, propsData.m)
@@ -287,10 +306,10 @@ function assignPartialProps(node, props, propsData) {
 /**
  * Assigns props to an element and creates its children
  *
- * @template P
- * @param {Element} node
- * @param {P} props
- * @returns {Element} Element
+ * @template T
+ * @param {Element} node - Element to assign props to
+ * @param {Props<T>} props - Props to assign
+ * @returns {Element} The element with props assigned
  */
 function createNode(node, props) {
 	props && assignProps(node, props)
@@ -301,10 +320,11 @@ function createNode(node, props) {
 /**
  * Creates the children for a parent
  *
- * @param {Element} parent
+ * @param {Element | DocumentFragment} parent
  * @param {Children} child
  * @param {boolean} [relative]
  * @param {Text | undefined} [prev]
+ * @returns {Children}
  */
 function createChildren(
 	parent,
@@ -506,9 +526,9 @@ propsPlugin(
 /**
  * Creates placeholder to keep nodes in position
  *
- * @param {Element} parent
+ * @param {Element | DocumentFragment} parent
  * @param {boolean} [relative]
- * @returns {Element}
+ * @returns {Element} The placeholder element
  */
 const createPlaceholder = (parent, relative) =>
 	insertNode(parent, createTextNode(''), relative)
@@ -518,12 +538,11 @@ const head = document.head
 /**
  * Adds the element to the document
  *
- * @param {Element} parent
+ * @param {Element | DocumentFragment} parent
  * @param {Element} node
  * @param {boolean} [relative]
- * @returns {Element}
+ * @returns {Element} The inserted node
  */
-
 function insertNode(parent, node, relative) {
 	// special case `head`
 	if (parent === head) {
@@ -588,10 +607,11 @@ export function render(children, parent, options = nothing) {
 
 /**
  * @param {any} children - Thing to render
- * @param {Element} [parent] - Mount point, defaults to
+ * @param {Element | null} [parent] - Mount point, defaults to
  *   `document.body`
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
+ * @returns {Element} The inserted element
  */
 export function insert(
 	children,
@@ -663,9 +683,13 @@ export function toHTMLFragment(children) {
 /**
  * Removes from the DOM `prev` elements not found in `next`
  *
- * @param {Element[]} prev - Array with previous elements
- * @param {Element[]} next - Array with next elements
- * @returns {Element[]}
+ * @param {Element[]} [prev=[]] - Array with previous elements.
+ *   Default is `[]`
+ * @param {Element[]} [next=[]] - Array with next elements. Default is
+ *   `[]`
+ * @param {boolean} [short=false] - Whether to use fast clear. Default
+ *   is `false`
+ * @returns {Element[]} The next array of elements
  */
 function toDiff(prev = [], next = [], short = false) {
 	// if theres something to remove

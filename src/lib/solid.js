@@ -36,7 +36,7 @@ export function createReactiveSystem() {
 	/** @type {Computation} */
 	let Owner
 
-	/** @type {Computation} */
+	/** @type {Computation | undefined} */
 	let Listener
 
 	/** @type {Memo[]} */
@@ -846,7 +846,7 @@ export function createReactiveSystem() {
 	 *
 	 * @template T
 	 * @param {(...args: unknown[]) => T} cb
-	 * @returns {() => T}
+	 * @returns {() => T | void}
 	 */
 	const owned = cb => {
 		const o = Owner
@@ -875,11 +875,12 @@ export function createReactiveSystem() {
 
 /**
  * Marks a function as reactive. Reactive functions are ran inside
- * effects.
+ * effects. This is used internally by the reactive system to track
+ * which functions should be treated as reactive computations.
  *
- * @template T
+ * @template {Function} T
  * @param {T} fn - Function to mark as reactive
- * @returns {T}
+ * @returns {T} The same function with the reactive marker
  */
 export function markReactive(fn) {
 	fn[$isReactive] = undefined

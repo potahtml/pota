@@ -12,14 +12,16 @@ import { isAbsolute } from '../../plugin/useURL.js'
  */
 export function create(props) {
 	/** @type SignalObject<RouteContextValue[]> */
-	const [children, _, updateChildren] = signal([])
+	const [children, _, updateChildren] = signal(
+		/** @type {RouteContextValue[]} */ ([]),
+	)
 
 	return {
 		// the composed base route
 		base: undefined,
 		href: () => '', // the url of the route
 		parent: undefined, // parent context
-		show: undefined, // if the route is shown
+		show: () => undefined, // if the route is shown
 		params: () => () => nothing, // params of the route
 		scroll: undefined, // elements to scroll
 		// the children routes

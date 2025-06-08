@@ -10,7 +10,10 @@
 
 		"allowJs": true,
 		"checkJs": true,
-		"strict": false,
+		"strict": true,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"skipLibCheck": true,
 
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",

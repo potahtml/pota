@@ -78,7 +78,7 @@ export function Route(props) {
 		// console.log(path, route)
 
 		if (route.test(path)) {
-			setParams(() => route.exec(path).groups || nothing)
+			setParams(() => route.exec(path)?.groups || nothing)
 
 			if (href === '') {
 				href =

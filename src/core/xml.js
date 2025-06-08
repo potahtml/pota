@@ -29,6 +29,7 @@ import {
 	Switch,
 } from '../components/@main.js'
 
+/** @type {Record<string, Component>} */
 const defaultRegistry = {
 	A,
 	Collapse,
@@ -53,7 +54,7 @@ const splitId = /(rosa19611227)/
  * Makes Nodes from TemplateStringsArray
  *
  * @param {TemplateStringsArray} content
- * @returns {Element}
+ * @returns {Element[]}
  */
 const parseXML = withWeakCache(content => {
 	const html = new DOMParser().parseFromString(
@@ -81,6 +82,10 @@ const parseXML = withWeakCache(content => {
  */
 function toH(xml, cached, values) {
 	let index = 0
+	/**
+	 * @param {ChildNode} node
+	 * @returns {Children}
+	 */
 	function nodes(node) {
 		const { nodeType } = node
 		if (nodeType === 1) {
@@ -88,6 +93,7 @@ function toH(xml, cached, values) {
 			const { tagName, attributes, childNodes } = node
 
 			// gather props
+			/** @type {Record<string, unknown>} */
 			const props = empty()
 			for (let { name, value } of attributes) {
 				if (value === id) {
@@ -149,7 +155,7 @@ export function XML() {
 	 * Creates tagged template components
 	 *
 	 * @param {TemplateStringsArray} template
-	 * @param {...Children} values
+	 * @param {...unknown} values
 	 * @url https://pota.quack.uy/XML
 	 */
 	function xml(template, ...values) {
@@ -157,6 +163,9 @@ export function XML() {
 	}
 
 	xml.components = { ...defaultRegistry }
+	/**
+	 * @param {Record<string, Component>} userComponents
+	 */
 	xml.define = userComponents => {
 		for (const name in userComponents) {
 			xml.components[name] = userComponents[name]

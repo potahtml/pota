@@ -80,6 +80,12 @@ export const propsPluginBoth = (propName, fn, onMicrotask) => {
 	propsPluginNS(propName, fn, onMicrotask)
 }
 
+/**
+ * @param {Map<string, Function>} plugins
+ * @param {string} name
+ * @param {Function} fn
+ * @param {boolean} [onMicrotask=true]
+ */
 const plugin = (plugins, name, fn, onMicrotask = true) => {
 	plugins.set(
 		name,

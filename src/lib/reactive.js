@@ -122,8 +122,9 @@ export const ref = () => signalFunction()
  * Runs a function inside an effect if value is a function.
  * Aditionally unwraps promises.
  *
- * @param {unknown | Promise<unknown>} value
- * @param {(value) => unknown} fn
+ * @template T
+ * @param {(() => T) | Promise<T> | T} value
+ * @param {(value: T) => unknown} fn
  */
 export function withValue(value, fn) {
 	if (isFunction(value)) {
@@ -210,7 +211,7 @@ export function asyncEffect(fn) {
  *   returns a promise
  * @param {{
  * 	onLoading?: any
- * 	onLoad?: Function
+ * 	onLoad?: () => unknown
  * 	onError?: ((e: Error, retry: Function) => any) | any
  * }} [options]
  *
@@ -485,7 +486,9 @@ export function map(list, callback, sort, fallback) {
 /**
  * Resolves and returns `children` in a memo
  *
- * @param {Component | Children} fn
+ * @template T
+ * @param {(() => T) | T} fn
+ * @returns {SignalAccessor<T>}
  * @url https://pota.quack.uy/resolve
  */
 export function resolve(fn) {
@@ -496,7 +499,7 @@ export function resolve(fn) {
 /**
  * Recursively unwrap children functions
  *
- * @param {Component} children
+ * @param {Children} children
  */
 function unwrap(children) {
 	if (isFunction(children)) {

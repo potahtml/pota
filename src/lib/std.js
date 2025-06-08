@@ -42,36 +42,50 @@ export const toArray = Array.from
 export const toValues = value =>
 	isArray(value)
 		? value
-		: 'values' in value
-			? value.values()
-			: toArray(value)
+		: isObject(value) && 'values' in value
+			? /** @type {{ values(): IterableIterator<T> }} */ (
+					value
+				).values()
+			: toArray(/** @type {Iterable<T> | ArrayLike<T>} */ (value))
 
 /**
  * @template T
  * @param {T} value
  */
 export const toEntries = value =>
-	'entries' in value ? value.entries() : toArray(value)
+	isObject(value) && 'entries' in value
+		? /** @type {{ entries(): IterableIterator<[string, T]> }} */ (
+				value
+			).entries()
+		: toArray(/** @type {Iterable<T> | ArrayLike<T>} */ (value))
 
 export const isNaN = Number.isNaN
 
 export const iterator = Symbol.iterator
 
 export const stringify = JSON.stringify
+
+/** @param {unknown} o */
 export const stringifyReadable = o => stringify(o, null, 2)
 
+/** @param {unknown} o */
 export const stringifySorted = o => {
 	function sort(o) {
 		if (!isObject(o)) {
 			return o
 		}
-		const tmp = isArray(o) ? [] : {}
+
+		const asArray = isArray(o)
+		/** @type {unknown[] | { [key: string]: unknown }} */
+		const tmp = asArray ? [] : {}
 		keys(o)
 			.sort()
 			.map(k => (tmp[k] = sort(o[k])))
 
-		if (isArray(tmp)) {
-			tmp.sort((a, b) => stringify(a).localeCompare(stringify(b)))
+		if (asArray) {
+			/** @type {unknown[]} */ tmp.sort((a, b) =>
+				stringify(a).localeCompare(stringify(b)),
+			)
 		}
 		return tmp
 	}
@@ -87,6 +101,12 @@ export const navigator = global.navigator
 export const location = global.location
 export const origin = location?.origin
 
+/**
+ * @param {(
+ * 	resolve: (value: unknown) => void,
+ * 	reject: (reason?: any) => void,
+ * ) => void} fn
+ */
 export const promise = fn => new Promise(fn)
 
 export const withResolvers = () => Promise.withResolvers()
@@ -135,6 +155,12 @@ export const call = fns => {
 	for (const fn of fns) fn()
 }
 
+/**
+ * @template T
+ * @param {T} o
+ * @param {Map<T, T>} [seen]
+ * @returns {T}
+ */
 export function copy(o, seen = new Map()) {
 	if (!isObject(o)) {
 		return o
@@ -154,10 +180,12 @@ export function copy(o, seen = new Map()) {
 	}
 
 	if (seen.has(o)) {
-		return seen.get(o)
+		return /** @type {T} */ (seen.get(o))
 	}
 
-	const c = isArray(o) ? [] : {}
+	const c = isArray(o)
+		? []
+		: /** @type {{ [key: string]: unknown }} */ ({})
 
 	seen.set(o, c)
 
@@ -489,7 +517,7 @@ export const isConfigurable = (target, key, value) => {
  * Returns `true` when `typeof` of `value` is `function`
  *
  * @param {unknown} value
- * @returns {boolean}
+ * @returns {value is Function}
  */
 export const isFunction = value => typeof value === 'function'
 

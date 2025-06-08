@@ -100,6 +100,7 @@ export namespace JSX {
 		| object // such CSSStyleSheet
 		// dom
 		| globalThis.Element
+		| DocumentFragment
 		// recurse
 		| (() => Element)
 		| Promise<Element>
