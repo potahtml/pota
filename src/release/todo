@@ -6,18 +6,16 @@ CONSIDER ALWAYS
 
 some day
 
-	use:css
-
 	documentation
 	- PRIORITY - online tests, a page full of tests
 	- PRIORITY - the attributes page is out of date
-	- PRIORITY - restore publishing
+	- PRIORITY - the documentation is out of date, restore publishing
 	- improve it
 	- light theme
 	- add proper 404
+	- playground save state to localStorage
 
 	typescript
-	- css typings
 	- there are 936 errors
 
 	tools
@@ -25,8 +23,6 @@ some day
 	- mdx
 
 	renderer
-	- render generators instanceof GeneratorFunction;
-	- async functions instanceof AsyncFunction;
 
 	mutable
 	- PRIORITY - support a readonly
@@ -34,19 +30,15 @@ some day
 	- figure out a whitelist vs blacklist! use a whitelist
 	- support set, maybe weakmap and weakset
 	- defineProperty proxy trap
-	- maybe doesnt need to recurse on initialization
-	- consider allowing to catch Functions, so that way a memo can have properties and be a memo and a mutable at the same time
 
 	html
 	- maybe make a <WithDocument document={document}/> so stuff stops breaking with popups
 
 	plugins
-	- css plugin missbehaving
 
 	typescript
 	- type lib/solid.js
 	- type jsx: components, children, elements
-	- add props for input.indeterminate, video.srcObject,
 
 	reactivity
 	- PRIORITY - use internally runWithOwner more
