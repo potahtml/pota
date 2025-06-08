@@ -35,6 +35,28 @@ export const setPrototypeOf = Object.setPrototypeOf
 export const isArray = Array.isArray
 export const toArray = Array.from
 
+/**
+ * @template T
+ * @param {T} value
+ */
+export const toValues = value =>
+	isArray(value)
+		? value
+		: 'values' in value
+			? value.values()
+			: toArray(value)
+
+/**
+ * @template T
+ * @param {T} value
+ */
+export const toEntries = value =>
+	isArray(value)
+		? value
+		: 'entries' in value
+			? value.entries()
+			: toArray(value)
+
 export const isNaN = Number.isNaN
 
 export const iterator = Symbol.iterator
@@ -481,7 +503,7 @@ export const isFunction = value => typeof value === 'function'
  * @param {unknown} value
  * @returns {boolean}
  */
-export const isIterable = value => value?.[Symbol.iterator]
+export const isIterable = value => value?.[iterator]
 
 /**
  * Returns `true` if the value is `null` or `undefined`
@@ -685,8 +707,9 @@ export function walkParents(context, propertyName, cb) {
 	return false
 }
 
+/** @template T */
 class DataStore {
-	/** @param {WeakMap | Map} kind */
+	/** @param {T extends FunctionConstructor} kind */
 	constructor(kind) {
 		const store = new kind()
 

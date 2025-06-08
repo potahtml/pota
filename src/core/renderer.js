@@ -40,6 +40,7 @@ import {
 	toArray,
 	walkElements,
 	flatToArray,
+	toValues,
 } from '../lib/std.js'
 
 import { onFixes, ready } from './scheduler.js'
@@ -443,11 +444,6 @@ function createChildren(
 
 			// iterable/Map/Set/NodeList
 			if (iterator in child) {
-				return createChildren(
-					parent,
-					toArray(/** @type Iterator */ child.values()),
-					relative,
-				)
 				/**
 				 * For some reason this breaks with a node list in the
 				 * `Context` example of the `html` docs section.
@@ -456,6 +452,7 @@ function createChildren(
 				 *     	createChildren(parent, child, relative),
 				 *     )
 				 */
+				return createChildren(parent, toValues(child), relative)
 			}
 
 			// CSSStyleSheet

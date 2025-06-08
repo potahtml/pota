@@ -7,13 +7,11 @@ import {
 
 import {
 	emptyArray,
-	entries,
 	unwrapArray,
 	getValue,
 	groupBy,
 	isArray,
 	isFunction,
-	isIterable,
 	isObject,
 	isPromise,
 	keys,
@@ -22,6 +20,7 @@ import {
 	removeFromArray,
 	resolved,
 	withResolvers,
+	toEntries,
 } from './std.js'
 
 // solid
@@ -357,7 +356,7 @@ export function map(list, callback, sort, fallback) {
 		const value = getValue(list) || []
 
 		/** To allow iterate objects as if were an array with indexes */
-		const items = isIterable(value) ? value.entries() : entries(value)
+		const items = toEntries(value)
 
 		runId++
 		rows = []
