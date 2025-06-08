@@ -61,7 +61,8 @@
 		"build": "cd src/babel-preset && rollup -c",
 		"postinstall": "npm run build",
 		"prepublishOnly": "npm run types || echo 1",
-		"release": "node src/release/release.mjs"
+		"release": "node src/release/release.mjs",
+		"format": "prettier . -w --config=./package.json --no-editorconfig"
 	},
 	"dependencies": {
 		"@babel/plugin-syntax-jsx": "^7.25.9",
