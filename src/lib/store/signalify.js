@@ -104,7 +104,7 @@ function signalifyKey(
 	 * read.
 	 */
 
-	let value = wrapper(descriptor.value)
+	let value = descriptor.value
 
 	/**
 	 * Avoid functions when using `signalify` as it's meant to be used
