@@ -6,11 +6,12 @@ CONSIDER ALWAYS
 
 some day
 
+	use:css
+
 	documentation
 	- PRIORITY - online tests, a page full of tests
 	- PRIORITY - the attributes page is out of date
 	- PRIORITY - restore publishing
-
 	- improve it
 	- light theme
 	- add proper 404
@@ -23,40 +24,41 @@ some day
 	- rethink the dev tools
 	- mdx
 
+	renderer
+	- render generators instanceof GeneratorFunction;
+	- async functions instanceof AsyncFunction;
+
 	mutable
 	- PRIORITY - support a readonly
-
 	- improve the tracker
 	- figure out a whitelist vs blacklist! use a whitelist
 	- support set, maybe weakmap and weakset
 	- defineProperty proxy trap
 	- maybe doesnt need to recurse on initialization
+	- consider allowing to catch Functions, so that way a memo can have properties and be a memo and a mutable at the same time
 
 	html
 	- maybe make a <WithDocument document={document}/> so stuff stops breaking with popups
 
 	plugins
 	- css plugin missbehaving
-	- bind contenteditable doesnt keep selection
 
 	typescript
 	- type lib/solid.js
-	- type bind
+	- type jsx: components, children, elements
+	- add props for input.indeterminate, video.srcObject,
 
 	reactivity
 	- PRIORITY - use internally runWithOwner more
 	- PRIORITY - try to remove `options` object from root/memo/effects
-
 	- recheck use of untrack / add forbidden signal read
 	- figure out if possible to prevent writing to signals inside effects
 	- derived/light signals (make signals easier to use)
 	- diff array for when value comes and doesnt come from server
 	- simplify the classes
 	- maybe at compile time wrap in owned anything bellow a `await`, do similar to promises?
-	- when `owner` is exported, it should be a reference to the real owner, instead of being the real owner.
 	- figure out if other things should be wrapped in `createReactiveSystem`
 	- figure out if top level runs the same as when owned, or make top level owned, even if doesnt garbage collects
-	- rename resolve to inspect
 
 	probably never
 	- animationFrame
@@ -80,8 +82,6 @@ some day
 	- web components WIP
 
 	components:
-	- PRIORITY - router make it work with blob: file: and pretty much anything else
-
 	- color picker
 	- tabs
 	- linkify

@@ -1,25 +1,32 @@
-v0.18.184
+# pota v0.18.184
 
 ## changes
 
 - default to attributes instead of properties. This aligns with the possible upcoming Solid 2.0. Fixes a lot of problems and makes the code smaller.
-- Finally understood a bunch of stuff and tunned the typescript setup. Typings are still work in progress.
+- Finally understood a bunch of stuff and tunned the typescript setup. Typings are still work in progress, and some are wrong, at least the base is there.
 - the playground switched to monaco, accepts typescript and defaults to TSX, providing pota typings!
-- exports a `createReactiveSystem`, will use in dev-tools to hide dev-tools from reports.
+- exports a `createReactiveSystem`, will use in dev-tools to hide dev-tools from report/inspect panels.
 - new `<Range start={0} stop={10} step={2}/>` component! by @boredofnames Thanks!
-- Trying to setup releases, not sure if will work. Mostly to comment breaking changes, as api shape is being researched.
+- Trying to setup releases, not sure if will work. Mostly to comment breaking changes, as api shape is being researched and will most likely change
+- everything is now namespaced, so theres no colisions between attibutes/properties/events/lifecycles/plugins
 - minor bug fixes and improvements
-- restructured the project
-- add `cancelCleanup`
+- restructured the whole project
+- add `cleanupCancel`
 
 ## breaking changes
 
-- renamed `onMount` to `connected` as `<div connected={e=>{}}/>`
-- renamed `onUnmount` to `disconnected` as  `<div disconnected={e=>{}}/>`
+- renamed `onMount` to `use:connected` as `<div use:connected={e=>{}}/>`
+- renamed `onUnmount` to `use:disconnected` as  `<div use:disconnected={e=>{}}/>`
+- renamed `ref` to `use:ref`
+- renamed `css` to `use:css`
 - renamed `pota/web` to `pota/components`
 - renamed `pota/html` to `pota/xml` ->
 - renamed `html` to `xml` because prettier breaks the case of components names and props
+- renamed `onLoaded` in async functions to `onLoad`
 - defaults to attributes instead of properties
 - - use `prop:innerHTML` instead of `innerHTML`
 - - use `prop:textContent` instead of `textContent`
-- - use `<textarea>{value}</textarea>` instead of `<textarea value="${value}"/>` (textareas dont have an attribute named value)
+- - use `<textarea>{value}</textarea>` instead of `<textarea value="${value}"/>` (textareas don't have an attribute named value)
+- renamed `Router` to `Route`
+- renamed `location.query` to `location.searchParams`
+- moved `useLocation.Navigate` to `pota/components`
