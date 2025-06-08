@@ -21,30 +21,17 @@
 
 import * as csstype from 'csstype'
 
-/* CORE */
+// CSS
 
-interface PotaAttributes<Element> {
-	children?: JSX.Element
-
-	// lifecycles
-	ref?: Accessor<Element>
-	connected?: Accessor<Element>
-	disconnected?: Accessor<Element>
-
-	bind?: Accessor<Element>
+interface CSSProperties extends csstype.PropertiesHyphen {
+	[key: `-${string}`]: number | string | undefined
 }
-
-/* CSS */
 
 type NSStyle = {
 	[Key in Exclude<
 		keyof csstype.PropertiesHyphen,
 		`-${string}`
 	> as `style:${Key}`]?: csstype.PropertiesHyphen[Key]
-}
-
-interface CSSProperties extends csstype.PropertiesHyphen {
-	[key: `-${string}`]: number | string | undefined
 }
 
 interface CSSAttributes extends NSStyle {
@@ -59,7 +46,7 @@ interface CSSAttributes extends NSStyle {
 	[attr: `var:${string}`]: Accessor<string> // TODO
 }
 
-/* EVENTS */
+// EVENTS
 
 type Events<Event, Element> =
 	| ((e: Event & { currentTarget: Element }) => void)
@@ -67,20 +54,8 @@ type Events<Event, Element> =
 			handleEvent: (e: Event & { currentTarget: Element }) => void
 	  } & AddEventListenerOptions)
 
-/* EVENTS */
-
-type BooleanAttribute = boolean | ''
-
-type EnumeratedPseudoBoolean = 'false' | 'true'
-
 /** Pota namespace JSX */
 export namespace JSX {
-	type DOMElement =
-		| HTMLElement
-		| SVGElement
-		| MathMLElement
-		| globalThis.Element
-
 	// JSX.ElementAttributesProperty - name of the `props` argument
 
 	interface ElementAttributesProperty {
@@ -92,6 +67,12 @@ export namespace JSX {
 	interface ElementChildrenAttribute {
 		children
 	}
+
+	/*
+		JSX.IntrinsicClassAttributes // class attributes
+		JSX.IntrinsicElements // tags
+		JSX.IntrinsicAttributes // leaks to class and functional components
+	*/
 
 	// JSX.ElementType - shape of a `component`
 
@@ -121,14 +102,37 @@ export namespace JSX {
 		| void
 		// fancy
 		| object // such CSSStyleSheet
-		// html
+		// dom
 		| globalThis.Element
 		// recurse
 		| (() => Element)
 		| Promise<Element>
 		| Element[]
 
-	/* Interfaces */
+	// TYPES
+
+	type BooleanAttribute = boolean | ''
+
+	type EnumeratedPseudoBoolean = 'false' | 'true'
+
+	type DOMElement =
+		| HTMLElement
+		| SVGElement
+		| MathMLElement
+		| globalThis.Element
+
+	// CORE
+
+	interface PotaAttributes<Element> {
+		children?: JSX.Element
+
+		// lifecycles
+		'use:ref'?: Callback<Element>
+		'use:connected'?: Callback<Element>
+		'use:disconnected'?: Callback<Element>
+
+		'use:bind'?: Accessor<Element>
+	}
 
 	// all elements
 
@@ -140,6 +144,8 @@ export namespace JSX {
 			SVGElements,
 			HTMLElements {}
 
+	interface Elements extends IntrinsicElements {}
+
 	/* Namespaced */
 
 	/**
@@ -150,12 +156,6 @@ export namespace JSX {
 	 * ```
 	 */
 	interface NSAttributes<Element> {}
-
-	/*
-		JSX.IntrinsicClassAttributes // class attributes
-		JSX.IntrinsicElements // tags
-		JSX.IntrinsicAttributes // leaks to class and functional components
-	*/
 
 	/* Attributes */
 
@@ -170,8 +170,8 @@ export namespace JSX {
 		'prop:textContent'?: Accessor<number | string>
 
 		// xml
-		[attr: `xmlns:${string}`]: Accessor<string>
 		xmlns?: Accessor<string>
+		[attr: `xmlns:${string}`]: Accessor<string>
 
 		// attributes
 		autofocus?: Accessor<BooleanAttribute>

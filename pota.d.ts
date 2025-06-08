@@ -44,12 +44,13 @@ declare global {
   // props
 
   type When<T extends boolean> = Accessor<T>
-  type Each<T extends Iterable<T, T, T>> = Accessor<Iterable<T>>
+  type Each<T extends Iterable<T, T, T>> = Accessor<Iterable<T>> // TODO
 
   // components
 
   type Component = JSX.ElementType
   type Children = JSX.Element
+  type Elements = JSX.Elements
 
   // tests
 
@@ -61,6 +62,10 @@ declare global {
       toEqual: (expected: any) => Promise<any>
     }
   }
+
+  // stuff
+
+  type Callback<T> = (value: T) => unknown
 }
 
 export {
@@ -84,7 +89,7 @@ export {
   Component,
   Children,
 
-  // test
+  // tests
   Expect,
 }
 
