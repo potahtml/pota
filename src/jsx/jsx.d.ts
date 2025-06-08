@@ -15,7 +15,6 @@
  *
  * TODO
  *
- * - CSS typings could be improved
  * - SVG typings are non-existent
  */
 
@@ -31,19 +30,16 @@ type NSStyle = {
 	[Key in Exclude<
 		keyof csstype.PropertiesHyphen,
 		`-${string}`
-	> as `style:${Key}`]?: csstype.PropertiesHyphen[Key]
+	> as `style:${Key}`]?: Accessor<csstype.PropertiesHyphen[Key]>
 }
 
 interface CSSAttributes extends NSStyle {
 	class?: Accessor<string>
 	style?: Accessor<CSSProperties | string>
 
-	css?: Accessor<string | CSSStyleSheet> // TODO
+	'use:css'?: Accessor<string>
 
-	// css
-	[attr: `class:${string}`]: Accessor<any> // TODO
-	[attr: `style:${string}`]: Accessor<any> // TODO
-	[attr: `var:${string}`]: Accessor<string> // TODO
+	[attr: `class:${string}`]: Accessor<boolean>
 }
 
 // EVENTS
@@ -276,6 +272,11 @@ export namespace JSX {
 	/* SPECIAL INTERFACES */
 
 	interface HTMLMediaHTMLAttributes<Element> {
+		// properties
+
+		'prop:srcObject': MediaStream | MediaSource | Blob | File
+
+		// attributes
 		autoplay?: Accessor<BooleanAttribute>
 		controls?: Accessor<BooleanAttribute>
 		controlslist?: Accessor<
@@ -678,7 +679,7 @@ export namespace JSX {
 		width?: Accessor<number | string>
 
 		/** @experimental */
-		sharedstoragewritable?: Accessor<boolean>
+		sharedstoragewritable?: Accessor<BooleanAttribute>
 
 		/** @deprecated */
 		align?: Accessor<'top' | 'middle' | 'bottom' | 'left' | 'right'>
@@ -699,6 +700,10 @@ export namespace JSX {
 	}
 	interface HTMLInputElementAttributes<Element>
 		extends HTMLAttributes<Element> {
+		// properties
+		indeterminate?: Accessor<boolean>
+
+		// attributes
 		accept?: Accessor<string>
 		alt?: Accessor<string>
 		alpha?: Accessor<BooleanAttribute>

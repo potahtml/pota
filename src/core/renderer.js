@@ -567,7 +567,8 @@ function insertNode(parent, node, relative) {
  * Inserts children into a parent
  *
  * @param {any} children - Thing to render
- * @param {Element} [parent] - Mount point, defaults to document.body
+ * @param {Element | null} [parent] - Mount point, defaults to
+ *   document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  * @returns {() => void} Disposer

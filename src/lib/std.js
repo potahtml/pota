@@ -795,7 +795,7 @@ export const classListRemove = (node, className) =>
 	node.classList.remove(className)
 
 /**
- * - Returns `adoptedStyleSheets` for a document
+ * Returns `adoptedStyleSheets` for a document
  *
  * @param {Document | ShadowRoot} document
  */
