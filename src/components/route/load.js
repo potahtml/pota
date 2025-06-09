@@ -27,6 +27,10 @@ export function load(component, options = nothing) {
 	let tries = 0
 	return lazy(component, {
 		onLoading,
+		/**
+		 * @param {Error} e
+		 * @param {() => void} retry
+		 */
 		onError: (e, retry) =>
 			tries++ < 10
 				? useTimeout(retry, 5000).start() && undefined

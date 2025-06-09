@@ -420,9 +420,8 @@ export const walkElements = function (
  * @param {Element} node
  * @returns {Document | ShadowRoot}
  */
-
 export const getDocumentForElement = node => {
-	const document = node.getRootNode()
+	const document = /** @type {Document | ShadowRoot} */ (node.getRootNode())
 	const { nodeType } = document
 	// getRootNode returns:
 	// 1. Node for isConnected = false
@@ -459,20 +458,20 @@ export function getSetterNamesFromPrototype(object, set = new Set()) {
  * recursively and returns the value
  *
  * @template T
- * @param {Accessor<T>} value - Maybe function
+ * @param {(() => T) | T} value - Maybe function
  */
 export function getValue(value) {
-	while (typeof value === 'function') value = value()
+	while (typeof value === 'function') value = /** @type {() => T} */ (value)()
 	return value
 }
 
 /**
  * Unwraps `value` and returns `element` if result is a `Node`, else
  * `undefined` in the case isn't a `Node`
- *
- * @param {Function | any} value - Maybe function
- * @param {...any} args? - Arguments
- * @returns {Node | undefined}
+ * @template T
+ * @param {T} value - Maybe function
+ * @param {...unknown} args? - Arguments
+ * @returns {Node |  Element | T | undefined}
  */
 export function getValueElement(value, ...args) {
 	const element = getValueWithArguments(value, ...args)
@@ -607,9 +606,9 @@ export const isBoolean = value => typeof value === 'boolean'
  * Returns `true` when `value` may be a promise
  *
  * @param {unknown} value
- * @returns {boolean}
+ * @returns {value is Promise<any>}
  */
-export const isPromise = value => isFunction(value?.then)
+export const isPromise = value => isFunction(/** @type {any} */ (value)?.then)
 
 export const noop = () => {}
 

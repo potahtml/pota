@@ -253,6 +253,7 @@ export const lazy = (fn, options = nothing) =>
 
 export const Lazy = props => lazy(props.children, props)
 
+/** @param {() => unknown} fn */
 export const microtask = fn => queueMicrotask(owned(fn))
 
 // MAP
@@ -486,9 +487,9 @@ export function map(list, callback, sort, fallback) {
 /**
  * Resolves and returns `children` in a memo
  *
- * @template T
- * @param {(() => T) | T} fn
- * @returns {SignalAccessor<T>}
+ * @template {Children} T
+ * @param {() => T} fn
+ * @returns {SignalAccessor<Children>}
  * @url https://pota.quack.uy/resolve
  */
 export function resolve(fn) {
@@ -561,8 +562,9 @@ export function isComponentable(value) {
  * non-reactive children will run untracked, regular children will
  * just return.
  *
- * @param {Children} children
- * @returns {Function}
+ * @template {Children} T
+ * @param {T} children
+ * @returns {T}
  */
 export function makeCallback(children) {
 	/**
@@ -655,7 +657,9 @@ export function addEvent(node, type, handler) {
 	node.addEventListener(
 		type,
 		handler,
-		!isFunction(handler) && handler,
+		!isFunction(handler)
+			? /** @type {AddEventListenerOptions} */ (handler)
+			: undefined,
 	)
 
 	/**
@@ -692,7 +696,9 @@ export function removeEvent(node, type, handler) {
 	node.removeEventListener(
 		type,
 		handler,
-		!isFunction(handler) && handler,
+		!isFunction(handler)
+			? /** @type {AddEventListenerOptions} */ (handler)
+			: undefined,
 	)
 
 	return () => addEvent(node, type, handler)
@@ -701,6 +707,9 @@ export function removeEvent(node, type, handler) {
 /**
  * It gives a handler an owner, so stuff runs batched on it, and
  * things like context and cleanup work
+ *
+ * @template {EventListener | EventListenerObject} T
+ * @param {T} handler
  */
 export const ownedEvent = handler =>
 	'handleEvent' in handler

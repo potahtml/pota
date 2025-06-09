@@ -3,9 +3,7 @@ import { stringifySorted, withResolvers } from '../lib/std.js'
 import { diff } from './useString.js'
 
 /**
- * @type boolean
- *
- *   | undefined
+ * @type {boolean  | undefined}
  */
 let stop = undefined
 let num = 1
@@ -111,7 +109,7 @@ const proxies = new WeakSet()
 
 globalThis.Proxy = new Proxy(Proxy, {
 	construct(target, args) {
-		const proxy = new target(...args)
+		const proxy = Reflect.construct(target, args)
 		proxies.add(proxy)
 		return proxy
 	},

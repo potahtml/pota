@@ -58,7 +58,7 @@ const paramsMemo = memo(() => {
 	RouteContext.walk(context => {
 		for (const [key, value] of entries(context.params()())) {
 			values[key] =
-				value !== undefined ? decodeURIComponent(value) : value
+				value !== undefined ? decodeURIComponent(/** @type {string} */ (value)) : value
 		}
 	})
 

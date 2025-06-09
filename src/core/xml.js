@@ -90,10 +90,10 @@ function toH(xml, cached, values) {
 		const { nodeType } = node
 		if (nodeType === 1) {
 			// element
-			const { tagName, attributes, childNodes } = node
+			const { tagName, attributes, childNodes } = /** @type {Element} */ (node)
 
 			// gather props
-			/** @type {Record<string, unknown>} */
+			/** @type {Record<string, Accessor<unknown>>} */
 			const props = empty()
 			for (let { name, value } of attributes) {
 				if (value === id) {

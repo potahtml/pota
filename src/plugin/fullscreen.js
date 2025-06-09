@@ -13,7 +13,7 @@ import { toggleFullscreen } from './useFullscreen.js'
  */
 const fullscreen = (node, propName, propValue, props) =>
 	addEvent(node, 'click', e => {
-		toggleFullscreen(getValueElement(propValue, e, node))
+		toggleFullscreen(/** @type {Element} */ (getValueElement(propValue, e, node)))
 	})
 
 propsPlugin('plugin:fullscreen', fullscreen)

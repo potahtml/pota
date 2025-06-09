@@ -57,7 +57,7 @@ export function paginate(fetch, options) {
 
 	const totalPages = memo(() => {
 		const pages = Math.ceil(
-			getValue(options.numItems) / getValue(options.numPerPage),
+			/** @type {number} */ (getValue(options.numItems)) / /** @type {number} */ (getValue(options.numPerPage)),
 		)
 		if (page() > pages) pageSet(pages)
 		return pages

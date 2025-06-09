@@ -10,7 +10,7 @@ import { propsPlugin } from '../core/props/plugin.js'
  */
 const clickoutside = (node, propName, propValue, props) =>
 	addEvent(document, 'pointerdown', e => {
-		if (!node.contains(e.target)) {
+		if (!node.contains(/** @type {Element} */ (e.target))) {
 			propValue(e, node)
 		}
 	})

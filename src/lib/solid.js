@@ -845,7 +845,8 @@ export function createReactiveSystem() {
 	 * Returns an owned function
 	 *
 	 * @template T
-	 * @param {(...args: unknown[]) => T} cb
+	 * @template A
+	 * @param {(...args: A[]) => T} cb
 	 * @returns {() => T | void}
 	 */
 	const owned = cb => {

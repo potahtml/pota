@@ -5,7 +5,7 @@ import { global, isNaN, noop } from '../lib/std.js'
 export const eyeDropper = cb =>
 	!global.EyeDropper
 		? console.error('Your Browser Doesnt Support Picking Colors!')
-		: /** @type {typeof EyeDropper} */ new EyeDropper()
+		: /** @type {globalThis.EyeDropper} */ new global.EyeDropper()
 				.open()
 				.then(result => {
 					cb(result.sRGBHex)

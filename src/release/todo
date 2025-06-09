@@ -16,7 +16,7 @@ some day
 	- playground save state to localStorage
 
 	typescript
-	- there are 187 errors
+	- there are 189 non-strict errors / 632 strict errors
 
 	tools
 	- rethink the dev tools
