@@ -47,7 +47,7 @@ export function create(props) {
 		}),
 		resolve(href) {
 			// link is relative to the `<Route>`
-			const base = this.href()
+			const base = this.href() || location.href
 			return isAbsolute(href)
 				? href
 				: // making link dos/ relative to http://localhost:11433/#uno/
