@@ -25,5 +25,5 @@
 		"jsxImportSource": "pota"
 	},
 	"include": ["src", "pota.d.ts"],
-	"exclude": ["node_modules", "src/babel-preset"]
+	"exclude": ["node_modules", "src/babel-preset", "src/release"]
 }

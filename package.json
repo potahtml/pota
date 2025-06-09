@@ -57,12 +57,14 @@
 		"dev": "rimraf types/ && concurrently --kill-others \"npm:watch:*\"",
 		"watch:types": "tsc -w --preserveWatchOutput",
 		"watch:build": "cd src/babel-preset && rollup -c -w",
+		"watch:generate": "npm run generate",
 		"types": "tsc",
 		"build": "cd src/babel-preset && rollup -c",
 		"postinstall": "npm run build",
 		"prepublishOnly": "npm run types || echo 1",
 		"release": "node src/release/release.mjs",
-		"format": "prettier . -w --config=./package.json --no-editorconfig"
+		"format": "prettier . -w --config=./package.json --no-editorconfig",
+		"generate": "node src/release/generate.js"
 	},
 	"dependencies": {
 		"@babel/plugin-syntax-jsx": "^7.25.9",

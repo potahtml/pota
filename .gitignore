@@ -1,5 +1,9 @@
+# generated
+
 types
 src/babel-preset/index.cjs
+src/release/importmap.json
+src/release/types.json
 
 # Logs
 logs
