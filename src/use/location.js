@@ -20,7 +20,7 @@ import {
 	isExternal,
 	removeNestedProtocol,
 	replaceParams,
-} from './useURL.js'
+} from './url.js'
 import { useTimeout } from './time.js'
 
 import { RouteContext } from '../components/route/context.js'
@@ -58,7 +58,9 @@ const paramsMemo = memo(() => {
 	RouteContext.walk(context => {
 		for (const [key, value] of entries(context.params()())) {
 			values[key] =
-				value !== undefined ? decodeURIComponent(/** @type {string} */ (value)) : value
+				value !== undefined
+					? decodeURIComponent(/** @type {string} */ (value))
+					: value
 		}
 	})
 

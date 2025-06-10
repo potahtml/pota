@@ -1,10 +1,10 @@
-import { cleanup, effect, signal, untrack } from '../reactive.js'
+import { cleanup, effect, signal, untrack } from '../lib/reactive.js'
 
-export class SignalEmitter {
+export class Emitter {
 	#on
 	#off
 
-	/** @type SignalObject<any> */
+	/** @type SignalClass<unknown> */
 	#signal
 	#initialValue
 
@@ -13,7 +13,7 @@ export class SignalEmitter {
 	/**
 	 * @param {{
 	 * 	on: (dispatch: Function) => () => void
-	 * 	initialValue?: Function
+	 * 	initialValue?: () => unknown
 	 * }} arg
 	 */
 	constructor({ on, initialValue = () => undefined }) {

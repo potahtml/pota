@@ -20,10 +20,10 @@ watch('./', () => {
 
 process.on('exit', run) // run on exit
 
-// importmap
-
 function run() {
 	let changedSomething = false
+
+	// importmap
 
 	{
 		const use = readdir('./src/use')

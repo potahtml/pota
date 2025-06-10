@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Symbol, create, empty, is, weakStore } from '../std.js'
 
 import { signal } from '../reactive.js'

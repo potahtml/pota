@@ -18,9 +18,9 @@
  * - SVG typings are non-existent
  */
 
-import * as csstype from 'csstype'
-
 // CSS
+
+import * as csstype from 'csstype'
 
 interface CSSProperties extends csstype.PropertiesHyphen {
 	[key: `-${string}`]: number | string | undefined
@@ -62,22 +62,6 @@ export namespace JSX {
 		JSX.IntrinsicAttributes // leaks to class and functional components
 	*/
 
-	// JSX.ElementType - shape of a `component`
-
-	type ElementType =
-		| keyof IntrinsicElements
-		| ((props?) => Element)
-		| ((props?) => ElementClass)
-		| (new (props?) => ElementClass)
-
-	// JSX.ElementClass - shape of `class` component
-
-	type ElementClass = {
-		ready?: () => void
-		cleanup?: () => void
-		render: (props?) => Element
-	}
-
 	// JSX.Element - return `value` of components
 
 	type Element =
@@ -92,13 +76,27 @@ export namespace JSX {
 		| object // such CSSStyleSheet
 		// dom
 		| globalThis.Element
+		| ChildNode
 		| DocumentFragment
 		// recurse
 		| (() => Element)
 		| Promise<Element>
 		| Element[]
 
-	type Props<T = {}> = T & { children?: Children }
+	// JSX.ElementType - shape of a `component`
+
+	type ElementType =
+		| keyof IntrinsicElements
+		| ((props?) => Element)
+		| (new (props?) => ElementClass)
+
+	// JSX.ElementClass - shape of `class` component
+
+	type ElementClass = {
+		ready?: () => void
+		cleanup?: () => void
+		render: (props?) => Element
+	}
 
 	// TYPES
 
@@ -108,6 +106,8 @@ export namespace JSX {
 		| MathMLElement
 		| globalThis.Element
 
+	type Props<T = {}> = T & { children?: Element }
+
 	type BooleanAttribute = boolean | ''
 
 	type EnumeratedPseudoBoolean = 'false' | 'true'
@@ -116,37 +116,43 @@ export namespace JSX {
 
 	// EVENTS
 
-	type EventHandlerOptions = AddEventListenerOptions &
-		EventListenerOptions
-
-	type EventHandleFunction<Event, Element> = (
-		e: Event & { currentTarget: Element },
-	) => void
-	type EventHandlerObject<Event, Element> = {
-		handleEvent(e: Event & { currentTarget: Element }): void
-	}
-
 	type EventHandler<Element> =
-		| EventHandleFunction<Event, Element>
+		| EventHandlerFunction<Event, Element>
 		| (EventHandlerObject<Event, Element> & EventHandlerOptions)
 		| EventHandlerObject<Event, Element>
 
+	// TODO figure out how to add event type
+	type EventHandlerEvent<Event, Element> = Event & {
+		currentTarget: Element
+	}
+
+	type EventHandlerFunction<Event, Element> = (
+		e: EventHandlerEvent<Event, Element>,
+	) => void
+
+	type EventHandlerObject<Event, Element> = {
+		handleEvent(e: EventHandlerEvent<Event, Element>): void
+	}
+
+	type EventHandlerOptions = AddEventListenerOptions &
+		EventListenerOptions
+
 	type Events<Event, Element> =
-		| EventHandleFunction<Event, Element>
+		| EventHandlerFunction<Event, Element>
 		| (EventHandlerObject<Event, Element> & EventHandlerOptions)
 		| EventHandlerObject<Event, Element>
 
 	// CORE
 
 	interface PotaAttributes<Element> {
-		children?: JSX.Element
+		children?: JSX.Element // This is `JSX.Element`! Not `Element` argument
 
 		// lifecycles
 		'use:ref'?: Callback<Element>
 		'use:connected'?: Callback<Element>
 		'use:disconnected'?: Callback<Element>
 
-		'use:bind'?: Accessor<Element>
+		'use:bind'?: SignalFunction<string | number | boolean>
 	}
 
 	// all elements
@@ -161,34 +167,23 @@ export namespace JSX {
 
 	interface Elements extends IntrinsicElements {}
 
-	/* Namespaced */
-
-	/**
-	 * Force as property.
-	 *
-	 * ```html
-	 * <my-element prop:myFoo="bar" />
-	 * ```
-	 */
-	interface NSAttributes<Element> {}
-
 	/* Attributes */
 
 	interface ElementAttributes<Element>
 		extends PotaAttributes<Element>,
 			CSSAttributes,
 			AriaAttributes,
-			EventHandlersElement<Element>,
-			NSAttributes<Element> {
+			EventHandlersElement<Element> {
 		// properties
 		'prop:innerHTML'?: Accessor<number | string>
 		'prop:textContent'?: Accessor<number | string>
+
+		// attributes
 
 		// xml
 		xmlns?: Accessor<string>
 		[attr: `xmlns:${string}`]: Accessor<string>
 
-		// attributes
 		autofocus?: Accessor<BooleanAttribute>
 		elementtiming?: Accessor<string>
 		id?: Accessor<string>

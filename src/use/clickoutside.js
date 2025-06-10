@@ -15,4 +15,4 @@ const clickoutside = (node, propName, propValue, props) =>
 		}
 	})
 
-propsPlugin('plugin:clickoutside', clickoutside)
+propsPlugin('use:clickoutside', clickoutside)

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { iterator } from '../../std.js'
 
 import { mutable } from '../mutable.js'

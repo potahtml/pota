@@ -50,6 +50,7 @@ function queue() {
 			active &&
 				active !== activeElement() &&
 				isConnected(active) &&
+				// @ts-ignore
 				active.focus()
 
 			documentElement.scrollTop = scroll

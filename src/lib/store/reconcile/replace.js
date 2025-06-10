@@ -91,7 +91,7 @@ function reconcile(target, source, keys, id, inArray) {
 						// remove
 						removeFromArrayConditionally(
 							prev,
-							item => !byKey[item[key]],
+							(i, item) => !byKey[item[key]],
 						)
 
 						// index array prev

@@ -8,7 +8,7 @@ import {
 } from '../lib/std.js'
 
 import { addEvent } from '../lib/reactive.js'
-import { SignalEmitter } from '../lib/classes/SignalEmitter.js'
+import { Emitter } from './emitter.js'
 
 import { propsPlugin } from '../core/props/plugin.js'
 
@@ -26,13 +26,13 @@ const fullscreen = (node, propName, propValue, props) =>
 		)
 	})
 
-propsPlugin('plugin:fullscreen', fullscreen)
+propsPlugin('use:fullscreen', fullscreen)
 
 // this fails on startup for some reason
 export const isFullscreen = () => document.fullscreenElement
 
 export const { on: onFullscreen, use: useFullscreen } =
-	new SignalEmitter({
+	new Emitter({
 		on: dispatch => {
 			const handler = passiveEvent(() => dispatch(isFullscreen()))
 

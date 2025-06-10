@@ -10,7 +10,6 @@ export const namespaces = new Set([
 	'prop',
 	'style',
 	'use',
-	'plugin',
 ])
 
 function updateNamespaces() {
@@ -84,7 +83,7 @@ export const propsPluginBoth = (propName, fn, onMicrotask) => {
  * @param {Map<string, Function>} plugins
  * @param {string} name
  * @param {Function} fn
- * @param {boolean} [onMicrotask=true]
+ * @param {boolean} [onMicrotask=true] Default is `true`
  */
 const plugin = (plugins, name, fn, onMicrotask = true) => {
 	plugins.set(

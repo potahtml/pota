@@ -6,7 +6,7 @@ import {
 	window,
 } from '../lib/std.js'
 
-import { SignalEmitter } from '../lib/classes/SignalEmitter.js'
+import { Emitter } from './emitter.js'
 
 export const documentSize = () => ({
 	width: documentElement.clientWidth,
@@ -14,7 +14,7 @@ export const documentSize = () => ({
 })
 
 export const { on: onDocumentSize, use: useDocumentSize } =
-	new SignalEmitter({
+	new Emitter({
 		on: dispatch => {
 			const handler = passiveEvent(() => dispatch(documentSize()))
 

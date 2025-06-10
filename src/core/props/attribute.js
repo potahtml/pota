@@ -8,7 +8,7 @@ import { NS } from '../../constants.js'
 /**
  * @param {Element} node
  * @param {string} name
- * @param {unknown} value
+ * @param {Accessor<string | boolean>} value
  * @param {object} props
  * @param {string} localName
  * @param {string} ns
@@ -25,7 +25,7 @@ export const setAttributeNS = (
 /**
  * @param {Element} node
  * @param {string} name
- * @param {unknown} value
+ * @param {Accessor<string | boolean>} value
  * @param {string} [ns]
  * @url https://pota.quack.uy/props/setAttribute
  */

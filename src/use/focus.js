@@ -9,7 +9,7 @@ import {
 	window,
 } from '../lib/std.js'
 
-import { SignalEmitter } from '../lib/classes/SignalEmitter.js'
+import { Emitter } from './emitter.js'
 
 const elements = () =>
 	toArray(
@@ -37,7 +37,7 @@ export function focusPrevious() {
 const initialValue = () => !document.hidden
 
 export const { on: onDocumentFocus, use: useDocumentFocus } =
-	new SignalEmitter({
+	new Emitter({
 		on: dispatch => {
 			const handler = passiveEvent(e => {
 				if (e.currentTarget === window) {

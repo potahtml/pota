@@ -7,10 +7,10 @@ import { empty, keys } from '../../lib/std.js'
  * const [others, local] = propsSplit(props, ['children'])
  * ```
  *
- * @template Props
- * @param {Props} props
+ * @template T
+ * @param {T} props
  * @param {...string[]} args
- * @returns {Props[]} - Array of objects
+ * @returns {T[]} - Array of objects
  * @url https://pota.quack.uy/props/propsSplit
  */
 export function propsSplit(props, ...args) {

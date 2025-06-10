@@ -260,22 +260,17 @@ export const createTreeWalker = bind('createTreeWalker')
  * Returns an object without a prototype
  *
  * @type {Function}
- * @returns {Props} Empty object
  */
 export const empty = Object.create.bind(null, null)
 
 /**
  * An empty frozen array
  *
- * @type {readonly []}
+ * @type {readonly unknown[]}
  */
 export const emptyArray = freeze([])
 
-/**
- * An empty frozen object
- *
- * @type {Record<string, unknown>}
- */
+/** An empty frozen object */
 export const nothing = freeze(empty())
 
 export function* entriesIncludingSymbols(target) {
@@ -632,9 +627,9 @@ export const noop = () => {}
 /**
  * Returns `true` when value is `true` or `undefined`
  *
- * @param {unknown} value
- * @returns {value is (true | undefined)} True when value is true or
- *   undefined
+ * @template T
+ * @param {T} value
+ * @returns {true | T} True when value is true or undefined
  */
 export const optional = value =>
 	value === undefined || getValue(value)
@@ -690,13 +685,13 @@ export function removeFromArray(array, value) {
  *
  * @template T
  * @param {T[]} array
- * @param {(value: T, index: number) => boolean} cb Function with
+ * @param {(index: number, value: T) => boolean} cb Function with
  *   condition
  */
 export function removeFromArrayConditionally(array, cb) {
 	let i = array.length
 	while (i--) {
-		if (cb(array[i], i)) {
+		if (cb(i, array[i])) {
 			array.splice(i, 1)
 		}
 	}
@@ -704,7 +699,8 @@ export function removeFromArrayConditionally(array, cb) {
 /**
  * Removes values from an array based on a condition
  *
- * @param {Iterable<object | any[]>} iterable
+ * @template T
+ * @param {Iterable<T>} iterable
  * @param {PropertyKey} key Function with condition
  */
 export function indexByKey(iterable, key) {

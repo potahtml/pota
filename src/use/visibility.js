@@ -5,13 +5,13 @@ import {
 	removeEventNative,
 } from '../lib/std.js'
 
-import { SignalEmitter } from '../lib/classes/SignalEmitter.js'
+import { Emitter } from './emitter.js'
 
 export const isDocumentVisible = () =>
 	document.visibilityState === 'visible'
 
 export const { on: onDocumentVisible, use: useDocumentVisible } =
-	new SignalEmitter({
+	new Emitter({
 		on: dispatch => {
 			const handler = passiveEvent(() =>
 				dispatch(isDocumentVisible()),

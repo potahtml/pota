@@ -2,7 +2,7 @@ import { effect, root } from '../lib/reactive.js'
 
 import { documentSize, useDocumentSize } from './resize.js'
 
-import { SignalEmitter } from '../lib/classes/SignalEmitter.js'
+import { Emitter } from './emitter.js'
 
 /** @param {{width:number, height:number}} e*/
 function value(e) {
@@ -10,7 +10,7 @@ function value(e) {
 }
 
 export const { on: onOrientation, use: useOrientation } =
-	new SignalEmitter({
+	new Emitter({
 		on: dispatch => {
 			const size = useDocumentSize()
 

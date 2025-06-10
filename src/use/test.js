@@ -2,9 +2,7 @@ import { microtask, untrack } from '../lib/reactive.js'
 import { stringifySorted, withResolvers } from '../lib/std.js'
 import { diff } from './string.js'
 
-/**
- * @type {boolean  | undefined}
- */
+/** @type {boolean | undefined} */
 let stop = undefined
 let num = 1
 
@@ -22,7 +20,7 @@ export function test(title, fn, stopTesting) {
 		stop = stop || stopTesting
 		title = num++ + ' - ' + title
 		console.log(title)
-		/** @type Promise<any>[] */
+		/** @type Promise<unknown>[] */
 		const promises = []
 
 		try {
@@ -50,33 +48,46 @@ test.reset = () => {
  */
 export function expect(title, num, promises, value) {
 	const test = {
-		toBe: (equals, expected) =>
+		toBe: expected =>
 			pass(
 				expected,
 				value,
-				equals,
+				true,
 				title + ' (' + num.value++ + ')',
 				promises,
 			),
-		toEqual: (equals, expected) =>
+		toEqual: expected =>
 			untrack(() =>
 				pass(
 					stringifySorted(expected),
 					stringifySorted(value),
-					equals,
+					true,
 					title + ' (' + num.value++ + ')',
 					promises,
 				),
 			),
-		not: {},
+		not: {
+			toBe: expected =>
+				pass(
+					expected,
+					value,
+					false,
+					title + ' (' + num.value++ + ')',
+					promises,
+				),
+			toEqual: expected =>
+				untrack(() =>
+					pass(
+						stringifySorted(expected),
+						stringifySorted(value),
+						false,
+						title + ' (' + num.value++ + ')',
+						promises,
+					),
+				),
+		},
 	}
 
-	for (const key in test) {
-		if (key !== 'not') {
-			test.not[key] = test[key].bind(null, false)
-			test[key] = test[key].bind(null, true)
-		}
-	}
 	return test
 }
 
@@ -86,12 +97,12 @@ function pass(expected, value, equals, title, promises) {
 	if (expected !== value && equals) {
 		const [expectedPrt, valuePrt] = diff(expected, value)
 		error(title, ' expected `', expectedPrt, '` got `', valuePrt, '`')
-		reject(title, expected, value)
+		reject({ title, expected, value })
 	} else if (expected === value && !equals) {
 		error(title, ' expected to be different `', value, '`')
-		reject(title, expected, value)
+		reject({ title, expected, value })
 	} else {
-		resolve(title, expected, value)
+		resolve({ title, expected, value })
 	}
 
 	// to hide the promise error in case they dont catch it

@@ -63,9 +63,10 @@ export function filename(path) {
 /**
  * Removes a value from an array
  *
- * @param {any[]} array
- * @param {any} value To remove from the array
- * @returns {any[]}
+ * @template T
+ * @param {T[]} array
+ * @param {T} value To remove from the array
+ * @returns {T[]}
  */
 export function removeFromArray(array, value) {
 	const index = array.indexOf(value)

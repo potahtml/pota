@@ -76,7 +76,7 @@ export const isReactive = value =>
  * Proxies a signals property access so you dont have to call the
  * function
  *
- * @template {T extends object}
+ * @template {{}} T
  * @param {SignalAccessor<T>} snigal - Signal to proxy
  * @param {object} [target] - Target object for the proxy
  * @returns {object} An object that will read the properties from the
@@ -105,8 +105,9 @@ export const proxy = (snigal, target = nothing) =>
  */
 export function signalFunction(value) {
 	const [read, write] = signal(value)
-	return markReactive((...args) =>
-		args.length ? write(args[0]) : read(),
+	return markReactive(
+		/** @type T[] */ (...args) =>
+			args.length ? write(args[0]) : read(),
 	)
 }
 
@@ -122,8 +123,8 @@ export const ref = () => signalFunction()
  * Aditionally unwraps promises.
  *
  * @template T
- * @param {(() => T) | Promise<T> | T} value
- * @param {(value: T) => unknown} fn
+ * @param {Accessor<T> | Promise<T>} value
+ * @param {(value: Accessed<T> | T) => void} fn
  */
 export function withValue(value, fn) {
 	if (isFunction(value)) {
@@ -484,7 +485,8 @@ export function map(list, callback, sort, fallback) {
 }
 
 /**
- * Resolves and returns `children` in a memo
+ * Resolves and returns `children` in a memo. A memo in a memo, so
+ * reactivity on the inner memo doesnt trigger reactivity outside.
  *
  * @template {Children} T
  * @param {Accessor<T>} fn
@@ -521,9 +523,9 @@ function unwrap(children) {
 }
 
 /**
- * Extend `Pota` and define a `render(props){}` method to create a
- * class component. `ready(cb)` and `cleanup(cb)` methods will be
- * registered automatically
+ * Extend `Pota` and define a `render(){}` method to create a class
+ * component. `ready(cb)` and `cleanup(cb)` methods will be registered
+ * automatically
  *
  * @url https://pota.quack.uy/Classes
  */

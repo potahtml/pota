@@ -53,18 +53,23 @@ declare global {
 	type Component = JSX.ElementType
 	type Children = JSX.Element
 	type Elements = JSX.Elements
-	type Props<T> = JSX.Props<T>
+	type Props<T = {}> = JSX.Props<T>
 
-	// DOM
+	// dom
 
 	type DOMElement = JSX.DOMElement
 
 	type StyleAttribute = JSX.StyleAttribute
 
+	// events
+
 	type EventType = JSX.EventType
-	type EventHandlerOptions = JSX.EventHandlerOptions
+
 	type EventHandlersWindow<T> = JSX.EventHandlersWindow<T>
 	type EventHandlersElement<T> = JSX.EventHandlersElement<T>
+
+	type EventHandlerOptions = JSX.EventHandlerOptions
+
 	type EventHandler<T> = JSX.EventHandler<T>
 
 	// tests

@@ -567,7 +567,6 @@ export function createReactiveSystem() {
 	 * Batches changes to signals
 	 *
 	 * @param {Function} fn
-	 * @returns {any}
 	 */
 	const batch = runUpdates
 
@@ -600,8 +599,9 @@ export function createReactiveSystem() {
 	/**
 	 * Disables tracking for a function
 	 *
-	 * @param {Function} fn - Function to run with tracking disabled
-	 * @returns {any}
+	 * @template T
+	 * @param {() => T} fn - Function to run with tracking disabled
+	 * @returns {T}
 	 */
 	function untrack(fn) {
 		if (Listener === undefined) {
@@ -620,8 +620,8 @@ export function createReactiveSystem() {
 	/**
 	 * Runs a callback on cleanup, returns callback
 	 *
-	 * @template T
-	 * @param {T extends Function} fn
+	 * @template {Function} T
+	 * @param {T} fn
 	 * @returns {T}
 	 */
 	function cleanup(fn) {
@@ -632,8 +632,8 @@ export function createReactiveSystem() {
 	/**
 	 * Cancels a cleanup
 	 *
-	 * @template T
-	 * @param {T extends Function} fn
+	 * @template {Function} T
+	 * @param {T} fn
 	 * @returns {T}
 	 */
 	function cleanupCancel(fn) {
@@ -683,6 +683,12 @@ export function createReactiveSystem() {
 		}
 	}
 
+	/**
+	 * @template T
+	 * @param {() => T} fn
+	 * @param {boolean} init
+	 * @returns {T}
+	 */
 	function runUpdates(fn, init = false) {
 		if (Updates) {
 			return fn()
@@ -879,7 +885,7 @@ export function createReactiveSystem() {
  * effects. This is used internally by the reactive system to track
  * which functions should be treated as reactive computations.
  *
- * @template {Function} T
+ * @template {Function | (() => unknown)} T
  * @param {T} fn - Function to mark as reactive
  * @returns {T} The same function with the reactive marker
  */

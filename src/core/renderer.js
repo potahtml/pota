@@ -160,7 +160,7 @@ export function createComponent(value) {
 }
 
 function createClass(value, props) {
-	const i = new value()
+	const i = new value(props)
 	i.ready && ready(() => i.ready())
 	i.cleanup && cleanup(() => i.cleanup())
 
@@ -174,7 +174,7 @@ function createAnything(value) {
 /**
  * Creates a x/html element from a tagName
  *
- * @template P
+ * @template {Props<{ xmlns?: string }>} P
  * @param {string} tagName
  * @param {P} props
  * @returns {Element} Element
@@ -255,10 +255,10 @@ function parseXML(content, xmlns) {
  * @param {string} content
  * @param {{
  * 	x?: string
- * 	i?: boolean
+ * 	i?: number
  * 	m?: number
- * }} [propsData]
- * @returns {(props: T) => Children}
+ * } & Record<string, unknown>} [propsData]
+ * @returns {(props: T extends any[]) => Children}
  */
 export function createPartial(content, propsData = nothing) {
 	let clone = () => {
@@ -279,13 +279,13 @@ export function createPartial(content, propsData = nothing) {
 /**
  * @template T
  * @param {Element} node
- * @param {T[]} [props]
+ * @param {T[]} props
  * @param {{
  * 	x?: string
- * 	i?: boolean
+ * 	i?: number
  * 	m?: number
- * } & Record<number, unknown>} propsData
- * @returns {Element | Element[]}
+ * } & Record<string, unknown>} propsData
+ * @returns {Children}
  */
 function assignPartialProps(node, props, propsData) {
 	if (props) {

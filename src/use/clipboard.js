@@ -23,4 +23,4 @@ const clipboard = (node, propName, propValue, props) =>
 		)
 	})
 
-propsPlugin('plugin:clipboard', clipboard)
+propsPlugin('use:clipboard', clipboard)
