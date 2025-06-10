@@ -3,19 +3,13 @@ import { css } from '../lib/std.js'
 import { Component } from '../core/renderer.js'
 import { CustomElement, customElement } from './CustomElement.js'
 
-const styles = css`
-	:host {
-		display: contents;
-	}
-`
-
 /**
  * Similar to `Show`, but doesn't remove its children from the
  * document
  *
  * @template T
  * @param {{
- * 	when: When<T> // Condition to show/hide children
+ * 	when: When<any> // Condition to show/hide children
  * 	children?: Children // Content to show when condition is true
  * 	fallback?: Children // Content to show when condition is false
  * }} props
@@ -24,8 +18,15 @@ const styles = css`
  */
 export function Collapse(props) {
 	// need to include the class here because else its not treeshaked
+
 	class CollapseElement extends CustomElement {
-		static styleSheets = [styles]
+		static styleSheets = [
+			css`
+				:host {
+					display: contents;
+				}
+			`,
+		]
 
 		/** @param {any} value - To toggle children */
 		set when(value) {

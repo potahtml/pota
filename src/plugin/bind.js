@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { addEvent, effect, signalFunction } from '../lib/reactive.js'
 
 import { propsPlugin } from '../core/props/plugin.js'
@@ -63,4 +64,4 @@ function bindValue(node, name, value, props) {
 	})
 }
 
-propsPlugin('bind', bindValue)
+propsPlugin('use:bind', bindValue)

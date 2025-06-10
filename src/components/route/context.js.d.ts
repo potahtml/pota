@@ -6,6 +6,6 @@ type RouteContextValue = {
 	addChild: (child: RouteContextValue) => void
 	shouldShowDefault: SignalAccessor<boolean | 0>
 	resolve: (href: string) => string
-	show: SignalAccessor<true | undefined>
+	show: SignalAccessor<boolean | undefined>
 	scroll?: string[] | string
 }

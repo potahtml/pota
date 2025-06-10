@@ -113,8 +113,7 @@ export function signalFunction(value) {
 /**
  * To set and read refs. To use in ref attribute.
  *
- * @template T
- * @returns {SignalFunction<T>}
+ * @returns {SignalFunction<Element>}
  */
 export const ref = () => signalFunction()
 
@@ -488,8 +487,8 @@ export function map(list, callback, sort, fallback) {
  * Resolves and returns `children` in a memo
  *
  * @template {Children} T
- * @param {() => T} fn
- * @returns {SignalAccessor<Children>}
+ * @param {Accessor<T>} fn
+ * @returns {SignalAccessor<T>}
  * @url https://pota.quack.uy/resolve
  */
 export function resolve(fn) {
@@ -564,7 +563,8 @@ export function isComponentable(value) {
  *
  * @template {Children} T
  * @param {T} children
- * @returns {T}
+ * @returns {((value: unknown) => Children)
+ * 	| ((key: unknown, value: unknown) => Children)}
  */
 export function makeCallback(children) {
 	/**
@@ -585,6 +585,7 @@ export function makeCallback(children) {
 			)
 }
 
+/** @returns {Children} */
 const callback = child =>
 	isFunction(child)
 		? isReactive(child)
@@ -638,17 +639,11 @@ export function markComponent(fn) {
 /**
  * Adds an event listener to a node
  *
- * @param {Element | Document | typeof window} node - Element to add
- *   the event listener
- * @param {(keyof WindowEventMap & keyof GlobalEventHandlersEventMap)
- * 	| string} type
- *   - The name of the event listener
- *
- * @param {EventListener
- * 	| EventListenerObject
- * 	| (EventListenerObject & AddEventListenerOptions)} handler
- *   - Function to handle the event
- *
+ * @template {Element | Document | typeof window} TargetElement
+ * @param {TargetElement} node - Element to add the event listener
+ * @param {EventType} type - The name of the event listener
+ * @param {EventHandler<TargetElement>} handler - Function to handle
+ *   the event
  * @returns {Function} - An `off` function for removing the event
  *   listener
  * @url https://pota.quack.uy/props/EventListener
@@ -658,7 +653,7 @@ export function addEvent(node, type, handler) {
 		type,
 		handler,
 		!isFunction(handler)
-			? /** @type {AddEventListenerOptions} */ (handler)
+			? /** @type {EventHandlerOptions} */ (handler)
 			: undefined,
 	)
 
@@ -677,17 +672,11 @@ export function addEvent(node, type, handler) {
 /**
  * Removes an event listener from a node
  *
- * @param {Element | Document | typeof window} node - Element to add
- *   the event listener
- * @param {(keyof WindowEventMap & keyof GlobalEventHandlersEventMap)
- * 	| string} type
- *   - The name of the event listener
- *
- * @param {EventListener
- * 	| EventListenerObject
- * 	| (EventListenerObject & AddEventListenerOptions)} handler
- *   - Function to handle the event
- *
+ * @template {Element | Document | typeof window} TargetElement
+ * @param {TargetElement} node - Element to add the event listener
+ * @param {EventType} type - The name of the event listener
+ * @param {EventHandler<TargetElement>} handler - Function to handle
+ *   the event
  * @returns {Function} - An `on` function for adding back the event
  *   listener
  * @url https://pota.quack.uy/props/EventListener
@@ -697,7 +686,7 @@ export function removeEvent(node, type, handler) {
 		type,
 		handler,
 		!isFunction(handler)
-			? /** @type {AddEventListenerOptions} */ (handler)
+			? /** @type {EventHandlerOptions} */ (handler)
 			: undefined,
 	)
 
@@ -708,7 +697,7 @@ export function removeEvent(node, type, handler) {
  * It gives a handler an owner, so stuff runs batched on it, and
  * things like context and cleanup work
  *
- * @template {EventListener | EventListenerObject} T
+ * @template {EventHandler<T>} T
  * @param {T} handler
  */
 export const ownedEvent = handler =>

@@ -31,8 +31,12 @@ export const isExtensible = Object.isExtensible
 export const keys = Object.keys
 export const values = Object.values
 export const setPrototypeOf = Object.setPrototypeOf
-
-export const isArray = Array.isArray
+/**
+ * @template T
+ * @param {T} value
+ * @returns {value is array}
+ */
+export const isArray = value => Array.isArray(value)
 export const toArray = Array.from
 
 /**
@@ -183,7 +187,7 @@ export function copy(o, seen = new Map()) {
 		return /** @type {T} */ (seen.get(o))
 	}
 
-	const c = isArray(o)
+	const c = /** @type {T} */ isArray(o)
 		? []
 		: /** @type {{ [key: string]: unknown }} */ ({})
 
@@ -421,7 +425,9 @@ export const walkElements = function (
  * @returns {Document | ShadowRoot}
  */
 export const getDocumentForElement = node => {
-	const document = /** @type {Document | ShadowRoot} */ (node.getRootNode())
+	const document = /** @type {Document | ShadowRoot} */ (
+		node.getRootNode()
+	)
 	const { nodeType } = document
 	// getRootNode returns:
 	// 1. Node for isConnected = false
@@ -458,20 +464,23 @@ export function getSetterNamesFromPrototype(object, set = new Set()) {
  * recursively and returns the value
  *
  * @template T
- * @param {(() => T) | T} value - Maybe function
+ * @param {Accessor<T>} value - Maybe function
+ * @returns T
  */
 export function getValue(value) {
-	while (typeof value === 'function') value = /** @type {() => T} */ (value)()
+	while (typeof value === 'function')
+		value = /** @type {() => T} */ (value)()
 	return value
 }
 
 /**
  * Unwraps `value` and returns `element` if result is a `Node`, else
  * `undefined` in the case isn't a `Node`
+ *
  * @template T
  * @param {T} value - Maybe function
  * @param {...unknown} args? - Arguments
- * @returns {Node |  Element | T | undefined}
+ * @returns {Node | Element | T | undefined}
  */
 export function getValueElement(value, ...args) {
 	const element = getValueWithArguments(value, ...args)
@@ -516,7 +525,7 @@ export const isConfigurable = (target, key, value) => {
  * Returns `true` when `typeof` of `value` is `function`
  *
  * @param {unknown} value
- * @returns {value is Function}
+ * @returns {value is function}
  */
 export const isFunction = value => typeof value === 'function'
 
@@ -524,7 +533,7 @@ export const isFunction = value => typeof value === 'function'
  * Returns `true` when value is Iterable
  *
  * @param {unknown} value
- * @returns {boolean}
+ * @returns {value is Iterable<unknown>}
  */
 export const isIterable = value => value?.[iterator]
 
@@ -532,7 +541,7 @@ export const isIterable = value => value?.[iterator]
  * Returns `true` if the value is `null` or `undefined`
  *
  * @param {unknown} value
- * @returns {boolean}
+ * @returns {value is null | undefined}
  */
 export const isNullUndefined = value =>
 	value === undefined || value === null
@@ -540,7 +549,9 @@ export const isNullUndefined = value =>
 /**
  * Returns `true` when typeof of value is object and not null
  *
- * @param {unknown} value
+ * @template T
+ * @param {T} value
+ * @returns {value is object}
  */
 export const isObject = value =>
 	value !== null && typeof value === 'object'
@@ -574,7 +585,7 @@ export const isPrototypeProperty = (target, key) =>
  * Returns `true` when `typeof` of `value` is `string`
  *
  * @param {unknown} value
- * @returns {boolean}
+ * @returns {value is string}
  */
 export const isString = value => typeof value === 'string'
 
@@ -582,7 +593,7 @@ export const isString = value => typeof value === 'string'
  * Returns `true` when `typeof` of `value` is `number`
  *
  * @param {unknown} value
- * @returns {boolean}
+ * @returns {value is number}
  */
 export const isNumber = value => typeof value === 'number'
 
@@ -590,7 +601,7 @@ export const isNumber = value => typeof value === 'number'
  * Returns `true` when `typeof` of `value` is `symbol`
  *
  * @param {unknown} value
- * @returns {boolean}
+ * @returns {value is symbol}
  */
 export const isSymbol = value => typeof value === 'symbol'
 
@@ -598,7 +609,7 @@ export const isSymbol = value => typeof value === 'symbol'
  * Returns `true` when `typeof` of `value` is `boolean`
  *
  * @param {unknown} value
- * @returns {boolean}
+ * @returns {value is boolean}
  */
 export const isBoolean = value => typeof value === 'boolean'
 
@@ -606,9 +617,10 @@ export const isBoolean = value => typeof value === 'boolean'
  * Returns `true` when `value` may be a promise
  *
  * @param {unknown} value
- * @returns {value is Promise<any>}
+ * @returns {value is Promise<unknown>}
  */
-export const isPromise = value => isFunction(/** @type {any} */ (value)?.then)
+export const isPromise = value =>
+	isFunction(/** @type {any} */ (value)?.then)
 
 export const noop = () => {}
 
@@ -621,7 +633,8 @@ export const noop = () => {}
  * Returns `true` when value is `true` or `undefined`
  *
  * @param {unknown} value
- * @returns {boolean} True when value is true or undefined
+ * @returns {value is (true | undefined)} True when value is true or
+ *   undefined
  */
 export const optional = value =>
 	value === undefined || getValue(value)
@@ -948,9 +961,9 @@ export const sheet = withCache(css => {
 })
 
 /**
- * @param {Element} node
+ * @param {Element | typeof globalThis} node
  * @param {string} eventName
- * @param {any} [data]
+ * @param {CustomEventInit} [data]
  */
 
 export const emit = (
@@ -959,14 +972,29 @@ export const emit = (
 	data = { bubbles: true, cancelable: true, composed: true },
 ) => node.dispatchEvent(new CustomEvent(eventName, data))
 
+/**
+ * @template {Event} T
+ * @param {T} e
+ */
 export function stopEvent(e) {
 	preventDefault(e)
 	stopPropagation(e)
 	stopImmediatePropagation(e)
 }
-
+/**
+ * @template {Event} T
+ * @param {T} e
+ */
 export const preventDefault = e => e.preventDefault()
+/**
+ * @template {Event} T
+ * @param {T} e
+ */
 export const stopPropagation = e => e.stopPropagation()
+/**
+ * @template {Event} T
+ * @param {T} e
+ */
 export const stopImmediatePropagation = e =>
 	e.stopImmediatePropagation()
 

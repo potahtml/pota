@@ -42,14 +42,6 @@ interface CSSAttributes extends NSStyle {
 	[attr: `class:${string}`]: Accessor<boolean>
 }
 
-// EVENTS
-
-type Events<Event, Element> =
-	| ((e: Event & { currentTarget: Element }) => void)
-	| ({
-			handleEvent: (e: Event & { currentTarget: Element }) => void
-	  } & AddEventListenerOptions)
-
 /** Pota namespace JSX */
 export namespace JSX {
 	// JSX.ElementAttributesProperty - name of the `props` argument
@@ -106,11 +98,9 @@ export namespace JSX {
 		| Promise<Element>
 		| Element[]
 
+	type Props<T = {}> = T & { children?: Children }
+
 	// TYPES
-
-	type BooleanAttribute = boolean | ''
-
-	type EnumeratedPseudoBoolean = 'false' | 'true'
 
 	type DOMElement =
 		| HTMLElement
@@ -118,7 +108,33 @@ export namespace JSX {
 		| MathMLElement
 		| globalThis.Element
 
+	type BooleanAttribute = boolean | ''
+
+	type EnumeratedPseudoBoolean = 'false' | 'true'
+
 	type StyleAttribute = Accessor<CSSProperties | string>
+
+	// EVENTS
+
+	type EventHandlerOptions = AddEventListenerOptions &
+		EventListenerOptions
+
+	type EventHandleFunction<Event, Element> = (
+		e: Event & { currentTarget: Element },
+	) => void
+	type EventHandlerObject<Event, Element> = {
+		handleEvent(e: Event & { currentTarget: Element }): void
+	}
+
+	type EventHandler<Element> =
+		| EventHandleFunction<Event, Element>
+		| (EventHandlerObject<Event, Element> & EventHandlerOptions)
+		| EventHandlerObject<Event, Element>
+
+	type Events<Event, Element> =
+		| EventHandleFunction<Event, Element>
+		| (EventHandlerObject<Event, Element> & EventHandlerOptions)
+		| EventHandlerObject<Event, Element>
 
 	// CORE
 
@@ -162,7 +178,7 @@ export namespace JSX {
 		extends PotaAttributes<Element>,
 			CSSAttributes,
 			AriaAttributes,
-			ElementEventHandlers<Element>,
+			EventHandlersElement<Element>,
 			NSAttributes<Element> {
 		// properties
 		'prop:innerHTML'?: Accessor<number | string>
@@ -419,7 +435,7 @@ export namespace JSX {
 		extends HTMLAttributes<Element> {}
 	interface HTMLBodyElementAttributes<Element>
 		extends HTMLAttributes<Element>,
-			WindowEventHandlers<Element> {
+			EventHandlersWindow<Element> {
 		/** @deprecated */
 		alink?: Accessor<string>
 		/** @deprecated */
@@ -1532,7 +1548,7 @@ export namespace JSX {
 	}
 	interface HTMLFrameSetElementAttributes<Element>
 		extends HTMLAttributes<Element>,
-			WindowEventHandlers<Element> {
+			EventHandlersWindow<Element> {
 		/** @deprecated */
 		cols?: Accessor<number | string>
 		/** @deprecated */
@@ -1912,7 +1928,7 @@ export namespace JSX {
 		extends SVGAttributes<Element> {}
 	interface SVGSVGElementAttributes<Element>
 		extends SVGAttributes<Element>,
-			WindowEventHandlers<Element> {}
+			EventHandlersWindow<Element> {}
 	interface SVGScriptElementAttributes<Element>
 		extends SVGAttributes<Element> {}
 	interface SVGSetElementAttributes<Element>
@@ -3187,7 +3203,7 @@ export namespace JSX {
 
 	// element
 
-	interface ElementEventHandlers<Element> {
+	interface EventHandlersElement<Element> {
 		'on:abort'?: Events<UIEvent, Element>
 		'on:animationcancel'?: Events<AnimationEvent, Element>
 		'on:animationend'?: Events<AnimationEvent, Element>
@@ -3296,7 +3312,7 @@ export namespace JSX {
 
 	// window
 
-	interface WindowEventHandlers<Element> {
+	interface EventHandlersWindow<Element> {
 		'on:afterprint'?: Events<Event, Element>
 		'on:beforeprint'?: Events<Event, Element>
 		'on:beforeunload'?: Events<BeforeUnloadEvent, Element>
@@ -3320,6 +3336,130 @@ export namespace JSX {
 		'on:unhandledrejection'?: Events<PromiseRejectionEvent, Element>
 		'on:unload'?: Events<Event, Element>
 	}
+
+	type EventType =
+		| 'abort'
+		| 'afterprint'
+		| 'animationcancel'
+		| 'animationend'
+		| 'animationiteration'
+		| 'animationstart'
+		| 'auxclick'
+		| 'beforeinput'
+		| 'beforeprint'
+		| 'beforetoggle'
+		| 'beforeunload'
+		| 'blur'
+		| 'cancel'
+		| 'canplay'
+		| 'canplaythrough'
+		| 'change'
+		| 'click'
+		| 'close'
+		| 'compositionend'
+		| 'compositionstart'
+		| 'compositionupdate'
+		| 'contextlost'
+		| 'contextmenu'
+		| 'contextrestored'
+		| 'copy'
+		| 'cuechange'
+		| 'cut'
+		| 'dblclick'
+		| 'drag'
+		| 'dragend'
+		| 'dragenter'
+		| 'dragleave'
+		| 'dragover'
+		| 'dragstart'
+		| 'drop'
+		| 'durationchange'
+		| 'emptied'
+		| 'ended'
+		| 'error'
+		| 'focus'
+		| 'focusin'
+		| 'focusout'
+		| 'formdata'
+		| 'fullscreenchange'
+		| 'fullscreenerror'
+		| 'gamepadconnected'
+		| 'gamepaddisconnected'
+		| 'gotpointercapture'
+		| 'hashchange'
+		| 'input'
+		| 'invalid'
+		| 'keydown'
+		| 'keypress'
+		| 'keyup'
+		| 'languagechange'
+		| 'load'
+		| 'loadeddata'
+		| 'loadedmetadata'
+		| 'loadstart'
+		| 'lostpointercapture'
+		| 'message'
+		| 'messageerror'
+		| 'mousedown'
+		| 'mouseenter'
+		| 'mouseleave'
+		| 'mousemove'
+		| 'mouseout'
+		| 'mouseover'
+		| 'mouseup'
+		| 'offline'
+		| 'online'
+		| 'pagehide'
+		| 'pagereveal'
+		| 'pageshow'
+		| 'pageswap'
+		| 'paste'
+		| 'pause'
+		| 'play'
+		| 'playing'
+		| 'pointercancel'
+		| 'pointerdown'
+		| 'pointerenter'
+		| 'pointerleave'
+		| 'pointermove'
+		| 'pointerout'
+		| 'pointerover'
+		| 'pointerup'
+		| 'popstate'
+		| 'progress'
+		| 'ratechange'
+		| 'rejectionhandled'
+		| 'reset'
+		| 'resize'
+		| 'scroll'
+		| 'scrollend'
+		| 'securitypolicyviolation'
+		| 'seeked'
+		| 'seeking'
+		| 'select'
+		| 'selectionchange'
+		| 'selectstart'
+		| 'slotchange'
+		| 'stalled'
+		| 'storage'
+		| 'submit'
+		| 'suspend'
+		| 'timeupdate'
+		| 'toggle'
+		| 'touchcancel'
+		| 'touchend'
+		| 'touchmove'
+		| 'touchstart'
+		| 'transitioncancel'
+		| 'transitionend'
+		| 'transitionrun'
+		| 'transitionstart'
+		| 'unhandledrejection'
+		| 'unload'
+		| 'volumechange'
+		| 'waiting'
+		| 'wheel'
+		| (string & {})
 
 	/** ARIA */
 

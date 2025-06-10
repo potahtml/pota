@@ -23,10 +23,10 @@ import { scroll } from './scroll.js'
  *   route matches.
  * @property {Record<string, string>} params - Key-value pairs params
  *   to encode and replace on the path.
- * @property {When<boolean>} collapse - To hide the route instead of
+ * @property {When<any>} collapse - To hide the route instead of
  *   removing it from the document.
- * @property {When<boolean>} when - To stop rendering the route even
- *   if the path matches.
+ * @property {When<any>} when - To stop rendering the route even if
+ *   the path matches.
  * @property {Children} fallback - Fallback children.
  * @property {Children} children - Children to render.
  */

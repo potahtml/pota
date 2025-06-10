@@ -42,6 +42,7 @@ export const prototypeBlacklist = [
 	...mutableBlacklist,
 ]
 
+/** @type PropertyKey[] */
 export const keyBlacklist = [
 	'constructor',
 	'__proto__',

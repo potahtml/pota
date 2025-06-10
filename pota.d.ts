@@ -5,6 +5,8 @@ declare global {
 
 	type Accessor<T> = (() => Accessor<T>) | SignalAccessor<T> | T
 
+	type Accessed<T> = T extends () => infer R ? Accessed<R> : T
+
 	type SignalAccessor<T> = () => T
 
 	type SignalSetter<T> = (newValue?: T) => SignalChanged
@@ -33,15 +35,17 @@ declare global {
 
 	// signal properties
 
-	type SignalOptions = {
-		equals?: false | ((a: unknown, b: unknown) => boolean)
-	}
+	type SignalOptions =
+		| {
+				equals?: false | ((a: unknown, b: unknown) => boolean)
+		  }
+		| undefined
 
 	type SignalChanged = boolean
 
 	// props
 
-	type When<T extends boolean> = Accessor<T>
+	type When<T> = Accessor<T>
 	type Each<T> = Accessor<Iterable<T>>
 
 	// components
@@ -49,9 +53,19 @@ declare global {
 	type Component = JSX.ElementType
 	type Children = JSX.Element
 	type Elements = JSX.Elements
+	type Props<T> = JSX.Props<T>
+
+	// DOM
+
 	type DOMElement = JSX.DOMElement
-	type Props<T = {}> = T & { children?: Children }
+
 	type StyleAttribute = JSX.StyleAttribute
+
+	type EventType = JSX.EventType
+	type EventHandlerOptions = JSX.EventHandlerOptions
+	type EventHandlersWindow<T> = JSX.EventHandlersWindow<T>
+	type EventHandlersElement<T> = JSX.EventHandlersElement<T>
+	type EventHandler<T> = JSX.EventHandler<T>
 
 	// tests
 

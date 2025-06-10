@@ -7,7 +7,7 @@ import { getValue, isFunction, isNullUndefined } from '../lib/std.js'
  *
  * @template T
  * @param {object} props
- * @param {When<T>} props.when
+ * @param {When<any>} props.when
  * @param {Children} [props.fallback]
  * @param {Children} [props.children]
  * @returns {Children}
