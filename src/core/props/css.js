@@ -7,7 +7,7 @@ import {
 	withState,
 } from '../../lib/std.js'
 
-import { randomId } from '../../plugin/useRandom.js'
+import { randomId } from '../../use/random.js'
 
 /**
  * @param {Element} node

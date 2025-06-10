@@ -4,7 +4,7 @@ import { cleanup, memo, signal } from '../../lib/reactive.js'
 import { nothing, removeFromArray } from '../../lib/std.js'
 
 import { context } from '../../core/renderer.js'
-import { isAbsolute } from '../../plugin/useURL.js'
+import { isAbsolute } from '../../use/url.js'
 
 /**
  * @param {Partial<RouteContextValue>} props

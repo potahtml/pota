@@ -1,5 +1,5 @@
-import { addListeners } from '../../plugin/useLocation.js'
-import { replaceParams } from '../../plugin/useURL.js'
+import { addListeners } from '../../use/location.js'
+import { replaceParams } from '../../use/url.js'
 
 import { Component } from '../../core/renderer.js'
 

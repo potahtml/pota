@@ -6,7 +6,7 @@ import { propsPlugin } from '../core/props/plugin.js'
  * @param {string} propName
  * @param {Function} propValue
  * @param {object} props
- * @url https://pota.quack.uy/plugin/clickoutside
+ * @url https://pota.quack.uy/use/clickoutside
  */
 const clickoutside = (node, propName, propValue, props) =>
 	addEvent(document, 'pointerdown', e => {

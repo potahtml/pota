@@ -1,7 +1,7 @@
 import { lazy } from '../../lib/reactive.js'
 import { isFunction, nothing } from '../../lib/std.js'
 
-import { useTimeout } from '../../plugin/useTimeout.js'
+import { useTimeout } from '../../use/time.js'
 
 import { RouteContext } from './context.js'
 import { scroll } from './scroll.js'

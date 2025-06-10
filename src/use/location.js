@@ -13,7 +13,7 @@ import {
 	location as wLocation,
 } from '../lib/std.js'
 
-import { scrollToSelectorWithFallback } from './useScroll.js'
+import { scrollToSelectorWithFallback } from './scroll.js'
 import {
 	decodeURIComponent,
 	isAbsolute,
@@ -21,7 +21,7 @@ import {
 	removeNestedProtocol,
 	replaceParams,
 } from './useURL.js'
-import { useTimeout } from './useTimeout.js'
+import { useTimeout } from './time.js'
 
 import { RouteContext } from '../components/route/context.js'
 

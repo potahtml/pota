@@ -24,11 +24,11 @@ process.on('exit', run) // run on exit
 
 function run() {
 	{
-		const plugin = readdir('./src/plugin')
+		const use = readdir('./src/use')
 			.filter(x => x.endsWith('.js'))
 			.map(
 				x =>
-					`"pota/plugin/${x.replace(/\.js$/, '')}": "/node_modules/pota/src/plugin/${x}"`,
+					`"pota/use/${x.replace(/\.js$/, '')}": "/node_modules/pota/src/use/${x}"`,
 			)
 
 		const lib = readdir('./src/lib')
@@ -51,7 +51,7 @@ function run() {
 "pota/xml": "/node_modules/pota/src/core/xml.js",
 "pota/components": "/node_modules/pota/src/components/@main.js",
 
-${plugin.join(',\n')},
+${use.join(',\n')},
 
 ${lib.join(',\n')}
 

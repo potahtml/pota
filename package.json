@@ -34,9 +34,9 @@
 			"types": "./types/components/@main.d.ts",
 			"default": "./src/components/@main.js"
 		},
-		"./plugin/*": {
-			"types": "./types/plugin/*.d.ts",
-			"default": "./src/plugin/*.js"
+		"./use/*": {
+			"types": "./types/use/*.d.ts",
+			"default": "./src/use/*.js"
 		},
 		"./store": {
 			"types": "./types/lib/store.d.ts",

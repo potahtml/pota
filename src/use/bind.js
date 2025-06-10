@@ -2,7 +2,7 @@
 import { addEvent, effect, signalFunction } from '../lib/reactive.js'
 
 import { propsPlugin } from '../core/props/plugin.js'
-import { getSelection, restoreSelection } from './useSelection.js'
+import { getSelection, restoreSelection } from './selection.js'
 
 /**
  * To use in bind attribute on JSX elements.
@@ -10,7 +10,7 @@ import { getSelection, restoreSelection } from './useSelection.js'
  * @template T
  * @param {T} [value] - Optional initial value
  * @returns {SignalFunction<T>}
- * @url https://pota.quack.uy/plugin/bind
+ * @url https://pota.quack.uy/use/bind
  */
 export const bind = value => signalFunction(value)
 

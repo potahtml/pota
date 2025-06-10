@@ -1,6 +1,6 @@
 import { microtask, untrack } from '../lib/reactive.js'
 import { stringifySorted, withResolvers } from '../lib/std.js'
-import { diff } from './useString.js'
+import { diff } from './string.js'
 
 /**
  * @type {boolean  | undefined}

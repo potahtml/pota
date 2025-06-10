@@ -3,7 +3,7 @@ import {
 	scrollToLocationHash,
 	scrollToSelector,
 	scrollToTop,
-} from '../../plugin/useScroll.js'
+} from '../../use/scroll.js'
 import { RouteContext } from './context.js'
 
 /**

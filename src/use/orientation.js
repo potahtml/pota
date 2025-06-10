@@ -1,6 +1,6 @@
 import { effect, root } from '../lib/reactive.js'
 
-import { documentSize, useDocumentSize } from './useDocumentSize.js'
+import { documentSize, useDocumentSize } from './resize.js'
 
 import { SignalEmitter } from '../lib/classes/SignalEmitter.js'
 

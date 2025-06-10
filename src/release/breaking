@@ -33,3 +33,5 @@
 - renamed `Router` to `Route`
 - renamed `location.query` to `location.searchParams`
 - moved `useLocation.Navigate` to `pota/components`
+- renamed `pota/plugin` to `pota/use`
+- renamed `pota/plugin/use*.js` to `pota/use/name.js`

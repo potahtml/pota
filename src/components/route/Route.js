@@ -1,8 +1,8 @@
 import { memo, signal } from '../../lib/reactive.js'
 import { nothing, optional } from '../../lib/std.js'
 
-import { addListeners, location } from '../../plugin/useLocation.js'
-import { paramsRegExp, replaceParams } from '../../plugin/useURL.js'
+import { addListeners, location } from '../../use/location.js'
+import { paramsRegExp, replaceParams } from '../../use/url.js'
 
 import { Collapse } from '../Collapse.js'
 import { Dynamic } from '../Dynamic.js'

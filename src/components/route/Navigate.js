@@ -1,4 +1,4 @@
-import { addListeners, navigate } from '../../plugin/useLocation.js'
+import { addListeners, navigate } from '../../use/location.js'
 
 /**
  * Navigates to a new location from JSX

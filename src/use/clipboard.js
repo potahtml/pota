@@ -1,6 +1,6 @@
 import { isFunction } from '../lib/std.js'
 
-import { copyToClipboard } from '../plugin/useString.js'
+import { copyToClipboard } from '../use/string.js'
 
 import { addEvent } from '../lib/reactive.js'
 import { propsPlugin } from '../core/props/plugin.js'
@@ -10,7 +10,7 @@ import { propsPlugin } from '../core/props/plugin.js'
  * @param {string} propName
  * @param {Function | boolean} propValue
  * @param {object} props
- * @url https://pota.quack.uy/plugin/clipboard
+ * @url https://pota.quack.uy/use/clipboard
  */
 const clipboard = (node, propName, propValue, props) =>
 	addEvent(node, 'click', e => {
