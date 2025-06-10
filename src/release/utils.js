@@ -7,6 +7,7 @@ export const read = name =>
 export const write = (name, content) => {
 	if (!exists(name) || read(name) !== content) {
 		fs.writeFileSync(mkdir(name), content)
+		return true
 	}
 }
 

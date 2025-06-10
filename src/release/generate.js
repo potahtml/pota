@@ -23,6 +23,8 @@ process.on('exit', run) // run on exit
 // importmap
 
 function run() {
+	let changedSomething = false
+
 	{
 		const use = readdir('./src/use')
 			.filter(x => x.endsWith('.js'))
@@ -38,9 +40,11 @@ function run() {
 					`"pota/${x.replace(/.js$/, '')}": "/node_modules/pota/src/lib/${x}"`,
 			)
 
-		write(
-			'./src/release/importmap.json',
-			`{ "imports": {
+		changedSomething =
+			changedSomething ||
+			write(
+				'./src/release/importmap.json',
+				`{ "imports": {
 
 "pota": "/node_modules/pota/src/exports.js",
 
@@ -56,7 +60,7 @@ ${use.join(',\n')},
 ${lib.join(',\n')}
 
 }}`,
-		)
+			)
 	}
 
 	// types
@@ -104,8 +108,12 @@ ${lib.join(',\n')}
 			}
 		}
 
-		write('./src/release/types.json', JSON.stringify(types))
+		changedSomething =
+			changedSomething ||
+			write('./src/release/types.json', JSON.stringify(types))
 	}
 
-	console.log('Generated importmap.json and types.json')
+	if (changedSomething) {
+		console.log('Generated importmap.json and types.json')
+	}
 }
