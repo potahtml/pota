@@ -1,16 +1,13 @@
-import {
-	getValueElement,
-	addEventNative,
-	document,
-	documentElement,
-	passiveEvent,
-	removeEventNative,
-} from '../lib/std.js'
-
 import { addEvent } from '../lib/reactive.js'
 import { Emitter } from './emitter.js'
 
 import { propsPlugin } from '../core/props/plugin.js'
+import {
+	addEventNative,
+	passiveEvent,
+	removeEventNative,
+} from './event.js'
+import { document, documentElement, getValueElement } from './dom.js'
 
 /**
  * @param {Element} node
@@ -31,19 +28,18 @@ propsPlugin('use:fullscreen', fullscreen)
 // this fails on startup for some reason
 export const isFullscreen = () => document.fullscreenElement
 
-export const { on: onFullscreen, use: useFullscreen } =
-	new Emitter({
-		on: dispatch => {
-			const handler = passiveEvent(() => dispatch(isFullscreen()))
+export const { on: onFullscreen, use: useFullscreen } = new Emitter({
+	on: dispatch => {
+		const handler = passiveEvent(() => dispatch(isFullscreen()))
 
-			addEventNative(document, 'fullscreenchange', handler)
+		addEventNative(document, 'fullscreenchange', handler)
 
-			return () => {
-				removeEventNative(document, 'fullscreenchange', handler)
-			}
-		},
-		initialValue: isFullscreen,
-	})
+		return () => {
+			removeEventNative(document, 'fullscreenchange', handler)
+		}
+	},
+	initialValue: isFullscreen,
+})
 
 export const exitFullscreen = () => document.exitFullscreen()
 

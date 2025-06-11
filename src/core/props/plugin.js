@@ -65,21 +65,6 @@ export const propsPluginNS = (NSName, fn, onMicrotask) => {
 }
 
 /**
- * Defines prop and namespaced prop that can be used on any Element
- *
- * @param {string} propName - Name of the prop/namespace
- * @param {Function} fn - Function to run when this prop is found on
- *   any Element
- * @param {boolean} [onMicrotask=true] - Set to run on a microtask to
- *   avoid the problem of needed props not being set, or children
- *   elements not being created yet. Default is `true`
- */
-export const propsPluginBoth = (propName, fn, onMicrotask) => {
-	propsPlugin(propName, fn, onMicrotask)
-	propsPluginNS(propName, fn, onMicrotask)
-}
-
-/**
  * @param {Map<string, Function>} plugins
  * @param {string} name
  * @param {Function} fn

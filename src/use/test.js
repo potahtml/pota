@@ -1,6 +1,9 @@
+import { stringifySorted, window, withResolvers } from '../lib/std.js'
+
 import { microtask, untrack } from '../lib/reactive.js'
-import { stringifySorted, withResolvers } from '../lib/std.js'
+
 import { diff } from './string.js'
+import { adoptedStyleSheetsAdd, css } from './css.js'
 
 /** @type {boolean | undefined} */
 let stop = undefined
@@ -118,7 +121,7 @@ function error(title, ...args) {
 
 const proxies = new WeakSet()
 
-globalThis.Proxy = new Proxy(Proxy, {
+window.Proxy = new Proxy(Proxy, {
 	construct(target, args) {
 		const proxy = Reflect.construct(target, args)
 		proxies.add(proxy)
@@ -133,3 +136,22 @@ globalThis.Proxy = new Proxy(Proxy, {
  * @param {object} value
  */
 export const isProxy = value => proxies.has(value)
+
+export const rerenders = () =>
+	adoptedStyleSheetsAdd(
+		document,
+		css`
+			* {
+				animation-duration: 1s;
+				animation-name: render;
+			}
+			@keyframes render {
+				from {
+					background: rgba(88, 166, 255, 0.5);
+				}
+				to {
+					background: transparent;
+				}
+			}
+		`,
+	)

@@ -1,11 +1,6 @@
-import {
-	adoptedStyleSheetsAdd,
-	classListAdd,
-	getDocumentForElement,
-	queueMicrotask,
-	sheet,
-	withState,
-} from '../../lib/std.js'
+import { queueMicrotask, withState } from '../../lib/std.js'
+import { adoptedStyleSheetsAdd, sheet } from '../../use/css.js'
+import { classListAdd, getDocumentForElement } from '../../use/dom.js'
 
 import { randomId } from '../../use/random.js'
 

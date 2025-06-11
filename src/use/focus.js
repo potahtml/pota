@@ -1,15 +1,12 @@
+import { toArray, window } from '../lib/std.js'
+import { activeElement, document, querySelectorAll } from './dom.js'
+
+import { Emitter } from './emitter.js'
 import {
-	activeElement,
-	document,
-	querySelectorAll,
-	toArray,
 	addEventNative,
 	passiveEvent,
 	removeEventNative,
-	window,
-} from '../lib/std.js'
-
-import { Emitter } from './emitter.js'
+} from './event.js'
 
 const elements = () =>
 	toArray(

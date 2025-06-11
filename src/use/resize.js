@@ -1,12 +1,11 @@
+import { window } from '../lib/std.js'
+import { documentElement } from './dom.js'
+import { Emitter } from './emitter.js'
 import {
 	addEventNative,
-	documentElement,
 	passiveEvent,
 	removeEventNative,
-	window,
-} from '../lib/std.js'
-
-import { Emitter } from './emitter.js'
+} from './event.js'
 
 export const documentSize = () => ({
 	width: documentElement.clientWidth,

@@ -1,7 +1,6 @@
 import { memo, signal } from '../lib/reactive.js'
 import { mutable, replace } from '../lib/store.js'
 import {
-	document,
 	empty,
 	entries,
 	freeze,
@@ -9,7 +8,6 @@ import {
 	history,
 	nothing,
 	optional,
-	preventDefault,
 	location as wLocation,
 } from '../lib/std.js'
 
@@ -24,6 +22,8 @@ import {
 import { useTimeout } from './time.js'
 
 import { RouteContext } from '../components/route/context.js'
+import { document } from './dom.js'
+import { preventDefault } from './event.js'
 
 // window.location signal
 

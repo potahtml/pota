@@ -1,12 +1,9 @@
 // node class / classList
 
+import { isFunction, isString } from '../../lib/std.js'
 import { withPrevValue, withValue } from '../../lib/reactive.js'
-import {
-	classListAdd,
-	classListRemove,
-	isFunction,
-	isString,
-} from '../../lib/std.js'
+
+import { classListAdd, classListRemove } from '../../use/dom.js'
 
 /**
  * @param {Element} node

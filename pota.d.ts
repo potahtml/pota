@@ -31,7 +31,10 @@ declare global {
 
 	type SignalObject<T> = SignalTuple<T> & SignalClass<T>
 
-	type SignalFunction<T> = SignalAccessor<T> | SignalSetter<T>
+	type SignalFunction<T> = {
+		(): T
+		(newValue: T): SignalChanged
+	}
 
 	// signal properties
 

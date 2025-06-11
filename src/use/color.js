@@ -1,11 +1,11 @@
 import Color from 'colorjs.io'
 
-import { global, isNaN, noop } from '../lib/std.js'
+import { window, isNaN, noop } from '../lib/std.js'
 
 export const eyeDropper = cb =>
-	!global.EyeDropper
+	!window.EyeDropper
 		? console.error('Your Browser Doesnt Support Picking Colors!')
-		: /** @type {globalThis.EyeDropper} */ new global.EyeDropper()
+		: /** @type {globalThis.EyeDropper} */ new window.EyeDropper()
 				.open()
 				.then(result => {
 					cb(result.sRGBHex)

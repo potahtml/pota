@@ -2,8 +2,9 @@ import {
 	Promise,
 	Symbol,
 	getOwnValues,
-	global,
 	isSymbol,
+	Iterator,
+	window,
 } from '../std.js'
 
 import { ProxyHandlerArray } from './proxies/array.js'
@@ -14,8 +15,6 @@ import { ReactiveArray } from './reactive/array.js'
 import { ReactiveMap } from './reactive/map.js'
 
 import { $track, $trackSlot, Track } from './tracker.js'
-
-const { Iterator } = global
 
 export const mutableBlacklist = [
 	Date,
@@ -62,7 +61,7 @@ export const methodsBlacklist = [
  * @param {any} target
  */
 export const isMutationBlacklisted = target =>
-	target === globalThis ||
+	target === window ||
 	target instanceof Node ||
 	mutableBlacklist.includes(target.constructor)
 

@@ -56,14 +56,6 @@ export { setProperty } from './core/props/property.js'
 export { setElementStyle as setStyle } from './core/props/style.js'
 export { setElementClass as setClass } from './core/props/class.js'
 
-export {
-	propsPlugin,
-	propsPluginBoth,
-	propsPluginNS,
-} from './core/props/plugin.js'
+export { propsPlugin, propsPluginNS } from './core/props/plugin.js'
 
 export { propsSplit } from './core/props/propsSplit.js'
-
-// std
-
-export { css } from './lib/std.js'

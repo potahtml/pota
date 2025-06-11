@@ -71,7 +71,7 @@ export function timing(fn) {
  * @template T
  * @param {(...args: unknown[]) => void} callback - Callback to run
  *   once delay completes
- * @param {number} delay - Delay number or signal
+ * @param {Accessor<number>} delay - Delay number or signal
  * @param {unknown[]} args - Arguments to pass to the callback
  * @returns {{ start: Function; stop: Function }}
  */

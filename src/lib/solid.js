@@ -25,6 +25,12 @@ import {
  *   systems can be run at the same time, for example for the
  *   developer tools context, so dev-tools context doesnt mess up the
  *   real context
+ *
+ * WARNING: typings here are a mess, Im slowly working on it.
+ *
+ * @url https://www.solidjs.com/
+ * @url https://github.com/solidjs/solid
+ * @url https://github.com/solidjs/signals
  */
 
 export function createReactiveSystem() {

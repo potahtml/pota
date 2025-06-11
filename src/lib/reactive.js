@@ -2,7 +2,6 @@ import { $isClass, $isComponent, $isMap } from '../constants.js'
 
 import {
 	emptyArray,
-	unwrapArray,
 	getValue,
 	groupBy,
 	isArray,
@@ -91,8 +90,8 @@ export const proxy = (snigal, target = nothing) =>
  */
 export function signalFunction(value) {
 	const [read, write] = signal(value)
-	return (/** @type T[] */ ...args) =>
-		args.length ? write(args[0]) : read()
+	// @ts-ignore
+	return (...args) => (args.length ? write(args[0]) : read())
 }
 
 /**

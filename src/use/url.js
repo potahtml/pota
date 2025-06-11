@@ -1,8 +1,8 @@
-import { global, origin } from '../lib/std.js'
+import { window, origin } from '../lib/std.js'
 
 export const cleanLink = v => v.replace(/[\.,"]$/, '')
 
-export const encodeURIComponent = global.encodeURIComponent
+export const encodeURIComponent = window.encodeURIComponent
 
 /**
  * Safe guard. `decodeURIComponent` will fail with malformed strings:

@@ -1,9 +1,5 @@
-import {
-	document,
-	location,
-	querySelector,
-	window,
-} from '../lib/std.js'
+import { location, window } from '../lib/std.js'
+import { document, querySelector } from './dom.js'
 
 /**
  * Scrolls to an element

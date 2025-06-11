@@ -1,13 +1,13 @@
+import { isString } from '../lib/std.js'
+
+import { Component, toHTMLFragment } from '../core/renderer.js'
+import { addStyleSheets } from '../use/css.js'
 import {
-	addStyleSheets,
-	emit,
-	isString,
 	querySelector,
 	removeAttribute,
 	setAttribute,
-} from '../lib/std.js'
-
-import { Component, toHTMLFragment } from '../core/renderer.js'
+} from '../use/dom.js'
+import { emit } from '../use/event.js'
 
 /**
  * Defines a custom Element (if isnt defined already)

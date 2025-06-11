@@ -5,6 +5,40 @@ import { $isClass, $isMap, NS } from '../constants.js'
 // LIB
 
 import {
+	unwrapArray,
+	freeze,
+	isArray,
+	iterator,
+	nothing,
+	resolved,
+	stringify,
+	toArray,
+	flatToArray,
+	toValues,
+	isFunction,
+} from '../lib/std.js'
+
+import {
+	createElement,
+	createElementNS,
+	createTextNode,
+	document,
+	DocumentFragment,
+	getDocumentForElement,
+	importNode,
+	isConnected,
+	querySelector,
+	walkElements,
+} from '../use/dom.js'
+
+import {
+	adoptedStyleSheetsAdd,
+	adoptedStyleSheetsRemove,
+} from '../use/css.js'
+
+// REACTIVE
+
+import {
 	cleanup,
 	Context,
 	effect,
@@ -14,33 +48,6 @@ import {
 	isComponent,
 	markComponent,
 } from '../lib/reactive.js'
-
-import {
-	adoptedStyleSheetsAdd,
-	adoptedStyleSheetsRemove,
-	createElement,
-	createElementNS,
-	createTextNode,
-	CSSStyleSheet,
-	document,
-	DocumentFragment,
-	unwrapArray,
-	freeze,
-	getDocumentForElement,
-	importNode,
-	isArray,
-	isConnected,
-	iterator,
-	nothing,
-	querySelector,
-	resolved,
-	stringify,
-	toArray,
-	walkElements,
-	flatToArray,
-	toValues,
-	isFunction,
-} from '../lib/std.js'
 
 import { onFixes, ready } from './scheduler.js'
 
@@ -74,7 +81,7 @@ export const Fragment = props => props.children
  * @param {string | Function | Element | object | symbol} value -
  *   Component
  * @param {Props<T>} [props] - Props object
- * @returns {Children}
+ * @returns {(props: Partial<Props<T>>) => Children}
  * @url https://pota.quack.uy/Component
  */
 export function Component(value, props) {
@@ -179,7 +186,7 @@ function createTag(tagName, props) {
 }
 
 /**
- * @param {string} [xmlns]
+ * @param {string} xmlns
  * @param {(xmlns: string) => Element} fn
  * @param {string} tagName
  * @returns {Element}
@@ -347,7 +354,11 @@ function createChildren(
 		case 'function': {
 			// component
 			if (isComponent(child)) {
-				return createChildren(parent, untrack(child), relative)
+				return createChildren(
+					parent,
+					untrack(/** @type {() => Children} */ (child)),
+					relative,
+				)
 			}
 
 			let node = []

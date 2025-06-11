@@ -34,7 +34,12 @@ function run() {
 			)
 
 		const lib = readdir('./src/lib')
-			.filter(x => x.endsWith('.js') && !x.endsWith('solid.js'))
+			.filter(
+				x =>
+					x.endsWith('.js') &&
+					!x.endsWith('solid.js') &&
+					!x.endsWith('reactive.js'),
+			)
 			.map(
 				x =>
 					`"pota/${x.replace(/.js$/, '')}": "/node_modules/pota/src/lib/${x}"`,

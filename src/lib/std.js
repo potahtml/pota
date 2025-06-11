@@ -1,14 +1,17 @@
-export const global = globalThis
-export const window = global
+export const window = globalThis
 
-export const CSSStyleSheet = global.CSSStyleSheet
-export const document = global.document
-export const DocumentFragment = global.DocumentFragment
-export const Object = global.Object
-export const Promise = global.Promise
-export const requestAnimationFrame = global.requestAnimationFrame
-export const Symbol = global.Symbol
-export const queueMicrotask = global.queueMicrotask
+export const requestAnimationFrame = window.requestAnimationFrame
+export const queueMicrotask = window.queueMicrotask
+
+export const history = window.history
+export const navigator = window.navigator
+export const location = window.location
+export const origin = location?.origin
+
+export const Object = window.Object
+export const Array = window.Array
+export const Promise = window.Promise
+export const Symbol = window.Symbol
 
 export const assign = Object.assign
 export const create = Object.create
@@ -31,12 +34,7 @@ export const isExtensible = Object.isExtensible
 export const keys = Object.keys
 export const values = Object.values
 export const setPrototypeOf = Object.setPrototypeOf
-/**
- * @template T
- * @param {T} value
- * @returns {value is array}
- */
-export const isArray = value => Array.isArray(value)
+
 export const toArray = Array.from
 
 /**
@@ -63,9 +61,8 @@ export const toEntries = value =>
 			).entries()
 		: toArray(/** @type {Iterable<T> | ArrayLike<T>} */ (value))
 
-export const isNaN = Number.isNaN
-
 export const iterator = Symbol.iterator
+export const Iterator = window.Iterator
 
 export const stringify = JSON.stringify
 
@@ -99,12 +96,6 @@ export const stringifySorted = o => {
 export const PrototypeArray = Array.prototype
 export const PrototypeMap = Map.prototype
 
-export const history = global.history
-export const navigator = global.navigator
-
-export const location = global.location
-export const origin = location?.origin
-
 /**
  * @param {(
  * 	resolve: (value: unknown) => void,
@@ -126,29 +117,6 @@ export const withResolvers = () => Promise.withResolvers()
  */
 export const resolved = (promise, onDone) =>
 	promise.then(onDone).catch(onDone)
-
-export const setAttribute = (node, name, value) =>
-	node.setAttribute(name, value)
-
-export const hasAttribute = (node, name) => node.hasAttribute(name)
-
-export const removeAttribute = (node, name) =>
-	node.removeAttribute(name)
-
-export const setAttributeNS = (node, name, value) =>
-	node.setAttributeNS(name, value)
-
-export const hasAttributeNS = (node, name) =>
-	node.hasAttributeNS(name)
-
-export const removeAttributeNS = (node, name) =>
-	node.removeAttributeNS(name)
-
-export const isConnected = node => node.isConnected
-
-export const activeElement = () => document.activeElement
-
-export const documentElement = document?.documentElement
 
 /**
  * Runs an array of functions
@@ -243,18 +211,6 @@ const definePropertyReadOnlyDefaults = {
 	writable: false,
 	value: undefined,
 }
-
-const bind = /* #__NO_SIDE_EFFECTS__ */ fn =>
-	document && document[fn].bind(document)
-
-export const createElement = bind('createElement')
-export const createElementNS = bind('createElementNS')
-export const createTextNode = bind('createTextNode')
-export const createComment = bind('createComment')
-
-export const importNode = bind('importNode')
-
-export const createTreeWalker = bind('createTreeWalker')
 
 /**
  * Returns an object without a prototype
@@ -388,53 +344,6 @@ export const withWeakCache = fn =>
 		weakStore,
 	)
 
-export const walkElements = function (
-	walk,
-	node,
-	max = Infinity,
-	nodes = [],
-) {
-	/**
-	 * The first node is not walked by the walker.
-	 *
-	 * Also the first node could be a DocumentFragment
-	 */
-	node.nodeType === 1 && nodes.push(node)
-
-	walk.currentNode = node
-
-	while (nodes.length !== max && (node = walk.nextNode())) {
-		nodes.push(node)
-	}
-	return nodes
-}.bind(
-	null,
-	createTreeWalker &&
-		createTreeWalker(document, 1 /*NodeFilter.SHOW_ELEMENT*/),
-)
-
-/**
- * Returns `document` for element. That could be a `shadowRoot`
- *
- * @param {Element} node
- * @returns {Document | ShadowRoot}
- */
-export const getDocumentForElement = node => {
-	const document = /** @type {Document | ShadowRoot} */ (
-		node.getRootNode()
-	)
-	const { nodeType } = document
-	// getRootNode returns:
-	// 1. Node for isConnected = false
-	// 2. Document for isConnected = true
-	// 3. shadowRoot for custom elements
-
-	// always return a Document-like
-	return nodeType === 11 || nodeType === 9
-		? document
-		: node.ownerDocument
-}
-
 export const getOwnValues = o =>
 	getOwnPropertyNames(o).map(key => {
 		try {
@@ -466,20 +375,6 @@ export function getValue(value) {
 	while (typeof value === 'function')
 		value = /** @type {() => T} */ (value)()
 	return value
-}
-
-/**
- * Unwraps `value` and returns `element` if result is a `Node`, else
- * `undefined` in the case isn't a `Node`
- *
- * @template T
- * @param {T} value - Maybe function
- * @param {...unknown} args? - Arguments
- * @returns {Node | Element | T | undefined}
- */
-export function getValueElement(value, ...args) {
-	const element = getValueWithArguments(value, ...args)
-	return element instanceof Node ? element : undefined
 }
 
 export const getValueWithArguments = (value, ...args) =>
@@ -524,6 +419,8 @@ export const isConfigurable = (target, key, value) => {
  */
 export const isFunction = value => typeof value === 'function'
 
+export const isNaN = Number.isNaN
+
 /**
  * Returns `true` when value is Iterable
  *
@@ -550,31 +447,6 @@ export const isNullUndefined = value =>
  */
 export const isObject = value =>
 	value !== null && typeof value === 'object'
-
-/**
- * Returns `true` when object morphed between array/object
- *
- * @param {unknown} a
- * @param {unknown} b
- * @returns {boolean}
- */
-export const morphedBetweenArrayAndObject = (a, b) =>
-	(isObject(a) && !isObject(b)) ||
-	(isObject(b) && !isObject(a)) ||
-	(isArray(a) && !isArray(b)) ||
-	(isArray(b) && !isArray(a))
-
-/**
- * Returns `true` if the property is defined in the `prototype` and
- * absent in the `object`
- *
- * @param {object} target
- * @param {PropertyKey} key
- */
-export const isPrototypeProperty = (target, key) =>
-	// must do `key in target` to check that it DOES have it somewhere
-	// must do !hasOwnProperty to check that isnt an own property
-	key in target && !hasOwnProperty(target, key)
 
 /**
  * Returns `true` when `typeof` of `value` is `string`
@@ -617,6 +489,38 @@ export const isBoolean = value => typeof value === 'boolean'
 export const isPromise = value =>
 	isFunction(/** @type {any} */ (value)?.then)
 
+/**
+ * @template T
+ * @param {T} value
+ * @returns {value is array}
+ */
+export const isArray = Array.isArray
+
+/**
+ * Returns `true` when object morphed between array/object
+ *
+ * @param {unknown} a
+ * @param {unknown} b
+ * @returns {boolean}
+ */
+export const morphedBetweenArrayAndObject = (a, b) =>
+	(isObject(a) && !isObject(b)) ||
+	(isObject(b) && !isObject(a)) ||
+	(isArray(a) && !isArray(b)) ||
+	(isArray(b) && !isArray(a))
+
+/**
+ * Returns `true` if the property is defined in the `prototype` and
+ * absent in the `object`
+ *
+ * @param {object} target
+ * @param {PropertyKey} key
+ */
+export const isPrototypeProperty = (target, key) =>
+	// must do `key in target` to check that it DOES have it somewhere
+	// must do !hasOwnProperty to check that isnt an own property
+	key in target && !hasOwnProperty(target, key)
+
 export const noop = () => {}
 
 // an optional value is `true` by default, so most of the time is undefined which means is `true`
@@ -633,17 +537,6 @@ export const noop = () => {}
  */
 export const optional = value =>
 	value === undefined || getValue(value)
-
-export const partAdd = (node, className) => node.part.add(className)
-
-export const partRemove = (node, className) =>
-	node.part.remove(className)
-
-export const querySelector = (node, query) =>
-	node.querySelector(query)
-
-export const querySelectorAll = (node, query) =>
-	node.querySelectorAll(query)
 
 export function* range(start, stop, step) {
 	if (step < 0) step = Math.abs(step)
@@ -818,215 +711,6 @@ export const weakStore = () => new DataStore(WeakMap)
  * @returns {DataStoreT}
  */
 export const cacheStore = () => new DataStore(Map)
-
-export const classListAdd = (node, className) =>
-	node.classList.add(className)
-
-export const classListRemove = (node, className) =>
-	node.classList.remove(className)
-
-/**
- * Returns `adoptedStyleSheets` for a document
- *
- * @param {Document | ShadowRoot} document
- */
-export const adoptedStyleSheetsGet = document =>
-	document?.adoptedStyleSheets
-
-export const adoptedStyleSheets =
-	/* #__PURE__*/ adoptedStyleSheetsGet(document)
-
-/**
- * Adds a style sheet to the document
- *
- * @param {Document | ShadowRoot} document
- * @param {CSSStyleSheet} styleSheet
- */
-export const adoptedStyleSheetsAdd = (document, styleSheet) =>
-	adoptedStyleSheetsGet(document).push(styleSheet)
-
-/**
- * Removes a style sheet from the document
- *
- * @param {Document | ShadowRoot} document
- * @param {CSSStyleSheet} styleSheet
- */
-export const adoptedStyleSheetsRemove = (document, styleSheet) =>
-	removeFromArray(adoptedStyleSheetsGet(document), styleSheet)
-
-/**
- * Adds a style sheet to the custom element
- *
- * @param {Document | ShadowRoot} document
- * @param {(CSSStyleSheet | string)[]} styleSheets
- */
-export function addStyleSheets(document, styleSheets = []) {
-	for (const sheet of styleSheets) {
-		if (sheet) {
-			sheet instanceof CSSStyleSheet
-				? adoptedStyleSheetsAdd(document, sheet)
-				: addStyleSheetExternal(document, sheet)
-		}
-	}
-}
-
-/**
- * Adds the stylesheet from urls. It uses a cache, to avoid having to
- * fire a request for each external sheet when used in more than one
- * custom element. Also, all reference the same object.
- *
- * @param {Document | ShadowRoot} document
- * @param {string} text
- */
-export const addStyleSheetExternal = withState(
-	(state, document, text) => {
-		state
-			.get(text, text =>
-				text.startsWith('http')
-					? fetch(text)
-							.then(r => r.text())
-							.then(css => sheet(css))
-					: promise(resolve => resolve(sheet(text))),
-			)
-			.then(styleSheet => adoptedStyleSheetsAdd(document, styleSheet))
-	},
-)
-
-/**
- * Swaps classNames and waits for the animation to end
- *
- * @param {Element} element
- * @param {string} oldClass - `class` with the old animation
- * @param {string} newClass - `class` with the new animation
- */
-export const animateClassTo = (element, oldClass, newClass) =>
-	promise(resolve =>
-		requestAnimationFrame(() => {
-			classListRemove(element, oldClass)
-			classListAdd(element, newClass)
-			element.getAnimations().length
-				? resolved(waitEvent(element, 'animationend'), resolve)
-				: resolve()
-		}),
-	)
-
-/**
- * Swaps parts and waits for the animation to end
- *
- * @param {Element} element
- * @param {string} oldPart - `part` with the old animation
- * @param {string} newPart - `part` with the new animation
- */
-export const animatePartTo = (element, oldPart, newPart) =>
-	promise(resolve =>
-		requestAnimationFrame(() => {
-			partRemove(element, oldPart)
-			partAdd(element, newPart)
-			element.getAnimations().length
-				? resolved(waitEvent(element, 'animationend'), resolve)
-				: resolve()
-		}),
-	)
-
-/**
- * Creates tagged css and returns a CSSStyleSheet. Mostly for css
- * highlighting in js
- *
- * @param {TemplateStringsArray} template
- * @param {...any} values
- * @returns {CSSStyleSheet}
- */
-export const css = (template, ...values) =>
-	sheet(String.raw({ raw: template }, ...values))
-
-/**
- * Creates a stylesheet from a css string
- *
- * @param {string} css
- * @returns {CSSStyleSheet}
- */
-export const sheet = withCache(css => {
-	const sheet = new CSSStyleSheet()
-	/**
-	 * Replace is asynchronous and can accept `@import` statements
-	 * referencing external resources.
-	 */
-	sheet.replace(css)
-
-	return sheet
-})
-
-/**
- * @param {Element | typeof globalThis} node
- * @param {string} eventName
- * @param {CustomEventInit} [data]
- */
-
-export const emit = (
-	node,
-	eventName,
-	data = { bubbles: true, cancelable: true, composed: true },
-) => node.dispatchEvent(new CustomEvent(eventName, data))
-
-/**
- * @template {Event} T
- * @param {T} e
- */
-export function stopEvent(e) {
-	preventDefault(e)
-	stopPropagation(e)
-	stopImmediatePropagation(e)
-}
-/**
- * @template {Event} T
- * @param {T} e
- */
-export const preventDefault = e => e.preventDefault()
-/**
- * @template {Event} T
- * @param {T} e
- */
-export const stopPropagation = e => e.stopPropagation()
-/**
- * @template {Event} T
- * @param {T} e
- */
-export const stopImmediatePropagation = e =>
-	e.stopImmediatePropagation()
-
-/**
- * Waits for an event to be dispatched and runs a callback
- *
- * @param {Element} element
- * @param {string} eventName
- */
-export const waitEvent = withState(
-	(state, element, eventName) =>
-		promise((resolve, reject) => {
-			/**
-			 * To prevent firing `transitionend` twice it needs to stop
-			 * listening the old one because maybe wasn't dispatched and
-			 * running a new transition will make it dispatch twice
-			 */
-			const previous = state.get(element, empty)
-			previous.reject && previous.reject()
-			element.removeEventListener(eventName, previous.resolve)
-			state.set(element, { resolve, reject })
-			element.addEventListener(eventName, resolve, {
-				once: true,
-			})
-		}),
-	weakStore,
-)
-
-export const addEventNative = (where, type, handler) =>
-	where.addEventListener(type, handler, handler)
-
-export const removeEventNative = (where, type, handler) =>
-	where.removeEventListener(type, handler, handler)
-
-/** @param {EventListener} fn */
-export const passiveEvent = fn => ({ handleEvent: fn, passive: true })
 
 export const warn = (...args) => console.warn(...args)
 export const error = (...args) => console.error(...args)

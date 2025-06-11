@@ -1,11 +1,11 @@
+import { Emitter } from './emitter.js'
+
+import { document } from './dom.js'
 import {
 	addEventNative,
-	document,
 	passiveEvent,
 	removeEventNative,
-} from '../lib/std.js'
-
-import { Emitter } from './emitter.js'
+} from './event.js'
 
 export const isDocumentVisible = () =>
 	document.visibilityState === 'visible'

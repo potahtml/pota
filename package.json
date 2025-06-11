@@ -46,6 +46,10 @@
 			"types": "./types/lib/std.d.ts",
 			"default": "./src/lib/std.js"
 		},
+		"./experiments": {
+			"types": "./types/lib/experiments.d.ts",
+			"default": "./src/lib/experiments.js"
+		},
 		".": {
 			"types": "./pota.d.ts",
 			"node": "./src/lib/reactive.js",

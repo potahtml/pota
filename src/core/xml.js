@@ -1,6 +1,4 @@
 import {
-	createComment,
-	createTextNode,
 	empty,
 	error,
 	unwrapArray,
@@ -28,6 +26,7 @@ import {
 	Show,
 	Switch,
 } from '../components/@main.js'
+import { createComment, createTextNode } from '../use/dom.js'
 
 /** @type {Record<string, Component>} */
 const defaultRegistry = {
@@ -90,7 +89,8 @@ function toH(xml, cached, values) {
 		const { nodeType } = node
 		if (nodeType === 1) {
 			// element
-			const { tagName, attributes, childNodes } = /** @type {Element} */ (node)
+			const { tagName, attributes, childNodes } =
+				/** @type {Element} */ (node)
 
 			// gather props
 			/** @type {Record<string, Accessor<unknown>>} */
@@ -163,9 +163,7 @@ export function XML() {
 	}
 
 	xml.components = { ...defaultRegistry }
-	/**
-	 * @param {Record<string, Component>} userComponents
-	 */
+	/** @param {Record<string, Component>} userComponents */
 	xml.define = userComponents => {
 		for (const name in userComponents) {
 			xml.components[name] = userComponents[name]

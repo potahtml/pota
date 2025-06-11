@@ -1,9 +1,10 @@
-import { makeCallback, map } from '../lib/reactive.js'
 import {
 	activeElement,
 	documentElement,
 	isConnected,
-} from '../lib/std.js'
+} from '../use/dom.js'
+
+import { makeCallback, map } from '../lib/reactive.js'
 
 import { onFixes } from '../core/scheduler.js'
 

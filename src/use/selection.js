@@ -1,3 +1,5 @@
+import { window } from '../lib/std.js'
+
 export function getSelection() {
 	const selection = window.getSelection()
 	if (!selection || selection.rangeCount === 0) {

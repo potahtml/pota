@@ -34,12 +34,19 @@ type NSStyle = {
 }
 
 interface CSSAttributes extends NSStyle {
-	class?: Accessor<string>
+	class?:
+		| Record<
+				string,
+				Accessor<string | boolean | number | null | undefined>
+		  >
+		| Accessor<string>
 	style?: Accessor<CSSProperties | string>
 
 	'use:css'?: Accessor<string>
 
-	[attr: `class:${string}`]: Accessor<boolean>
+	[attr: `class:${string}`]: Accessor<
+		string | boolean | number | null | undefined
+	>
 }
 
 /** Pota namespace JSX */
@@ -77,7 +84,7 @@ export namespace JSX {
 		// dom
 		| globalThis.Element
 		| ChildNode
-		| DocumentFragment
+		// | DocumentFragment cannot be `children`, we use `childNodes` instead
 		// recurse
 		| (() => Element)
 		| Promise<Element>
@@ -152,7 +159,7 @@ export namespace JSX {
 		'use:connected'?: Callback<Element>
 		'use:disconnected'?: Callback<Element>
 
-		'use:bind'?: SignalFunction<string | number | boolean>
+		'use:bind'?: SignalFunction<unknown>
 	}
 
 	// all elements
@@ -288,7 +295,7 @@ export namespace JSX {
 	interface HTMLMediaHTMLAttributes<Element> {
 		// properties
 
-		'prop:srcObject': MediaStream | MediaSource | Blob | File
+		'prop:srcObject'?: MediaStream | MediaSource | Blob | File
 
 		// attributes
 		autoplay?: Accessor<BooleanAttribute>
