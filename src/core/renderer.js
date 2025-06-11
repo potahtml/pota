@@ -8,12 +8,10 @@ import {
 	cleanup,
 	Context,
 	effect,
-	isReactive,
 	root,
 	signal,
 	untrack,
 	isComponent,
-	isComponentable,
 	markComponent,
 } from '../lib/reactive.js'
 
@@ -41,6 +39,7 @@ import {
 	walkElements,
 	flatToArray,
 	toValues,
+	isFunction,
 } from '../lib/std.js'
 
 import { onFixes, ready } from './scheduler.js'
@@ -124,16 +123,6 @@ function Factory(value) {
 				return markComponent(props => createClass(value, props))
 			}
 
-			/**
-			 * ```js
-			 * const [Count, setCount] = signal(1)
-			 * return <Count />
-			 * ```
-			 */
-			if (isReactive(value)) {
-				return markComponent(() => createAnything(value))
-			}
-
 			// function component <MyComponent../>
 			// value = value
 			return markComponent(value)
@@ -146,16 +135,6 @@ function Factory(value) {
 
 			return markComponent(() => createAnything(value))
 		}
-	}
-}
-
-export function createComponent(value) {
-	const component = Factory(value)
-
-	return props => {
-		/** Freeze props so isnt directly writable */
-		freeze(props)
-		return markComponent(() => component(props))
 	}
 }
 
@@ -248,6 +227,17 @@ function parseXML(content, xmlns) {
 	return tlpContent.childNodes.length === 1
 		? tlpContent.firstChild
 		: tlpContent
+}
+
+/** Used in transform in place of jsxs */
+export function createComponent(value) {
+	const component = Factory(value)
+
+	return props => {
+		/** Freeze props so isnt directly writable */
+		freeze(props)
+		return markComponent(() => component(props))
+	}
 }
 
 /**
@@ -611,7 +601,6 @@ export function render(children, parent, options = nothing) {
  *   `document.body`
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
- * @returns {Element} The inserted element
  */
 export function insert(
 	children,
@@ -622,10 +611,11 @@ export function insert(
 
 	const node = createChildren(
 		parent,
-		isComponentable(children) ? Factory(children) : children,
+		Factory(isFunction(children) ? children : () => children),
 		options.relative,
 	)
 
+	// @ts-ignore
 	cleanup(() => toDiff(flatToArray(node)))
 
 	return node

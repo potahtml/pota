@@ -1,4 +1,3 @@
-import { $isReactive } from '../constants.js'
 import {
 	assign,
 	isArray,
@@ -277,7 +276,7 @@ export function createReactiveSystem() {
 			return this.read
 		}
 
-		read = markReactive(() => {
+		read = () => {
 			if (this.state) {
 				if (this.state === STALE) {
 					this.update()
@@ -312,7 +311,7 @@ export function createReactiveSystem() {
 			}
 
 			return this.value
-		})
+		}
 
 		write(value) {
 			if (this.equals === false || !this.equals(this.value, value)) {
@@ -407,7 +406,7 @@ export function createReactiveSystem() {
 			}
 		}
 		/** @returns SignalAccessor<T> */
-		read = markReactive(() => {
+		read = () => {
 			// checkReadForbidden()
 
 			if (Listener) {
@@ -433,7 +432,7 @@ export function createReactiveSystem() {
 			}
 
 			return this.value
-		})
+		}
 		/**
 		 * @param {T} [value]
 		 * @returns SignalSetter<T>
@@ -878,18 +877,4 @@ export function createReactiveSystem() {
 		syncEffect,
 		untrack,
 	}
-}
-
-/**
- * Marks a function as reactive. Reactive functions are ran inside
- * effects. This is used internally by the reactive system to track
- * which functions should be treated as reactive computations.
- *
- * @template {Function | (() => unknown)} T
- * @param {T} fn - Function to mark as reactive
- * @returns {T} The same function with the reactive marker
- */
-export function markReactive(fn) {
-	fn[$isReactive] = undefined
-	return fn
 }

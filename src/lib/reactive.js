@@ -1,9 +1,4 @@
-import {
-	$isClass,
-	$isComponent,
-	$isMap,
-	$isReactive,
-} from '../constants.js'
+import { $isClass, $isComponent, $isMap } from '../constants.js'
 
 import {
 	emptyArray,
@@ -21,11 +16,12 @@ import {
 	resolved,
 	withResolvers,
 	toEntries,
+	flatToArray,
 } from './std.js'
 
 // solid
 
-import { createReactiveSystem, markReactive } from './solid.js'
+import { createReactiveSystem } from './solid.js'
 
 const {
 	batch,
@@ -59,18 +55,8 @@ export {
 	signal,
 	syncEffect,
 	untrack,
-	markReactive,
 	createReactiveSystem,
 }
-
-/**
- * Returns true when value is reactive (a signal)
- *
- * @param {unknown} value
- * @returns {boolean}
- */
-export const isReactive = value =>
-	isFunction(value) && $isReactive in value
 
 /**
  * Proxies a signals property access so you dont have to call the
@@ -105,10 +91,8 @@ export const proxy = (snigal, target = nothing) =>
  */
 export function signalFunction(value) {
 	const [read, write] = signal(value)
-	return markReactive(
-		/** @type T[] */ (...args) =>
-			args.length ? write(args[0]) : read(),
-	)
+	return (/** @type T[] */ ...args) =>
+		args.length ? write(args[0]) : read()
 }
 
 /**
@@ -167,9 +151,8 @@ export function withPrevValue(value, fn) {
  */
 export function writable(fn) {
 	const result = memo(() => signal(fn()))
-	return markReactive((...args) => {
-		return args.length ? result().write(args[0]) : result().read()
-	})
+	return (...args) =>
+		args.length ? result().write(args[0]) : result().read()
 }
 
 /**
@@ -543,92 +526,38 @@ export const isComponent = value =>
 	isFunction(value) && $isComponent in value
 
 /**
- * Returns true if the value can be made a Component
- *
- * @param {any} value
- * @returns {boolean}
- */
-export function isComponentable(value) {
-	return (
-		!isReactive(value) &&
-		(isFunction(value) ||
-			(!isArray(value) && isObject(value) && !isPromise(value)))
-	)
-}
-
-// avoid [1,2] and support { toString(){ return "something"} }
-
-/**
  * Makes of `children` a function. Reactive children will run as is,
  * non-reactive children will run untracked, regular children will
  * just return.
  *
  * @template {Children} T
  * @param {T} children
- * @returns {((value: unknown) => Children)
- * 	| ((key: unknown, value: unknown) => Children)}
+ * @returns {((...args: unknown[]) => T) | T}
  */
 export function makeCallback(children) {
 	/**
-	 * When children is an array, as in >${[0, 1, 2]}< then children
-	 * will end as `[[0, 1, 2]]`, so flat it
+	 * 1. Shortcut the most used case
+	 * 2. When children is an array, as in >${[0, 1, 2]}< then children
+	 *    will end as `[[0, 1, 2]]`, so flat it
 	 */
-
-	children = isArray(children) ? unwrapArray(children) : children
-
-	const callbacks = !isArray(children)
-		? callback(children)
-		: children.map(callback)
-
-	return !isArray(children)
-		? markComponent((...args) => callbacks(args))
-		: markComponent((...args) =>
-				callbacks.map(callback => callback(args)),
+	return isFunction(children)
+		? markComponent(children)
+		: // @ts-ignore
+			markComponent((...args) =>
+				// @ts-ignore
+				flatToArray(children).map(child =>
+					isFunction(child) ? child(...args) : child,
+				),
 			)
 }
 
-/** @returns {Children} */
-const callback = child =>
-	isFunction(child)
-		? isReactive(child)
-			? args => {
-					/**
-					 * The function inside the `for` is saved in a signal. The
-					 * result of the signal is our callback
-					 *
-					 * ```js
-					 * xml`
-					 * <table>
-					 * 		<tr>
-					 * 			<th>name</th>
-					 * 		</tr>
-					 * 		<for each="${tests}">
-					 * 			${item =>
-					 * 				xml`<tr>
-					 * 					<td>${item.name}</td>
-					 * 				</tr>`}
-					 * 		</for>
-					 * 	</table>
-					 * `
-					 * ```
-					 */
-					// TODO this may be simplified to call itself again as `callback(r)`
-					const r = child()
-					return isFunction(r)
-						? isReactive(r)
-							? r()
-							: untrack(() => r(...args))
-						: r
-				}
-			: args => untrack(() => child(...args))
-		: () => child
-
-// allows to tell a `signal function` from a `component function`
-// signals and user functions go in effects, for reactivity
-// components and callbacks are untracked and wont go in effects to avoid re-rendering
-
 /**
  * Marks a function as a `Component`.
+ *
+ * Allows to tell a `signal function` from a `component function`.
+ * Signals and user functions go in effects, for reactivity.
+ * Components and callbacks are untracked and wont go in effects to
+ * avoid re-rendering if signals are used in the components body
  *
  * @template T
  * @param {T} fn - Function to mark as a `Component`

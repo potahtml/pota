@@ -10,7 +10,6 @@ export {
 	cleanup,
 	cleanupCancel,
 	effect,
-	isReactive,
 	Lazy,
 	lazy,
 	map,
