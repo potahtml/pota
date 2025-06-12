@@ -3,7 +3,7 @@ import { stringifySorted, window, withResolvers } from '../lib/std.js'
 import { microtask, untrack } from '../lib/reactive.js'
 
 import { diff } from './string.js'
-import { adoptedStyleSheetsAdd, css } from './css.js'
+import { addAdoptedStyleSheet, css } from './css.js'
 
 /** @type {boolean | undefined} */
 let stop = undefined
@@ -138,7 +138,7 @@ window.Proxy = new Proxy(Proxy, {
 export const isProxy = value => proxies.has(value)
 
 export const rerenders = () =>
-	adoptedStyleSheetsAdd(
+	addAdoptedStyleSheet(
 		document,
 		css`
 			* {

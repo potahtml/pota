@@ -8,8 +8,9 @@ import { onMount, onRef } from '../scheduler.js'
  * @param {Function} value
  * @param {object} props
  */
-export const setRef = (node, name, value, props) =>
+export const setRef = (node, name, value, props) => {
 	onRef(() => value(node))
+}
 
 /**
  * @param {Element} node
@@ -17,8 +18,9 @@ export const setRef = (node, name, value, props) =>
  * @param {Function} value
  * @param {object} props
  */
-export const setConnected = (node, name, value, props) =>
+export const setConnected = (node, name, value, props) => {
 	onMount(() => value(node))
+}
 
 /**
  * @param {Element} node
@@ -26,5 +28,6 @@ export const setConnected = (node, name, value, props) =>
  * @param {Function} value
  * @param {object} props
  */
-export const setDisconnected = (node, name, value, props) =>
+export const setDisconnected = (node, name, value, props) => {
 	cleanup(() => value(node))
+}

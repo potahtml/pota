@@ -1,9 +1,9 @@
 // node class / classList
 
-import { isFunction, isString } from '../../lib/std.js'
+import { isFunction, isObject, isString } from '../../lib/std.js'
 import { withPrevValue, withValue } from '../../lib/reactive.js'
 
-import { classListAdd, classListRemove } from '../../use/dom.js'
+import { addClass, removeClass } from '../../use/dom.js'
 
 /**
  * @param {Element} node
@@ -33,7 +33,7 @@ export const setClassNS = (
 	localName,
 	ns,
 ) => {
-	isFunction(value)
+	isFunction(value) || !isObject(value)
 		? setElementClass(node, localName, value)
 		: setClassList(node, value)
 }
@@ -70,8 +70,8 @@ function setClassList(node, value) {
  */
 export const setElementClass = (node, name, value) => {
 	withPrevValue(value, (value, prev) => {
-		// on initialization do not remove whats not there
 		if (!value && !prev) {
+			// on initialization do not remove whats not there
 		} else {
 			_setClassListValue(node, name, value)
 		}
@@ -87,6 +87,6 @@ export const setElementClass = (node, name, value) => {
 const _setClassListValue = (node, name, value) => {
 	// null, undefined or false, the class is removed
 	!value
-		? classListRemove(node, name)
-		: classListAdd(node, ...name.trim().split(/\s+/))
+		? removeClass(node, name)
+		: addClass(node, ...name.trim().split(/\s+/))
 }

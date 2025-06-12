@@ -3,11 +3,12 @@ import { onProps } from '../scheduler.js'
 
 export const plugins = cacheStore()
 export const pluginsNS = cacheStore()
+
 /** @type {Set<string> & { xmlns?: string }} */
 export const namespaces = new Set([
-	'class',
 	'on',
 	'prop',
+	'class',
 	'style',
 	'use',
 ])
@@ -59,13 +60,14 @@ export const propsPlugin = (propName, fn, onMicrotask) => {
  *   elements not being created yet. Default is `true`
  */
 export const propsPluginNS = (NSName, fn, onMicrotask) => {
+	// update namespace for the `xml` function
 	namespaces.add(NSName)
 	updateNamespaces()
 	plugin(pluginsNS, NSName, fn, onMicrotask)
 }
 
 /**
- * @param {Map<string, Function>} plugins
+ * @param {typeof plugins} plugins
  * @param {string} name
  * @param {Function} fn
  * @param {boolean} [onMicrotask=true] Default is `true`

@@ -43,11 +43,11 @@ export const sheet = withCache(css => {
  *
  * @param {Document | ShadowRoot} document
  */
-export const adoptedStyleSheetsGet = document =>
+export const getAdoptedStyleSheets = document =>
 	document?.adoptedStyleSheets
 
 export const adoptedStyleSheets =
-	/* #__PURE__*/ adoptedStyleSheetsGet(document)
+	/* #__PURE__*/ getAdoptedStyleSheets(document)
 
 /**
  * Adds a style sheet to the document
@@ -55,8 +55,8 @@ export const adoptedStyleSheets =
  * @param {Document | ShadowRoot} document
  * @param {CSSStyleSheet} styleSheet
  */
-export const adoptedStyleSheetsAdd = (document, styleSheet) =>
-	adoptedStyleSheetsGet(document).push(styleSheet)
+export const addAdoptedStyleSheet = (document, styleSheet) =>
+	getAdoptedStyleSheets(document).push(styleSheet)
 
 /**
  * Removes a style sheet from the document
@@ -64,8 +64,8 @@ export const adoptedStyleSheetsAdd = (document, styleSheet) =>
  * @param {Document | ShadowRoot} document
  * @param {CSSStyleSheet} styleSheet
  */
-export const adoptedStyleSheetsRemove = (document, styleSheet) =>
-	removeFromArray(adoptedStyleSheetsGet(document), styleSheet)
+export const removeAdoptedStyleSheet = (document, styleSheet) =>
+	removeFromArray(getAdoptedStyleSheets(document), styleSheet)
 
 /**
  * Adds a style sheet to the custom element
@@ -77,7 +77,7 @@ export function addStyleSheets(document, styleSheets = []) {
 	for (const sheet of styleSheets) {
 		if (sheet) {
 			sheet instanceof CSSStyleSheet
-				? adoptedStyleSheetsAdd(document, sheet)
+				? addAdoptedStyleSheet(document, sheet)
 				: addStyleSheetExternal(document, sheet)
 		}
 	}
@@ -101,6 +101,6 @@ export const addStyleSheetExternal = withState(
 							.then(css => sheet(css))
 					: promise(resolve => resolve(sheet(text))),
 			)
-			.then(styleSheet => adoptedStyleSheetsAdd(document, styleSheet))
+			.then(styleSheet => addAdoptedStyleSheet(document, styleSheet))
 	},
 )

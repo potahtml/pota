@@ -66,14 +66,26 @@ declare global {
 
 	// events
 
+	// string types of events
 	type EventType = JSX.EventType
 
-	type EventHandlersWindow<T> = JSX.EventHandlersWindow<T>
-	type EventHandlersElement<T> = JSX.EventHandlersElement<T>
+	// actual possible events
+	type EventHandlersWindow<Element> = JSX.EventHandlersWindow<Element>
+	type EventHandlersElement<Element> =
+		JSX.EventHandlersElement<Element>
 
+	// event options
 	type EventHandlerOptions = JSX.EventHandlerOptions
 
-	type EventHandler<T> = JSX.EventHandler<T>
+	// a generic event handler
+	type EventHandler<Event, Element> = JSX.EventHandler<Event, Element>
+
+	// callbacks
+
+	type CallbackElement<Element> = JSX.CallbackElement<Element>
+	type CallbackEvent<Event> = JSX.CallbackEvent<Event>
+	type CallbackEventElement<Event, Element> =
+		JSX.CallbackEventElement<Event, Element>
 
 	// tests
 
@@ -85,10 +97,6 @@ declare global {
 			toEqual: (expected: unknown) => Promise<unknown>
 		}
 	}
-
-	// stuff
-
-	type Callback<T> = (value: T) => unknown
 }
 
 export {

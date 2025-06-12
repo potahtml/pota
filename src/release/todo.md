@@ -6,13 +6,6 @@ CONSIDER ALWAYS
 
 some day
 
-- improve the tracker
-- need to type the remaining `use:` such `use:clipboard`
-- addEvent vs eventAdd - be consistent !!
-
-- restructure the docs
-- page full of tests ASAP
-
 documentation
 
 - PRIORITY - online tests, a page full of tests
@@ -20,6 +13,7 @@ documentation
 - PRIORITY - the documentation is out of date, restore publishing
 - add proper 404
 - light theme
+- restructure the docs
 
 tools
 
@@ -51,6 +45,7 @@ reactivity
   `createReactiveSystem`
 - figure out if top level runs the same as when owned, or make top
   level owned, even if doesnt garbage collects
+- maybe move node sorting out of For component
 
 use / probably never
 
@@ -73,6 +68,11 @@ use / probably never
 - socket webrtc
 - handle/listen postMessage/MessageChannel
 
+transform
+
+- refactor
+- maybe try to make the partials smaller
+
 components:
 
 - color picker
@@ -82,7 +82,7 @@ components:
 - record audio, video
 - splitter
 - Error component
-- maybe make a <WithDocument document={document}/> so stuff stops
+- maybe make a `<WithDocument document={document}/>` so stuff stops
   breaking with popups
 - web components slots
 - web components WIP
@@ -90,8 +90,8 @@ components:
 bench
 
 - v0.17.177 - position 31 / 10k - 75ms 11ms / 1k - 7ms 0.7ms
-- v0.18.184 - position X / 10k - 86ms 9ms / 1k - 7ms 0.5ms
+- v0.18.184 - position X / 10k - 77ms 9ms / 1k - 7ms 0.5ms
 
 typescript errors
 
-- 73 non-strict / 497 strict
+- 66 non-strict / 497 strict

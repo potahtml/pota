@@ -1,15 +1,22 @@
 import { addEvent, ownedEvent } from '../../lib/reactive.js'
 
 /**
- * @param {Element} node
+ * @template {Element} T
+ * @param {T} node
  * @param {string} name
- * @param {EventListener
- * 	| EventListenerObject
- * 	| (EventListenerObject & AddEventListenerOptions)} value
+ * @param {EventHandler<Event, T>} value
  * @param {object} props
  * @param {string} localName
  * @param {string} ns
  */
-export const setEventNS = (node, name, value, props, localName, ns) =>
+export const setEventNS = (
+	node,
+	name,
+	value,
+	props,
+	localName,
+	ns,
+) => {
 	// `value &&` because avoids crash when `on:click={prop.onClick}` and `prop.onClick === null`
 	value && addEvent(node, localName, ownedEvent(value))
+}

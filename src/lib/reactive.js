@@ -572,8 +572,8 @@ export function markComponent(fn) {
  * @template {Element | Document | typeof window} TargetElement
  * @param {TargetElement} node - Element to add the event listener
  * @param {EventType} type - The name of the event listener
- * @param {EventHandler<TargetElement>} handler - Function to handle
- *   the event
+ * @param {EventHandler<Event, TargetElement>} handler - Function to
+ *   handle the event
  * @returns {Function} - An `off` function for removing the event
  *   listener
  * @url https://pota.quack.uy/props/EventListener
@@ -605,8 +605,8 @@ export function addEvent(node, type, handler) {
  * @template {Element | Document | typeof window} TargetElement
  * @param {TargetElement} node - Element to add the event listener
  * @param {EventType} type - The name of the event listener
- * @param {EventHandler<TargetElement>} handler - Function to handle
- *   the event
+ * @param {EventHandler<Event, TargetElement>} handler - Function to
+ *   handle the event
  * @returns {Function} - An `on` function for adding back the event
  *   listener
  * @url https://pota.quack.uy/props/EventListener
@@ -627,7 +627,7 @@ export function removeEvent(node, type, handler) {
  * It gives a handler an owner, so stuff runs batched on it, and
  * things like context and cleanup work
  *
- * @template {EventHandler<T>} T
+ * @template {EventHandler<Event, Element>} T
  * @param {T} handler
  */
 export const ownedEvent = handler =>

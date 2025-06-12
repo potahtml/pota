@@ -1,11 +1,6 @@
 import { promise, resolved } from '../lib/std.js'
 
-import {
-	classListAdd,
-	classListRemove,
-	partAdd,
-	partRemove,
-} from './dom.js'
+import { addClass, removeClass, addPart, removePart } from './dom.js'
 import { waitEvent } from './event.js'
 
 /**
@@ -18,8 +13,8 @@ import { waitEvent } from './event.js'
 export const animateClassTo = (element, oldClass, newClass) =>
 	promise(resolve =>
 		requestAnimationFrame(() => {
-			classListRemove(element, oldClass)
-			classListAdd(element, newClass)
+			removeClass(element, oldClass)
+			addClass(element, newClass)
 			element.getAnimations().length
 				? resolved(waitEvent(element, 'animationend'), resolve)
 				: resolve()
@@ -36,8 +31,8 @@ export const animateClassTo = (element, oldClass, newClass) =>
 export const animatePartTo = (element, oldPart, newPart) =>
 	promise(resolve =>
 		requestAnimationFrame(() => {
-			partRemove(element, oldPart)
-			partAdd(element, newPart)
+			removePart(element, oldPart)
+			addPart(element, newPart)
 			element.getAnimations().length
 				? resolved(waitEvent(element, 'animationend'), resolve)
 				: resolve()

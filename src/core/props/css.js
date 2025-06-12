@@ -1,6 +1,6 @@
 import { queueMicrotask, withState } from '../../lib/std.js'
-import { adoptedStyleSheetsAdd, sheet } from '../../use/css.js'
-import { classListAdd, getDocumentForElement } from '../../use/dom.js'
+import { addAdoptedStyleSheet, sheet } from '../../use/css.js'
+import { addClass, getDocumentForElement } from '../../use/dom.js'
 
 import { randomId } from '../../use/random.js'
 
@@ -21,11 +21,11 @@ const setNodeCSS = withState(
 			return queueMicrotask(() => setNodeCSS(node, value, true))
 		}
 
-		classListAdd(
+		addClass(
 			node,
 			state.get(value, value => {
 				const id = 'c' + randomId()
-				adoptedStyleSheetsAdd(
+				addAdoptedStyleSheet(
 					getDocumentForElement(node),
 					sheet(value.replace(/class/g, '.' + id)),
 				)

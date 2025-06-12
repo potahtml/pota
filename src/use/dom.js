@@ -2,6 +2,8 @@ import { getValueWithArguments, window } from '../lib/std.js'
 
 export const document = window.document
 
+export const head = document?.head
+
 export const isConnected = node => node.isConnected
 
 export const activeElement = () => document.activeElement
@@ -22,15 +24,15 @@ export const importNode = bind('importNode')
 
 export const createTreeWalker = bind('createTreeWalker')
 
-export const partAdd = (node, className) => node.part.add(className)
+export const addPart = (node, className) => node.part.add(className)
 
-export const partRemove = (node, className) =>
+export const removePart = (node, className) =>
 	node.part.remove(className)
 
-export const classListAdd = (node, className) =>
+export const addClass = (node, className) =>
 	node.classList.add(className)
 
-export const classListRemove = (node, className) =>
+export const removeClass = (node, className) =>
 	node.classList.remove(className)
 
 export const setAttribute = (node, name, value) =>
@@ -70,10 +72,11 @@ export const getDocumentForElement = node => {
 	// getRootNode returns:
 	// 1. Node for isConnected = false
 	// 2. Document for isConnected = true
-	// 3. shadowRoot for custom elements
+	// 3. ShadowRoot for custom elements
 
 	// always return a Document-like
-	return nodeType === 11 || nodeType === 9
+	return nodeType === 11 /* DOCUMENT_FRAGMENT_NODE (11) */ ||
+		nodeType === 9 /* DOCUMENT_NODE (9)*/
 		? document
 		: node.ownerDocument
 }

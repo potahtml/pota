@@ -20,7 +20,9 @@ export const setAttributeNS = (
 	props,
 	localName,
 	ns,
-) => setAttribute(node, localName, value)
+) => {
+	setAttribute(node, localName, value)
+}
 
 /**
  * @param {Element} node
@@ -29,9 +31,9 @@ export const setAttributeNS = (
  * @param {string} [ns]
  * @url https://pota.quack.uy/props/setAttribute
  */
-export const setAttribute = (node, name, value, ns) =>
+export const setAttribute = (node, name, value, ns) => {
 	withValue(value, value => _setAttribute(node, name, value, ns))
-
+}
 /**
  * @param {Element} node
  * @param {string} name

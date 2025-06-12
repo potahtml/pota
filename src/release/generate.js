@@ -38,6 +38,7 @@ function run() {
 				x =>
 					x.endsWith('.js') &&
 					!x.endsWith('solid.js') &&
+					!x.endsWith('std.js') &&
 					!x.endsWith('reactive.js'),
 			)
 			.map(

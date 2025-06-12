@@ -1,23 +1,23 @@
 # pota v0.18.184
 
+This release provides a proper typescript setup. Typings are a work in progress to. A major restructuring of the project structure, and small general minor bug fixes and improvements.
+
 ## changes
 
-- default to attributes instead of properties. This aligns with the possible upcoming Solid 2.0. Fixes a lot of problems and makes the code smaller.
-- Finally understood a bunch of stuff and tunned the typescript setup. Typings are still work in progress, and some are wrong, at least the base is there.
-- the playground switched to monaco, accepts typescript and defaults to TSX, providing pota typings!
+- Defaults to attributes instead of properties. This aligns with the possible upcoming Solid 2.0. Fixes a lot of problems by aligning with HTML, and makes the code smaller.
+- Everything is now namespaced, so there are no collisions between attributes/properties/events/lifecycles/plugins
+- Proper typescript setup. Typings are still work in progress
+- The playground switched to monaco, accepts typescript and defaults to TSX, providing pota typings!
 - exports a `createReactiveSystem`, will use in dev-tools to hide dev-tools from report/inspect panels.
-- new `<Range start={0} stop={10} step={2}/>` component! by @boredofnames Thanks!
+- New `<Range start={0} stop={10} step={2}/>` component! by @boredofnames Thanks!
 - Trying to setup releases, not sure if will work. Mostly to comment breaking changes, as api shape is being researched and will most likely change
-- everything is now namespaced, so theres no colisions between attibutes/properties/events/lifecycles/plugins
 - minor bug fixes and improvements
-- restructured the whole project
-- add `cleanupCancel`
 - supports rendering generators
 
 ## breaking changes
 
-- renamed `onMount` to `use:connected` as `<div use:connected={e=>{}}/>`
-- renamed `onUnmount` to `use:disconnected` as  `<div use:disconnected={e=>{}}/>`
+- renamed `onMount` to `use:connected` as `<div use:connected={node=>{}}/>`
+- renamed `onUnmount` to `use:disconnected` as `<div use:disconnected={node=>{}}/>`
 - renamed `ref` to `use:ref`
 - renamed `css` to `use:css`
 - renamed `pota/web` to `pota/components`
@@ -35,3 +35,4 @@
 - moved `useLocation.Navigate` to `pota/components`
 - renamed `pota/plugin` to `pota/use`
 - renamed `pota/plugin/use$Name.js` to `pota/use/$name.js`
+- it no longer exports 'pota/std'

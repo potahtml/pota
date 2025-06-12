@@ -16,8 +16,9 @@ import {
  * @param {object} props
  * @url https://pota.quack.uy/props/setStyle
  */
-export const setStyle = (node, name, value, props) =>
+export const setStyle = (node, name, value, props) => {
 	setNodeStyle(node.style, value)
+}
 
 /**
  * @param {DOMElement} node
@@ -27,11 +28,19 @@ export const setStyle = (node, name, value, props) =>
  * @param {string} localName
  * @param {string} ns
  */
-export const setStyleNS = (node, name, value, props, localName, ns) =>
+export const setStyleNS = (
+	node,
+	name,
+	value,
+	props,
+	localName,
+	ns,
+) => {
 	setNodeStyle(
 		node.style,
 		isObject(value) ? value : { [localName]: value },
 	)
+}
 
 /**
  * @param {CSSStyleDeclaration} style
@@ -54,24 +63,27 @@ function setNodeStyle(style, value) {
  * @param {string} name
  * @param {unknown} value
  */
-export const setElementStyle = (node, name, value) =>
+export const setElementStyle = (node, name, value) => {
 	setStyleValue(node.style, name, value)
+}
 
 /**
  * @param {CSSStyleDeclaration} style
  * @param {string} name
  * @param {unknown} value
  */
-const setStyleValue = (style, name, value) =>
+const setStyleValue = (style, name, value) => {
 	withValue(value, value => _setStyleValue(style, name, value))
+}
 
 /**
  * @param {CSSStyleDeclaration} style
  * @param {string} name
  * @param {string | null} value
  */
-const _setStyleValue = (style, name, value) =>
+const _setStyleValue = (style, name, value) => {
 	// if the value is null or undefined it will be removed
 	isNullUndefined(value)
 		? style.removeProperty(name)
 		: style.setProperty(name, value)
+}

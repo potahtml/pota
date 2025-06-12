@@ -4,7 +4,7 @@ import { addListeners, navigate } from '../../use/location.js'
  * Navigates to a new location from JSX
  *
  * @param {{
- * 	href: string
+ * 	path: string
  * 	scroll?: boolean
  * 	replace?: boolean
  * 	params?: object
@@ -15,6 +15,6 @@ import { addListeners, navigate } from '../../use/location.js'
  */
 export function Navigate(props) {
 	addListeners()
-	navigate(props.href, props)
+	navigate(props.path, props)
 	return props.children
 }

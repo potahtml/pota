@@ -25,6 +25,7 @@ import {
 	document,
 	DocumentFragment,
 	getDocumentForElement,
+	head,
 	importNode,
 	isConnected,
 	querySelector,
@@ -32,8 +33,8 @@ import {
 } from '../use/dom.js'
 
 import {
-	adoptedStyleSheetsAdd,
-	adoptedStyleSheetsRemove,
+	addAdoptedStyleSheet,
+	removeAdoptedStyleSheet,
 } from '../use/css.js'
 
 // REACTIVE
@@ -486,9 +487,9 @@ function createChildren(
 				onFixes(() => {
 					if (isConnected(parent)) {
 						const doc = getDocumentForElement(parent)
-						adoptedStyleSheetsAdd(doc, child)
+						addAdoptedStyleSheet(doc, child)
 
-						cleanup(() => adoptedStyleSheetsRemove(doc, child))
+						cleanup(() => removeAdoptedStyleSheet(doc, child))
 					}
 				})
 
@@ -520,7 +521,9 @@ function createChildren(
 
 propsPlugin(
 	'children',
-	(node, propName, propValue) => createChildren(node, propValue),
+	(node, propName, propValue) => {
+		createChildren(node, propValue)
+	},
 	false,
 )
 
@@ -533,8 +536,6 @@ propsPlugin(
  */
 const createPlaceholder = (parent, relative) =>
 	insertNode(parent, createTextNode(''), relative)
-
-const head = document.head
 
 /**
  * Adds the element to the document
