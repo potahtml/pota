@@ -1,6 +1,6 @@
 // CONSTANTS
 
-import { $isClass, $isMap, NS } from '../constants.js'
+import { $isClass, $isComponent, $isMap, NS } from '../constants.js'
 
 // LIB
 
@@ -46,7 +46,6 @@ import {
 	root,
 	signal,
 	untrack,
-	isComponent,
 	markComponent,
 } from '../lib/reactive.js'
 
@@ -116,16 +115,16 @@ export function Component(value, props) {
  * @returns {(props?: Props<T>) => Children}
  */
 function Factory(value) {
-	if (isComponent(value)) {
-		return value
-	}
-
 	switch (typeof value) {
 		case 'string': {
 			// string component, 'div' becomes <div>
 			return markComponent(props => createTag(value, props))
 		}
 		case 'function': {
+			if ($isComponent in value) {
+				return value
+			}
+
 			if ($isClass in value) {
 				// class component <MyComponent../>
 				return markComponent(props => createClass(value, props))
@@ -354,7 +353,7 @@ function createChildren(
 
 		case 'function': {
 			// component
-			if (isComponent(child)) {
+			if ($isComponent in child) {
 				return createChildren(
 					parent,
 					untrack(/** @type {() => Children} */ (child)),
