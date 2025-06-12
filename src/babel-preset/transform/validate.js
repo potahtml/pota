@@ -47,7 +47,7 @@ export function validatePartial(path, html) {
 
 	const browser = innerHTML(clean)
 
-	if (browser !== clean) {
+	if (browser.toLowerCase() !== clean.toLowerCase()) {
 		console.warn('-'.repeat(80))
 		console.warn('User HTML:\n', clean)
 		console.warn('Browser HTML:\n', browser)
