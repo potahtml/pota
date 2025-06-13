@@ -1,8 +1,17 @@
 import { signal, cleanup, syncEffect } from '../lib/reactive.js'
 import { isIterable, toArray } from '../lib/std.js'
 
+/**
+ * Returns a `function` that receives as a second argument whats
+ * returned from it.
+ *
+ * @template T
+ * @param {(next: T, previous: T) => T} fn
+ */
 export function usePrevious(fn) {
 	let previous
+
+	/** @param {T} next */
 	return next => {
 		previous = fn(next, previous)
 	}
