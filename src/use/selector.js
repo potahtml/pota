@@ -1,6 +1,13 @@
 import { signal, cleanup, syncEffect } from '../lib/reactive.js'
 import { isIterable, toArray } from '../lib/std.js'
 
+export function usePrevious(fn) {
+	let previous
+	return next => {
+		previous = fn(next, previous)
+	}
+}
+
 /**
  * Returns a `isSelected` function that will return `true` when the
  * argument for it matches the original signal `value`.
