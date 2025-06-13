@@ -9,8 +9,6 @@ some day
 documentation
 
 - PRIORITY - online tests, a page full of tests
-- PRIORITY - the attributes page is out of date
-- PRIORITY - the documentation is out of date, restore publishing
 - add proper 404
 - light theme
 - restructure the docs
