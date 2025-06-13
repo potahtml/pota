@@ -125,7 +125,7 @@ export {
 }
 
 // Pota library
-export type * from './types/exports.d.ts'
+export * from './types/exports.d.ts'
 
 // namespace JSX
 export type * from './src/jsx/jsx.d.ts'
@@ -134,4 +134,4 @@ export type * from './src/jsx/jsx.d.ts'
  * Needed so LSP works with `JSX` element tags, typescript needs the
  * `jsxs` functions to be defined.
  */
-export type * from './types/jsx/jsx-runtime.d.ts'
+export * from './types/jsx/jsx-runtime.d.ts'
