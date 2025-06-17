@@ -3237,8 +3237,13 @@ export namespace JSX {
 		'on:animationiteration'?: EventHandler<AnimationEvent, Element>
 		'on:animationstart'?: EventHandler<AnimationEvent, Element>
 		'on:auxclick'?: EventHandler<MouseEvent, Element>
+		'on:beforecopy'?: EventHandler<ClipboardEvent, Element>
+		'on:beforecut'?: EventHandler<ClipboardEvent, Element>
 		'on:beforeinput'?: EventHandler<InputEvent, Element>
+		'on:beforematch'?: EventHandler<Event, Element>
+		'on:beforepaste'?: EventHandler<ClipboardEvent, Element>
 		'on:beforetoggle'?: EventHandler<ToggleEvent, Element>
+		'on:beforexrselect'?: EventHandler<Event, Element>
 		'on:blur'?: EventHandler<FocusEvent, Element>
 		'on:cancel'?: EventHandler<Event, Element>
 		'on:canplay'?: EventHandler<Event, Element>
@@ -3246,9 +3251,14 @@ export namespace JSX {
 		'on:change'?: EventHandler<Event, Element>
 		'on:click'?: EventHandler<MouseEvent, Element>
 		'on:close'?: EventHandler<Event, Element>
+		'on:command'?: EventHandler<Event, Element>
 		'on:compositionend'?: EventHandler<CompositionEvent, Element>
 		'on:compositionstart'?: EventHandler<CompositionEvent, Element>
 		'on:compositionupdate'?: EventHandler<CompositionEvent, Element>
+		'on:contentvisibilityautostatechange'?: EventHandler<
+			ContentVisibilityAutoStateChangeEvent,
+			Element
+		>
 		'on:contextlost'?: EventHandler<Event, Element>
 		'on:contextmenu'?: EventHandler<MouseEvent, Element>
 		'on:contextrestored'?: EventHandler<Event, Element>
@@ -3259,6 +3269,7 @@ export namespace JSX {
 		'on:drag'?: EventHandler<DragEvent, Element>
 		'on:dragend'?: EventHandler<DragEvent, Element>
 		'on:dragenter'?: EventHandler<DragEvent, Element>
+		'on:dragexit'?: EventHandler<DragEvent, Element>
 		'on:dragleave'?: EventHandler<DragEvent, Element>
 		'on:dragover'?: EventHandler<DragEvent, Element>
 		'on:dragstart'?: EventHandler<DragEvent, Element>
@@ -3302,6 +3313,7 @@ export namespace JSX {
 		'on:pointermove'?: EventHandler<PointerEvent, Element>
 		'on:pointerout'?: EventHandler<PointerEvent, Element>
 		'on:pointerover'?: EventHandler<PointerEvent, Element>
+		'on:pointerrawupdate'?: EventHandler<PointerEvent, Element>
 		'on:pointerup'?: EventHandler<PointerEvent, Element>
 		'on:progress'?: EventHandler<ProgressEvent, Element>
 		'on:ratechange'?: EventHandler<Event, Element>
@@ -3309,6 +3321,8 @@ export namespace JSX {
 		'on:resize'?: EventHandler<UIEvent, Element>
 		'on:scroll'?: EventHandler<Event, Element>
 		'on:scrollend'?: EventHandler<Event, Element>
+		'on:scrollsnapchange'?: EventHandler<Event, Element>
+		'on:scrollsnapchanging'?: EventHandler<Event, Element>
 		'on:securitypolicyviolation'?: EventHandler<
 			SecurityPolicyViolationEvent,
 			Element
