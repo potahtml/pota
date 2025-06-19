@@ -319,8 +319,9 @@ export namespace JSX {
 
 	interface HTMLMediaHTMLAttributes<Element> {
 		// properties
-
-		'prop:srcObject'?: MediaStream | MediaSource | Blob | File
+		'prop:srcObject'?: Accessor<
+			MediaStream | MediaSource | Blob | File
+		>
 
 		// attributes
 		autoplay?: Accessor<BooleanAttribute>
@@ -747,7 +748,7 @@ export namespace JSX {
 	interface HTMLInputElementAttributes<Element>
 		extends HTMLAttributes<Element> {
 		// properties
-		indeterminate?: Accessor<boolean>
+		'prop:indeterminate'?: Accessor<boolean>
 
 		// attributes
 		accept?: Accessor<string>
