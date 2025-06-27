@@ -240,8 +240,16 @@ export function* entriesIncludingSymbols(target) {
 	}
 }
 
-// modified version of https://github.com/epoberezkin/fast-deep-equal
-
+/**
+ * Compares two values for equality. Handles primitive types, objects,
+ * and arrays recursively.
+ *
+ * @template T
+ * @param {T} a - The first value to compare.
+ * @param {T} b - The second value to compare.
+ * @returns {boolean} True if the values are equal, false otherwise.
+ * @url modified version of https://github.com/epoberezkin/fast-deep-equal
+ */
 export function equals(a, b) {
 	if (a === b) {
 		return true

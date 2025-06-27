@@ -151,6 +151,13 @@ async function navigate(href, options = nothing) {
 	}
 }
 
+/**
+ * Internal navigation function that updates history and location
+ *
+ * @param {string} href - The URL to navigate to
+ * @param {{ replace?: boolean; scroll?: boolean }} options -
+ *   Navigation options
+ */
 function navigateInternal(href, options) {
 	options.replace
 		? history.replaceState(null, '', href)
@@ -196,6 +203,10 @@ export { navigateUser as navigate }
 
 let addListenersAdded = false
 
+/**
+ * Adds event listeners for client-side navigation. Only adds
+ * listeners once to prevent duplicate handlers
+ */
 export function addListeners() {
 	if (!addListenersAdded) {
 		addListenersAdded = true
@@ -207,8 +218,12 @@ export function addListeners() {
 	}
 }
 
-// listen when using browser buttons
-// safe to use async as its on a listener
+/**
+ * Handles browser history changes (back/forward buttons) Fixes Chrome
+ * title bug and ensures navigation is allowed
+ *
+ * @returns {Promise<void>}
+ */
 async function onLocationChange() {
 	// chrome has a bug on which if you use the back/forward button
 	// it will change the title of the tab to whatever it was before
@@ -225,6 +240,12 @@ async function onLocationChange() {
 	}
 }
 
+/**
+ * Handles click events on anchor elements to enable client-side
+ * navigation
+ *
+ * @param {MouseEvent} e - The click event
+ */
 function onLinkClick(e) {
 	if (
 		e.defaultPrevented ||
@@ -243,7 +264,8 @@ function onLinkClick(e) {
 
 	// validate
 	if (
-		!node?.href ||
+		!node ||
+		!node.href ||
 		node.download ||
 		node.target ||
 		isExternal(node.href) ||

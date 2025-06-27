@@ -68,10 +68,12 @@ export const removeAdoptedStyleSheet = (document, styleSheet) =>
 	removeFromArray(getAdoptedStyleSheets(document), styleSheet)
 
 /**
- * Adds a style sheet to the custom element
+ * Adds multiple stylesheets to a document or shadow root.
  *
- * @param {Document | ShadowRoot} document
- * @param {(CSSStyleSheet | string)[]} styleSheets
+ * @param {Document | ShadowRoot} document - The document or shadow
+ *   root to add the stylesheets to.
+ * @param {(CSSStyleSheet | string)[]} styleSheets - Array of
+ *   stylesheets or stylesheet URLs to add.
  */
 export function addStyleSheets(document, styleSheets = []) {
 	for (const sheet of styleSheets) {

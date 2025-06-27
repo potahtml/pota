@@ -13,6 +13,10 @@ export const namespaces = new Set([
 	'use',
 ])
 
+/**
+ * Updates the xmlns string containing all registered namespaces Used
+ * for XML serialization of components
+ */
 function updateNamespaces() {
 	namespaces.xmlns = toArray(namespaces)
 		.map(ns => `xmlns:${ns}="/"`)
@@ -67,10 +71,13 @@ export const propsPluginNS = (NSName, fn, onMicrotask) => {
 }
 
 /**
- * @param {typeof plugins} plugins
- * @param {string} name
- * @param {Function} fn
- * @param {boolean} [onMicrotask=true] Default is `true`
+ * Internal helper to register a prop plugin in a plugin store
+ *
+ * @param {typeof plugins} plugins - Plugin store to register in
+ * @param {string} name - Name of the plugin/prop
+ * @param {Function} fn - Handler function to run when prop is found
+ * @param {boolean} [onMicrotask=true] - Whether to run on microtask.
+ *   Default is `true`
  */
 const plugin = (plugins, name, fn, onMicrotask = true) => {
 	plugins.set(

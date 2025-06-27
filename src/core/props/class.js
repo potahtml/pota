@@ -83,7 +83,6 @@ export const setElementClass = (node, name, value) => {
  * @param {string} name
  * @param {unknown} value
  */
-
 const _setClassListValue = (node, name, value) => {
 	// null, undefined or false, the class is removed
 	!value

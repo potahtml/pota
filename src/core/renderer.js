@@ -140,21 +140,27 @@ function Factory(value) {
 				return markComponent(props => createNode(value, props))
 			}
 
-			return markComponent(() => createAnything(value))
+			// creates anything
+			return markComponent(() => value)
 		}
 	}
 }
 
+/**
+ * Creates an instance of a class component and handles lifecycle
+ * methods
+ *
+ * @param {Function} value - The class constructor
+ * @param {Props<unknown>} props - Props to pass to the class
+ *   constructor
+ * @returns {Children} The rendered output
+ */
 function createClass(value, props) {
 	const i = new value(props)
 	i.ready && ready(() => i.ready())
 	i.cleanup && cleanup(() => i.cleanup())
 
 	return i.render(props)
-}
-
-function createAnything(value) {
-	return value
 }
 
 /**

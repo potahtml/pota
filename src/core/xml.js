@@ -82,8 +82,11 @@ const parseXML = withWeakCache(content => {
 function toH(xml, cached, values) {
 	let index = 0
 	/**
+	 * Recursively transforms DOM nodes into Component calls
+	 *
+	 * @param {ChildNode} node - The DOM node to transform
 	 * @param {ChildNode} node
-	 * @returns {Children}
+	 * @returns {Children} Transformed node(s) as Components
 	 */
 	function nodes(node) {
 		const { nodeType } = node

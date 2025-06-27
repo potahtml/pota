@@ -7,10 +7,27 @@ const bodyElement = parse(
 	// @ts-ignore
 ).childNodes[1].childNodes[1]
 
+/**
+ * Parses HTML fragment and serializes it to check browser parsing
+ * behavior
+ *
+ * @param {string} htmlFragment - HTML fragment to parse and serialize
+ * @returns {string} Serialized HTML after browser-like parsing
+ */
 function innerHTML(htmlFragment) {
 	return serialize(parseFragment(bodyElement, htmlFragment))
 }
 
+/**
+ * Validates HTML content, ensuring it's well-formed and will be
+ * parsed correctly by a browser. It cleans the HTML by removing
+ * non-tag content and attributes, and then compares it with the
+ * browser's parsed version. If discrepancies are found, it logs a
+ * warning and throws an error indicating malformed HTML.
+ *
+ * @param {any} path - Babel path
+ * @param {string} html - The HTML string to validate.
+ */
 export function validatePartial(path, html) {
 	// partial validation
 	let clean = html

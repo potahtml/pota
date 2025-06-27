@@ -10,13 +10,19 @@ let stop = undefined
 let num = 1
 
 /**
- * Simple test-like function
+ * A simple test function that mimics the behavior of testing
+ * frameworks. It takes a title, a test function, and an optional flag
+ * to stop testing after this test. The test function receives an
+ * `expect` function to make assertions.
  *
- * @param {string} title - Test title
- * @param {(expect: (arg: unknown) => Expect) => void} fn - Test
- *   function
- * @param {boolean} [stopTesting] - To stop the tests after this one
- * @returns {Promise<unknown> | undefined}
+ * @param {string} title - The title of the test case.
+ * @param {(expect: (arg: unknown) => Expect) => void} fn - The test
+ *   function containing assertions.
+ * @param {boolean} [stopTesting] - If true, no more tests will be run
+ *   after this one.
+ * @returns {Promise<unknown> | undefined} A promise that resolves
+ *   when all assertions in the test pass, or rejects if any assertion
+ *   fails.
  */
 export function test(title, fn, stopTesting) {
 	if (!stop) {
@@ -94,6 +100,18 @@ export function expect(title, num, promises, value) {
 	return test
 }
 
+/**
+ * Validates if a test assertion passes or fails
+ *
+ * @param {unknown} expected - Expected value
+ * @param {unknown} value - Actual value
+ * @param {boolean} equals - Whether values should be equal
+ * @param {string} title - Test title
+ * @param {Promise<unknown>[]} promises - Array to collect test
+ *   promises
+ * @returns {Promise<unknown>} Promise that resolves/rejects based on
+ *   assertion result
+ */
 function pass(expected, value, equals, title, promises) {
 	const { promise, resolve, reject } = withResolvers()
 	promises.push(promise)
@@ -113,6 +131,12 @@ function pass(expected, value, equals, title, promises) {
 	return promise
 }
 
+/**
+ * Logs an error message with test title in red color
+ *
+ * @param {string} title - The test title
+ * @param {...unknown} args - Additional arguments to log
+ */
 function error(title, ...args) {
 	console.error('\x1b[31m' + title + '\n\x1b[0m', ...args)
 }
