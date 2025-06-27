@@ -4,10 +4,8 @@ const t = core.types
 import {
 	callFunction,
 	callFunctionImport,
-	eventNames,
 	keys,
 	removeFromArray,
-	warn,
 } from './utils.js'
 
 import {
@@ -51,19 +49,6 @@ export function buildPartial(path, state) {
 	for (const attr of path.get('openingElement').get('attributes')) {
 		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
 			const name = attr.node.name.name
-
-			if (eventNames.has(name.toLowerCase())) {
-				warn(
-					attr,
-					`´${name}´ form is deprecated, use ´${name.toLowerCase().replace('on', 'on:')}´ instead`,
-				)
-			}
-			if (tagName === 'textarea' && name === 'value') {
-				warn(
-					attr,
-					`´${name}´ doesn't exists as an attribute in ´textarea´, put the ´value´ inside the textarea`,
-				)
-			}
 
 			/** `isXML` */
 
