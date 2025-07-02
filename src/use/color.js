@@ -19,7 +19,7 @@ export function scale(colors, count) {
 
 	for (let i = 0; i < colors.length - 1; i++) {
 		const color = colors[i]
-		const isLastColor = i === color.length - 2
+		const isLastColor = i === colors.length - 2
 
 		// the last gradient may need more colors to fully fill
 		if (isLastColor) {
