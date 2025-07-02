@@ -247,17 +247,33 @@ class Row {
 	isDupe
 	disposer
 	nodes
+	indexSignal
 
-	constructor(item, index, fn, isDupe) {
+	constructor(item, index, fn, isDupe, reactiveIndex) {
 		this.item = item
 		this.index = index
 		this.isDupe = isDupe
 
 		root(disposer => {
 			this.disposer = disposer
-			/** @type Children[] */
-			this.nodes = fn(item, index)
+			if (reactiveIndex) {
+				this.indexSignal = signal(index)
+				/** @type Children[] */
+				this.nodes = fn(item, this.indexSignal.read)
+			} else {
+				/** @type Children[] */
+				this.nodes = fn(item, index)
+			}
 		})
+	}
+
+	updateIndex(index) {
+		if (this.index !== index) {
+			this.index = index // save sort order
+			if (this.indexSignal) {
+				this.indexSignal.write(index)
+			}
+		}
 	}
 	begin() {
 		return this.nodes[0]
@@ -287,10 +303,11 @@ class Row {
  * @template T
  * @param {Each<T>} list
  * @param {Function} callback
- * @param {boolean} [sort]
+ * @param {boolean} [noSort]
  * @param {Children} [fallback]
+ * @param {boolean} [reactiveIndex] - Make indices reactive signals
  */
-export function map(list, callback, sort, fallback) {
+export function map(list, callback, noSort, fallback, reactiveIndex) {
 	const cache = new Map()
 	const duplicates = new Map() // for when caching by value is not possible [1, 2, 1, 1, 1]
 
@@ -329,7 +346,7 @@ export function map(list, callback, sort, fallback) {
 	}
 
 	/**
-	 * @param {Function} fn
+	 * @param {Function} [fn]
 	 * @returns {Children}
 	 */
 	function mapper(fn) {
@@ -349,9 +366,9 @@ export function map(list, callback, sort, fallback) {
 		for (const [index, item] of items) {
 			let row = hasPrev ? cache.get(item) : undefined
 
-			// if the item doesnt exists, create it
 			if (row === undefined) {
-				row = new Row(item, index, cb, false)
+				// if the item doesnt exists, create it
+				row = new Row(item, index, cb, false, reactiveIndex)
 				cache.set(item, row)
 			} else if (row.runId === runId) {
 				// a map will save only 1 of any primitive duplicates, say: [1, 1, 1, 1]
@@ -368,13 +385,13 @@ export function map(list, callback, sort, fallback) {
 					}
 				}
 				if (row.runId === runId) {
-					row = new Row(item, index, cb, true)
+					row = new Row(item, index, cb, true, reactiveIndex)
 					dupes.push(row)
 				}
 			}
 
 			row.runId = runId // mark used on this run
-			row.index = index // save sort order
+			row.updateIndex(index) // Update existing row's index (reactive if needed)
 			rows.push(row)
 		}
 
@@ -396,7 +413,7 @@ export function map(list, callback, sort, fallback) {
 		// reorder elements
 		// `rows.length > 1` because no need for sorting when there are no items
 		// `prev.length > 0` to skip sorting on creation as its already sorted
-		if (sort && rows.length > 1 && prev.length) {
+		if (!noSort && rows.length > 1 && prev.length) {
 			// when appending to already created it shouldnt sort
 			// as its already sorted
 			let sort = false

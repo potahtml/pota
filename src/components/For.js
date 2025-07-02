@@ -17,6 +17,7 @@ import { onFixes } from '../core/scheduler.js'
  * @param {Each<T>} props.each
  * @param {boolean} [props.restoreFocus] - If the focused element
  *   moves it may lose focus
+ * @param {boolean} [props.reactiveIndex] - Make indices reactive signals
  * @param {Children} [props.children]
  * @param {Children} [props.fallback]
  * @returns {Children}
@@ -30,8 +31,9 @@ export const For = props =>
 			return props.each
 		},
 		makeCallback(props.children),
-		true,
+		false,
 		props.fallback,
+		props.reactiveIndex,
 	)
 
 /** @type {boolean} */
