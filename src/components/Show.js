@@ -1,6 +1,6 @@
-import { makeCallback, memo, resolve } from '../lib/reactive.js'
+import { makeCallback, memo } from '../lib/reactive.js'
 
-import { getValue, isFunction, isNullUndefined } from '../lib/std.js'
+import { getValue, isFunction } from '../lib/std.js'
 
 /**
  * Renders its children based on a condition
@@ -14,22 +14,16 @@ import { getValue, isFunction, isNullUndefined } from '../lib/std.js'
  * @url https://pota.quack.uy/Components/Show
  */
 export function Show(props) {
-	// fallback
-	const fallback = isNullUndefined(props.fallback)
-		? undefined
-		: memo(() => resolve(props.fallback))
-
 	// callback
 	const callback = makeCallback(props.children)
 
 	// shortcircuit non-functions
 	if (!isFunction(props.when)) {
-		return props.when ? callback(() => props.when) : fallback
+		return props.when ? callback(() => props.when) : props.fallback
 	}
-
 	// signals/functions
 	const value = memo(() => getValue(props.when))
 	const condition = memo(() => !!value())
 
-	return memo(() => (condition() ? callback(value) : fallback))
+	return memo(() => (condition() ? callback(value) : props.fallback))
 }
