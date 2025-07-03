@@ -1,4 +1,4 @@
-import { $isClass, $isComponent, $isMap } from '../constants.js'
+import { $isComponent, $isMap } from '../constants.js'
 
 import {
 	emptyArray,
@@ -520,17 +520,6 @@ function unwrap(children) {
 
 	return children
 }
-
-/**
- * Extend `Pota` and define a `render(){}` method to create a class
- * component. `ready(cb)` and `cleanup(cb)` methods will be registered
- * automatically
- *
- * @url https://pota.quack.uy/Classes
- */
-export class Pota {}
-
-Pota[$isClass] = undefined
 
 /**
  * Returns true if the `value` is a `Component`

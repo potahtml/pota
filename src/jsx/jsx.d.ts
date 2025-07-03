@@ -92,18 +92,7 @@ export namespace JSX {
 
 	// JSX.ElementType - shape of a `component`
 
-	type ElementType =
-		| keyof IntrinsicElements
-		| ((props?) => Element)
-		| (new (props?) => ElementClass)
-
-	// JSX.ElementClass - shape of `class` component
-
-	type ElementClass = {
-		ready?: () => void
-		cleanup?: () => void
-		render: (props?) => Element
-	}
+	type ElementType = keyof IntrinsicElements | ((props?) => Element)
 
 	// TYPES
 

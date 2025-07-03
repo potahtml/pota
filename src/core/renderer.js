@@ -1,6 +1,6 @@
 // CONSTANTS
 
-import { $isClass, $isComponent, $isMap, NS } from '../constants.js'
+import { $isComponent, $isMap, NS } from '../constants.js'
 
 // LIB
 
@@ -121,18 +121,7 @@ function Factory(value) {
 			return markComponent(props => createTag(value, props))
 		}
 		case 'function': {
-			if ($isComponent in value) {
-				return value
-			}
-
-			if ($isClass in value) {
-				// class component <MyComponent../>
-				return markComponent(props => createClass(value, props))
-			}
-
-			// function component <MyComponent../>
-			// value = value
-			return markComponent(value)
+			return $isComponent in value ? value : markComponent(value)
 		}
 		default: {
 			if (value instanceof Element) {
@@ -144,23 +133,6 @@ function Factory(value) {
 			return markComponent(() => value)
 		}
 	}
-}
-
-/**
- * Creates an instance of a class component and handles lifecycle
- * methods
- *
- * @param {Function} value - The class constructor
- * @param {Props<unknown>} props - Props to pass to the class
- *   constructor
- * @returns {Children} The rendered output
- */
-function createClass(value, props) {
-	const i = new value(props)
-	i.ready && ready(() => i.ready())
-	i.cleanup && cleanup(() => i.cleanup())
-
-	return i.render(props)
 }
 
 /**
