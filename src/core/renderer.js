@@ -138,7 +138,7 @@ function Factory(value) {
 /**
  * Creates a x/html element from a tagName
  *
- * @template {Props<{ xmlns?: string }>} P
+ * @template {Props<{ xmlns?: string, is?: string }>} P
  * @param {string} tagName
  * @param {P} props
  * @returns {Element} Element
@@ -155,8 +155,8 @@ function createTag(tagName, props) {
 		xmlns =>
 			createNode(
 				xmlns
-					? createElementNS(xmlns, tagName)
-					: createElement(tagName),
+					? createElementNS(xmlns, tagName, { is: props?.is })
+					: createElement(tagName, { is: props?.is }),
 				props,
 			),
 		tagName,
