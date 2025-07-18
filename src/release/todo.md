@@ -21,12 +21,8 @@ tools
 mutable
 
 - PRIORITY - support a readonly
-- PRIORITY - improve the tracker
-- figure out a whitelist vs blacklist! use a whitelist
 - support set, maybe weakmap and weakset
 - defineProperty proxy trap
-
-typescript
 
 reactivity
 
@@ -44,6 +40,11 @@ reactivity
 - figure out if top level runs the same as when owned, or make top
   level owned, even if doesnt garbage collects
 - maybe move node sorting out of For component
+
+transform
+
+- refactor
+- maybe try to make the partials smaller
 
 use / probably never
 
@@ -65,11 +66,6 @@ use / probably never
 - colors library
 - socket webrtc
 - handle/listen postMessage/MessageChannel
-
-transform
-
-- refactor
-- maybe try to make the partials smaller
 
 components:
 

@@ -28,7 +28,7 @@ export const getOwnPropertyNames = Object.getOwnPropertyNames
 export const getOwnPropertySymbols = Object.getOwnPropertySymbols
 export const getPrototypeOf = Object.getPrototypeOf
 export const groupBy = Object.groupBy
-export const hasOwnProperty = Object.hasOwn
+export const hasOwn = Object.hasOwn
 export const is = Object.is
 export const isExtensible = Object.isExtensible
 export const keys = Object.keys
@@ -93,9 +93,6 @@ export const stringifySorted = o => {
 	return stringifyReadable(sort(o))
 }
 
-export const PrototypeArray = Array.prototype
-export const PrototypeMap = Map.prototype
-
 /**
  * @param {(
  * 	resolve: (value: unknown) => void,
@@ -128,46 +125,6 @@ export const call = fns => {
 }
 
 /**
- * @template T
- * @param {T} o
- * @param {Map<T, T>} [seen]
- * @returns {T}
- */
-export function copy(o, seen = new Map()) {
-	if (!isObject(o)) {
-		return o
-	}
-
-	if (
-		o instanceof Node ||
-		o instanceof Date ||
-		o instanceof Set ||
-		o instanceof Map ||
-		o instanceof WeakSet ||
-		o instanceof WeakMap ||
-		o instanceof Promise ||
-		o instanceof RegExp
-	) {
-		return o
-	}
-
-	if (seen.has(o)) {
-		return /** @type {T} */ (seen.get(o))
-	}
-
-	const c = /** @type {T} */ isArray(o)
-		? []
-		: /** @type {{ [key: string]: unknown }} */ ({})
-
-	seen.set(o, c)
-
-	for (const k in o) {
-		c[k] = copy(o[k], seen)
-	}
-	return c
-}
-
-/**
  * Object.defineProperty with `enumerable` and `configurable` set to
  * `true` unless overwriten by `descriptor` argument
  *
@@ -187,29 +144,6 @@ const redefinePropertyDefailts = {
 	__proto__: null,
 	configurable: true,
 	enumerable: true,
-}
-
-/**
- * Object.defineProperty with `configurable`, `writable` and
- * `enumerable` as `false`
- *
- * @template T
- * @param {T} target
- * @param {PropertyKey} key
- * @param {any} value
- */
-export const definePropertyReadOnly = (target, key, value) => {
-	const descriptor = create(definePropertyReadOnlyDefaults)
-	descriptor.value = value
-	defineProperty(target, key, descriptor)
-}
-
-const definePropertyReadOnlyDefaults = {
-	__proto__: null,
-	configurable: false,
-	enumerable: false,
-	writable: false,
-	value: undefined,
 }
 
 /**
@@ -235,7 +169,6 @@ export function* entriesIncludingSymbols(target) {
 	}
 
 	for (const item of getOwnPropertySymbols(target)) {
-		// todo: causes access!
 		yield [item, target[item]]
 	}
 }
@@ -527,7 +460,16 @@ export const morphedBetweenArrayAndObject = (a, b) =>
 export const isPrototypeProperty = (target, key) =>
 	// must do `key in target` to check that it DOES have it somewhere
 	// must do !hasOwnProperty to check that isnt an own property
-	key in target && !hasOwnProperty(target, key)
+	key in target && !hasOwn(target, key)
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction
+const GeneratorFunction = function* () {}.constructor
+
+/** Returns `true` when is a generator function*/
+export const isGeneratorFunction = target =>
+	target &&
+	(target.constructor === GeneratorFunction ||
+		target.constructor?.constructor === GeneratorFunction)
 
 export const noop = () => {}
 

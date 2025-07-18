@@ -19,43 +19,27 @@ import {
  * should be able to track them too.
  */
 export function getPropertyDescriptors(target) {
-	const constructor = target?.constructor
-
-	// common built-ins prototype getters/setters are ignored
-	if (constructor === Object || constructor === undefined) {
-		return getOwnPropertyDescriptors(target)
-	}
-
 	// blacklisted by default
 	if (isMutationBlacklisted(target)) {
 		return nothing
 	}
 
-	/**
-	 * Walk the prototype chain to gather getters/setters from
-	 * prototypes.
-	 */
 	let proto = getPrototypeOf(target)
 
-	if (isPrototypeBlacklisted(proto)) {
-		return nothing
-	}
-
-	/** Gather getters/setters from prototype */
-	const protos = []
+	/**
+	 * Walk the prototype chain to gather getters/setters
+	 */
+	const protos = [target]
 	while (proto && !isPrototypeBlacklisted(proto)) {
 		protos.push(proto)
 		proto = getPrototypeOf(proto)
 	}
+
+	/** Cocktail */
 	const descriptors = empty()
 	for (const proto of protos.reverse()) {
 		assign(descriptors, getOwnPropertyDescriptors(proto))
 	}
-	// TODO MOVE THIS UP
-	// Gather getters/setters from target
-	if (!isPrototypeBlacklisted(target)) {
-		assign(descriptors, getOwnPropertyDescriptors(target))
-	}
-	// console.log(descriptors, target)
+
 	return descriptors
 }

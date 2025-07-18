@@ -2,7 +2,6 @@
 
 import { batch, untrack } from '../../reactive.js'
 import {
-	copy,
 	indexByKey,
 	isArray,
 	isObject,
@@ -10,6 +9,7 @@ import {
 	morphedBetweenArrayAndObject,
 	values,
 } from '../../std.js'
+import { copy } from '../copy.js'
 
 /**
  * Merge `source` into `target`

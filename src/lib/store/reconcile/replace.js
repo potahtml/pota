@@ -2,7 +2,6 @@
 
 import { batch, untrack } from '../../reactive.js'
 import {
-	copy,
 	indexByKey,
 	isArray,
 	isObject,
@@ -11,6 +10,7 @@ import {
 	removeFromArrayConditionally,
 	values,
 } from '../../std.js'
+import { copy } from '../copy.js'
 
 /**
  * Merge `source` into `target` and removes from `target` keys not

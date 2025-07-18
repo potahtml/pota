@@ -9,18 +9,22 @@ import {
 } from '../../std.js'
 
 import { mutable } from '../mutable.js'
-import { Track } from '../tracker.js'
+import { tracker } from '../tracker.js'
 
-export class ProxyHandlerBase extends Track {
+export class ProxyHandlerBase {
 	// type = 'Base'
 
+	constructor(value) {
+		this.track = tracker(value)
+	}
+
 	ownKeys(target) {
-		this.ownKeysRead()
+		this.track.keysRead()
 		return reflectOwnKeys(target)
 	}
 	has(target, key) {
 		const r = reflectHas(target, key)
-		this.hasRead(key, r)
+		this.track.keyRead(key, r)
 		return r
 	}
 	deleteProperty(target, key) {
@@ -30,8 +34,8 @@ export class ProxyHandlerBase extends Track {
 		}
 
 		return batch(() => {
-			this.ownKeysWrite()
-			this.delete(key)
+			this.track.keysWrite()
+			this.track.delete(key)
 
 			/**
 			 * Use `delete` instead of `reflectDeleteProperty` so it throws
@@ -67,19 +71,28 @@ export class ProxyHandlerBase extends Track {
 			? (mutable(value), value)
 			: mutable(value)
 	}
-	returnFunction(target, key, value) {
+	returnFunction(target, key, value, proxy) {
+		/**
+		 * 1. `Reflect.apply` to correct `receiver`. `TypeError: Method
+		 *    Set.prototype.add called on incompatible receiver #<Set>`
+		 * 2. Run in a batch to react to all changes at the same time.
+		 */
 		return (...args) =>
-			/**
-			 * 1. `Reflect.apply` to correct `receiver`. `TypeError: Method
-			 *    Set.prototype.add called on incompatible receiver #<Set>`
-			 * 2. Run in a batch to react to all changes at the same time.
-			 */
-
-			batch(() => {
-				if (key === 'hasOwnProperty') {
-					this.has(target, args[0])
-				}
-				return mutable(reflectApply(value, target, args))
-			})
+			batch(() =>
+				mutable(
+					key in objectMethods
+						? objectMethods[key](this, target, value, args, proxy)
+						: reflectApply(value, target, args),
+				),
+			)
 	}
+}
+
+const objectMethods = {
+	__proto__: null,
+
+	hasOwnProperty(track, target, value, args, proxy) {
+		track.has(target, args[0])
+		return reflectApply(value, target, args)
+	},
 }

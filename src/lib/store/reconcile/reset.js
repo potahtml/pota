@@ -1,11 +1,11 @@
 import { batch, untrack } from '../../reactive.js'
 import {
-	copy,
 	isArray,
 	isObject,
 	keys,
 	morphedBetweenArrayAndObject,
 } from '../../std.js'
+import { copy } from '../copy.js'
 
 /**
  * Resets from `target` whats defined in `source`

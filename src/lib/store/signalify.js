@@ -9,9 +9,9 @@ import {
 
 import { batch } from '../reactive.js'
 
-import { isKeyBlacklisted, isMethodBlacklisted } from './blacklist.js'
+import { isKeyBlacklisted } from './blacklist.js'
 import { getPropertyDescriptors } from './descriptors.js'
-import { tracker, trackerValueSignal } from './tracker.js'
+import { tracker } from './tracker.js'
 
 /**
  * Transforms in place properties of an object into signals via
@@ -56,7 +56,7 @@ export function signalifyObject(target, wrapper) {
  *   possible to signalify keys that don't exists yet.
  * @param {Function} [wrapper] To wrap values
  */
-export function signalifyKeys(target, keys, wrapper) {
+function signalifyKeys(target, keys, wrapper) {
 	const descriptors = getPropertyDescriptors(target)
 	const track = tracker(target)
 
@@ -73,7 +73,7 @@ export function signalifyKeys(target, keys, wrapper) {
  * @param {PropertyKey} key
  * @param {PropertyDescriptor} descriptor
  * @param {Function} [wrapper] To wrap values
- * @param {any} [track] Tracker
+ * @param {import('./tracker.js').Track} [track] Tracker
  */
 function signalifyKey(
 	target,
@@ -108,28 +108,12 @@ function signalifyKey(
 
 	/**
 	 * Avoid functions when using `signalify` as it's meant to be used
-	 * in classes.
+	 * in classes. But do not avoid functions when it has a `wrapper`, like
+	 * `mutable`.
 	 */
-	if (isFunction(value)) {
-		/**
-		 * But do not avoid functions when it has a `wrapper`, like
-		 * `mutable`.
-		 */
-		if (wrapper === identity) {
-			return
-		}
-
-		// blacklist common prototype methods
-		if (isMethodBlacklisted(value)) {
-			return
-		}
+	if (isFunction(value) && wrapper === identity) {
+		return
 	}
-
-	// console.log(key, target)
-
-	// tracker
-
-	const [read, write] = trackerValueSignal(target, track, key)
 
 	const getter = descriptor.get?.bind(target)
 	const setter = descriptor.set?.bind(target)
@@ -146,11 +130,11 @@ function signalifyKey(
 			getter
 				? () => {
 						value = wrapper(getter())
-						return read(value)
+						return track.valueRead(key, value)
 					}
 				: () => {
 						value = wrapper(value)
-						return read(value)
+						return track.valueRead(key, value)
 					},
 
 		set:
@@ -162,13 +146,13 @@ function signalifyKey(
 							batch(() => {
 								value = wrapper(val)
 								setter(value)
-								write(value)
+								track.valueWrite(key, value)
 							})
 						}
 					: val => {
 							batch(() => {
 								value = wrapper(val)
-								write(value)
+								track.valueWrite(key, value)
 							})
 						},
 		enumerable: descriptor.enumerable,
@@ -183,7 +167,7 @@ function signalifyKey(
  * @param {T} target
  * @param {PropertyKey} key
  * @param {Function} [wrapper] To wrap values
- * @param {any} [track] Tracker
+ * @param {import('./tracker.js').Track} [track] Tracker
  * @param {any} [value] Default value
  */
 export function signalifyUndefinedKey(
@@ -198,16 +182,14 @@ export function signalifyUndefinedKey(
 	}
 
 	if (isExtensible(target)) {
-		const [read, write] = trackerValueSignal(target, track, key)
-
 		redefineProperty(target, key, {
 			get() {
-				return read(value)
+				return track.valueRead(key, value)
 			},
 			set(val) {
 				batch(() => {
 					value = wrapper(val)
-					write(value)
+					track.valueWrite(key, value)
 				})
 			},
 		})
