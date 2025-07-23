@@ -14,3 +14,5 @@ export { copy } from './store/copy.js'
 // blacklist
 
 export { updateBlacklist } from './store/blacklist.js'
+
+export { projection } from './store/projection.js'
