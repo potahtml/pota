@@ -376,8 +376,7 @@ export const isIterable = value => value?.[iterator]
  * @param {unknown} value
  * @returns {value is null | undefined}
  */
-export const isNullUndefined = value =>
-	value === undefined || value === null
+export const isNullUndefined = value => value == null
 
 /**
  * Returns `true` when typeof of value is object and not null

@@ -1,4 +1,8 @@
-import { getValueWithArguments, window } from '../lib/std.js'
+import {
+	emptyArray,
+	getValueWithArguments,
+	window,
+} from '../lib/std.js'
 
 export const document = window.document
 
@@ -24,16 +28,25 @@ export const importNode = bind('importNode')
 
 export const createTreeWalker = bind('createTreeWalker')
 
-export const addPart = (node, className) => node.part.add(className)
+// part
 
-export const removePart = (node, className) =>
-	node.part.remove(className)
+export const addPart = (node, partName) => node.part.add(partName)
+
+export const removePart = (node, partName) =>
+	node.part.remove(partName)
+
+// classNames
+
+export const classNames = s =>
+	s ? s.trim().split(/\s+/) : emptyArray
 
 export const addClass = (node, className) =>
-	node.classList.add(className)
+	className.length && node.classList.add(...className)
 
 export const removeClass = (node, className) =>
-	node.classList.remove(className)
+	className.length && node.classList.remove(...className)
+
+// attributes
 
 export const setAttribute = (node, name, value) =>
 	node.setAttribute(name, value)
@@ -51,6 +64,8 @@ export const hasAttributeNS = (node, name) =>
 
 export const removeAttributeNS = (node, name) =>
 	node.removeAttributeNS(name)
+
+// selector
 
 export const querySelector = (node, query) =>
 	node.querySelector(query)
