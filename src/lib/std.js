@@ -509,6 +509,7 @@ export const {
 	get: reflectGet,
 	apply: reflectApply,
 	set: reflectSet,
+	isExtensible: reflectIsExtensible,
 } = Reflect
 
 /**
