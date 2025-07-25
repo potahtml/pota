@@ -39,6 +39,8 @@ const kinds = {
 }
 
 export class Track {
+	// id = Date.now()
+
 	#props = empty()
 
 	#prop(kind, key, value, equalsType) {

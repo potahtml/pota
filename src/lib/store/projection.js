@@ -1,3 +1,4 @@
+import { usePrevious } from '../../use/selector.js'
 import { memo, untrack } from '../reactive.js'
 
 import {
@@ -9,47 +10,44 @@ import {
   reflectHas,
   reflectIsExtensible,
   reflectOwnKeys,
+  reflectSet,
 } from '../std.js'
-
 import { mutable } from './mutable.js'
 
-// TODO: replace with `createFirewall`
-export function projection(fn, state = {}) {
-  const projection = project(state)
-  let returned
-
-  memo(function () {
-    returned = fn(projection, returned)
-  })()
-
-  return projection
+// TODO: replace with a proper `createFirewall`
+export function firewall(fn) {
+  memo(usePrevious(fn))()
 }
 
-const isProjection = Symbol('isProjection')
+const $isProjection = Symbol()
 
-function project(value, proxies = new Map()) {
+export function project(value, proxies = new WeakMap()) {
   if (!isObject(value)) {
     return value
   }
 
   return untrack(() => {
+    // this happens becuase the Projection proxy gets wrapped in a mutable
+    if (value[$isProjection] === proxies) {
+      return value
+    }
+
     if (proxies.has(value)) {
       return proxies.get(value)
     }
 
-    if (value[isProjection]) {
-      return value
-    }
-    const proxy = new Proxy(
-      mutable(isArray(value) ? [] : {}),
-      new Projection(value, proxies),
+    const proxy = mutable(
+      new Proxy(
+        isArray(value) ? [] : {},
+        new Projection(value, proxies),
+      ),
     )
+
     proxies.set(value, proxy)
-    proxies.set(proxy, proxy)
 
     if (isArray(value)) {
-      for (const k in value) {
-        proxy[k] = value[k]
+      for (let key in value) {
+        proxy[key] = value[key]
       }
     }
 
@@ -63,26 +61,22 @@ class Projection {
     this.root = root
   }
   set(target, key, value, proxy) {
-    target[key] = project(value, this.root)
-    return true
+    return reflectSet(target, key, project(value, this.root))
   }
   get(target, key, proxy) {
-    if (key === isProjection) {
-      return true
+    if (key === $isProjection) {
+      return this.root
     }
 
     if (!(key in target) && target !== this.source) {
-      // project
-      return this.get(this.source, key, proxy)
+      return this.get(this.source, key, proxy) // project
     }
 
     const value = reflectGet(target, key, proxy)
 
-    if (typeof value === 'function') {
-      return this.returnFunction(target, key, value)
-    }
-
-    return this.returnValue(target, key, value)
+    return typeof value === 'function'
+      ? this.returnFunction(target, key, value)
+      : this.returnValue(target, key, value)
   }
   getOwnPropertyDescriptor(target, key) {
     if (!(key in target) && target !== this.source) {
@@ -106,12 +100,12 @@ class Projection {
     return !reflectIsExtensible(target) ||
       reflectGetOwnPropertyDescriptor(target, key)?.configurable ===
         false
-      ? (project(value, this.root), value)
+      ? value
       : project(value, this.root)
   }
   returnFunction(target, key, value) {
-    const root = this.root
-    return (...args) =>
-      project(reflectApply(value, target, args), root)
+    return (...args) => {
+      project(reflectApply(value, target, args), this.root)
+    }
   }
 }

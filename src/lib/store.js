@@ -15,4 +15,6 @@ export { copy } from './store/copy.js'
 
 export { updateBlacklist } from './store/blacklist.js'
 
-export { projection } from './store/projection.js'
+// firewall/projections
+
+export { firewall, project } from './store/projection.js'

@@ -10,6 +10,7 @@ import { isMutationBlacklisted } from './blacklist.js'
 
 import { signalifyObject } from './signalify.js'
 import { copy } from './copy.js'
+import { $isMutable } from '../../constants.js'
 
 /** Keeps track of what objects have already been made into a proxy */
 const [getProxy, setProxy] = weakStore()
@@ -24,7 +25,6 @@ function createProxy(target, Handler) {
 	 * having 2 different proxies for the same value.
 	 */
 	setProxy(target, proxy)
-	setProxy(proxy, proxy)
 	return proxy
 }
 
@@ -46,6 +46,11 @@ export function mutable(value, clone) {
 
 	/** Make a copy to avoid modifying original data (optional) */
 	value = clone ? copy(value) : value
+
+	/** Avoid unwrapping external proxies */
+	if (value[$isMutable]) {
+		return value
+	}
 
 	/**
 	 * Return `proxy` if already exists for `value`. It could be

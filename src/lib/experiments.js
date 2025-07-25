@@ -24,6 +24,6 @@ export function diffCrossRealm(oldData, setData) {
 
 			equals(before, after) ? r.push(before) : r.push(after)
 		}
-		setData( (r))
+		setData(r)
 	}
 }

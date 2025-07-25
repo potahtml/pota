@@ -1,3 +1,4 @@
+import { $isMutable } from '../../../constants.js'
 import { batch } from '../../reactive.js'
 import {
 	empty,
@@ -24,6 +25,10 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 	}
 
 	get(target, key, proxy) {
+		if (key === $isMutable) {
+			return true
+		}
+
 		/** To be able to track properties not yet set */
 		if (!(key in target)) {
 			this.track.isUndefinedRead(key, true)

@@ -7,7 +7,7 @@ import {
 	redefineProperty,
 } from '../std.js'
 
-import { batch } from '../reactive.js'
+import { batch, untrack } from '../reactive.js'
 
 import { isKeyBlacklisted } from './blacklist.js'
 import { getPropertyDescriptors } from './descriptors.js'
@@ -37,14 +37,16 @@ export function signalify(target, keys) {
  * @param {Function} [wrapper] To wrap values
  */
 export function signalifyObject(target, wrapper) {
-	const descriptors = getPropertyDescriptors(target)
-	const track = tracker(target)
+	untrack(() => {
+		const descriptors = getPropertyDescriptors(target)
+		const track = tracker(target)
 
-	for (const [key, descriptor] of entriesIncludingSymbols(
-		descriptors,
-	)) {
-		signalifyKey(target, key, descriptor, wrapper, track)
-	}
+		for (const [key, descriptor] of entriesIncludingSymbols(
+			descriptors,
+		)) {
+			signalifyKey(target, key, descriptor, wrapper, track)
+		}
+	})
 }
 
 /**
@@ -57,12 +59,14 @@ export function signalifyObject(target, wrapper) {
  * @param {Function} [wrapper] To wrap values
  */
 function signalifyKeys(target, keys, wrapper) {
-	const descriptors = getPropertyDescriptors(target)
-	const track = tracker(target)
+	untrack(() => {
+		const descriptors = getPropertyDescriptors(target)
+		const track = tracker(target)
 
-	for (const key of keys) {
-		signalifyKey(target, key, descriptors[key], wrapper, track)
-	}
+		for (const key of keys) {
+			signalifyKey(target, key, descriptors[key], wrapper, track)
+		}
+	})
 }
 
 /**
@@ -117,6 +121,13 @@ function signalifyKey(
 
 	const getter = descriptor.get?.bind(target)
 	const setter = descriptor.set?.bind(target)
+
+	/**
+	 * Needs to wrap to recurse the object
+	 */
+	if (!setter && wrapper) {
+		value = wrapper(value)
+	}
 
 	defineProperty(target, key, {
 		get:
@@ -182,16 +193,18 @@ export function signalifyUndefinedKey(
 	}
 
 	if (isExtensible(target)) {
-		redefineProperty(target, key, {
-			get() {
-				return track.valueRead(key, value)
-			},
-			set(val) {
-				batch(() => {
-					value = wrapper(val)
-					track.valueWrite(key, value)
-				})
-			},
+		untrack(() => {
+			redefineProperty(target, key, {
+				get() {
+					return track.valueRead(key, value)
+				},
+				set(val) {
+					batch(() => {
+						value = wrapper(val)
+						track.valueWrite(key, value)
+					})
+				},
+			})
 		})
 	}
 }

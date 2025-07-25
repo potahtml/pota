@@ -5,6 +5,8 @@ import { Symbol } from './lib/std.js'
 export const $isComponent = Symbol()
 export const $isMap = Symbol()
 
+export const $isMutable = Symbol()
+
 // supported namespaces
 
 const prefix = 'http://www.w3.org/'

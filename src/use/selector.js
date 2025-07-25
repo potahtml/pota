@@ -11,7 +11,7 @@ import { isIterable, toArray } from '../lib/std.js'
 export function usePrevious(fn) {
 	let previous
 
-	/** @param {T} next */
+	/** @param {T} [next] */
 	return next => {
 		previous = fn(next, previous)
 	}

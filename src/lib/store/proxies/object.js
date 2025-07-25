@@ -1,3 +1,4 @@
+import { $isMutable } from '../../../constants.js'
 import { batch } from '../../reactive.js'
 import { isFunction, reflectGet, reflectSet } from '../../std.js'
 
@@ -14,6 +15,10 @@ export class ProxyHandlerObject extends ProxyHandlerBase {
 	// type = 'Object'
 
 	get(target, key, proxy) {
+		if (key === $isMutable) {
+			return true
+		}
+
 		/** To be able to track properties not yet set */
 		if (!(key in target)) {
 			this.track.isUndefinedRead(key, true)
