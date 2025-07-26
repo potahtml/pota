@@ -4,11 +4,11 @@ import { memo, untrack } from '../reactive.js'
 import {
   isArray,
   isObject,
+  isProxyValueReturnInvariant,
   reflectApply,
   reflectGet,
   reflectGetOwnPropertyDescriptor,
   reflectHas,
-  reflectIsExtensible,
   reflectOwnKeys,
   reflectSet,
 } from '../std.js'
@@ -97,15 +97,17 @@ class Projection {
   }
 
   returnValue(target, key, value) {
-    return !reflectIsExtensible(target) ||
-      reflectGetOwnPropertyDescriptor(target, key)?.configurable ===
-        false
+    return isProxyValueReturnInvariant(target, key, value)
       ? value
       : project(value, this.root)
   }
   returnFunction(target, key, value) {
-    return (...args) => {
+    /**
+     * 1. `Reflect.apply` to correct `receiver`. `TypeError: Method
+     *    Set.prototype.add called on incompatible receiver #<Set>`
+     * 2. Run in a batch to react to all changes at the same time.
+     */
+    return (...args) =>
       project(reflectApply(value, target, args), this.root)
-    }
   }
 }

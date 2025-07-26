@@ -20,7 +20,6 @@ tools
 
 mutable
 
-- PRIORITY - support a readonly
 - support set, maybe weakmap and weakset
 - defineProperty proxy trap
 

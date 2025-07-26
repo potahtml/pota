@@ -53,7 +53,6 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 		 *    Set.prototype.add called on incompatible receiver #<Set>`
 		 * 2. Run in a batch to react to all changes at the same time.
 		 */
-
 		return (...args) =>
 			batch(() =>
 				mutable(

@@ -1,7 +1,6 @@
 import { batch } from '../../reactive.js'
 import {
-	isConfigurable,
-	isExtensible,
+	isProxyValueReturnInvariant,
 	reflectApply,
 	reflectGetOwnPropertyDescriptor,
 	reflectHas,
@@ -49,25 +48,7 @@ export class ProxyHandlerBase {
 		return reflectGetOwnPropertyDescriptor(target, key)
 	}
 	returnValue(target, key, value) {
-		/**
-		 * 1. A non-extensible object must return the real object, but still
-		 *    its children properties must be tracked
-		 * 2. A non-configurable property must return the real value
-		 *
-		 * [[Get]] For proxy objects enforces the following invariants:
-		 *
-		 * The value reported for a property must be the same as the value
-		 * of the corresponding target object property if the target
-		 * object property is a non-writable, non-configurable own data
-		 * property.
-		 *
-		 * The value reported for a property must be undefined if the
-		 * corresponding target object property is a non-configurable own
-		 * accessor property that has undefined as its [[Get]] attribute.
-		 */
-
-		return !isExtensible(target) ||
-			!isConfigurable(target, key, value)
+		return isProxyValueReturnInvariant(target, key, value)
 			? (mutable(value), value)
 			: mutable(value)
 	}

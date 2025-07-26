@@ -4,7 +4,7 @@ import { signal } from '../reactive.js'
 
 /** Tracker */
 
-const [getTracker, setTracker] = weakStore()
+const [getTracker] = weakStore()
 
 const createTracker = () => new Track()
 

@@ -51,9 +51,11 @@ export function day(timestamp = now(), lang = 'en') {
 	})
 }
 
-export function measure(name, cb) {
+export function measure(name, cb, timeReport) {
 	console.time(name)
+	const start = performance.now()
 	const r = cb()
+	timeReport && timeReport(performance.now() - start)
 	console.timeEnd(name)
 	return r
 }
