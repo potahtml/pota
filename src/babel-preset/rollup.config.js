@@ -1,6 +1,6 @@
 import terser from '@rollup/plugin-terser'
 
-/** Transforms the babel-plugin from es to cjs */
+/** Transforms the babel-plugin from `es` to `cjs` */
 
 export default [
 	{

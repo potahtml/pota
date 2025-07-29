@@ -112,8 +112,8 @@ function signalifyKey(
 
 	/**
 	 * Avoid functions when using `signalify` as it's meant to be used
-	 * in classes. But do not avoid functions when it has a `wrapper`, like
-	 * `mutable`.
+	 * in classes. But do not avoid functions when it has a `wrapper`,
+	 * like `mutable`.
 	 */
 	if (isFunction(value) && wrapper === identity) {
 		return
@@ -122,9 +122,7 @@ function signalifyKey(
 	const getter = descriptor.get?.bind(target)
 	const setter = descriptor.set?.bind(target)
 
-	/**
-	 * Needs to wrap to recurse the object
-	 */
+	/** Needs to wrap to recurse the object */
 	if (!setter && wrapper) {
 		value = wrapper(value)
 	}

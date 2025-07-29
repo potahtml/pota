@@ -98,7 +98,7 @@ export class ProxyHandlerArray extends ProxyHandlerBase {
 			)
 	}
 
-	/** special track methods for array */
+	/** Special track methods for array */
 
 	/** Dispatch read to specific key */
 	trackKey(target, key) {

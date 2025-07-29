@@ -24,6 +24,7 @@ export default function createPlugin({ name }) {
 			visitor: {
 				JSXNamespacedName(path) {},
 				JSXSpreadChild(path) {
+					// TODO
 					error(path, 'Spread children are not supported.')
 				},
 				Program: {

@@ -49,7 +49,7 @@ import {
 	markComponent,
 } from '../lib/reactive.js'
 
-import { onFixes, ready } from './scheduler.js'
+import { onFixes } from './scheduler.js'
 
 // PROPERTIES / ATTRIBUTES
 
@@ -138,7 +138,7 @@ function Factory(value) {
 /**
  * Creates a x/html element from a tagName
  *
- * @template {Props<{ xmlns?: string, is?: string }>} P
+ * @template {Props<{ xmlns?: string; is?: string }>} P
  * @param {string} tagName
  * @param {P} props
  * @returns {Element} Element

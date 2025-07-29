@@ -9,6 +9,7 @@ import { RouteContext } from './context.js'
 /**
  * Scroll to hash first, if doesnt, scroll to positions defined by the
  * Routes.
+ *
  * @param {RouteContextValue} context
  */
 export function scroll(context) {

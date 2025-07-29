@@ -464,7 +464,7 @@ export const isPrototypeProperty = (target, key) =>
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction
 const GeneratorFunction = function* () {}.constructor
 
-/** Returns `true` when is a generator function*/
+/** Returns `true` when is a generator function */
 export const isGeneratorFunction = target =>
 	target &&
 	(target.constructor === GeneratorFunction ||
@@ -666,20 +666,18 @@ export const warn = (...args) => console.warn(...args)
 export const error = (...args) => console.error(...args)
 
 /**
- * 1. A non-extensible object must return the real object, but still
- *    its children properties could be tracked/proxied
+ * 1. A non-extensible object must return the real object, but still its
+ *    children properties could be tracked/proxied
  * 2. A non-configurable property must return the real value
  *
  * [[Get]] For proxy objects enforces the following invariants:
  *
- * - The value reported for a property must be the same as the value
- * of the corresponding target object property if the target
- * object property is a non-writable, non-configurable own data
- * property.
- *
+ * - The value reported for a property must be the same as the value of
+ *   the corresponding target object property if the target object
+ *   property is a non-writable, non-configurable own data property.
  * - The value reported for a property must be undefined if the
- * corresponding target object property is a non-configurable own
- * accessor property that has undefined as its [[Get]] attribute.
+ *   corresponding target object property is a non-configurable own
+ *   accessor property that has undefined as its [[Get]] attribute.
  */
 export const isProxyValueReturnInvariant = (target, key, value) =>
 	!isObject(value) ||

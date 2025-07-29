@@ -20,9 +20,10 @@ function createProxy(target, Handler) {
 	/**
 	 * Before mutating the content of it (for example calling
 	 * `signalifyObject` or making the content of an array mutable),
-	 * save it. In case the mutation triggers `mutable` on the same object, before we have a
-	 * chance to save it as a proxy. To avoid the posible situation of
-	 * having 2 different proxies for the same value.
+	 * save it. In case the mutation triggers `mutable` on the same
+	 * object, before we have a chance to save it as a proxy. To avoid
+	 * the posible situation of having 2 different proxies for the same
+	 * value.
 	 */
 	setProxy(target, proxy)
 	return proxy
@@ -71,9 +72,7 @@ export function mutable(value, clone) {
 		return value
 	}
 
-	/**
-	 * Array methods are proxied by ProxyHandlerArray
-	 */
+	/** Array methods are proxied by ProxyHandlerArray */
 	if (isArray(value)) {
 		proxy = createProxy(value, ProxyHandlerArray)
 
@@ -87,9 +86,7 @@ export function mutable(value, clone) {
 		return proxy
 	}
 
-	/**
-	 * Map methods are proxied by ProxyHandlerMap
-	 */
+	/** Map methods are proxied by ProxyHandlerMap */
 	if (value instanceof Map) {
 		proxy = createProxy(value, ProxyHandlerMap)
 

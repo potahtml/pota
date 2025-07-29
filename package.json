@@ -62,6 +62,7 @@
 		"prepublishOnly": "npm run types || echo 1",
 		"release": "node src/release/release.mjs",
 		"format": "prettier . -w --config=./package.json --no-editorconfig",
+		"format-me": "prettier . -w --config=./package.json --no-editorconfig --plugin=file:///usr/local/lib/node_modules/prettier-plugin-jsdoc/dist/index.js",
 		"generate": "node src/release/generate.js"
 	},
 	"dependencies": {

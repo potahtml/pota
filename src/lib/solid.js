@@ -806,7 +806,6 @@ export function createReactiveSystem() {
 		 * @overload Gets the context value
 		 * @returns {T} Context value
 		 */
-
 		function useContext(newValue, fn) {
 			if (newValue === undefined) {
 				return Owner?.context && Owner.context[id] !== undefined
@@ -831,7 +830,7 @@ export function createReactiveSystem() {
 		 * Sets the `value` for the context
 		 *
 		 * @param {object} props
-		 * @param {T} props.value
+		 * @param {T} [props.value]
 		 * @param {Children} props.children
 		 * @returns {Children} Children
 		 * @url https://pota.quack.uy/Reactivity/Context

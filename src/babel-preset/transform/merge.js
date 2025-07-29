@@ -22,6 +22,10 @@ export function mergeToTag(children, tag) {
 			toRemove.push(node)
 			continue
 		}
+		/**
+		 * It has to `break` because this is merging to parent, and needs
+		 * to stop at the first dynamic
+		 */
 		break
 	}
 

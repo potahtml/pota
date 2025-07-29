@@ -26,9 +26,7 @@ export function getPropertyDescriptors(target) {
 
 	let proto = getPrototypeOf(target)
 
-	/**
-	 * Walk the prototype chain to gather getters/setters
-	 */
+	/** Walk the prototype chain to gather getters/setters */
 	const protos = [target]
 	while (proto && !isPrototypeBlacklisted(proto)) {
 		protos.push(proto)

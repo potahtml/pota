@@ -4,13 +4,13 @@ import { documentSize, useDocumentSize } from './resize.js'
 
 import { Emitter } from './emitter.js'
 
-/** @param {{width:number, height:number}} e*/
+/** @param {{ width: number; height: number }} e */
 function value(e) {
 	return e.width >= e.height ? 'horizontal' : 'vertical'
 }
 
-export const { on: onOrientation, use: useOrientation } =
-	new Emitter({
+export const { on: onOrientation, use: useOrientation } = new Emitter(
+	{
 		on: dispatch => {
 			const size = useDocumentSize()
 
@@ -20,4 +20,5 @@ export const { on: onOrientation, use: useOrientation } =
 			})
 		},
 		initialValue: () => value(documentSize()),
-	})
+	},
+)

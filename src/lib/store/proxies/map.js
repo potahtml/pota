@@ -34,8 +34,9 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 			this.track.isUndefinedRead(key, true)
 		}
 
-		/** Tracking + value
-		 * For whatever reason `size` is special for `Map`
+		/**
+		 * Tracking + value For whatever reason `size` is special for
+		 * `Map`
 		 */
 
 		const value =

@@ -1,6 +1,8 @@
 import { types as t } from '@babel/core'
 import { addNamed } from '@babel/helper-module-imports'
 
+/** Plugin preferences */
+
 function get(state, name) {
 	return state.get(`@babel/plugin-pota-jsx/${name}`)
 }

@@ -7,7 +7,7 @@ import { getValue, equals } from './std.js'
  * from a server without losing references to what its already there
  * avoiding a store.
  *
- * @template {Array<{id: string}>} T
+ * @template {{ id: string }[]} T
  * @param {T} oldData
  * @param {SignalSetter<T>} setData
  */
