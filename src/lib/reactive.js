@@ -248,7 +248,8 @@ class Row {
 	disposer
 	nodes
 	indexSignal
-
+	_begin
+	_end
 	constructor(item, index, fn, isDupe, reactiveIndex) {
 		this.item = item
 		this.index = index
@@ -264,6 +265,8 @@ class Row {
 				/** @type Children[] */
 				this.nodes = fn(item, index)
 			}
+			this._begin = null
+			this._end = null
 		})
 	}
 
@@ -276,10 +279,28 @@ class Row {
 		}
 	}
 	begin() {
-		return this.nodes[0]
+		if (!this._begin) {
+			this.getBegin(this.nodes)
+		}
+		return this._begin
+	}
+	getBegin(nodes) {
+		if (isArray(nodes)) {
+			return this.getBegin(nodes[0])
+		}
+		this._begin = nodes
 	}
 	end() {
-		return this.nodes[this.nodes.length - 1]
+		if (!this._end) {
+			this.getEnd(this.nodes)
+		}
+		return this._end
+	}
+	getEnd(nodes) {
+		if (isArray(nodes)) {
+			return this.getEnd(nodes[nodes.length - 1])
+		}
+		this._end = nodes
 	}
 	nodesForRow() {
 		const begin = this.begin()
@@ -477,7 +498,7 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 		prev = rows
 
 		// return external representation
-		return rows.flatMap(item => item.nodes)
+		return rows.map(item => item.nodes)
 	}
 	mapper[$isMap] = undefined
 	return mapper

@@ -348,22 +348,7 @@ export function createChildren(
 						node = toDiff(
 							node,
 							flatToArray(
-								child(child => {
-									/**
-									 * Wrap the item with placeholders, for when stuff
-									 * in between moves. If a `Show` adds and removes
-									 * nodes, we dont have a reference to these nodes.
-									 * By delimiting with a shore, we can just handle
-									 * anything in between as a group.
-									 */
-									const begin = createPlaceholder(parent, true)
-									const end = createPlaceholder(parent, true)
-									return [
-										begin,
-										createChildren(end, child, true),
-										end,
-									]
-								}),
+								child(child => createChildren(parent, child, true)),
 							),
 							true,
 						)
