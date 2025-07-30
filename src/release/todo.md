@@ -27,7 +27,6 @@ mutable
 
 typescript
 
-- type Dynamic props such <Dynamic when={}/> being `when` an error
 - type components somehow
 
 reactivity

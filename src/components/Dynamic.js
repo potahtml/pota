@@ -3,9 +3,8 @@ import { Component } from '../core/renderer.js'
 /**
  * Creates components dynamically
  *
- * @param {Props<{
- * 	component: Component
- * }>} props
+ * @template T
+ * @param {Dynamic<T>} props
  * @url https://pota.quack.uy/Components/Dynamic
  */
 

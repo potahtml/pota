@@ -56,7 +56,23 @@ declare global {
 	type Component = JSX.ElementType
 	type Children = JSX.Element
 	type Elements = JSX.Elements
+
 	type Props<T = {}> = JSX.Props<T>
+
+	// based on solidjs types
+	type ComponentProps<T /*extends ValidComponent*/> = T extends (
+		props: infer P,
+	) => any
+		? P
+		: T extends keyof JSX.IntrinsicElements
+			? JSX.IntrinsicElements[T]
+			: Record<string, unknown>
+
+	type Dynamic<T, P = ComponentProps<T>> = {
+		[K in keyof P]: P[K]
+	} & {
+		component: T
+	}
 
 	// dom
 
