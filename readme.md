@@ -3,12 +3,12 @@
 pota is a small, pluggable, yet fully-featured Reactive Web Renderer,
 designed to work with `html` and `xml`.
 
-pota is compiler-less, allowing you to use it with an `html` function.
-It also includes a Babel preset for transforming `JSX` into fast and
+It includes a Babel preset for transforming `JSX` into fast and
 compact partials inspired by
-[dom-expressions](https://github.com/ryansolid/dom-expressions). You
-may still use `transform-react-jsx` or `tsc`, as transformation needs
-no magic.
+[dom-expressions](https://github.com/ryansolid/dom-expressions). pota
+can also be used compiler-less, allowing you to use it with an `xml`
+function. You may still use `transform-react-jsx` or `tsc`, as
+transformation needs no "magic".
 
 #### Philosophy
 
@@ -43,3 +43,5 @@ Thanks to: Joe, Fabio, Ryan, Erika, kilo, Javier, Paty, bigmistqke
 _Bug-free till proven otherwise._
 
  <img src="https://pota.quack.uy/assets/logo-small.png"/>
+
+In loving memory of Quack 🐈‍⬛ 🩵
