@@ -13,10 +13,9 @@ import {
  * @param {DOMElement} node
  * @param {string} name
  * @param {StyleAttribute} value
- * @param {object} props
  * @url https://pota.quack.uy/props/setStyle
  */
-export const setStyle = (node, name, value, props) => {
+export const setStyle = (node, name, value) => {
 	setNodeStyle(node.style, value)
 }
 
@@ -24,18 +23,9 @@ export const setStyle = (node, name, value, props) => {
  * @param {DOMElement} node
  * @param {string} name
  * @param {StyleAttribute} value
- * @param {object} props
  * @param {string} localName
- * @param {string} ns
  */
-export const setStyleNS = (
-	node,
-	name,
-	value,
-	props,
-	localName,
-	ns,
-) => {
+export const setStyleNS = (node, name, value, localName) => {
 	setNodeStyle(
 		node.style,
 		isObject(value) ? value : { [localName]: value },

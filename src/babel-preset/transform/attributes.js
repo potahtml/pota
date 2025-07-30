@@ -1,4 +1,12 @@
-import { types as t } from '@babel/core'
+import {
+	isNegativeNumber,
+	isPlainTemplateLiteral,
+	isNullUndefined,
+	isBooleanFalse,
+	isBooleanTrue,
+	isString,
+	isNumber,
+} from './literal.js'
 
 /** Merges attributes into partial */
 export function buildAttributeIntoTag(tag, name, value) {
@@ -16,62 +24,42 @@ export function buildAttributeIntoTag(tag, name, value) {
 }
 
 /** If the attribute should be skipped */
-export function shouldSkipAttribute(node) {
-	// boolean `false` gets skipped from the partial
-	return (
-		(t.isIdentifier(node.value) && node.value.name === 'undefined') ||
-		(t.isIdentifier(node.value?.expression) &&
-			node.value.expression.name === 'undefined') ||
-		(t.isBooleanLiteral(node.value) && node.value.value === false) ||
-		(t.isBooleanLiteral(node.value?.expression) &&
-			node.value.expression.value === false)
-	)
+export function shouldSkipAttribute(value) {
+	if (value && value.expression) {
+		return shouldSkipAttribute(value.expression)
+	}
+
+	return isNullUndefined(value) || isBooleanFalse(value)
 }
 
-/** If value is string/number/boolean/undefined/null */
-export function isAttributeLiteral(node) {
-	return (
-		// <input autofocus/> (it doesnt have a value)
-		node.value === null ||
-		(t.isIdentifier(node.value) && node.value.name === 'undefined') ||
-		(t.isIdentifier(node.value?.expression) &&
-			node.value.expression.name === 'undefined') ||
-		t.isStringLiteral(node.value) ||
-		t.isNumericLiteral(node.value) ||
-		t.isBooleanLiteral(node.value) ||
-		t.isStringLiteral(node.value?.expression) ||
-		t.isNumericLiteral(node.value?.expression) ||
-		t.isBooleanLiteral(node.value?.expression)
-	)
+/** If the attribute should be inlined */
+export function isAttributeLiteral(value) {
+	if (value && value.expression) {
+		return isAttributeLiteral(value.expression)
+	}
+
+	return isBooleanTrue(value) || isString(value) || isNumber(value)
 }
 
-/** Get attribute string or number */
-export function getAttributeLiteral(node) {
-	// <input autofocus/> (it doesnt have a value)
-	if (node.value === null) {
+/** Get attribute literal value */
+export function getAttributeLiteral(value) {
+	if (value && value.expression) {
+		return getAttributeLiteral(value.expression)
+	}
+
+	if (isBooleanTrue(value)) {
 		return ''
 	}
 
-	if (
-		t.isBooleanLiteral(node.value) ||
-		t.isBooleanLiteral(node.value.expression)
-	) {
-		return ''
+	if (isNegativeNumber(value)) {
+		return '-' + value.argument.value
 	}
 
-	if (
-		t.isStringLiteral(node.value.expression) ||
-		t.isNumericLiteral(node.value.expression)
-	) {
-		return String(node.value.expression.value)
+	if (isPlainTemplateLiteral(value)) {
+		return String(value.quasis[0].value.raw)
 	}
 
-	return String(node.value.value)
-}
-
-/** Creates a `jSXAttribute` */
-export function createAttribute(name, value) {
-	return t.jSXAttribute(t.jSXIdentifier(name), t.stringLiteral(value))
+	return String(value.value)
 }
 
 /** Escapes `"` */

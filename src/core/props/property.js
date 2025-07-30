@@ -5,18 +5,10 @@ import { isNullUndefined } from '../../lib/std.js'
  * @param {Element} node
  * @param {string} name
  * @param {unknown} value
- * @param {object} props
  * @param {string} localName
  * @param {string} ns
  */
-export const setPropertyNS = (
-	node,
-	name,
-	value,
-	props,
-	localName,
-	ns,
-) => {
+export const setPropertyNS = (node, name, value, localName, ns) => {
 	setProperty(node, localName, value)
 }
 

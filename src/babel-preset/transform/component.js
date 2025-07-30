@@ -47,7 +47,13 @@ export function buildComponent(path, state) {
 		// call
 
 		const identifier = pota.components[name]
-		const value = callFunctionImport(state, 'createComponent', [fn])
+		const value = callFunctionImport(
+			path,
+			state,
+			'pota/jsx-runtime',
+			'createComponent',
+			fn,
+		)
 
 		// push
 

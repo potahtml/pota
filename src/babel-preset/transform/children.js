@@ -1,5 +1,16 @@
 import { types as t } from '@babel/core'
 
+import {
+	isVoidZero,
+	isUndefined,
+	isNegativeNumber,
+	isPlainTemplateLiteral,
+	isString,
+	isNumber,
+	isBoolean,
+	isNullUndefined,
+} from './literal.js'
+
 import { escapeHTML } from './html.js'
 import { merge } from './merge.js'
 
@@ -9,22 +20,35 @@ export function buildChildren(path) {
 }
 
 /** If children is string or number */
-export function isChildrenLiteral(node) {
+export function isChildrenLiteral(value) {
+	if (value && value.expression) {
+		return isChildrenLiteral(value.expression)
+	}
+
 	return (
-		t.isStringLiteral(node) ||
-		t.isNumericLiteral(node) ||
-		t.isStringLiteral(node.value?.expression) ||
-		t.isNumericLiteral(node.value?.expression)
+		isString(value) ||
+		isNumber(value) ||
+		isBoolean(value) ||
+		isNullUndefined(value)
 	)
 }
 
 /** Gets children string or number */
-export function getChildrenLiteral(node) {
-	if (
-		t.isStringLiteral(node.value?.expression) ||
-		t.isNumericLiteral(node.value?.expression)
-	) {
-		return escapeHTML(node.value?.expression.value)
+export function getChildrenLiteral(value) {
+	if (value && value.expression) {
+		return getChildrenLiteral(value.expression)
 	}
-	return escapeHTML(node.value)
+
+	if (isNegativeNumber(value)) {
+		return '-' + value.argument.value
+	}
+
+	if (isPlainTemplateLiteral(value)) {
+		return escapeHTML(value.quasis[0].value.raw)
+	}
+
+	if (isNullUndefined(value)) {
+		return ''
+	}
+	return escapeHTML(value.value)
 }

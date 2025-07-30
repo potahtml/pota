@@ -2,7 +2,7 @@ import { types as t } from '@babel/core'
 import { declare } from '@babel/helper-plugin-utils'
 import jsx from '@babel/plugin-syntax-jsx'
 
-import { createImport, error } from './utils.js'
+import { error } from './utils.js'
 
 import { buildComponent } from './component.js'
 import { buildFragment } from './fragment.js'
@@ -22,7 +22,6 @@ export default function createPlugin({ name }) {
 			name,
 			inherits: jsx.default,
 			visitor: {
-				JSXNamespacedName(path) {},
 				JSXSpreadChild(path) {
 					// TODO
 					error(path, 'Spread children are not supported.')
@@ -32,9 +31,6 @@ export default function createPlugin({ name }) {
 						/** Pota babel state */
 
 						state.pota = { partials: {}, components: {}, files: {} }
-
-						createImport(path, state, 'createPartial')
-						createImport(path, state, 'createComponent')
 
 						if (false && options?.development) {
 							path.traverse(

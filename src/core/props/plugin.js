@@ -32,7 +32,6 @@ updateNamespaces()
  * 	node: Element,
  * 	propName: string,
  * 	propValue: Function | any,
- * 	props: object,
  * ) => void} fn
  *   - Function to run when this prop is found on any Element
  *
@@ -53,7 +52,6 @@ export const propsPlugin = (propName, fn, onMicrotask) => {
  * 	node: Element,
  * 	propName: string,
  * 	propValue: Function | any,
- * 	props: object,
  * 	localName: string,
  * 	ns: string,
  * ) => void} fn

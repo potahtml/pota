@@ -1,3 +1,6 @@
-# pota v0.18.186
+# pota v0.19.201
 
-Finally typescript works when installed
+- use:ref no longer runs when node is already mounted, it runs before its mounted
+- transform: inline props when possible
+- improve compatibility with xml
+- improve use of importNode

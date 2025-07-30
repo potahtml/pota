@@ -14,9 +14,8 @@ import { addClass, classNames, removeClass } from '../../use/dom.js'
  * @param {Element} node
  * @param {string} name
  * @param {object | string | ArrayLike<any>} value
- * @param {object} props
  */
-export const setClass = (node, name, value, props) => {
+export const setClass = (node, name, value) => {
 	isString(value)
 		? node.setAttribute(name, value)
 		: setClassList(node, value)
@@ -26,18 +25,10 @@ export const setClass = (node, name, value, props) => {
  * @param {Element} node
  * @param {string} name
  * @param {object | string | ArrayLike<any>} value
- * @param {object} props
  * @param {string} localName
- * @param {string} ns
+ * @param {string} [ns]
  */
-export const setClassNS = (
-	node,
-	name,
-	value,
-	props,
-	localName,
-	ns,
-) => {
+export const setClassNS = (node, name, value, localName, ns) => {
 	isFunction(value) || !isObject(value)
 		? setElementClass(node, localName, value)
 		: setClassList(node, value)
@@ -47,7 +38,7 @@ export const setClassNS = (
  * @param {Element} node
  * @param {object | string | ArrayLike<any>} value
  */
-function setClassList(node, value, prev) {
+export function setClassList(node, value, prev) {
 	if (isString(value) || isNullUndefined(value)) {
 		prev && _setClassListValue(node, prev, false)
 		value && _setClassListValue(node, value, true)

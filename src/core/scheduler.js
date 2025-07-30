@@ -14,7 +14,7 @@ let added
 let queue
 
 function reset() {
-	queue = [[], [], [], [], [], []]
+	queue = [[], [], [], [], []]
 	added = false
 }
 
@@ -63,18 +63,11 @@ export const onFixes = fn => add(0, fn)
 export const onProps = fn => add(1, fn)
 
 /**
- * Queue a function to run onRef (before onMount, after onProps)
- *
- * @param {Function} fn
- */
-export const onRef = fn => add(2, fn)
-
-/**
  * Queue a function to run onMount (before ready, after onRef)
  *
  * @param {Function} fn
  */
-export const onMount = fn => add(3, fn)
+export const onMount = fn => add(2, fn)
 
 /**
  * Queue a function to run on ready (after onMount)
@@ -82,11 +75,11 @@ export const onMount = fn => add(3, fn)
  * @param {Function} fn
  * @url https://pota.quack.uy/ready
  */
-export const ready = fn => add(4, fn)
+export const ready = fn => add(3, fn)
 
 /**
  * Queue a function to run after all user defined processes
  *
  * @param {Function} fn
  */
-export const onDone = fn => add(5, fn)
+export const onDone = fn => add(4, fn)

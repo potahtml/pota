@@ -8,9 +8,8 @@ import { randomId } from '../../use/random.js'
  * @param {Element} node
  * @param {string} name
  * @param {string} value
- * @param {object} props
  */
-export const setCSS = (node, name, value, props) => {
+export const setCSS = (node, name, value) => {
 	setNodeCSS(node, value)
 }
 

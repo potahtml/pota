@@ -56,15 +56,6 @@ export const hasAttribute = (node, name) => node.hasAttribute(name)
 export const removeAttribute = (node, name) =>
 	node.removeAttribute(name)
 
-export const setAttributeNS = (node, name, value) =>
-	node.setAttributeNS(name, value)
-
-export const hasAttributeNS = (node, name) =>
-	node.hasAttributeNS(name)
-
-export const removeAttributeNS = (node, name) =>
-	node.removeAttributeNS(name)
-
 // selector
 
 export const querySelector = (node, query) =>

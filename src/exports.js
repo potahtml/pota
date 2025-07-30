@@ -53,7 +53,10 @@ export { setAttribute } from './core/props/attribute.js'
 export { setProperty } from './core/props/property.js'
 
 export { setElementStyle as setStyle } from './core/props/style.js'
-export { setElementClass as setClass } from './core/props/class.js'
+export {
+	setElementClass as setClass,
+	setClassList,
+} from './core/props/class.js'
 
 export { propsPlugin, propsPluginNS } from './core/props/plugin.js'
 

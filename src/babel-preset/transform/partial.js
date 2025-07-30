@@ -4,13 +4,14 @@ const t = core.types
 import {
 	callFunction,
 	callFunctionImport,
+	error,
+	hasStaticMarker,
 	keys,
 	removeFromArray,
 } from './utils.js'
 
 import {
 	buildAttributeIntoTag,
-	createAttribute,
 	getAttributeLiteral,
 	isAttributeLiteral,
 	shouldSkipAttribute,
@@ -33,54 +34,13 @@ export function buildPartial(path, state) {
 
 	// state
 
+	let isImportNode = tagName.includes('-')
+
+	// state xml
+
 	let isXML = false
+	let hasXMLNS = false
 	let xmlns = ''
-
-	// attributes
-
-	/**
-	 * `#pota` default attribute/prop makes sure every single tag has
-	 * props, so that way we can map props to specific nodes. We remove
-	 * the prop at compile time.
-	 */
-
-	const attributes = [createAttribute('#pota', '')]
-
-	for (const attr of path.get('openingElement').get('attributes')) {
-		if (attr.isJSXAttribute() && t.isJSXIdentifier(attr.node.name)) {
-			const name = attr.node.name.name
-
-			/** `isXML` */
-
-			if (name === 'xmlns') {
-				isXML = true
-			}
-
-			/** Should inline the attribute into the template? */
-
-			if (isAttributeLiteral(attr.node)) {
-				if (name === 'xmlns') {
-					/**
-					 * Skip inlining the `xmlns` attribute in the tag when its a
-					 * literal
-					 */
-					xmlns = getAttributeLiteral(attr.node)
-
-					continue
-				} else if (shouldSkipAttribute(attr.node)) {
-					continue
-				} else {
-					/** Inline the attribute */
-					const value = getAttributeLiteral(attr.node)
-
-					buildAttributeIntoTag(tag, name, value)
-
-					continue
-				}
-			}
-		}
-		attributes.push(attr)
-	}
 
 	// add xmlns attribute when missing
 
@@ -95,6 +55,223 @@ export function buildPartial(path, state) {
 			xmlns = 'http://www.w3.org/1998/Math/MathML'
 			break
 		}
+		case 'foreignobject':
+		case 'foreignObject': {
+			isXML = true
+			xmlns = 'http://www.w3.org/1999/xhtml'
+			break
+		}
+	}
+
+	// attributes
+
+	const attributes = []
+
+	// inlined function calls
+
+	const inlinedNode = path.scope.generateUidIdentifier('node')
+
+	const inlinedCalls = []
+	function callInlined(fnName, ...args) {
+		inlinedCalls.push(
+			callFunctionImport(
+				path,
+				state,
+				'pota',
+				fnName,
+				...args.map(x =>
+					typeof x === 'string' ? t.stringLiteral(x) : x,
+				),
+			),
+		)
+	}
+	function callInlinedFromJSXRuntime(fnName, ...args) {
+		inlinedCalls.push(
+			callFunctionImport(
+				path,
+				state,
+				'pota/jsx-runtime',
+				fnName,
+				...args.map(x =>
+					typeof x === 'string' ? t.stringLiteral(x) : x,
+				),
+			),
+		)
+	}
+
+	// attributes
+
+	for (const attr of path.get('openingElement').get('attributes')) {
+		if (attr.isJSXAttribute()) {
+			// no namespaced
+			if (t.isJSXIdentifier(attr.node.name)) {
+				const name = attr.node.name.name
+				const value =
+					(attr.node.value?.expression
+						? attr.node.value.expression
+						: attr.node.value) || t.booleanLiteral(true)
+
+				// flags
+				isImportNode =
+					isImportNode ||
+					name === 'is' ||
+					(name === 'loading' &&
+						(tagName === 'iframe' || tagName === 'img'))
+
+				if (shouldSkipAttribute(value)) {
+				} else if (isAttributeLiteral(value)) {
+					/** Inline attribute */
+					if (name === 'xmlns') {
+						hasXMLNS = true
+						xmlns = getAttributeLiteral(value)
+					}
+					/** Inline the attribute */
+					buildAttributeIntoTag(tag, name, getAttributeLiteral(value))
+				}
+				// inlined calls
+				else if (name === 'class') {
+					callInlined('setClassList', inlinedNode, value)
+				} else if (name === 'style') {
+					callInlined('setStyle', inlinedNode, value)
+				} else {
+					// default to attributes
+
+					if (hasStaticMarker(value)) {
+						inlinedCalls.push(
+							t.callExpression(
+								t.memberExpression(
+									inlinedNode,
+									t.identifier('setAttribute'),
+								),
+								[
+									t.stringLiteral(name),
+									callFunctionImport(
+										path,
+										state,
+										'pota',
+										'getValue',
+										value,
+									),
+								],
+							),
+						)
+					} else {
+						callInlined('setAttribute', inlinedNode, name, value)
+					}
+				}
+			} else if (t.isJSXNamespacedName(attr.node.name)) {
+				// inlined namespaced
+				const namespace = attr.node.name.namespace.name
+				const localName = attr.node.name.name.name
+				const name = namespace + ':' + localName
+
+				const value =
+					(attr.node.value?.expression
+						? attr.node.value.expression
+						: attr.node.value) || t.booleanLiteral(true)
+
+				if (namespace === 'class') {
+					callInlined('setClass', inlinedNode, localName, value)
+				} else if (namespace === 'style') {
+					callInlinedFromJSXRuntime(
+						'setStyleNS',
+						inlinedNode,
+						t.nullLiteral(),
+						value,
+						localName,
+					)
+				} else if (namespace === 'on') {
+					callInlinedFromJSXRuntime(
+						'setEvent',
+						inlinedNode,
+						localName,
+						value,
+					)
+				} else if (namespace === 'prop') {
+					if (hasStaticMarker(value)) {
+						inlinedCalls.push(
+							t.assignmentExpression(
+								'=',
+								t.memberExpression(
+									inlinedNode,
+									t.identifier(localName),
+								),
+								callFunctionImport(
+									path,
+									state,
+									'pota',
+									'getValue',
+									value,
+								),
+							),
+						)
+					} else {
+						callInlined('setProperty', inlinedNode, localName, value)
+					}
+				} else if (name === 'use:ref') {
+					inlinedCalls.push(t.callExpression(value, [inlinedNode]))
+				} else if (name === 'use:css') {
+					callInlinedFromJSXRuntime(
+						'setCSS',
+						inlinedNode,
+						t.nullLiteral(),
+						value,
+					)
+				} else if (name === 'use:connected') {
+					callInlinedFromJSXRuntime(
+						'setConnected',
+						inlinedNode,
+						t.nullLiteral(),
+						value,
+					)
+				} else if (name === 'use:disconnected') {
+					callInlinedFromJSXRuntime(
+						'setDisconnected',
+						inlinedNode,
+						t.nullLiteral(),
+						value,
+					)
+				} else if (
+					namespace === 'xmlns' &&
+					isAttributeLiteral(value)
+				) {
+					buildAttributeIntoTag(tag, name, getAttributeLiteral(value))
+				} else {
+					// dynamic, could be a plugin
+					callInlinedFromJSXRuntime(
+						'assignPropNS',
+						inlinedNode,
+						name,
+						value,
+						localName,
+						namespace,
+					)
+				}
+			} else {
+				// do not think this happens, but Im gonna leave it here just in case
+				error(
+					path,
+					'unrecognized value for isJSXIdentifier attribute.',
+					attr.node,
+				)
+			}
+		} else if (t.isJSXSpreadAttribute(attr.node)) {
+			// spread
+			callInlinedFromJSXRuntime(
+				'assignProps',
+				inlinedNode,
+				attr.node.argument,
+			)
+		} else {
+			// do not think this happens, but Im gonna leave it here just in case
+			error(path, 'unrecognized value for jsx attribute.', attr.node)
+		}
+	}
+
+	// xml
+
+	if (!hasXMLNS && xmlns) {
+		buildAttributeIntoTag(tag, 'xmlns', xmlns)
 	}
 
 	// close opening tag
@@ -109,6 +286,27 @@ export function buildPartial(path, state) {
 	} else {
 		tag.content += `>`
 	}
+
+	// inline function calls
+
+	/**
+	 * Add a `#pota`prop to make sure every single `tag` has `props`, so
+	 * that way we can map props to specific nodes. prop is rmoved at
+	 * compile time.
+	 */
+	attributes.push(
+		t.jSXAttribute(
+			t.jSXIdentifier('#pota'),
+			t.jSXExpressionContainer(
+				t.arrowFunctionExpression(
+					[inlinedNode],
+					t.blockStatement(
+						inlinedCalls.map(x => t.expressionStatement(x)),
+					),
+				),
+			),
+		),
+	)
 
 	// children
 
@@ -129,15 +327,22 @@ export function buildPartial(path, state) {
 
 	// call
 
-	const partial = callFunctionImport(state, 'createPartial', [
+	const partial = callFunctionImport(
+		path,
+		state,
+		'pota/jsx-runtime',
+		'createPartial',
 		t.stringLiteral(tag.content),
 		t.arrayExpression(tag.props),
-	])
+	)
 	partial.isPartial = true
 
-	partial.isXML = isXML
 	partial.xmlns = xmlns
+	partial.isXML = isXML
+
 	partial.tagName = tagName
+
+	partial.isImportNode = isImportNode || tag.isImportNode
 
 	return partial
 }
@@ -146,7 +351,7 @@ export function buildPartial(path, state) {
 export function partialMerge(path, state) {
 	const node = path.node
 
-	// create map of props -> nodes, and removes #pota prop
+	// create map of props -> nodes, and inlines the function in place of the prop
 	const elements = node.arguments[1].elements
 
 	const propsAt = {}
@@ -157,11 +362,32 @@ export function partialMerge(path, state) {
 	for (let i = 0; i < elements.length; i++) {
 		const properties = elements[i].properties
 
-		// #find the #pota prop and remove it
+		// find #pota
 		const potaProp = properties.find(
 			value => value.key.value === '#pota',
 		)
-		if (potaProp) {
+
+		// find children and append it to the #pota
+		const childrenProp = properties.find(
+			value => value.key.name === 'children',
+		)
+
+		if (childrenProp) {
+			removeFromArray(properties, childrenProp)
+
+			potaProp.value.body.body.push(
+				callFunctionImport(
+					path,
+					state,
+					'pota/jsx-runtime',
+					'createChildren',
+					potaProp.value.params[0],
+					childrenProp.value,
+				),
+			)
+		}
+
+		if (!potaProp.value.body.body.length) {
 			removeFromArray(properties, potaProp)
 		}
 
@@ -172,6 +398,8 @@ export function partialMerge(path, state) {
 				propsAt[propsKey] = i
 			}
 			propsKey++
+
+			elements[i] = potaProp.value
 		} else {
 			// props object is empty
 			toRemove.push(elements[i])
@@ -227,15 +455,8 @@ export function partialMerge(path, state) {
 		}
 
 		// if should use importNode instead of cloneNode
-		const isImportNode = // custom element tag
-			/<\/[a-z0-9]+-[a-z0-9]+>/.test(partial) ||
-			// custom element `is`
-			/<[a-z]+[^>]+is=[^>]+>/.test(partial) ||
-			// lazy loading frame/img
-			/<(img|iframe)[^>]+>/.test(partial) ||
-			undefined
 
-		if (isImportNode) {
+		if (node.isImportNode) {
 			propsAt.i = 1
 		}
 
@@ -251,7 +472,13 @@ export function partialMerge(path, state) {
 
 		scope.push({
 			id: pota.partials[partial],
-			init: callFunctionImport(state, 'createPartial', args),
+			init: callFunctionImport(
+				path,
+				state,
+				'pota/jsx-runtime',
+				'createPartial',
+				...args,
+			),
 		})
 	}
 
@@ -274,4 +501,10 @@ export function isPartial(node) {
 /** Returns partial as `string` */
 export function getPartialLiteral(node) {
 	return node.arguments[0].value
+}
+
+/** Copies properties from `a` to `b` */
+export function mergeProperties(b, a) {
+	b.isXML = b.isXML || a.isXML
+	b.isImportNode = b.isImportNode || a.isImportNode
 }

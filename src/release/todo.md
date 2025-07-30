@@ -20,8 +20,15 @@ tools
 
 mutable
 
+- make mutable lazy
+- improve reconcile by only copying whats needs to be copied
 - support set, maybe weakmap and weakset
 - defineProperty proxy trap
+
+typescript
+
+- type Dynamic props such <Dynamic when={}/> being `when` an error
+- type components somehow
 
 reactivity
 
@@ -38,12 +45,19 @@ reactivity
   `createReactiveSystem`
 - figure out if top level runs the same as when owned, or make top
   level owned, even if doesnt garbage collects
+
+render
+
 - maybe move node sorting out of For component
+- maybe hardcode swapping two items
+- in for try to remove the placeholder per items if the node has
+  something
 
 transform
 
-- refactor
-- maybe try to make the partials smaller
+- {"2":8,"3":10,"m":11,"i":1}
+- setAttribute to setProperty when node.prop /
+  getBooleanProperty(value)
 
 use / probably never
 
@@ -65,6 +79,7 @@ use / probably never
 - colors library
 - socket webrtc
 - handle/listen postMessage/MessageChannel
+- orientation is creating a root, figure out if this can be abstracted
 
 components:
 
@@ -82,8 +97,9 @@ components:
 
 bench
 
-- v0.17.177 - position 31 / 10k - 75ms 11ms / 1k - 7ms 0.7ms
-- v0.18.184 - position X / 10k - 77ms 9ms / 1k - 7ms 0.5ms
+- v0.17.177 win - pos 31 / 10k - 75ms - 11ms / 1k - 7ms - 0.7ms
+- v0.18.188 win - pos 34 / 10k - 77ms - 9ms / 1k - 7ms - 0.5ms
+- v0.18.199 lin - pos Xx / 10k - 54ms - 6ms / 1k - 4.5ms - 0.4ms
 
 typescript errors
 

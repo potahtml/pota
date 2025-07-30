@@ -14,12 +14,8 @@ export function getTagFunction(path) {
 
 /** Gets identifier name for tag */
 export function getTagFunctionName(path) {
-	const openingPath = path.get('openingElement')
+	const tagExpr = getTagFunction(path)
 
-	const tagExpr = convertJSXIdentifier(
-		openingPath.node.name,
-		openingPath.node,
-	)
 	if (t.isIdentifier(tagExpr)) {
 		return tagExpr.name
 	} else if (t.isStringLiteral(tagExpr)) {
@@ -27,7 +23,7 @@ export function getTagFunctionName(path) {
 	} else if (t.isMemberExpression(tagExpr)) {
 		return tagExpr.object.name + '.' + tagExpr.property.name
 	} else {
-		console.error(tagExpr)
+		console.log(tagExpr)
 		throw path.buildCodeFrameError(
 			'Cannot figure out `tagName` for JSX function.',
 		)
@@ -36,12 +32,8 @@ export function getTagFunctionName(path) {
 
 /** Returns `tagName` for tag when tag is valid XHTML, or `false` */
 export function isXHTMLTag(path) {
-	const openingPath = path.get('openingElement')
+	const tagExpr = getTagFunction(path)
 
-	const tagExpr = convertJSXIdentifier(
-		openingPath.node.name,
-		openingPath.node,
-	)
 	let tagName
 	if (t.isIdentifier(tagExpr)) {
 		tagName = tagExpr.name

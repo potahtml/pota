@@ -1,5 +1,9 @@
 import { getChildrenLiteral, isChildrenLiteral } from './children.js'
-import { getPartialLiteral, canMergePartials } from './partial.js'
+import {
+	getPartialLiteral,
+	canMergePartials,
+	mergeProperties,
+} from './partial.js'
 
 /** Merges text/partial childrens to parent */
 export function mergeToTag(children, tag) {
@@ -10,6 +14,7 @@ export function mergeToTag(children, tag) {
 		if (isChildrenLiteral(node)) {
 			tag.content += getChildrenLiteral(node)
 
+			mergeProperties(tag, node)
 			toRemove.push(node)
 			continue
 		}
@@ -19,6 +24,7 @@ export function mergeToTag(children, tag) {
 			// move props
 			tag.props.push(...node.arguments[1].elements)
 
+			mergeProperties(tag, node)
 			toRemove.push(node)
 			continue
 		}
@@ -45,6 +51,7 @@ export function merge(children) {
 			if (isChildrenLiteral(next)) {
 				node.value += getChildrenLiteral(next)
 
+				mergeProperties(node, next)
 				toRemove.push(next)
 				next = children[++i]
 				continue
@@ -53,6 +60,7 @@ export function merge(children) {
 				next.arguments[0].value =
 					getChildrenLiteral(node) + getPartialLiteral(next)
 
+				mergeProperties(next, node)
 				toRemove.push(node)
 				node = next
 				next = children[++i]
@@ -64,6 +72,7 @@ export function merge(children) {
 			if (isChildrenLiteral(next)) {
 				node.arguments[0].value += getChildrenLiteral(next)
 
+				mergeProperties(node, next)
 				toRemove.push(next)
 				next = children[++i]
 				continue
@@ -74,6 +83,7 @@ export function merge(children) {
 				// move props
 				node.arguments[1].elements.push(...next.arguments[1].elements)
 
+				mergeProperties(node, next)
 				toRemove.push(next)
 				next = children[++i]
 				continue

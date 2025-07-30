@@ -59,7 +59,6 @@ export function accumulate(array, attribute) {
 	) {
 		var _value$extra
 		value.value = value.value.replace(/\n\s+/g, ' ')
-		// mind to write stuff that could be read?
 		;(_value$extra = value.extra) == null || delete _value$extra.raw
 	}
 

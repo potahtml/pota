@@ -10,37 +10,60 @@ function set(state, name, v) {
 	return state.set(`@babel/plugin-pota-jsx/${name}`, v)
 }
 
-/** Creates an import for a function */
-export const createImport = (path, state, name) =>
-	set(state, 'id/' + name, importLazy(path, state, name))
+/** Call function it with arguments */
+export const callFunction = (name, args) =>
+	t.callExpression(t.identifier(name), args)
 
 /**
  * Calls function that has been created with `createImport` with
  * arguments
  */
-export const callFunctionImport = (state, name, args) =>
-	t.callExpression(get(state, `id/${name}`)(), args)
+export const callFunctionImport = (
+	path,
+	state,
+	file,
+	name,
+	...args
+) => {
+	createImport(path, state, file, name)
+	return t.callExpression(
+		get(state, `id/${file + '/' + name}`)(),
+		args,
+	)
+}
 
-/** Call function it with arguments */
-export const callFunction = (name, args) =>
-	t.callExpression(t.identifier(name), args)
-
-function importLazy(path, state, name) {
-	return () => {
-		let reference = get(state, `imports/${name}`)
+/** Creates an import for a function */
+const createImport = (path, state, file, name) => {
+	set(state, 'id/' + file + '/' + name, () => {
+		let reference = get(state, `imports/${file + '/' + name}`)
 		if (reference) return t.cloneNode(reference)
-		reference = addNamed(path, name, 'pota/jsx-runtime', {
+		reference = addNamed(path, name, file, {
 			importedInterop: 'uncompiled',
 			importPosition: 'after',
 		})
-		set(state, `imports/${name}`, reference)
+		set(state, `imports/${file + '/' + name}`, reference)
 		return reference
+	})
+}
+
+export function hasStaticMarker(node) {
+	if (!node) return false
+	if (node.leadingComments && node.leadingComments[0]) {
+		const value = node.leadingComments[0].value.trim()
+		if (
+			value === '@static' ||
+			value === '* @static' ||
+			value === '@once' ||
+			value === '* @once'
+		)
+			return true
 	}
+	if (node.expression) return hasStaticMarker(node.expression)
 }
 
 /** Displays fancy error on path */
-
-export function error(path, err) {
+export function error(path, err, value) {
+	value && console.log(value)
 	throw path.buildCodeFrameError(err)
 }
 

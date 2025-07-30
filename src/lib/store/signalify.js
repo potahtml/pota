@@ -191,18 +191,16 @@ export function signalifyUndefinedKey(
 	}
 
 	if (isExtensible(target)) {
-		untrack(() => {
-			redefineProperty(target, key, {
-				get() {
-					return track.valueRead(key, value)
-				},
-				set(val) {
-					batch(() => {
-						value = wrapper(val)
-						track.valueWrite(key, value)
-					})
-				},
-			})
+		redefineProperty(target, key, {
+			get() {
+				return track.valueRead(key, value)
+			},
+			set(val) {
+				batch(() => {
+					value = wrapper(val)
+					track.valueWrite(key, value)
+				})
+			},
 		})
 	}
 }

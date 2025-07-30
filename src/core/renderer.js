@@ -150,39 +150,36 @@ function createTag(tagName, props) {
 	 */
 	const xmlns = props?.xmlns || NS[tagName]
 
-	return withXMLNS(
-		xmlns,
-		xmlns =>
-			createNode(
-				xmlns
-					? createElementNS(xmlns, tagName, { is: props?.is })
-					: createElement(tagName, { is: props?.is }),
-				props,
-			),
-		tagName,
+	return withXMLNS(xmlns, xmlns =>
+		createNode(
+			xmlns
+				? createElementNS(xmlns, tagName, { is: props?.is })
+				: createElement(tagName, { is: props?.is }),
+			props,
+		),
 	)
 }
+
+let usedXML
 
 /**
  * @param {string} xmlns
  * @param {(xmlns: string) => Element} fn
- * @param {string} tagName
  * @returns {Element}
  */
-function withXMLNS(xmlns, fn, tagName) {
+function withXMLNS(xmlns, fn) {
+	if (!usedXML) {
+		if (!xmlns) {
+			return fn(xmlns)
+		}
+		usedXML = true
+	}
+
 	const nsContext = useXMLNS()
 
 	if (xmlns && xmlns !== nsContext) {
 		// the xmlns changed, use the new xmlns
 		return useXMLNS(xmlns, () => fn(xmlns))
-	}
-
-	/**
-	 * `foreignObject` children are created with html xmlns (default
-	 * browser behaviour)
-	 */
-	if (nsContext && tagName === 'foreignObject') {
-		return useXMLNS(NS.html, () => fn(nsContext))
 	}
 
 	return fn(nsContext)
@@ -257,7 +254,7 @@ export function createPartial(content, propsData = nothing) {
  * @param {T[]} props
  * @param {{
  * 	x?: string
- * 	i?: number
+ * 	[i: number]: number
  * 	m?: number
  * } & Record<string, unknown>} propsData
  * @returns {Children}
@@ -268,7 +265,7 @@ function assignPartialProps(node, props, propsData) {
 
 		withXMLNS(propsData.x, xmlns => {
 			for (let i = 0; i < props.length; i++) {
-				assignProps(nodes[propsData[i] || i], props[i])
+				props[i](nodes[i in propsData ? propsData[i] : i])
 			}
 		})
 	}
@@ -301,7 +298,7 @@ function createNode(node, props) {
  * @param {Text | undefined} [prev]
  * @returns {Children}
  */
-function createChildren(
+export function createChildren(
 	parent,
 	child,
 	relative = false,
@@ -353,10 +350,10 @@ function createChildren(
 							flatToArray(
 								child(child => {
 									/**
-									 * Wrap the item with placeholders, for when stuff in
-									 * between moves. If a `Show` adds and removes nodes,
-									 * we dont have a reference to these nodes. By
-									 * delimiting with a shore, we can just handle
+									 * Wrap the item with placeholders, for when stuff
+									 * in between moves. If a `Show` adds and removes
+									 * nodes, we dont have a reference to these nodes.
+									 * By delimiting with a shore, we can just handle
 									 * anything in between as a group.
 									 */
 									const begin = createPlaceholder(parent, true)
@@ -554,7 +551,9 @@ function insertNode(parent, node, relative) {
 		// replace old node if there's any
 		prev ? prev.replaceWith(node) : parent.appendChild(node)
 	} else {
-		relative ? parent.before(node) : parent.appendChild(node)
+		relative
+			? parent.parentNode.insertBefore(node, parent)
+			: parent.appendChild(node)
 	}
 
 	return node
