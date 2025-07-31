@@ -18,7 +18,7 @@ export {
 } from '../core/props/lifecycle.js'
 export { setEvent } from '../core/props/event.js'
 export { setCSS } from '../core/props/css.js'
-export { setStyleNS } from '../core/props/style.js'
+export { setStyleNS, setStyle } from '../core/props/style.js'
 export {
 	assignProp,
 	assignProps,

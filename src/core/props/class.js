@@ -8,7 +8,7 @@ import {
 } from '../../lib/std.js'
 import { withPrevValue } from '../../lib/reactive.js'
 
-import { addClass, classNames, removeClass } from '../../use/dom.js'
+import { addClass, removeClass } from '../../use/dom.js'
 
 /**
  * @param {Element} node
@@ -74,7 +74,5 @@ export const setElementClass = (node, name, value) => {
  */
 const _setClassListValue = (node, name, value) => {
 	// null, undefined or false, the class is removed
-	!value
-		? removeClass(node, classNames(name))
-		: addClass(node, classNames(name))
+	!value ? removeClass(node, name) : addClass(node, name)
 }

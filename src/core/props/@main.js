@@ -114,7 +114,7 @@ export function assignProp(node, name, value) {
  */
 export function assignPropNS(node, name, value, localName, ns) {
 	// run plugins NS
-	const plugin = pluginsNS.get(ns) || pluginsNS.get(name)
+	const plugin = pluginsNS.get(ns) || plugins.get(name)
 	plugin
 		? plugin(node, name, value, localName, ns)
 		: setAttributeNS(node, localName, value, ns)

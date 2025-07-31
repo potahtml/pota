@@ -132,7 +132,12 @@ export function buildPartial(path, state) {
 				else if (name === 'class') {
 					callInlined('setClassList', inlinedNode, value)
 				} else if (name === 'style') {
-					callInlined('setStyle', inlinedNode, value)
+					callInlinedFromJSXRuntime(
+						'setStyle',
+						inlinedNode,
+						t.nullLiteral(),
+						value,
+					)
 				} else {
 					// default to attributes
 

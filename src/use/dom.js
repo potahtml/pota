@@ -1,6 +1,7 @@
 import {
 	emptyArray,
 	getValueWithArguments,
+	isArray,
 	window,
 } from '../lib/std.js'
 
@@ -35,16 +36,21 @@ export const addPart = (node, partName) => node.part.add(partName)
 export const removePart = (node, partName) =>
 	node.part.remove(partName)
 
-// classNames
+// tokenList
 
-export const classNames = s =>
-	s ? s.trim().split(/\s+/) : emptyArray
+export const tokenList = s => (s ? s.trim().split(/\s+/) : emptyArray)
 
 export const addClass = (node, className) =>
-	className.length && node.classList.add(...className)
+	className.length &&
+	node.classList.add(
+		...(isArray(className) ? className : tokenList(className)),
+	)
 
 export const removeClass = (node, className) =>
-	className.length && node.classList.remove(...className)
+	className.length &&
+	node.classList.remove(
+		...(isArray(className) ? className : tokenList(className)),
+	)
 
 // attributes
 
