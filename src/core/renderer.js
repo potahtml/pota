@@ -150,13 +150,16 @@ function createTag(tagName, props) {
 	 */
 	const xmlns = props?.xmlns || NS[tagName]
 
-	return withXMLNS(xmlns, xmlns =>
-		createNode(
-			xmlns
-				? createElementNS(xmlns, tagName, { is: props?.is })
-				: createElement(tagName, { is: props?.is }),
-			props,
-		),
+	return withXMLNS(
+		xmlns,
+		xmlns =>
+			createNode(
+				xmlns
+					? createElementNS(xmlns, tagName, { is: props?.is })
+					: createElement(tagName, { is: props?.is }),
+				props,
+			),
+		tagName,
 	)
 }
 
@@ -165,9 +168,10 @@ let usedXML
 /**
  * @param {string} xmlns
  * @param {(xmlns: string) => Element} fn
+ * @param {string} [tagName]
  * @returns {Element}
  */
-function withXMLNS(xmlns, fn) {
+function withXMLNS(xmlns, fn, tagName) {
 	if (!usedXML) {
 		if (!xmlns) {
 			return fn(xmlns)
@@ -180,6 +184,14 @@ function withXMLNS(xmlns, fn) {
 	if (xmlns && xmlns !== nsContext) {
 		// the xmlns changed, use the new xmlns
 		return useXMLNS(xmlns, () => fn(xmlns))
+	}
+
+	/**
+	 * `foreignObject` children are created with html xmlns (default
+	 * browser behaviour)
+	 */
+	if (nsContext && tagName === 'foreignObject') {
+		return useXMLNS(NS.html, () => fn(nsContext))
 	}
 
 	return fn(nsContext)

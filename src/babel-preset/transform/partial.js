@@ -45,7 +45,8 @@ export function buildPartial(path, state) {
 	// add xmlns attribute when missing
 
 	switch (tagName) {
-		case 'svg': {
+		case 'svg':
+		case 'foreignObject': {
 			isXML = true
 			xmlns = 'http://www.w3.org/2000/svg'
 			break
@@ -53,12 +54,6 @@ export function buildPartial(path, state) {
 		case 'math': {
 			isXML = true
 			xmlns = 'http://www.w3.org/1998/Math/MathML'
-			break
-		}
-		case 'foreignobject':
-		case 'foreignObject': {
-			isXML = true
-			xmlns = 'http://www.w3.org/1999/xhtml'
 			break
 		}
 	}
