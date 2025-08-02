@@ -538,20 +538,24 @@ export const isComponent = value =>
  * @returns {((...args: unknown[]) => T) | T}
  */
 export function makeCallback(children) {
+	/** Shortcut the most used case */
+	if (isFunction(children)) {
+		return markComponent(children)
+	}
+
 	/**
-	 * 1. Shortcut the most used case
-	 * 2. When children is an array, as in >${[0, 1, 2]}< then children
-	 *    will end as `[[0, 1, 2]]`, so flat it
+	 * When children is an array, as in >${[0, 1, 2]}< then children
+	 * will end as `[[0, 1, 2]]`, so flat it
 	 */
-	return isFunction(children)
-		? markComponent(children)
-		: // @ts-ignore
-			markComponent((...args) =>
-				// @ts-ignore
-				flatToArray(children).map(child =>
-					isFunction(child) ? child(...args) : child,
-				),
-			)
+	// @ts-ignore
+	children = flatToArray(children)
+
+	return markComponent((...args) =>
+		// @ts-ignore
+		children.map(child =>
+			isFunction(child) ? child(...args) : child,
+		),
+	)
 }
 
 /**
