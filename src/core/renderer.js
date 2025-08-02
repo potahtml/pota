@@ -216,6 +216,7 @@ function parseXML(content, xmlns) {
 
 		tlpContent = new DocumentFragment()
 		tlpContent.append(...childNodes)
+		return tlpContent
 	}
 
 	return tlpContent.childNodes.length === 1
