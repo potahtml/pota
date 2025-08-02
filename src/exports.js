@@ -60,6 +60,4 @@ export {
 
 export { propsPlugin, propsPluginNS } from './core/props/plugin.js'
 
-export { propsSplit } from './core/props/propsSplit.js'
-
 export { getValue } from './lib/std.js'
