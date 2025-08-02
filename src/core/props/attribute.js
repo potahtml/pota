@@ -17,17 +17,6 @@ export const setAttribute = (node, name, value) => {
 /**
  * @param {Element} node
  * @param {string} name
- * @param {Accessor<string | boolean>} value
- * @param {string} ns
- * @url https://pota.quack.uy/props/setAttribute
- */
-export const setAttributeNS = (node, name, value, ns) => {
-	withValue(value, value => _setAttributeNS(node, name, value, ns))
-}
-
-/**
- * @param {Element} node
- * @param {string} name
  * @param {string | boolean} value
  */
 function _setAttribute(node, name, value) {
@@ -35,6 +24,17 @@ function _setAttribute(node, name, value) {
 	value === false || value == null
 		? node.removeAttribute(name)
 		: node.setAttribute(name, value === true ? '' : value)
+}
+
+/**
+ * @param {Element} node
+ * @param {string} name
+ * @param {Accessor<string | boolean>} value
+ * @param {string} ns
+ * @url https://pota.quack.uy/props/setAttribute
+ */
+export const setAttributeNS = (node, name, value, ns) => {
+	withValue(value, value => _setAttributeNS(node, name, value, ns))
 }
 
 /**

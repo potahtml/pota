@@ -1,16 +1,4 @@
 import { withValue } from '../../lib/reactive.js'
-import { isNullUndefined } from '../../lib/std.js'
-
-/**
- * @param {Element} node
- * @param {string} name
- * @param {unknown} value
- * @param {string} localName
- * @param {string} ns
- */
-export const setPropertyNS = (node, name, value, localName, ns) => {
-	setProperty(node, localName, value)
-}
 
 /**
  * @param {Element} node
@@ -21,6 +9,16 @@ export const setPropertyNS = (node, name, value, localName, ns) => {
 export const setProperty = (node, name, value) => {
 	withValue(value, value => _setProperty(node, name, value))
 }
+
+/**
+ * @param {Element} node
+ * @param {string} localName
+ * @param {unknown} value
+ */
+export const setPropertyNS = (node, localName, value) => {
+	setProperty(node, localName, value)
+}
+
 /**
  * @param {Element} node
  * @param {string} name
@@ -28,7 +26,7 @@ export const setProperty = (node, name, value) => {
  */
 export function _setProperty(node, name, value) {
 	// if the value is null or undefined it will be set to null
-	if (isNullUndefined(value)) {
+	if (value == null) {
 		// defaulting to `undefined` breaks `progress` tag and the whole page
 		node[name] = null
 	} else {

@@ -1,34 +1,26 @@
 // node class / classList
 
-import {
-	isFunction,
-	isNullUndefined,
-	isObject,
-	isString,
-} from '../../lib/std.js'
+import { isFunction, isObject, isString } from '../../lib/std.js'
 import { withPrevValue } from '../../lib/reactive.js'
 
 import { addClass, removeClass } from '../../use/dom.js'
 
 /**
  * @param {Element} node
- * @param {string} name
  * @param {object | string | ArrayLike<any>} value
  */
-export const setClass = (node, name, value) => {
+export const setClass = (node, value) => {
 	isString(value)
-		? node.setAttribute(name, value)
+		? node.setAttribute('class', value)
 		: setClassList(node, value)
 }
 
 /**
  * @param {Element} node
- * @param {string} name
  * @param {object | string | ArrayLike<any>} value
  * @param {string} localName
- * @param {string} [ns]
  */
-export const setClassNS = (node, name, value, localName, ns) => {
+export const setClassNS = (node, localName, value) => {
 	isFunction(value) || !isObject(value)
 		? setElementClass(node, localName, value)
 		: setClassList(node, value)
@@ -39,7 +31,7 @@ export const setClassNS = (node, name, value, localName, ns) => {
  * @param {object | string | ArrayLike<any>} value
  */
 export function setClassList(node, value, prev) {
-	if (isString(value) || isNullUndefined(value)) {
+	if (isString(value) || value == null) {
 		prev && _setClassListValue(node, prev, false)
 		value && _setClassListValue(node, value, true)
 	} else if (isObject(value)) {

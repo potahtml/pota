@@ -5,21 +5,18 @@ import { addEvent, ownedEvent } from '../../lib/reactive.js'
  * @param {T} node
  * @param {string} name
  * @param {EventHandler<Event, T>} value
- * @param {string} localName
- * @param {string} ns
  */
-export const setEventNS = (node, name, value, localName, ns) => {
+export const setEvent = (node, name, value) => {
 	// `value &&` because avoids crash when `on:click={prop.onClick}` and `!prop.onClick`
-	setEvent(node, localName, value)
+	value && addEvent(node, name, ownedEvent(value)) // ownedEvent
 }
 
 /**
  * @template {Element} T
  * @param {T} node
- * @param {string} name
+ * @param {string} localName
  * @param {EventHandler<Event, T>} value
  */
-export const setEvent = (node, name, value) => {
-	// `value &&` because avoids crash when `on:click={prop.onClick}` and `!prop.onClick`
-	value && addEvent(node, name, ownedEvent(value)) // ownedEvent
+export const setEventNS = (node, localName, value) => {
+	setEvent(node, localName, value)
 }

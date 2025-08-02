@@ -4,15 +4,13 @@ import { document } from './dom.js'
 
 /**
  * @param {Element} node
- * @param {string} propName
- * @param {Function} propValue
- * @param {object} props
+ * @param {Function} value
  * @url https://pota.quack.uy/use/clickoutside
  */
-const clickoutside = (node, propName, propValue, props) =>
+const clickoutside = (node, value) =>
 	addEvent(document, 'pointerdown', e => {
 		if (!node.contains(/** @type {Element} */ (e.target))) {
-			propValue(e, node)
+			value(e, node)
 		}
 	})
 

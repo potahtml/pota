@@ -86,7 +86,7 @@ export function assignProp(node, name, value) {
 	// run plugins
 	let plugin = plugins.get(name)
 	if (plugin) {
-		plugin(node, name, value)
+		plugin(node, value)
 	} else if (propNS[name] || name.includes(':')) {
 		// with ns
 		propNS[name] = propNS[name] || name.split(':')
@@ -94,8 +94,8 @@ export function assignProp(node, name, value) {
 		// run plugins NS
 		plugin = pluginsNS.get(propNS[name][0])
 		plugin
-			? plugin(node, name, value, propNS[name][1], propNS[name][0])
-			: setAttributeNS(node, propNS[name][1], value, propNS[name][0])
+			? plugin(node, propNS[name][1], value)
+			: setAttributeNS(node, name, value, propNS[name][0])
 	} else {
 		// catch all
 		setAttribute(node, name, value)
@@ -114,8 +114,13 @@ export function assignProp(node, name, value) {
  */
 export function assignPropNS(node, name, value, localName, ns) {
 	// run plugins NS
-	const plugin = pluginsNS.get(ns) || plugins.get(name)
-	plugin
-		? plugin(node, name, value, localName, ns)
-		: setAttributeNS(node, localName, value, ns)
+	let plugin = plugins.get(name)
+	if (plugin) {
+		plugin(node, value)
+	} else {
+		plugin = pluginsNS.get(ns)
+		plugin
+			? plugin(node, localName, value)
+			: setAttributeNS(node, name, value, ns)
+	}
 }

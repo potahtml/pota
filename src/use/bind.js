@@ -16,12 +16,9 @@ export const bind = value => signalFunction(value)
 
 /**
  * @param {Element} node
- * @param {string} name
  * @param {Function} value
- * @param {string} localName
- * @param {string} ns
  */
-function bindValue(node, name, value, localName, ns) {
+function bindValue(node, value) {
 	effect(() => {
 		// set initial value
 		switch (node.type) {

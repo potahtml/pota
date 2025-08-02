@@ -11,14 +11,13 @@ import { document, documentElement, getValueElement } from './dom.js'
 
 /**
  * @param {Element} node
- * @param {string} propName
- * @param {Function} propValue
+ * @param {Function} value
  * @url https://pota.quack.uy/use/fullscreen
  */
-const fullscreen = (node, propName, propValue) =>
+const fullscreen = (node, value) =>
 	addEvent(node, 'click', e => {
 		toggleFullscreen(
-			/** @type {Element} */ (getValueElement(propValue, e, node)),
+			/** @type {Element} */ (getValueElement(value, e, node)),
 		)
 	})
 

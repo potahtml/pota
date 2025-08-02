@@ -159,7 +159,7 @@ export namespace JSX {
 
 		// how to move this out of this JSX file!?
 		// I cannot seem to be able to extend JSX namespace from within the lib
-		'use:bind'?: SignalFunction
+		'use:bind'?: SignalFunction<Element>
 
 		'use:clickoutside'?: CallbackEventElement<PointerEvent, Element>
 

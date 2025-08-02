@@ -498,7 +498,7 @@ export function createChildren(
 
 propsPlugin(
 	'children',
-	(node, propName, propValue) => {
+	(node, propValue) => {
 		createChildren(node, propValue)
 	},
 	false,

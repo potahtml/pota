@@ -7,18 +7,16 @@ import { propsPlugin } from '../core/props/plugin.js'
 
 /**
  * @param {HTMLElement} node
- * @param {string} propName
- * @param {Function | boolean} propValue
- * @param {object} props
+ * @param {Function | boolean} value
  * @url https://pota.quack.uy/use/clipboard
  */
-const clipboard = (node, propName, propValue, props) =>
+const clipboard = (node, value) =>
 	addEvent(node, 'click', e => {
 		copyToClipboard(
-			isFunction(propValue)
-				? propValue(e)
-				: propValue !== true
-					? propValue
+			isFunction(value)
+				? value(e)
+				: value !== true
+					? value
 					: node.innerText.trim(),
 		)
 	})

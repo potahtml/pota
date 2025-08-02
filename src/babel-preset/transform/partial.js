@@ -119,20 +119,20 @@ export function buildPartial(path, state) {
 					if (name === 'xmlns') {
 						hasXMLNS = true
 						xmlns = getAttributeLiteral(value)
+					} else {
+						/** Inline the attribute */
+						buildAttributeIntoTag(
+							tag,
+							name,
+							getAttributeLiteral(value),
+						)
 					}
-					/** Inline the attribute */
-					buildAttributeIntoTag(tag, name, getAttributeLiteral(value))
 				}
 				// inlined calls
 				else if (name === 'class') {
 					callInlined('setClassList', inlinedNode, value)
 				} else if (name === 'style') {
-					callInlinedFromJSXRuntime(
-						'setStyle',
-						inlinedNode,
-						t.nullLiteral(),
-						value,
-					)
+					callInlinedFromJSXRuntime('setStyle', inlinedNode, value)
 				} else {
 					// default to attributes
 
@@ -176,9 +176,8 @@ export function buildPartial(path, state) {
 					callInlinedFromJSXRuntime(
 						'setStyleNS',
 						inlinedNode,
-						t.nullLiteral(),
-						value,
 						localName,
+						value,
 					)
 				} else if (namespace === 'on') {
 					callInlinedFromJSXRuntime(
@@ -211,24 +210,17 @@ export function buildPartial(path, state) {
 				} else if (name === 'use:ref') {
 					inlinedCalls.push(t.callExpression(value, [inlinedNode]))
 				} else if (name === 'use:css') {
-					callInlinedFromJSXRuntime(
-						'setCSS',
-						inlinedNode,
-						t.nullLiteral(),
-						value,
-					)
+					callInlinedFromJSXRuntime('setCSS', inlinedNode, value)
 				} else if (name === 'use:connected') {
 					callInlinedFromJSXRuntime(
 						'setConnected',
 						inlinedNode,
-						t.nullLiteral(),
 						value,
 					)
 				} else if (name === 'use:disconnected') {
 					callInlinedFromJSXRuntime(
 						'setDisconnected',
 						inlinedNode,
-						t.nullLiteral(),
 						value,
 					)
 				} else if (
