@@ -429,41 +429,49 @@ export function partialMerge(path, state) {
 
 	const pota = scope.pota
 
+	// arguments matter for templates that look the same
+
+	if (node.xmlns) {
+		propsAt.x = node.xmlns
+	}
+
+	// if should use importNode instead of cloneNode
+
+	if (node.isImportNode) {
+		propsAt.i = 1
+	}
+
+	// props metadata - {"2":8,"3":10,"m":11,"i":1}
+
+	const propsMetaData = JSON.stringify(propsAt)
+
+	const partialID = partial + propsMetaData
+
 	// de-duplicates and hoist calls to partials
 
-	if (!pota.partials[partial]) {
+	if (!pota.partials[partialID]) {
 		validatePartial(path, partial)
 
 		// identifier
 
-		pota.partials[partial] = scope.generateUidIdentifier(node.tagName)
+		pota.partials[partialID] = scope.generateUidIdentifier(
+			node.tagName,
+		)
 
 		// args
 
 		const args = [node.arguments[0]]
 
-		if (node.xmlns) {
-			propsAt.x = node.xmlns
-		}
-
-		// if should use importNode instead of cloneNode
-
-		if (node.isImportNode) {
-			propsAt.i = 1
-		}
-
 		// push arguments
 
 		if (keys(propsAt).length) {
-			args.push(
-				core.template.expression.ast`${JSON.stringify(propsAt)}`,
-			)
+			args.push(core.template.expression.ast`${propsMetaData}`)
 		}
 
 		// call
 
 		scope.push({
-			id: pota.partials[partial],
+			id: pota.partials[partialID],
 			init: callFunctionImport(
 				path,
 				state,
@@ -475,7 +483,7 @@ export function partialMerge(path, state) {
 	}
 
 	return callFunction(
-		pota.partials[partial].name,
+		pota.partials[partialID].name,
 		node.arguments[1] ? [node.arguments[1]] : [],
 	)
 }

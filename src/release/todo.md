@@ -51,7 +51,6 @@ render
 
 transform
 
-- {"2":8,"3":10,"m":11,"i":1}
 - setAttribute to setProperty when node.prop /
   getBooleanProperty(value)
 
