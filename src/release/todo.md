@@ -47,8 +47,6 @@ reactivity
 
 render
 
-- maybe move node sorting out of For component
-
 transform
 
 - setAttribute to setProperty when node.prop /
@@ -57,18 +55,15 @@ transform
 use / probably never
 
 - drag element
-- emitter
 - ensure resize on bounds
 - forms
 - on-element-drag.js
-- put dom stuff into use/dom.js
 - input, keyboard + mouse + controller
 - favicon
 - audio/media
 - animations/animationFrame
 - storage
 - performance
-- debugging!
 - tooltip
 - timer
 - colors library
@@ -95,7 +90,7 @@ bench
 - v0.17.177 win - pos 31 / 10k - 75ms - 11ms / 1k - 7ms - 0.7ms
 - v0.18.188 win - pos 34 / 10k - 77ms - 9ms / 1k - 7ms - 0.5ms
 - v0.18.199 lin - pos Xx / 10k - 54ms - 6ms / 1k - 4.5ms - 0.4ms
-- v0.19.200 lin - pos Xx / 10k - 39ms - 4ms / 1k - 4ms - 0.25ms
+- v0.19.200 lin - pos Xx / 10k - 38ms - 4ms / 1k - 4ms - 0.25ms
 
 typescript errors
 

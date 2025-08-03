@@ -3,12 +3,10 @@ import { $isComponent, $isMap } from '../constants.js'
 import {
 	emptyArray,
 	getValue,
-	groupBy,
 	isArray,
 	isFunction,
 	isObject,
 	isPromise,
-	keys,
 	nothing,
 	queueMicrotask,
 	removeFromArray,
@@ -395,77 +393,67 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 
 		// fast clear
 		if (rows.length === 0) {
-			clear()
+			hasPrev && clear()
 			prev = rows
 			return fallback ? fn(fallback) : emptyArray
 		}
 
-		// remove rows that arent present on the current run
-		for (let i = 0; i < prev.length; i++) {
-			if (prev[i].runId !== runId) {
-				dispose(prev[i])
-				removeFromArray(prev, prev[i--])
-			}
-		}
-
-		// reorder elements
-		// `rows.length > 1` because no need for sorting when there are no items
-		// `prev.length > 0` to skip sorting on creation as its already sorted
-		if (!noSort && rows.length > 1 && prev.length) {
-			// when appending to already created it shouldnt sort
-			// as its already sorted
-			let sort = false
-			for (let i = 0; i < prev.length && i < rows.length; i++) {
-				if (prev[i] !== rows[i]) {
-					sort = true
-					break
+		if (hasPrev) {
+			// remove rows that arent present on the current run
+			for (let i = 0; i < prev.length; i++) {
+				if (prev[i].runId !== runId) {
+					dispose(prev[i])
+					removeFromArray(prev, prev[i--])
 				}
 			}
 
-			if (sort) {
-				// if the planets align it handles swapping
-				// a = sorted
-				// b = unsorted
-				const { a, b } = groupBy(rows, (value, index) =>
-					rows[index] === prev[index] ? 'a' : 'b',
-				)
-
-				let unsorted = b?.length
-				if (
-					a &&
-					b &&
-					a.length &&
-					b.length &&
-					b.length < a.length &&
-					b.every(item => prev.includes(item))
-				) {
-					for (const usort of b) {
-						for (const sort of a) {
-							if (usort.index === sort.index - 1) {
-								sort.begin().before(...usort.nodesForRow())
-								unsorted--
-								break
-							} else if (usort.index === sort.index + 1) {
-								sort.end().after(...usort.nodesForRow())
-								unsorted--
-								break
-							}
-						}
+			// reorder elements
+			// `rows.length > 1` because no need for sorting when there are no items
+			// `prev.length > 0` to skip sorting on creation as its already sorted
+			if (!noSort && rows.length > 1 && prev.length) {
+				// when appending to already created it shouldnt sort
+				// as its already sorted
+				const unsort = []
+				for (let i = 0; i < prev.length && i < rows.length; i++) {
+					if (prev[i] !== rows[i]) {
+						unsort.push(rows[i])
 					}
 				}
 
-				if (unsorted) {
-					// handles all other cases
-					// best for any combination of: push/pop/shift/unshift/insertion/deletion
-					// must check in reverse as on creation stuff is added to the end
-
-					let current = rows[rows.length - 1]
-					for (let i = rows.length - 1; i > 0; i--) {
-						const previous = rows[i - 1]
-						if (current.begin().previousSibling !== previous.end()) {
-							current.begin().before(...previous.nodesForRow())
+				if (unsort.length) {
+					let unsorted = unsort.length
+					if (unsorted) {
+						// handle swap
+						for (const usort of unsort) {
+							if (rows[usort.index - 1]) {
+								rows[usort.index - 1]
+									.end()
+									.after(...usort.nodesForRow())
+								unsorted--
+							} else if (rows[usort.index + 1]) {
+								rows[usort.index + 1]
+									.begin()
+									.before(...usort.nodesForRow())
+								unsorted--
+							}
 						}
-						current = previous
+
+						if (unsorted) {
+							// handles all other cases
+							// best for any combination of: push/pop/shift/unshift/insertion/deletion
+							// must check in reverse as on creation stuff is added to the end
+
+							let current = rows[rows.length - 1]
+							for (let i = rows.length - 1; i > 0; i--) {
+								const previous = rows[i - 1]
+								if (
+									current.begin().previousSibling !== previous.end()
+								) {
+									current.begin().before(...previous.nodesForRow())
+								}
+								current = previous
+							}
+						}
 					}
 				}
 			}
