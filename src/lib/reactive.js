@@ -240,8 +240,6 @@ class Row {
 				/** @type Children[] */
 				this.nodes = fn(item, index)
 			}
-			this._begin = null
-			this._end = null
 		})
 	}
 
