@@ -25,6 +25,19 @@ export function customElement(name, constructor, options) {
 }
 
 export class CustomElement extends HTMLElement {
+	/**
+	 * Static base stylesheets for the custom element.
+	 *
+	 * @type {(CSSStyleSheet | string)[]}
+	 */
+	static baseStyleSheets = []
+
+	/**
+	 * Static additional stylesheets for the custom element.
+	 *
+	 * @type {(CSSStyleSheet | string)[]}
+	 */
+	static styleSheets = []
 	constructor() {
 		super()
 
@@ -33,7 +46,9 @@ export class CustomElement extends HTMLElement {
 		})
 
 		// this is needed because `baseStyleSheets/styleSheets` are `static`
-		const constructor = this.constructor
+		const constructor = /** @type {typeof CustomElement} */ (
+			this.constructor
+		)
 
 		addStyleSheets(shadowRoot, constructor.baseStyleSheets)
 		addStyleSheets(shadowRoot, constructor.styleSheets)
