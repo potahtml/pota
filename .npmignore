@@ -3,4 +3,3 @@ node_modules
 
 src/release/**
 
-src/babel-preset/index.cjs
