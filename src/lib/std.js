@@ -55,11 +55,13 @@ export const toValues = value =>
  * @param {T} value
  */
 export const toEntries = value =>
-	isObject(value) && 'entries' in value
-		? /** @type {{ entries(): IterableIterator<[string, T]> }} */ (
-				value
-			).entries()
-		: toArray(/** @type {Iterable<T> | ArrayLike<T>} */ (value))
+	isArray(value)
+		? value.entries()
+		: isObject(value) && 'entries' in value
+			? /** @type {{ entries(): IterableIterator<[string, T]> }} */ (
+					value
+				).entries()
+			: toArray(/** @type {Iterable<T> | ArrayLike<T>} */ (value))
 
 export const iterator = Symbol.iterator
 export const Iterator = window.Iterator

@@ -393,9 +393,10 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 		if (rows.length === 0) {
 			hasPrev && clear()
 			prev = rows
-			return fallback ? fn(fallback) : emptyArray
+			return fallback ? fn(fallback).flat(Infinity) : emptyArray
 		}
 
+		// sort
 		if (hasPrev) {
 			// remove rows that arent present on the current run
 			for (let i = 0; i < prev.length; i++) {
@@ -461,7 +462,7 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 		prev = rows
 
 		// return external representation
-		return rows.map(item => item.nodes)
+		return rows.map(item => item.nodes).flat(Infinity)
 	}
 	mapper[$isMap] = undefined
 	return mapper
