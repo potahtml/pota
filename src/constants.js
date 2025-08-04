@@ -19,4 +19,6 @@ export const NS = {
 	math: prefix + '1998/Math/MathML',
 	html: prefix + '1999/xhtml',
 	xlink: prefix + '1999/xlink',
+	xmlns: prefix + '2000/xmlns/',
+	xml: prefix + 'XML/1998/namespace',
 }
