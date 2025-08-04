@@ -29,6 +29,7 @@ export const setClassNS = (node, localName, value) => {
 /**
  * @param {Element} node
  * @param {object | string | ArrayLike<any>} value
+ * @param {object | string | ArrayLike<any>} [prev]
  */
 export function setClassList(node, value, prev) {
 	if (isString(value) || value == null) {

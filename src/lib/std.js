@@ -263,11 +263,12 @@ export const flatToArray = arr =>
 /**
  * Keeps state in the function as the first param
  *
- * @template T
+ * @template {(...args: any[]) => any} T
  * @param {T} fn - Function to which add state to it
- * @param {DataStore<Map> | DataStore<WeakMap>} [state] - Passed to
+ * @param {() => DataStore<Map<unknown, unknown>>} [state] - Passed to
  *   `fn` as first param
- * @returns {T} A copy of the function with the state
+ * @returns {(...args: Parameters<T>) => ReturnType<T>} A copy of the
+ *   function with the state
  */
 export const withState = /* #__NO_SIDE_EFFECTS__ */ (
 	fn,
@@ -567,9 +568,9 @@ export function walkParents(context, propertyName, cb) {
 	return false
 }
 
-/** @template T */
+/** @template {Map<any, any> | WeakMap<any, any>} T */
 class DataStore {
-	/** @param {T extends FunctionConstructor} kind */
+	/** @param {new () => T} kind */
 	constructor(kind) {
 		const store = new kind()
 
@@ -606,46 +607,7 @@ class DataStore {
 	}
 }
 
-/**
- * Store template
- *
- * @typedef {(
- * 	reference: any,
- * 	createIfNotExistsAs?: ((target: any) => any) | Function,
- * ) => any} DataStoreGet
- *
- *
- * @typedef {(key: any, value: any) => void} DataStoreSet
- *
- * @typedef {(key: any) => boolean} DataStoreHas
- *
- * @typedef {(key: any) => boolean} DataStoreDelete
- *
- * @typedef {[
- * 	DataStoreGet,
- * 	DataStoreSet,
- * 	DataStoreHas,
- * 	DataStoreDelete,
- * ] & {
- * 	get: DataStoreGet
- * 	set: DataStoreSet
- * 	has: DataStoreHas
- * 	delete: DataStoreDelete
- * }} DataStoreT
- */
-
-/**
- * Creates a WeakMap to store data
- *
- * @returns {DataStoreT}
- */
 export const weakStore = () => new DataStore(WeakMap)
-
-/**
- * Creates a Map to store data
- *
- * @returns {DataStoreT}
- */
 export const cacheStore = () => new DataStore(Map)
 
 export const warn = (...args) => console.warn(...args)
