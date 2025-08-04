@@ -38,8 +38,6 @@ export function buildPartial(path, state) {
 
 	// state xml
 
-	let isXML = false
-	let hasXMLNS = false
 	let xmlns = ''
 
 	// add xmlns attribute when missing
@@ -47,12 +45,10 @@ export function buildPartial(path, state) {
 	switch (tagName) {
 		case 'svg':
 		case 'foreignObject': {
-			isXML = true
 			xmlns = 'http://www.w3.org/2000/svg'
 			break
 		}
 		case 'math': {
-			isXML = true
 			xmlns = 'http://www.w3.org/1998/Math/MathML'
 			break
 		}
@@ -117,7 +113,6 @@ export function buildPartial(path, state) {
 				} else if (isAttributeLiteral(value)) {
 					/** Inline attribute */
 					if (name === 'xmlns') {
-						hasXMLNS = true
 						xmlns = getAttributeLiteral(value)
 					} else {
 						/** Inline the attribute */
@@ -260,12 +255,6 @@ export function buildPartial(path, state) {
 		}
 	}
 
-	// xml
-
-	if (!hasXMLNS && xmlns) {
-		buildAttributeIntoTag(tag, 'xmlns', xmlns)
-	}
-
 	// close opening tag
 
 	if (isVoidElement(tagName)) {
@@ -330,7 +319,6 @@ export function buildPartial(path, state) {
 	partial.isPartial = true
 
 	partial.xmlns = xmlns
-	partial.isXML = isXML
 
 	partial.tagName = tagName
 
@@ -490,7 +478,7 @@ export function partialMerge(path, state) {
 
 /** Returns `true` when `node` is `partial` and not `XML` */
 export function canMergePartials(node) {
-	return node.isPartial && !node.isXML
+	return node.isPartial && !node.xmlns
 }
 
 /** Returns `true` when `node` is partial */
@@ -505,6 +493,6 @@ export function getPartialLiteral(node) {
 
 /** Copies properties from `a` to `b` */
 export function mergeProperties(b, a) {
-	b.isXML = b.isXML || a.isXML
+	b.xmlns = b.xmlns || a.xmlns
 	b.isImportNode = b.isImportNode || a.isImportNode
 }
