@@ -360,7 +360,9 @@ export function createChildren(
 				? effect(() => {
 						node = toDiff(
 							node,
-							child(child => createChildren(parent, child, true)),
+							flatToArray(
+								child(child => createChildren(parent, child, true)),
+							),
 							true,
 						)
 					})

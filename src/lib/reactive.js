@@ -393,7 +393,7 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 		if (rows.length === 0) {
 			hasPrev && clear()
 			prev = rows
-			return fallback ? fn(fallback).flat(Infinity) : emptyArray
+			return fallback ? fn(fallback) : emptyArray
 		}
 
 		// sort
@@ -462,7 +462,7 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 		prev = rows
 
 		// return external representation
-		return rows.map(item => item.nodes).flat(Infinity)
+		return rows.map(item => item.nodes)
 	}
 	mapper[$isMap] = undefined
 	return mapper
