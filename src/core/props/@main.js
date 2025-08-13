@@ -24,7 +24,7 @@ propsPluginNS('on', setEventNS, false)
 // css
 
 import { setCSS } from './css.js'
-propsPlugin('use:css', setCSS, false)
+propsPlugin('use:css', setCSS) // run in microtask
 
 // mount
 
