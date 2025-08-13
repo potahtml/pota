@@ -4,7 +4,7 @@ import { parse, parseFragment, serialize } from 'parse5'
 
 const bodyElement = parse(
 	`<!DOCTYPE html><html><head></head><body></body></html>`,
-	// @ts-ignore
+	// @ts-expect-error
 ).childNodes[1].childNodes[1]
 
 /**

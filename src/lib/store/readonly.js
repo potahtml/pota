@@ -10,6 +10,7 @@ import {
 const [get] = weakStore()
 
 function crerateReadonly(value) {
+	// @ts-expect-error
 	return new Proxy(value, ReadOnly)
 }
 
@@ -36,7 +37,6 @@ const ReadOnly = new (class ReadOnly {
 			? this.returnFunction(target, key, value)
 			: this.returnValue(target, key, value)
 	}
-
 	set(target, key, value, proxy) {
 		this.log(target, key, value, proxy)
 	}
@@ -59,17 +59,3 @@ const ReadOnly = new (class ReadOnly {
 		throw s
 	}
 })()
-
-/**
- * Prevents an oject from being writable
- *
- * @template T
- * @param {T} value
- * @returns {Readonly<T>}
- *
- *   Export function readonly(value) { if (isObject(value)) {
- *   Object.freeze(value)
- *
- *   For (const key of Object.keys(value)) { readonly(value[key]) } }
- *   return value }
- */

@@ -28,7 +28,7 @@
 - type components somehow
 - type reactivity
 - importing from types folder mess up stuff (error TS5055)
-- 59 non-strict / 497 strict
+- 22 non-strict / 497 strict
 
 ### reactivity
 

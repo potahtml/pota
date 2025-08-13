@@ -28,7 +28,9 @@ export function copy(o, seen = new Map()) {
 	seen.set(o, c)
 
 	for (const k in o) {
+		// @ts-expect-error
 		c[k] = copy(o[k], seen)
 	}
+	// @ts-expect-error
 	return c
 }

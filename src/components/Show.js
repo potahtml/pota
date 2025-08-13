@@ -7,9 +7,9 @@ import { getValue, isFunction } from '../lib/std.js'
  *
  * @template T
  * @param {object} props
- * @param {When<any>} props.when
+ * @param {When<T>} props.when
  * @param {Children} [props.fallback]
- * @param {Children} [props.children]
+ * @param {(arg: T) => Children} [props.children]
  * @returns {Children}
  * @url https://pota.quack.uy/Components/Show
  */

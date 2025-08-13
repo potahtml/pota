@@ -10,7 +10,7 @@ import { call, queueMicrotask } from '../lib/std.js'
 /** @type boolean */
 let added
 
-/** @type [][] */
+/** @type (()=>void)[][] */
 let queue
 
 function reset() {
@@ -25,7 +25,7 @@ reset()
  * Queues a callback at a priority
  *
  * @param {PropertyKey} priority - Priority
- * @param {Function} fn - Function to run once the callbacks at this
+ * @param {() => void} fn - Function to run once the callbacks at this
  *   priority run
  */
 function add(priority, fn) {
@@ -50,7 +50,7 @@ function run() {
  * Queue a function to run before everything else (onProps, onRef,
  * onMount, ready) ex focus restoration
  *
- * @param {Function} fn
+ * @param {() => void} fn
  */
 export const onFixes = fn => add(0, fn)
 
@@ -58,21 +58,21 @@ export const onFixes = fn => add(0, fn)
  * Queue a function to run before (onRef, onMount, ready) ex running
  * user functions on elements via plugins
  *
- * @param {Function} fn
+ * @param {() => void} fn
  */
 export const onProps = fn => add(1, fn)
 
 /**
  * Queue a function to run onMount (before ready, after onRef)
  *
- * @param {Function} fn
+ * @param {() => void} fn
  */
 export const onMount = fn => add(2, fn)
 
 /**
  * Queue a function to run on ready (after onMount)
  *
- * @param {Function} fn
+ * @param {() => void} fn
  * @url https://pota.quack.uy/ready
  */
 export const ready = fn => add(3, fn)
@@ -80,6 +80,6 @@ export const ready = fn => add(3, fn)
 /**
  * Queue a function to run after all user defined processes
  *
- * @param {Function} fn
+ * @param {() => void} fn
  */
 export const onDone = fn => add(4, fn)

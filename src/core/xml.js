@@ -56,10 +56,13 @@ const splitId = /(rosa19611227)/
  * @returns {Element[]}
  */
 const parseXML = withWeakCache(content => {
-	const html = new DOMParser().parseFromString(
-		`<xml ${namespaces.xmlns}>${content.join(id)}</xml>`,
-		'text/xml',
-	).firstChild.childNodes
+	// @ts-expect-error
+	const html = /** @type {Element[]} */ (
+		new DOMParser().parseFromString(
+			`<xml ${namespaces.xmlns}>${content.join(id)}</xml>`,
+			'text/xml',
+		).firstChild.childNodes
+	)
 
 	if (html[0].tagName === 'parsererror') {
 		const err = html[0]
@@ -105,7 +108,7 @@ function toH(xml, cached, values) {
 					const val = value
 						.split(splitId)
 						.map(x => (x === id ? values[index++] : x))
-
+					// @ts-expect-error
 					value = () => val.map(getValue).join('')
 				}
 				props[name] = value

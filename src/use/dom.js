@@ -73,7 +73,8 @@ export const querySelectorAll = (node, query) =>
 /**
  * Returns `document` for element. That could be a `shadowRoot`
  *
- * @param {Element} node
+ * @template {Element} T
+ * @param {T} node
  * @returns {Document | ShadowRoot}
  */
 export const getDocumentForElement = node => {

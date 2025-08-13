@@ -98,7 +98,7 @@ export function createReactiveSystem() {
 			} else if (this.cleanups === fn) {
 				this.cleanups = null
 			} else {
-				removeFromArray(this.cleanups, fn)
+				removeFromArray(/** @type Function[] */ (this.cleanups), fn)
 			}
 		}
 		/** @param {Computation} value */
@@ -278,7 +278,7 @@ export function createReactiveSystem() {
 		 */
 		constructor(owner, fn, options) {
 			super(owner, fn, options)
-
+			// @ts-expect-error
 			return this.read
 		}
 
@@ -320,6 +320,7 @@ export function createReactiveSystem() {
 		}
 
 		write(value) {
+			// @ts-expect-error
 			if (this.equals === false || !this.equals(this.value, value)) {
 				this.value = value
 
@@ -405,6 +406,7 @@ export function createReactiveSystem() {
 			this.value = value
 			if (options) {
 				assign(this, options)
+				// @ts-expect-error
 				if (this.save) {
 					/** @private */
 					this.prev = value
@@ -444,7 +446,9 @@ export function createReactiveSystem() {
 		 * @returns SignalSetter<T>
 		 */
 		write = value => {
+			// @ts-expect-error
 			if (this.equals === false || !this.equals(this.value, value)) {
+				// @ts-expect-error
 				if (this.save) {
 					this.prev = this.value
 				}
@@ -475,7 +479,7 @@ export function createReactiveSystem() {
 
 		/**
 		 * @private
-		 * @type {((a, B) => boolean) | false}
+		 * @type {(a, b) => boolean}
 		 */
 		equals(a, b) {
 			return a === b
@@ -496,9 +500,10 @@ export function createReactiveSystem() {
 	/**
 	 * Creates a new root
 	 *
-	 * @param {(dispose: () => void) => any} fn
+	 * @template T
+	 * @param {(dispose: () => void) => T} fn
 	 * @param {object} [options]
-	 * @returns {any}
+	 * @returns {T}
 	 */
 	function root(fn, options) {
 		const root = new Root(Owner, options)
@@ -522,7 +527,8 @@ export function createReactiveSystem() {
 	/**
 	 * Creates an effect
 	 *
-	 * @param {Function} fn
+	 * @template T
+	 * @param {() => T} fn
 	 * @param {object} [options]
 	 */
 	function effect(fn, options) {
@@ -532,8 +538,9 @@ export function createReactiveSystem() {
 	/**
 	 * Creates an effect with explicit dependencies
 	 *
+	 * @template T
 	 * @param {Function} depend - Function that causes tracking
-	 * @param {Function} fn - Function that wont cause tracking
+	 * @param {() => T} fn - Function that wont cause tracking
 	 * @param {object} [options]
 	 */
 	function on(depend, fn, options) {
@@ -560,8 +567,8 @@ export function createReactiveSystem() {
 	 * @template T
 	 * @param {() => T} fn - Function to re-run when dependencies change
 	 * @param {SignalOptions} [options]
+	 * @returns {SignalAccessor<T>}
 	 */
-
 	/* #__NO_SIDE_EFFECTS__ */ function memo(fn, options = undefined) {
 		/** @type {SignalAccessor<T>} */
 		const s = new Memo(Owner, fn, options)
@@ -836,6 +843,7 @@ export function createReactiveSystem() {
 		 * @url https://pota.quack.uy/Reactivity/Context
 		 */
 		useContext.Provider = props =>
+			// @ts-expect-error
 			useContext(props.value, () => useContext.toHTML(props.children))
 
 		/**

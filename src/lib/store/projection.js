@@ -38,8 +38,9 @@ export function project(value, proxies = new WeakMap()) {
 		if (value[$isProjection] === proxies) {
 			return value
 		}
-
+		// @ts-expect-error
 		if (proxies.has(value)) {
+			// @ts-expect-error
 			return proxies.get(value)
 		}
 
@@ -49,7 +50,7 @@ export function project(value, proxies = new WeakMap()) {
 				new Projection(value, proxies),
 			),
 		)
-
+		// @ts-expect-error
 		proxies.set(value, proxy)
 
 		if (isArray(value)) {

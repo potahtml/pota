@@ -305,8 +305,9 @@ function createNode(node, props) {
 /**
  * Creates the children for a parent
  *
+ * @template T
  * @param {Element | DocumentFragment} parent
- * @param {Children} child
+ * @param {Children | ((...unknonwn) => T)} child
  * @param {boolean} [relative]
  * @param {Text | undefined} [prev]
  * @returns {Children}
@@ -322,7 +323,7 @@ export function createChildren(
 		case 'string':
 		case 'number': {
 			if (prev instanceof Text) {
-				prev.nodeValue = child
+				prev.nodeValue = /** @type string */ (child)
 				return prev
 			}
 
@@ -332,7 +333,7 @@ export function createChildren(
 			 * children.
 			 */
 			if (!relative && parent.childNodes.length === 0) {
-				parent.textContent = child
+				parent.textContent = /** @type string */ (child)
 				return parent.firstChild
 			}
 
@@ -370,6 +371,7 @@ export function createChildren(
 						// maybe a signal (at least a function) so needs an effect
 						node = toDiff(
 							node,
+							// @ts-expect-error
 							flatToArray(
 								createChildren(parent, child(), true, node[0]),
 							),
@@ -379,6 +381,7 @@ export function createChildren(
 
 			cleanup(() => {
 				toDiff(node)
+				// @ts-expect-error
 				parent.remove()
 			})
 
@@ -410,7 +413,11 @@ export function createChildren(
 						relative,
 					)
 				}
-				return insertNode(parent, child, relative)
+				return insertNode(
+					parent,
+					/** @type Element */ (child),
+					relative,
+				)
 			}
 
 			// children/fragments
@@ -490,7 +497,7 @@ export function createChildren(
 			// toString() is needed for `Symbol`
 			return insertNode(
 				parent,
-				createTextNode(/** @type object */ child.toString()),
+				createTextNode(child.toString()),
 				relative,
 			)
 		}
@@ -518,7 +525,7 @@ const createPlaceholder = (parent, relative) =>
 /**
  * Adds the element to the document
  *
- * @param {Element | DocumentFragment} parent
+ * @param {Element | DocumentFragment | ChildNode} parent
  * @param {Element} node
  * @param {boolean} [relative]
  * @returns {Element} The inserted node
@@ -542,7 +549,10 @@ function insertNode(parent, node, relative) {
 					head,
 					'meta[property="' + node.getAttribute('property') + '"]',
 				)
-		} else if (name === 'LINK' && node.rel === 'canonical') {
+		} else if (
+			name === 'LINK' &&
+			/** @type HTMLLinkElement */ (node).rel === 'canonical'
+		) {
 			prev = querySelector(head, 'link[rel="canonical"]')
 		}
 
@@ -607,7 +617,7 @@ export function insert(
 		options.relative,
 	)
 
-	// @ts-ignore
+	// @ts-expect-error
 	cleanup(() => toDiff(flatToArray(node)))
 
 	return node
@@ -656,7 +666,7 @@ export function toHTMLFragment(children) {
 	defaultValue = undefined,
 ) {
 	const ctx = Context(defaultValue)
-	// @ts-ignore
+	// @ts-expect-error
 	ctx.toHTML = toHTML
 
 	return ctx

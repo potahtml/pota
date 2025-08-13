@@ -1,10 +1,11 @@
 import { cleanup, effect, signal, untrack } from '../lib/reactive.js'
 
+/** @template T */
 export class Emitter {
 	#on
 	#off
 
-	/** @type SignalClass<unknown> */
+	/** @type SignalClass<T> */
 	#signal
 	#initialValue
 
@@ -12,8 +13,8 @@ export class Emitter {
 
 	/**
 	 * @param {{
-	 * 	on: (dispatch: Function) => () => void
-	 * 	initialValue?: () => unknown
+	 * 	on: (dispatch: (arg: T) => void) => () => void
+	 * 	initialValue?: () => T
 	 * }} arg
 	 */
 	constructor({ on, initialValue = () => undefined }) {
@@ -28,7 +29,7 @@ export class Emitter {
 
 		return this.#signal.read
 	}
-	/** @param {Function} fn */
+	/** @param {(arg: T) => void} fn */
 	on = fn => {
 		this.#add()
 

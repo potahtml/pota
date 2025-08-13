@@ -65,7 +65,7 @@ export {
  */
 export function signalFunction(value) {
 	const [read, write] = signal(value)
-	// @ts-ignore
+	// @ts-expect-error
 	return (...args) => (args.length ? write(args[0]) : read())
 }
 
@@ -119,12 +119,13 @@ export function withPrevValue(value, fn) {
  *
  * @author ryansolid
  * @template T
- * @type SignalFunction<T>
  * @param {() => T} fn - Function to re-run when dependencies change
  * @returns {SignalFunction<T>}
  */
 export function writable(fn) {
 	const result = memo(() => signal(fn()))
+
+	// @ts-expect-error
 	return (...args) =>
 		args.length ? result().write(args[0]) : result().read()
 }
@@ -296,7 +297,7 @@ class Row {
  *
  * @template T
  * @param {Each<T>} list
- * @param {Function} callback
+ * @param {(...unknoown) => Children} callback
  * @param {boolean} [noSort]
  * @param {Children} [fallback]
  * @param {boolean} [reactiveIndex] - Make indices reactive signals
@@ -307,8 +308,9 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 
 	let runId = 0
 
+	/** @type Row[] */
 	let rows = []
-	/** @type any[] */
+	/** @type Row[] */
 	let prev = []
 
 	function clear() {
@@ -473,8 +475,7 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
  * reactivity on the inner memo doesnt trigger reactivity outside.
  *
  * @template {Children} T
- * @param {Accessor<T>} fn
- * @returns {SignalAccessor<T>}
+ * @param {() => T} fn
  * @url https://pota.quack.uy/resolve
  */
 export function resolve(fn) {
@@ -522,7 +523,7 @@ export const isComponent = value =>
  *
  * @template {Children} T
  * @param {T} children
- * @returns {((...args: unknown[]) => T) | T}
+ * @returns {((...args: T[]) => T) | T}
  */
 export function makeCallback(children) {
 	/** Shortcut the most used case */
@@ -534,11 +535,11 @@ export function makeCallback(children) {
 	 * When children is an array, as in >${[0, 1, 2]}< then children
 	 * will end as `[[0, 1, 2]]`, so flat it
 	 */
-	// @ts-ignore
+	// @ts-expect-error
 	children = flatToArray(children)
 
 	return markComponent((...args) =>
-		// @ts-ignore
+		// @ts-expect-error
 		children.map(child =>
 			isFunction(child) ? child(...args) : child,
 		),

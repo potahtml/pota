@@ -66,11 +66,11 @@ const setStyleValue = (style, name, value) => {
 /**
  * @param {CSSStyleDeclaration} style
  * @param {string} name
- * @param {string | null | false} value
+ * @param {unknown} value
  */
 const _setStyleValue = (style, name, value) => {
 	// if the value is null or undefined it will be removed
 	value == null || value === false
 		? style.removeProperty(name)
-		: style.setProperty(name, value)
+		: style.setProperty(name, /** @type string */ (value))
 }

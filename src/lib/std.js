@@ -44,7 +44,8 @@ export const toArray = Array.from
 export const toValues = value =>
 	isArray(value)
 		? value
-		: isObject(value) && 'values' in value
+		: // @ts-expect-error
+			isObject(value) && 'values' in value
 			? /** @type {{ values(): IterableIterator<T> }} */ (
 					value
 				).values()
@@ -55,13 +56,12 @@ export const toValues = value =>
  * @param {T} value
  */
 export const toEntries = value =>
-	isArray(value)
-		? value.entries()
-		: isObject(value) && 'entries' in value
-			? /** @type {{ entries(): IterableIterator<[string, T]> }} */ (
-					value
-				).entries()
-			: toArray(/** @type {Iterable<T> | ArrayLike<T>} */ (value))
+	// @ts-expect-error
+	isObject(value) && 'entries' in value
+		? /** @type {{ entries(): IterableIterator<[string, T]> }} */ (
+				value
+			).entries()
+		: toArray(/** @type {Iterable<T> | ArrayLike<T>} */ (value))
 
 export const iterator = Symbol.iterator
 export const Iterator = window.Iterator
@@ -86,9 +86,8 @@ export const stringifySorted = o => {
 			.map(k => (tmp[k] = sort(o[k])))
 
 		if (asArray) {
-			/** @type {unknown[]} */ tmp.sort((a, b) =>
-				stringify(a).localeCompare(stringify(b)),
-			)
+			// @ts-expect-error
+			tmp.sort((a, b) => stringify(a).localeCompare(stringify(b)))
 		}
 		return tmp
 	}
@@ -198,6 +197,7 @@ export function equals(a, b) {
 		let length, i, k
 		if (isArray(a)) {
 			length = a.length
+			// @ts-expect-error
 			if (length != b.length) {
 				return false
 			}
@@ -210,6 +210,7 @@ export function equals(a, b) {
 		}
 
 		if (a.constructor === RegExp)
+			// @ts-expect-error
 			return a.source === b.source && a.flags === b.flags
 		if (a.valueOf !== Object.prototype.valueOf)
 			return a.valueOf() === b.valueOf()
@@ -254,8 +255,9 @@ export const unwrapArray = arr => (arr.length === 1 ? arr[0] : arr)
 /**
  * Flats an array/childNodes recursively
  *
- * @template T
- * @param {T[] | T} arr
+ * @template {unknown | unknown[]} T
+ * @param {T} arr
+ * @returns {T[]}
  */
 export const flatToArray = arr =>
 	isArray(arr) ? arr.flat(Infinity) : [arr]
