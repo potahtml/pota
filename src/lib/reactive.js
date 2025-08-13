@@ -356,6 +356,7 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 		const items = toEntries(value)
 
 		runId++
+
 		rows = []
 		const hasPrev = prev.length
 
@@ -424,17 +425,29 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 				if (unsort.length) {
 					let unsorted = unsort.length
 					if (unsorted) {
-						// handle swap
+						const sorted = []
+
+						// handle swap - unsorted rows should move only next to already sorted
 						for (const usort of unsort) {
-							if (rows[usort.index - 1]) {
+							if (
+								rows[usort.index - 1] &&
+								(!unsort.includes(rows[usort.index - 1]) ||
+									sorted.includes(rows[usort.index - 1]))
+							) {
 								rows[usort.index - 1]
 									.end()
 									.after(...usort.nodesForRow())
+								sorted.push(usort)
 								unsorted--
-							} else if (rows[usort.index + 1]) {
+							} else if (
+								rows[usort.index + 1] &&
+								(!unsort.includes(rows[usort.index + 1]) ||
+									sorted.includes(rows[usort.index - 1]))
+							) {
 								rows[usort.index + 1]
 									.begin()
 									.before(...usort.nodesForRow())
+								sorted.push(usort)
 								unsorted--
 							}
 						}
