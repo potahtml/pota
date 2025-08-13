@@ -1,15 +1,24 @@
 import { withState } from '../../lib/std.js'
 import { addAdoptedStyleSheet, sheet } from '../../use/css.js'
-import { addClass, getDocumentForElement } from '../../use/dom.js'
+import {
+	addClass,
+	getDocumentForElement,
+	isConnected,
+} from '../../use/dom.js'
 
 import { randomId } from '../../use/random.js'
+import { onMount } from '../scheduler.js'
 
 /**
  * @param {Element} node
  * @param {string} value
  */
 export const setCSS = (node, value) => {
-	setNodeCSS(node, value)
+	isConnected(node)
+		? setNodeCSS(node, value)
+		: onMount(() => {
+				setNodeCSS(node, value)
+			})
 }
 
 /** @type {(node: Element, value: string) => void} */
