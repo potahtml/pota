@@ -54,10 +54,9 @@
 
 - setAttribute to setProperty when node.prop /
   getBooleanProperty(value)
-- `getValue` when using @static may not be needed
 - figure out how to make the transform standalone because esm.sh is
   driving me crazy
-- inline style objects
+- inline style objects and maybe merge different style approaches
 - refactor transform again
 
 ### use / probably never
@@ -100,7 +99,10 @@
 
 ### bench
 
+position is the previous position or so
+
 - v0.17.177 win - pos 31 / 10k - 75ms - 11ms / 1k - 7ms - 0.7ms
 - v0.18.188 win - pos 34 / 10k - 77ms - 9ms / 1k - 7ms - 0.5ms
 - v0.18.199 lin - pos Xx / 10k - 54ms - 6ms / 1k - 4.5ms - 0.4ms
 - v0.19.204 lin - pos 24 / 10k - 38ms - 4ms / 1k - 4ms - 0.25ms
+- v0.19.206 lin - pos 21 / 10k - 38ms - 4ms / 1k - 3ms - 0.25ms

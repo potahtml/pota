@@ -251,9 +251,10 @@ export function createPartial(content, propsData = nothing) {
 			parseXML(content, xmlns),
 		)
 
-		clone = propsData.i
-			? importNode.bind(null, node, true)
-			: node.cloneNode.bind(node, true)
+		clone =
+			'i' in propsData
+				? importNode.bind(null, node, true)
+				: node.cloneNode.bind(node, true)
 		return clone()
 	}
 
