@@ -20,7 +20,7 @@ import('../../package.json', {
 	$(`git commit -m "v${version}"`)
 
 	// git push / npm publish
-	$(`git tag -s -a v${version} -F ./src/release/breaking`)
+	$(`git tag -s -a v${version} -F ./src/release/breaking-changes.md`)
 	$('git push --all --prune')
 	$('git push --tags')
 	$('npm publish')
