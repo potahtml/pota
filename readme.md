@@ -56,4 +56,4 @@ _Bug-free till proven otherwise._
 
  <img src="https://pota.quack.uy/assets/logo-small.png"/>
 
-In loving memory of Quack 🐈‍⬛ 🩵
+In loving memory of Quack 🐈‍⬛ 🩵 - 2018.03.01 - 2025.07.18
