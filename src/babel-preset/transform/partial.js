@@ -21,6 +21,7 @@ import { merge, mergeToTag } from './merge.js'
 import { buildProps } from './props.js'
 import { getTagName } from './tag.js'
 import { validatePartial } from './validate.js'
+import { buildChildrenPartial } from './children.js'
 
 /** Builds partial from jsx */
 export function buildPartial(path, state) {
@@ -295,7 +296,7 @@ export function buildPartial(path, state) {
 
 	// children
 
-	let children = t.react.buildChildren(path.node)
+	let children = buildChildrenPartial(path)
 
 	children = mergeToTag(children, tag)
 	children = merge(children)

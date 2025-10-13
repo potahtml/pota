@@ -73,23 +73,9 @@ export function getAttributeLiteral(value, attr) {
 		return String(value.value)
 	}
 
-	if (isConfident(attr)) {
-		let r
-
-		r = attr.get('value').get('expression').evaluate()
-		if (r.confident) {
-			return String(r.value)
-		}
-
-		r = attr.get('value').evaluate()
-		if (r.confident) {
-			return String(r.value)
-		}
-
-		r = attr.get('expression').evaluate()
-		if (r.confident) {
-			return String(r.value)
-		}
+	const r = isConfident(attr)
+	if (r) {
+		return String(r.value)
 	}
 
 	return String(value.value)

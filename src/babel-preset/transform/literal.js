@@ -27,13 +27,40 @@ export function isBooleanTrue(value) {
 	return t.isBooleanLiteral(value) && value.value === true
 }
 
-export function isConfident(path) {
-	return (
-		path.get('value').get('expression').evaluate().confident ||
-		path.get('expression').evaluate().confident ||
-		path.get('value').evaluate().confident ||
-		path.evaluate().confident
+function isConfidentValue(path) {
+	const r = path.evaluate()
+	if (
+		r.confident &&
+		(typeof r.value === 'string' || typeof r.value === 'number')
 	)
+		return r
+}
+
+/**
+ * Needs to try and catch because for `children` (not attributes)
+ * crashes often when trying to evaluate `get('expression')`
+ */
+export function isConfident(path) {
+	let r
+
+	try {
+		r = isConfidentValue(path.get('value').get('expression'))
+		if (r) return r
+	} catch (e) {}
+	try {
+		r = isConfidentValue(path.get('expression'))
+		if (r) return r
+	} catch (e) {}
+	try {
+		r = isConfidentValue(path.get('value'))
+		if (r) return r
+	} catch (e) {}
+	try {
+		r = isConfidentValue(path)
+		if (r) return r
+	} catch (e) {}
+
+	return false
 }
 
 // native
