@@ -27,6 +27,15 @@ export function isBooleanTrue(value) {
 	return t.isBooleanLiteral(value) && value.value === true
 }
 
+export function isConfident(path) {
+	return (
+		path.get('value').get('expression').evaluate().confident ||
+		path.get('expression').evaluate().confident ||
+		path.get('value').evaluate().confident ||
+		path.evaluate().confident
+	)
+}
+
 // native
 
 export function isVoidZero(value) {

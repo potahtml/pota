@@ -57,6 +57,8 @@
 - `getValue` when using @static may not be needed
 - figure out how to make the transform standalone because esm.sh is
   driving me crazy
+- reconsider `evaluate().confident` for children
+- refactor transform again
 
 ### use / probably never
 

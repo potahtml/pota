@@ -110,16 +110,16 @@ export function buildPartial(path, state) {
 						(tagName === 'iframe' || tagName === 'img'))
 
 				if (shouldSkipAttribute(value)) {
-				} else if (isAttributeLiteral(value)) {
+				} else if (isAttributeLiteral(value, attr)) {
 					/** Inline attribute */
 					if (name === 'xmlns') {
-						xmlns = getAttributeLiteral(value)
+						xmlns = getAttributeLiteral(value, attr)
 					} else {
 						/** Inline the attribute */
 						buildAttributeIntoTag(
 							tag,
 							name,
-							getAttributeLiteral(value),
+							getAttributeLiteral(value, attr),
 						)
 					}
 				}
@@ -220,9 +220,13 @@ export function buildPartial(path, state) {
 					)
 				} else if (
 					namespace === 'xmlns' &&
-					isAttributeLiteral(value)
+					isAttributeLiteral(value, attr)
 				) {
-					buildAttributeIntoTag(tag, name, getAttributeLiteral(value))
+					buildAttributeIntoTag(
+						tag,
+						name,
+						getAttributeLiteral(value, attr),
+					)
 				} else {
 					// dynamic, could be a plugin
 					callInlinedFromJSXRuntime(

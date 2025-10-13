@@ -4,6 +4,7 @@ import {
 	isNullUndefined,
 	isBooleanFalse,
 	isBooleanTrue,
+	isConfident,
 	isString,
 	isNumber,
 } from './literal.js'
@@ -33,18 +34,23 @@ export function shouldSkipAttribute(value) {
 }
 
 /** If the attribute should be inlined */
-export function isAttributeLiteral(value) {
+export function isAttributeLiteral(value, attr) {
 	if (value && value.expression) {
-		return isAttributeLiteral(value.expression)
+		return isAttributeLiteral(value.expression, attr)
 	}
 
-	return isBooleanTrue(value) || isString(value) || isNumber(value)
+	return (
+		isBooleanTrue(value) ||
+		isString(value) ||
+		isNumber(value) ||
+		isConfident(attr)
+	)
 }
 
 /** Get attribute literal value */
-export function getAttributeLiteral(value) {
+export function getAttributeLiteral(value, attr) {
 	if (value && value.expression) {
-		return getAttributeLiteral(value.expression)
+		return getAttributeLiteral(value.expression, attr)
 	}
 
 	if (isBooleanTrue(value)) {
@@ -57,6 +63,33 @@ export function getAttributeLiteral(value) {
 
 	if (isPlainTemplateLiteral(value)) {
 		return String(value.quasis[0].value.raw)
+	}
+
+	if (isString(value)) {
+		return String(value.value)
+	}
+
+	if (isNumber(value)) {
+		return String(value.value)
+	}
+
+	if (isConfident(attr)) {
+		let r
+
+		r = attr.get('value').get('expression').evaluate()
+		if (r.confident) {
+			return String(r.value)
+		}
+
+		r = attr.get('value').evaluate()
+		if (r.confident) {
+			return String(r.value)
+		}
+
+		r = attr.get('expression').evaluate()
+		if (r.confident) {
+			return String(r.value)
+		}
 	}
 
 	return String(value.value)
