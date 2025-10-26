@@ -25,13 +25,6 @@
 - support set, maybe weakmap and weakset
 - defineProperty proxy trap
 
-### typescript
-
-- type components somehow
-- type reactivity
-- importing from types folder mess up stuff (error TS5055)
-- 22 non-strict / 497 strict
-
 ### reactivity
 
 - PRIORITY - use internally runWithOwner more
@@ -59,6 +52,13 @@
 - inline style objects and maybe merge different style approaches
 - spreads need to work same as native
 - refactor transform again
+
+### typescript
+
+- type components somehow
+- type reactivity
+- importing from types folder mess up stuff (error TS5055)
+- 22 non-strict / 497 strict
 
 ### use / probably never
 

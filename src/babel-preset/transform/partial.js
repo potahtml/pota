@@ -131,6 +131,7 @@ export function buildPartial(path, state) {
 					callInlinedFromJSXRuntime('setStyle', inlinedNode, value)
 				} else {
 					// default to attributes
+
 					if (hasStaticMarker(value)) {
 						inlinedCalls.push(
 							t.callExpression(
@@ -138,7 +139,16 @@ export function buildPartial(path, state) {
 									inlinedNode,
 									t.identifier('setAttribute'),
 								),
-								[t.stringLiteral(name), value],
+								[
+									t.stringLiteral(name),
+									callFunctionImport(
+										path,
+										state,
+										'pota',
+										'getValue',
+										value,
+									),
+								],
 							),
 						)
 					} else {
@@ -181,7 +191,13 @@ export function buildPartial(path, state) {
 									inlinedNode,
 									t.identifier(localName),
 								),
-								value,
+								callFunctionImport(
+									path,
+									state,
+									'pota',
+									'getValue',
+									value,
+								),
 							),
 						)
 					} else {
