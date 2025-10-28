@@ -63,7 +63,45 @@ export function isConfident(path) {
 	return false
 }
 
+export function evaluateAndInline(value, valueNode) {
+	if (t.isJSXExpressionContainer(value)) {
+		evaluateAndInline(value.expression, valueNode.get('expression'))
+	} else if (t.isObjectProperty(value)) {
+		evaluateAndInline(value.value, valueNode.get('value'))
+	} else if (isNativeLiteral(value)) {
+	} else if (t.isObjectExpression(value)) {
+		const properties = value.properties
+		const propertiesNode = valueNode.get('properties')
+		for (let i = 0; i < properties.length; i++) {
+			evaluateAndInline(properties[i], propertiesNode[i])
+		}
+	} else {
+		const r = valueNode.evaluate()
+		if (r.confident) {
+			if (typeof r.value === 'string') {
+				valueNode.replaceWith(t.stringLiteral(r.value))
+			} else if (typeof r.value === 'number') {
+				valueNode.replaceWith(t.numericLiteral(r.value))
+			} else if (typeof r.value === 'boolean') {
+				valueNode.replaceWith(t.booleanLiteral(r.value))
+			} else {
+				console.log(value?.type)
+				console.log(typeof r.value)
+			}
+		}
+	}
+}
+
 // native
+
+export function isNativeLiteral(value) {
+	return (
+		isString(value) ||
+		isBoolean(value) ||
+		isNumber(value) ||
+		isNullUndefined(value)
+	)
+}
 
 export function isVoidZero(value) {
 	return (

@@ -22,6 +22,7 @@ import { buildProps } from './props.js'
 import { getTagName } from './tag.js'
 import { validatePartial } from './validate.js'
 import { buildChildrenPartial } from './children.js'
+import { evaluateAndInline } from './literal.js'
 
 /** Builds partial from jsx */
 export function buildPartial(path, state) {
@@ -64,6 +65,7 @@ export function buildPartial(path, state) {
 	const inlinedNode = path.scope.generateUidIdentifier('node')
 
 	const inlinedCalls = []
+
 	function callInlined(fnName, ...args) {
 		inlinedCalls.push(
 			callFunctionImport(
@@ -93,8 +95,12 @@ export function buildPartial(path, state) {
 
 	// attributes
 
+	// try `evaluate().confident` on direct values and values of objects recursively
+
 	for (const attr of path.get('openingElement').get('attributes')) {
 		if (attr.isJSXAttribute()) {
+		evaluateAndInline(attr.node.value, attr.get('value'))
+	}
 			// no namespaced
 			if (t.isJSXIdentifier(attr.node.name)) {
 				const name = attr.node.name.name

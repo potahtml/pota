@@ -4,7 +4,6 @@ import {
 	isNullUndefined,
 	isBooleanFalse,
 	isBooleanTrue,
-	isConfident,
 	isString,
 	isNumber,
 } from './literal.js'
@@ -39,12 +38,7 @@ export function isAttributeLiteral(value, attr) {
 		return isAttributeLiteral(value.expression, attr)
 	}
 
-	return (
-		isBooleanTrue(value) ||
-		isString(value) ||
-		isNumber(value) ||
-		isConfident(attr)
-	)
+	return isBooleanTrue(value) || isString(value) || isNumber(value)
 }
 
 /** Get attribute literal value */
@@ -71,11 +65,6 @@ export function getAttributeLiteral(value, attr) {
 
 	if (isNumber(value)) {
 		return String(value.value)
-	}
-
-	const r = isConfident(attr)
-	if (r) {
-		return String(r.value)
 	}
 
 	return String(value.value)
