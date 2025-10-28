@@ -98,9 +98,59 @@ export function buildPartial(path, state) {
 	// try `evaluate().confident` on direct values and values of objects recursively
 
 	for (const attr of path.get('openingElement').get('attributes')) {
-		if (attr.isJSXAttribute()) {
 		evaluateAndInline(attr.node.value, attr.get('value'))
 	}
+
+	// spreads do deopts
+
+	if (
+		path
+			.get('openingElement')
+			.get('attributes')
+			.some(attr => t.isJSXSpreadAttribute(attr.node))
+	) {
+		const objectSpread = []
+
+		for (const attr of path.get('openingElement').get('attributes')) {
+			if (attr.isJSXAttribute()) {
+				let name
+				const value =
+					(attr.node.value?.expression
+						? attr.node.value.expression
+						: attr.node.value) || t.booleanLiteral(true)
+
+				if (t.isJSXIdentifier(attr.node.name)) {
+					name = attr.node.name.name
+				} else {
+					const namespace = attr.node.name.namespace.name
+					const localName = attr.node.name.name.name
+					name = namespace + ':' + localName
+				}
+
+				objectSpread.push(t.objectProperty(t.identifier(name), value))
+			} else if (t.isJSXSpreadAttribute(attr.node)) {
+				objectSpread.push(t.spreadElement(attr.node.argument))
+			} else {
+				// do not think this happens, but Im gonna leave it here just in case
+				error(
+					path,
+					'unrecognized value for isJSXIdentifier attribute.',
+					attr.node,
+				)
+			}
+		}
+
+		// spread
+		callInlinedFromJSXRuntime(
+			'assignProps',
+			inlinedNode,
+			// do not spread if its a single object
+			objectSpread.length === 1
+				? objectSpread[0].argument
+				: t.objectExpression(objectSpread),
+		)
+	} else {
+		for (const attr of path.get('openingElement').get('attributes')) {
 			// no namespaced
 			if (t.isJSXIdentifier(attr.node.name)) {
 				const name = attr.node.name.name
@@ -253,19 +303,8 @@ export function buildPartial(path, state) {
 					attr.node,
 				)
 			}
-		} else if (t.isJSXSpreadAttribute(attr.node)) {
-			// spread
-			callInlinedFromJSXRuntime(
-				'assignProps',
-				inlinedNode,
-				attr.node.argument,
-			)
-		} else {
-			// do not think this happens, but Im gonna leave it here just in case
-			error(path, 'unrecognized value for jsx attribute.', attr.node)
 		}
 	}
-
 	// close opening tag
 
 	if (isVoidElement(tagName)) {

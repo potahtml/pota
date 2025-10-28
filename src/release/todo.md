@@ -45,12 +45,9 @@
 
 ### transform
 
-- setAttribute to setProperty when node.prop /
-  getBooleanProperty(value)
 - figure out how to make the transform standalone because esm.sh is
   driving me crazy
 - inline style objects and maybe merge different style approaches
-- spreads need to work same as native
 - refactor transform again
 
 ### typescript
