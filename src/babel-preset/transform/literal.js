@@ -84,9 +84,6 @@ export function evaluateAndInline(value, valueNode) {
 				valueNode.replaceWith(t.numericLiteral(r.value))
 			} else if (typeof r.value === 'boolean') {
 				valueNode.replaceWith(t.booleanLiteral(r.value))
-			} else {
-				console.log(value?.type)
-				console.log(typeof r.value)
 			}
 		}
 	}
