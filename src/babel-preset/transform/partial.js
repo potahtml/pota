@@ -127,7 +127,9 @@ export function buildPartial(path, state) {
 					name = namespace + ':' + localName
 				}
 
-				objectSpread.push(t.objectProperty(t.identifier(name), value))
+				objectSpread.push(
+					t.objectProperty(t.stringLiteral(name), value),
+				)
 			} else if (t.isJSXSpreadAttribute(attr.node)) {
 				objectSpread.push(t.spreadElement(attr.node.argument))
 			} else {
