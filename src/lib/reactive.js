@@ -488,7 +488,7 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
  * reactivity on the inner memo doesnt trigger reactivity outside.
  *
  * @template {Children} T
- * @param {() => T} fn
+ * @param {T | (() => T)} fn
  * @url https://pota.quack.uy/resolve
  */
 export function resolve(fn) {

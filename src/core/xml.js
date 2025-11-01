@@ -24,6 +24,7 @@ import {
 	Range,
 	Route,
 	Show,
+	Suspense,
 	Switch,
 } from '../components/@main.js'
 import { createComment, createTextNode } from '../use/dom.js'
@@ -41,6 +42,7 @@ const defaultRegistry = {
 	Range,
 	Route,
 	Show,
+	Suspense,
 	Switch,
 }
 

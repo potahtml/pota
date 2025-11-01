@@ -43,6 +43,7 @@ import {
 	cleanup,
 	Context,
 	effect,
+	owned,
 	root,
 	signal,
 	untrack,
@@ -59,6 +60,7 @@ import { propsPlugin } from './props/plugin.js'
 // STATE
 
 const useXMLNS = context()
+export const useSuspense = context(signal(0))
 
 // COMPONENTS
 
@@ -438,12 +440,16 @@ export function createChildren(
 				return undefined
 			}
 
-			// async components
+			// async values
 			if ('then' in child) {
-				const [value, setValue] = signal(undefined)
+				const suspense = useSuspense()
+				suspense.update(num => num + 1)
 
-				const onResult = result =>
-					isConnected(parent) && setValue(result)
+				const [value, setValue] = signal(undefined)
+				const onResult = owned(result => {
+					setValue(result)
+					suspense.update(num => num - 1)
+				})
 
 				resolved(child, onResult)
 

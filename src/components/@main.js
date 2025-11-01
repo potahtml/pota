@@ -6,6 +6,7 @@ export { Portal } from './Portal.js'
 export { Range } from './Range.js'
 export { A, load, Route, Navigate } from './Route.js'
 export { Show } from './Show.js'
+export { Suspense } from './Suspense.js'
 export { Match, Switch } from './Switch.js'
 
 export { CustomElement, customElement } from './CustomElement.js'
