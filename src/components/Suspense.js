@@ -1,5 +1,5 @@
-import { useSuspense } from '../core/renderer.js'
-import { memo, resolve, signal } from '../lib/reactive.js'
+import { toHTMLFragment, useSuspense } from '../core/renderer.js'
+import { memo, signal } from '../lib/reactive.js'
 
 /**
  * Provides a fallback till children promises resolve (recursively)
@@ -15,7 +15,7 @@ export function Suspense(props) {
 	const s = signal(false)
 
 	return useSuspense({ c: 0, s }, () => {
-		const children = resolve(props.children)()
+		const children = toHTMLFragment(props.children)
 		const result = memo(() => (s.read() ? children : props.fallback))
 
 		return Promise.resolve(result)
