@@ -12,14 +12,12 @@ import { memo, resolve, signal } from '../lib/reactive.js'
  * @url https://pota.quack.uy/Components/Suspense
  */
 export function Suspense(props) {
-	const s = signal(0)
+	const s = signal(false)
 
-	return useSuspense(s, () => {
+	return useSuspense({ c: 0, s }, () => {
 		const children = resolve(props.children)()
-		const result = memo(() =>
-			s.read() === 0 ? children : props.fallback,
-		)
+		const result = memo(() => (s.read() ? children : props.fallback))
 
-		return new Promise(resolve => resolve(result))
+		return Promise.resolve(result)
 	})
 }

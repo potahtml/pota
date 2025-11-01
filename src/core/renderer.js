@@ -60,7 +60,7 @@ import { propsPlugin } from './props/plugin.js'
 // STATE
 
 const useXMLNS = context()
-export const useSuspense = context(signal(0))
+export const useSuspense = context({ c: 0, s: signal(false) })
 
 // COMPONENTS
 
@@ -443,12 +443,14 @@ export function createChildren(
 			// async values
 			if ('then' in child) {
 				const suspense = useSuspense()
-				suspense.update(num => num + 1)
+				suspense.c++
 
 				const [value, setValue] = signal(undefined)
 				const onResult = owned(result => {
 					setValue(result)
-					suspense.update(num => num - 1)
+					if (--suspense.c === 0) {
+						suspense.s.write(true)
+					}
 				})
 
 				resolved(child, onResult)
