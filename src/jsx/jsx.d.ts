@@ -116,6 +116,7 @@ export namespace JSX {
 		| EventFunction<Event, Element>
 		| (EventObject<Event, Element> & EventHandlerOptions)
 		| EventObject<Event, Element>
+		| EventHandler<Event, Element>[] // recursive type
 
 	// TODO figure out how to add event type
 	type EventEvent<Event, Element> = Event & {
@@ -135,15 +136,20 @@ export namespace JSX {
 
 	// CALLBACKS
 
-	type CallbackElement<Element> = (node: Element) => void
+	type CallbackElement<Element> =
+		| ((node: Element) => void)
+		| CallbackElement<Element>[] // recursive type
 
 	type CallbackEvent<Event> = (
 		event: EventEvent<Event, unknown>,
 	) => void
+
 	type CallbackEventElement<Event, Element> = (
 		event: EventEvent<Event, Element>,
 		node: Element,
 	) => void
+
+	type CallbackBind = SignalFunction | CallbackBind[] // recursive type
 
 	// CORE
 
@@ -159,7 +165,7 @@ export namespace JSX {
 
 		// how to move this out of this JSX file!?
 		// I cannot seem to be able to extend JSX namespace from within the lib
-		'use:bind'?: SignalFunction // no `<Element>` !
+		'use:bind'?: CallbackBind // no `<Element>` !
 
 		'use:clickoutside'?: CallbackEventElement<PointerEvent, Element>
 

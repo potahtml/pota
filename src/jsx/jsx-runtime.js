@@ -13,6 +13,7 @@ export {
 // inlined
 
 export {
+	setRef,
 	setConnected,
 	setDisconnected,
 } from '../core/props/lifecycle.js'

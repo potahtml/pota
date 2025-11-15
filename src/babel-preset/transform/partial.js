@@ -261,7 +261,11 @@ export function buildPartial(path, state) {
 						callInlined('setProperty', inlinedNode, localName, value)
 					}
 				} else if (name === 'use:ref') {
-					inlinedCalls.push(t.callExpression(value, [inlinedNode]))
+					if (t.isArrayExpression(value)) {
+						callInlinedFromJSXRuntime('setRef', inlinedNode, value)
+					} else {
+						inlinedCalls.push(t.callExpression(value, [inlinedNode]))
+					}
 				} else if (name === 'use:css') {
 					callInlinedFromJSXRuntime('setCSS', inlinedNode, value)
 				} else if (name === 'use:connected') {

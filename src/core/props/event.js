@@ -1,4 +1,5 @@
 import { addEvent, ownedEvent } from '../../lib/reactive.js'
+import { flatForEach } from '../../lib/std.js'
 
 /**
  * @template {Element} T
@@ -7,8 +8,9 @@ import { addEvent, ownedEvent } from '../../lib/reactive.js'
  * @param {EventHandler<Event, T>} value
  */
 export const setEvent = (node, name, value) => {
-	// `value &&` because avoids crash when `on:click={prop.onClick}` and `!prop.onClick`
-	value && addEvent(node, name, ownedEvent(value))
+	flatForEach(value, value => {
+		addEvent(node, name, ownedEvent(value))
+	})
 }
 
 /**
@@ -18,5 +20,7 @@ export const setEvent = (node, name, value) => {
  * @param {EventHandler<Event, T>} value
  */
 export const setEventNS = (node, localName, value) => {
-	setEvent(node, localName, value)
+	flatForEach(value, value => {
+		setEvent(node, localName, value)
+	})
 }

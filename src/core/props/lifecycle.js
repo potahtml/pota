@@ -1,4 +1,5 @@
 import { cleanup } from '../../lib/reactive.js'
+import { flatForEach } from '../../lib/std.js'
 
 import { onMount } from '../scheduler.js'
 
@@ -7,7 +8,7 @@ import { onMount } from '../scheduler.js'
  * @param {Function} value
  */
 export const setRef = (node, value) => {
-	value(node)
+	flatForEach(value, fn => fn(node))
 }
 
 /**
@@ -15,7 +16,7 @@ export const setRef = (node, value) => {
  * @param {Function} value
  */
 export const setConnected = (node, value) => {
-	onMount(() => value(node))
+	onMount(() => flatForEach(value, fn => fn(node)))
 }
 
 /**
@@ -23,5 +24,5 @@ export const setConnected = (node, value) => {
  * @param {Function} value
  */
 export const setDisconnected = (node, value) => {
-	cleanup(() => value(node))
+	cleanup(() => flatForEach(value, fn => fn(node)))
 }

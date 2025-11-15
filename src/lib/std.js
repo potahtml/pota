@@ -126,6 +126,21 @@ export const call = fns => {
 }
 
 /**
+ * Flats an array recursively and passes values to secondary function
+ *
+ * @template {unknown | unknown[]} T
+ * @param {T} arr
+ * @param {(value: T) => void} fn
+ */
+export const flatForEach = (arr, fn) => {
+	isArray(arr)
+		? arr.flat(Infinity).forEach(value => value && fn(value))
+		: arr
+			? fn(arr)
+			: nothing
+}
+
+/**
  * Object.defineProperty with `enumerable` and `configurable` set to
  * `true` unless overwriten by `descriptor` argument
  *
