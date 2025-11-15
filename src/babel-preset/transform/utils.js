@@ -49,16 +49,21 @@ const createImport = (path, state, file, name) => {
 export function hasStaticMarker(node) {
 	if (!node) return false
 	if (node.leadingComments && node.leadingComments[0]) {
-		const value = node.leadingComments[0].value.trim()
-		if (
-			value === '@static' ||
-			value === '* @static' ||
-			value === '@once' ||
-			value === '* @once'
-		)
-			return true
+		const value = node.leadingComments[0].value
+			.replace(/\*/g, '')
+			.trim()
+		if (value === '@static' || value === '@once') return true
 	}
 	if (node.expression) return hasStaticMarker(node.expression)
+}
+
+export function objectProperty(o, propName) {
+	const computed = !/^[a-z]+$/i.test(propName)
+	return t.memberExpression(
+		o,
+		computed ? t.stringLiteral(propName) : t.identifier(propName),
+		computed,
+	)
 }
 
 /** Displays fancy error on path */

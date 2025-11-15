@@ -7,6 +7,7 @@ import {
 	error,
 	hasStaticMarker,
 	keys,
+	objectProperty,
 	removeFromArray,
 } from './utils.js'
 
@@ -22,7 +23,7 @@ import { buildProps } from './props.js'
 import { getTagName } from './tag.js'
 import { validatePartial } from './validate.js'
 import { buildChildrenPartial } from './children.js'
-import { evaluateAndInline } from './literal.js'
+import { evaluateAndInline, isNativeLiteral } from './literal.js'
 
 /** Builds partial from jsx */
 export function buildPartial(path, state) {
@@ -193,19 +194,18 @@ export function buildPartial(path, state) {
 					if (hasStaticMarker(value)) {
 						inlinedCalls.push(
 							t.callExpression(
-								t.memberExpression(
-									inlinedNode,
-									t.identifier('setAttribute'),
-								),
+								objectProperty(inlinedNode, 'setAttribute'),
 								[
 									t.stringLiteral(name),
-									callFunctionImport(
-										path,
-										state,
-										'pota',
-										'getValue',
-										value,
-									),
+									isNativeLiteral(value)
+										? value
+										: callFunctionImport(
+												path,
+												state,
+												'pota',
+												'getValue',
+												value,
+											),
 								],
 							),
 						)
@@ -245,17 +245,16 @@ export function buildPartial(path, state) {
 						inlinedCalls.push(
 							t.assignmentExpression(
 								'=',
-								t.memberExpression(
-									inlinedNode,
-									t.identifier(localName),
-								),
-								callFunctionImport(
-									path,
-									state,
-									'pota',
-									'getValue',
-									value,
-								),
+								objectProperty(inlinedNode, localName),
+								isNativeLiteral(value)
+									? value
+									: callFunctionImport(
+											path,
+											state,
+											'pota',
+											'getValue',
+											value,
+										),
 							),
 						)
 					} else {
