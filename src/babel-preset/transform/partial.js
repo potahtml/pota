@@ -153,6 +153,34 @@ export function buildPartial(path, state) {
 				: t.objectExpression(objectSpread),
 		)
 	} else {
+		/**
+		 * Spreads already de-duplicate attributes.
+		 *
+		 * This handles the case when attributes are duplicated without
+		 * the presence of a spread. Such: `<div style="duplicate1"
+		 * style="duplicate2" />;`
+		 */
+		const seenAttributes = {}
+		const duplicates = []
+		path
+			.get('openingElement')
+			.get('attributes')
+			.forEach(attr => {
+				const name = t.isJSXNamespacedName(attr.node.name)
+					? `${attr.node.name.namespace.name}:${attr.node.name.name.name}`
+					: attr.node.name.name
+
+				if (seenAttributes[name]) {
+					duplicates.push(seenAttributes[name])
+				}
+				seenAttributes[name] = attr
+			})
+		for (const duplicate of duplicates) {
+			duplicate.remove()
+		}
+
+		// inline
+
 		for (const attr of path.get('openingElement').get('attributes')) {
 			// no namespaced
 			if (t.isJSXIdentifier(attr.node.name)) {
