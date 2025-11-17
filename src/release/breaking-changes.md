@@ -1,3 +1,10 @@
+# pota v0.20.211
+
+- When an element has duplicated attributes only the last one is used
+  `<div class="1" class="2"/>` yields `<div class="2"/>`
+- `writable` and `bind` will also unwrap promises and functions
+  recursively.
+
 # pota v0.19.207
 
 - when using `@static`, value do calls `getValue` so that way

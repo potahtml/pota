@@ -25,17 +25,21 @@
 - support set, maybe weakmap and weakset
 - defineProperty proxy trap
 
+### async
+
+- make ready async aware?
+- maybe make `writable` suspenseable
+- maybe at compile time wrap in owned anything bellow a `await`, do
+  similar to promises?
+
 ### reactivity
 
 - PRIORITY - use internally runWithOwner more
 - PRIORITY - try to remove `options` object from root/memo/effects
 - recheck use of untrack / add forbidden signal read
 - figure out if possible to prevent writing to signals inside effects
-- derived/light signals (make signals easier to use)
 - diff array for when value comes and doesnt come from server
 - simplify the classes
-- maybe at compile time wrap in owned anything bellow a `await`, do
-  similar to promises?
 - figure out if other things should be wrapped in
   `createReactiveSystem`
 - figure out if top level runs the same as when owned, or make top
@@ -45,10 +49,10 @@
 
 ### transform
 
+- inline style objects and maybe merge different style approaches
+- refactor transform again !
 - figure out how to make the transform standalone because esm.sh is
   driving me crazy
-- inline style objects and maybe merge different style approaches
-- refactor transform again
 
 ### typescript
 
