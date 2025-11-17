@@ -72,7 +72,8 @@ export function signalFunction(value) {
 /**
  * To set and read refs. To use in ref attribute.
  *
- * @returns {SignalFunction<Element>}
+ * @template {DOMElement} T
+ * @returns {SignalFunction<T>}
  */
 export const ref = () => signalFunction()
 

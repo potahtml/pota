@@ -19,7 +19,7 @@ import { onFixes } from '../core/scheduler.js'
  *   moves it may lose focus
  * @param {boolean} [props.reactiveIndex] - Make indices reactive
  *   signals
- * @param {Children} [props.children]
+ * @param {(item: T, index: number) => Children} [props.children]
  * @param {Children} [props.fallback]
  * @returns {Children}
  * @url https://pota.quack.uy/Components/For

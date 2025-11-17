@@ -41,7 +41,9 @@ const hash = memo(() => locationObject().hash || '#')
 const path = memo(() => pathname() + hash())
 const search = memo(() => locationObject().search)
 
-const searchParams = mutable({})
+const searchParams = mutable(
+	/** @type {Record<PropertyKey, string>} */ ({}),
+)
 const searchParamsMemo = memo(() => {
 	const entries = fromEntries(locationObject().searchParams.entries())
 
@@ -51,7 +53,9 @@ const searchParamsMemo = memo(() => {
 })
 searchParamsMemo()
 
-const params = mutable({})
+const params = mutable(
+	/** @type {Record<PropertyKey, string>} */ ({}),
+)
 const paramsMemo = memo(() => {
 	const values = empty()
 

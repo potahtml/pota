@@ -5,7 +5,15 @@ declare global {
 
 	type Accessor<T> = (() => Accessor<T>) | SignalAccessor<T> | T
 
-	type Accessed<T> = T extends () => infer R ? Accessed<R> : T
+	type Accessed<T> = T extends () => infer R
+		? Accessed<R>
+		: T extends PromiseLike<infer V>
+			? Accessed<V>
+			: T extends SignalAccessor<infer S>
+				? Accessed<S>
+				: T extends SignalFunction<infer F>
+					? Accessed<F>
+					: T
 
 	type SignalAccessor<T> = () => T
 

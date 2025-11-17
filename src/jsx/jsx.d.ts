@@ -40,7 +40,11 @@ interface CSSAttributes extends NSStyle {
 				Accessor<string | boolean | number | null | undefined>
 		  >
 		| Accessor<string>
-	style?: Accessor<CSSProperties | string>
+
+	style?: Accessor<
+		| { [P in keyof CSSProperties]: Accessor<CSSProperties[P]> }
+		| string
+	>
 
 	'use:css'?: Accessor<string>
 
@@ -88,6 +92,7 @@ export namespace JSX {
 		// recurse
 		| (() => Element)
 		| Promise<Element>
+		| PromiseSettledResult<Element>
 		| Element[]
 
 	// JSX.ElementType - shape of a `component`
@@ -96,11 +101,8 @@ export namespace JSX {
 
 	// TYPES
 
-	type DOMElement =
-		| HTMLElement
-		| SVGElement
-		| MathMLElement
-		| globalThis.Element
+	type DOMElement = HTMLElement | SVGElement | MathMLElement
+	// | globalThis.Element
 
 	type Props<T = {}> = T & { children?: Element }
 

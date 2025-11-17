@@ -15,9 +15,9 @@ import {
  *
  * - Ported to Classes what does fit
  * - Signal has more options: `label` and `save` previous value
- * - Writing to a signal returns `bollean` to tell if the value changed
+ * - Writing to a signal returns `boolean` to tell if the value changed
  * - Signal is an object that could be used as signal.read/write or
- *   destructured as an array
+ *   destructuring
  * - Signals can save and won't run functions
  * - `update` function on Signal that could be used to use the old value
  *   to set a new value
@@ -519,9 +519,9 @@ export function createReactiveSystem() {
 	 */
 	/* #__NO_SIDE_EFFECTS__ */
 	function signal(initialValue, options) {
-		/** @type {SignalObject<T>} */
-		const s = new Signal(initialValue, options)
-		return s
+		return /** @type {SignalObject<T>} */ (
+			/** @type {unknown} */ (new Signal(initialValue, options))
+		)
 	}
 
 	/**
@@ -570,9 +570,9 @@ export function createReactiveSystem() {
 	 * @returns {SignalAccessor<T>}
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function memo(fn, options = undefined) {
-		/** @type {SignalAccessor<T>} */
-		const s = new Memo(Owner, fn, options)
-		return s
+		return /** @type {SignalAccessor<T>} */ (
+			/** @type {unknown} */ (new Memo(Owner, fn, options))
+		)
 	}
 
 	/**
@@ -837,7 +837,7 @@ export function createReactiveSystem() {
 		 * Sets the `value` for the context
 		 *
 		 * @param {object} props
-		 * @param {T} [props.value]
+		 * @param {Partial<T>} props.value
 		 * @param {Children} props.children
 		 * @returns {Children} Children
 		 * @url https://pota.quack.uy/Reactivity/Context
