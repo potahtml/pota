@@ -147,7 +147,7 @@ export function createReactiveSystem() {
 	// COMPUTATION
 
 	class Computation extends Root {
-		state = STALE
+		state = 1 /* STALE */
 
 		updatedAt = 0
 
@@ -226,7 +226,7 @@ export function createReactiveSystem() {
 
 			super.dispose()
 
-			this.state = CLEAN
+			this.state = 0 /* CLEAN */
 		}
 		queue() {
 			Effects.push(this)
@@ -284,7 +284,7 @@ export function createReactiveSystem() {
 
 		read = () => {
 			if (this.state) {
-				if (this.state === STALE) {
+				if (this.state === 1 /* STALE */) {
 					this.update()
 				} else {
 					const updates = Updates
@@ -327,11 +327,11 @@ export function createReactiveSystem() {
 				if (this.observers && this.observers.length) {
 					runUpdates(() => {
 						for (const observer of this.observers) {
-							if (observer.state === CLEAN) {
+							if (observer.state === 0 /* CLEAN */) {
 								observer.queue()
 								observer.observers && downstream(observer)
 							}
-							observer.state = STALE
+							observer.state = 1 /* STALE */
 						}
 					})
 				}
@@ -359,7 +359,7 @@ export function createReactiveSystem() {
 			try {
 				nextValue = this.fn()
 			} catch (err) {
-				this.state = STALE
+				this.state = 1 /* STALE */
 				this.disposeOwned()
 
 				this.updatedAt = time + 1
@@ -457,11 +457,11 @@ export function createReactiveSystem() {
 				if (this.observers && this.observers.length) {
 					runUpdates(() => {
 						for (const observer of this.observers) {
-							if (observer.state === CLEAN) {
+							if (observer.state === 0 /* CLEAN */) {
 								observer.queue()
 								observer.observers && downstream(observer)
 							}
-							observer.state = STALE
+							observer.state = 1 /* STALE */
 						}
 					})
 				}
@@ -657,10 +657,10 @@ export function createReactiveSystem() {
 
 	function runTop(node) {
 		switch (node.state) {
-			case CLEAN: {
+			case 0 /* CLEAN */: {
 				break
 			}
-			case CHECK: {
+			case 2 /* CHECK */: {
 				upstream(node)
 				break
 			}
@@ -678,11 +678,11 @@ export function createReactiveSystem() {
 					node = ancestors[i]
 
 					switch (node.state) {
-						case STALE: {
+						case 1 /* STALE */: {
 							node.update()
 							break
 						}
-						case CHECK: {
+						case 2 /* CHECK */: {
 							updates = Updates
 							Updates = null
 							runUpdates(() => upstream(node, ancestors[0]))
@@ -763,18 +763,18 @@ export function createReactiveSystem() {
 	}
 
 	function upstream(node, ignore) {
-		node.state = CLEAN
+		node.state = 0 /* CLEAN */
 
 		for (const source of node.sources) {
 			if (source.sources) {
 				switch (source.state) {
-					case STALE: {
+					case 1 /* STALE */: {
 						if (source !== ignore && source.updatedAt < Time) {
 							runTop(source)
 						}
 						break
 					}
-					case CHECK: {
+					case 2 /* CHECK */: {
 						upstream(source, ignore)
 						break
 					}
@@ -785,8 +785,8 @@ export function createReactiveSystem() {
 
 	function downstream(node) {
 		for (const observer of node.observers) {
-			if (observer.state === CLEAN) {
-				observer.state = CHECK
+			if (observer.state === 0 /* CLEAN */) {
+				observer.state = 2 /* CHECK */
 				observer.queue()
 				observer.observers && downstream(observer)
 			}
