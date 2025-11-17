@@ -1,5 +1,10 @@
 // @ts-nocheck
-import { addEvent, effect, signalFunction } from '../lib/reactive.js'
+import {
+	addEvent,
+	effect,
+	signalFunction,
+	writable,
+} from '../lib/reactive.js'
 
 import { propsPlugin } from '../core/props/plugin.js'
 import { getSelection, restoreSelection } from './selection.js'
@@ -10,10 +15,10 @@ import { flatForEach } from '../lib/std.js'
  *
  * @template T
  * @param {T} [value] - Optional initial value
- * @returns {SignalFunction<T>}
+ * @returns {SignalFunction<Accessed<T>>}
  * @url https://pota.quack.uy/use/bind
  */
-export const bind = value => signalFunction(value)
+export const bind = value => writable(value)
 
 /**
  * @param {Element} node
