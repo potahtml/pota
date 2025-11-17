@@ -118,17 +118,64 @@ export function withPrevValue(value, fn) {
  * Lazy and writable version of `memo`, its writable and will run the
  * function only when used
  *
- * @author ryansolid
  * @template T
  * @param {() => T} fn - Function to re-run when dependencies change
- * @returns {SignalFunction<T>}
+ * @param {Accessed<T>} [initialValue] - Initial value for
+ *   promise-like
+ * @returns {SignalFunction<Accessed<T>> & { run: Function }}
+ * @original ryansolid
+ * @modified titoBouzout - unwraps and tracks functions and promises
  */
-export function writable(fn) {
-	const result = memo(() => signal(fn()))
+export function writable(fn, initialValue = undefined) {
+	let updatedAt = 0
+	const forceChange = signal(undefined, { equals: false })
 
-	// @ts-expect-error
-	return (...args) =>
-		args.length ? result().write(args[0]) : result().read()
+	const result = memo(() => {
+		updatedAt++
+
+		forceChange.read()
+
+		const value = getValue(fn)
+		let s
+		if (isPromise(value)) {
+			s = signal(initialValue)
+			const oldUpdatedAt = updatedAt
+			withValue(value, value => {
+				if (oldUpdatedAt === updatedAt) {
+					s.write(value)
+				}
+			})
+		} else {
+			s = signal(value)
+		}
+		return s
+	})
+
+	function SignalLikeWithReRun(...args) {
+		if (args.length) {
+			const value = args[0]
+			updatedAt++
+			if (isFunction(value) || isPromise(value)) {
+				const oldUpdatedAt = updatedAt
+				withValue(value, value => {
+					if (oldUpdatedAt === updatedAt) {
+						result().write(value)
+					}
+				})
+				return true
+			} else {
+				return result().write(value)
+			}
+		} else {
+			return result().read()
+		}
+	}
+
+	SignalLikeWithReRun.run = () => {
+		forceChange.write()
+	}
+	// @ts-expect-error non-sense
+	return SignalLikeWithReRun
 }
 
 /**
