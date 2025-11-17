@@ -1,4 +1,4 @@
-# pota v0.20.211
+# pota v0.19.211
 
 - When an element has duplicated attributes only the last one is used
   `<div class="1" class="2"/>` yields `<div class="2"/>`
@@ -19,7 +19,7 @@
 
 # pota v0.19.206
 
-- when using `@static`, value no longers calls `getValue`, if its a
+- when using `@static`, value no longer calls `getValue`, if its a
   function you will need to call it
 
 # pota v0.19.203
