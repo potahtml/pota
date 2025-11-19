@@ -312,14 +312,16 @@ function createNode(node, props) {
  * @param {Element | DocumentFragment} parent
  * @param {Children | ((...unknonwn) => T)} child
  * @param {boolean} [relative]
- * @param {Text | undefined} [prev]
+ * @param {Text} [prev]
+ * @param {true} [isComponent]
  * @returns {Children}
  */
 export function createChildren(
 	parent,
 	child,
-	relative = false,
-	prev = undefined,
+	relative,
+	prev,
+	isComponent,
 ) {
 	switch (typeof child) {
 		// string/number
@@ -350,6 +352,8 @@ export function createChildren(
 					parent,
 					untrack(/** @type {() => Children} */ (child)),
 					relative,
+					undefined,
+					true,
 				)
 			}
 
@@ -447,6 +451,10 @@ export function createChildren(
 
 				const [value, setValue] = signal(undefined)
 				const onResult = owned(result => {
+					if (isComponent && isFunction(result)) {
+						markComponent(result)
+					}
+
 					setValue(result)
 					if (--suspense.c === 0) {
 						suspense.s.write(true)

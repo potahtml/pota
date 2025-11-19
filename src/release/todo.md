@@ -27,8 +27,8 @@
 
 ### async
 
-- make ready async aware?
-- maybe make `writable` suspenseable
+- make `ready` async aware
+- maybe make `writable` suspenseable/awaitable
 
 ### reactivity
 

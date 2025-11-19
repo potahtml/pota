@@ -127,23 +127,17 @@ export function withPrevValue(value, fn) {
  * @modified titoBouzout - unwraps and tracks functions and promises
  */
 export function writable(fn, initialValue = undefined) {
-	let updatedAt = 0
 	const forceChange = signal(undefined, { equals: false })
 
 	const result = memo(() => {
-		updatedAt++
-
 		forceChange.read()
 
 		const value = getValue(fn)
 		let s
 		if (isPromise(value)) {
 			s = signal(initialValue)
-			const oldUpdatedAt = updatedAt
 			withValue(value, value => {
-				if (oldUpdatedAt === updatedAt) {
-					s.write(value)
-				}
+				s.write(value)
 			})
 		} else {
 			s = signal(value)
@@ -154,13 +148,9 @@ export function writable(fn, initialValue = undefined) {
 	function SignalLikeWithReRun(...args) {
 		if (args.length) {
 			const value = args[0]
-			updatedAt++
 			if (isFunction(value) || isPromise(value)) {
-				const oldUpdatedAt = updatedAt
 				withValue(value, value => {
-					if (oldUpdatedAt === updatedAt) {
-						result().write(value)
-					}
+					result().write(value)
 				})
 				return true
 			} else {
