@@ -2,7 +2,7 @@ import { types as t } from '@babel/core'
 import { declare } from '@babel/helper-plugin-utils'
 import jsx from '@babel/plugin-syntax-jsx'
 
-import { error } from './utils.js'
+import { error, filename } from './utils.js'
 
 import { buildComponent } from './component.js'
 import { buildFragment } from './fragment.js'
@@ -15,6 +15,7 @@ import {
 	devToolsDeclaration,
 	devToolsProps,
 } from './devTools.js'
+import { transformAsync } from './async.js'
 
 export default function createPlugin({ name }) {
 	return declare((_, options) => {
@@ -28,6 +29,17 @@ export default function createPlugin({ name }) {
 				},
 				Program: {
 					enter(path, state) {
+						if (/(t|j)sx$/.test(filename(path))) {
+							path.traverse(
+								{
+									Function(path, state) {
+										transformAsync(path, state)
+									},
+								},
+								state,
+							)
+						}
+
 						/** Pota babel state */
 
 						state.pota = { partials: {}, components: {}, files: {} }
