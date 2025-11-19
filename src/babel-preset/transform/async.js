@@ -1,9 +1,9 @@
 import { types as t } from '@babel/core'
 import { transformAwait } from './await.js'
-import { isInsideJSX } from './utils.js'
+import { isInsideJSXAttribute } from './utils.js'
 
 export function transformAsync(path, state) {
-  if (!path.node.async || isInsideJSX(path)) return
+  if (!path.node.async || isInsideJSXAttribute(path)) return
 
   // `() => await 1` -> `() => { return await 1 }`
   const bodyPath = path.get('body')

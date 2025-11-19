@@ -242,7 +242,7 @@ export function createComponent(value) {
  * @param {string} content
  * @param {{
  * 	x?: string
- * 	i?: number
+ * 	[i: number]: number
  * 	m?: number
  * } & Record<string, unknown>} [propsData]
  * @returns {(props: T extends any[]) => Children}

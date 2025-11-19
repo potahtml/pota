@@ -106,6 +106,9 @@ export function removeFromArray(array, value) {
 
 export const keys = Object.keys
 
+export const isInsideJSXAttribute = path =>
+	!!path.findParent(p => p.isJSXAttribute())
+
 export function isInsideJSX(path) {
 	return !!path.findParent(
 		p =>
