@@ -29,8 +29,8 @@ updateNamespaces()
  *
  * @template T
  * @param {string} propName - Name of the prop
- * @param {(node: Element, propValue: T) => void} fn - Function to run
- *   when this prop is found on any Element
+ * @param {(node: DOMElement, propValue: T) => void} fn - Function to
+ *   run when this prop is found on any Element
  * @param {boolean} [onMicrotask=true] - To avoid the problem of
  *   needed props not being set, or children elements not created yet.
  *   Default is `true`
@@ -46,7 +46,7 @@ export const propsPlugin = (propName, fn, onMicrotask) => {
  * @template T
  * @param {string} NSName - Name of the namespace
  * @param {(
- * 	node: Element,
+ * 	node: DOMElement,
  * 	localName: string,
  * 	propValue: T,
  * 	ns?: string,
