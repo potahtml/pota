@@ -105,3 +105,12 @@ export function removeFromArray(array, value) {
 }
 
 export const keys = Object.keys
+
+export function isInsideJSX(path) {
+	return !!path.findParent(
+		p =>
+			p.isJSXElement() ||
+			p.isJSXFragment() ||
+			p.isJSXExpressionContainer(),
+	)
+}
