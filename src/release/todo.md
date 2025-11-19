@@ -29,8 +29,6 @@
 
 - make ready async aware?
 - maybe make `writable` suspenseable
-- maybe at compile time wrap in owned anything bellow a `await`, do
-  similar to promises?
 
 ### reactivity
 
@@ -53,6 +51,7 @@
 - refactor transform again !
 - figure out how to make the transform standalone because esm.sh is
   driving me crazy
+- allows spreads as children, because why not
 
 ### typescript
 
