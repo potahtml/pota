@@ -1,6 +1,6 @@
 import { types as t } from '@babel/core'
 import { transformAwait } from './await.js'
-import { isInsideJSXAttribute } from './utils.js'
+import { callFunctionImport, isInsideJSXAttribute } from './utils.js'
 
 export function transformAsync(path, state) {
   if (!path.node.async || isInsideJSXAttribute(path)) return
@@ -29,21 +29,34 @@ export function transformAsync(path, state) {
   )
 
   // wrap each statement in async functions
-  bodyPath.node.body = wrapStatements(bodyPath.node.body)
+  bodyPath.node.body = wrapStatements(path, state, bodyPath.node.body)
 
   path.skip()
 }
 
-function wrapStatements(stmts) {
+function wrapStatements(path, state, stmts) {
+  // empty
+  if (!stmts.length) {
+    return []
+  }
+
+  // last
   const first = stmts.shift()
   if (!stmts.length) {
     return [first]
   }
 
-  const fn = t.arrowFunctionExpression(
-    [],
-    t.blockStatement(wrapStatements(stmts)),
-    true,
+  // wrapper
+  const fn = callFunctionImport(
+    path,
+    state,
+    'pota/jsx-runtime',
+    'makeAsync',
+    t.arrowFunctionExpression(
+      [],
+      t.blockStatement(wrapStatements(path, state, stmts)),
+      true,
+    ),
   )
 
   return [first, t.returnStatement(fn)]
