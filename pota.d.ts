@@ -54,6 +54,13 @@ declare global {
 
 	type SignalChanged = boolean
 
+	// Derived
+
+	type Derived<T> = SignalAccessor<T> & {
+		run: Function
+		resolved: SignalAccessor<boolean>
+	}
+
 	type DerivedWritable<T> = SignalFunction<T> & {
 		run: Function
 		resolved: SignalAccessor<boolean>

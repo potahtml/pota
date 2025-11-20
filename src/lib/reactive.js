@@ -175,6 +175,38 @@ export function writable(fn, initialValue = undefined) {
 	// @ts-expect-error non-sense
 	return SignalLikeWithRun
 }
+
+/**
+ * A `memo` that recursively tracks promises and functions
+ *
+ * @template T
+ * @param {() => T} fn - Function to re-run when dependencies change
+ * @param {Accessed<T>} [initialValue] - Initial value for
+ *   promise-like
+ * @returns {Derived<T>}
+ */
+export function derived(fn, initialValue = undefined) {
+	const result = writable(fn, initialValue)
+	function SignalLikeWithRun() {
+		return result()
+	}
+	SignalLikeWithRun.resolved = result.resolved
+	SignalLikeWithRun.run = result.run
+
+	untrack(SignalLikeWithRun)
+
+	return SignalLikeWithRun
+}
+
+/**
+ * Returns `true` when all derived resolved or resolved
+ *
+ * @template {Derived<any>} T
+ * @param {T | T[]} a
+ * @returns {boolean}
+ */
+export function isResolved(a) {
+	return ![a].flat(Infinity).some(x => !x.resolved())
 }
 
 /**

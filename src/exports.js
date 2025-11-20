@@ -24,6 +24,8 @@ export {
 	untrack,
 	withValue,
 	writable,
+	derived,
+	isResolved,
 	// components
 	isComponent,
 	makeCallback,
