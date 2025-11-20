@@ -597,20 +597,6 @@ export function makeCallback(children) {
 }
 
 /**
- * Fakes `then` and `catch` in a function that returns promise
- *
- * @template P
- * @template {() => Promise<P>} T
- * @param {T} fn
- * @returns {(() => Promise<P>) & Promise<P>} T
- */
-export function makeAsync(fn) {
-	fn.then = f => fn().then(f)
-	fn.catch = f => fn().catch(f)
-	return fn
-}
-
-/**
  * Marks a function as a `Component`.
  *
  * Allows to tell a `signal function` from a `component function`.

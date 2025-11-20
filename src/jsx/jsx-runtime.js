@@ -25,5 +25,3 @@ export {
 	assignProps,
 	assignPropNS,
 } from '../core/props/@main.js'
-
-export { makeAsync } from '../lib/reactive.js'
