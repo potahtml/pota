@@ -122,7 +122,7 @@ export function withPrevValue(value, fn) {
  * @param {() => T} fn - Function to re-run when dependencies change
  * @param {Accessed<T>} [initialValue] - Initial value for
  *   promise-like
- * @returns {DerivedWritable<T>}
+ * @returns {DerivedWritable<Accessed<T>>}
  * @original ryansolid
  * @modified titoBouzout - unwraps and tracks functions and promises
  */
@@ -183,7 +183,7 @@ export function writable(fn, initialValue = undefined) {
  * @param {() => T} fn - Function to re-run when dependencies change
  * @param {Accessed<T>} [initialValue] - Initial value for
  *   promise-like
- * @returns {Derived<T>}
+ * @returns {Derived<Accessed<T>>}
  */
 export function derived(fn, initialValue = undefined) {
 	const result = writable(fn, initialValue)
@@ -201,7 +201,7 @@ export function derived(fn, initialValue = undefined) {
 /**
  * Returns `true` when all derived resolved or resolved
  *
- * @template {Derived<any>} T
+ * @template {Derived<unknown>} T
  * @param {T | T[]} a
  * @returns {boolean}
  */

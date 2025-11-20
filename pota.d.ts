@@ -13,7 +13,9 @@ declare global {
 				? Accessed<S>
 				: T extends SignalFunction<infer F>
 					? Accessed<F>
-					: T
+					: T extends Derived<infer D>
+						? Accessed<D>
+						: T
 
 	type SignalAccessor<T> = () => T
 
