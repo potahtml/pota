@@ -54,6 +54,11 @@ declare global {
 
 	type SignalChanged = boolean
 
+	type DerivedWritable<T> = SignalFunction<T> & {
+		run: Function
+		resolved: SignalAccessor<boolean>
+	}
+
 	// props
 
 	type When<T> = Accessor<T>

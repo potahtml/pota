@@ -122,38 +122,46 @@ export function withPrevValue(value, fn) {
  * @param {() => T} fn - Function to re-run when dependencies change
  * @param {Accessed<T>} [initialValue] - Initial value for
  *   promise-like
- * @returns {SignalFunction<Accessed<T>> & { run: Function }}
+ * @returns {DerivedWritable<T>}
  * @original ryansolid
  * @modified titoBouzout - unwraps and tracks functions and promises
  */
 export function writable(fn, initialValue = undefined) {
-	const forceChange = signal(undefined, { equals: false })
+	const force = signal(undefined, { equals: false })
+	const resolved = signal(false)
 
 	const result = memo(() => {
-		forceChange.read()
+		force.read()
+		resolved.write(false)
 
 		const value = getValue(fn)
 		let s
 		if (isPromise(value)) {
 			s = signal(initialValue)
 			withValue(value, value => {
+				resolved.write(true)
 				s.write(value)
 			})
 		} else {
 			s = signal(value)
+			resolved.write(true)
 		}
 		return s
 	})
 
-	function SignalLikeWithReRun(...args) {
+	function SignalLikeWithRun(...args) {
 		if (args.length) {
 			const value = args[0]
 			if (isFunction(value) || isPromise(value)) {
+				resolved.write(false)
+
 				withValue(value, value => {
+					resolved.write(true)
 					result().write(value)
 				})
 				return true
 			} else {
+				resolved.write(true)
 				return result().write(value)
 			}
 		} else {
@@ -161,11 +169,12 @@ export function writable(fn, initialValue = undefined) {
 		}
 	}
 
-	SignalLikeWithReRun.run = () => {
-		forceChange.write()
-	}
+	SignalLikeWithRun.resolved = resolved.read
+	SignalLikeWithRun.run = force.write
+
 	// @ts-expect-error non-sense
-	return SignalLikeWithReRun
+	return SignalLikeWithRun
+}
 }
 
 /**
