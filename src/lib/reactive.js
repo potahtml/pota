@@ -25,7 +25,7 @@ const {
 	batch,
 	cleanup,
 	cleanupCancel,
-	Context,
+	context,
 	effect,
 	memo,
 	on,
@@ -42,7 +42,7 @@ export {
 	batch,
 	cleanup,
 	cleanupCancel,
-	Context,
+	context,
 	effect,
 	memo,
 	on,
@@ -707,3 +707,19 @@ export const ownedEvent = handler =>
 				handleEvent: owned(e => handler.handleEvent(e)),
 			}
 		: owned(handler)
+
+export class createSuspenseContext {
+	s = signal(false)
+	c = 0
+	add() {
+		this.c++
+	}
+	remove() {
+		if (--this.c === 0) this.s.write(true)
+	}
+	isEmpty() {
+		return this.c === 0
+	}
+}
+
+export const useSuspense = context(new createSuspenseContext())

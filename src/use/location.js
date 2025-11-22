@@ -21,7 +21,7 @@ import {
 } from './url.js'
 import { useTimeout } from './time.js'
 
-import { RouteContext } from '../components/route/context.js'
+import { useRoute } from '../components/route/context.js'
 import { document } from './dom.js'
 import { preventDefault } from './event.js'
 
@@ -59,7 +59,7 @@ const params = mutable(
 const paramsMemo = memo(() => {
 	const values = empty()
 
-	RouteContext.walk(context => {
+	useRoute.walk(context => {
 		for (const [key, value] of entries(context.params()())) {
 			values[key] =
 				value !== undefined
@@ -103,7 +103,7 @@ export const useBeforeLeave = cb => {
 	addListeners()
 
 	BeforeLeave.push({
-		href: RouteContext().href() || wLocation.href,
+		href: useRoute().href() || wLocation.href,
 		cb,
 	})
 }

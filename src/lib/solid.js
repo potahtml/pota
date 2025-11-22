@@ -799,7 +799,9 @@ export function createReactiveSystem() {
 	 * @template T
 	 * @param {T} [defaultValue] - Default value for the context
 	 */
-	function Context(defaultValue = undefined) {
+	/* #__NO_SIDE_EFFECTS__ */ function context(
+		defaultValue = undefined,
+	) {
 		const id = Symbol()
 
 		/**
@@ -844,7 +846,7 @@ export function createReactiveSystem() {
 		 */
 		useContext.Provider = props =>
 			// @ts-expect-error
-			useContext(props.value, () => useContext.toHTML(props.children))
+			useContext(props.value, () => context.toHTML(props.children))
 
 		/**
 		 * Maps context following `parent` property (if any). When `true`
@@ -878,7 +880,7 @@ export function createReactiveSystem() {
 		batch,
 		cleanup,
 		cleanupCancel,
-		Context,
+		context,
 		effect,
 		memo,
 		on,

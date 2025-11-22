@@ -3,7 +3,7 @@ import { replaceParams } from '../../use/url.js'
 
 import { Component } from '../../core/renderer.js'
 
-import { RouteContext } from './context.js'
+import { useRoute } from './context.js'
 
 /**
  * Creates a link with Route features
@@ -21,7 +21,7 @@ import { RouteContext } from './context.js'
 export function A(props) {
 	addListeners()
 
-	const href = RouteContext().resolve(
+	const href = useRoute().resolve(
 		replaceParams(props.href, props.params),
 	)
 

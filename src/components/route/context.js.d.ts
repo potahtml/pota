@@ -1,9 +1,9 @@
-type RouteContextValue = {
+type RouteContext = {
 	base: string | undefined
 	href: () => string
-	parent: RouteContextValue | undefined
+	parent: RouteContext | undefined
 	params?: SignalAccessor<() => Record<string, unknown>>
-	addChild: (child: RouteContextValue) => void
+	addChild: (child: RouteContext) => void
 	shouldShowDefault: SignalAccessor<boolean | 0>
 	resolve: (href: string) => string
 	show: SignalAccessor<boolean | undefined>

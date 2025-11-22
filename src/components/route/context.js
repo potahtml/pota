@@ -1,19 +1,18 @@
 /// <Reference path="./context.js.d.ts"/>
 
-import { cleanup, memo, signal } from '../../lib/reactive.js'
+import { cleanup, memo, signal, context } from '../../lib/reactive.js'
 import { nothing, removeFromArray } from '../../lib/std.js'
 
-import { context } from '../../core/renderer.js'
 import { isAbsolute } from '../../use/url.js'
 
 /**
- * @param {Partial<RouteContextValue>} props
- * @returns {RouteContextValue}
+ * @param {Partial<RouteContext>} props
+ * @returns {RouteContext}
  */
 export function create(props) {
-	/** @type SignalObject<RouteContextValue[]> */
+	/** @type SignalObject<RouteContext[]> */
 	const [children, _, updateChildren] = signal(
-		/** @type {RouteContextValue[]} */ ([]),
+		/** @type {RouteContext[]} */ ([]),
 	)
 
 	return {
@@ -63,4 +62,4 @@ export function create(props) {
 	}
 }
 
-export const RouteContext = context(create(nothing))
+export const useRoute = context(create(nothing))

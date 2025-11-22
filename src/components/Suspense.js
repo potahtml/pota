@@ -1,5 +1,9 @@
-import { toHTMLFragment, useSuspense } from '../core/renderer.js'
-import { memo, signal } from '../lib/reactive.js'
+import { toHTMLFragment } from '../core/renderer.js'
+import {
+	memo,
+	createSuspenseContext,
+	useSuspense,
+} from '../lib/reactive.js'
 
 /**
  * Provides a fallback till children promises resolve (recursively)
@@ -11,17 +15,12 @@ import { memo, signal } from '../lib/reactive.js'
  * @returns {Children}
  * @url https://pota.quack.uy/Components/Suspense
  */
-export function Suspense(props) {
-	const s = signal(false)
-
-	return useSuspense({ c: 0, s }, () => {
+export const Suspense = props =>
+	useSuspense(new createSuspenseContext(), () => {
 		const children = toHTMLFragment(props.children)
-
-		// for when `Suspense` was used with children that dont have promises
 		const context = useSuspense()
-
-		return context.c === 0
+		// for when `Suspense` was used with children that dont have promises
+		return context.isEmpty()
 			? children
-			: memo(() => (s.read() ? children : props.fallback))
+			: memo(() => (context.s.read() ? children : props.fallback))
 	})
-}

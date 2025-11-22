@@ -4,18 +4,18 @@ import {
 	scrollToSelector,
 	scrollToTop,
 } from '../../use/scroll.js'
-import { RouteContext } from './context.js'
+import { useRoute } from './context.js'
 
 /**
  * Scroll to hash first, if doesnt, scroll to positions defined by the
  * Routes.
  *
- * @param {RouteContextValue} context
+ * @param {RouteContext} context
  */
 export function scroll(context) {
 	if (
 		!scrollToLocationHash() &&
-		!RouteContext.walk(context => {
+		!useRoute.walk(context => {
 			if (context.scroll) {
 				for (const item of isArray(context.scroll)
 					? context.scroll

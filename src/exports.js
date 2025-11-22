@@ -9,6 +9,7 @@ export {
 	batch,
 	cleanup,
 	cleanupCancel,
+	context,
 	effect,
 	Lazy,
 	lazy,
@@ -36,13 +37,7 @@ export {
 
 // RENDERER
 
-export {
-	Component,
-	context,
-	insert,
-	render,
-	toHTML,
-} from './core/renderer.js'
+export { Component, insert, render, toHTML } from './core/renderer.js'
 
 // EVENTS
 

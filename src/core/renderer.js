@@ -41,13 +41,14 @@ import {
 
 import {
 	cleanup,
-	Context,
+	context,
 	effect,
 	owned,
 	root,
 	signal,
 	untrack,
 	markComponent,
+	useSuspense,
 } from '../lib/reactive.js'
 
 import { onFixes } from './scheduler.js'
@@ -60,7 +61,6 @@ import { propsPlugin } from './props/plugin.js'
 // STATE
 
 const useXMLNS = context()
-export const useSuspense = context({ c: 0, s: signal(false) })
 
 // COMPONENTS
 
@@ -378,7 +378,6 @@ export function createChildren(
 						// maybe a signal (at least a function) so needs an effect
 						node = toDiff(
 							node,
-							// @ts-expect-error
 							flatToArray(
 								createChildren(parent, child(), true, node[0]),
 							),
@@ -447,7 +446,7 @@ export function createChildren(
 			// async values
 			if ('then' in child) {
 				const suspense = useSuspense()
-				suspense.c++
+				suspense.add()
 
 				const [value, setValue] = signal(undefined)
 				const onResult = owned(result => {
@@ -456,9 +455,7 @@ export function createChildren(
 					}
 
 					setValue(result)
-					if (--suspense.c === 0) {
-						suspense.s.write(true)
-					}
+					suspense.remove()
 				})
 
 				resolved(child, onResult)
@@ -634,7 +631,6 @@ export function insert(
 		options.relative,
 	)
 
-	// @ts-expect-error
 	cleanup(() => toDiff(flatToArray(node)))
 
 	return node
@@ -657,6 +653,8 @@ export function toHTML(children) {
 
 	return unwrapArray(toHTMLFragment(children).childNodes)
 }
+// @ts-ignore-next.error
+context.toHTML = toHTML
 
 /**
  * Creates and returns a DocumentFragment for `children`
@@ -673,32 +671,15 @@ export function toHTMLFragment(children) {
 }
 
 /**
- * Creates a context and returns a function to get or set the value
- *
- * @template T
- * @param {T} [defaultValue] - Default value for the context
- * @url https://pota.quack.uy/Reactivity/Context
- */
-/* #__NO_SIDE_EFFECTS__ */ export function context(
-	defaultValue = undefined,
-) {
-	const ctx = Context(defaultValue)
-	// @ts-expect-error
-	ctx.toHTML = toHTML
-
-	return ctx
-}
-
-/**
  * Removes from the DOM `prev` elements not found in `next`
  *
- * @param {Element[]} [prev=[]] - Array with previous elements.
+ * @param {DOMElement[]} [prev=[]] - Array with previous elements.
  *   Default is `[]`
- * @param {Element[]} [next=[]] - Array with next elements. Default is
- *   `[]`
+ * @param {DOMElement[]} [next=[]] - Array with next elements. Default
+ *   is `[]`
  * @param {boolean} [short=false] - Whether to use fast clear. Default
  *   is `false`
- * @returns {Element[]} The next array of elements
+ * @returns {DOMElement[]} The next array of elements
  */
 function toDiff(prev = [], next = [], short = false) {
 	// if theres something to remove

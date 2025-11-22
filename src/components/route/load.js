@@ -3,7 +3,7 @@ import { isFunction, nothing } from '../../lib/std.js'
 
 import { useTimeout } from '../../use/time.js'
 
-import { RouteContext } from './context.js'
+import { useRoute } from './context.js'
 import { scroll } from './scroll.js'
 
 /**
@@ -38,7 +38,7 @@ export function load(component, options = nothing) {
 					? onError(e, retry)
 					: onError,
 		onLoad: () => {
-			scroll(RouteContext())
+			scroll(useRoute())
 
 			// user function
 			onLoad && onLoad()

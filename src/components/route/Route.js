@@ -11,7 +11,7 @@ import { Show } from '../Show.js'
 import { Component } from '../../core/renderer.js'
 import { onDone } from '../../core/scheduler.js'
 
-import { RouteContext, create } from './context.js'
+import { useRoute, create } from './context.js'
 import { scroll } from './scroll.js'
 
 /**
@@ -41,7 +41,7 @@ import { scroll } from './scroll.js'
 export function Route(props) {
 	addListeners()
 
-	const parent = RouteContext()
+	const parent = useRoute()
 
 	const path = props.path
 
@@ -102,7 +102,7 @@ export function Route(props) {
 
 	parent.addChild(context)
 
-	return Component(RouteContext.Provider, {
+	return Component(useRoute.Provider, {
 		value: context,
 		children: Component(Dynamic, {
 			component: props.collapse ? Collapse : Show,
@@ -122,7 +122,7 @@ export function Route(props) {
  */
 Route.Default = props => {
 	return Component(Show, {
-		when: RouteContext().shouldShowDefault,
+		when: useRoute().shouldShowDefault,
 		children: props.children,
 	})
 }
