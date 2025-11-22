@@ -16,6 +16,12 @@ export function Suspense(props) {
 
 	return useSuspense({ c: 0, s }, () => {
 		const children = toHTMLFragment(props.children)
+
+		// when `Suspense` was used with children that dont have promises
+		const context = useSuspense()
+		if (context.c === 0) {
+			return children
+		}
 		const result = memo(() => (s.read() ? children : props.fallback))
 
 		return Promise.resolve(result)
