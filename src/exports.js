@@ -23,7 +23,6 @@ export {
 	syncEffect,
 	untrack,
 	withValue,
-	writable,
 	derived,
 	isResolved,
 	// components

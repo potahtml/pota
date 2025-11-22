@@ -1,6 +1,7 @@
 import { $isComponent, $isMap } from '../constants.js'
 
 import {
+	assign,
 	emptyArray,
 	getValue,
 	isArray,
@@ -115,23 +116,22 @@ export function withPrevValue(value, fn) {
 }
 
 /**
- * Lazy and writable version of `memo`, its writable and will run the
- * function only when used
+ * Lazy and writable version of `memo`. It will unwrap and track
+ * functions and promises recursively
  *
  * @template T
  * @param {() => T} fn - Function to re-run when dependencies change
- * @param {Accessed<T>} [initialValue] - Initial value for
- *   promise-like
- * @returns {DerivedWritable<Accessed<T>>}
+ * @param {Accessed<T>} [initialValue]
+ * @returns {Derived<Accessed<T>>}
  * @original ryansolid
  * @modified titoBouzout - unwraps and tracks functions and promises
  */
-export function writable(fn, initialValue = undefined) {
-	const force = signal(undefined, { equals: false })
+export function derived(fn, initialValue = undefined) {
+	const run = signal(undefined, { equals: false })
 	const resolved = signal(false)
 
 	const result = memo(() => {
-		force.read()
+		run.read()
 		resolved.write(false)
 
 		const value = getValue(fn)
@@ -149,7 +149,7 @@ export function writable(fn, initialValue = undefined) {
 		return s
 	})
 
-	function SignalLikeWithRun(...args) {
+	function SignalFunctionLike(...args) {
 		if (args.length) {
 			const value = args[0]
 			if (isFunction(value) || isPromise(value)) {
@@ -169,37 +169,20 @@ export function writable(fn, initialValue = undefined) {
 		}
 	}
 
-	SignalLikeWithRun.resolved = resolved.read
-	SignalLikeWithRun.run = force.write
+	assign(SignalFunctionLike, {
+		resolved: resolved.read,
+		run: run.write,
+	})
+
+	// TODO eager - document me, I forgot why I needed this
+	// untrack(SignalFunctionLike)
 
 	// @ts-expect-error non-sense
-	return SignalLikeWithRun
+	return SignalFunctionLike
 }
 
 /**
- * A `memo` that recursively tracks promises and functions
- *
- * @template T
- * @param {() => T} fn - Function to re-run when dependencies change
- * @param {Accessed<T>} [initialValue] - Initial value for
- *   promise-like
- * @returns {Derived<Accessed<T>>}
- */
-export function derived(fn, initialValue = undefined) {
-	const result = writable(fn, initialValue)
-	function SignalLikeWithRun() {
-		return result()
-	}
-	SignalLikeWithRun.resolved = result.resolved
-	SignalLikeWithRun.run = result.run
-
-	untrack(SignalLikeWithRun)
-
-	return SignalLikeWithRun
-}
-
-/**
- * Returns `true` when all derived resolved or resolved
+ * Returns `true` when all derived has been resolved
  *
  * @template {Derived<unknown>} T
  * @param {T | T[]} a

@@ -28,12 +28,14 @@
 ### async
 
 - make `ready` async aware
-- maybe make `writable` suspenseable/awaitable
+- maybe make `derived` suspenseable/awaitable
+- maybe compile async using generators
+- function calls in arguments/templates need to be hoisted
 
 ### reactivity
 
-- PRIORITY - use internally runWithOwner more
-- PRIORITY - try to remove `options` object from root/memo/effects
+- use internally runWithOwner more
+- try to remove `options` object from root/memo/effects
 - recheck use of untrack / add forbidden signal read
 - figure out if possible to prevent writing to signals inside effects
 - diff array for when value comes and doesnt come from server

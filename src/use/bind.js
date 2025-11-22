@@ -3,7 +3,7 @@ import {
 	addEvent,
 	effect,
 	signalFunction,
-	writable,
+	derived,
 } from '../lib/reactive.js'
 
 import { propsPlugin } from '../core/props/plugin.js'
@@ -18,7 +18,7 @@ import { flatForEach } from '../lib/std.js'
  * @returns {SignalFunction<Accessed<T>>}
  * @url https://pota.quack.uy/use/bind
  */
-export const bind = value => writable(value)
+export const bind = value => derived(value)
 
 /**
  * @param {Element} node

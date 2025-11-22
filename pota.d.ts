@@ -1,7 +1,7 @@
 import type { JSX } from './src/jsx/jsx.d.ts'
 
 declare global {
-	// signal
+	// accessor
 
 	type Accessor<T> = (() => Accessor<T>) | SignalAccessor<T> | T
 
@@ -16,6 +16,8 @@ declare global {
 					: T extends Derived<infer D>
 						? Accessed<D>
 						: T
+
+	// signal
 
 	type SignalAccessor<T> = () => T
 
@@ -56,14 +58,9 @@ declare global {
 
 	type SignalChanged = boolean
 
-	// Derived
+	// derived
 
-	type Derived<T> = SignalAccessor<T> & {
-		run: Function
-		resolved: SignalAccessor<boolean>
-	}
-
-	type DerivedWritable<T> = SignalFunction<T> & {
+	type Derived<T> = SignalFunction<T> & {
 		run: Function
 		resolved: SignalAccessor<boolean>
 	}

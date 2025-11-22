@@ -1,3 +1,7 @@
+# pota v0.20.214
+
+- `writable` has been renamed to `derived`
+
 # pota v0.19.211
 
 - When an element has duplicated attributes only the last one is used
