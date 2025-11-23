@@ -121,12 +121,12 @@ export function withPrevValue(value, fn) {
  *
  * @template T
  * @param {() => T} fn - Function to re-run when dependencies change
- * @param {Accessed<T>} [initialValue]
+ * @param {Partial<Accessed<T>>} [initialValue]
  * @returns {Derived<Accessed<T>>}
  * @original ryansolid
  * @modified titoBouzout - unwraps and tracks functions and promises
  */
-export function derived(fn, initialValue = undefined) {
+export function derived(fn, initialValue = {}) {
 	const resolved = signal(false)
 	const run = signal(undefined, { equals: false })
 

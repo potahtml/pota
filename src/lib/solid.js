@@ -196,20 +196,18 @@ export function createReactiveSystem() {
 		}
 
 		dispose() {
-			const { sources, sourceSlots } = this
-
-			if (sources && sources.length) {
+			if (this.sources && this.sources.length) {
 				let source
 				let observers
 				let index
 
 				let observer
 				let slot
-				while (sources.length) {
-					source = sources.pop()
+				while (this.sources.length) {
+					source = this.sources.pop()
 					observers = source.observers
 
-					index = sourceSlots.pop()
+					index = this.sourceSlots.pop()
 
 					if (observers && observers.length) {
 						observer = observers.pop()
@@ -517,8 +515,7 @@ export function createReactiveSystem() {
 	 * @param {T} [initialValue] - Initial value of the signal
 	 * @param {SignalOptions} [options] - Signal options
 	 */
-	/* #__NO_SIDE_EFFECTS__ */
-	function signal(initialValue, options) {
+	/* #__NO_SIDE_EFFECTS__ */ function signal(initialValue, options) {
 		return /** @type {SignalObject<T>} */ (
 			/** @type {unknown} */ (new Signal(initialValue, options))
 		)
@@ -536,6 +533,19 @@ export function createReactiveSystem() {
 	}
 
 	/**
+	 * Creates a syncEffect
+	 *
+	 * @param {() => T} fn
+	 * @param {object} [options]
+	 * @returns T
+	 */
+	function syncEffect(fn, options) {
+		let ret
+		new SyncEffect(Owner, () => (ret = fn()), options)
+		return ret
+	}
+
+	/**
 	 * Creates an effect with explicit dependencies
 	 *
 	 * @template T
@@ -548,16 +558,6 @@ export function createReactiveSystem() {
 			depend()
 			untrack(fn)
 		}, options)
-	}
-
-	/**
-	 * Creates a syncEffect
-	 *
-	 * @param {Function} fn
-	 * @param {object} [options]
-	 */
-	function syncEffect(fn, options) {
-		return new SyncEffect(Owner, fn, options)
 	}
 
 	/**
@@ -578,7 +578,8 @@ export function createReactiveSystem() {
 	/**
 	 * Batches changes to signals
 	 *
-	 * @param {Function} fn
+	 * @template T
+	 * @param {() => T} fn
 	 */
 	const batch = runUpdates
 
@@ -821,17 +822,13 @@ export function createReactiveSystem() {
 					? Owner.context[id]
 					: defaultValue
 			} else {
-				let res
-
-				syncEffect(() => {
+				return syncEffect(() => {
 					Owner.context = {
 						...Owner.context,
 						[id]: newValue,
 					}
-					res = untrack(fn)
+					return untrack(fn)
 				})
-
-				return res
 			}
 		}
 

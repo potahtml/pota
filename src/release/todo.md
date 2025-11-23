@@ -9,7 +9,7 @@
 
 ## some day
 
-- add `whenConnected`
+- maybe add `whenConnected`
 
 ### documentation
 
