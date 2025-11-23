@@ -127,8 +127,8 @@ export function withPrevValue(value, fn) {
  * @modified titoBouzout - unwraps and tracks functions and promises
  */
 export function derived(fn, initialValue = undefined) {
-	const run = signal(undefined, { equals: false })
 	const resolved = signal(false)
+	const run = signal(undefined, { equals: false })
 
 	const result = memo(() => {
 		run.read()
@@ -185,11 +185,11 @@ export function derived(fn, initialValue = undefined) {
  * Returns `true` when all derived has been resolved
  *
  * @template {Derived<unknown>} T
- * @param {T | T[]} a
+ * @param {...T} args
  * @returns {boolean}
  */
-export function isResolved(a) {
-	return ![a].flat(Infinity).some(x => !x.resolved())
+export function isResolved(...args) {
+	return !args.some(x => !x.resolved())
 }
 
 /**
