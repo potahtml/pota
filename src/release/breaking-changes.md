@@ -1,6 +1,7 @@
 # pota v0.20.214
 
 - `writable` has been renamed to `derived`
+- removed `save` option from signal
 
 # pota v0.19.211
 

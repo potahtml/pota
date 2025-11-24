@@ -7,10 +7,6 @@
 - SLOW AND SIMPLE IS BETTER THAN FAST AND HARD TO UNDERSTSAND
 - TAKE IT EASY, STEP BY STEP
 
-## some day
-
-- maybe add `whenConnected`
-
 ### documentation
 
 - PRIORITY - online tests, a page full of tests
@@ -28,20 +24,19 @@
 ### async
 
 - make `ready` async aware
-- maybe make `derived` suspenseable/awaitable
 - maybe compile async using generators
-- function calls in arguments/templates need to be hoisted
+- transform: function calls in arguments/templates need to be hoisted
 
 ### reactivity
 
 - use internally runWithOwner more
-- recheck use of untrack / add forbidden signal read
 - figure out if possible to prevent writing to signals inside effects
 - diff array for when value comes and doesnt come from server
 - figure out if other things should be wrapped in
   `createReactiveSystem`
 - figure out if top level runs the same as when owned, or make top
-  level owned, even if doesnt garbage collects
+  level owned, even if doesnt garbage collects - I couldnt figure out
+  this one out
 
 ### transform
 
@@ -51,12 +46,16 @@
   driving me crazy
 - allows spreads as children, because why not
 
+### render
+
+- maybe add `whenConnected`
+
 ### typescript
 
 - type components somehow
 - type reactivity
 - importing from types folder mess up stuff (error TS5055)
-- 22 non-strict / 497 strict
+- 13 non-strict / 497 strict
 
 ### use / probably never
 
