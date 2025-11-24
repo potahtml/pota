@@ -14,7 +14,7 @@ import {
  * Adaptation for potas needs include:
  *
  * - Ported to Classes what does fit
- * - Signal has more options: `label` and `save` previous value
+ * - Signal has any options
  * - Writing to a signal returns `boolean` to tell if the value changed
  * - Signal is an object that could be used as signal.read/write or
  *   destructuring
@@ -386,23 +386,14 @@ export function createReactiveSystem() {
 
 		// options:
 		// equals
-		// save
 
-		// `prev` if option save was given
 		/**
 		 * @param {T} [value]
 		 * @param {SignalOptions} [options]
 		 */
 		constructor(value, options) {
 			this.value = value
-			if (options) {
-				assign(this, options)
-				// @ts-expect-error
-				if (this.save) {
-					/** @private */
-					this.prev = value
-				}
-			}
+			options && assign(this, options)
 		}
 		/** @returns SignalAccessor<T> */
 		read = () => {
@@ -439,10 +430,6 @@ export function createReactiveSystem() {
 		write = value => {
 			// @ts-expect-error
 			if (this.equals === false || !this.equals(this.value, value)) {
-				// @ts-expect-error
-				if (this.save) {
-					this.prev = this.value
-				}
 				this.value = value
 
 				if (this.observers && this.observers.length) {
