@@ -67,16 +67,13 @@ export function createReactiveSystem() {
 		/** @type {Record<symbol, unknown>} */
 		context
 
-		/**
-		 * @param {Root} owner
-		 * @param {object} [options]
-		 */
-		constructor(owner, options) {
-			if (owner) {
-				this.owner = owner
+		/** @param {object} [options] */
+		constructor(options) {
+			if (Owner) {
+				this.owner = Owner
 
-				if (owner.context) {
-					this.context = owner.context
+				if (Owner.context) {
+					this.context = Owner.context
 				}
 			}
 
@@ -158,16 +155,15 @@ export function createReactiveSystem() {
 		sourceSlots
 
 		/**
-		 * @param {Root} [owner]
 		 * @param {Function} [fn]
 		 * @param {object} [options]
 		 */
-		constructor(owner, fn, options) {
-			super(owner, options)
+		constructor(fn, options) {
+			super(options)
 
 			this.fn = fn
 
-			owner && owner.addOwned(this)
+			Owner && Owner.addOwned(this)
 		}
 
 		update() {
@@ -235,12 +231,11 @@ export function createReactiveSystem() {
 		user = true
 
 		/**
-		 * @param {Root} [owner]
 		 * @param {Function} [fn]
 		 * @param {object} [options]
 		 */
-		constructor(owner, fn, options) {
-			super(owner, fn, options)
+		constructor(fn, options) {
+			super(fn, options)
 
 			Effects ? Effects.push(this) : batch(() => this.update())
 		}
@@ -248,12 +243,11 @@ export function createReactiveSystem() {
 
 	class SyncEffect extends Computation {
 		/**
-		 * @param {Root} [owner]
 		 * @param {Function} [fn]
 		 * @param {object} [options]
 		 */
-		constructor(owner, fn, options) {
-			super(owner, fn, options)
+		constructor(fn, options) {
+			super(fn, options)
 
 			batch(() => this.update())
 		}
@@ -270,12 +264,11 @@ export function createReactiveSystem() {
 		// options:
 		// equals
 		/**
-		 * @param {Root} [owner]
 		 * @param {Function} [fn]
 		 * @param {object} [options]
 		 */
-		constructor(owner, fn, options) {
-			super(owner, fn, options)
+		constructor(fn, options) {
+			super(fn, options)
 			// @ts-expect-error
 			return this.read
 		}
@@ -504,7 +497,7 @@ export function createReactiveSystem() {
 	 * @returns {T}
 	 */
 	function root(fn, options) {
-		const root = new Root(Owner, options)
+		const root = new Root(options)
 		return runWithOwner(root, () => fn(() => root.dispose()))
 	}
 
@@ -529,7 +522,7 @@ export function createReactiveSystem() {
 	 * @param {object} [options]
 	 */
 	function effect(fn, options) {
-		new Effect(Owner, fn, options)
+		new Effect(fn, options)
 	}
 
 	/**
@@ -541,7 +534,7 @@ export function createReactiveSystem() {
 	 */
 	function syncEffect(fn, options) {
 		let ret
-		new SyncEffect(Owner, () => (ret = fn()), options)
+		new SyncEffect(() => (ret = fn()), options)
 		return ret
 	}
 
@@ -571,7 +564,7 @@ export function createReactiveSystem() {
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function memo(fn, options = undefined) {
 		return /** @type {SignalAccessor<T>} */ (
-			/** @type {unknown} */ (new Memo(Owner, fn, options))
+			/** @type {unknown} */ (new Memo(fn, options))
 		)
 	}
 

@@ -35,17 +35,13 @@
 ### reactivity
 
 - use internally runWithOwner more
-- try to remove `options` object from root/memo/effects
 - recheck use of untrack / add forbidden signal read
 - figure out if possible to prevent writing to signals inside effects
 - diff array for when value comes and doesnt come from server
-- simplify the classes
 - figure out if other things should be wrapped in
   `createReactiveSystem`
 - figure out if top level runs the same as when owned, or make top
   level owned, even if doesnt garbage collects
-
-### render
 
 ### transform
 
