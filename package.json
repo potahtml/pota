@@ -9,7 +9,7 @@
 		"url": "git+https://github.com/potahtml/pota.git"
 	},
 	"type": "module",
-	"types": "./pota.d.ts",
+	"types": "./types/exports.d.ts",
 	"main": "./src/exports.js",
 	"sideEffects": false,
 	"exports": {
@@ -47,7 +47,7 @@
 			"default": "./src/lib/experiments.js"
 		},
 		".": {
-			"types": "./pota.d.ts",
+			"types": "./types/exports.d.ts",
 			"default": "./src/exports.js"
 		}
 	},
@@ -58,7 +58,6 @@
 		"watch:generate": "npm run generate",
 		"types": "tsc",
 		"build": "cd src/babel-preset && rollup -c",
-		"prepublishOnly": "npm run types || echo 1",
 		"release": "node src/release/release.mjs",
 		"format": "prettier . -w --config=./package.json --no-editorconfig",
 		"format-me": "prettier . -w --config=./package.json --no-editorconfig --plugin=file:///usr/local/lib/node_modules/prettier-plugin-jsdoc/dist/index.js",

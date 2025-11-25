@@ -375,8 +375,9 @@ export const isConfigurable = (target, key, value) => {
 /**
  * Returns `true` when `typeof` of `value` is `function`
  *
- * @param {unknown} value
- * @returns {value is function}
+ * @template T
+ * @param {T} value
+ * @returns {value is ((...args:unknown[])=>T)}
  */
 export const isFunction = value => typeof value === 'function'
 
@@ -443,8 +444,9 @@ export const isBoolean = value => typeof value === 'boolean'
 /**
  * Returns `true` when `value` may be a promise
  *
- * @param {unknown} value
- * @returns {value is Promise<unknown>}
+ * @template T
+ * @param {T} value
+ * @returns {value is Promise<T>}
  */
 export const isPromise = value =>
 	isFunction(/** @type {any} */ (value)?.then)

@@ -73,7 +73,7 @@ export const querySelectorAll = (node, query) =>
 /**
  * Returns `document` for element. That could be a `shadowRoot`
  *
- * @template {Element} T
+ * @template {Element | DocumentFragment} T
  * @param {T} node
  * @returns {Document | ShadowRoot}
  */
@@ -126,9 +126,11 @@ export const walkElements = function (
  * @template T
  * @param {T} value - Maybe function
  * @param {...unknown} args? - Arguments
- * @returns {Node | Element | T | undefined}
+ * @returns {DOMElement | T | undefined}
  */
 export function getValueElement(value, ...args) {
 	const element = getValueWithArguments(value, ...args)
-	return element instanceof Node ? element : undefined
+	return element instanceof Node
+		? /** @type DOMElement */ (element)
+		: undefined
 }

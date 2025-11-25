@@ -55,21 +55,23 @@ const splitId = /(rosa19611227)/
  * Makes Nodes from TemplateStringsArray
  *
  * @param {TemplateStringsArray} content
- * @returns {Element[]}
+ * @returns {DOMElement[]}
  */
 const parseXML = withWeakCache(content => {
-	// @ts-expect-error
-	const html = /** @type {Element[]} */ (
-		new DOMParser().parseFromString(
-			`<xml ${namespaces.xmlns}>${content.join(id)}</xml>`,
-			'text/xml',
-		).firstChild.childNodes
+	const html = /** @type {DOMElement[]} */ (
+		/** @type unknown */ (
+			new DOMParser().parseFromString(
+				`<xml ${namespaces.xmlns}>${content.join(id)}</xml>`,
+				'text/xml',
+			).firstChild.childNodes
+		)
 	)
 
 	if (html[0].tagName === 'parsererror') {
 		const err = html[0]
 		err.style.padding = '1em'
 		err.firstChild.textContent = 'HTML Syntax Error:'
+		// @ts-expect-error typescript doesnt understand dom walking
 		err.firstChild.nextSibling.style.cssText = ''
 		err.lastChild.replaceWith(createTextNode(content))
 	}
@@ -80,7 +82,7 @@ const parseXML = withWeakCache(content => {
  * Recursively walks a template and transforms it to `h` calls
  *
  * @param {typeof xml} xml
- * @param {Element[]} cached
+ * @param {DOMElement[]} cached
  * @param {...unknown} values
  * @returns {Children}
  */
@@ -98,22 +100,22 @@ function toH(xml, cached, values) {
 		if (nodeType === 1) {
 			// element
 			const { tagName, attributes, childNodes } =
-				/** @type {Element} */ (node)
+				/** @type {DOMElement} */ (node)
 
 			// gather props
 			/** @type {Record<string, Accessor<unknown>>} */
 			const props = empty()
 			for (let { name, value } of attributes) {
 				if (value === id) {
-					value = values[index++]
+					props[name] = values[index++]
 				} else if (value.includes(id)) {
 					const val = value
 						.split(splitId)
 						.map(x => (x === id ? values[index++] : x))
-					// @ts-expect-error
-					value = () => val.map(getValue).join('')
+					props[name] = () => val.map(getValue).join('')
+				} else {
+					props[name] = value
 				}
-				props[name] = value
 			}
 
 			// gather children

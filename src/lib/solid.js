@@ -389,7 +389,7 @@ export function createReactiveSystem() {
 
 		/**
 		 * @param {T} [value]
-		 * @param {SignalOptions} [options]
+		 * @param {SignalOptions<T>} [options]
 		 */
 		constructor(value, options) {
 			this.value = value
@@ -493,7 +493,7 @@ export function createReactiveSystem() {
 	 *
 	 * @template T
 	 * @param {T} [initialValue] - Initial value of the signal
-	 * @param {SignalOptions} [options] - Signal options
+	 * @param {SignalOptions<T>} [options] - Signal options
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function signal(initialValue, options) {
 		return /** @type {SignalObject<T>} */ (
@@ -515,6 +515,7 @@ export function createReactiveSystem() {
 	/**
 	 * Creates a syncEffect
 	 *
+	 * @template T
 	 * @param {() => T} fn
 	 * @param {object} [options]
 	 * @returns T
@@ -546,7 +547,7 @@ export function createReactiveSystem() {
 	 *
 	 * @template T
 	 * @param {() => T} fn - Function to re-run when dependencies change
-	 * @param {SignalOptions} [options]
+	 * @param {SignalOptions<T>} [options]
 	 * @returns {SignalAccessor<T>}
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function memo(fn, options = undefined) {
@@ -844,7 +845,6 @@ export function createReactiveSystem() {
 	 * @template T
 	 * @template A
 	 * @param {(...args: A[]) => T} cb
-	 * @returns {() => T | void}
 	 */
 	const owned = cb => {
 		const o = Owner

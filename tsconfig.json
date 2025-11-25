@@ -10,7 +10,7 @@
 
 		"allowJs": true,
 		"checkJs": true,
-		"strict": false,
+		"strict": true,
 		"noImplicitAny": false,
 		"strictNullChecks": false,
 		"skipLibCheck": true,

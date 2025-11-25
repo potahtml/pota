@@ -84,7 +84,7 @@ export const ref = () => signalFunction()
  *
  * @template T
  * @param {Accessor<T> | Promise<T>} value
- * @param {(value: Accessed<T> | T) => void} fn
+ * @param {(value: T) => void} fn
  */
 export function withValue(value, fn) {
 	if (isFunction(value)) {
@@ -149,36 +149,33 @@ export function derived(fn, initialValue = {}) {
 		return s
 	})
 
-	function SignalFunctionLike(...args) {
-		if (args.length) {
-			const value = args[0]
-			if (isFunction(value) || isPromise(value)) {
-				resolved.write(false)
+	const SignalFunctionLike =
+		/** @type {SignalFunction<Accessed<T>>} */ (
+			/** @type {unknown} */ (...args) => {
+				if (args.length) {
+					const value = args[0]
+					if (isFunction(value) || isPromise(value)) {
+						resolved.write(false)
 
-				withValue(value, value => {
-					resolved.write(true)
-					result().write(value)
-				})
-				return true
-			} else {
-				resolved.write(true)
-				return result().write(value)
+						withValue(value, value => {
+							resolved.write(true)
+							result().write(value)
+						})
+						return true
+					} else {
+						resolved.write(true)
+						return result().write(value)
+					}
+				} else {
+					return result().read()
+				}
 			}
-		} else {
-			return result().read()
-		}
-	}
+		)
 
-	assign(SignalFunctionLike, {
+	return assign(SignalFunctionLike, {
 		resolved: resolved.read,
 		run: run.write,
 	})
-
-	// TODO eager - document me, I forgot why I needed this
-	// untrack(SignalFunctionLike)
-
-	// @ts-expect-error non-sense
-	return SignalFunctionLike
 }
 
 /**
@@ -596,9 +593,9 @@ export const isComponent = value =>
  * non-reactive children will run untracked, regular children will
  * just return.
  *
- * @template {Children} T
+ * @template {Children | Children[]} T
  * @param {T} children
- * @returns {((...args: T[]) => T) | T}
+ * @returns {(...args: unknown[]) => T}
  */
 export function makeCallback(children) {
 	/** Shortcut the most used case */
@@ -610,11 +607,10 @@ export function makeCallback(children) {
 	 * When children is an array, as in >${[0, 1, 2]}< then children
 	 * will end as `[[0, 1, 2]]`, so flat it
 	 */
-	// @ts-expect-error
-	children = flatToArray(children)
+	const childrenArray = flatToArray(children)
 
 	return markComponent((...args) =>
-		children.map(child =>
+		childrenArray.map(child =>
 			isFunction(child) ? child(...args) : child,
 		),
 	)
@@ -627,9 +623,6 @@ export function makeCallback(children) {
  * Signals and user functions go in effects, for reactivity.
  * Components and callbacks are untracked and wont go in effects to
  * avoid re-rendering if signals are used in the components body
- *
- * @template T
- * @param {T} fn - Function to mark as a `Component`
  */
 export function markComponent(fn) {
 	fn[$isComponent] = undefined
@@ -639,9 +632,9 @@ export function markComponent(fn) {
 /**
  * Adds an event listener to a node
  *
- * @template {Element | Document | typeof window} TargetElement
+ * @template {Document | typeof window | DOMElement} TargetElement
  * @param {TargetElement} node - Element to add the event listener
- * @param {EventType} type - The name of the event listener
+ * @param {EventName} type - The name of the event listener
  * @param {EventHandler<Event, TargetElement>} handler - Function to
  *   handle the event
  * @returns {Function} - An `off` function for removing the event
@@ -651,7 +644,9 @@ export function markComponent(fn) {
 export function addEvent(node, type, handler) {
 	node.addEventListener(
 		type,
-		handler,
+		/** @type {EventListenerOrEventListenerObject} */ (
+			/** @type unknown */ handler
+		),
 		!isFunction(handler)
 			? /** @type {EventHandlerOptions} */ (handler)
 			: undefined,
@@ -672,9 +667,9 @@ export function addEvent(node, type, handler) {
 /**
  * Removes an event listener from a node
  *
- * @template {Element | Document | typeof window} TargetElement
+ * @template {Document | typeof window | DOMElement} TargetElement
  * @param {TargetElement} node - Element to add the event listener
- * @param {EventType} type - The name of the event listener
+ * @param {EventName} type - The name of the event listener
  * @param {EventHandler<Event, TargetElement>} handler - Function to
  *   handle the event
  * @returns {Function} - An `on` function for adding back the event
@@ -684,7 +679,9 @@ export function addEvent(node, type, handler) {
 export function removeEvent(node, type, handler) {
 	node.removeEventListener(
 		type,
-		handler,
+		/** @type {EventListenerOrEventListenerObject} */ (
+			/** @type unknown */ handler
+		),
 		!isFunction(handler)
 			? /** @type {EventHandlerOptions} */ (handler)
 			: undefined,

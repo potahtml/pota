@@ -116,11 +116,13 @@ export namespace JSX {
 
 	type EventHandler<Event, Element> =
 		| EventFunction<Event, Element>
-		| (EventObject<Event, Element> & EventHandlerOptions)
 		| EventObject<Event, Element>
-		| EventHandler<Event, Element>[] // recursive type
+		| (EventObject<Event, Element> & EventHandlerOptions)
 
-	// TODO figure out how to add event type
+	type EventHandlers<Event, Element> =
+		| EventHandler<Event, Element>
+		| EventHandlers<Event, Element>[] // recursive type
+
 	type EventEvent<Event, Element> = Event & {
 		currentTarget: Element
 	}
@@ -337,8 +339,8 @@ export namespace JSX {
 		preload?: Accessor<'none' | 'metadata' | 'auto' | ''>
 		src?: Accessor<string>
 
-		'on:encrypted'?: EventHandler<MediaEncryptedEvent, Element>
-		'on:waitingforkey'?: EventHandler<Event, Element>
+		'on:encrypted'?: EventHandlers<MediaEncryptedEvent, Element>
+		'on:waitingforkey'?: EventHandlers<Event, Element>
 
 		/** @deprecated */
 		mediagroup?: Accessor<string>
@@ -1525,11 +1527,11 @@ export namespace JSX {
 		poster?: Accessor<string>
 		width?: Accessor<number | string>
 
-		'on:enterpictureinpicture'?: EventHandler<
+		'on:enterpictureinpicture'?: EventHandlers<
 			PictureInPictureEvent,
 			Element
 		>
-		'on:leavepictureinpicture'?: EventHandler<
+		'on:leavepictureinpicture'?: EventHandlers<
 			PictureInPictureEvent,
 			Element
 		>
@@ -3229,167 +3231,178 @@ export namespace JSX {
 	// element
 
 	interface EventHandlersElement<Element> {
-		'on:abort'?: EventHandler<UIEvent, Element>
-		'on:animationcancel'?: EventHandler<AnimationEvent, Element>
-		'on:animationend'?: EventHandler<AnimationEvent, Element>
-		'on:animationiteration'?: EventHandler<AnimationEvent, Element>
-		'on:animationstart'?: EventHandler<AnimationEvent, Element>
-		'on:auxclick'?: EventHandler<MouseEvent, Element>
-		'on:beforecopy'?: EventHandler<ClipboardEvent, Element>
-		'on:beforecut'?: EventHandler<ClipboardEvent, Element>
-		'on:beforeinput'?: EventHandler<InputEvent, Element>
-		'on:beforematch'?: EventHandler<Event, Element>
-		'on:beforepaste'?: EventHandler<ClipboardEvent, Element>
-		'on:beforetoggle'?: EventHandler<ToggleEvent, Element>
-		'on:beforexrselect'?: EventHandler<Event, Element>
-		'on:blur'?: EventHandler<FocusEvent, Element>
-		'on:cancel'?: EventHandler<Event, Element>
-		'on:canplay'?: EventHandler<Event, Element>
-		'on:canplaythrough'?: EventHandler<Event, Element>
-		'on:change'?: EventHandler<Event, Element>
-		'on:click'?: EventHandler<MouseEvent, Element>
-		'on:close'?: EventHandler<Event, Element>
-		'on:command'?: EventHandler<Event, Element>
-		'on:compositionend'?: EventHandler<CompositionEvent, Element>
-		'on:compositionstart'?: EventHandler<CompositionEvent, Element>
-		'on:compositionupdate'?: EventHandler<CompositionEvent, Element>
-		'on:contentvisibilityautostatechange'?: EventHandler<
+		'on:abort'?: EventHandlers<UIEvent, Element>
+		'on:animationcancel'?: EventHandlers<AnimationEvent, Element>
+		'on:animationend'?: EventHandlers<AnimationEvent, Element>
+		'on:animationiteration'?: EventHandlers<AnimationEvent, Element>
+		'on:animationstart'?: EventHandlers<AnimationEvent, Element>
+		'on:auxclick'?: EventHandlers<MouseEvent, Element>
+		'on:beforecopy'?: EventHandlers<ClipboardEvent, Element>
+		'on:beforecut'?: EventHandlers<ClipboardEvent, Element>
+		'on:beforeinput'?: EventHandlers<InputEvent, Element>
+		'on:beforematch'?: EventHandlers<Event, Element>
+		'on:beforepaste'?: EventHandlers<ClipboardEvent, Element>
+		'on:beforetoggle'?: EventHandlers<ToggleEvent, Element>
+		'on:beforexrselect'?: EventHandlers<Event, Element>
+		'on:blur'?: EventHandlers<FocusEvent, Element>
+		'on:cancel'?: EventHandlers<Event, Element>
+		'on:canplay'?: EventHandlers<Event, Element>
+		'on:canplaythrough'?: EventHandlers<Event, Element>
+		'on:change'?: EventHandlers<Event, Element>
+		'on:click'?: EventHandlers<MouseEvent, Element>
+		'on:close'?: EventHandlers<Event, Element>
+		'on:command'?: EventHandlers<Event, Element>
+		'on:compositionend'?: EventHandlers<CompositionEvent, Element>
+		'on:compositionstart'?: EventHandlers<CompositionEvent, Element>
+		'on:compositionupdate'?: EventHandlers<CompositionEvent, Element>
+		'on:contentvisibilityautostatechange'?: EventHandlers<
 			ContentVisibilityAutoStateChangeEvent,
 			Element
 		>
-		'on:contextlost'?: EventHandler<Event, Element>
-		'on:contextmenu'?: EventHandler<MouseEvent, Element>
-		'on:contextrestored'?: EventHandler<Event, Element>
-		'on:copy'?: EventHandler<ClipboardEvent, Element>
-		'on:cuechange'?: EventHandler<Event, Element>
-		'on:cut'?: EventHandler<ClipboardEvent, Element>
-		'on:dblclick'?: EventHandler<MouseEvent, Element>
-		'on:drag'?: EventHandler<DragEvent, Element>
-		'on:dragend'?: EventHandler<DragEvent, Element>
-		'on:dragenter'?: EventHandler<DragEvent, Element>
-		'on:dragexit'?: EventHandler<DragEvent, Element>
-		'on:dragleave'?: EventHandler<DragEvent, Element>
-		'on:dragover'?: EventHandler<DragEvent, Element>
-		'on:dragstart'?: EventHandler<DragEvent, Element>
-		'on:drop'?: EventHandler<DragEvent, Element>
-		'on:durationchange'?: EventHandler<Event, Element>
-		'on:emptied'?: EventHandler<Event, Element>
-		'on:ended'?: EventHandler<Event, Element>
-		'on:error'?: EventHandler<ErrorEvent, Element>
-		'on:focus'?: EventHandler<FocusEvent, Element>
-		'on:focusin'?: EventHandler<FocusEvent, Element>
-		'on:focusout'?: EventHandler<FocusEvent, Element>
-		'on:formdata'?: EventHandler<FormDataEvent, Element>
-		'on:fullscreenchange'?: EventHandler<Event, Element>
-		'on:fullscreenerror'?: EventHandler<Event, Element>
-		'on:gotpointercapture'?: EventHandler<PointerEvent, Element>
-		'on:input'?: EventHandler<Event, Element>
-		'on:invalid'?: EventHandler<Event, Element>
-		'on:keydown'?: EventHandler<KeyboardEvent, Element>
-		'on:keypress'?: EventHandler<KeyboardEvent, Element>
-		'on:keyup'?: EventHandler<KeyboardEvent, Element>
-		'on:load'?: EventHandler<Event, Element>
-		'on:loadeddata'?: EventHandler<Event, Element>
-		'on:loadedmetadata'?: EventHandler<Event, Element>
-		'on:loadstart'?: EventHandler<Event, Element>
-		'on:lostpointercapture'?: EventHandler<PointerEvent, Element>
-		'on:mousedown'?: EventHandler<MouseEvent, Element>
-		'on:mouseenter'?: EventHandler<MouseEvent, Element>
-		'on:mouseleave'?: EventHandler<MouseEvent, Element>
-		'on:mousemove'?: EventHandler<MouseEvent, Element>
-		'on:mouseout'?: EventHandler<MouseEvent, Element>
-		'on:mouseover'?: EventHandler<MouseEvent, Element>
-		'on:mouseup'?: EventHandler<MouseEvent, Element>
-		'on:paste'?: EventHandler<ClipboardEvent, Element>
-		'on:pause'?: EventHandler<Event, Element>
-		'on:play'?: EventHandler<Event, Element>
-		'on:playing'?: EventHandler<Event, Element>
-		'on:pointercancel'?: EventHandler<PointerEvent, Element>
-		'on:pointerdown'?: EventHandler<PointerEvent, Element>
-		'on:pointerenter'?: EventHandler<PointerEvent, Element>
-		'on:pointerleave'?: EventHandler<PointerEvent, Element>
-		'on:pointermove'?: EventHandler<PointerEvent, Element>
-		'on:pointerout'?: EventHandler<PointerEvent, Element>
-		'on:pointerover'?: EventHandler<PointerEvent, Element>
-		'on:pointerrawupdate'?: EventHandler<PointerEvent, Element>
-		'on:pointerup'?: EventHandler<PointerEvent, Element>
-		'on:progress'?: EventHandler<ProgressEvent, Element>
-		'on:ratechange'?: EventHandler<Event, Element>
-		'on:reset'?: EventHandler<Event, Element>
-		'on:resize'?: EventHandler<UIEvent, Element>
-		'on:scroll'?: EventHandler<Event, Element>
-		'on:scrollend'?: EventHandler<Event, Element>
-		'on:scrollsnapchange'?: EventHandler<Event, Element>
-		'on:scrollsnapchanging'?: EventHandler<Event, Element>
-		'on:securitypolicyviolation'?: EventHandler<
+		'on:contextlost'?: EventHandlers<Event, Element>
+		'on:contextmenu'?: EventHandlers<MouseEvent, Element>
+		'on:contextrestored'?: EventHandlers<Event, Element>
+		'on:copy'?: EventHandlers<ClipboardEvent, Element>
+		'on:cuechange'?: EventHandlers<Event, Element>
+		'on:cut'?: EventHandlers<ClipboardEvent, Element>
+		'on:dblclick'?: EventHandlers<MouseEvent, Element>
+		'on:drag'?: EventHandlers<DragEvent, Element>
+		'on:dragend'?: EventHandlers<DragEvent, Element>
+		'on:dragenter'?: EventHandlers<DragEvent, Element>
+		'on:dragexit'?: EventHandlers<DragEvent, Element>
+		'on:dragleave'?: EventHandlers<DragEvent, Element>
+		'on:dragover'?: EventHandlers<DragEvent, Element>
+		'on:dragstart'?: EventHandlers<DragEvent, Element>
+		'on:drop'?: EventHandlers<DragEvent, Element>
+		'on:durationchange'?: EventHandlers<Event, Element>
+		'on:emptied'?: EventHandlers<Event, Element>
+		'on:ended'?: EventHandlers<Event, Element>
+		'on:error'?: EventHandlers<ErrorEvent, Element>
+		'on:focus'?: EventHandlers<FocusEvent, Element>
+		'on:focusin'?: EventHandlers<FocusEvent, Element>
+		'on:focusout'?: EventHandlers<FocusEvent, Element>
+		'on:formdata'?: EventHandlers<FormDataEvent, Element>
+		'on:fullscreenchange'?: EventHandlers<Event, Element>
+		'on:fullscreenerror'?: EventHandlers<Event, Element>
+		'on:gotpointercapture'?: EventHandlers<PointerEvent, Element>
+		'on:input'?: EventHandlers<Event, Element>
+		'on:invalid'?: EventHandlers<Event, Element>
+		'on:keydown'?: EventHandlers<KeyboardEvent, Element>
+		'on:keypress'?: EventHandlers<KeyboardEvent, Element>
+		'on:keyup'?: EventHandlers<KeyboardEvent, Element>
+		'on:load'?: EventHandlers<Event, Element>
+		'on:loadeddata'?: EventHandlers<Event, Element>
+		'on:loadedmetadata'?: EventHandlers<Event, Element>
+		'on:loadstart'?: EventHandlers<Event, Element>
+		'on:lostpointercapture'?: EventHandlers<PointerEvent, Element>
+		'on:mousedown'?: EventHandlers<MouseEvent, Element>
+		'on:mouseenter'?: EventHandlers<MouseEvent, Element>
+		'on:mouseleave'?: EventHandlers<MouseEvent, Element>
+		'on:mousemove'?: EventHandlers<MouseEvent, Element>
+		'on:mouseout'?: EventHandlers<MouseEvent, Element>
+		'on:mouseover'?: EventHandlers<MouseEvent, Element>
+		'on:mouseup'?: EventHandlers<MouseEvent, Element>
+		'on:paste'?: EventHandlers<ClipboardEvent, Element>
+		'on:pause'?: EventHandlers<Event, Element>
+		'on:play'?: EventHandlers<Event, Element>
+		'on:playing'?: EventHandlers<Event, Element>
+		'on:pointercancel'?: EventHandlers<PointerEvent, Element>
+		'on:pointerdown'?: EventHandlers<PointerEvent, Element>
+		'on:pointerenter'?: EventHandlers<PointerEvent, Element>
+		'on:pointerleave'?: EventHandlers<PointerEvent, Element>
+		'on:pointermove'?: EventHandlers<PointerEvent, Element>
+		'on:pointerout'?: EventHandlers<PointerEvent, Element>
+		'on:pointerover'?: EventHandlers<PointerEvent, Element>
+		'on:pointerrawupdate'?: EventHandlers<PointerEvent, Element>
+		'on:pointerup'?: EventHandlers<PointerEvent, Element>
+		'on:progress'?: EventHandlers<ProgressEvent, Element>
+		'on:ratechange'?: EventHandlers<Event, Element>
+		'on:reset'?: EventHandlers<Event, Element>
+		'on:resize'?: EventHandlers<UIEvent, Element>
+		'on:scroll'?: EventHandlers<Event, Element>
+		'on:scrollend'?: EventHandlers<Event, Element>
+		'on:scrollsnapchange'?: EventHandlers<Event, Element>
+		'on:scrollsnapchanging'?: EventHandlers<Event, Element>
+		'on:securitypolicyviolation'?: EventHandlers<
 			SecurityPolicyViolationEvent,
 			Element
 		>
-		'on:seeked'?: EventHandler<Event, Element>
-		'on:seeking'?: EventHandler<Event, Element>
-		'on:select'?: EventHandler<Event, Element>
-		'on:selectionchange'?: EventHandler<Event, Element>
-		'on:selectstart'?: EventHandler<Event, Element>
-		'on:slotchange'?: EventHandler<Event, Element>
-		'on:stalled'?: EventHandler<Event, Element>
-		'on:submit'?: EventHandler<SubmitEvent, Element>
-		'on:suspend'?: EventHandler<Event, Element>
-		'on:timeupdate'?: EventHandler<Event, Element>
-		'on:toggle'?: EventHandler<ToggleEvent, Element>
-		'on:touchcancel'?: EventHandler<TouchEvent, Element>
-		'on:touchend'?: EventHandler<TouchEvent, Element>
-		'on:touchmove'?: EventHandler<TouchEvent, Element>
-		'on:touchstart'?: EventHandler<TouchEvent, Element>
-		'on:transitioncancel'?: EventHandler<TransitionEvent, Element>
-		'on:transitionend'?: EventHandler<TransitionEvent, Element>
-		'on:transitionrun'?: EventHandler<TransitionEvent, Element>
-		'on:transitionstart'?: EventHandler<TransitionEvent, Element>
-		'on:volumechange'?: EventHandler<Event, Element>
-		'on:waiting'?: EventHandler<Event, Element>
-		'on:wheel'?: EventHandler<WheelEvent, Element>
+		'on:seeked'?: EventHandlers<Event, Element>
+		'on:seeking'?: EventHandlers<Event, Element>
+		'on:select'?: EventHandlers<Event, Element>
+		'on:selectionchange'?: EventHandlers<Event, Element>
+		'on:selectstart'?: EventHandlers<Event, Element>
+		'on:slotchange'?: EventHandlers<Event, Element>
+		'on:stalled'?: EventHandlers<Event, Element>
+		'on:submit'?: EventHandlers<SubmitEvent, Element>
+		'on:suspend'?: EventHandlers<Event, Element>
+		'on:timeupdate'?: EventHandlers<Event, Element>
+		'on:toggle'?: EventHandlers<ToggleEvent, Element>
+		'on:touchcancel'?: EventHandlers<TouchEvent, Element>
+		'on:touchend'?: EventHandlers<TouchEvent, Element>
+		'on:touchmove'?: EventHandlers<TouchEvent, Element>
+		'on:touchstart'?: EventHandlers<TouchEvent, Element>
+		'on:transitioncancel'?: EventHandlers<TransitionEvent, Element>
+		'on:transitionend'?: EventHandlers<TransitionEvent, Element>
+		'on:transitionrun'?: EventHandlers<TransitionEvent, Element>
+		'on:transitionstart'?: EventHandlers<TransitionEvent, Element>
+		'on:volumechange'?: EventHandlers<Event, Element>
+		'on:waiting'?: EventHandlers<Event, Element>
+		'on:wheel'?: EventHandlers<WheelEvent, Element>
 	}
 
 	// window
 
 	interface EventHandlersWindow<Element> {
-		'on:afterprint'?: EventHandler<Event, Element>
-		'on:beforeprint'?: EventHandler<Event, Element>
-		'on:beforeunload'?: EventHandler<BeforeUnloadEvent, Element>
-		'on:gamepadconnected'?: EventHandler<GamepadEvent, Element>
-		'on:gamepaddisconnected'?: EventHandler<GamepadEvent, Element>
-		'on:hashchange'?: EventHandler<HashChangeEvent, Element>
-		'on:languagechange'?: EventHandler<Event, Element>
-		'on:message'?: EventHandler<MessageEvent, Element>
-		'on:messageerror'?: EventHandler<MessageEvent, Element>
-		'on:offline'?: EventHandler<Event, Element>
-		'on:online'?: EventHandler<Event, Element>
-		'on:pagehide'?: EventHandler<PageTransitionEvent, Element>
-		// TODO `PageRevealEvent` is currently undefined on TS
-		'on:pagereveal'?: EventHandler<Event, Element>
-		'on:pageshow'?: EventHandler<PageTransitionEvent, Element>
-		// TODO `PageSwapEvent` is currently undefined on TS
-		'on:pageswap'?: EventHandler<Event, Element>
-		'on:popstate'?: EventHandler<PopStateEvent, Element>
-		'on:rejectionhandled'?: EventHandler<
+		'on:afterprint'?: EventHandlers<Event, Element>
+		'on:beforeprint'?: EventHandlers<Event, Element>
+		'on:beforeunload'?: EventHandlers<BeforeUnloadEvent, Element>
+		'on:gamepadconnected'?: EventHandlers<GamepadEvent, Element>
+		'on:gamepaddisconnected'?: EventHandlers<GamepadEvent, Element>
+		'on:hashchange'?: EventHandlers<HashChangeEvent, Element>
+		'on:languagechange'?: EventHandlers<Event, Element>
+		'on:message'?: EventHandlers<MessageEvent, Element>
+		'on:messageerror'?: EventHandlers<MessageEvent, Element>
+		'on:offline'?: EventHandlers<Event, Element>
+		'on:online'?: EventHandlers<Event, Element>
+		'on:pagehide'?: EventHandlers<PageTransitionEvent, Element>
+		'on:pagereveal'?: EventHandlers<PageRevealEvent, Element>
+		'on:pageshow'?: EventHandlers<PageTransitionEvent, Element>
+		'on:pageswap'?: EventHandlers<PageSwapEvent, Element>
+		'on:popstate'?: EventHandlers<PopStateEvent, Element>
+		'on:rejectionhandled'?: EventHandlers<
 			PromiseRejectionEvent,
 			Element
 		>
-		'on:storage'?: EventHandler<StorageEvent, Element>
-		'on:unhandledrejection'?: EventHandler<
+		'on:storage'?: EventHandlers<StorageEvent, Element>
+		'on:unhandledrejection'?: EventHandlers<
 			PromiseRejectionEvent,
 			Element
 		>
-		'on:unload'?: EventHandler<Event, Element>
+		'on:unload'?: EventHandlers<Event, Element>
 	}
 
-	type EventType =
-		| (keyof EventHandlersWindow<any> extends `on:${infer T}`
+	// EventName = "click" | "mousedown" ...
+	type EventName =
+		| (keyof EventHandlersWindow<Element> extends `on:${infer T}`
 				? T
 				: never)
-		| (keyof EventHandlersElement<any> extends `on:${infer T}`
+		| (keyof EventHandlersElement<Element> extends `on:${infer T}`
 				? T
 				: never)
 		| (string & {})
+
+	type ExtractEventType<T> = {
+		[K in keyof T as K extends `on:${infer Name}`
+			? Name
+			: never]: T[K] extends EventHandlers<infer E, Element>
+			? E
+			: never
+	}
+
+	// EventType["click"] = MouseEvent
+	type EventType = ExtractEventType<EventHandlersElement<Element>> &
+		ExtractEventType<EventHandlersWindow<Element>>
 
 	/** ARIA */
 
@@ -3832,6 +3845,14 @@ export namespace JSX {
 		>
 	}
 }
+
+/**
+ * Needed so LSP works with `JSX` element tags, typescript needs the
+ * `jsxs` functions to be defined.
+ */
+export function jsx(type: JSX.ElementType, props?: any): JSX.Element
+
+export { jsx as jsxs, jsx as jsxDEV }
 
 /**
  * 1. This prevents the other types in this file from leaking.

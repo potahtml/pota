@@ -2,22 +2,26 @@ import { addEvent, ownedEvent } from '../../lib/reactive.js'
 import { flatForEach } from '../../lib/std.js'
 
 /**
- * @template {Element} T
+ * @template {DOMElement} T
  * @param {T} node
  * @param {string} name
- * @param {EventHandler<Event, T>} value
+ * @param {EventHandlers<Event, T>} value
  */
 export const setEvent = (node, name, value) => {
 	flatForEach(value, value => {
-		addEvent(node, name, ownedEvent(value))
+		addEvent(
+			node,
+			name,
+			ownedEvent(/** @type EventHandler<Event, Element> */ (value)),
+		)
 	})
 }
 
 /**
- * @template {Element} T
+ * @template {DOMElement} T
  * @param {T} node
  * @param {string} localName
- * @param {EventHandler<Event, T>} value
+ * @param {EventHandlers<Event, T>} value
  */
 export const setEventNS = (node, localName, value) => {
 	flatForEach(value, value => {

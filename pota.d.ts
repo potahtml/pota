@@ -5,17 +5,18 @@ declare global {
 
 	type Accessor<T> = (() => Accessor<T>) | SignalAccessor<T> | T
 
-	type Accessed<T> = T extends () => infer R
-		? Accessed<R>
-		: T extends PromiseLike<infer V>
-			? Accessed<V>
-			: T extends SignalAccessor<infer S>
-				? Accessed<S>
-				: T extends SignalFunction<infer F>
-					? Accessed<F>
-					: T extends Derived<infer D>
-						? Accessed<D>
-						: T
+	type Accessed<T> =
+		T extends PromiseLike<infer R>
+			? Accessed<R>
+			: T extends Derived<infer R>
+				? Accessed<R>
+				: T extends SignalAccessor<infer R>
+					? Accessed<R>
+					: T extends SignalFunction<infer R>
+						? Accessed<R>
+						: T extends { (): infer R }
+							? Accessed<R>
+							: T
 
 	// signal
 
@@ -43,16 +44,14 @@ declare global {
 
 	type SignalObject<T> = SignalTuple<T> & SignalClass<T>
 
-	type SignalFunction<T> = {
-		(): T
-		(newValue: T): SignalChanged
-	}
+	type SignalFunction<T> = SignalAccessor<T> &
+		((newValue: T) => SignalChanged)
 
 	// signal properties
 
-	type SignalOptions =
+	type SignalOptions<T> =
 		| {
-				equals?: false | ((a: unknown, b: unknown) => boolean)
+				equals?: false | ((a: T, b: T) => boolean)
 		  }
 		| undefined
 
@@ -102,6 +101,7 @@ declare global {
 	// events
 
 	// string types of events
+	type EventName = JSX.EventName
 	type EventType = JSX.EventType
 
 	// actual possible events
@@ -113,7 +113,16 @@ declare global {
 	type EventHandlerOptions = JSX.EventHandlerOptions
 
 	// a generic event handler
+	type EventFunction<Event, Element> = JSX.EventFunction<
+		Event,
+		Element
+	>
+	type EventObject<Event, Element> = JSX.EventObject<Event, Element>
 	type EventHandler<Event, Element> = JSX.EventHandler<Event, Element>
+	type EventHandlers<Event, Element> = JSX.EventHandlers<
+		Event,
+		Element
+	>
 
 	// callbacks
 
@@ -135,8 +144,11 @@ declare global {
 }
 
 export {
-	// signals
+	// accessor
 	Accessor,
+	Accessed,
+
+	// signals
 	SignalAccessor,
 	SignalSetter,
 	SignalUpdate,
@@ -146,27 +158,23 @@ export {
 	SignalFunction,
 	SignalOptions,
 	SignalChanged,
+	Derived,
 
-	// flow control
+	// control flow
 	When,
 	Each,
 
 	// components
 	Component,
 	Children,
+	Props,
+	ComponentProps,
+	Dynamic,
+
+	// dom
+	Elements,
+	DOMElement,
 
 	// tests
 	Expect,
 }
-
-// Pota library
-export * from './types/exports.d.ts'
-
-// namespace JSX
-export type * from './src/jsx/jsx.d.ts'
-
-/**
- * Needed so LSP works with `JSX` element tags, typescript needs the
- * `jsxs` functions to be defined.
- */
-export * from './types/jsx/jsx-runtime.d.ts'

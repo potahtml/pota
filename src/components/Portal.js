@@ -5,7 +5,7 @@ import { insert } from '../core/renderer.js'
  * scope
  *
  * @param {object} props
- * @param {Element} props.mount
+ * @param {DOMElement} props.mount
  * @param {Children} [props.children]
  * @url https://pota.quack.uy/Components/Portal
  */

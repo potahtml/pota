@@ -21,7 +21,8 @@ export function usePrevious(fn) {
  * Returns a `isSelected` function that will return `true` when the
  * argument for it matches the original signal `value`.
  *
- * @param {SignalAccessor<any>} value - Signal with the current value
+ * @param {SignalAccessor<unknown>} value - Signal with the current
+ *   value
  */
 export function useSelector(value) {
 	const map = new Map()
@@ -32,7 +33,10 @@ export function useSelector(value) {
 		const val = value()
 
 		const selected = isIterable(val)
-			? toArray(val.values())
+			? toArray(
+					// @ts-expect-error, no idea how to type this
+					val.values(),
+				)
 			: val === undefined
 				? []
 				: [val]

@@ -6,7 +6,7 @@ import { addEvent } from '../lib/reactive.js'
 import { propsPlugin } from '../core/props/plugin.js'
 
 /**
- * @param {HTMLElement} node
+ * @param {DOMElement} node
  * @param {Function | boolean} value
  * @url https://pota.quack.uy/use/clipboard
  */
@@ -17,7 +17,7 @@ const clipboard = (node, value) =>
 				? value(e)
 				: value !== true
 					? value
-					: node.innerText.trim(),
+					: /** @type {HTMLElement} */ (node).innerText.trim(),
 		)
 	})
 

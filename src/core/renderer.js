@@ -169,9 +169,8 @@ let usedXML
 
 /**
  * @param {string} xmlns
- * @param {(xmlns: string) => Element} fn
+ * @param {(xmlns: string) => Element | void} fn
  * @param {string} [tagName]
- * @returns {Element}
  */
 function withXMLNS(xmlns, fn, tagName) {
 	if (!usedXML) {
@@ -245,7 +244,7 @@ export function createComponent(value) {
  * 	[i: number]: number
  * 	m?: number
  * } & Record<string, unknown>} [propsData]
- * @returns {(props: T extends any[]) => Children}
+ * @returns {(props: T[]) => Children}
  */
 export function createPartial(content, propsData = nothing) {
 	let clone = () => {
@@ -267,7 +266,7 @@ export function createPartial(content, propsData = nothing) {
 /**
  * @template T
  * @param {Element} node
- * @param {T[]} props
+ * @param {Children[]} props
  * @param {{
  * 	x?: string
  * 	[i: number]: number

@@ -1,6 +1,7 @@
 // this script creates importmap.json and types.json for use in docs/monaco
 
 import {
+	append,
 	filesRecursive,
 	isDirectory,
 	read,
@@ -92,19 +93,13 @@ ${lib.join(',\n')}
 
 		const importmap = JSON.parse(read('./src/release/importmap.json'))
 		for (const moduleName in importmap.imports) {
-			if (moduleName === 'pota') {
-				types.push({
-					f: moduleName + '/index.d.ts',
-					c: `export * from "${importmap.imports[moduleName].replace(/^.*\/pota\/src\//, 'pota/types/').replace(/\.js$/, '.d.ts')}"
-						export * from "pota/pota.d.ts"`,
-				})
-			} else if (
+			if (
 				moduleName === 'pota/jsx-runtime' ||
 				moduleName === 'pota/jsx-dev-runtime'
 			) {
 				types.push({
 					f: moduleName + '/index.d.ts',
-					c: `export * from "pota/pota.d.ts"`,
+					c: `export * from "pota/types/exports.d.ts"`,
 				})
 			} else {
 				types.push({
@@ -121,5 +116,17 @@ ${lib.join(',\n')}
 
 	if (changedSomething) {
 		console.log('Generated importmap.json and types.json')
+	}
+
+	// fix ts for some reason doesnt want to icnlude these files
+	const exportsDTS = read('./types/exports.d.ts')
+	const definitions = `
+export type * from "../pota.d.ts"
+export type * from "../src/jsx/jsx-runtime.d.ts"
+export type * from "../src/jsx/jsx.d.ts"
+`
+
+	if (!exportsDTS.includes(definitions)) {
+		append('./types/exports.d.ts', definitions)
 	}
 }
