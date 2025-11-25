@@ -845,10 +845,23 @@ export function createReactiveSystem() {
 	 * @template T
 	 * @template A
 	 * @param {(...args: A[]) => T} cb
+	 * @param {() => void} [onCancel]
 	 */
-	const owned = cb => {
-		const o = Owner
-		return cb ? (...args) => runWithOwner(o, () => cb(...args)) : noop
+	const owned = (cb, onCancel) => {
+		if (cb) {
+			let cleaned = false
+			const clean = cleanup(() => {
+				cleaned = true
+				onCancel && onCancel()
+			})
+
+			const o = Owner
+			return (...args) => {
+				cleanupCancel(clean)
+				return !cleaned && runWithOwner(o, () => cb(...args))
+			}
+		}
+		return noop
 	}
 
 	// export
