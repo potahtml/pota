@@ -23,7 +23,6 @@
 
 ### async
 
-- make `ready` async aware
 - maybe compile async using generators
 - transform: function calls in arguments/templates need to be hoisted
 

@@ -14,7 +14,7 @@ let added
 let queue
 
 function reset() {
-	queue = [[], [], [], [], []]
+	queue = [[], [], [], [], [], []]
 	added = false
 }
 
@@ -83,3 +83,49 @@ export const ready = fn => add(3, fn)
  * @param {() => void} fn
  */
 export const onDone = fn => add(4, fn)
+
+// async readiness tracking
+
+const onAsync = fn => add(5, fn)
+
+const asyncCounter = {
+	added: false,
+	fns: [],
+	c: 0,
+	add() {
+		this.c++
+	},
+	remove() {
+		--this.c === 0 && this.queue()
+	},
+	isEmpty() {
+		return this.c === 0
+	},
+	readyAsync(fn) {
+		this.fns.push(owned(fn))
+		this.queue()
+	},
+	queue() {
+		if (!this.added && this.fns.length) {
+			this.added = true
+			onAsync(() => this.run())
+		}
+	},
+	run() {
+		this.added = false
+		if (this.isEmpty()) {
+			const fns = this.fns.slice()
+			this.fns = []
+			call(fns)
+		}
+	},
+}
+
+export const readyAsync = fn => {
+	asyncCounter.readyAsync(fn)
+}
+
+export const asyncTracking = {
+	add: () => asyncCounter.add(),
+	remove: () => asyncCounter.remove(),
+}

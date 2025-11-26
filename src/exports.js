@@ -41,7 +41,7 @@ export { Component, insert, render, toHTML } from './core/renderer.js'
 
 // EVENTS
 
-export { ready } from './core/scheduler.js'
+export { ready, readyAsync } from './core/scheduler.js'
 
 // PROPS
 

@@ -17,6 +17,8 @@ import {
 	flatToArray,
 } from './std.js'
 
+import { asyncTracking } from '../core/scheduler.js'
+
 // solid
 
 import { createReactiveSystem } from './solid.js'
@@ -137,8 +139,16 @@ export function derived(fn, initialValue = {}) {
 		const value = getValue(fn)
 		let s
 		if (isPromise(value)) {
+			let removed = false
+			asyncTracking.add()
+
 			s = signal(initialValue)
 			withValue(value, value => {
+				if (!removed) {
+					removed = true
+					asyncTracking.remove()
+				}
+
 				resolved.write(true)
 				s.write(value)
 			})
@@ -155,9 +165,17 @@ export function derived(fn, initialValue = {}) {
 				if (args.length) {
 					const value = args[0]
 					if (isFunction(value) || isPromise(value)) {
+						let removed = false
+						asyncTracking.add()
+
 						resolved.write(false)
 
 						withValue(value, value => {
+							if (!removed) {
+								removed = true
+								asyncTracking.remove()
+							}
+
 							resolved.write(true)
 							result().write(value)
 						})
@@ -710,9 +728,11 @@ export class createSuspenseContext {
 	c = 0
 	add() {
 		this.c++
+		asyncTracking.add()
 	}
 	remove() {
 		if (--this.c === 0) this.s.write(true)
+		asyncTracking.remove()
 	}
 	isEmpty() {
 		return this.c === 0

@@ -448,14 +448,17 @@ export function createChildren(
 				suspense.add()
 
 				const [value, setValue] = signal(undefined)
-				const onResult = owned(result => {
-					if (isComponent && isFunction(result)) {
-						markComponent(result)
-					}
+				const onResult = owned(
+					result => {
+						if (isComponent && isFunction(result)) {
+							markComponent(result)
+						}
 
-					setValue(result)
-					suspense.remove()
-				})
+						setValue(result)
+						suspense.remove()
+					},
+					() => suspense.remove(),
+				)
 
 				resolved(child, onResult)
 
