@@ -64,23 +64,23 @@
 		"generate": "node src/release/generate.js"
 	},
 	"dependencies": {
-		"@babel/core": "^7.28.0",
-		"@babel/helper-module-imports": "^7.27.1",
-		"@babel/plugin-syntax-jsx": "^7.27.1",
-		"@rollup/plugin-terser": "^0.4.4",
-		"concurrently": "^9.2.0",
 		"csstype": "^3.1.3",
 		"parse5": "^7.3.0",
-		"rollup": "^4.45.0"
-	},
-	"peerDependencies": {
 		"colorjs.io": "^0.4.5"
 	},
+	"peerDependencies": {
+		"@babel/core": "^7.28.0",
+		"@babel/helper-module-imports": "^7.27.1",
+		"@babel/plugin-syntax-jsx": "^7.27.1"
+	},
 	"devDependencies": {
+		"@rollup/plugin-terser": "^0.4.4",
 		"@types/babel__core": "^7.20.5",
 		"@types/babel__helper-module-imports": "^7.18.3",
 		"@types/babel__helper-plugin-utils": "^7.10.3",
 		"@types/node": "^22.16.3",
+		"concurrently": "^9.2.0",
+		"rollup": "^4.45.0",
 		"typescript": "^5.8.3"
 	},
 	"prettier": {
