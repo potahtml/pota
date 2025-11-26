@@ -203,7 +203,7 @@ export function derived(fn, initialValue = {}) {
  * @param {...T} args
  * @returns {boolean}
  */
-export function isResolved(...args) {
+export function isDerived(...args) {
 	return !args.some(x => !x.resolved())
 }
 

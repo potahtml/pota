@@ -25,7 +25,7 @@ export {
 	untrack,
 	withValue,
 	derived,
-	isResolved,
+	isDerived,
 	// components
 	isComponent,
 	makeCallback,
