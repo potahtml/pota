@@ -260,6 +260,13 @@ export function createReactiveSystem() {
 		 */
 		constructor(fn, options) {
 			super(fn, options)
+
+			if (options) {
+				assign(this, options)
+				if (options.equals === false) {
+					this.equals = this.equalsFalse
+				}
+			}
 			// @ts-expect-error
 			return this.read
 		}
@@ -302,8 +309,7 @@ export function createReactiveSystem() {
 		}
 
 		write(value) {
-			// @ts-expect-error
-			if (this.equals === false || !this.equals(this.value, value)) {
+			if (!this.equals(this.value, value)) {
 				this.value = value
 
 				if (this.observers && this.observers.length) {
@@ -320,13 +326,21 @@ export function createReactiveSystem() {
 			}
 		}
 		/**
-		 * @param {unknown} a
-		 * @param {unknown} b
+		 * @private
+		 * @param {T} a
+		 * @param {T} b
 		 */
 		equals(a, b) {
 			return a === b
 		}
-
+		/**
+		 * @private
+		 * @param {T} a
+		 * @param {T} b
+		 */
+		equalsFalse(a, b) {
+			return false
+		}
 		update() {
 			this.dispose()
 
@@ -376,7 +390,12 @@ export function createReactiveSystem() {
 		 */
 		constructor(value, options) {
 			this.value = value
-			options && assign(this, options)
+			if (options) {
+				assign(this, options)
+				if (options.equals === false) {
+					this.equals = this.equalsFalse
+				}
+			}
 		}
 		/** @returns SignalAccessor<T> */
 		read = () => {
@@ -411,8 +430,7 @@ export function createReactiveSystem() {
 		 * @returns SignalSetter<T>
 		 */
 		write = value => {
-			// @ts-expect-error
-			if (this.equals === false || !this.equals(this.value, value)) {
+			if (!this.equals(this.value, value)) {
 				this.value = value
 
 				if (this.observers && this.observers.length) {
@@ -438,10 +456,20 @@ export function createReactiveSystem() {
 
 		/**
 		 * @private
-		 * @type {(a, b) => boolean}
+		 * @param {T} a
+		 * @param {T} b
 		 */
 		equals(a, b) {
 			return a === b
+		}
+
+		/**
+		 * @private
+		 * @param {T} a
+		 * @param {T} b
+		 */
+		equalsFalse(a, b) {
+			return false
 		}
 
 		*[Symbol.iterator]() {
