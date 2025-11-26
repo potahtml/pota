@@ -9,10 +9,11 @@
 
 ### documentation
 
-- PRIORITY - online tests, a page full of tests
+- PRIORITY!! - online tests, a page full of tests
 - add proper 404
 - light theme
-- restructure the docs
+- restructure the docs and switch to mdx
+- llm.txt
 
 ### mutable
 
@@ -29,13 +30,17 @@
 ### reactivity
 
 - use internally runWithOwner more
-- figure out if possible to prevent writing to signals inside effects
-- diff array for when value comes and doesnt come from server
+- when updating a signal try to patch arrays for when value comes from
+  server
 - figure out if other things should be wrapped in
   `createReactiveSystem`
+
+### reactivity wishes
+
 - figure out if top level runs the same as when owned, or make top
   level owned, even if doesnt garbage collects - I couldnt figure out
   this one out
+- figure out if possible to prevent writing to signals inside effects
 
 ### transform
 
@@ -43,11 +48,6 @@
 - refactor transform again !
 - figure out how to make the transform standalone because esm.sh is
   driving me crazy
-- allows spreads as children, because why not
-
-### render
-
-- maybe add `whenConnected`
 
 ### typescript
 
@@ -90,7 +90,6 @@
 ### tools
 
 - rethink the dev tools
-- mdx
 
 ### bench
 
