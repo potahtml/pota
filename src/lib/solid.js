@@ -171,20 +171,11 @@ export function createReactiveSystem() {
 
 			const time = Time
 
-			const prevOwner = Owner
-			const prevListener = Listener
+			runWith(this.fn, this, this)
 
-			Listener = Owner = this
-			try {
-				this.fn()
-			} catch (err) {
+			/*} catch (err) {
 				this.updatedAt = time + 1
-
-				throw err
-			} finally {
-				Owner = prevOwner
-				Listener = prevListener
-			}
+			}*/
 
 			if (this.updatedAt < time) {
 				this.updatedAt = time
@@ -339,27 +330,19 @@ export function createReactiveSystem() {
 		update() {
 			this.dispose()
 
-			let nextValue
-
 			const time = Time
 
-			const prevOwner = Owner
-			const prevListener = Listener
+			const nextValue = runWith(this.fn, this, this)
 
-			Listener = Owner = this
-			try {
-				nextValue = this.fn()
-			} catch (err) {
-				this.state = 1 /* STALE */
+			/*} catch (err) {
+				this.state = 1 // STALE
 				this.disposeOwned()
 
 				this.updatedAt = time + 1
 
 				throw err
-			} finally {
-				Owner = prevOwner
-				Listener = prevListener
-			}
+			} */
+
 			if (this.updatedAt <= time) {
 				this.write(nextValue)
 				this.updatedAt = time
@@ -451,9 +434,7 @@ export function createReactiveSystem() {
 		 * @type SignalUpdate<T>
 		 * @returns SignalUpdate<T>
 		 */
-		update = value => {
-			return this.write(value(this.value))
-		}
+		update = value => this.write(value(this.value))
 
 		/**
 		 * @private
@@ -573,21 +554,31 @@ export function createReactiveSystem() {
 		return Owner
 	}
 
-	function runWithOwner(owner, fn) {
+	/**
+	 * Runs a function with owner and listener
+	 *
+	 * @param {Function} fn
+	 * @param {Owner} owner
+	 * @param {Listener} [listener]
+	 */
+	function runWith(fn, owner, listener = undefined) {
 		const prevOwner = Owner
 		const prevListener = Listener
 
 		Owner = owner
-		Listener = undefined
+		Listener = listener
 
 		try {
-			return runUpdates(fn, true)
+			return fn()
 		} catch (err) {
 			throw err
 		} finally {
 			Owner = prevOwner
 			Listener = prevListener
 		}
+	}
+	function runWithOwner(owner, fn) {
+		return runWith(() => runUpdates(fn, true), owner)
 	}
 
 	/**
@@ -602,13 +593,7 @@ export function createReactiveSystem() {
 			return fn()
 		}
 
-		const prevListener = Listener
-		Listener = undefined
-		try {
-			return fn()
-		} finally {
-			Listener = prevListener
-		}
+		return runWith(fn, Owner)
 	}
 
 	/**

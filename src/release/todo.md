@@ -29,7 +29,6 @@
 
 ### reactivity
 
-- use internally runWithOwner more
 - when updating a signal try to patch arrays for when value comes from
   server
 - figure out if other things should be wrapped in
