@@ -562,6 +562,14 @@ export function createReactiveSystem() {
 	 * @param {Listener} [listener]
 	 */
 	function runWith(fn, owner, listener = undefined) {
+		if (owner === Owner && listener === Listener) {
+			try {
+				return fn()
+			} catch (err) {
+				throw err
+			}
+		}
+
 		const prevOwner = Owner
 		const prevListener = Listener
 

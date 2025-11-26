@@ -53,7 +53,7 @@
 - type components somehow
 - type reactivity
 
-### use / probably never
+### use
 
 - drag element
 - ensure resize on bounds
@@ -72,7 +72,7 @@
 - handle/listen postMessage/MessageChannel
 - orientation is creating a root, figure out if this can be abstracted
 
-### components:
+### components
 
 - color picker
 - tabs
