@@ -17,8 +17,7 @@ export const documentElement = document?.documentElement
 
 export const DocumentFragment = window.DocumentFragment
 
-const bind = /* #__NO_SIDE_EFFECTS__ */ fn =>
-	document && document[fn].bind(document)
+const bind = fn => document && document[fn].bind(document)
 
 export const createElement = bind('createElement')
 export const createElementNS = bind('createElementNS')

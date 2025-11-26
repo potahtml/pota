@@ -38,42 +38,45 @@ export function createReactiveSystem() {
 	const STALE = 1
 	const CHECK = 2
 
-	/** @type {Computation} */
+	/** @type {undefined | Computation} */
 	let Owner
 
-	/** @type {Computation | undefined} */
+	/** @type {undefined | Computation} */
 	let Listener
 
-	/** @type {Memo[]} */
-	let Updates = null
+	/** @type {undefined | Memo[]} */
+	let Updates
 
-	/** @type {undefined | null | any[]} */
-	let Effects = null
+	/** @type {undefined | any[]} */
+	let Effects
 
 	let Time = 0
 
 	// ROOT
 
 	class Root {
-		/** @type {Root | undefined} */
+		/** @type {undefined | Root} */
 		owner
 
 		/** @type {Computation | Computation[]} */
 		owned
 
-		/** @type {Function | Function[]} */
+		/** @type {undefined | Function | Function[]} */
 		cleanups
 
 		/** @type {Record<symbol, unknown>} */
 		context
 
-		/** @param {object} [options] */
-		constructor(options) {
-			if (Owner) {
-				this.owner = Owner
+		/**
+		 * @param {Computation} owner
+		 * @param {object} [options]
+		 */
+		constructor(owner, options) {
+			if (owner) {
+				this.owner = owner
 
-				if (Owner.context) {
-					this.context = Owner.context
+				if (owner.context) {
+					this.context = owner.context
 				}
 			}
 
@@ -93,7 +96,7 @@ export function createReactiveSystem() {
 		removeCleanups(fn) {
 			if (!this.cleanups) {
 			} else if (this.cleanups === fn) {
-				this.cleanups = null
+				this.cleanups = undefined
 			} else {
 				removeFromArray(/** @type Function[] */ (this.cleanups), fn)
 			}
@@ -120,10 +123,10 @@ export function createReactiveSystem() {
 				for (let i = this.owned.length - 1; i >= 0; i--) {
 					this.owned[i].dispose()
 				}
-				this.owned = null
+				this.owned = undefined
 			} else {
 				this.owned.dispose()
-				this.owned = null
+				this.owned = undefined
 			}
 		}
 
@@ -133,10 +136,10 @@ export function createReactiveSystem() {
 				for (let i = this.cleanups.length - 1; i >= 0; i--) {
 					this.cleanups[i]()
 				}
-				this.cleanups = null
+				this.cleanups = undefined
 			} else {
 				this.cleanups()
-				this.cleanups = null
+				this.cleanups = undefined
 			}
 		}
 	}
@@ -155,15 +158,16 @@ export function createReactiveSystem() {
 		sourceSlots
 
 		/**
-		 * @param {Function} [fn]
+		 * @param {Computation} owner
+		 * @param {Function} fn
 		 * @param {object} [options]
 		 */
-		constructor(fn, options) {
-			super(options)
+		constructor(owner, fn, options) {
+			super(owner, options)
 
 			this.fn = fn
 
-			Owner && Owner.addOwned(this)
+			owner && owner.addOwned(this)
 		}
 
 		update() {
@@ -222,11 +226,12 @@ export function createReactiveSystem() {
 		user = true
 
 		/**
-		 * @param {Function} [fn]
+		 * @param {Computation} owner
+		 * @param {Function} fn
 		 * @param {object} [options]
 		 */
-		constructor(fn, options) {
-			super(fn, options)
+		constructor(owner, fn, options) {
+			super(owner, fn, options)
 
 			Effects ? Effects.push(this) : batch(() => this.update())
 		}
@@ -234,11 +239,12 @@ export function createReactiveSystem() {
 
 	class SyncEffect extends Computation {
 		/**
-		 * @param {Function} [fn]
+		 * @param {Computation} owner
+		 * @param {Function} fn
 		 * @param {object} [options]
 		 */
-		constructor(fn, options) {
-			super(fn, options)
+		constructor(owner, fn, options) {
+			super(owner, fn, options)
 
 			batch(() => this.update())
 		}
@@ -255,11 +261,12 @@ export function createReactiveSystem() {
 		// options:
 		// equals
 		/**
-		 * @param {Function} [fn]
+		 * @param {Computation} owner
+		 * @param {Function} fn
 		 * @param {object} [options]
 		 */
-		constructor(fn, options) {
-			super(fn, options)
+		constructor(owner, fn, options) {
+			super(owner, fn, options)
 
 			if (options) {
 				assign(this, options)
@@ -272,15 +279,13 @@ export function createReactiveSystem() {
 		}
 
 		read = () => {
-			if (this.state) {
-				if (this.state === 1 /* STALE */) {
-					this.update()
-				} else {
-					const updates = Updates
-					Updates = null
-					runUpdates(() => upstream(this))
-					Updates = updates
-				}
+			if (this.state === 1 /* STALE */) {
+				this.update()
+			} else if (this.state === 2 /* CHECK */) {
+				const updates = Updates
+				Updates = undefined
+				runUpdates(() => upstream(this))
+				Updates = updates
 			}
 
 			if (Listener) {
@@ -399,8 +404,6 @@ export function createReactiveSystem() {
 		}
 		/** @returns SignalAccessor<T> */
 		read = () => {
-			// checkReadForbidden()
-
 			if (Listener) {
 				const sourceSlot = this.observers ? this.observers.length : 0
 
@@ -493,7 +496,7 @@ export function createReactiveSystem() {
 	 * @returns {T}
 	 */
 	function root(fn, options) {
-		const root = new Root(options)
+		const root = new Root(Owner, options)
 		return runWithOwner(root, () => fn(() => root.dispose()))
 	}
 
@@ -518,7 +521,7 @@ export function createReactiveSystem() {
 	 * @param {object} [options]
 	 */
 	function effect(fn, options) {
-		new Effect(fn, options)
+		new Effect(Owner, fn, options)
 	}
 
 	/**
@@ -530,9 +533,7 @@ export function createReactiveSystem() {
 	 * @returns T
 	 */
 	function syncEffect(fn, options) {
-		let ret
-		new SyncEffect(() => (ret = fn()), options)
-		return ret
+		new SyncEffect(Owner, fn, options)
 	}
 
 	/**
@@ -561,7 +562,7 @@ export function createReactiveSystem() {
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function memo(fn, options = undefined) {
 		return /** @type {SignalAccessor<T>} */ (
-			/** @type {unknown} */ (new Memo(fn, options))
+			/** @type {unknown} */ (new Memo(Owner, fn, options))
 		)
 	}
 
@@ -586,16 +587,12 @@ export function createReactiveSystem() {
 	 * Runs a function with owner and listener
 	 *
 	 * @param {Function} fn
-	 * @param {Owner} owner
+	 * @param {Computation} owner
 	 * @param {Listener} [listener]
 	 */
 	function runWith(fn, owner, listener = undefined) {
-		if (owner === Owner && listener === Listener) {
-			try {
-				return fn()
-			} catch (err) {
-				throw err
-			}
+		if (listener === Listener && owner === Owner) {
+			return fn()
 		}
 
 		const prevOwner = Owner
@@ -606,8 +603,6 @@ export function createReactiveSystem() {
 
 		try {
 			return fn()
-		} catch (err) {
-			throw err
 		} finally {
 			Owner = prevOwner
 			Listener = prevListener
@@ -687,7 +682,7 @@ export function createReactiveSystem() {
 						}
 						case 2 /* CHECK */: {
 							updates = Updates
-							Updates = null
+							Updates = undefined
 							runUpdates(() => upstream(node, ancestors[0]))
 							Updates = updates
 							break
@@ -731,20 +726,20 @@ export function createReactiveSystem() {
 					runTop(update)
 				}
 			}
-			Updates = null
+			Updates = undefined
 
 			if (!wait) {
 				const effects = Effects
-				Effects = null
+				Effects = undefined
 				effects.length && runUpdates(() => runEffects(effects))
 			}
 
 			return res
 		} catch (err) {
 			if (!wait) {
-				Effects = null
+				Effects = undefined
 			}
-			Updates = null
+			Updates = undefined
 
 			throw err
 		}
@@ -824,13 +819,15 @@ export function createReactiveSystem() {
 					? Owner.context[id]
 					: defaultValue
 			} else {
-				return syncEffect(() => {
+				let ret
+				syncEffect(() => {
 					Owner.context = {
 						...Owner.context,
 						[id]: newValue,
 					}
-					return untrack(fn)
+					ret = untrack(fn)
 				})
+				return ret
 			}
 		}
 
