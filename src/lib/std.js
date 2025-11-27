@@ -295,6 +295,17 @@ export const flatToArray = arr =>
 	isArray(arr) ? arr.flat(Infinity) : [arr]
 
 /**
+ * Flats an array/childNodes recursively if its an array else it
+ * returns
+ *
+ * @template {unknown | unknown[]} T
+ * @param {T} arr
+ * @returns {T[] | T}
+ */
+export const flatNoArray = arr =>
+	isArray(arr) ? arr.flat(Infinity) : arr
+
+/**
  * Keeps state in the function as the first param
  *
  * @template {(...args: any[]) => any} T

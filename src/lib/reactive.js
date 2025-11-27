@@ -3,6 +3,7 @@ import { $isComponent, $isMap } from '../constants.js'
 import {
 	assign,
 	emptyArray,
+	flatNoArray,
 	getValue,
 	isArray,
 	isFunction,
@@ -14,7 +15,6 @@ import {
 	resolved,
 	withResolvers,
 	toEntries,
-	flatToArray,
 } from './std.js'
 
 import { asyncTracking } from '../core/scheduler.js'
@@ -627,16 +627,22 @@ export function makeCallback(children) {
 	}
 
 	/**
-	 * When children is an array, as in >${[0, 1, 2]}< then children
+	 * When children is an array, as in `>${[0, 1, 2]}<` then children
 	 * will end as `[[0, 1, 2]]`, so flat it
 	 */
-	const childrenArray = flatToArray(children)
+	const childrenMaybeArray = flatNoArray(children)
 
-	return markComponent((...args) =>
-		childrenArray.map(child =>
-			isFunction(child) ? child(...args) : child,
-		),
-	)
+	return isArray(childrenMaybeArray)
+		? markComponent((...args) =>
+				childrenMaybeArray.map(child =>
+					isFunction(child) ? child(...args) : child,
+				),
+			)
+		: markComponent((...args) =>
+				isFunction(childrenMaybeArray)
+					? childrenMaybeArray(...args)
+					: childrenMaybeArray,
+			)
 }
 
 /**
