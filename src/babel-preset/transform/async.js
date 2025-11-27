@@ -96,12 +96,16 @@ function wrapStatements(path, state, stmts) {
 	// wrapper
 	return [
 		first,
-		t.returnStatement(
-			t.arrowFunctionExpression(
-				[],
-				t.blockStatement(wrapStatements(path, state, stmts)),
-				true,
-			),
-		),
-	]
+		t.isExpressionStatement(stmts[0]) &&
+		t.isCallExpression(stmts[0].expression) &&
+		stmts[0].expression.callee.name === 'untrack'
+			? wrapStatements(path, state, stmts)
+			: t.returnStatement(
+					t.arrowFunctionExpression(
+						[],
+						t.blockStatement(wrapStatements(path, state, stmts)),
+						true,
+					),
+				),
+	].flat(Infinity)
 }
