@@ -1,7 +1,18 @@
 import { cleanup, owned, withValue } from '../lib/reactive.js'
 
+/**
+ * Native `Date.now()`.
+ *
+ * @returns {number}
+ */
 export const now = () => Date.now()
 
+/**
+ * Formats a timestamp as YYYY-MM-DD.
+ *
+ * @param {number} [timestamp=now()] Default is `now()`
+ * @returns {string}
+ */
 export function date(timestamp = now()) {
 	const o = new Date(timestamp)
 
@@ -16,14 +27,32 @@ export function date(timestamp = now()) {
 	)
 }
 
+/**
+ * Formats a timestamp as YYYY-MM-DD HH:MM.
+ *
+ * @param {number} [timestamp=now()] Default is `now()`
+ * @returns {string}
+ */
 export function datetime(timestamp = now()) {
 	return date(timestamp) + ' ' + time(timestamp)
 }
 
+/**
+ * Formats a timestamp as HH:MM.
+ *
+ * @param {number} [timestamp=now()] Default is `now()`
+ * @returns {string}
+ */
 export function time(timestamp = now()) {
 	return timeWithSeconds(timestamp).slice(0, -3)
 }
 
+/**
+ * Formats a timestamp as HH:MM:SS.
+ *
+ * @param {number} [timestamp=now()] Default is `now()`
+ * @returns {string}
+ */
 export function timeWithSeconds(timestamp = now()) {
 	const o = new Date(timestamp)
 
@@ -39,6 +68,13 @@ export function timeWithSeconds(timestamp = now()) {
 	)
 }
 
+/**
+ * Formats a timestamp using locale-aware weekday and date components.
+ *
+ * @param {number} [timestamp=now()] Default is `now()`
+ * @param {Intl.LocalesArgument} [lang='en'] Default is `'en'`
+ * @returns {string}
+ */
 export function day(timestamp = now(), lang = 'en') {
 	const o = new Date(timestamp)
 
@@ -51,6 +87,16 @@ export function day(timestamp = now(), lang = 'en') {
 	})
 }
 
+/**
+ * Runs a function while reporting execution time via
+ * console/timeReport.
+ *
+ * @template T
+ * @param {string} name
+ * @param {() => T} cb
+ * @param {(duration: number) => void} [timeReport]
+ * @returns {T}
+ */
 export function measure(name, cb, timeReport) {
 	console.time(name)
 	const start = performance.now()
@@ -60,6 +106,12 @@ export function measure(name, cb, timeReport) {
 	return r
 }
 
+/**
+ * Measures the execution time of a function.
+ *
+ * @param {() => void} fn
+ * @returns {number} Duration in milliseconds.
+ */
 export function timing(fn) {
 	const start = performance.now()
 	fn()

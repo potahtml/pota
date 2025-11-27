@@ -16,19 +16,27 @@ const elements = () =>
 		),
 	)
 
+/**
+ * Focuses the next tabbable element in the document, wrapping to the
+ * start.
+ */
 export function focusNext() {
 	const all = elements()
 
 	const element = all[all.indexOf(activeElement()) + 1] || all[0]
-	element && element.focus()
+	element && /** @type DOMElement */ (element).focus()
 }
 
+/**
+ * Focuses the previous tabbable element in the document, wrapping to
+ * the end.
+ */
 export function focusPrevious() {
 	const all = elements()
 
 	const element =
 		all[all.indexOf(activeElement()) - 1] || all[all.length - 1]
-	element && element.focus()
+	element && /** @type DOMElement */ (element).focus()
 }
 
 const initialValue = () => !document.hidden

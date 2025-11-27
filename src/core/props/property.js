@@ -1,6 +1,8 @@
 import { withValue } from '../../lib/reactive.js'
 
 /**
+ * Sets DOM properties while unwrapping reactive accessors.
+ *
  * @param {Element} node
  * @param {string} name
  * @param {unknown} value
@@ -11,6 +13,9 @@ export const setProperty = (node, name, value) => {
 }
 
 /**
+ * Sets Namespace-awareDOM properties while unwrapping reactive
+ * accessors.
+ *
  * @param {Element} node
  * @param {string} localName
  * @param {unknown} value
@@ -20,6 +25,8 @@ export const setPropertyNS = (node, localName, value) => {
 }
 
 /**
+ * Writes raw values to DOM properties.
+ *
  * @param {Element} node
  * @param {string} name
  * @param {unknown} value

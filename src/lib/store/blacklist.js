@@ -51,14 +51,20 @@ export const isPrototypeBlacklisted = target =>
  * @param {PropertyKey} key
  */
 export const isKeyBlacklisted = key => keyBlacklist.has(key)
-
-/** @type Set<PropertyKey> */
+/** @type {Set<PropertyKey>} */
 const keyBlacklist = new Set([
 	'constructor',
 	'__proto__',
+	/** @ts-ignore-error non-sense */
 	...getOwnValues(Symbol).filter(isSymbol),
 ])
 
+/**
+ * Extends the constructor and symbol blacklists with values from a
+ * target window.
+ *
+ * @param {Window & typeof globalThis} window
+ */
 export function updateBlacklist(window) {
 	new Set(
 		Object.getOwnPropertyNames(window).map(value => window[value]),
@@ -71,6 +77,7 @@ export function updateBlacklist(window) {
 		constructorsBlacklist.delete(window[x?.name]),
 	)
 
+	/** @ts-ignore-error non-sense */
 	getOwnValues(window.Symbol)
 		.filter(isSymbol)
 		.forEach(x => keyBlacklist.add(x))

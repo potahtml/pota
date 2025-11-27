@@ -168,8 +168,12 @@ function createTag(tagName, props) {
 let usedXML
 
 /**
+ * Ensures children inherit the right namespace as elements are
+ * created.
+ *
+ * @template T
  * @param {string} xmlns
- * @param {(xmlns: string) => Element | void} fn
+ * @param {(xmlns: string) => T} fn
  * @param {string} [tagName]
  */
 function withXMLNS(xmlns, fn, tagName) {
@@ -200,6 +204,13 @@ function withXMLNS(xmlns, fn, tagName) {
 
 // PARTIALS
 
+/**
+ * Turns string markup into DOM nodes using the provided namespace.
+ *
+ * @param {string} content
+ * @param {string} [xmlns]
+ * @returns {Element | DocumentFragment}
+ */
 function parseXML(content, xmlns) {
 	const template = xmlns
 		? createElementNS(xmlns, 'template')
@@ -225,7 +236,14 @@ function parseXML(content, xmlns) {
 		: tlpContent
 }
 
-/** Used in transform in place of jsxs */
+/**
+ * Wraps values for JSX runtime helpers, ensuring we always return a
+ * component function.
+ *
+ * @template T
+ * @param {string | Function | Element | object | symbol} value
+ * @returns {(props?: Props<T>) => Children}
+ */
 export function createComponent(value) {
 	const component = Factory(value)
 

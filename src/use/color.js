@@ -2,6 +2,13 @@ import Color from 'colorjs.io'
 
 import { window, isNaN, noop } from '../lib/std.js'
 
+/**
+ * Opens the browser EyeDropper API (when supported) and invokes the
+ * callback with the picked color.
+ *
+ * @param {(hex: string) => void} cb
+ * @returns {Promise<void> | void}
+ */
 export const eyeDropper = cb =>
 	!window.EyeDropper
 		? console.error('Your Browser Doesnt Support Picking Colors!')
@@ -45,13 +52,27 @@ export function scale(colors, count) {
 	return result.map(color => color.toString())
 }
 
+/**
+ * Adjusts the alpha channel of a color string.
+ *
+ * @param {string} color
+ * @param {number} alpha
+ * @returns {string}
+ */
 export function setAlpha(color, alpha) {
 	color = new Color(color)
+	/** @ts-ignore-error missing types */
 	color.alpha = alpha
 	return color.toString()
 }
 
-// returns `white` or `black` when `color` is background
+/**
+ * Returns `white` or `black` depending on which contrasts better on
+ * top of the given color.
+ *
+ * @param {string} color
+ * @returns {'white' | 'black'}
+ */
 export function textColor(color) {
 	const compare = new Color(color)
 	const algo = 'APCA'
@@ -60,14 +81,32 @@ export function textColor(color) {
 	return onWhite > onBlack ? 'white' : 'black'
 }
 
-// returns shaded color to be readable on black
+/**
+ * Shades a color so that it remains readable on a black background.
+ *
+ * @param {string} color
+ * @returns {string}
+ */
 export const textColorWhenBackgroundIsBlack = color =>
 	textColorWhenBackgroundIs(color, true)
 
-// returns shaded color to be readable on white
+/**
+ * Shades a color so that it remains readable on a white background.
+ *
+ * @param {string} color
+ * @returns {string}
+ */
 export const textColorWhenBackgroundIsWhite = color =>
 	textColorWhenBackgroundIs(color, false)
 
+/**
+ * Iteratively adjusts lightness so the color is legible on the chosen
+ * background.
+ *
+ * @param {string} color
+ * @param {boolean} black - When `true`, assumes a black background.
+ * @returns {string}
+ */
 export function textColorWhenBackgroundIs(color, black) {
 	const algo = 'APCA'
 	const compare = new Color(color)
@@ -83,6 +122,12 @@ export function textColorWhenBackgroundIs(color, black) {
 	return compare.toString()
 }
 
+/**
+ * Checks whether a string can be parsed as a valid color.
+ *
+ * @param {string} string
+ * @returns {string | undefined} The original string when valid.
+ */
 export function validateColor(string) {
 	try {
 		Color.parse(string)

@@ -161,6 +161,10 @@ window.Proxy = new Proxy(Proxy, {
  */
 export const isProxy = value => proxies.has(value)
 
+/**
+ * Injects a temporary stylesheet that highlights DOM nodes whenever
+ * they rerender.
+ */
 export const rerenders = () =>
 	addAdoptedStyleSheet(
 		document,

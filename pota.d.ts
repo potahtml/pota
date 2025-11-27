@@ -117,6 +117,7 @@ declare global {
 		Event,
 		Element
 	>
+	type EventEvent<Event, Element> = JSX.EventEvent<Event, Element>
 	type EventObject<Event, Element> = JSX.EventObject<Event, Element>
 	type EventHandler<Event, Element> = JSX.EventHandler<Event, Element>
 	type EventHandlers<Event, Element> = JSX.EventHandlers<

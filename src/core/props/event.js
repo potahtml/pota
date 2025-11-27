@@ -2,6 +2,8 @@ import { addEvent, ownedEvent } from '../../lib/reactive.js'
 import { flatForEach } from '../../lib/std.js'
 
 /**
+ * Attaches event handlers (singular or array) to an element.
+ *
  * @template {DOMElement} T
  * @param {T} node
  * @param {string} name
@@ -18,6 +20,9 @@ export const setEvent = (node, name, value) => {
 }
 
 /**
+ * Attaches namespaced event handlers, (singular or array) to an
+ * element.
+ *
  * @template {DOMElement} T
  * @param {T} node
  * @param {string} localName

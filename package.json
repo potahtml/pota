@@ -53,7 +53,7 @@
 	},
 	"scripts": {
 		"dev": "rm -Rf types/ && concurrently --kill-others \"npm:watch:*\"",
-		"watch:types": "tsc -w --preserveWatchOutput",
+		"watch:types": "tsc -w",
 		"watch:build": "cd src/babel-preset && rollup -c -w",
 		"watch:generate": "npm run generate",
 		"types": "tsc",

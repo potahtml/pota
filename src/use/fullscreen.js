@@ -24,6 +24,11 @@ const fullscreen = (node, value) =>
 propsPlugin('use:fullscreen', fullscreen)
 
 // this fails on startup for some reason
+/**
+ * Reads the current fullscreen element, if any.
+ *
+ * @returns {Element | null}
+ */
 export const isFullscreen = () => document.fullscreenElement
 
 export const { on: onFullscreen, use: useFullscreen } = new Emitter({
@@ -39,6 +44,11 @@ export const { on: onFullscreen, use: useFullscreen } = new Emitter({
 	initialValue: isFullscreen,
 })
 
+/**
+ * Requests the browser to exit fullscreen mode.
+ *
+ * @returns {Promise<void>}
+ */
 export const exitFullscreen = () => document.exitFullscreen()
 
 /** @param {DOMElement} element */

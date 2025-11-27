@@ -4,6 +4,8 @@ import { flatForEach } from '../../lib/std.js'
 import { onMount } from '../scheduler.js'
 
 /**
+ * Invokes `ref` callbacks immediately with the element instance.
+ *
  * @param {Element} node
  * @param {Function} value
  */
@@ -12,6 +14,8 @@ export const setRef = (node, value) => {
 }
 
 /**
+ * Runs callbacks once the node is connected (after mount).
+ *
  * @param {Element} node
  * @param {Function} value
  */
@@ -20,6 +24,8 @@ export const setConnected = (node, value) => {
 }
 
 /**
+ * Registers cleanup callbacks that fire when the scope disposes.
+ *
  * @param {Element} node
  * @param {Function} value
  */

@@ -7,6 +7,11 @@ import {
 	removeEventNative,
 } from './event.js'
 
+/**
+ * Returns the viewport dimensions of the document element.
+ *
+ * @returns {{ width: number; height: number }}
+ */
 export const documentSize = () => ({
 	width: documentElement.clientWidth,
 	height: documentElement.clientHeight,

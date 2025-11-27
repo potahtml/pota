@@ -1,7 +1,14 @@
 import { window, origin } from '../lib/std.js'
 
+/**
+ * Trims trailing punctuation that often appears in copied links.
+ *
+ * @param {string} v
+ * @returns {string}
+ */
 export const cleanLink = v => v.replace(/[\.,"]$/, '')
 
+/** Re-export of the platform `encodeURIComponent`. */
 export const encodeURIComponent = window.encodeURIComponent
 
 /**

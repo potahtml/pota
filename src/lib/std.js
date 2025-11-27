@@ -102,6 +102,17 @@ export const stringifySorted = o => {
  */
 export const promise = fn => new Promise(fn)
 
+/**
+ * Creates a promise together with deferred `resolve`/`reject`
+ * helpers.
+ *
+ * @template T
+ * @returns {{
+ * 	promise: Promise<T>
+ * 	resolve: (value: T | PromiseLike<T>) => void
+ * 	reject: (reason?: any) => void
+ * }}
+ */
 export const withResolvers = () => Promise.withResolvers()
 
 /**
@@ -179,6 +190,12 @@ export const emptyArray = freeze([])
 /** An empty frozen object */
 export const nothing = freeze(empty())
 
+/**
+ * Iterates over own enumerable string and symbol keys.
+ *
+ * @param {Record<PropertyKey, unknown>} target
+ * @returns {IterableIterator<[PropertyKey, unknown]>}
+ */
 export function* entriesIncludingSymbols(target) {
 	for (const item of entries(target)) {
 		yield item
@@ -292,19 +309,38 @@ export const withState = /* #__NO_SIDE_EFFECTS__ */ (
 	state = cacheStore,
 ) => fn.bind(null, state())
 
-/** Memoize functions with a map cache */
+/**
+ * Memoizes a unary function using a strong Map-backed cache.
+ *
+ * @template T, R
+ * @param {(value: T) => R} fn
+ * @returns {(value: T) => R}
+ */
 export const withCache = fn =>
 	withState(
 		(cache, thing) => cache.get(thing, thing => fn(thing)),
 		cacheStore,
 	)
-/** Memoize functions with a weak cache */
+/**
+ * Memoizes a unary function using a WeakMap-backed cache.
+ *
+ * @template {object} T
+ * @template R
+ * @param {(value: T) => R} fn
+ * @returns {(value: T) => R}
+ */
 export const withWeakCache = fn =>
 	withState(
 		(cache, thing) => cache.get(thing, thing => fn(thing)),
 		weakStore,
 	)
 
+/**
+ * Safely collects own property values, skipping getters that throw.
+ *
+ * @param {Record<PropertyKey, unknown>} o
+ * @returns {unknown[]}
+ */
 export const getOwnValues = o =>
 	getOwnPropertyNames(o).map(key => {
 		try {
@@ -312,6 +348,13 @@ export const getOwnValues = o =>
 		} catch (e) {}
 	})
 
+/**
+ * Walks a prototype and returns the names of every setter it defines.
+ *
+ * @param {object} object
+ * @param {Set<PropertyKey>} [set]
+ * @returns {Set<PropertyKey>}
+ */
 export function getSetterNamesFromPrototype(object, set = new Set()) {
 	const descriptors = getOwnPropertyDescriptors(object)
 
@@ -338,6 +381,15 @@ export function getValue(value) {
 	return value
 }
 
+/**
+ * Resolves functions (optionally with arguments) and unwraps nested
+ * accessors.
+ *
+ * @template T
+ * @param {T} value
+ * @param {...unknown} args
+ * @returns {T}
+ */
 export const getValueWithArguments = (value, ...args) =>
 	typeof value === 'function'
 		? args.length
@@ -492,6 +544,7 @@ export const isGeneratorFunction = target =>
 	(target.constructor === GeneratorFunction ||
 		target.constructor?.constructor === GeneratorFunction)
 
+/** Function that intentionally performs no operation. */
 export const noop = () => {}
 
 // an optional value is `true` by default, so most of the time is undefined which means is `true`
@@ -576,9 +629,24 @@ export function indexByKey(iterable, key) {
 	return byKey
 }
 
+/**
+ * Returns the internal `[[Class]]` tag for a value (e.g. `Array`).
+ *
+ * @param {unknown} obj
+ * @returns {string}
+ */
 export const typeString = obj =>
 	Object.prototype.toString.call(obj).slice(8, -1)
 
+/**
+ * Walks up a linked structure invoking `cb` for each parent until
+ * `cb` returns `true`.
+ *
+ * @param {object} context
+ * @param {PropertyKey} propertyName
+ * @param {(value: any) => boolean | void} cb
+ * @returns {boolean} Whether the callback succeeded.
+ */
 export function walkParents(context, propertyName, cb) {
 	while (context) {
 		if (cb(context)) return true
@@ -626,10 +694,34 @@ class DataStore {
 	}
 }
 
+/**
+ * Creates a WeakMap-backed `DataStore` instance.
+ *
+ * @returns {DataStore<WeakMap<any, any>>}
+ */
 export const weakStore = () => new DataStore(WeakMap)
+/**
+ * Creates a Map-backed `DataStore` instance.
+ *
+ * @returns {DataStore<Map<any, any>>}
+ */
 export const cacheStore = () => new DataStore(Map)
 
+/**
+ * `console.warn` wrapper kept for consistent dependency
+ * injection/mocking.
+ *
+ * @param {...unknown} args
+ * @returns {void}
+ */
 export const warn = (...args) => console.warn(...args)
+/**
+ * `console.error` wrapper kept for consistent dependency
+ * injection/mocking.
+ *
+ * @param {...unknown} args
+ * @returns {void}
+ */
 export const error = (...args) => console.error(...args)
 
 /**

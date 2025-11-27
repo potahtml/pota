@@ -15,6 +15,12 @@ import { $isMutable } from '../../constants.js'
 /** Keeps track of what objects have already been made into a proxy */
 const [getProxy, setProxy] = weakStore()
 
+/**
+ * Wraps a value with the provided proxy handler and caches the proxy.
+ *
+ * @template {object} T
+ * @returns {T}
+ */
 function createProxy(target, Handler) {
 	const proxy = new Proxy(target, new Handler(target))
 	/**

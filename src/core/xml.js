@@ -57,29 +57,31 @@ const splitId = /(rosa19611227)/
  * @param {TemplateStringsArray} content
  * @returns {DOMElement[]}
  */
-const parseXML = withWeakCache(content => {
-	const html = /** @type {DOMElement[]} */ (
-		/** @type unknown */ (
-			new DOMParser().parseFromString(
-				`<xml ${namespaces.xmlns}>${content.join(id)}</xml>`,
-				'text/xml',
-			).firstChild.childNodes
+const parseXML = withWeakCache(
+	(/** @type TemplateStringsArray */ content) => {
+		const html = /** @type {DOMElement[]} */ (
+			/** @type unknown */ (
+				new DOMParser().parseFromString(
+					`<xml ${namespaces.xmlns}>${content.join(id)}</xml>`,
+					'text/xml',
+				).firstChild.childNodes
+			)
 		)
-	)
 
-	if (html[0].tagName === 'parsererror') {
-		const err = html[0]
-		err.style.padding = '1em'
-		err.firstChild.textContent = 'HTML Syntax Error:'
-		// @ts-expect-error typescript doesnt understand dom walking
-		err.firstChild.nextSibling.style.cssText = ''
-		err.lastChild.replaceWith(createTextNode(content))
-	}
-	return html
-})
+		if (html[0].tagName === 'parsererror') {
+			const err = html[0]
+			err.style.padding = '1em'
+			err.firstChild.textContent = 'HTML Syntax Error:'
+			// @ts-expect-error typescript doesnt understand dom walking
+			err.firstChild.nextSibling.style.cssText = ''
+			err.lastChild.replaceWith(createTextNode(content))
+		}
+		return html
+	},
+)
 
 /**
- * Recursively walks a template and transforms it to `h` calls
+ * Recursively walks a template and transforms it to `h` calls.
  *
  * @param {typeof xml} xml
  * @param {DOMElement[]} cached
@@ -89,11 +91,10 @@ const parseXML = withWeakCache(content => {
 function toH(xml, cached, values) {
 	let index = 0
 	/**
-	 * Recursively transforms DOM nodes into Component calls
+	 * Recursively transforms DOM nodes into Component calls.
 	 *
-	 * @param {ChildNode} node - The DOM node to transform
 	 * @param {ChildNode} node
-	 * @returns {Children} Transformed node(s) as Components
+	 * @returns {Children}
 	 */
 	function nodes(node) {
 		const { nodeType } = node
@@ -156,8 +157,15 @@ function toH(xml, cached, values) {
 }
 
 /**
- * Function to create cached tagged template components
+ * Function to create cached tagged template components.
  *
+ * @returns {((
+ * 	template: TemplateStringsArray,
+ * 	...values: unknown[]
+ * ) => Children) & {
+ * 	components: Record<string, Component>
+ * 	define: (userComponents: Record<string, Component>) => void
+ * }}
  * @url https://pota.quack.uy/XML
  */
 export function XML() {
@@ -173,7 +181,11 @@ export function XML() {
 	}
 
 	xml.components = { ...defaultRegistry }
-	/** @param {Record<string, Component>} userComponents */
+	/**
+	 * Registers custom components that can be referenced by tag name.
+	 *
+	 * @param {Record<string, Component>} userComponents
+	 */
 	xml.define = userComponents => {
 		for (const name in userComponents) {
 			xml.components[name] = userComponents[name]

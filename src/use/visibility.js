@@ -7,6 +7,7 @@ import {
 	removeEventNative,
 } from './event.js'
 
+/** Indicates whether the document is currently visible to the user. */
 export const isDocumentVisible = () =>
 	document.visibilityState === 'visible'
 

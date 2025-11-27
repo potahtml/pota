@@ -1,4 +1,10 @@
-import { empty, promise, weakStore, withState } from '../lib/std.js'
+import {
+	empty,
+	isFunction,
+	promise,
+	weakStore,
+	withState,
+} from '../lib/std.js'
 
 /**
  * @template {Event} T
@@ -66,11 +72,44 @@ export const waitEvent = withState(
 	weakStore,
 )
 
+/**
+ * Adds an event listener using the handler object itself as options.
+ *
+ * @param {EventTarget} where
+ * @param {string} type
+ * @param {EventListenerOrEventListenerObject} handler
+ * @returns {void}
+ */
 export const addEventNative = (where, type, handler) =>
-	where.addEventListener(type, handler, handler)
+	where.addEventListener(
+		type,
+		/** @type {EventListenerOrEventListenerObject} */ (
+			/** @type unknown */ handler
+		),
+		!isFunction(handler)
+			? /** @type {EventHandlerOptions} */ (handler)
+			: undefined,
+	)
 
+/**
+ * Removes an event listener previously registered via
+ * `addEventNative`.
+ *
+ * @param {EventTarget} where
+ * @param {string} type
+ * @param {EventListenerOrEventListenerObject} handler
+ * @returns {void}
+ */
 export const removeEventNative = (where, type, handler) =>
-	where.removeEventListener(type, handler, handler)
+	where.removeEventListener(
+		type,
+		/** @type {EventListenerOrEventListenerObject} */ (
+			/** @type unknown */ handler
+		),
+		!isFunction(handler)
+			? /** @type {EventHandlerOptions} */ (handler)
+			: undefined,
+	)
 
 /** @param {EventListener} fn */
 export const passiveEvent = fn => ({ handleEvent: fn, passive: true })

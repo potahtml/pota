@@ -286,6 +286,11 @@ export const lazy = (fn, options = nothing) =>
 		return value
 	})
 
+/**
+ * `<Lazy>` JSX helper that renders the lazy-loaded children.
+ *
+ * @returns {Component}
+ */
 export const Lazy = props => lazy(props.children, props)
 
 /** @param {() => unknown} fn */

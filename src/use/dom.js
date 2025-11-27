@@ -9,14 +9,32 @@ export const document = window.document
 
 export const head = document?.head
 
+/**
+ * Checks whether a node is connected to a document tree.
+ *
+ * @param {Node} node
+ * @returns {boolean}
+ */
 export const isConnected = node => node.isConnected
 
+/** @returns {Element | null} The currently focused element. */
 export const activeElement = () => document.activeElement
 
+/**
+ * @returns {Element | undefined} The root `<html>` element if
+ *   available.
+ */
 export const documentElement = document?.documentElement
 
+/** DocumentFragment constructor exposed for convenience. */
 export const DocumentFragment = window.DocumentFragment
 
+/**
+ * Safely binds a document method so it can be called later.
+ *
+ * @param {string} fn
+ * @returns {Function | undefined}
+ */
 const bind = fn => document && document[fn].bind(document)
 
 export const createElement = bind('createElement')
@@ -30,21 +48,58 @@ export const createTreeWalker = bind('createTreeWalker')
 
 // part
 
+/**
+ * Adds a part token to an element, enabling ::part styling.
+ *
+ * @param {Element & { part: DOMTokenList }} node
+ * @param {string} partName
+ * @returns {void}
+ */
 export const addPart = (node, partName) => node.part.add(partName)
 
+/**
+ * Removes a part token from an element.
+ *
+ * @param {Element & { part: DOMTokenList }} node
+ * @param {string} partName
+ * @returns {void}
+ */
 export const removePart = (node, partName) =>
 	node.part.remove(partName)
 
 // tokenList
 
-export const tokenList = s => (s ? s.trim().split(/\s+/) : emptyArray)
+/**
+ * Splits a string by whitespace into tokens; returns `emptyArray` for
+ * falsy input.
+ *
+ * @param {string | undefined | null} s
+ * @returns {string[]}
+ */
+export const tokenList = s =>
+	s
+		? s.trim().split(/\s+/)
+		: /** @type string[] */ (/** @type unknown */ emptyArray)
 
+/**
+ * Adds CSS classes to an element using either a string or an array.
+ *
+ * @param {Element} node
+ * @param {string | string[]} className
+ */
 export const addClass = (node, className) =>
 	className.length &&
 	node.classList.add(
 		...(isArray(className) ? className : tokenList(className)),
 	)
 
+/**
+ * Removes CSS classes from an element using either a string or an
+ * array.
+ *
+ * @param {Element} node
+ * @param {string | string[]} className
+ */
 export const removeClass = (node, className) =>
 	className.length &&
 	node.classList.remove(
@@ -53,19 +108,53 @@ export const removeClass = (node, className) =>
 
 // attributes
 
+/**
+ * Sets an attribute on a node.
+ *
+ * @param {Element} node
+ * @param {string} name
+ * @param {string} value
+ */
 export const setAttribute = (node, name, value) =>
 	node.setAttribute(name, value)
 
+/**
+ * Determines whether an attribute exists on a node.
+ *
+ * @param {Element} node
+ * @param {string} name
+ * @returns {boolean}
+ */
 export const hasAttribute = (node, name) => node.hasAttribute(name)
 
+/**
+ * Removes an attribute from a node.
+ *
+ * @param {Element} node
+ * @param {string} name
+ */
 export const removeAttribute = (node, name) =>
 	node.removeAttribute(name)
 
 // selector
 
+/**
+ * Finds the first matching descendant of `node` using a CSS selector.
+ *
+ * @param {ParentNode} node
+ * @param {string} query
+ * @returns {Element | null}
+ */
 export const querySelector = (node, query) =>
 	node.querySelector(query)
 
+/**
+ * Finds all matching descendants of `node` using a CSS selector.
+ *
+ * @param {ParentNode} node
+ * @param {string} query
+ * @returns {NodeListOf<Element>}
+ */
 export const querySelectorAll = (node, query) =>
 	node.querySelectorAll(query)
 
@@ -93,6 +182,15 @@ export const getDocumentForElement = node => {
 		: node.ownerDocument
 }
 
+/**
+ * Traverses element nodes depth-first collecting up to `max` results.
+ *
+ * @param {TreeWalker} walk
+ * @param {Node} node
+ * @param {number} [max=Infinity] Default is `Infinity`
+ * @param {Node[]} [nodes=[]] Default is `[]`
+ * @returns {Node[]}
+ */
 export const walkElements = function (
 	walk,
 	node,
@@ -129,7 +227,5 @@ export const walkElements = function (
  */
 export function getValueElement(value, ...args) {
 	const element = getValueWithArguments(value, ...args)
-	return element instanceof Node
-		? /** @type DOMElement */ (element)
-		: undefined
+	return element instanceof Node ? element : undefined
 }

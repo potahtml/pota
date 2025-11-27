@@ -13,6 +13,7 @@ let added
 /** @type (()=>void)[][] */
 let queue
 
+/** Initializes the priority queue buckets and clears the pending flag. */
 function reset() {
 	queue = [[], [], [], [], [], []]
 	added = false
@@ -36,7 +37,7 @@ function add(priority, fn) {
 	queue[priority].push(owned(fn))
 }
 
-/** Runs all queued callbacks */
+/** Runs and clears the current queue batch. */
 function run() {
 	const q = queue
 	reset()
@@ -86,6 +87,11 @@ export const onDone = fn => add(4, fn)
 
 // async readiness tracking
 
+/**
+ * Schedules work that must wait for async tasks to flush.
+ *
+ * @param {() => void} fn
+ */
 const onAsync = fn => add(5, fn)
 
 const asyncCounter = {
@@ -121,10 +127,16 @@ const asyncCounter = {
 	},
 }
 
+/**
+ * Registers a callback that runs when all async tasks complete.
+ *
+ * @param {() => void} fn
+ */
 export const readyAsync = fn => {
 	asyncCounter.readyAsync(fn)
 }
 
+/** Utilities exposed for tracking async work from userland. */
 export const asyncTracking = {
 	add: () => asyncCounter.add(),
 	remove: () => asyncCounter.remove(),
