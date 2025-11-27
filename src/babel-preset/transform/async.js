@@ -34,48 +34,6 @@ export function transformAsync(path, state) {
 		node.replaceWith(id)
 	}
 
-	path.traverse(
-		{
-			// hoist template arguments
-			TemplateLiteral(path) {
-				const stmt = path.getStatementParent()
-
-				path.get('expressions').forEach((param, index) => {
-					if (
-						t.isIdentifier(param) ||
-						t.isStringLiteral(param) ||
-						t.isNumericLiteral(param)
-					)
-						return
-
-					replaceNodeWithVar(stmt, 'tplexp', param)
-				})
-			},
-		},
-		state,
-	)
-
-	path.traverse(
-		{
-			// hoist function arguments
-			CallExpression(path) {
-				const stmt = path.getStatementParent()
-
-				path.get('arguments').forEach((param, index) => {
-					if (
-						t.isIdentifier(param) ||
-						t.isStringLiteral(param) ||
-						t.isNumericLiteral(param)
-					)
-						return
-
-					replaceNodeWithVar(stmt, 'arg', param)
-				})
-			},
-		},
-		state,
-	)
-
 	// hoist await
 	// `await 1` -> `const _await = await 1; _await`
 	path.traverse(
