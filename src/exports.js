@@ -11,8 +11,6 @@ export {
 	cleanupCancel,
 	context,
 	effect,
-	Lazy,
-	lazy,
 	map,
 	memo,
 	owned,

@@ -234,65 +234,6 @@ export function asyncEffect(fn) {
 	})
 }
 
-/**
- * A Promise loader handler. Allows to display/run something or
- * nothing while a promise is resolving. Allows to run a callback when
- * the promise resolves. Allows to get notified of errors, and
- * display/run something or nothing, if wanted a `retry` function is
- * given for retrying the promise. All functions run with the original
- * owner, so it's `Context` friendly.
- *
- * @param {(() => Promise<any>) | Promise<any>} fn - Function that
- *   returns a promise
- * @param {{
- * 	onLoading?: any
- * 	onLoad?: () => unknown
- * 	onError?: ((e: Error, retry: Function) => any) | any
- * }} [options]
- *
- * @returns {Component}
- * @url https://pota.quack.uy/lazy
- */
-export const lazy = (fn, options = nothing) =>
-	markComponent(props => {
-		const { onLoading, onLoad, onError } = options
-
-		const [value, setValue] = signal(onLoading)
-
-		const onLoaded = owned(onLoad)
-
-		const retry = () =>
-			Promise.resolve(isFunction(fn) ? fn() : fn)
-				.then(r => {
-					setValue(
-						markComponent(() => {
-							r = isObject(r) && r.default ? r.default : r
-							return isFunction(r) ? r(props) : r
-						}),
-					)
-					microtask(onLoaded)
-				})
-				.catch(e =>
-					onError
-						? setValue(
-								markComponent(() =>
-									isFunction(onError) ? onError(e, retry) : onError,
-								),
-							)
-						: console.error(e),
-				)
-		retry()
-
-		return value
-	})
-
-/**
- * `<Lazy>` JSX helper that renders the lazy-loaded children.
- *
- * @returns {Component}
- */
-export const Lazy = props => lazy(props.children, props)
-
 /** @param {() => unknown} fn */
 export const microtask = fn => queueMicrotask(owned(fn))
 

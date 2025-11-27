@@ -1,47 +1,53 @@
-import { lazy } from '../../lib/reactive.js'
-import { isFunction, nothing } from '../../lib/std.js'
+import { markComponent, owned } from '../../lib/reactive.js'
 
 import { useTimeout } from '../../use/time.js'
+
+import { readyAsync } from '../../core/scheduler.js'
 
 import { useRoute } from './context.js'
 import { scroll } from './scroll.js'
 
 /**
- * For dynamic imports. For `lazy` components see `lazy` instead. Used
- * as `load(()=>import('file.js'))`. It retries a couple of times on
- * network error. Scrolls the document to the hash of the url, or
- * fallbacks defined on the `<Route>` components.
+ * For dynamic imports. Used as `load(() => import('file.js'))`. It
+ * retries a couple of times on network error. Scrolls the document to
+ * the hash of the url, or fallbacks defined on the `<Route>`
+ * components.
  *
  * @param {() => Promise<any>} component - Import statement
- * @param {{
- * 	onLoading?: any
- * 	onLoad?: Function
- * 	onError?: ((e: Error, retry: Function) => any) | any
- * }} [options]
  * @returns {Component}
  * @url https://pota.quack.uy/load
  */
-export function load(component, options = nothing) {
-	const { onLoading, onLoad, onError } = options
+export function load(component, tries = 0) {
+	return markComponent(
+		/** @ts-ignore-error no convertion to async function thanks */
+		() => {
+			/**
+			 * Owner is messed up because we are running the promise
+			 * ourselves to be able to catch errors. Once pota supports
+			 * error handling this wont be needed.
+			 */
+			let fn
+			const withOwner = markComponent(owned(() => fn()))
 
-	let tries = 0
-	return lazy(component, {
-		onLoading,
-		/**
-		 * @param {Error} e
-		 * @param {() => void} retry
-		 */
-		onError: (e, retry) =>
-			tries++ < 10
-				? useTimeout(retry, 5000).start() && undefined
-				: isFunction(onError)
-					? onError(e, retry)
-					: onError,
-		onLoad: () => {
-			scroll(useRoute())
-
-			// user function
-			onLoad && onLoad()
+			return component()
+				.then(r => {
+					fn = () => {
+						readyAsync(() => scroll(useRoute()))
+						return r.default()
+					}
+					return withOwner
+				})
+				.catch(
+					e =>
+						new Promise(resolve => {
+							if (tries++ < 9) {
+								fn = () => load(component, tries)
+								useTimeout(() => resolve(withOwner), 5000).start()
+							} else {
+								resolve(e.toString())
+							}
+						}),
+				)
 		},
-	})
+	)
 }
