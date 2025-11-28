@@ -17,8 +17,6 @@ import {
 	toEntries,
 } from './std.js'
 
-import { asyncTracking } from '../core/scheduler.js'
-
 // solid
 
 import { createReactiveSystem } from './solid.js'
@@ -58,6 +56,8 @@ export {
 	createReactiveSystem,
 }
 
+import { asyncTracking } from '../core/scheduler.js'
+
 /**
  * A self contained signal function, when an argument is present it
  * writes to the signal, when theres no argument it reads the signal.
@@ -92,7 +92,16 @@ export function withValue(value, fn) {
 	if (isFunction(value)) {
 		effect(() => withValue(getValue(value), fn))
 	} else if (isPromise(value)) {
-		value.then(owned(value => withValue(value, fn)))
+		asyncTracking.add()
+		value.then(
+			owned(
+				value => {
+					asyncTracking.remove()
+					withValue(value, fn)
+				},
+				() => asyncTracking.remove(),
+			),
+		)
 	} else {
 		fn(value)
 	}
@@ -139,16 +148,8 @@ export function derived(fn, initialValue = {}) {
 		const value = getValue(fn)
 		let s
 		if (isPromise(value)) {
-			let removed = false
-			asyncTracking.add()
-
 			s = signal(initialValue)
 			withValue(value, value => {
-				if (!removed) {
-					removed = true
-					asyncTracking.remove()
-				}
-
 				resolved.write(true)
 				s.write(value)
 			})
@@ -165,17 +166,9 @@ export function derived(fn, initialValue = {}) {
 				if (args.length) {
 					const value = args[0]
 					if (isFunction(value) || isPromise(value)) {
-						let removed = false
-						asyncTracking.add()
-
 						resolved.write(false)
 
 						withValue(value, value => {
-							if (!removed) {
-								removed = true
-								asyncTracking.remove()
-							}
-
 							resolved.write(true)
 							result().write(value)
 						})
@@ -683,7 +676,9 @@ export class createSuspenseContext {
 		asyncTracking.add()
 	}
 	remove() {
-		if (--this.c === 0) this.s.write(true)
+		if (--this.c === 0) {
+			this.s.write(true)
+		}
 		asyncTracking.remove()
 	}
 	isEmpty() {

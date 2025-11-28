@@ -119,9 +119,10 @@ const asyncCounter = {
 	},
 	run() {
 		this.added = false
+
 		if (this.isEmpty()) {
 			const fns = this.fns.slice()
-			this.fns = []
+			this.fns.length = 0
 			call(fns)
 		}
 	},

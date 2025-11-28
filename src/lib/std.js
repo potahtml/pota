@@ -125,7 +125,10 @@ export const withResolvers = () => Promise.withResolvers()
  * ```
  */
 export const resolved = (promise, onDone) =>
-	promise.then(onDone).catch(onDone)
+	promise.then(onDone).catch(e => {
+		console.error(e)
+		onDone(e)
+	})
 
 /**
  * Runs an array of functions
