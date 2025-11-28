@@ -8,7 +8,6 @@ export {
 	asyncEffect,
 	batch,
 	cleanup,
-	cleanupCancel,
 	context,
 	effect,
 	map,

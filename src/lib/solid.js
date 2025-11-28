@@ -93,7 +93,7 @@ export function createReactiveSystem() {
 			}
 		}
 		/** @param {Function} fn */
-		removeCleanups(fn) {
+		cleanupCancel(fn) {
 			if (!this.cleanups) {
 			} else if (this.cleanups === fn) {
 				this.cleanups = undefined
@@ -639,18 +639,6 @@ export function createReactiveSystem() {
 		return fn
 	}
 
-	/**
-	 * Cancels a cleanup
-	 *
-	 * @template {Function} T
-	 * @param {T} fn
-	 * @returns {T}
-	 */
-	function cleanupCancel(fn) {
-		Owner?.removeCleanups(fn)
-		return fn
-	}
-
 	// UPDATES
 
 	function runTop(node) {
@@ -870,6 +858,9 @@ export function createReactiveSystem() {
 	const owned = (cb, onCancel) => {
 		if (cb) {
 			const o = Owner
+			if (!o) {
+				throw 'trying to own a function without an owner'
+			}
 
 			/**
 			 * Canceling prevent the callback from running and runs
@@ -882,7 +873,7 @@ export function createReactiveSystem() {
 			})
 
 			return (...args) => {
-				cleanupCancel(clean)
+				o.cleanupCancel(clean)
 				return cleaned !== null && runWithOwner(o, () => cb(...args))
 			}
 		}
@@ -894,7 +885,6 @@ export function createReactiveSystem() {
 	return {
 		batch,
 		cleanup,
-		cleanupCancel,
 		context,
 		effect,
 		memo,
