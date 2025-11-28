@@ -126,8 +126,8 @@ export const withResolvers = () => Promise.withResolvers()
  */
 export const resolved = (promise, onDone) =>
 	promise.then(onDone).catch(e => {
-		console.error(e)
-		onDone(e)
+		error(e)
+		onDone(e.toString())
 	})
 
 /**
