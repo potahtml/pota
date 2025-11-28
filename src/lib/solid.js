@@ -858,7 +858,9 @@ export function createReactiveSystem() {
 	}
 
 	/**
-	 * Returns an owned function
+	 * Returns an owned function, that will only run if the owner wasnt
+	 * dispose already. `onCancel` will run if the owner of the owned
+	 * function is disposed, and wont run if the owned function runs.
 	 *
 	 * @template T
 	 * @template A
@@ -867,16 +869,21 @@ export function createReactiveSystem() {
 	 */
 	const owned = (cb, onCancel) => {
 		if (cb) {
-			let cleaned = false
+			const o = Owner
+
+			/**
+			 * Canceling prevent the callback from running and runs
+			 * `onCancel` if provided.
+			 */
+			let cleaned
 			const clean = cleanup(() => {
-				cleaned = true
+				cleaned = null
 				onCancel && onCancel()
 			})
 
-			const o = Owner
 			return (...args) => {
 				cleanupCancel(clean)
-				return !cleaned && runWithOwner(o, () => cb(...args))
+				return cleaned !== null && runWithOwner(o, () => cb(...args))
 			}
 		}
 		return noop
