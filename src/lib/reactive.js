@@ -135,7 +135,7 @@ export function withPrevValue(value, fn) {
  * @original ryansolid
  * @modified titoBouzout - unwraps and tracks functions and promises
  */
-export function derived(fn, initialValue = {}) {
+export function derived(fn, initialValue = nothing) {
 	const resolved = signal(false)
 	const run = signal(undefined, { equals: false })
 

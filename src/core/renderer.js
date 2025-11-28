@@ -515,6 +515,10 @@ export function createChildren(
 				return undefined
 			}
 
+			if (child === nothing) {
+				return null
+			}
+
 			// object.toString fancy objects
 			return createChildren(
 				parent,
