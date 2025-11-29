@@ -389,7 +389,7 @@ export function createReactiveSystem() {
 			return assign(
 				/** @type {SignalFunction<Accessed<T>>} */ (
 					/** @type {unknown} */ (...args) => {
-						return args.length ? this.nextValue(args[0]) : this.read()
+						return args.length ? this.write(args[0]) : this.read()
 					}
 				),
 				this,
@@ -406,7 +406,7 @@ export function createReactiveSystem() {
 			this.dispose()
 			runWith(
 				() => {
-					this.nextValue(this.fn())
+					this.write(this.fn())
 				},
 				this,
 				this,
@@ -422,7 +422,7 @@ export function createReactiveSystem() {
 				}
 			*/
 		}
-		nextValue(nextValue) {
+		write(nextValue) {
 			const time = Time
 
 			if (this.updatedAt <= time) {
@@ -435,17 +435,34 @@ export function createReactiveSystem() {
 							if (this.updatedAt <= time) {
 								this.isResolved = null
 
-								this.write(nextValue)
+								this.writeNextValue(nextValue)
 								this.updatedAt = time
 							}
 						},
-						() => this.write(this.initialValue),
+						() => this.writeNextValue(this.initialValue),
 					)
 				} else {
 					this.isResolved = null
-					this.write(nextValue)
+					this.writeNextValue(nextValue)
 				}
 				this.updatedAt = time
+			}
+		}
+		writeNextValue(value) {
+			if (!this.equals(this.value, value)) {
+				this.value = value
+
+				if (this.observers && this.observers.length) {
+					runUpdates(() => {
+						for (const observer of this.observers) {
+							if (observer.state === 0 /* CLEAN */) {
+								observer.queue()
+								observer.observers && downstream(observer)
+							}
+							observer.state = 1 /* STALE */
+						}
+					})
+				}
 			}
 		}
 	}
