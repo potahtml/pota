@@ -456,7 +456,7 @@ export function createChildren(
 			 * The value is `null`, as in {null} or like a show returning
 			 * `null` on the falsy case
 			 */
-			if (child === null) {
+			if (child === null || child === nothing) {
 				return undefined
 			}
 
@@ -513,10 +513,6 @@ export function createChildren(
 				})
 
 				return undefined
-			}
-
-			if (child === nothing) {
-				return null
 			}
 
 			// object.toString fancy objects
