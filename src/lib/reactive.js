@@ -1,15 +1,11 @@
 import { $isComponent, $isMap } from '../constants.js'
 
 import {
-	assign,
 	emptyArray,
 	flatNoArray,
 	getValue,
 	isArray,
 	isFunction,
-	isObject,
-	isPromise,
-	nothing,
 	queueMicrotask,
 	removeFromArray,
 	resolved,
@@ -22,6 +18,7 @@ import {
 import { createReactiveSystem } from './solid.js'
 
 const {
+	asyncTracking,
 	batch,
 	cleanup,
 	context,
@@ -40,6 +37,7 @@ const {
 } = createReactiveSystem()
 
 export {
+	asyncTracking,
 	batch,
 	cleanup,
 	context,
@@ -57,8 +55,6 @@ export {
 	withValue,
 	createReactiveSystem,
 }
-
-import { asyncTracking } from '../core/scheduler.js'
 
 /**
  * A self contained signal function, when an argument is present it

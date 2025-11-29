@@ -1,10 +1,12 @@
 import {
 	assign,
+	call,
 	isArray,
 	isFunction,
 	isPromise,
 	noop,
 	nothing,
+	queueMicrotask,
 	removeFromArray,
 	Symbol,
 	walkParents,
@@ -984,7 +986,7 @@ export function createReactiveSystem() {
 			// TODO maybe change this to be a memo
 			effect(() => withValue(value(), fn, writeDefaultValue))
 		} else if (isPromise(value)) {
-			//asyncTracking.add()
+			asyncTracking.add()
 			/**
 			 * WriteDefaultValue is used to avoid a double write. If the
 			 * value has no promises, then it will be a native value or a
@@ -997,10 +999,10 @@ export function createReactiveSystem() {
 			value.then(
 				owned(
 					value => {
-						//asyncTracking.remove()
+						asyncTracking.remove()
 						withValue(value, fn, noop)
 					},
-					() => /*asyncTracking.remove()*/ {},
+					() => asyncTracking.remove(),
 				),
 			)
 		} else {
@@ -1008,9 +1010,47 @@ export function createReactiveSystem() {
 		}
 	}
 
+	/** Utilities exposed for tracking async work from user-land. */
+
+	const asyncTracking = (() => {
+		let added = false
+		let fns = []
+		let count = 0
+
+		function add() {
+			count++
+		}
+
+		function remove() {
+			--count === 0 && queue()
+		}
+		function ready(fn) {
+			fns.push(owned(fn))
+			queue()
+		}
+
+		function queue() {
+			if (!added && fns.length) {
+				added = true
+				queueMicrotask(() => queueMicrotask(() => run()))
+			}
+		}
+		function run() {
+			added = false
+
+			if (count === 0) {
+				const cbs = fns.slice()
+				fns.length = 0
+				call(cbs)
+			}
+		}
+		return { add, remove, ready }
+	})()
+
 	// export
 
 	return {
+		asyncTracking,
 		batch,
 		cleanup,
 		context,

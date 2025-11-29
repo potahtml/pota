@@ -1,4 +1,4 @@
-import { owned } from '../lib/reactive.js'
+import { asyncTracking, owned } from '../lib/reactive.js'
 import { call, queueMicrotask } from '../lib/std.js'
 
 /**
@@ -85,60 +85,9 @@ export const ready = fn => add(3, fn)
  */
 export const onDone = fn => add(4, fn)
 
-// async readiness tracking
-
-/**
- * Schedules work that must wait for async tasks to flush.
- *
- * @param {() => void} fn
- */
-const onAsync = fn => add(5, fn)
-
-const asyncCounter = {
-	added: false,
-	fns: [],
-	c: 0,
-	add() {
-		this.c++
-	},
-	remove() {
-		--this.c === 0 && this.queue()
-	},
-	isEmpty() {
-		return this.c === 0
-	},
-	readyAsync(fn) {
-		this.fns.push(owned(fn))
-		this.queue()
-	},
-	queue() {
-		if (!this.added && this.fns.length) {
-			this.added = true
-			onAsync(() => this.run())
-		}
-	},
-	run() {
-		this.added = false
-
-		if (this.isEmpty()) {
-			const fns = this.fns.slice()
-			this.fns.length = 0
-			call(fns)
-		}
-	},
-}
-
 /**
  * Registers a callback that runs when all async tasks complete.
  *
  * @param {() => void} fn
  */
-export const readyAsync = fn => {
-	asyncCounter.readyAsync(fn)
-}
-
-/** Utilities exposed for tracking async work from userland. */
-export const asyncTracking = {
-	add: () => asyncCounter.add(),
-	remove: () => asyncCounter.remove(),
-}
+export const readyAsync = asyncTracking.ready
