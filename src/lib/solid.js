@@ -943,7 +943,7 @@ export function createReactiveSystem() {
 	 *
 	 * @template T
 	 * @template A
-	 * @param {(...args: A[]) => T} cb
+	 * @param {((...args: A[]) => T) | Function} cb
 	 * @param {() => void} [onCancel]
 	 */
 	const owned = (cb, onCancel) => {

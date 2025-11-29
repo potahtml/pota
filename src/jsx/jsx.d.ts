@@ -127,9 +127,9 @@ export namespace JSX {
 		currentTarget: Element
 	}
 
-	type EventFunction<Event, Element> = (
-		e: EventEvent<Event, Element>,
-	) => void
+	type EventFunction<Event, Element> =
+		| ((e?: EventEvent<Event, Element>) => void)
+		| Function
 
 	type EventObject<Event, Element> = {
 		handleEvent(e: EventEvent<Event, Element>): void
