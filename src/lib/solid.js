@@ -1,7 +1,10 @@
 import {
 	assign,
 	isArray,
+	isFunction,
+	isPromise,
 	noop,
+	nothing,
 	removeFromArray,
 	Symbol,
 	walkParents,
@@ -274,8 +277,6 @@ export function createReactiveSystem() {
 					this.equals = this.equalsFalse
 				}
 			}
-			// @ts-expect-error
-			return this.read
 		}
 
 		read = () => {
@@ -331,7 +332,6 @@ export function createReactiveSystem() {
 			}
 		}
 		/**
-		 * @private
 		 * @param {T} a
 		 * @param {T} b
 		 */
@@ -339,7 +339,6 @@ export function createReactiveSystem() {
 			return a === b
 		}
 		/**
-		 * @private
 		 * @param {T} a
 		 * @param {T} b
 		 */
@@ -369,6 +368,83 @@ export function createReactiveSystem() {
 		}
 		queue() {
 			Updates.push(this)
+		}
+	}
+
+	class Derived extends Memo {
+		isResolved
+
+		/**
+		 * @param {Computation} owner
+		 * @param {Function} fn
+		 * @param {object} [initialValue]
+		 */
+		constructor(owner, fn, initialValue) {
+			super(owner, fn)
+
+			this.value = this.initialValue = initialValue
+
+			return assign(
+				/** @type {SignalFunction<Accessed<T>>} */ (
+					/** @type {unknown} */ (...args) => {
+						return args.length ? this.nextValue(args[0]) : this.read()
+					}
+				),
+				this,
+			)
+		}
+		resolved = () => {
+			this.read() // tracking
+			return this.isResolved === null
+		}
+		run = () => {
+			this.update()
+		}
+		update() {
+			this.dispose()
+			runWith(
+				() => {
+					this.nextValue(this.fn())
+				},
+				this,
+				this,
+			)
+			/*
+				} catch (err) {
+					this.state = 1 // STALE
+					this.disposeOwned()
+
+					this.updatedAt = time + 1
+
+					throw err
+				}
+			*/
+		}
+		nextValue(nextValue) {
+			const time = Time
+
+			if (this.updatedAt <= time) {
+				if (isPromise(nextValue) || isFunction(nextValue)) {
+					this.isResolved = undefined
+
+					withValue(
+						nextValue,
+						nextValue => {
+							if (this.updatedAt <= time) {
+								this.isResolved = null
+
+								this.write(nextValue)
+								this.updatedAt = time
+							}
+						},
+						() => this.write(this.initialValue),
+					)
+				} else {
+					this.isResolved = null
+					this.write(nextValue)
+				}
+				this.updatedAt = time
+			}
 		}
 	}
 
@@ -458,7 +534,6 @@ export function createReactiveSystem() {
 		update = value => this.write(value(this.value))
 
 		/**
-		 * @private
 		 * @param {T} a
 		 * @param {T} b
 		 */
@@ -467,7 +542,6 @@ export function createReactiveSystem() {
 		}
 
 		/**
-		 * @private
 		 * @param {T} a
 		 * @param {T} b
 		 */
@@ -562,7 +636,24 @@ export function createReactiveSystem() {
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function memo(fn, options = undefined) {
 		return /** @type {SignalAccessor<T>} */ (
-			/** @type {unknown} */ (new Memo(Owner, fn, options))
+			/** @type {unknown} */ (new Memo(Owner, fn, options).read)
+		)
+	}
+	/**
+	 * Lazy and writable version of `memo` that unwraps and tracks
+	 * functions and promises recursively
+	 *
+	 * @template T
+	 * @param {() => T} fn - Function to re-run when dependencies change
+	 * @param {Partial<Accessed<T>>} [initialValue]
+	 * @returns {import('../../pota.d.ts').Derived<Accessed<T>>}
+	 */
+	/* #__NO_SIDE_EFFECTS__ */ function derived(
+		fn,
+		initialValue = nothing,
+	) {
+		return /** @type {import('../../pota.d.ts').Derived<Accessed<T>>} */ (
+			/** @type {unknown} */ (new Derived(Owner, fn, initialValue))
 		)
 	}
 
@@ -880,12 +971,50 @@ export function createReactiveSystem() {
 		return noop
 	}
 
+	/**
+	 * Unwraps and tracks functions and promises recursively providing
+	 * the result to a callback
+	 *
+	 * @template T
+	 * @param {Accessor<T> | Promise<T>} value
+	 * @param {(value: T) => void} fn
+	 */
+	function withValue(value, fn, writeDefaultValue = noop) {
+		if (isFunction(value)) {
+			// TODO maybe change this to be a memo
+			effect(() => withValue(value(), fn, writeDefaultValue))
+		} else if (isPromise(value)) {
+			//asyncTracking.add()
+			/**
+			 * WriteDefaultValue is used to avoid a double write. If the
+			 * value has no promises, then it will be a native value or a
+			 * function, which will resolve without having to wait.
+			 *
+			 * In case of promises, the value is resolved at a later point
+			 * in time, so we need an intermediate default
+			 */
+			writeDefaultValue()
+			value.then(
+				owned(
+					value => {
+						//asyncTracking.remove()
+						withValue(value, fn, noop)
+					},
+					() => /*asyncTracking.remove()*/ {},
+				),
+			)
+		} else {
+			fn(value)
+		}
+	}
+
 	// export
 
 	return {
 		batch,
 		cleanup,
 		context,
+		derived,
 		effect,
 		memo,
 		on,
@@ -896,5 +1025,6 @@ export function createReactiveSystem() {
 		signal,
 		syncEffect,
 		untrack,
+		withValue,
 	}
 }

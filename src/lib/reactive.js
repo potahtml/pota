@@ -25,6 +25,7 @@ const {
 	batch,
 	cleanup,
 	context,
+	derived,
 	effect,
 	memo,
 	on,
@@ -34,6 +35,7 @@ const {
 	runWithOwner,
 	signal,
 	syncEffect,
+	withValue,
 	untrack,
 } = createReactiveSystem()
 
@@ -41,6 +43,7 @@ export {
 	batch,
 	cleanup,
 	context,
+	derived,
 	effect,
 	memo,
 	on,
@@ -51,6 +54,7 @@ export {
 	signal,
 	syncEffect,
 	untrack,
+	withValue,
 	createReactiveSystem,
 }
 
@@ -79,33 +83,6 @@ export function signalFunction(value) {
 export const ref = () => signalFunction()
 
 /**
- * Runs a function inside an effect if value is a function.
- * Aditionally unwraps promises.
- *
- * @template T
- * @param {Accessor<T> | Promise<T>} value
- * @param {(value: T) => void} fn
- */
-export function withValue(value, fn) {
-	if (isFunction(value)) {
-		effect(() => withValue(getValue(value), fn))
-	} else if (isPromise(value)) {
-		asyncTracking.add()
-		value.then(
-			owned(
-				value => {
-					asyncTracking.remove()
-					withValue(value, fn)
-				},
-				() => asyncTracking.remove(),
-			),
-		)
-	} else {
-		fn(value)
-	}
-}
-
-/**
  * Runs a function inside an effect if value is a function
  *
  * @param {unknown} value
@@ -122,69 +99,6 @@ export function withPrevValue(value, fn) {
 	} else {
 		fn(value)
 	}
-}
-
-/**
- * Lazy and writable version of `memo`. It will unwrap and track
- * functions and promises recursively
- *
- * @template T
- * @param {() => T} fn - Function to re-run when dependencies change
- * @param {Partial<Accessed<T>>} [initialValue]
- * @returns {Derived<Accessed<T>>}
- * @original ryansolid
- * @modified titoBouzout - unwraps and tracks functions and promises
- */
-export function derived(fn, initialValue = nothing) {
-	const resolved = signal(false)
-	const run = signal(undefined, { equals: false })
-
-	const result = memo(() => {
-		run.read()
-		resolved.write(false)
-
-		const value = getValue(fn)
-		let s
-		if (isPromise(value)) {
-			s = signal(initialValue)
-			withValue(value, value => {
-				resolved.write(true)
-				s.write(value)
-			})
-		} else {
-			s = signal(value)
-			resolved.write(true)
-		}
-		return s
-	})
-
-	const SignalFunctionLike =
-		/** @type {SignalFunction<Accessed<T>>} */ (
-			/** @type {unknown} */ (...args) => {
-				if (args.length) {
-					const value = args[0]
-					if (isFunction(value) || isPromise(value)) {
-						resolved.write(false)
-
-						withValue(value, value => {
-							resolved.write(true)
-							result().write(value)
-						})
-						return true
-					} else {
-						resolved.write(true)
-						return result().write(value)
-					}
-				} else {
-					return result().read()
-				}
-			}
-		)
-
-	return assign(SignalFunctionLike, {
-		resolved: resolved.read,
-		run: run.write,
-	})
 }
 
 /**
