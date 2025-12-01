@@ -1,5 +1,9 @@
 import { types as t } from '@babel/core'
-import { isInsideJSXAttribute } from './utils.js'
+import {
+	isFunctionNamed,
+	isInsideJSXAttribute,
+	isNonTrackingAssignement,
+} from './utils.js'
 
 export function transformAsync(path, state) {
 	if (!path.node.async || isInsideJSXAttribute(path)) return
@@ -18,6 +22,7 @@ export function transformAsync(path, state) {
 		)
 	}
 
+	// hoist await
 	function replaceNodeWithVar(statementParent, varName, node) {
 		const block = statementParent.parentPath
 
@@ -33,8 +38,6 @@ export function transformAsync(path, state) {
 
 		node.replaceWith(id)
 	}
-
-	// hoist await
 	// `await 1` -> `const _await = await 1; _await`
 	path.traverse(
 		{
@@ -96,9 +99,10 @@ function wrapStatements(path, state, stmts) {
 	// wrapper
 	return [
 		first,
-		t.isExpressionStatement(stmts[0]) &&
-		t.isCallExpression(stmts[0].expression) &&
-		stmts[0].expression.callee.name === 'untrack'
+		isFunctionNamed(stmts[0], 'untrack') ||
+		isFunctionNamed(stmts[0], 'ready') ||
+		isFunctionNamed(stmts[0], 'readyAync') ||
+		isNonTrackingAssignement(stmts[0])
 			? wrapStatements(path, state, stmts)
 			: t.returnStatement(
 					t.arrowFunctionExpression(

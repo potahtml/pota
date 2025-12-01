@@ -1,5 +1,6 @@
 import { types as t } from '@babel/core'
 import { addNamed } from '@babel/helper-module-imports'
+import { isNativeLiteral } from './literal.js'
 
 /** Plugin preferences */
 
@@ -116,4 +117,29 @@ export function isInsideJSX(path) {
 			p.isJSXFragment() ||
 			p.isJSXExpressionContainer(),
 	)
+}
+
+export function isFunctionNamed(node, name) {
+	return (
+		t.isExpressionStatement(node) &&
+		t.isCallExpression(node.expression) &&
+		node.expression.callee.name === name
+	)
+}
+
+export function isNonTrackingAssignement(node) {
+	if (
+		t.isVariableDeclaration(node) &&
+		!node.declarations.some(
+			declaration =>
+				!(
+					t.isIdentifier(declaration.init) ||
+					t.isFunctionExpression(declaration.init) ||
+					t.isArrowFunctionExpression(declaration.init) ||
+					isNativeLiteral(declaration.init)
+				),
+		)
+	) {
+		return true
+	}
 }
