@@ -1022,9 +1022,6 @@ export function createReactiveSystem() {
 	const owned = (cb, onCancel) => {
 		if (cb) {
 			const o = Owner
-			if (!o) {
-				throw 'trying to own a function without an owner'
-			}
 
 			/**
 			 * Canceling prevent the callback from running and runs
@@ -1037,7 +1034,7 @@ export function createReactiveSystem() {
 			})
 
 			return (...args) => {
-				o.cleanupCancel(clean)
+				o?.cleanupCancel(clean)
 				return cleaned !== null && runWithOwner(o, () => cb(...args))
 			}
 		}
