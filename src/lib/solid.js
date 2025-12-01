@@ -102,8 +102,8 @@ export function createReactiveSystem() {
 			if (!this.cleanups) {
 			} else if (this.cleanups === fn) {
 				this.cleanups = undefined
-			} else {
-				removeFromArray(/** @type Function[] */ (this.cleanups), fn)
+			} else if (isArray(this.cleanups)) {
+				removeFromArray(this.cleanups, fn)
 			}
 		}
 		/** @param {Computation} value */
