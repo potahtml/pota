@@ -5,6 +5,7 @@ export { version } from './version.js'
 // REACTIVITY
 
 export {
+	action,
 	asyncEffect,
 	batch,
 	cleanup,

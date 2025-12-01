@@ -1,6 +1,7 @@
 import {
 	assign,
 	call,
+	getValue,
 	isArray,
 	isFunction,
 	isPromise,
@@ -650,6 +651,27 @@ export function createReactiveSystem() {
 	}
 
 	/**
+	 * Creates an run once effect
+	 *
+	 * @template T
+	 * @param {() => T} fn
+	 * @param {object} [options]
+	 */
+	function track(fn, options) {
+		let ran
+		new Effect(
+			Owner,
+			() => {
+				if (ran === undefined) {
+					ran = null
+					fn()
+				}
+			},
+			options,
+		)
+	}
+
+	/**
 	 * Creates a syncEffect
 	 *
 	 * @template T
@@ -1060,6 +1082,29 @@ export function createReactiveSystem() {
 		}
 	}
 
+	/**
+	 * Unwraps functions and promises recursively canceling if owner
+	 * gets disposed
+	 *
+	 * @template T
+	 * @param {Accessor<T> | Promise<T>} value
+	 * @returns {T | Promise<T> | void}
+	 */
+	const resolve = value =>
+		isFunction(value)
+			? track(() => resolve(getValue(value)))
+			: isPromise(value)
+				? value.then(owned(resolve))
+				: value
+	/**
+	 * Unwraps functions and promises recursively canceling if owner
+	 * gets disposed
+	 *
+	 * @template T
+	 * @param {(...args: unknown[]) => T} cb
+	 */
+	const action = cb => owned((...args) => resolve(cb(...args)))
+
 	/** Utilities exposed for tracking async work from user-land. */
 
 	const asyncTracking = (() => {
@@ -1100,6 +1145,7 @@ export function createReactiveSystem() {
 	// export
 
 	return {
+		action,
 		asyncTracking,
 		batch,
 		cleanup,

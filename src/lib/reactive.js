@@ -18,6 +18,7 @@ import {
 import { createReactiveSystem } from './solid.js'
 
 const {
+	action,
 	asyncTracking,
 	batch,
 	cleanup,
@@ -37,6 +38,7 @@ const {
 } = createReactiveSystem()
 
 export {
+	action,
 	asyncTracking,
 	batch,
 	cleanup,
