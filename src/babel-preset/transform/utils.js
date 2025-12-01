@@ -107,8 +107,14 @@ export function removeFromArray(array, value) {
 
 export const keys = Object.keys
 
-export const isInsideJSXAttribute = path =>
-	!!path.findParent(p => p.isJSXAttribute())
+export const isInsideJSXAttribute = path => {
+	return (
+		!(
+			t.isJSXNamespacedName(path.parentPath?.container?.name) &&
+			path.parentPath.container.name.namespace.name === 'on'
+		) && !!path.findParent(p => p.isJSXAttribute())
+	)
+}
 
 export function isInsideJSX(path) {
 	return !!path.findParent(
