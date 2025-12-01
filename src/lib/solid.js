@@ -257,6 +257,7 @@ export function createReactiveSystem() {
 
 	// SIGNALS
 
+	/** @template in T */
 	class Memo extends Computation {
 		value
 
@@ -373,19 +374,24 @@ export function createReactiveSystem() {
 		}
 	}
 
+	/** @template in T */
 	class Derived extends Memo {
 		isResolved
 
 		/**
 		 * @param {Computation} owner
-		 * @param {Function} fn
-		 * @param {object} [initialValue]
+		 * @param {() => T} fn
+		 * @param {unknown} [initialValue]
 		 */
 		constructor(owner, fn, initialValue) {
 			super(owner, fn)
 
 			this.value = this.initialValue = initialValue
 
+			return this.self()
+		}
+
+		self() {
 			return assign(
 				/** @type {SignalFunction<Accessed<T>>} */ (
 					/** @type {unknown} */ (...args) => {
@@ -395,6 +401,7 @@ export function createReactiveSystem() {
 				this,
 			)
 		}
+
 		resolved = () => {
 			this.read() // tracking
 			return this.isResolved === null
@@ -426,26 +433,27 @@ export function createReactiveSystem() {
 			const time = Time
 
 			if (this.updatedAt <= time) {
-				if (isPromise(nextValue) || isFunction(nextValue)) {
-					this.isResolved = undefined
+				this.isResolved = undefined
 
-					withValue(
-						nextValue,
-						nextValue => {
-							if (this.updatedAt <= time) {
-								this.isResolved = null
+				withValue(
+					nextValue,
+					nextValue => {
+						if (this.updatedAt <= time) {
+							this.isResolved = null
 
-								this.writeNextValue(nextValue)
-								this.updatedAt = time
-							}
-						},
-						() => this.writeNextValue(this.initialValue),
-					)
-				} else {
-					this.isResolved = null
-					this.writeNextValue(nextValue)
-				}
-				this.updatedAt = time
+							this.writeNextValue(nextValue)
+							this.updatedAt = time
+
+							this.resolve && this.resolve(this)
+						}
+					},
+					() => {
+						// is a promise so restore `then`
+						this.thenRestore()
+						// remove the old value while the promise is resolving
+						this.writeNextValue(this.initialValue)
+					},
+				)
 			}
 		}
 		writeNextValue(value) {
@@ -463,6 +471,30 @@ export function createReactiveSystem() {
 						}
 					})
 				}
+			}
+		}
+
+		/**
+		 * Thenable stuff. It has to be a property so assign works
+		 * properly
+		 */
+		then = (resolve, reject) => {
+			this._then(resolve, reject)
+		}
+		_then(resolve, reject) {
+			this.resolve = () => {
+				this.then = undefined
+				this.resolve = undefined
+				resolve(this.self())
+			}
+			if (this.resolved()) {
+				this.resolve()
+			}
+		}
+		thenRestore() {
+			if (!this.then) {
+				// TODO: unsure if has to be restored
+				this.then = this._then
 			}
 		}
 	}
@@ -1013,6 +1045,7 @@ export function createReactiveSystem() {
 			 * in time, so we need an intermediate default
 			 */
 			writeDefaultValue()
+
 			value.then(
 				owned(
 					value => {
