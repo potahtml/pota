@@ -1101,7 +1101,8 @@ export function createReactiveSystem() {
 	 * gets disposed
 	 *
 	 * @template T
-	 * @param {(...args: unknown[]) => T} cb
+	 * @template A
+	 * @param {((...args: A[]) => T) | Function} cb
 	 */
 	const action = cb => owned((...args) => resolve(cb(...args)))
 
