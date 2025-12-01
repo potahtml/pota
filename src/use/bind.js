@@ -8,17 +8,21 @@ import {
 
 import { propsPlugin } from '../core/props/plugin.js'
 import { getSelection, restoreSelection } from './selection.js'
-import { flatForEach } from '../lib/std.js'
+import { flatForEach, isFunction } from '../lib/std.js'
 
 /**
  * To use in bind attribute on JSX elements.
  *
  * @template T
- * @param {T} [value] - Optional initial value
+ * @param {T | (() => T)} [value] - Optional initial value that may be
+ *   a computed
+ * @param {T} [initialValue] - When `value` is computed async use this
+ *   value as initial value
  * @returns {SignalFunction<Accessed<T>>}
  * @url https://pota.quack.uy/use/bind
  */
-export const bind = value => derived(value)
+export const bind = (value, initialValue) =>
+	derived(isFunction(value) ? value : () => value, initialValue)
 
 /**
  * @param {Element} node
