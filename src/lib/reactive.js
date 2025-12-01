@@ -274,7 +274,7 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 			? (item, index) => fn(callback(item, index), index)
 			: callback
 
-		const value = getValue(list) || []
+		const value = getValue(list) || emptyArray
 
 		/** To allow iterate objects as if were an array with indexes */
 		const items = toEntries(value)
