@@ -104,7 +104,7 @@ export function withPrevValue(value, fn) {
  * @param {...T} args
  * @returns {boolean}
  */
-export function isDerived(...args) {
+export function isResolved(...args) {
 	return !args.some(x => !x.resolved())
 }
 
