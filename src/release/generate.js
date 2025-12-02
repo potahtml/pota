@@ -121,12 +121,11 @@ ${lib.join(',\n')}
 	// fix ts for some reason doesnt want to icnlude these files
 	const exportsDTS = read('./types/exports.d.ts')
 	const definitions = `
-export type * from "../pota.d.ts"
-export type * from "../src/jsx/jsx-runtime.d.ts"
-export type * from "../src/jsx/jsx.d.ts"
+export type * from '../pota.d.ts'
+export type * from '../src/jsx/jsx.d.ts'
 `
 
-	if (!exportsDTS.includes(definitions)) {
+	if (!exportsDTS.includes(definitions.trim())) {
 		append('./types/exports.d.ts', definitions)
 	}
 }

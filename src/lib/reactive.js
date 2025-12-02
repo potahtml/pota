@@ -227,7 +227,7 @@ class Row {
  *
  * @template T
  * @param {Each<T>} list
- * @param {(...unknoown) => Children} callback
+ * @param {(...args: unknown[]) => Children} callback
  * @param {boolean} [noSort]
  * @param {Children} [fallback]
  * @param {boolean} [reactiveIndex] - Make indices reactive signals
