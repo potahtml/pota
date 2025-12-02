@@ -23,6 +23,7 @@ const {
 	batch,
 	cleanup,
 	context,
+	createSuspenseContext,
 	derived,
 	effect,
 	memo,
@@ -33,8 +34,9 @@ const {
 	runWithOwner,
 	signal,
 	syncEffect,
-	withValue,
 	untrack,
+	useSuspense,
+	withValue,
 } = createReactiveSystem()
 
 export {
@@ -43,6 +45,7 @@ export {
 	batch,
 	cleanup,
 	context,
+	createSuspenseContext,
 	derived,
 	effect,
 	memo,
@@ -54,6 +57,7 @@ export {
 	signal,
 	syncEffect,
 	untrack,
+	useSuspense,
 	withValue,
 	createReactiveSystem,
 }
@@ -577,23 +581,3 @@ export const ownedEvent = handler =>
 				handleEvent: owned(e => handler.handleEvent(e)),
 			}
 		: owned(handler)
-
-export class createSuspenseContext {
-	s = signal(false)
-	c = 0
-	add() {
-		this.c++
-		asyncTracking.add()
-	}
-	remove() {
-		if (--this.c === 0) {
-			this.s.write(true)
-		}
-		asyncTracking.remove()
-	}
-	isEmpty() {
-		return this.c === 0
-	}
-}
-
-export const useSuspense = context(new createSuspenseContext())

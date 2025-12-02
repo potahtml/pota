@@ -1140,6 +1140,27 @@ export function createReactiveSystem() {
 		return { add, remove, ready }
 	})()
 
+	/** Suspense */
+	class createSuspenseContext {
+		s = signal(false)
+		c = 0
+		add() {
+			this.c++
+			asyncTracking.add()
+		}
+		remove() {
+			if (--this.c === 0) {
+				this.s.write(true)
+			}
+			asyncTracking.remove()
+		}
+		isEmpty() {
+			return this.c === 0
+		}
+	}
+
+	const useSuspense = context(new createSuspenseContext())
+
 	// export
 
 	return {
@@ -1148,6 +1169,7 @@ export function createReactiveSystem() {
 		batch,
 		cleanup,
 		context,
+		createSuspenseContext,
 		derived,
 		effect,
 		memo,
@@ -1159,6 +1181,7 @@ export function createReactiveSystem() {
 		signal,
 		syncEffect,
 		untrack,
+		useSuspense,
 		withValue,
 	}
 }
