@@ -1,12 +1,20 @@
 import { types as t } from '@babel/core'
 import {
 	isFunctionNamed,
-	isInsideJSXAttribute,
+	isInFunctionNamed,
+	isInJSXAttribute,
 	isNonTrackingAssignement,
 } from './utils.js'
 
 export function transformAsync(path, state) {
-	if (!path.node.async || isInsideJSXAttribute(path)) return
+	if (
+		!path.node.async ||
+		!(
+			isInFunctionNamed(path, 'derived') ||
+			isInFunctionNamed(path, 'action')
+		)
+	)
+		return
 
 	// make sure arrow functions are blocks
 	// `() => await 1` -> `() => { return await 1 }`

@@ -81,6 +81,7 @@ export function warn(path, err) {
 	console.log()
 }
 
+/** @returns {string} */
 export function filename(path) {
 	try {
 		return path.scope
@@ -107,8 +108,11 @@ export function removeFromArray(array, value) {
 
 export const keys = Object.keys
 
-export const isInsideJSXAttribute = path =>
+export const isInJSXAttribute = path =>
 	!!path.findParent(p => p.isJSXAttribute())
+
+export const isInFunctionNamed = (path, name) =>
+	!!path.findParent(p => isFunctionNamed(p.node, name))
 
 export function isInsideJSX(path) {
 	return !!path.findParent(
@@ -120,11 +124,10 @@ export function isInsideJSX(path) {
 }
 
 export function isFunctionNamed(node, name) {
-	return (
-		t.isExpressionStatement(node) &&
-		t.isCallExpression(node.expression) &&
-		node.expression.callee.name === name
-	)
+	if (node.expression) {
+		return isFunctionNamed(node.expression, name)
+	}
+	return t.isCallExpression(node) && node.callee.name === name
 }
 
 export function isNonTrackingAssignement(node) {

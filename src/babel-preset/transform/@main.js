@@ -29,7 +29,11 @@ export default function createPlugin({ name }) {
 				},
 				Program: {
 					enter(path, state) {
-						if (/(t|j)sx$/.test(filename(path))) {
+						const file = filename(path)
+						if (
+							/(t|j)sx$/.test(file) &&
+							!file.includes('node_modules')
+						) {
 							path.traverse(
 								{
 									Function(path, state) {
