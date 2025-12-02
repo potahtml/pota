@@ -22,10 +22,6 @@
 - support set, maybe weakmap and weakset
 - defineProperty proxy trap
 
-### async
-
-- maybe compile async using generators
-
 ### reactivity
 
 - when updating a signal try to patch arrays for when value comes from
@@ -46,6 +42,14 @@
 - refactor transform again !
 - figure out how to make the transform standalone because esm.sh is
   driving me crazy
+- avoid double wrapping functions exclusively to use with the
+  transform. Ex: not for tsc, react compiler, buildless/xml
+
+### async transform
+
+- for await
+- ternaries
+- probably should compile async using generators that return functions
 
 ### typescript
 

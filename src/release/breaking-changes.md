@@ -1,3 +1,10 @@
+# pota v0.20.216
+
+- removed `cleanupCancel`, it can be used as `owner.cleanupCancel`.
+  The problem is that the owner could change and it wont find the
+  cleanup callback to remove, so being explicit about its owner is
+  better.
+
 # pota v0.20.214
 
 - `writable` has been renamed to `derived`
