@@ -1,4 +1,4 @@
-import { addEvent, actionEvent } from '../../lib/reactive.js'
+import { addEvent, ownedEvent } from '../../lib/reactive.js'
 import { flatForEach } from '../../lib/std.js'
 
 /**
@@ -14,7 +14,7 @@ export const setEvent = (node, name, value) => {
 		addEvent(
 			node,
 			name,
-			actionEvent(/** @type EventHandler<Event, Element> */ (value)),
+			ownedEvent(/** @type EventHandler<Event, Element> */ (value)),
 		)
 	})
 }

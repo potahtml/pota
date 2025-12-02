@@ -570,13 +570,13 @@ export function removeEvent(node, type, handler) {
  * @template {EventHandler<Event, Element>} T
  * @param {T} handler
  */
-export const actionEvent = handler =>
+export const ownedEvent = handler =>
 	'handleEvent' in handler
 		? {
 				...handler,
-				handleEvent: action(e => handler.handleEvent(e)),
+				handleEvent: owned(e => handler.handleEvent(e)),
 			}
-		: action(handler)
+		: owned(handler)
 
 export class createSuspenseContext {
 	s = signal(false)
