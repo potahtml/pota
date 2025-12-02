@@ -1119,7 +1119,7 @@ export function createReactiveSystem() {
 	 * @template A
 	 * @param {((...args: A[]) => T) | Function} cb
 	 */
-	const action = cb => owned((...args) => resolve(cb(...args)))
+	const action = cb => owned((...args) => resolve(() => cb(...args)))
 
 	/** Utilities exposed for tracking async work from user-land. */
 
