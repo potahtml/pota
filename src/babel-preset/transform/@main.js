@@ -15,7 +15,6 @@ import {
 	devToolsDeclaration,
 	devToolsProps,
 } from './devTools.js'
-import { transformAsync } from './async.js'
 
 export default function createPlugin({ name }) {
 	return declare((_, options) => {
@@ -29,21 +28,6 @@ export default function createPlugin({ name }) {
 				},
 				Program: {
 					enter(path, state) {
-						const file = filename(path)
-						if (
-							/(t|j)sx$/.test(file) &&
-							!file.includes('node_modules')
-						) {
-							path.traverse(
-								{
-									Function(path, state) {
-										transformAsync(path, state)
-									},
-								},
-								state,
-							)
-						}
-
 						/** Pota babel state */
 
 						state.pota = { partials: {}, components: {}, files: {} }
