@@ -64,6 +64,8 @@ declare global {
 		resolved: SignalAccessor<boolean>
 	}
 
+	type DerivedAsync<T> = Promise<Derived<T>>
+
 	// props
 
 	type When<T> = Accessor<T>
@@ -160,6 +162,7 @@ export {
 	SignalOptions,
 	SignalChanged,
 	Derived,
+	DerivedAsync,
 
 	// control flow
 	When,

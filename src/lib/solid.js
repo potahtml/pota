@@ -731,6 +731,24 @@ export function createReactiveSystem() {
 	}
 
 	/**
+	 * Awaitable, lazy and writable version of `memo` that unwraps and
+	 * tracks functions and promises recursively
+	 *
+	 * @template T
+	 * @param {() => T} fn - Function to re-run when dependencies change
+	 * @param {Partial<Accessed<T>>} [initialValue]
+	 * @returns {import('../../pota.d.ts').DerivedAsync<Accessed<T>>}
+	 */
+	/* #__NO_SIDE_EFFECTS__ */ function derivedAsync(
+		fn,
+		initialValue = nothing,
+	) {
+		return /** @type {import('../../pota.d.ts').DerivedAsync<Accessed<T>>} */ (
+			/** @type {unknown} */ (new Derived(Owner, fn, initialValue))
+		)
+	}
+
+	/**
 	 * Batches changes to signals
 	 *
 	 * @template T
@@ -1171,6 +1189,7 @@ export function createReactiveSystem() {
 		context,
 		createSuspenseContext,
 		derived,
+		derivedAsync,
 		effect,
 		memo,
 		on,
