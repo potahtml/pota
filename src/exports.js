@@ -11,7 +11,6 @@ export {
 	cleanup,
 	context,
 	derived,
-	derivedAsync,
 	effect,
 	isResolved,
 	map,

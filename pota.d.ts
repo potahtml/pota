@@ -59,12 +59,14 @@ declare global {
 
 	// derived
 
-	type Derived<T> = SignalFunction<T> & {
-		run: Function
-		resolved: SignalAccessor<boolean>
-	}
+	type Derived<T> = Promise<
+		SignalFunction<T> & {
+			run: Function
+			resolved: SignalAccessor<boolean>
+		}
+	>
 
-	type DerivedAsync<T> = Promise<Derived<T>>
+	type ChainedCallbacks<T> = (...args: unknown[]) => unknown
 
 	// props
 

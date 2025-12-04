@@ -25,7 +25,6 @@ const {
 	context,
 	createSuspenseContext,
 	derived,
-	derivedAsync,
 	effect,
 	memo,
 	on,
@@ -48,7 +47,6 @@ export {
 	context,
 	createSuspenseContext,
 	derived,
-	derivedAsync,
 	effect,
 	memo,
 	on,
@@ -113,6 +111,7 @@ export function withPrevValue(value, fn) {
  * @returns {boolean}
  */
 export function isResolved(...args) {
+	// @ts-ignore-error
 	return !args.some(x => !x.resolved())
 }
 
