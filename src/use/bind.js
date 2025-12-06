@@ -1,10 +1,4 @@
-// @ts-nocheck
-import {
-	addEvent,
-	effect,
-	signalFunction,
-	derived,
-} from '../lib/reactive.js'
+import { addEvent, effect, derived } from '../lib/reactive.js'
 
 import { propsPlugin } from '../core/props/plugin.js'
 import { getSelection, restoreSelection } from './selection.js'
@@ -16,16 +10,14 @@ import { flatForEach, isFunction } from '../lib/std.js'
  * @template T
  * @param {T | (() => T)} [value] - Optional initial value that may be
  *   a computed
- * @param {T} [initialValue] - When `value` is computed async use this
- *   value as initial value
  * @returns {SignalFunction<Accessed<T>>}
  * @url https://pota.quack.uy/use/bind
  */
-export const bind = (value, initialValue) =>
-	derived(isFunction(value) ? value : () => value, initialValue)
+export const bind = value =>
+	derived(isFunction(value) ? value : () => value)
 
 /**
- * @param {Element} node
+ * @param {HTMLInputElement} node
  * @param {Function} value
  */
 function bindValue(node, value) {
