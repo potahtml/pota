@@ -9,7 +9,7 @@
 		"url": "git+https://github.com/potahtml/pota.git"
 	},
 	"type": "module",
-	"types": "./types/exports.d.ts",
+	"types": "./typescript/exports.d.ts",
 	"main": "./src/exports.js",
 	"sideEffects": false,
 	"exports": {
@@ -47,12 +47,13 @@
 			"default": "./src/lib/experiments.js"
 		},
 		".": {
-			"types": "./types/exports.d.ts",
+			"types": "./typescript/exports.d.ts",
 			"default": "./src/exports.js"
 		}
 	},
 	"scripts": {
-		"dev": "rm -Rf types/ && concurrently --kill-others \"npm:watch:*\"",
+		"dev": "rm -Rf types/* && concurrently --kill-others \"npm:watch:*\"",
+		"watch:cptypes": "rsync -a --include='*/' --include='*.d.ts' --exclude='*' src/ types/; tail -f /dev/null",
 		"watch:types": "tsc -w",
 		"watch:build": "cd src/babel-preset && rollup -c -w",
 		"watch:generate": "npm run generate",

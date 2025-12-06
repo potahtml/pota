@@ -61,7 +61,7 @@ export function scale(colors, count) {
  */
 export function setAlpha(color, alpha) {
 	color = new Color(color)
-	/** @ts-ignore-error missing types */
+	/** @ts-expect-error missing types */
 	color.alpha = alpha
 	return color.toString()
 }

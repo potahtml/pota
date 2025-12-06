@@ -106,12 +106,11 @@ export function withPrevValue(value, fn) {
 /**
  * Returns `true` when all derived has been resolved
  *
- * @template {Derived<unknown>} T
+ * @template {ReturnType<import('./derived.d.ts').derived>} T
  * @param {...T} args
  * @returns {boolean}
  */
 export function isResolved(...args) {
-	// @ts-ignore-error
 	return !args.some(x => !x.resolved())
 }
 

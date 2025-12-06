@@ -383,10 +383,10 @@ export function createReactiveSystem() {
 
 		/**
 		 * @param {Computation} owner
-		 * @param {ChainedCallbacks<unknown>[]} fn
+		 * @param {unknown[]} fn
 		 */
 		constructor(owner, fn) {
-			// @ts-ignore-error
+			// @ts-expect-error
 			super(owner, fn)
 
 			return this.self()
@@ -414,7 +414,7 @@ export function createReactiveSystem() {
 			this.dispose()
 			runWith(
 				() => {
-					// @ts-ignore-error
+					// @ts-expect-error
 					this.write(this.fn[0](), this.fn.slice(1))
 				},
 				this,
@@ -724,17 +724,14 @@ export function createReactiveSystem() {
 	/**
 	 * Lazy and writable version of `memo` that unwraps and tracks
 	 * functions and promises recursively
-	 *
-	 * @template T
-	 * @param {...ChainedCallbacks<unknown>} fn - Function(s) to re-run
-	 *   when dependencies change
-	 * @returns {import('../../pota.d.ts').Derived<Accessed<T>>}
 	 */
-	/* #__NO_SIDE_EFFECTS__ */ function derived(...fn) {
-		return /** @type {import('../../pota.d.ts').Derived<Accessed<T>>} */ (
-			/** @type {unknown} */ (new Derived(Owner, fn))
+	/* #__NO_SIDE_EFFECTS__ */ const derived =
+		/** @type {import('./derived.d.ts').derived} */ (
+			/** @type {unknown} */ (...fn) =>
+				/** @type {import('./derived.d.ts').derived} */ (
+					/** @type {unknown} */ (new Derived(Owner, fn))
+				)
 		)
-	}
 
 	/**
 	 * Batches changes to signals
@@ -1088,10 +1085,6 @@ export function createReactiveSystem() {
 	/**
 	 * Unwraps functions and promises recursively canceling if owner
 	 * gets disposed
-	 *
-	 * @template T
-	 * @param {Accessor<T> | Promise<T>} value
-	 * @param {ChainedCallbacks<T>[]} cbs
 	 */
 	const resolve = (value, cbs) =>
 		isFunction(value)
@@ -1106,11 +1099,12 @@ export function createReactiveSystem() {
 	 * Unwraps functions and promises recursively canceling if owner
 	 * gets disposed
 	 *
-	 * @template T
-	 * @param {...ChainedCallbacks<T>} cbs
+	 * @type {import('./action.d.ts').action}
 	 */
 	const action = (...cbs) =>
-		owned((...args) => resolve(() => cbs[0](...args), cbs.slice(1)))
+		owned((...args) => {
+			resolve(() => cbs[0](...args), cbs.slice(1))
+		})
 
 	/** Utilities exposed for tracking async work from user-land. */
 

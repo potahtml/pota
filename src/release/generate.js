@@ -99,7 +99,7 @@ ${lib.join(',\n')}
 			) {
 				types.push({
 					f: moduleName + '/index.d.ts',
-					c: `export * from "pota/types/exports.d.ts"`,
+					c: `export * from "pota/typescript/exports.d.ts"`,
 				})
 			} else {
 				types.push({
@@ -116,16 +116,5 @@ ${lib.join(',\n')}
 
 	if (changedSomething) {
 		console.log('Generated importmap.json and types.json')
-	}
-
-	// fix ts for some reason doesnt want to icnlude these files
-	const exportsDTS = read('./types/exports.d.ts')
-	const definitions = `
-export type * from '../pota.d.ts'
-export type * from '../src/jsx/jsx.d.ts'
-`
-
-	if (!exportsDTS.includes(definitions.trim())) {
-		append('./types/exports.d.ts', definitions)
 	}
 }

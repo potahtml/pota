@@ -45,12 +45,6 @@
 - avoid double wrapping functions exclusively to use with the
   transform. Ex: not for tsc, react compiler, buildless/xml
 
-### async transform
-
-- for await
-- ternaries
-- probably should compile async using generators that return functions
-
 ### typescript
 
 - type components somehow

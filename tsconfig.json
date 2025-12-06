@@ -7,6 +7,7 @@
 		// helps to click "implementation" and go to the source code
 		"declarationMap": true,
 		"emitDeclarationOnly": true,
+		// "preserveWatchOutput": true,
 
 		"allowJs": true,
 		"checkJs": true,
@@ -24,6 +25,6 @@
 		"jsx": "preserve",
 		"jsxImportSource": "pota"
 	},
-	"include": ["src", "pota.d.ts"],
+	"include": ["src", "typescript/global.d.ts"],
 	"exclude": ["node_modules", "src/babel-preset", "src/release"]
 }

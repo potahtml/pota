@@ -55,7 +55,7 @@ export const isKeyBlacklisted = key => keyBlacklist.has(key)
 const keyBlacklist = new Set([
 	'constructor',
 	'__proto__',
-	/** @ts-ignore-error non-sense */
+	/** @ts-expect-error non-sense */
 	...getOwnValues(Symbol).filter(isSymbol),
 ])
 
@@ -77,7 +77,7 @@ export function updateBlacklist(window) {
 		constructorsBlacklist.delete(window[x?.name]),
 	)
 
-	/** @ts-ignore-error non-sense */
+	/** @ts-expect-error non-sense */
 	getOwnValues(window.Symbol)
 		.filter(isSymbol)
 		.forEach(x => keyBlacklist.add(x))

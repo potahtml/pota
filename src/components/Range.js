@@ -6,9 +6,9 @@ import { For } from './For.js'
  * Renders children based on the `range` function arguments
  *
  * @param {object} props
- * @param {number} props.start
- * @param {number} props.stop
- * @param {number} props.step
+ * @param {number} [props.start]
+ * @param {number} [props.stop]
+ * @param {number} [props.step]
  * @param {Children} [props.children]
  * @returns {Children}
  */
