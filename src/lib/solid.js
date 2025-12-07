@@ -591,7 +591,7 @@ export function createReactiveSystem() {
 		 * @type SignalUpdate<T>
 		 * @returns SignalUpdate<T>
 		 */
-		update = value => this.write(value(this.value))
+		update = value => this.write(untrack(() => value(this.value)))
 
 		/**
 		 * @param {T} a
