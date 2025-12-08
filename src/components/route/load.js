@@ -13,41 +13,39 @@ import { scroll } from './scroll.js'
  * the hash of the url, or fallbacks defined on the `<Route>`
  * components.
  *
- * @param {() => Promise<any>} component - Import statement
+ * @param {() => Promise<{ default: () => Children }>} component -
+ *   Import statement
  * @returns {Component}
  * @url https://pota.quack.uy/load
  */
 export function load(component, tries = 0) {
-	return markComponent(
-		/** @ts-ignore-error no convertion to async function thanks */
-		() => {
-			/**
-			 * Owner is messed up because we are running the promise
-			 * ourselves to be able to catch errors. Once pota supports
-			 * error handling this wont be needed.
-			 */
-			let fn
-			const withOwner = markComponent(owned(() => fn()))
+	return markComponent(() => {
+		/**
+		 * Owner is messed up because we are running the promise ourselves
+		 * to be able to catch errors. Once pota supports error handling
+		 * this wont be needed.
+		 */
+		let fn
+		const withOwner = markComponent(owned(() => fn()))
 
-			return component()
-				.then(r => {
-					fn = () => {
-						readyAsync(() => scroll(useRoute()))
-						return r.default()
-					}
-					return withOwner
-				})
-				.catch(
-					e =>
-						new Promise(resolve => {
-							if (tries++ < 9) {
-								fn = () => load(component, tries)
-								useTimeout(() => resolve(withOwner), 5000).start()
-							} else {
-								resolve(e.toString())
-							}
-						}),
-				)
-		},
-	)
+		return component()
+			.then(r => {
+				fn = () => {
+					readyAsync(() => scroll(useRoute()))
+					return r.default()
+				}
+				return withOwner
+			})
+			.catch(
+				e =>
+					new Promise(resolve => {
+						if (tries++ < 9) {
+							fn = () => load(component, tries)
+							useTimeout(() => resolve(withOwner), 5000).start()
+						} else {
+							resolve(e.toString())
+						}
+					}),
+			)
+	})
 }

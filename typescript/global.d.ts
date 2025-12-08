@@ -30,7 +30,7 @@ declare global {
 	type Elements = T.Elements
 	type Props<T = {}> = T.Props<T>
 	type ComponentProps<T> = T.ComponentProps<T>
-	type Dynamic<T, P = ComponentProps<T>> = T.Dynamic<T, P>
+	type Dynamic<T> = T.Dynamic<T>
 
 	// dom
 	type DOMElement = T.DOMElement

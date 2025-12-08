@@ -79,16 +79,18 @@ export const Fragment = props => props.children
  * reactivity tree (think of nested effects that clear inner effects,
  * context, etc).
  *
- * @template T
- * @param {string | Function | Element | object | symbol} value -
- *   Component
- * @param {Props<T>} [props] - Props object
- * @returns {(props: Partial<Props<T>>) => Children}
+ * @template {string | Function | Element | object | symbol} T
+ * @template {ComponentProps<T>} P
+ * @param {T} value
+ * @param {P} [props]
+ * @returns {(props?: P) => Children}
  * @url https://pota.quack.uy/Component
  */
 export function Component(value, props) {
 	if (value === Fragment) {
-		return props.children
+		return /** @type P & {children: Children} */ (
+			/** @type {unkonwn} */ props
+		).children
 	}
 
 	/** Freeze props so isnt directly writable */
@@ -102,7 +104,11 @@ export function Component(value, props) {
 		: markComponent(propsOverride =>
 				component(
 					propsOverride
-						? freeze({ ...props, ...propsOverride })
+						? freeze({
+								/** @ts-expect-error freaking typescript */
+								...props,
+								...propsOverride,
+							})
 						: props,
 				),
 			)
@@ -165,6 +171,7 @@ function createTag(tagName, props) {
 	)
 }
 
+/** @type {boolean} */
 let usedXML
 
 /**
@@ -673,7 +680,8 @@ export function toHTML(children) {
 
 	return unwrapArray(toHTMLFragment(children).childNodes)
 }
-// @ts-ignore-next.error
+
+/** @ts-expect-error freaking typescript */
 context.toHTML = toHTML
 
 /**

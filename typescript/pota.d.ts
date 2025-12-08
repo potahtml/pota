@@ -81,18 +81,16 @@ export type Elements = JSX.Elements
 export type Props<T = {}> = JSX.Props<T>
 
 // based on solidjs types
-export type ComponentProps<T /*extends ValidComponent*/> = T extends (
-	props: infer P,
-) => any
+export type ComponentProps<T> = T extends (props: infer P) => any
 	? P
 	: T extends keyof JSX.IntrinsicElements
 		? JSX.IntrinsicElements[T]
 		: Record<string, unknown>
 
-export type Dynamic<T, P = ComponentProps<T>> = {
-	[K in keyof P]: P[K]
-} & {
-	component: T
+export type Dynamic<P extends { component: any }> = ComponentProps<
+	P['component']
+> & {
+	component: P['component']
 }
 
 // dom

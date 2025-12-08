@@ -44,8 +44,7 @@ export const toArray = Array.from
 export const toValues = value =>
 	isArray(value)
 		? value
-		: // @ts-expect-error
-			isObject(value) && 'values' in value
+		: isObject(value) && 'values' in /** @type {object} */ (value)
 			? /** @type {{ values(): IterableIterator<T> }} */ (
 					value
 				).values()
@@ -56,8 +55,7 @@ export const toValues = value =>
  * @param {T} value
  */
 export const toEntries = value =>
-	// @ts-expect-error
-	isObject(value) && 'entries' in value
+	isObject(value) && 'entries' in /** @type {object} */ (value)
 		? /** @type {{ entries(): IterableIterator<[string, T]> }} */ (
 				value
 			).entries()
@@ -73,6 +71,7 @@ export const stringifyReadable = o => stringify(o, null, 2)
 
 /** @param {unknown} o */
 export const stringifySorted = o => {
+	/** @param {any} o */
 	function sort(o) {
 		if (!isObject(o)) {
 			return o
@@ -311,12 +310,12 @@ export const flatNoArray = arr =>
 /**
  * Keeps state in the function as the first param
  *
- * @template {(...args: any[]) => any} T
+ * @template {((...args: any[]) => void) & Function} T
  * @param {T} fn - Function to which add state to it
- * @param {() => DataStore<Map<unknown, unknown>>} [state] - Passed to
- *   `fn` as first param
- * @returns {(...args: Parameters<T>) => ReturnType<T>} A copy of the
- *   function with the state
+ * @param {() => DataStore<Map<unknown, unknown>>} [state]
+ * @returns {(
+ * 	...args: Parameters<T> extends [any, ...infer P] ? P : never
+ * ) => ReturnType<T>}
  */
 export const withState = /* #__NO_SIDE_EFFECTS__ */ (
 	fn,

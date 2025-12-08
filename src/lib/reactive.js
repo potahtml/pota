@@ -123,6 +123,7 @@ export function isResolved(...args) {
  *   one effect after another.
  */
 export function asyncEffect(fn) {
+	/** @type {Promise<any>[]} */
 	const queue = []
 	effect(() => {
 		const { promise, resolve } = withResolvers()

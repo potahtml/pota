@@ -5,7 +5,7 @@ import {
 	window,
 } from '../lib/std.js'
 
-export const document = window.document
+export const document = /** @type {Document} */ (window.document)
 
 export const head = document?.head
 

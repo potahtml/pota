@@ -13,6 +13,7 @@ const prefix = 'http://www.w3.org/'
 
 // when a tag/attribute is missing the namespace this puts it back in
 
+/** @type {Record<string, string>} */
 export const NS = {
 	__proto__: null,
 	svg: prefix + '2000/svg',

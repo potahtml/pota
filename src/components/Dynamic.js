@@ -10,4 +10,9 @@ import { Component } from '../core/renderer.js'
 
 export const Dynamic = props =>
 	// `component` needs to be deleted else it will end in the tag as an attribute
-	Component(props.component, { ...props, component: undefined })
+	Component(
+		/** @type {string | ((props: ComponentProps<T>) => Children)} */ (
+			props.component
+		),
+		{ ...props, component: undefined },
+	)

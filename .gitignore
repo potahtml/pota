@@ -30,3 +30,4 @@ dist-ssr
 *.sln
 *.sw?
 .zed/*
+tsconfig.tsbuildinfo
