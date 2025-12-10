@@ -3,7 +3,7 @@ import { Component } from '../core/renderer.js'
 /**
  * Creates components dynamically
  *
- * @template T
+ * @template {{ component: any }} T
  * @param {Dynamic<T>} props
  * @url https://pota.quack.uy/Components/Dynamic
  */

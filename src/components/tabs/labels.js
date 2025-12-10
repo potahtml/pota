@@ -7,9 +7,12 @@ import { getValue } from '../../lib/std.js'
 /**
  * Renders a list of tabs
  *
- * @param {Elements['nav'] & {
- * 	children: import('./labels.js').Label[]
- * }} props
+ * @param {Merge<
+ * 	Elements['nav'],
+ * 	{
+ * 		children: import('./labels.js').Label[]
+ * 	}
+ * >} props
  * @url https://pota.quack.uy/Components/Tabs
  */
 export function Labels(props) {
@@ -72,17 +75,20 @@ export function Labels(props) {
 /**
  * Passthrough for label in TabList
  *
- * @param {Elements['button'] & {
- * 	selected?: boolean
- * 	name?: string
- * 	hiddden?: Accessor<boolean>
- * 	onClick?: (
- * 		event: Event,
- * 		group: number,
- * 		index: number,
- * 		props: object,
- * 	) => void
- * }} props
+ * @param {Merge<
+ * 	Elements['button'],
+ * 	{
+ * 		selected?: boolean
+ * 		name?: string
+ * 		hidden?: Accessor<boolean>
+ * 		onClick?: (
+ * 			event: Event,
+ * 			group: number,
+ * 			index: number,
+ * 			props: object,
+ * 		) => void
+ * 	}
+ * >} props
  * @url https://pota.quack.uy/Components/Tabs
  */
 export function Label(props) {

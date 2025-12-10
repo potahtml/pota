@@ -40,10 +40,12 @@ export function Panels(props) {
 /**
  * Passthrough for content in TabPanel
  *
- * @param {Elements['section'] & {
- * 	collapse?: boolean
- * }} props
- *
+ * @param {Merge<
+ * 	Elements['section'],
+ * 	{
+ * 		collapse?: boolean
+ * 	}
+ * >} props
  *   - Leftover props are passed to the section container
  *
  * @url https://pota.quack.uy/Components/Tabs

@@ -157,4 +157,8 @@ declare global {
 			toEqual: (expected: unknown) => Promise<unknown>
 		}
 	}
+
+	// utils
+
+	type Merge<A, B> = Omit<A, keyof B> & B
 }
