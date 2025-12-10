@@ -22,7 +22,7 @@
 
 import * as csstype from 'csstype'
 
-interface CSSProperties extends csstype.PropertiesHyphen {
+export interface CSSProperties extends csstype.PropertiesHyphen {
 	[key: `-${string}`]: number | string | undefined
 }
 

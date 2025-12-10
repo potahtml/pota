@@ -8,5 +8,6 @@ export { A, load, Route, Navigate } from './Route.js'
 export { Show } from './Show.js'
 export { Suspense } from './Suspense.js'
 export { Match, Switch } from './Switch.js'
+export { Tabs } from './tabs/tabs.js'
 
 export { CustomElement, customElement } from './CustomElement.js'

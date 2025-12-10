@@ -26,6 +26,7 @@ import {
 	Show,
 	Suspense,
 	Switch,
+	Tabs,
 } from '../components/@main.js'
 import { createComment, createTextNode } from '../use/dom.js'
 
@@ -44,6 +45,7 @@ const defaultRegistry = {
 	Show,
 	Suspense,
 	Switch,
+	Tabs,
 }
 
 // parseXML
