@@ -508,117 +508,6 @@ export function createReactiveSystem() {
 		}
 	}
 
-	// SIGNAL
-
-	/**
-	 * @template in T
-	 * @type SignalObject<T>
-	 */
-	class Signal {
-		value
-
-		/** @private */
-		observers
-		/** @private */
-		observerSlots
-
-		// options:
-		// equals
-
-		/**
-		 * @param {T} [value]
-		 * @param {SignalOptions<T>} [options]
-		 */
-		constructor(value, options) {
-			this.value = value
-			if (options) {
-				assign(this, options)
-				if (options.equals === false) {
-					this.equals = this.equalsFalse
-				}
-			}
-		}
-		/** @returns SignalAccessor<T> */
-		read = () => {
-			if (Listener) {
-				const sourceSlot = this.observers ? this.observers.length : 0
-
-				if (Listener.sources) {
-					Listener.sources.push(this)
-					Listener.sourceSlots.push(sourceSlot)
-				} else {
-					Listener.sources = [this]
-					Listener.sourceSlots = [sourceSlot]
-				}
-
-				const observerSlot = Listener.sources.length - 1
-
-				if (sourceSlot) {
-					this.observers.push(Listener)
-					this.observerSlots.push(observerSlot)
-				} else {
-					this.observers = [Listener]
-					this.observerSlots = [observerSlot]
-				}
-			}
-
-			return this.value
-		}
-		/**
-		 * @param {T} [value]
-		 * @returns SignalSetter<T>
-		 */
-		write = value => {
-			if (!this.equals(this.value, value)) {
-				this.value = value
-
-				if (this.observers && this.observers.length) {
-					runUpdates(() => {
-						for (const observer of this.observers) {
-							if (observer.state === 0 /* CLEAN */) {
-								observer.queue()
-								observer.observers && downstream(observer)
-							}
-							observer.state = 1 /* STALE */
-						}
-					})
-				}
-				return true
-			}
-			return false
-		}
-		/**
-		 * @type SignalUpdate<T>
-		 * @returns SignalUpdate<T>
-		 */
-		update = value => this.write(untrack(() => value(this.value)))
-
-		/**
-		 * @param {T} a
-		 * @param {T} b
-		 */
-		equals(a, b) {
-			return a === b
-		}
-
-		/**
-		 * @param {T} a
-		 * @param {T} b
-		 */
-		equalsFalse(a, b) {
-			return false
-		}
-
-		*[Symbol.iterator]() {
-			/** @type SignalAccessor<T> */
-			yield this.read
-			/** @type SignalSetter<T> */
-			yield this.write
-			/** @type SignalUpdate<T> */
-			yield this.update
-		}
-	}
-
 	// API
 
 	/**
@@ -634,17 +523,111 @@ export function createReactiveSystem() {
 		return runWithOwner(root, () => fn(() => root.dispose()))
 	}
 
+	// SIGNAL
+
+	/**
+	 * @param {T} a
+	 * @param {T} b
+	 */
+	function equalsFalse(a, b) {
+		return false
+	}
+
+	/**
+	 * @param {T} a
+	 * @param {T} b
+	 */
+	function equals(a, b) {
+		return a === b
+	}
+
 	/**
 	 * Creates a signal
 	 *
 	 * @template T
-	 * @param {T} [initialValue] - Initial value of the signal
+	 * @param {T} [value] - Initial value of the signal
 	 * @param {SignalOptions<T>} [options] - Signal options
+	 * @returns {SignalObject<T>}
 	 */
-	/* #__NO_SIDE_EFFECTS__ */ function signal(initialValue, options) {
-		return /** @type {SignalObject<T>} */ (
-			/** @type {unknown} */ (new Signal(initialValue, options))
-		)
+	/* #__NO_SIDE_EFFECTS__ */ function signal(value, options) {
+		const o = {
+			observers: undefined,
+			observerSlots: undefined,
+		}
+
+		let _equals
+
+		function read() {
+			if (Listener) {
+				const sourceSlot = o.observers ? o.observers.length : 0
+
+				if (Listener.sources) {
+					Listener.sources.push(o)
+					Listener.sourceSlots.push(sourceSlot)
+				} else {
+					Listener.sources = [o]
+					Listener.sourceSlots = [sourceSlot]
+				}
+
+				const observerSlot = Listener.sources.length - 1
+
+				if (sourceSlot) {
+					o.observers.push(Listener)
+					o.observerSlots.push(observerSlot)
+				} else {
+					o.observers = [Listener]
+					o.observerSlots = [observerSlot]
+				}
+			}
+
+			return value
+		}
+		function write(val) {
+			if (!_equals(value, val)) {
+				value = val
+
+				if (o.observers && o.observers.length) {
+					runUpdates(() => {
+						for (const observer of o.observers) {
+							if (observer.state === 0 /* CLEAN */) {
+								observer.queue()
+								observer.observers && downstream(observer)
+							}
+
+							observer.state = 1 /* STALE */
+						}
+					})
+				}
+				return true
+			}
+			return false
+		}
+		function update(val) {
+			return write(untrack(() => val(value)))
+		}
+
+		const s = [read, write, update]
+
+		// @ts-ignore
+		s.read = read
+		// @ts-ignore
+		s.write = write
+		// @ts-ignore
+		s.update = update
+
+		if (options) {
+			assign(s, options)
+			if (options.equals === false) {
+				_equals = equalsFalse
+			} else {
+				_equals = equals
+			}
+		} else {
+			_equals = equals
+		}
+
+		// @ts-ignore
+		return s
 	}
 
 	/**
