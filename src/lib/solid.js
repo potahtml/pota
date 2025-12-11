@@ -58,6 +58,45 @@ export function createReactiveSystem() {
 
 	let Time = 0
 
+	function doRead(o) {
+		if (Listener) {
+			const sourceSlot = o.observers ? o.observers.length : 0
+
+			if (Listener.sources) {
+				Listener.sources.push(o)
+				Listener.sourceSlots.push(sourceSlot)
+			} else {
+				Listener.sources = [o]
+				Listener.sourceSlots = [sourceSlot]
+			}
+
+			const observerSlot = Listener.sources.length - 1
+
+			if (sourceSlot) {
+				o.observers.push(Listener)
+				o.observerSlots.push(observerSlot)
+			} else {
+				o.observers = [Listener]
+				o.observerSlots = [observerSlot]
+			}
+		}
+	}
+
+	function doWrite(o) {
+		if (o.observers && o.observers.length) {
+			runUpdates(() => {
+				for (const observer of o.observers) {
+					if (observer.state === 0 /* CLEAN */) {
+						observer.queue()
+						observer.observers && downstream(observer)
+					}
+
+					observer.state = 1 /* STALE */
+				}
+			})
+		}
+	}
+
 	// ROOT
 
 	class Root {
@@ -293,27 +332,7 @@ export function createReactiveSystem() {
 				Updates = updates
 			}
 
-			if (Listener) {
-				const sourceSlot = this.observers ? this.observers.length : 0
-
-				if (Listener.sources) {
-					Listener.sources.push(this)
-					Listener.sourceSlots.push(sourceSlot)
-				} else {
-					Listener.sources = [this]
-					Listener.sourceSlots = [sourceSlot]
-				}
-
-				const observerSlot = Listener.sources.length - 1
-
-				if (sourceSlot) {
-					this.observers.push(Listener)
-					this.observerSlots.push(observerSlot)
-				} else {
-					this.observers = [Listener]
-					this.observerSlots = [observerSlot]
-				}
-			}
+			doRead(this)
 
 			return this.value
 		}
@@ -322,17 +341,7 @@ export function createReactiveSystem() {
 			if (!this.equals(this.value, value)) {
 				this.value = value
 
-				if (this.observers && this.observers.length) {
-					runUpdates(() => {
-						for (const observer of this.observers) {
-							if (observer.state === 0 /* CLEAN */) {
-								observer.queue()
-								observer.observers && downstream(observer)
-							}
-							observer.state = 1 /* STALE */
-						}
-					})
-				}
+				doWrite(this)
 			}
 		}
 		/**
@@ -469,17 +478,7 @@ export function createReactiveSystem() {
 			if (!this.equals(this.value, value)) {
 				this.value = value
 
-				if (this.observers && this.observers.length) {
-					runUpdates(() => {
-						for (const observer of this.observers) {
-							if (observer.state === 0 /* CLEAN */) {
-								observer.queue()
-								observer.observers && downstream(observer)
-							}
-							observer.state = 1 /* STALE */
-						}
-					})
-				}
+				doWrite(this)
 			}
 		}
 
@@ -559,25 +558,7 @@ export function createReactiveSystem() {
 
 		function read() {
 			if (Listener) {
-				const sourceSlot = o.observers ? o.observers.length : 0
-
-				if (Listener.sources) {
-					Listener.sources.push(o)
-					Listener.sourceSlots.push(sourceSlot)
-				} else {
-					Listener.sources = [o]
-					Listener.sourceSlots = [sourceSlot]
-				}
-
-				const observerSlot = Listener.sources.length - 1
-
-				if (sourceSlot) {
-					o.observers.push(Listener)
-					o.observerSlots.push(observerSlot)
-				} else {
-					o.observers = [Listener]
-					o.observerSlots = [observerSlot]
-				}
+				doRead(o)
 			}
 
 			return value
@@ -586,18 +567,8 @@ export function createReactiveSystem() {
 			if (!_equals(value, val)) {
 				value = val
 
-				if (o.observers && o.observers.length) {
-					runUpdates(() => {
-						for (const observer of o.observers) {
-							if (observer.state === 0 /* CLEAN */) {
-								observer.queue()
-								observer.observers && downstream(observer)
-							}
+				doWrite(o)
 
-							observer.state = 1 /* STALE */
-						}
-					})
-				}
 				return true
 			}
 			return false
