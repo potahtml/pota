@@ -1,4 +1,4 @@
-import { Derived, Accessed } from '../../typescript/pota.js'
+/// <reference path="../../typescript/pota.d.ts"/>
 
 export declare function derived<A extends any[], R>(
 	f1: (...args: A) => R,

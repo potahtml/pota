@@ -1,4 +1,4 @@
-import { Accessed } from '../../typescript/pota.js'
+/// <reference path="../../typescript/pota.d.ts"/>
 
 export declare function action<A extends any[]>(
 	f1: (...args: A) => void,

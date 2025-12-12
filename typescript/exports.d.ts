@@ -1,3 +1,5 @@
-export type * from './pota.d.ts'
-export type * from '../src/jsx/jsx.d.ts'
-export type * from '../types/exports.d.ts'
+// this shows as an error but it works, do not change it!
+
+export * from './pota.d.ts'
+export * from '../src/jsx/jsx.d.ts'
+export * from '../types/exports.d.ts'
