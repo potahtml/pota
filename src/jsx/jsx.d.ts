@@ -178,11 +178,13 @@ export namespace JSX {
 
 		// PLUGINS
 
-		// how to move this out of this JSX file!?
-		// I cannot seem to be able to extend JSX namespace from within the lib
 		'use:bind'?: CallbackBind // no `<Element>` !
 
 		'use:clickoutside'?: CallbackEventElement<PointerEvent, Element>
+		'use:clickoutsideonce'?: CallbackEventElement<
+			PointerEvent,
+			Element
+		>
 
 		'use:fullscreen'?:
 			| true

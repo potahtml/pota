@@ -1,3 +1,5 @@
+import { propsPlugin } from '../core/props/plugin.js'
+import { addEvent } from '../lib/reactive.js'
 import { window } from '../lib/std.js'
 
 /**
@@ -27,3 +29,9 @@ export function restoreSelection(range) {
 		selection.addRange(range)
 	}
 }
+
+propsPlugin('use:click-selects-all', (node, propValue) => {
+	addEvent(node, 'click', event => {
+		window.getSelection().selectAllChildren(node)
+	})
+})

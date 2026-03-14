@@ -12,7 +12,7 @@ const elements = () =>
 	toArray(
 		querySelectorAll(
 			document,
-			'input:not([type=hidden]), button, select, textarea, a, [tabindex]',
+			'input:not([type=hidden]), button, select, textarea, a, [tabindex], [contenteditable]',
 		),
 	)
 
