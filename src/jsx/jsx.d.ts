@@ -53,6 +53,16 @@ interface CSSAttributes extends NSStyle {
 	>
 }
 
+// doesnt seem to work for whatever reason ?
+
+type Properties<T> = {
+	[K in keyof T as K extends string
+		? T[K] extends string | number | boolean
+			? `prop:${K}`
+			: never
+		: never]?: Accessor<T[K]>
+}
+
 /** Pota namespace JSX */
 export namespace JSX {
 	// JSX.ElementAttributesProperty - name of the `props` argument
@@ -202,12 +212,15 @@ export namespace JSX {
 
 	/* Attributes */
 
+	interface ElementProperties<Element> extends Properties<Element> {}
+
 	interface ElementAttributes<Element>
 		extends
 			PotaAttributes<Element>,
 			CSSAttributes,
 			AriaAttributes,
-			EventHandlersElement<Element> {
+			EventHandlersElement<Element>,
+			ElementProperties<Element> {
 		// properties
 		'prop:innerHTML'?: Accessor<number | string>
 		'prop:textContent'?: Accessor<number | string>
