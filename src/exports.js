@@ -12,6 +12,7 @@ export {
 	context,
 	derived,
 	effect,
+	externalSignal,
 	isResolved,
 	map,
 	memo,

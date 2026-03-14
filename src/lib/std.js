@@ -223,7 +223,7 @@ export function equals(a, b) {
 		return true
 	}
 
-	if (a && b && typeof a == 'object' && typeof b == 'object') {
+	if (a && b && typeof a === 'object' && typeof b === 'object') {
 		if (a.constructor !== b.constructor) {
 			return false
 		}
@@ -232,7 +232,7 @@ export function equals(a, b) {
 		if (isArray(a)) {
 			length = a.length
 			// @ts-expect-error
-			if (length != b.length) {
+			if (length !== b.length) {
 				return false
 			}
 			for (i = length; i-- !== 0; ) {
@@ -264,9 +264,7 @@ export function equals(a, b) {
 		}
 
 		for (i = length; i-- !== 0; ) {
-			var key = k[i]
-
-			if (!equals(a[key], b[key])) {
+			if (!equals(a[k[i]], b[k[i]])) {
 				return false
 			}
 		}

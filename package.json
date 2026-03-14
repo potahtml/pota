@@ -42,10 +42,6 @@
 			"types": "./types/lib/store.d.ts",
 			"default": "./src/lib/store.js"
 		},
-		"./experiments": {
-			"types": "./types/lib/experiments.d.ts",
-			"default": "./src/lib/experiments.js"
-		},
 		".": {
 			"types": "./typescript/exports.d.ts",
 			"default": "./src/exports.js"

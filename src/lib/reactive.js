@@ -2,6 +2,7 @@ import { $isComponent, $isMap } from '../constants.js'
 
 import {
 	emptyArray,
+	equals,
 	flatNoArray,
 	getValue,
 	isArray,
@@ -140,6 +141,38 @@ export function asyncEffect(fn) {
 			onDone,
 		)
 	})
+}
+
+/**
+ * Same as signal but writing to it patches current data. To be used
+ * to patch a signal array with data that comes from a server without
+ * losing references to what its already there avoiding a store.
+ *
+ * @template {{ id?: string }[]} T
+ * @param {T} initialValue
+ * @param {SignalOptions<T>} [options]
+ * @returns {SignalObject<T>}
+ */
+export function externalSignal(initialValue, options) {
+	const s = signal(initialValue, options)
+
+	const write = s[1]
+
+	// @ts-expect-error
+	s[1] = s.write = fresh => {
+		const r = /** @type {T} */ ([])
+
+		const stale = untrack(s.read)
+
+		for (const after of fresh) {
+			const before = stale.find(before => before.id === after.id)
+
+			equals(before, after) ? r.push(before) : r.push(after)
+		}
+		return write(r)
+	}
+
+	return s
 }
 
 /** @param {() => unknown} fn */
