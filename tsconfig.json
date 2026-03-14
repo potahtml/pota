@@ -8,19 +8,21 @@
 		"declarationMap": true,
 		"emitDeclarationOnly": true,
 		// "preserveWatchOutput": true,
+		"pretty": false,
 
 		"allowJs": true,
 		"checkJs": true,
 		"strict": true,
 		"noImplicitAny": false,
+		// `true` breaks inference
 		"strictNullChecks": false,
 		"skipLibCheck": true,
+		"resolveJsonModule": true,
 
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 		"target": "ESNext",
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
-		"resolveJsonModule": true,
 
 		"jsx": "preserve",
 		"jsxImportSource": "pota"

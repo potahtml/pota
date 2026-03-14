@@ -544,10 +544,13 @@ export function markComponent(fn) {
  * Adds an event listener to a node
  *
  * @template {Document | typeof window | DOMElement} TargetElement
+ * @template {keyof EventType} Name
  * @param {TargetElement} node - Element to add the event listener
- * @param {EventName} type - The name of the event listener
- * @param {EventHandler<Event, TargetElement>} handler - Function to
- *   handle the event
+ * @param {Name} type - The name of the event listener
+ * @param {EventHandler<EventType[Name], TargetElement>} handler
+ *
+ *   - Function to handle the event
+ *
  * @returns {Function} - An `off` function for removing the event
  *   listener
  * @url https://pota.quack.uy/props/EventListener
@@ -579,10 +582,13 @@ export function addEvent(node, type, handler) {
  * Removes an event listener from a node
  *
  * @template {Document | typeof window | DOMElement} TargetElement
+ * @template {keyof EventType} Name
  * @param {TargetElement} node - Element to add the event listener
- * @param {EventName} type - The name of the event listener
- * @param {EventHandler<Event, TargetElement>} handler - Function to
- *   handle the event
+ * @param {Name} type - The name of the event listener
+ * @param {EventHandler<EventType[Name], TargetElement>} handler
+ *
+ *   - Function to handle the event
+ *
  * @returns {Function} - An `on` function for adding back the event
  *   listener
  * @url https://pota.quack.uy/props/EventListener

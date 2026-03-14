@@ -403,7 +403,7 @@ export namespace JSX {
 	interface HTMLAnchorElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		download?: Accessor<string>
+		download?: Accessor<string | BooleanAttribute>
 		href?: Accessor<string>
 		hreflang?: Accessor<string>
 		ping?: Accessor<string>
@@ -442,7 +442,7 @@ export namespace JSX {
 	> extends HTMLAttributes<Element> {
 		alt?: Accessor<string>
 		coords?: Accessor<string>
-		download?: Accessor<string>
+		download?: Accessor<string | BooleanAttribute>
 		href?: Accessor<string>
 		ping?: Accessor<string>
 		referrerpolicy?: Accessor<
