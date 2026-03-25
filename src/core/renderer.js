@@ -29,6 +29,7 @@ import {
 	importNode,
 	isConnected,
 	querySelector,
+	toDiff,
 	walkElements,
 } from '../use/dom.js'
 
@@ -381,39 +382,38 @@ export function createChildren(
 				)
 			}
 
-			let node = []
-
 			// signal/memo/external/user provided function
 			// needs placeholder to stay in position
 			parent = createPlaceholder(parent, relative)
 
 			// For - TODO move this to the `For` component
-			$isMap in child
-				? effect(() => {
-						node = toDiff(
-							node,
-							flatToArray(
-								child(child => createChildren(parent, child, true)),
-							),
-							true,
-						)
-					})
-				: effect(() => {
-						// maybe a signal (at least a function) so needs an effect
-						node = toDiff(
-							node,
-							flatToArray(
-								createChildren(parent, child(), true, node[0]),
-							),
-							true,
-						)
-					})
+			if ($isMap in child) {
+				effect(() => {
+					child(child => createChildren(parent, child, true))
+				})
+				// map has own dom removal
+			} else {
+				let node = []
 
-			cleanup(() => {
-				toDiff(node)
-				// @ts-expect-error
-				parent.remove()
-			})
+				effect(() => {
+					// maybe a signal (at least a function) so needs an effect
+					node = toDiff(
+						node,
+						flatToArray(
+							createChildren(parent, child(), true, node[0]),
+						),
+						true,
+					)
+				})
+
+				cleanup(() => {
+					if (parent.isConnected) {
+						toDiff(node)
+						// @ts-expect-error
+						parent.remove()
+					}
+				})
+			}
 
 			/**
 			 * A placeholder is created and added to the document but doesnt
@@ -696,45 +696,4 @@ export function toHTMLFragment(children) {
 	createChildren(fragment, children)
 
 	return fragment
-}
-
-/**
- * Removes from the DOM `prev` elements not found in `next`
- *
- * @param {DOMElement[]} [prev=[]] - Array with previous elements.
- *   Default is `[]`
- * @param {DOMElement[]} [next=[]] - Array with next elements. Default
- *   is `[]`
- * @param {boolean} [short=false] - Whether to use fast clear. Default
- *   is `false`
- * @returns {DOMElement[]} The next array of elements
- */
-function toDiff(prev = [], next = [], short = false) {
-	// if theres something to remove
-	if (prev.length) {
-		// fast clear
-		if (
-			short &&
-			next.length === 0 &&
-			// + 1 because of the original placeholder
-			prev.length + 1 === prev[0].parentNode.childNodes.length
-		) {
-			const parent = prev[0].parentNode
-			// save the placeholder
-			const lastChild = parent.lastChild
-			parent.textContent = ''
-			parent.appendChild(lastChild)
-		} else if (next.length === 0) {
-			for (const item of prev) {
-				item && item.remove()
-			}
-		} else {
-			for (const item of prev) {
-				if (item && !next.includes(item)) {
-					item.remove()
-				}
-			}
-		}
-	}
-	return next
 }

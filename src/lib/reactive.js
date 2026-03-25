@@ -4,6 +4,7 @@ import {
 	emptyArray,
 	equals,
 	flatNoArray,
+	flatToArray,
 	getValue,
 	isArray,
 	isFunction,
@@ -17,6 +18,7 @@ import {
 // solid
 
 import { createReactiveSystem } from './solid.js'
+import { toDiff } from '../use/dom.js'
 
 const {
 	action,
@@ -196,7 +198,14 @@ class Row {
 		this.isDupe = isDupe
 
 		root(disposer => {
-			this.disposer = disposer
+			this.disposer = clearing => {
+				if (!clearing) {
+					// console.log('removing row from Row')
+					// if the row has a wrapper, remove it first to skip children removal
+					this.remove()
+				}
+				disposer()
+			}
 			if (reactiveIndex) {
 				this.indexSignal = signal(index)
 				/** @type Children[] */
@@ -240,6 +249,7 @@ class Row {
 		}
 		this._end = nodes
 	}
+	/** @returns {DOMElement[]} */
 	nodesForRow() {
 		const begin = this.begin()
 		const end = this.end()
@@ -253,6 +263,9 @@ class Row {
 		}
 
 		return nodes
+	}
+	remove() {
+		this.nodesForRow().forEach(node => node.remove())
 	}
 }
 
@@ -278,8 +291,10 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 	let prev = []
 
 	function clear() {
+		toDiff(flatToArray(prev.map(item => item.nodes)), [], true)
+
 		for (const row of prev) {
-			row.disposer()
+			row.disposer(true)
 		}
 		cache.clear()
 		duplicates.clear()
@@ -316,15 +331,30 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 
 		const value = getValue(list) || emptyArray
 
-		/** To allow iterate objects as if were an array with indexes */
-		const items = toEntries(value)
-
 		runId++
 
 		rows = []
+
+		/** `toEntries` To allow iterate objects as if were an array */
+
+		// all has been replaced?
+		if (prev.length) {
+			let clearit = true
+			for (const [index, item] of toEntries(value)) {
+				if (cache.get(item)) {
+					clearit = false
+					break
+				}
+			}
+
+			if (clearit) {
+				clear()
+			}
+		}
+
 		const hasPrev = prev.length
 
-		for (const [index, item] of items) {
+		for (const [index, item] of toEntries(value)) {
 			let row = hasPrev ? cache.get(item) : undefined
 
 			if (row === undefined) {

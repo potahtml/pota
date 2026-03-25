@@ -229,3 +229,54 @@ export function getValueElement(value, ...args) {
 	const element = getValueWithArguments(value, ...args)
 	return element instanceof Node ? element : undefined
 }
+
+/**
+ * Removes from the DOM `prev` elements not found in `next`
+ *
+ * @param {DOMElement[]} [prev=[]] - Array with previous elements.
+ *   Default is `[]`
+ * @param {DOMElement[]} [next=[]] - Array with next elements. Default
+ *   is `[]`
+ * @param {boolean} [short=false] - Whether to use fast clear. Default
+ *   is `false`
+ * @returns {DOMElement[]} The next array of elements
+ */
+export function toDiff(prev = [], next = [], short = false) {
+	// if theres something to remove
+	if (prev.length) {
+		// fast clear
+		if (short && next.length === 0) {
+			const parent = prev[0] && prev[0].parentNode
+			if (parent) {
+				// + 1 because of the original placeholder
+				if (prev.length + 1 === parent.childNodes.length) {
+					// console.log('fast clear')
+					// save the placeholder
+					const lastChild = parent.lastChild
+					parent.textContent = ''
+					parent.appendChild(lastChild)
+					return next
+				}
+			} else {
+				// console.log('parent gone already')
+				return next
+			}
+		}
+
+		if (next.length === 0) {
+			// console.log('removing each separately')
+			for (const item of prev) {
+				item && item.remove()
+			}
+			return next
+		}
+
+		for (const item of prev) {
+			// console.log('removing some')
+			if (item && !next.includes(item)) {
+				item.remove()
+			}
+		}
+	}
+	return next
+}
