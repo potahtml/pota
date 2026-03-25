@@ -377,25 +377,36 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 			// `rows.length > 1` because no need for sorting when there are no items
 			// `prev.length > 0` to skip sorting on creation as its already sorted
 			if (!noSort && rows.length > 1 && prev.length) {
-				// when appending to already created it shouldnt sort
-				// as its already sorted
 				const unsort = []
+				const sorted = []
+
+				// handles append/prepend/insert in middle/swap
 				for (let i = 0; i < prev.length && i < rows.length; i++) {
 					if (prev[i] !== rows[i]) {
 						unsort.push(rows[i])
+						for (let i2 = 1; rows.length - i2 > i; i2++) {
+							const k = rows.length - i2
+							if (prev[prev.length - i2] !== rows[k]) {
+								unsort.push(rows[k])
+							} else {
+								sorted.push(rows[k])
+							}
+						}
+						break
+					} else {
+						sorted.push(rows[i])
 					}
 				}
 
 				if (unsort.length) {
 					let unsorted = unsort.length
 					if (unsorted) {
-						const sorted = []
-
 						// handle swap - unsorted rows should move only next to already sorted
 						for (const usort of unsort) {
 							if (
 								rows[usort.index - 1] &&
-								(!unsort.includes(rows[usort.index - 1]) ||
+								(unsorted === 1 ||
+									!unsort.includes(rows[usort.index - 1]) ||
 									sorted.includes(rows[usort.index - 1]))
 							) {
 								rows[usort.index - 1]
@@ -405,7 +416,8 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 								unsorted--
 							} else if (
 								rows[usort.index + 1] &&
-								(!unsort.includes(rows[usort.index + 1]) ||
+								(unsorted === 1 ||
+									!unsort.includes(rows[usort.index + 1]) ||
 									sorted.includes(rows[usort.index - 1]))
 							) {
 								rows[usort.index + 1]
