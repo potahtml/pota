@@ -53,16 +53,18 @@ interface CSSAttributes extends NSStyle {
 	>
 }
 
-/** Distinct types → `N`; structurally the same → `Y` (used to detect readonly props). */
-type IfEquals<A, B, Y = unknown, N = never> = (<T>() => T extends A ? 1 : 2) extends <
-	T,
->() => T extends B ? 1 : 2
-	? Y
-	: N
+/**
+ * Distinct types → `N`; structurally the same → `Y` (used to detect
+ * readonly props).
+ */
+type IfEquals<A, B, Y = unknown, N = never> =
+	(<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
+		? Y
+		: N
 
-type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (
-	k: infer I,
-) => void
+type UnionToIntersection<U> = (
+	U extends unknown ? (k: U) => void : never
+) extends (k: infer I) => void
 	? I
 	: never
 
@@ -85,8 +87,9 @@ type IsWidePrimitive<T> = [T] extends [string]
 			: false
 
 /**
- * Single compile-time constant (e.g. `tagName: "INPUT"`, `nodeType: 1`). Omit from
- * `prop:*`; unions of literals (e.g. `type` on `<input>`) are kept.
+ * Single compile-time constant (e.g. `tagName: "INPUT"`, `nodeType:
+ * 1`). Omit from `prop:*`; unions of literals (e.g. `type` on
+ * `<input>`) are kept.
  */
 type IsSingletonLiteral<T> =
 	IsUnion<T> extends true
@@ -98,9 +101,10 @@ type IsSingletonLiteral<T> =
 				: false
 
 /**
- * True when `K` is readonly on `T` (e.g. `childElementCount` from `ParentNode`).
- * Single-key `{ [Q in K]: T[K] }` does **not** copy `readonly`, so we compare
- * `Pick` to `Readonly<Pick>` instead of the old `IfEquals` mapped pair.
+ * True when `K` is readonly on `T` (e.g. `childElementCount` from
+ * `ParentNode`). Single-key `{ [Q in K]: T[K] }` does **not** copy
+ * `readonly`, so we compare `Pick` to `Readonly<Pick>` instead of the
+ * old `IfEquals` mapped pair.
  */
 type IsReadonlyKey<T, K extends keyof T> = IfEquals<
 	Pick<T, K>,
@@ -109,7 +113,10 @@ type IsReadonlyKey<T, K extends keyof T> = IfEquals<
 	false
 >
 
-/** DOM readonly and singleton-constant props are not useful as `prop:*`. */
+/**
+ * DOM readonly and singleton-constant props are not useful as
+ * `prop:*`.
+ */
 type Properties<T> = {
 	[K in keyof T as K extends keyof T & string
 		? K extends `aria${string}`
