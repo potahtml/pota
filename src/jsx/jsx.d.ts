@@ -253,6 +253,9 @@ export namespace JSX {
 	interface PotaAttributes<Element> {
 		children?: JSX.Element // This is `JSX.Element`! Not `Element` argument
 
+		// rendering
+		'use:normalize'?: true
+
 		// lifecycles
 		'use:ref'?: CallbackElement<Element>
 		'use:connected'?: CallbackElement<Element>

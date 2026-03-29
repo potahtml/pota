@@ -507,7 +507,7 @@ export function resolve(fn) {
  *
  * @param {Children} children
  */
-function unwrap(children) {
+export function unwrap(children) {
 	if (isFunction(children)) {
 		return unwrap(children())
 	}

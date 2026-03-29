@@ -182,8 +182,8 @@ export function buildPartial(path, state) {
 		// inline
 
 		for (const attr of path.get('openingElement').get('attributes')) {
-			// no namespaced
 			if (t.isJSXIdentifier(attr.node.name)) {
+				// no namespaced
 				const name = attr.node.name.name
 				const value =
 					(attr.node.value?.expression
@@ -252,7 +252,35 @@ export function buildPartial(path, state) {
 						? attr.node.value.expression
 						: attr.node.value) || t.booleanLiteral(true)
 
-				if (namespace === 'class') {
+				if (name === 'use:normalize') {
+					callInlined(
+						'setProperty',
+						inlinedNode,
+						'textContent',
+						t.arrowFunctionExpression(
+							[],
+							t.callExpression(
+								t.memberExpression(
+									callFunctionImport(
+										path,
+										state,
+										'pota',
+										'unwrap',
+										t.arrayExpression(
+											buildChildrenPartial(path).map(x =>
+												t.isArrowFunctionExpression(x) ? x.body : x,
+											),
+										),
+									),
+									t.identifier('join'),
+								),
+								[t.stringLiteral('')],
+							),
+						),
+					)
+
+					path.set('children', [])
+				} else if (namespace === 'class') {
 					callInlined('setClass', inlinedNode, localName, value)
 				} else if (namespace === 'style') {
 					callInlinedFromJSXRuntime(

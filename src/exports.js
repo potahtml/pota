@@ -24,6 +24,7 @@ export {
 	signal,
 	syncEffect,
 	untrack,
+	unwrap,
 	withValue,
 	// components
 	isComponent,

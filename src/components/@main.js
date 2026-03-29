@@ -9,5 +9,6 @@ export { Show } from './Show.js'
 export { Suspense } from './Suspense.js'
 export { Match, Switch } from './Switch.js'
 export { Tabs } from './tabs/tabs.js'
+export { Normalize } from './Normalize.js'
 
 export { CustomElement, customElement } from './CustomElement.js'
