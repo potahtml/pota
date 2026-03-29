@@ -536,11 +536,7 @@ export function createChildren(
 		default: {
 			// boolean/bigint/symbol/catch all
 			// toString() is needed for `Symbol`
-			return insertNode(
-				parent,
-				createTextNode(child.toString()),
-				relative,
-			)
+			return createChildren(parent, child.toString(), relative)
 		}
 	}
 }

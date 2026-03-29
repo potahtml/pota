@@ -166,10 +166,10 @@ export const redefineProperty = (target, key, descriptor) =>
 	defineProperty(
 		target,
 		key,
-		assign(create(redefinePropertyDefailts), descriptor),
+		assign(create(redefinePropertyDefaults), descriptor),
 	)
 
-const redefinePropertyDefailts = {
+const redefinePropertyDefaults = {
 	__proto__: null,
 	configurable: true,
 	enumerable: true,
