@@ -113,9 +113,9 @@ propsPlugin('use:size-to-input', (node, propValue) => {
 		const { parentNode, scrollHeight } = node
 
 		const size =
-			scrollHeight > parentNode.clientHeight
+			scrollHeight > /** @type {Element} */ (parentNode).clientHeight
 				? scrollHeight
-				: parentNode.clientHeight
+				: /** @type {Element} */ (parentNode).clientHeight
 
 		setElementStyle(node, 'height', 'auto')
 		setElementStyle(node, 'height', size + 'px')

@@ -287,12 +287,12 @@ export const unwrapArray = arr => (arr.length === 1 ? arr[0] : arr)
 /**
  * Flats an array/childNodes recursively
  *
- * @template {unknown | unknown[]} T
- * @param {T} arr
+ * @template T
+ * @param {T | T[]} arr
  * @returns {T[]}
  */
 export const flatToArray = arr =>
-	isArray(arr) ? arr.flat(Infinity) : [arr]
+	/** @type {T[]} */ (isArray(arr) ? arr.flat(Infinity) : [arr])
 
 /**
  * Flats an array/childNodes recursively if its an array else it

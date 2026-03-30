@@ -43,16 +43,16 @@ export const propsPlugin = (propName, fn, onMicrotask) => {
 /**
  * Defines a namespaced prop that can be used on any Element
  *
- * @template T
- * @param {string} NSName - Name of the namespace
- * @param {(
+ * @template {(
  * 	node: DOMElement,
- * 	localName: string,
- * 	propValue: T,
+ * 	localName: any,
+ * 	propValue: any,
  * 	ns?: string,
- * ) => void} fn
- *   - Function to run when this prop is found on any Element
+ * ) => void} F
  *
+ * @param {string} NSName - Name of the namespace
+ * @param {F} fn - Function to run when this prop is found on any
+ *   Element
  * @param {boolean} [onMicrotask=true] - Set to run on a microtask to
  *   avoid the problem of needed props not being set, or children
  *   elements not being created yet. Default is `true`
