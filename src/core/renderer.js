@@ -1,6 +1,6 @@
 // CONSTANTS
 
-import { $isComponent, $isMap, NS } from '../constants.js'
+import { $isClass, $isComponent, $isMap, NS } from '../constants.js'
 
 // LIB
 
@@ -52,7 +52,7 @@ import {
 	useSuspense,
 } from '../lib/reactive.js'
 
-import { onFixes } from './scheduler.js'
+import { onFixes, ready } from './scheduler.js'
 
 // PROPERTIES / ATTRIBUTES
 
@@ -130,7 +130,11 @@ function Factory(value) {
 			return markComponent(props => createTag(value, props))
 		}
 		case 'function': {
-			return $isComponent in value ? value : markComponent(value)
+			return $isComponent in value
+				? value
+				: $isClass in value
+					? markComponent(props => createClass(value, props))
+					: markComponent(value)
 		}
 		default: {
 			if (value instanceof Element) {
@@ -242,6 +246,23 @@ function parseXML(content, xmlns) {
 	return tlpContent.childNodes.length === 1
 		? tlpContent.firstChild
 		: tlpContent
+}
+
+/**
+ * Creates an instance of a class component and handles lifecycle
+ * methods
+ *
+ * @param {{ new (props: any): ElementClass }} value - The class
+ *   constructor
+ * @param {Props<unknown>} props - Props to pass to the class
+ *   constructor
+ * @returns {Children} The rendered output
+ */
+function createClass(value, props) {
+	const i = new value(props)
+	i.ready && ready(() => i.ready())
+	i.cleanup && cleanup(() => i.cleanup())
+	return i.render(props)
 }
 
 /**

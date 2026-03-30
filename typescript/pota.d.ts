@@ -81,6 +81,7 @@ declare global {
 	export type Component = JSX.ElementType
 	export type Children = JSX.Element
 	export type Elements = JSX.Elements
+	export type ElementClass = JSX.ElementClass
 
 	export type Props<T = {}> = JSX.Props<T>
 

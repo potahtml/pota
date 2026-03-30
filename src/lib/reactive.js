@@ -1,4 +1,4 @@
-import { $isComponent, $isMap } from '../constants.js'
+import { $isClass, $isComponent, $isMap } from '../constants.js'
 
 import {
 	emptyArray,
@@ -525,6 +525,26 @@ export function unwrap(children) {
 
 	return children
 }
+/**
+ * Extend `Pota` and define a `render(){}` method to create a class
+ * component. `ready(cb)` and `cleanup(cb)` methods will be registered
+ * automatically
+ *
+ * @template {Record<string, unknown>} [P=Record<string, unknown>]
+ *   Default is `Record<string, unknown>`
+ * @url https://pota.quack.uy/Classes
+ */
+export class Pota {
+	/** @type {P} */
+	props
+	/** @param {P} props */
+	constructor(props) {
+		this.props = props
+	}
+	/** @param {P} props */
+	render(props) {}
+}
+Pota[$isClass] = undefined
 
 /**
  * Returns true if the `value` is a `Component`

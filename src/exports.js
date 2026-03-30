@@ -30,6 +30,7 @@ export {
 	isComponent,
 	makeCallback,
 	markComponent,
+	Pota,
 	// events
 	addEvent,
 	removeEvent,

@@ -4,6 +4,7 @@ import { Symbol } from './lib/std.js'
 
 export const $isComponent = Symbol()
 export const $isMap = Symbol()
+export const $isClass = Symbol()
 
 export const $isMutable = Symbol()
 
