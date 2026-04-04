@@ -5,6 +5,7 @@ import {
 	callFunction,
 	callFunctionImport,
 	error,
+	generateUidIdentifier,
 	hasStaticMarker,
 	keys,
 	objectProperty,
@@ -63,7 +64,7 @@ export function buildPartial(path, state) {
 
 	// inlined function calls
 
-	const inlinedNode = path.scope.generateUidIdentifier('node')
+	const inlinedNode = generateUidIdentifier(path.scope, 'node')
 
 	const inlinedCalls = []
 
@@ -553,7 +554,8 @@ export function partialMerge(path, state) {
 
 		// identifier
 
-		pota.partials[partialID] = scope.generateUidIdentifier(
+		pota.partials[partialID] = generateUidIdentifier(
+			scope,
 			node.tagName,
 		)
 

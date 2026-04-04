@@ -1,6 +1,10 @@
 import { types as t } from '@babel/core'
 
-import { callFunction, callFunctionImport } from './utils.js'
+import {
+	callFunction,
+	callFunctionImport,
+	generateUidIdentifier,
+} from './utils.js'
 
 import { buildChildren } from './children.js'
 import { buildProps } from './props.js'
@@ -42,7 +46,7 @@ export function buildComponent(path, state) {
 	if (!pota.components[name]) {
 		// identifier
 
-		pota.components[name] = scope.generateUidIdentifier(name)
+		pota.components[name] = generateUidIdentifier(scope, name)
 
 		// call
 

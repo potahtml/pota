@@ -146,3 +146,23 @@ export function isNonTrackingAssignement(node) {
 		return true
 	}
 }
+
+export function generateUidIdentifier(scope, name = 'id') {
+	name = name.replace(/[^a-z]/gi, '')
+	let uid
+	let i = 1
+	do {
+		uid = `_${name}`
+		if (i > 1) uid += i
+		i++
+	} while (
+		scope.hasGlobal(uid) ||
+		scope.hasBinding(uid) ||
+		scope.hasReference(uid) ||
+		scope.hasLabel(uid)
+	)
+	const program = scope.getProgramParent()
+	program.references[uid] = true
+	program.uids[uid] = true
+	return t.identifier(uid)
+}

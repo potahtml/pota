@@ -1,4 +1,5 @@
 import * as core from '@babel/core'
+import { generateUidIdentifier } from './utils.js'
 const t = core.types
 
 /** Adds `__dev` prop to jsx as `<Component __dev={{..}}` */
@@ -389,8 +390,10 @@ function getFilenameIdentifier(path, state, filename) {
 	if (!state.pota.files[filename]) {
 		const scope = path.scope.getProgramParent()
 
-		state.pota.files[filename] =
-			scope.generateUidIdentifier('_filename')
+		state.pota.files[filename] = generateUidIdentifier(
+			scope,
+			'filename',
+		)
 
 		scope.push({
 			id: state.pota.files[filename],
