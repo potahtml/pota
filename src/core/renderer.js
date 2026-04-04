@@ -84,7 +84,7 @@ export const Fragment = props => props.children
  * @template {ComponentProps<T>} P
  * @param {T} value
  * @param {P} [props]
- * @returns {(props?: P) => Children}
+ * @returns {(props?: Partial<P>) => Children}
  * @url https://pota.quack.uy/Component
  */
 export function Component(value, props) {
