@@ -103,6 +103,7 @@ export namespace JSX {
 		| keyof IntrinsicElements
 		| (new (props?) => ElementClass)
 		| ((props?) => Element)
+		| { toString(): Element }
 
 	// JSX.ElementClass - shape of `class` component
 
