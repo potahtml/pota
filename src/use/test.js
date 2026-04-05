@@ -55,7 +55,7 @@ test.reset = () => {
  * @param {unknown} value
  * @returns {Expect}
  */
-export function expect(title, num, promises, value) {
+function expect(title, num, promises, value) {
 	const test = {
 		toBe: expected =>
 			pass(
@@ -183,3 +183,5 @@ export const rerenders = () =>
 			}
 		`,
 	)
+
+export const body = () => document.body.innerHTML.trim()
