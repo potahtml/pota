@@ -390,7 +390,12 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 		if (rows.length === 0) {
 			hasPrev && clear()
 			prev = rows
-			return fallback ? fn(fallback) : emptyArray
+			if (fallback) {
+				const f = fn(fallback)
+				cleanup(() => toDiff(flatToArray(f)))
+				return f
+			}
+			return emptyArray
 		}
 
 		// sort

@@ -428,7 +428,7 @@ export function createChildren(
 				})
 
 				cleanup(() => {
-					if (parent.isConnected) {
+					if (parent.isConnected || node[0]?.isConnected) {
 						toDiff(node)
 						// @ts-expect-error
 						parent.remove()
@@ -645,7 +645,7 @@ function insertNode(parent, node, relative) {
  */
 export function render(children, parent, options = nothing) {
 	const dispose = root(dispose => {
-		insert(children, parent, options)
+		insert(() => children, parent, options)
 		return dispose
 	})
 
@@ -669,11 +669,7 @@ export function insert(
 ) {
 	if (options.clear && parent) parent.textContent = ''
 
-	const node = createChildren(
-		parent,
-		Factory(isFunction(children) ? children : () => children),
-		options.relative,
-	)
+	const node = createChildren(parent, children, options.relative)
 
 	cleanup(() => toDiff(flatToArray(node)))
 
