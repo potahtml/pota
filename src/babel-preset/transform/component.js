@@ -61,14 +61,17 @@ export function buildComponent(path, state) {
 
 		// push
 
-		const binding = scope.getBinding(name)
+		const statement = t.variableDeclaration('var', [
+			t.variableDeclarator(identifier, value),
+		])
+
+		// for `Theme.Provider` it needs to search for `Theme`
+		const binding = scope.getBinding(name.replace(/\..+$/, ''))
+
 		switch (binding?.kind) {
 			case 'module': {
-				binding.path.parentPath.insertAfter(
-					t.variableDeclaration('const', [
-						t.variableDeclarator(identifier, value),
-					]),
-				)
+				binding.path.parentPath.insertAfter(statement)
+
 				break
 			}
 			case 'const':
@@ -86,13 +89,7 @@ export function buildComponent(path, state) {
 
 				*/
 
-				binding.path
-					.getStatementParent()
-					.insertAfter(
-						t.variableDeclaration('const', [
-							t.variableDeclarator(identifier, value),
-						]),
-					)
+				binding.path.getStatementParent().insertAfter(statement)
 				break
 			}
 			default: {
