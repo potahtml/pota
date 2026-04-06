@@ -11,4 +11,4 @@ import { unwrap } from '../lib/reactive.js'
  * @url https://pota.quack.uy/Components/Suspense
  */
 export const Normalize = props => () =>
-	unwrap(props.children).join('')
+	unwrap([props.children]).join('')
