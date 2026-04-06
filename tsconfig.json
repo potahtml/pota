@@ -22,10 +22,12 @@
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 		"target": "ESNext",
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"lib": ["ESNext", "DOM"],
 
 		"jsx": "preserve",
-		"jsxImportSource": "pota"
+		"jsxImportSource": "pota",
+
+		"types": ["vitest", "./src/jsx/jsx.d.ts"]
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", "src/babel-preset", "src/release"]

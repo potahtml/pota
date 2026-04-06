@@ -22,7 +22,8 @@ export function firewall(fn) {
 const $isProjection = Symbol()
 
 /**
- * Copy on write object
+ * Copy on write object. A projection uses its own store of proxies
+ * because 1 projection shoulnt affect a different projection
  *
  * @template T
  * @param {T} value

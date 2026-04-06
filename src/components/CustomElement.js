@@ -104,9 +104,7 @@ export class CustomElement extends HTMLElement {
 
 	/* SLOTS API */
 
-	/**
-	 * @param {string} name
-	 */
+	/** @param {string} name */
 	hasSlot(name) {
 		return this.query(`:scope [slot="${name}"]`)
 	}

@@ -8,3 +8,6 @@ tsconfig.tsbuildinfo
 .vscode
 .github
 .claude
+.codex
+
+tests/**

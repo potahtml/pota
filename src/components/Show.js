@@ -9,7 +9,7 @@ import { getValue, isFunction } from '../lib/std.js'
  * @param {object} props
  * @param {When<T>} props.when
  * @param {Children} [props.fallback]
- * @param {(arg: T) => Children} [props.children]
+ * @param {(arg: SignalAccessor<Accessed<T>>) => Children} [props.children]
  * @returns {Children}
  * @url https://pota.quack.uy/Components/Show
  */
