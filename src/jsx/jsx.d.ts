@@ -108,6 +108,7 @@ export namespace JSX {
 	// JSX.ElementClass - shape of `class` component
 
 	type ElementClass = {
+		props?: Record<string, unknown>
 		ready?: () => void
 		cleanup?: () => void
 		render: (props?: Record<string, unknown>) => Element

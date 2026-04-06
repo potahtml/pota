@@ -543,9 +543,7 @@ export class Pota {
 	/** @type {P} */
 	props
 	/** @param {P} props */
-	constructor(props) {
-		this.props = props
-	}
+	constructor(props) {}
 	/** @param {P} props */
 	render(props) {}
 }

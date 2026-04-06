@@ -258,11 +258,12 @@ function parseXML(content, xmlns) {
  *   constructor
  * @returns {Children} The rendered output
  */
-function createClass(value, props) {
+function createClass(value, props = nothing) {
 	const i = new value(props)
+	i.props = freeze({ ...(i.props || nothing), ...props })
 	i.ready && ready(() => i.ready())
 	i.cleanup && cleanup(() => i.cleanup())
-	return i.render(props)
+	return i.render(i.props)
 }
 
 /**
