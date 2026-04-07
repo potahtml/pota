@@ -1,9 +1,14 @@
 # generated
 
-types
+src/babel-preset-standalone/index.iife.js
 src/babel-preset/index.cjs
 src/release/importmap.json
 src/release/types.json
+types
+
+# ai stuff
+
+settings.local.json
 
 # Logs
 logs
@@ -34,3 +39,4 @@ dist-ssr
 *.sw?
 .zed/*
 tsconfig.tsbuildinfo
+

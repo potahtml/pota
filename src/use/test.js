@@ -1,6 +1,6 @@
 import { stringifySorted, window, withResolvers } from '../lib/std.js'
 
-import { microtask, untrack } from '../lib/reactive.js'
+import { microtask as queueMicrotask, untrack } from '../lib/reactive.js'
 
 import { diff } from './string.js'
 import { addAdoptedStyleSheet, css } from './css.js'
@@ -127,7 +127,7 @@ function pass(expected, value, equals, title, promises) {
 	}
 
 	// to hide the promise error in case they dont catch it
-	microtask(() => promise.catch(() => {}))
+	queueMicrotask(() => promise.catch(() => {}))
 	return promise
 }
 
@@ -184,4 +184,64 @@ export const rerenders = () =>
 		`,
 	)
 
+/** Returns `document.body.innerHTML` trimmed. */
 export const body = () => document.body.innerHTML.trim()
+
+/** Returns `document.head.innerHTML` trimmed. */
+export const head = () => document.head.innerHTML.trim()
+
+/**
+ * Returns the number of child nodes of a given node, defaulting to
+ * `document.body`.
+ *
+ * @param {Node} [node] - The parent node to inspect.
+ * @returns {number} The child node count.
+ */
+export const childNodes = (node = document.body) =>
+	node.childNodes.length
+
+/**
+ * Waits one microtask (`Promise.resolve()`).
+ *
+ * @returns {Promise<void>}
+ */
+export const microtask = () => Promise.resolve()
+
+/**
+ * Waits one macrotask (`setTimeout(0)`).
+ *
+ * @returns {Promise<void>}
+ */
+export const macrotask = () =>
+	new Promise(resolve => setTimeout(resolve, 0))
+
+/**
+ * Waits for the given number of milliseconds.
+ *
+ * @param {number} [ms] - Delay in milliseconds (defaults to 0).
+ * @returns {Promise<void>}
+ */
+export const sleep = (ms = 0) =>
+	new Promise(resolve => setTimeout(resolve, ms))
+
+/**
+ * Shorthand for `document.querySelector`.
+ *
+ * @param {string} selector - CSS selector.
+ * @param {Document | Element} [node] - Root to query from
+ *   (defaults to `document`).
+ * @returns {Element | null}
+ */
+export const $ = (selector, node = document) =>
+	node.querySelector(selector)
+
+/**
+ * Shorthand for `document.querySelectorAll`.
+ *
+ * @param {string} selector - CSS selector.
+ * @param {Document | Element} [node] - Root to query from
+ *   (defaults to `document`).
+ * @returns {NodeListOf<Element>}
+ */
+export const $$ = (selector, node = document) =>
+	node.querySelectorAll(selector)

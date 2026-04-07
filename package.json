@@ -47,6 +47,9 @@
 			"default": "./src/exports.js"
 		}
 	},
+	"imports": {
+		"#test": "./tools/test/test.js"
+	},
 	"scripts": {
 		"dev": "rm -Rf types/* && concurrently --kill-others \"npm:watch:*\"",
 		"watch:cptypes": "rsync -a --include='*/' --include='*.d.ts' --exclude='*' src/ types/; tail -f /dev/null",
@@ -55,11 +58,25 @@
 		"watch:generate": "npm run generate",
 		"types": "tsc",
 		"build": "cd src/babel-preset && rollup -c",
+		"build:standalone": "rollup -c src/babel-preset-standalone/rollup.config.js",
 		"release": "node src/release/release.mjs",
 		"format": "prettier . -w --config=./package.json --no-editorconfig",
 		"format-me": "prettier . -w --config=./package.json --no-editorconfig --plugin=file:///usr/local/lib/node_modules/prettier-plugin-jsdoc/dist/index.js",
 		"generate": "node src/release/generate.js",
-		"test": "vitest"
+		"test": "node tools/test/runner.js",
+		"test:all": "node tools/test/runner.js --no-bail",
+		"test:once": "node tools/test/runner.js --no-watch",
+		"test:standalone": "node src/babel-preset-standalone/test/runner.js"
+	},
+	"test": {
+		"dir": "tests/api/",
+		"port": 7357,
+		"timeout": 5000,
+		"bail": true,
+		"watch": true,
+		"concurrency": 10,
+		"extensions": [".jsx", ".tsx", ".ts"],
+		"ignore": ["broken-tests", "route"]
 	},
 	"dependencies": {
 		"colorjs.io": "^0.6.1",
@@ -72,20 +89,19 @@
 		"@babel/plugin-syntax-jsx": "^7.28.6"
 	},
 	"devDependencies": {
+		"@babel/preset-typescript": "^7.28.5",
+		"@babel/standalone": "^7.29.2",
+		"@rollup/plugin-commonjs": "^29.0.2",
+		"@rollup/plugin-node-resolve": "^16.0.3",
 		"@rollup/plugin-terser": "^1.0.0",
 		"@types/babel__core": "^7.20.5",
 		"@types/babel__helper-module-imports": "^7.18.3",
 		"@types/babel__helper-plugin-utils": "^7.10.3",
 		"@types/node": "^25.5.0",
 		"concurrently": "^9.2.1",
+		"puppeteer": "^24.40.0",
 		"rollup": "^4.60.0",
-		"typescript": "^6.0.2",
-		"playwright": "^1.59.1",
-		"vite-plugin-babel": "^1.6.0",
-		"@vitest/browser-playwright": "^4.1.2",
-		"@vitest/coverage-v8": "^4.1.2",
-		"happy-dom": "^20.8.9",
-		"vitest": "^4.1.2"
+		"typescript": "^6.0.2"
 	},
 	"prettier": {
 		"printWidth": 70,

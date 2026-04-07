@@ -1,13 +1,19 @@
-.gitignore
-node_modules
-
 src/release/**
 
-tsconfig.tsbuildinfo
+src/babel-preset/transform/**
+src/babel-preset/rollup.config.js
 
+src/babel-preset-standalone/**
+
+tests/**
+tools/**
+
+AGENTS.md
 .vscode
 .github
 .claude
 .codex
 
-tests/**
+.gitignore
+node_modules
+tsconfig.tsbuildinfo

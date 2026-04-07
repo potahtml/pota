@@ -27,8 +27,13 @@
 		"jsx": "preserve",
 		"jsxImportSource": "pota",
 
-		"types": ["vitest", "./src/jsx/jsx.d.ts"]
+		"types": ["./src/jsx/jsx.d.ts"]
 	},
 	"include": ["src"],
-	"exclude": ["node_modules", "src/babel-preset", "src/release"]
+	"exclude": [
+		"node_modules",
+		"src/babel-preset",
+		"src/babel-preset-standalone",
+		"src/release"
+	]
 }

@@ -13,8 +13,8 @@
 
 ### Methods
 
-- Use `write` (second slot) to set/replace values that need the prev
-  value. It does not receive the previous value.
+- Use `write` (second slot) to set/replace a value directly. It does
+  **not** receive the previous value: `write(newValue)`.
 - Use `update` (third slot) for updaters needing the previous value:
   `update(prev => newValueOrDerived(prev))`.
 
@@ -41,7 +41,7 @@
 ### Reactive Rendering
 
 - In JSX, pass the signal itself for reactivity:
-  `<b>{signalName}</b>`, not `<b>{signalName()}</b>`.
+  `<b>{signalName}</b>`, **NOT** `<b>{signalName()}</b>`.
 
 ### Attributes
 
@@ -125,4 +125,52 @@
   Manages class lists.
 - `propsPlugin: object` - Plugin for props handling.
 - `propsPluginNS: object` - Namespaced props plugin.
+- `externalSignal<T>(read: () => T, write: (v: T) => void): SignalTuple<T>` -
+  Wraps an external getter/setter pair as a signal.
+- `unwrap<T>(value: T): T` - Unwraps a reactive value to its raw form.
+- `Pota` - Base class used internally by the renderer for component
+  instances.
 - `getValue(item: any): any` - Retrieves the value of a reactive item.
+
+### Subpath exports
+
+These are imported from subpaths, not the main `pota` entry:
+
+- **`pota/components`** — Built-in components: `Collapse`, `Dynamic`,
+  `For`, `Head`, `Portal`, `Range`, `Route` (also `A`, `load`,
+  `Navigate`), `Show`, `Suspense`, `Switch` (also `Match`), `Tabs`,
+  `Normalize`, `CustomElement`, `customElement`.
+- **`pota/store`** — Reactive store (`src/lib/store.js`):
+  - `signalify(target, keys?)` — transforms object properties into
+    signals via get/set in place; not recursive.
+  - `mutable(value, clone?)` — recursively proxies objects, arrays, and
+    maps for reactive mutation tracking.
+  - `merge(target, source, keys?)` — merges source into target,
+    optionally keyed to preserve references.
+  - `replace(target, source, keys?)` — like merge but removes keys from
+    target not present in source.
+  - `reset(target, source)` — resets target properties to values defined
+    in source.
+  - `updateBlacklist(window)` — extends internal blacklists with
+    constructors/symbols from a target window.
+  - `firewall(fn)` — wraps a function to prevent store mutations from
+    leaking out.
+  - `project(value)` — copy-on-write projection; uses its own proxy
+    store so one projection does not affect another.
+  - `copy(object)` — deep-copies an object leaving native/built-ins
+    intact.
+  - `readonly(value)` — prevents an object from being writable.
+- **`pota/xml`** — Compiler-less XML API (`src/core/xml.js`):
+  - `xml` — default instance; tagged template that parses XML and
+    returns renderable children via the same renderer pipeline as JSX.
+  - `xml.define(components)` — registers custom components by tag name
+    for use inside `xml` templates.
+  - `xml.components` — the current component registry (seeded with
+    built-in components like `Show`, `For`, `Route`, etc.).
+  - `XML()` — factory that creates a new independent `xml` instance
+    with its own component registry.
+- **`pota/use/*`** — Composable modules (e.g. `pota/use/animate`,
+  `pota/use/css`, `pota/use/form`, `pota/use/scroll`, etc.). Each file
+  under `src/use/` is a separate subpath export.
+- **`pota/jsx-runtime`** / **`pota/jsx-dev-runtime`** — JSX runtime
+  for bundlers (`src/jsx/jsx-runtime.js`).

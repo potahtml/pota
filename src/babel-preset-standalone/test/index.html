@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>babel-standalone test</title>
+	</head>
+	<body>
+		<pre id="output"></pre>
+		<script>
+			globalThis.process = { env: { NODE_ENV: 'development' } }
+		</script>
+		<script src="/src/babel-preset-standalone/index.iife.js"></script>
+		<script type="module">
+			import '/src/babel-preset-standalone/test/checks.js'
+		</script>
+	</body>
+</html>
