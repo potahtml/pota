@@ -38,8 +38,9 @@ export function validatePartial(path, html) {
 		.replace(/>[^<]+</gi, '>#text<')
 
 		// remove attributes
-		.replace(/\s[a-z0-9-]+="[^"]+"/gi, '')
-		.replace(/\s[a-z0-9-]+='[^']+'/gi, '')
+		// todo remove me once validation string doesnt contain attributes
+		.replace(/\s[a-z0-9-:]+="[^"]+"/gi, '')
+		.replace(/\s[a-z0-9-:]+='[^']+'/gi, '')
 		.replace(/<([a-z0-9-:]+)\s+[^>]+>/gi, '<$1>')
 
 	// table cells

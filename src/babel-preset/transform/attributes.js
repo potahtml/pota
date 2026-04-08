@@ -75,9 +75,12 @@ const escapeAttribute = (() => {
 	const chars = {
 		"'": '&#39;',
 		'"': '&quot;',
+		// todo remove me once validation string doesnt contain attributes
+		'<': '&lt;',
+		'>': '&gt;',
 	}
 
-	const search = /['"]/g
+	const search = /['"<>]/g
 	const replace = c => chars[c]
 
 	return function (s) {
