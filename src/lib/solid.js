@@ -1010,10 +1010,52 @@ export function createReactiveSystem() {
 	 * @param {Accessor<T> | Promise<T>} value
 	 * @param {(value: T) => void} fn
 	 */
-	function withValue(value, fn, writeDefaultValue = noop) {
+	function withValue(
+		value,
+		fn,
+		writeDefaultValue = noop,
+		wroteValue = { value: false },
+		resolved = [],
+	) {
 		if (isFunction(value)) {
 			// TODO maybe change this to be a memo
-			effect(() => withValue(value(), fn, writeDefaultValue))
+
+			effect(() =>
+				withValue(
+					value(),
+					fn,
+					writeDefaultValue,
+					wroteValue,
+					resolved,
+				),
+			)
+		} else if (isArray(value) && !resolved.includes(value)) {
+			// TODO maybe do same for objects ...
+
+			resolved.push(value)
+
+			let pending = 0
+			value.forEach((item, i) => {
+				pending++
+				withValue(
+					item,
+					item => {
+						value[i] = item
+						if (--pending === 0) {
+							withValue(
+								value,
+								fn,
+								writeDefaultValue,
+								wroteValue,
+								resolved,
+							)
+						}
+					},
+					writeDefaultValue,
+					wroteValue,
+					resolved,
+				)
+			})
 		} else if (isPromise(value)) {
 			asyncTracking.add()
 			/**
@@ -1024,13 +1066,20 @@ export function createReactiveSystem() {
 			 * In case of promises, the value is resolved at a later point
 			 * in time, so we need an intermediate default
 			 */
-			writeDefaultValue()
+			!wroteValue.value && writeDefaultValue()
+			wroteValue.value = true
 
 			value.then(
 				owned(
 					value => {
 						asyncTracking.remove()
-						withValue(value, fn, noop)
+						withValue(
+							value,
+							fn,
+							writeDefaultValue,
+							wroteValue,
+							resolved,
+						)
 					},
 					() => asyncTracking.remove(),
 				),
