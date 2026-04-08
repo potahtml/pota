@@ -11,4 +11,5 @@ import { unwrap } from '../lib/reactive.js'
  * @url https://pota.quack.uy/Components/Suspense
  */
 export const Normalize = props => () =>
-	unwrap([props.children]).join('')
+	// returnng null when string is empty avoids 1 text node
+	unwrap([props.children]).join('') || null
