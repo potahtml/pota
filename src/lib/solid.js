@@ -991,7 +991,11 @@ export function createReactiveSystem() {
 			})
 
 			return (...args) => {
-				o?.cleanupCancel(clean)
+				// TODO There may be something going on here
+
+				// only remove the cleanup when not removed already
+				cleaned === undefined && o?.cleanupCancel(clean)
+				// only run callback when owner wasnt disposed
 				return cleaned !== null && runWithOwner(o, () => cb(...args))
 			}
 		}
