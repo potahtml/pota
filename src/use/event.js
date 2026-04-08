@@ -41,11 +41,15 @@ export function stopEvent(e) {
  * @param {CustomEventInit} [data]
  */
 
-export const emit = (
-	node,
-	eventName,
-	data = { bubbles: true, cancelable: true, composed: true },
-) => node.dispatchEvent(new CustomEvent(eventName, data))
+export const emit = (node, eventName, data = {}) => {
+	;['bubbles', 'cancelable', 'composed'].forEach(item => {
+		if (!(item in data)) {
+			data[item] = true
+		}
+	})
+
+	node.dispatchEvent(new CustomEvent(eventName, data))
+}
 
 /**
  * Waits for an event to be dispatched and runs a callback
