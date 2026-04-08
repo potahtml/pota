@@ -51,13 +51,16 @@ export function setClassList(node, value, prev) {
  * @param {unknown} value
  */
 export const setElementClass = (node, name, value) => {
-	withPrevValue(value, (value, prev) => {
-		if (!value && !prev) {
-			// on initialization do not remove whats not there
-		} else {
-			_setClassListValue(node, name, value)
-		}
-	})
+	isFunction(value)
+		? withPrevValue(value, (value, prev) => {
+				console.log(name, value)
+				if (!value && !prev) {
+					// on initialization do not remove whats not there
+				} else {
+					_setClassListValue(node, name, value)
+				}
+			})
+		: _setClassListValue(node, name, value)
 }
 
 /**
