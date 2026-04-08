@@ -1,18 +1,4 @@
-import {
-	error,
-	isObject,
-	isProxyValueReturnInvariant,
-	reflectApply,
-	reflectGet,
-	weakStore,
-} from '../std.js'
-
-const [get] = weakStore()
-
-function crerateReadonly(value) {
-	// @ts-expect-error
-	return new Proxy(value, ReadOnly)
-}
+import { deepFreeze } from '../std.js'
 
 /**
  * Prevents an oject from being writable
@@ -22,40 +8,6 @@ function crerateReadonly(value) {
  * @returns {Readonly<T>}
  */
 export function readonly(value) {
-	if (!isObject(value)) {
-		return value
-	}
-
-	return get(value, crerateReadonly)
+	deepFreeze(value)
+	return value
 }
-
-const ReadOnly = new (class ReadOnly {
-	get(target, key, proxy) {
-		const value = reflectGet(target, key, proxy)
-
-		return typeof value === 'function'
-			? this.returnFunction(target, key, value)
-			: this.returnValue(target, key, value)
-	}
-	set(target, key, value, proxy) {
-		this.log(target, key, value, proxy)
-	}
-	defineProperty(target, key, descriptor) {
-		this.log(target, key, descriptor)
-	}
-
-	returnValue(target, key, value) {
-		return isProxyValueReturnInvariant(target, key, value)
-			? value
-			: readonly(value)
-	}
-	returnFunction(target, key, value) {
-		return (...args) => readonly(reflectApply(value, target, args))
-	}
-
-	log(target, key, value, proxy) {
-		const s = 'readonly'
-		error(s, target, key, value, proxy)
-		throw s
-	}
-})()

@@ -19,6 +19,7 @@ export const defineProperties = Object.defineProperties
 export const defineProperty = Object.defineProperty
 export const entries = Object.entries
 export const freeze = Object.freeze
+export const isFrozen = Object.isFrozen
 export const fromEntries = Object.fromEntries
 export const getOwnPropertyDescriptor =
 	Object.getOwnPropertyDescriptor
@@ -276,6 +277,15 @@ export function equals(a, b) {
 	return a !== a && b !== b
 }
 
+export function deepFreeze(o) {
+	freeze(o)
+	for (const item of values(o)) {
+		if (item && typeof item === 'object' && !isFrozen(item)) {
+			deepFreeze(item)
+		}
+	}
+	return o
+}
 /**
  * Unwraps an array/childNodes to the first item if the length is 1
  *
