@@ -618,6 +618,8 @@ function insertNode(parent, node, relative) {
 		// replace old node if there's any
 		prev ? prev.replaceWith(node) : parent.appendChild(node)
 	} else {
+		// maybe use relative ? parent.before(node) : parent.appendChild(node)
+
 		relative
 			? parent.parentNode.insertBefore(node, parent)
 			: parent.appendChild(node)
