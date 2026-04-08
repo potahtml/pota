@@ -156,20 +156,20 @@ function Factory(value) {
  * @param {P} props
  * @returns {Element} Element
  */
-function createTag(tagName, props) {
+function createTag(tagName, props = nothing) {
 	/**
 	 * Namespace, use props xmlns or special case svg, math, etc in case
 	 * of missing xmlns attribute
 	 */
-	const xmlns = props?.xmlns || NS[tagName]
+	const xmlns = props.xmlns || NS[tagName]
 
 	return withXMLNS(
 		xmlns,
 		xmlns =>
 			createNode(
 				xmlns
-					? createElementNS(xmlns, tagName, { is: props?.is })
-					: createElement(tagName, { is: props?.is }),
+					? createElementNS(xmlns, tagName, { is: props.is })
+					: createElement(tagName, { is: props.is }),
 				props,
 			),
 		tagName,
@@ -277,7 +277,7 @@ function createClass(value, props = nothing) {
 export function createComponent(value) {
 	const component = Factory(value)
 
-	return props => {
+	return (props = nothing) => {
 		/** Freeze props so isnt directly writable */
 		freeze(props)
 		return markComponent(() => component(props))
@@ -346,7 +346,7 @@ function assignPartialProps(node, props, propsData) {
  * @param {Props<T>} props - Props to assign
  * @returns {Element} The element with props assigned
  */
-function createNode(node, props) {
+function createNode(node, props = nothing) {
 	props && assignProps(node, props)
 
 	return node
