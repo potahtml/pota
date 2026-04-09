@@ -3,9 +3,9 @@ import { getValue, toArray } from '../lib/std.js'
 
 /**
  * @typedef {object} PaginatePage
- * @property {Accessor<unknown[]>} items - The sliced items
- * @property {Accessor<number>} currentPage - The page number
- * @property {Accessor<number>} totalPages - Amount of pages
+ * @property {SignalAccessor<unknown[]>} items - The sliced items
+ * @property {SignalAccessor<number>} currentPage - The page number
+ * @property {SignalAccessor<number>} totalPages - Amount of pages
  * @property {() => boolean} hasNext - Returns a boolean indicating if
  *   has a next page
  * @property {() => void} next - To go to next page updating the items
@@ -46,10 +46,10 @@ export function paginateValues(items, numPerPage) {
  * @param {(start, end) => Accessor<unknown[]>} fetch - Function to
  *   get items from
  * @param {object} options
- * @param {Accessor<number>} options.numPerPage - How many items are
- *   displayed at the same time
- * @param {Accessor<number>} options.numItems - How many items there
- *   are in total
+ * @param {SignalAccessor<number>} options.numPerPage - How many items
+ *   are displayed at the same time
+ * @param {SignalAccessor<number>} options.numItems - How many items
+ *   there are in total
  * @returns {PaginatePage}
  */
 export function paginate(fetch, options) {
@@ -60,7 +60,7 @@ export function paginate(fetch, options) {
 			/** @type {number} */ (getValue(options.numItems)) /
 				/** @type {number} */ (getValue(options.numPerPage)),
 		)
-		if (page() > pages) pageSet(pages)
+		if (page() >= pages) pageSet(pages - 1)
 		return pages
 	})
 
