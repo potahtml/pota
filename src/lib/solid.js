@@ -554,7 +554,7 @@ export function createReactiveSystem() {
 			observerSlots: undefined,
 		}
 
-		let _equals
+		let _equals = equals
 
 		function read() {
 			if (Listener) {
@@ -588,13 +588,8 @@ export function createReactiveSystem() {
 
 		if (options) {
 			assign(s, options)
-			if (options.equals === false) {
-				_equals = equalsFalse
-			} else {
-				_equals = equals
-			}
-		} else {
-			_equals = equals
+			if (s.equals === false) _equals = equalsFalse
+			else if (s.equals) _equals = s.equals
 		}
 
 		// @ts-ignore
