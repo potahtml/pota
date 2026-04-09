@@ -33,10 +33,15 @@ export function useSelector(value) {
 	syncEffect(() => {
 		const val = value()
 
-		const selected = isFunction(val?.values)
+		const selected = isFunction(
+			(/** @type {{ values?: Function }} */ (val))?.values,
+		)
 			? toArray(
-					// @ts-expect-error, no idea how to type this
-					val.values(),
+					/** @type {Iterable<unknown>} */ (
+						/** @type {unknown} */ (
+							(/** @type {{ values: Function }} */ (val)).values()
+						)
+					),
 				)
 			: val === undefined
 				? []

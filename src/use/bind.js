@@ -66,5 +66,4 @@ function bindValue(node, value) {
 	})
 }
 
-// @ts-expect-error
 propsPlugin('use:bind', bindValue)

@@ -116,7 +116,7 @@ export namespace JSX {
 
 	// TYPES
 
-	type DOMElement = HTMLElement | SVGElement | MathMLElement
+	type DOMElement = HTMLElement | SVGElement | MathMLElement | Element
 	// | globalThis.Element
 
 	type Props<T = {}> = T & { children?: Element }

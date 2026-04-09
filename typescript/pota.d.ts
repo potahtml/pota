@@ -153,9 +153,15 @@ declare global {
 	export type Expect = {
 		toBe: (expected: unknown) => Promise<unknown>
 		toEqual: (expected: unknown) => Promise<unknown>
+		toInclude: (expected: unknown) => Promise<unknown>
+		toThrow: (expected: unknown) => Promise<unknown>
+		toMatch: (expected: unknown) => Promise<unknown>
 		not: {
 			toBe: (expected: unknown) => Promise<unknown>
 			toEqual: (expected: unknown) => Promise<unknown>
+			toInclude: (expected: unknown) => Promise<unknown>
+			toThrow: (expected: unknown) => Promise<unknown>
+			toMatch: (expected: unknown) => Promise<unknown>
 		}
 	}
 

@@ -429,6 +429,7 @@ export function createChildren(
 				})
 
 				cleanup(() => {
+					// console.log('clearing parent and node', parent, node)
 					if (parent.isConnected || node[0]?.isConnected) {
 						toDiff(node)
 						// @ts-expect-error

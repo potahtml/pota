@@ -16,7 +16,7 @@ let num = 1
  * `expect` function to make assertions.
  *
  * @param {string} title - The title of the test case.
- * @param {(expect: (arg: unknown) => Expect) => void} fn - The test
+ * @param {(expect: (arg: unknown) => Expect) => void | Promise<unknown>} fn - The test
  *   function containing assertions.
  * @param {boolean} [stopTesting] - If true, no more tests will be run
  *   after this one.
@@ -83,27 +83,9 @@ function expect(title, num, promises, value) {
 			untrack(() =>
 				pass(
 					true,
-					value?.includes(expected),
-					true,
-					title + ' (' + num.value++ + ')',
-					promises,
-				),
-			),
-		toHaveLength: expected =>
-			untrack(() =>
-				pass(
-					expected,
-					value?.length,
-					true,
-					title + ' (' + num.value++ + ')',
-					promises,
-				),
-			),
-		toBeGreaterThanOrEqual: expected =>
-			untrack(() =>
-				pass(
-					true,
-					value >= expected,
+					(/** @type {string | any[]} */ (value))?.includes(
+						expected,
+					),
 					true,
 					title + ' (' + num.value++ + ')',
 					promises,
@@ -113,7 +95,7 @@ function expect(title, num, promises, value) {
 			untrack(() => {
 				let threw = true
 				try {
-					value()
+					;(/** @type {Function} */ (value))()
 					threw = false
 				} catch {}
 				return pass(
@@ -127,7 +109,9 @@ function expect(title, num, promises, value) {
 		toMatch: expected =>
 			pass(
 				true,
-				expected.test(value),
+				(/** @type {RegExp} */ (expected)).test(
+					/** @type {string} */ (value),
+				),
 				true,
 				title + ' (' + num.value++ + ')',
 				promises,
@@ -155,27 +139,9 @@ function expect(title, num, promises, value) {
 				untrack(() =>
 					pass(
 						true,
-						value?.includes(expected),
-						false,
-						title + ' (' + num.value++ + ')',
-						promises,
-					),
-				),
-			toHaveLength: expected =>
-				untrack(() =>
-					pass(
-						expected,
-						value?.length,
-						false,
-						title + ' (' + num.value++ + ')',
-						promises,
-					),
-				),
-			toBeGreaterThanOrEqual: expected =>
-				untrack(() =>
-					pass(
-						true,
-						value >= expected,
+						(/** @type {string | any[]} */ (value))?.includes(
+							expected,
+						),
 						false,
 						title + ' (' + num.value++ + ')',
 						promises,
@@ -185,7 +151,7 @@ function expect(title, num, promises, value) {
 				untrack(() => {
 					let threw = true
 					try {
-						value()
+						;(/** @type {Function} */ (value))()
 						threw = false
 					} catch {}
 					return pass(
@@ -199,7 +165,9 @@ function expect(title, num, promises, value) {
 			toMatch: expected =>
 				pass(
 					true,
-					expected.test(value),
+					(/** @type {RegExp} */ (expected)).test(
+						/** @type {string} */ (value),
+					),
 					false,
 					title + ' (' + num.value++ + ')',
 					promises,

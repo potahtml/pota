@@ -74,7 +74,7 @@ const parseXML = withWeakCache(
 			const err = html[0]
 			err.style.padding = '1em'
 			err.firstChild.textContent = 'HTML Syntax Error:'
-			// @ts-expect-error typescript doesnt understand dom walking
+
 			err.firstChild.nextSibling.style.cssText = ''
 			err.lastChild.replaceWith(createTextNode(content))
 		}
