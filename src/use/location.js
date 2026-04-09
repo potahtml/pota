@@ -203,6 +203,21 @@ function navigateUser(href, options = nothing) {
 }
 export { navigateUser as navigate }
 
+/**
+ * Synchronous navigation for tests — sets the URL and updates the
+ * location signal without going through the async navigate pipeline
+ * or view transitions.
+ *
+ * @param {string} href - Full or absolute URL
+ * @param {{ replace?: boolean }} [options]
+ */
+export function navigateSync(href, options) {
+	options?.replace
+		? history.replaceState(null, '', href)
+		: history.pushState(null, '', href)
+	setLocation(wLocation.href)
+}
+
 // listeners
 
 let addListenersAdded = false
