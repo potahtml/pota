@@ -76,7 +76,7 @@
 		"watch": true,
 		"concurrency": 10,
 		"extensions": [".jsx", ".tsx", ".ts"],
-		"ignore": ["broken-tests", "route"]
+		"ignore": []
 	},
 	"dependencies": {
 		"colorjs.io": "^0.6.1",

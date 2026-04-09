@@ -1,6 +1,6 @@
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { microtask, test, $ } from '#test'
 
 import { render } from 'pota'
 import { getSelection, restoreSelection } from 'pota/use/selection'
@@ -27,12 +27,14 @@ await test('selection - getSelection and restoreSelection round-trip a range', e
 	window.getSelection().removeAllRanges()
 })
 
-await test('selection - use:click-selects-all selects the node contents', expect => {
+await test('selection - use:click-selects-all selects the node contents', async expect => {
 	const dispose = render(
 		<div use:click-selects-all={true}>selected text</div>,
 	)
 
-	document.querySelector('div').click()
+	await microtask()
+
+	$('div').click()
 
 	expect(window.getSelection().toString()).toBe('selected text')
 

@@ -1,6 +1,6 @@
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { test, sleep } from '#test'
 
 import { root, signal } from 'pota'
 import {
@@ -22,7 +22,7 @@ await test('time - date and time format timestamps consistently', expect => {
 	expect(time(timestamp)).toBe('03:04')
 	expect(timeWithSeconds(timestamp)).toBe('03:04:05')
 	expect(datetime(timestamp)).toBe('2020-01-02 03:04')
-	expect(day(timestamp, 'en')).toContain('2020')
+	expect(day(timestamp, 'en')).toInclude('2020')
 	expect(typeof now()).toBe('number')
 })
 
@@ -48,8 +48,8 @@ await test('time - measure and timing report durations', expect => {
 	console.timeEnd = originalTimeEnd
 
 	expect(result).toBe(42)
-	expect(reported).toBeGreaterThanOrEqual(0)
-	expect(timed).toBeGreaterThanOrEqual(0)
+	expect(reported >= 0).toBe(true)
+	expect(timed >= 0).toBe(true)
 	expect(labels).toEqual([
 		['start', 'job'],
 		['end', 'job'],
@@ -70,18 +70,18 @@ await test('time - useTimeout starts, stops and supports reactive delays', async
 		)
 
 		expect(timer.start()).toBe(timer)
-		await new Promise(resolve => setTimeout(resolve, 20))
+		await sleep(20)
 		expect(calls).toEqual(['first'])
 
 		delay.write(Infinity)
 		timer.start()
-		await new Promise(resolve => setTimeout(resolve, 20))
+		await sleep(20)
 		expect(calls).toEqual(['first'])
 
 		delay.write(50)
 		timer.start()
 		timer.stop()
-		await new Promise(resolve => setTimeout(resolve, 60))
+		await sleep(60)
 		expect(calls).toEqual(['first'])
 	})
 })

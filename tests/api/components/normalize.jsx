@@ -21,7 +21,7 @@ await test('Normalize - renders string children as text', expect => {
 	const dispose = render(<Normalize>hello</Normalize>)
 
 	expect(body()).toBe('hello')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 	expect(body()).toBe('')
 })
@@ -29,7 +29,7 @@ await test('Normalize - renders string children as text', expect => {
 await test('Normalize - renders number children as text', expect => {
 	const dispose = render(<Normalize>{42}</Normalize>)
 	expect(body()).toBe('42')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -40,7 +40,7 @@ await test('Normalize - joins multiple string children into 1 node', expect => {
 		</Normalize>,
 	)
 	expect(body()).toBe('hello world')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -53,21 +53,21 @@ await test('Normalize - joins mixed children into 1 node', expect => {
 		</Normalize>,
 	)
 	expect(body()).toBe('foo42bar')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
-await test('Normalize - renders empty string as 1 node', expect => {
+await test('Normalize - it doesnt render empty string', expect => {
 	const dispose = render(<Normalize>{''}</Normalize>)
 	expect(body()).toBe('')
-	expect(childNodes()).toBe(2)
+	expect(childNodes()).toBe(1)
 	dispose()
 })
 
 await test('Normalize - joins array of strings into 1 node', expect => {
 	const dispose = render(<Normalize>{['a', 'b', 'c']}</Normalize>)
 	expect(body()).toBe('abc')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -80,7 +80,7 @@ await test('Normalize - null becomes empty string in join', expect => {
 		</Normalize>,
 	)
 	expect(body()).toBe('ab')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -95,7 +95,7 @@ await test('Normalize - undefined becomes empty string in join', expect => {
 		</Normalize>,
 	)
 	expect(body()).toBe('ab')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -105,7 +105,7 @@ await test('Normalize - resolves signal children as 1 text node', expect => {
 	const [val] = signal('reactive')
 	const dispose = render(<Normalize>{val}</Normalize>)
 	expect(body()).toBe('reactive')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -113,10 +113,10 @@ await test('Normalize - updates when signal changes, stays 1 node', expect => {
 	const [val, setVal] = signal('first')
 	const dispose = render(<Normalize>{val}</Normalize>)
 	expect(body()).toBe('first')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	setVal('second')
 	expect(body()).toBe('second')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -125,7 +125,7 @@ await test('Normalize - resolves function children as 1 text node', expect => {
 		<Normalize>{() => 'from function'}</Normalize>,
 	)
 	expect(body()).toBe('from function')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -139,7 +139,7 @@ await test('Normalize - joins multiple signals into 1 node', expect => {
 		</Normalize>,
 	)
 	expect(body()).toBe('hello world')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -153,21 +153,21 @@ await test('Normalize - updating one of multiple signals stays 1 node', expect =
 		</Normalize>,
 	)
 	expect(body()).toBe('hello world')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	setA('hi')
 	expect(body()).toBe('hi world')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
 await test('Normalize - toggling signal value stays 1 node', expect => {
 	const [val, setVal] = signal('a')
 	const dispose = render(<Normalize>{val}</Normalize>)
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	setVal('b')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	setVal('c')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -179,7 +179,7 @@ await test('Normalize - nested arrays still normalize to 1 text node', expect =>
 		</Normalize>,
 	)
 	expect(body()).toBe('abc')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 })
 
@@ -188,7 +188,7 @@ await test('Normalize - nested arrays still normalize to 1 text node', expect =>
 await test('Normalize - cleans up on dispose', expect => {
 	const dispose = render(<Normalize>content</Normalize>)
 	expect(body()).toBe('content')
-	expect(childNodes()).toBe(3)
+	expect(childNodes()).toBe(2)
 	dispose()
 	expect(body()).toBe('')
 })

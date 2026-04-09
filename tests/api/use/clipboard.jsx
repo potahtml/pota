@@ -1,11 +1,11 @@
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { test, $, $$, microtask } from '#test'
 
 import { render } from 'pota'
 import 'pota/use/clipboard'
 
-await test('clipboard - use:clipboard copies explicit string values', expect => {
+await test('clipboard - use:clipboard copies explicit string values', async expect => {
 	const writes = []
 	const original = navigator.clipboard
 
@@ -23,7 +23,9 @@ await test('clipboard - use:clipboard copies explicit string values', expect => 
 		<button use:clipboard="copied value">Copy</button>,
 	)
 
-	document.querySelector('button').click()
+	await microtask()
+
+	$('button').click()
 
 	expect(writes).toEqual(['copied value'])
 
@@ -34,7 +36,7 @@ await test('clipboard - use:clipboard copies explicit string values', expect => 
 	})
 })
 
-await test('clipboard - use:clipboard can read text from the node or a callback', expect => {
+await test('clipboard - use:clipboard can read text from the node or a callback', async expect => {
 	const writes = []
 	const original = navigator.clipboard
 
@@ -60,7 +62,9 @@ await test('clipboard - use:clipboard can read text from the node or a callback'
 		</>,
 	)
 
-	const [first, second] = document.querySelectorAll('button')
+	await microtask()
+
+	const [first, second] = $$('button')
 	first.click()
 	second.click()
 

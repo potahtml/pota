@@ -64,11 +64,15 @@ await test('event - emit dispatches a bubbling custom event with detail', expect
 	const node = document.createElement('div')
 	let detail
 
+	let dispatched = false
+
 	node.addEventListener('ping', event => {
+		dispatched = true
+		console.log(event)
 		detail = event.detail
 	})
 
-	const dispatched = emit(node, 'ping', {
+	emit(node, 'ping', {
 		detail: { ok: true },
 		bubbles: true,
 		cancelable: true,

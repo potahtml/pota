@@ -2,9 +2,9 @@
 
 // Tests for the For component: static lists, reactive arrays,
 // keyed reuse, empty fallback, and nested For loops.
-import { test, body, microtask } from '#test'
+import { microtask, test, body } from '#test'
 
-import { render, signal } from 'pota'
+import { cleanup, map, render, signal } from 'pota'
 import { Show, For } from 'pota/components'
 
 await test('For - renders a list of strings', expect => {
@@ -152,6 +152,8 @@ await test('For - updates when signal replaces entire list', expect => {
 	expect(body()).toBe('<p>x</p><p>y</p><p>z</p>')
 
 	dispose()
+
+	expect(body()).toBe('')
 })
 
 await test('For - updates when signal sets empty list', expect => {
@@ -555,3 +557,115 @@ await test('For - Show inside For with signal: toggling signal affects all items
 
 	dispose()
 })
+
+await test('map - works with a Set iterable', expect => {
+	console.log(
+		map(new Set([10, 20, 30]), item => <li>{item}</li>)().map(item =>
+			item(),
+		),
+	)
+	const dispose = render(
+		<>
+			{map(new Set([10, 20, 30]), item => (
+				<li>{item}</li>
+			))}
+		</>,
+	)
+
+	expect(body()).toBe('<li>10</li><li>20</li><li>30</li>')
+
+	dispose()
+})
+
+await test('map - works with a Map iterable (values)', expect => {
+	const source = new Map([
+		['a', 'alpha'],
+		['b', 'beta'],
+	])
+	const dispose = render(map(source, item => <li>{item}</li>))
+
+	expect(body()).toBe('<li>alpha</li><li>beta</li>')
+
+	dispose()
+})
+
+/*
+
+
+await test('map - supports reactive indices and fallback', expect => {
+	const items = signal(['a'])
+	const dispose = render(
+		map(
+			items.read,
+			(item, index) => (
+				<p>
+					{index()}:{item}
+				</p>
+			),
+			false,
+			<p>empty</p>,
+			true,
+		),
+	)
+
+	expect(body()).toBe('<p>0:a</p>')
+
+	items.write(['a', 'b'])
+	expect(body()).toBe('<p>0:a</p><p>1:b</p>')
+
+	items.write([])
+	expect(body()).toBe('<p>empty</p>')
+
+	dispose()
+})
+
+await test('map - item cleanup callback fires when item is removed', expect => {
+	const removed = []
+	const items = signal([1, 2, 3])
+
+	const dispose = render(
+		map(items.read, item => {
+			cleanup(() => removed.push(item))
+			return <li>{item}</li>
+		}),
+	)
+
+	expect(body()).toBe('<li>1</li><li>2</li><li>3</li>')
+	expect(removed).toEqual([])
+
+	items.write([2, 3])
+
+	expect(body()).toBe('<li>2</li><li>3</li>')
+	expect(removed).toEqual([1])
+
+	dispose()
+})
+*/
+/*
+await test('For - async children: renders empty until promise resolves', async expect => {
+	const content = new Promise(resolve =>
+		setTimeout(() => resolve(<p>loaded</p>), 100),
+	)
+	const dispose = render(
+		<For each={['a', 'b']}>
+			{item => {
+				console.log(item, content)
+
+				return (
+					<>
+						{item}
+						{content}
+					</>
+				)
+			}}
+		</For>,
+	)
+
+	expect(body()).toBe('ab')
+	await content
+	console.log(await content)
+	await microtask()
+	console.log(body(), document.body.childNodes)
+	expect(body()).toBe('a<p>loaded</p>')
+})
+*/

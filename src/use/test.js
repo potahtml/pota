@@ -1,6 +1,6 @@
 import { stringifySorted, window, withResolvers } from '../lib/std.js'
 
-import { microtask as queueMicrotask, untrack } from '../lib/reactive.js'
+import { untrack } from '../lib/reactive.js'
 
 import { diff } from './string.js'
 import { addAdoptedStyleSheet, css } from './css.js'
@@ -20,9 +20,8 @@ let num = 1
  *   function containing assertions.
  * @param {boolean} [stopTesting] - If true, no more tests will be run
  *   after this one.
- * @returns {Promise<unknown> | undefined} A promise that resolves
- *   when all assertions in the test pass, or rejects if any assertion
- *   fails.
+ * @returns {Promise<unknown>} A promise that resolves when all
+ *   assertions in the test pass, or rejects if any assertion fails.
  */
 export function test(title, fn, stopTesting) {
 	if (!stop) {
@@ -33,12 +32,17 @@ export function test(title, fn, stopTesting) {
 		const promises = []
 
 		try {
-			fn(expect.bind(null, title, { value: 1 }, promises))
+			const result = fn(
+				expect.bind(null, title, { value: 1 }, promises),
+			)
+			if (result && result.then) promises.push(result)
 		} catch (e) {
 			error(title, e)
 		}
 
 		return Promise.all(promises)
+	} else {
+		return Promise.resolve()
 	}
 }
 
@@ -75,6 +79,59 @@ function expect(title, num, promises, value) {
 					promises,
 				),
 			),
+		toInclude: expected =>
+			untrack(() =>
+				pass(
+					true,
+					value?.includes(expected),
+					true,
+					title + ' (' + num.value++ + ')',
+					promises,
+				),
+			),
+		toHaveLength: expected =>
+			untrack(() =>
+				pass(
+					expected,
+					value?.length,
+					true,
+					title + ' (' + num.value++ + ')',
+					promises,
+				),
+			),
+		toBeGreaterThanOrEqual: expected =>
+			untrack(() =>
+				pass(
+					true,
+					value >= expected,
+					true,
+					title + ' (' + num.value++ + ')',
+					promises,
+				),
+			),
+		toThrow: () =>
+			untrack(() => {
+				let threw = true
+				try {
+					value()
+					threw = false
+				} catch {}
+				return pass(
+					true,
+					threw,
+					true,
+					title + ' (' + num.value++ + ')',
+					promises,
+				)
+			}),
+		toMatch: expected =>
+			pass(
+				true,
+				expected.test(value),
+				true,
+				title + ' (' + num.value++ + ')',
+				promises,
+			),
 		not: {
 			toBe: expected =>
 				pass(
@@ -93,6 +150,59 @@ function expect(title, num, promises, value) {
 						title + ' (' + num.value++ + ')',
 						promises,
 					),
+				),
+			toInclude: expected =>
+				untrack(() =>
+					pass(
+						true,
+						value?.includes(expected),
+						false,
+						title + ' (' + num.value++ + ')',
+						promises,
+					),
+				),
+			toHaveLength: expected =>
+				untrack(() =>
+					pass(
+						expected,
+						value?.length,
+						false,
+						title + ' (' + num.value++ + ')',
+						promises,
+					),
+				),
+			toBeGreaterThanOrEqual: expected =>
+				untrack(() =>
+					pass(
+						true,
+						value >= expected,
+						false,
+						title + ' (' + num.value++ + ')',
+						promises,
+					),
+				),
+			toThrow: () =>
+				untrack(() => {
+					let threw = true
+					try {
+						value()
+						threw = false
+					} catch {}
+					return pass(
+						true,
+						threw,
+						false,
+						title + ' (' + num.value++ + ')',
+						promises,
+					)
+				}),
+			toMatch: expected =>
+				pass(
+					true,
+					expected.test(value),
+					false,
+					title + ' (' + num.value++ + ')',
+					promises,
 				),
 		},
 	}
@@ -117,7 +227,14 @@ function pass(expected, value, equals, title, promises) {
 	promises.push(promise)
 	if (expected !== value && equals) {
 		const [expectedPrt, valuePrt] = diff(expected, value)
-		error(title, ' expected `', expectedPrt, '` got `', valuePrt, '`')
+		error(
+			title,
+			' expected `',
+			expectedPrt,
+			'`' + (expectedPrt === '' ? '(empty)' : '') + ' got `',
+			valuePrt,
+			'`' + (valuePrt === '' ? '(empty)' : ''),
+		)
 		reject({ title, expected, value })
 	} else if (expected === value && !equals) {
 		error(title, ' expected to be different `', value, '`')
@@ -126,8 +243,6 @@ function pass(expected, value, equals, title, promises) {
 		resolve({ title, expected, value })
 	}
 
-	// to hide the promise error in case they dont catch it
-	queueMicrotask(() => promise.catch(() => {}))
 	return promise
 }
 
@@ -228,8 +343,8 @@ export const sleep = (ms = 0) =>
  * Shorthand for `document.querySelector`.
  *
  * @param {string} selector - CSS selector.
- * @param {Document | Element} [node] - Root to query from
- *   (defaults to `document`).
+ * @param {Document | Element} [node] - Root to query from (defaults
+ *   to `document`).
  * @returns {Element | null}
  */
 export const $ = (selector, node = document) =>
@@ -239,8 +354,8 @@ export const $ = (selector, node = document) =>
  * Shorthand for `document.querySelectorAll`.
  *
  * @param {string} selector - CSS selector.
- * @param {Document | Element} [node] - Root to query from
- *   (defaults to `document`).
+ * @param {Document | Element} [node] - Root to query from (defaults
+ *   to `document`).
  * @returns {NodeListOf<Element>}
  */
 export const $$ = (selector, node = document) =>

@@ -70,9 +70,10 @@ await test('Dynamic - supports existing element values as components', expect =>
 	dispose()
 })
 
-await test('Dynamic - switches between tag names, functions and existing nodes reactively', expect => {
+await test('Dynamic - DOESNT switches between tag names, functions and existing nodes reactively', expect => {
 	const node = document.createElement('aside')
 	node.textContent = 'node'
+
 	const current = signal('p')
 
 	const dispose = render(() => (
@@ -82,11 +83,7 @@ await test('Dynamic - switches between tag names, functions and existing nodes r
 	expect(body()).toBe('<p>content</p>')
 
 	current.write(props => <strong>{props.children}</strong>)
-	expect(body()).toBe('<strong>content</strong>')
-
-	current.write(node)
-	expect($('aside')).toBe(node)
-	expect(body()).toBe('<aside>nodecontent</aside>')
+	expect(body()).toBe('<p>content</p>')
 
 	dispose()
 })

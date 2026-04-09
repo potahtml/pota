@@ -57,7 +57,7 @@ await test('Tabs - selects the first tab by default and switches on click', expe
 			.querySelectorAll('[role="tab"]')[0]
 			.getAttribute('aria-selected'),
 	).toBe('true')
-	expect(body()).toContain('p1')
+	expect(body()).toInclude('p1')
 
 	document
 		.querySelectorAll('[role="tab"]')[2]
@@ -252,13 +252,13 @@ await test('Tabs - Tabs.selected() provides reactive access to the selected tab 
 		</Tabs>,
 	)
 
-	expect(body()).toContain('one')
+	expect(body()).toInclude('one')
 
 	document
 		.querySelectorAll('[role="tab"]')[1]
 		.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
-	expect(body()).toContain('two')
+	expect(body()).toInclude('two')
 
 	dispose()
 })

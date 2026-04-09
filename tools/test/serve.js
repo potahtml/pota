@@ -39,6 +39,15 @@ window.addEventListener('error', e => {
   window.__pota_results__.failed++
   window.__pota_results__.done = true
 })
+window.addEventListener('unhandledrejection', e => {
+  const msg = e.reason?.message || e.reason?.error || String(e.reason)
+  window.__pota_results__.errors.push({
+    title: 'unhandled rejection',
+    error: msg,
+  })
+  window.__pota_results__.failed++
+  window.__pota_results__.done = true
+})
 </script>
 <script type="module">
   await import('/${file}')
@@ -82,18 +91,21 @@ export function startServer(port) {
 			const url = new URL(req.url, 'http://localhost')
 
 			// test harness page
-			if (url.pathname === '/__run__') {
+			if (url.searchParams.get('test') === '') {
 				res.writeHead(200, { 'Content-Type': 'text/html' })
-				res.end(harness(url.searchParams.get('file')))
+				res.end(harness(url.pathname.replace(/^\//, '')))
 				return
 			}
 
 			// static / transformed files
-			const filePath = path.join(root, url.pathname)
+			const filePath = path.join(
+				root,
+				url.pathname.replace(/^\//, ''),
+			)
 
 			if (!fs.existsSync(filePath)) {
 				res.writeHead(404)
-				res.end('Not found: ' + url.pathname)
+				res.end('404 Not found: ' + url.pathname)
 				return
 			}
 

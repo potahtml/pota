@@ -17,6 +17,7 @@ const imports = {
 	'pota/components': '/src/components/@main.js',
 	'pota/store': '/src/lib/store.js',
 	'pota/xml': '/src/core/xml.js',
+	'colorjs.io': '/node_modules/colorjs.io/dist/color.js',
 	'#test': '/tools/test/test.js',
 }
 

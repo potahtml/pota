@@ -1,6 +1,6 @@
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { microtask, test } from '#test'
 
 import { root } from 'pota'
 import {
@@ -35,7 +35,7 @@ await test('focus - focusNext and focusPrevious cycle through tabbable elements'
 await test('focus - document focus emitter reflects blur and focus events', expect => {
 	const seen = []
 
-	root(dispose => {
+	root(async dispose => {
 		const value = useDocumentFocus()
 		onDocumentFocus(next => {
 			seen.push(next)
@@ -44,7 +44,12 @@ await test('focus - document focus emitter reflects blur and focus events', expe
 		expect(typeof value()).toBe('boolean')
 
 		window.dispatchEvent(new FocusEvent('blur'))
+
+		await microtask()
+
 		window.dispatchEvent(new FocusEvent('focus'))
+
+		await microtask()
 
 		expect(seen.slice(-2)).toEqual([false, true])
 		dispose()

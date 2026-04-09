@@ -289,33 +289,6 @@ await test('externalSignal - preserves equal items by id', expect => {
 	expect(items.read()[2].label).toBe('three')
 })
 
-await test('map - supports reactive indices and fallback', expect => {
-	const items = signal(['a'])
-	const dispose = render(
-		map(
-			items.read,
-			(item, index) => (
-				<p>
-					{index()}:{item}
-				</p>
-			),
-			false,
-			<p>empty</p>,
-			true,
-		),
-	)
-
-	expect(body()).toBe('<p>0:a</p>')
-
-	items.write(['a', 'b'])
-	expect(body()).toBe('<p>0:a</p><p>1:b</p>')
-
-	items.write([])
-	expect(body()).toBe('<p>empty</p>')
-
-	dispose()
-})
-
 await test('resolve and unwrap - flatten nested children and keep them reactive', expect => {
 	const count = signal('a')
 	const resolved = resolve(() => [() => count.read(), ['!']])
@@ -450,6 +423,22 @@ await test('owned - calling the owned fn before disposal suppresses onCancel', e
 	dispose()
 
 	expect(seen).toEqual(['ran'])
+})
+
+await test('owned - does not run callback after owner is disposed', expect => {
+	const seen = []
+
+	let fn
+	const dispose = root(d => {
+		fn = owned(value => seen.push(value))
+		return d
+	})
+
+	fn('before')
+	dispose()
+	fn('after')
+
+	expect(seen).toEqual(['before'])
 })
 
 await test('memo - is lazy initialized: does not execute until first read', expect => {
@@ -598,8 +587,8 @@ await test('syncEffect - runs synchronously on signal write, effect defers', exp
 	count.write(1)
 	// syncEffect runs immediately, effect may also run immediately
 	// depending on scheduling, but both should have fired
-	expect(order).toContain('sync:1')
-	expect(order).toContain('effect:1')
+	expect(order).toInclude('sync:1')
+	expect(order).toInclude('effect:1')
 })
 
 // --- on with multiple dependencies -------------------------------------------

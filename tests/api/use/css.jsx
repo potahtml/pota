@@ -1,6 +1,6 @@
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { test, macrotask } from '#test'
 
 import {
 	CSSStyleSheet,
@@ -47,7 +47,7 @@ await test('css - addStyleSheets accepts direct sheets and inline css text', asy
 	const direct = sheet(':host { display: block; }')
 
 	addStyleSheets(root, [direct, ':host { color: green; }'])
-	await new Promise(resolve => setTimeout(resolve, 0))
+	await macrotask()
 
 	expect(getAdoptedStyleSheets(root).length).toBe(2)
 	expect(getAdoptedStyleSheets(root)[0]).toBe(direct)
@@ -62,8 +62,8 @@ await test('css - addStyleSheetExternal caches inline stylesheet text', async ex
 	addStyleSheetExternal(rootA, ':host { color: purple; }')
 	addStyleSheetExternal(rootB, ':host { color: purple; }')
 
-	await new Promise(resolve => setTimeout(resolve, 0))
-	await new Promise(resolve => setTimeout(resolve, 0))
+	await macrotask()
+	await macrotask()
 
 	expect(getAdoptedStyleSheets(rootA).length).toBe(1)
 	expect(getAdoptedStyleSheets(rootB).length).toBe(1)
@@ -91,9 +91,9 @@ await test('css - addStyleSheetExternal fetches remote css once and reuses the s
 	addStyleSheetExternal(rootA, 'http://example.test/a.css')
 	addStyleSheetExternal(rootB, 'http://example.test/a.css')
 
-	await new Promise(resolve => setTimeout(resolve, 0))
-	await new Promise(resolve => setTimeout(resolve, 0))
-	await new Promise(resolve => setTimeout(resolve, 0))
+	await macrotask()
+	await macrotask()
+	await macrotask()
 
 	expect(calls).toBe(1)
 	expect(getAdoptedStyleSheets(rootA)[0]).toBe(

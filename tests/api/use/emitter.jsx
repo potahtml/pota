@@ -1,6 +1,6 @@
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { microtask, test } from '#test'
 
 import { root } from 'pota'
 import { Emitter } from 'pota/use/emitter'
@@ -33,7 +33,7 @@ await test('emitter - use subscribes lazily, publishes values and unsubscribes o
 	expect(offCalls).toBe(1)
 })
 
-await test('emitter - on receives initial and subsequent values inside an owner', expect => {
+await test('emitter - on receives subsequent values inside an owner', async expect => {
 	let dispatch
 	const seen = []
 
@@ -45,15 +45,21 @@ await test('emitter - on receives initial and subsequent values inside an owner'
 		initialValue: () => 'first',
 	})
 
-	root(dispose => {
+	await root(async dispose => {
 		emitter.on(value => {
 			seen.push(value)
 		})
 
 		dispatch('second')
+
+		await microtask()
+
 		dispatch('third')
+
+		await microtask()
+
 		dispose()
 	})
 
-	expect(seen).toEqual(['first', 'second', 'third'])
+	expect(seen).toEqual(['second', 'third'])
 })

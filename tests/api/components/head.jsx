@@ -5,7 +5,7 @@
 // updates, conditional children, and cleanup.
 import { test, body } from '#test'
 
-import { render, signal } from 'pota'
+import { render, root, signal } from 'pota'
 import { Head } from 'pota/components'
 
 await test('Head - portals content into document.head instead of body', expect => {
@@ -240,16 +240,19 @@ await test('Head - updates reactive text and attributes in place', expect => {
 
 await test('Head - conditional reactive child is removed from head when toggled off', expect => {
 	const visible = signal(true)
+
 	const dispose = render(
 		<Head>
-			{() =>
-				visible.read() && (
-					<meta
-						name="robots"
-						content="noindex"
-					/>
+			{() => {
+				return (
+					visible.read() && (
+						<meta
+							name="robots"
+							content="noindex"
+						/>
+					)
 				)
-			}
+			}}
 		</Head>,
 	)
 

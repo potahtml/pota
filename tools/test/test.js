@@ -47,12 +47,10 @@ function formatError(e) {
  * Wraps a test: clears the body, delegates to pota/use/test, tracks
  * the result.
  *
- * @param {string} title
- * @param {(expect: (arg: unknown) => object) => void} fn
+ * @type {typeof testImpl}
  */
 export function test(title, fn) {
-	const promise = testImpl(title, fn)
-	const tracked = (promise || Promise.resolve()).then(
+	const tracked = testImpl(title, fn).then(
 		() => ({ title, ok: true }),
 		e => ({ title, ok: false, error: formatError(e) }),
 	)

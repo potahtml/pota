@@ -12,15 +12,7 @@ await test('expectations - render inserts DOM synchronously, ref is immediate, a
 	const seen = []
 
 	function Widget() {
-		console.log(1, seen.join(','))
-
 		ready(() => {
-			console.log(2, seen.join(','))
-
-			console.log(
-				document.body.childNodes,
-				$('p'),
-			)
 			seen.push('ready:' + $('p')?.textContent)
 		})
 
@@ -28,22 +20,20 @@ await test('expectations - render inserts DOM synchronously, ref is immediate, a
 			<p
 				use:ref={node => seen.push('ref:' + node.textContent)}
 				use:connected={node =>
-					seen.push('connected:' + node.textContent, node.isConnected)
+					seen.push('connected:' + node.textContent)
 				}
 			>
 				hello
 			</p>
 		)
 	}
+
 	const dispose = render(<Widget />)
-	console.log(3, seen.join(','))
 
 	expect(body()).toBe('<p>hello</p>')
 	expect(seen).toEqual(['ref:hello'])
 
 	await microtask()
-	await microtask()
-	console.log(4, seen.join(','))
 
 	expect(seen).toEqual([
 		'ref:hello',

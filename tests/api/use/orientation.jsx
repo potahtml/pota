@@ -1,11 +1,11 @@
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { microtask, test } from '#test'
 
 import { root } from 'pota'
 import { onOrientation, useOrientation } from 'pota/use/orientation'
 
-await test('orientation - emitter derives horizontal and vertical from document size', expect => {
+await test('orientation - emitter derives horizontal and vertical from document size', async expect => {
 	const width = Object.getOwnPropertyDescriptor(
 		document.documentElement,
 		'clientWidth',
@@ -31,7 +31,7 @@ await test('orientation - emitter derives horizontal and vertical from document 
 	})
 
 	const seen = []
-	root(dispose => {
+	await root(async dispose => {
 		const orientation = useOrientation()
 		onOrientation(value => {
 			seen.push(value)
@@ -43,6 +43,7 @@ await test('orientation - emitter derives horizontal and vertical from document 
 		nextHeight = 200
 		window.dispatchEvent(new Event('resize'))
 
+		await microtask()
 		expect(seen.at(-1)).toBe('horizontal')
 		dispose()
 	})

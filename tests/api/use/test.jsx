@@ -34,6 +34,8 @@ await test('test - rerenders injects a stylesheet', expect => {
 })
 
 await test('test - exported test function numbers assertions and reset restarts numbering', async expect => {
+	useTest.reset()
+
 	const logs = []
 	const originalLog = console.log
 
@@ -50,6 +52,5 @@ await test('test - exported test function numbers assertions and reset restarts 
 	})
 
 	console.log = originalLog
-
 	expect(logs).toEqual(['1 - first', '1 - second'])
 })

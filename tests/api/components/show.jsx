@@ -390,7 +390,7 @@ await test('Show - nested: deeply nested three levels', expect => {
 	dispose()
 })
 
-test('Show - async children: renders empty until promise resolves', async expect => {
+await test('Show - async children: renders empty until promise resolves', async expect => {
 	const content = new Promise(resolve =>
 		setTimeout(() => resolve(<p>async content</p>), 50),
 	)
@@ -403,7 +403,7 @@ test('Show - async children: renders empty until promise resolves', async expect
 	dispose()
 })
 
-test('Show - async children: does not render if when toggles false before resolve', async expect => {
+await test('Show - async children: does not render if when toggles false before resolve', async expect => {
 	const [visible, setVisible] = signal(true)
 	const content = new Promise(resolve =>
 		setTimeout(() => resolve(<p>async content</p>), 50),

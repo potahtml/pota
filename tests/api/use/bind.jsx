@@ -1,6 +1,6 @@
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { test, $, $$, microtask } from '#test'
 
 import { render, signal } from 'pota'
 import { bind } from 'pota/use/bind'
@@ -15,11 +15,14 @@ await test('bind - returns a readable and writable signal-like function', expect
 	expect(value()).toBe('world')
 })
 
-await test('bind - use:bind syncs text input both ways', expect => {
+await test('bind - use:bind syncs text input both ways', async expect => {
 	const value = bind('start')
-	const dispose = render(<input use:bind={value} />)
-	const input = document.querySelector('input')
+	expect(value() + ' in signal').toBe('start in signal')
 
+	const dispose = render(<input use:bind={value} />)
+	const input = $('input')
+
+	await microtask()
 	expect(input.value).toBe('start')
 
 	value('changed')
@@ -32,7 +35,7 @@ await test('bind - use:bind syncs text input both ways', expect => {
 	dispose()
 })
 
-await test('bind - use:bind syncs checkbox checked state', expect => {
+await test('bind - use:bind syncs checkbox checked state', async expect => {
 	const checked = bind(true)
 	const dispose = render(
 		<input
@@ -40,7 +43,9 @@ await test('bind - use:bind syncs checkbox checked state', expect => {
 			use:bind={checked}
 		/>,
 	)
-	const input = document.querySelector('input')
+	const input = $('input')
+
+	await microtask()
 
 	expect(input.checked).toBe(true)
 
@@ -54,7 +59,7 @@ await test('bind - use:bind syncs checkbox checked state', expect => {
 	dispose()
 })
 
-await test('bind - use:bind syncs radio groups by value', expect => {
+await test('bind - use:bind syncs radio groups by value', async expect => {
 	const selected = bind('b')
 	const dispose = render(
 		<>
@@ -72,7 +77,9 @@ await test('bind - use:bind syncs radio groups by value', expect => {
 			/>
 		</>,
 	)
-	const [a, b] = document.querySelectorAll('input')
+	const [a, b] = $$('input')
+
+	await microtask()
 
 	expect(a.checked).toBe(false)
 	expect(b.checked).toBe(true)
@@ -98,7 +105,7 @@ await test('bind - bind can wrap a computed accessor', expect => {
 	expect(value()).toBe('second')
 })
 
-await test('bind - use:bind syncs contenteditable nodes through innerText', expect => {
+await test('bind - use:bind syncs contenteditable nodes through innerText', async expect => {
 	const value = bind('hello')
 	const dispose = render(
 		<div
@@ -106,7 +113,9 @@ await test('bind - use:bind syncs contenteditable nodes through innerText', expe
 			use:bind={value}
 		/>,
 	)
-	const node = document.querySelector('div')
+	const node = $('div')
+
+	await microtask()
 
 	expect(node.innerText).toBe('hello')
 
@@ -120,7 +129,7 @@ await test('bind - use:bind syncs contenteditable nodes through innerText', expe
 	dispose()
 })
 
-await test('bind - use:bind syncs select element both ways', expect => {
+await test('bind - use:bind syncs select element both ways', async expect => {
 	const selected = bind('1')
 	const dispose = render(
 		<select use:bind={selected}>
@@ -130,7 +139,9 @@ await test('bind - use:bind syncs select element both ways', expect => {
 		</select>,
 	)
 
-	const el = document.querySelector('select')
+	await microtask()
+
+	const el = $('select')
 
 	expect(el.value).toBe('1')
 

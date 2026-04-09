@@ -491,7 +491,7 @@ await test('use:ref - assigns the DOM element to the ref signal on mount', expec
 		<button use:ref={buttonRef}>click me</button>,
 	)
 
-	expect(buttonRef()).toBeInstanceOf(HTMLButtonElement)
+	expect(buttonRef() instanceof HTMLButtonElement).toBe(true)
 	expect(buttonRef().textContent).toBe('click me')
 
 	dispose()
@@ -503,7 +503,7 @@ await test('use:ref - accepts multiple refs as an array', expect => {
 
 	const dispose = render(<p use:ref={[refA, refB]}>content</p>)
 
-	expect(refA()).toBeInstanceOf(HTMLParagraphElement)
+	expect(refA() instanceof HTMLParagraphElement).toBe(true)
 	expect(refB()).toBe(refA())
 
 	dispose()

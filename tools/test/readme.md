@@ -20,7 +20,8 @@ tools/test/
    test files matching configured extensions.
 2. **Serve** — a local HTTP server that:
    - transforms `.jsx`/`.tsx` via Babel with `pota/babel-preset`
-   - strips TypeScript from `.ts`/`.tsx` via `@babel/preset-typescript`
+   - strips TypeScript from `.ts`/`.tsx` via
+     `@babel/preset-typescript`
    - rewrites bare `pota/*` and `#test` imports to local `src/` paths
    - caches transforms keyed by path + mtime
    - serves everything else as static files from repo root
@@ -32,15 +33,15 @@ tools/test/
 
 All options live in `package.json` under the `"test"` key:
 
-| Key           | Default                  | Description                   |
-| ------------- | ------------------------ | ----------------------------- |
-| `dir`         | `"tests/api/"`           | test directory (relative to cwd) |
-| `port`        | `0` (random)             | server port                   |
-| `timeout`     | `5000`                   | per-file timeout (ms)         |
-| `bail`        | `false`                  | stop on first failure         |
-| `watch`       | `true`                   | watch mode on by default      |
-| `concurrency` | `10`                     | parallel browser tabs         |
-| `extensions`  | `[".jsx", ".tsx", ".ts"]` | file extensions to test       |
+| Key           | Default                   | Description                      |
+| ------------- | ------------------------- | -------------------------------- |
+| `dir`         | `"tests/api/"`            | test directory (relative to cwd) |
+| `port`        | `0` (random)              | server port                      |
+| `timeout`     | `5000`                    | per-file timeout (ms)            |
+| `bail`        | `false`                   | stop on first failure            |
+| `watch`       | `true`                    | watch mode on by default         |
+| `concurrency` | `10`                      | parallel browser tabs            |
+| `extensions`  | `[".jsx", ".tsx", ".ts"]` | file extensions to test          |
 
 CLI flags: `--no-watch`, `--no-bail`, positional filter substring.
 
@@ -50,7 +51,7 @@ CLI flags: `--no-watch`, `--no-bail`, positional filter substring.
 npm test                            # watch + bail (defaults)
 npm run test:all                    # no bail
 npm run test:once                   # no watch
-node tools/test/runner.js route     # filter by name
+npm run test -- route               # filter by name
 ```
 
 ## Import rewriting

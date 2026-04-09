@@ -1,5 +1,7 @@
 // CLI test runner — scan, launch Puppeteer, report results
 
+console.clear()
+
 /** @import {Browser} from "puppeteer" */
 
 import puppeteer from 'puppeteer'
@@ -63,7 +65,7 @@ function scanTests() {
 		.filter(f => testExts.some(ext => f.endsWith(ext)))
 		.map(f => f.slice(root.length + 1))
 		.filter(f => !filter || f.includes(filter))
-		.filter(f => !ignore.some(i => f.includes(i)))
+		.filter(f => filter || !ignore.some(i => f.includes(i)))
 		.sort()
 }
 
@@ -79,6 +81,7 @@ function scanTests() {
  */
 async function runFile(browser, baseURL, file) {
 	const page = await browser.newPage()
+
 	await page.bringToFront()
 	await page.emulateFocusedPage(true)
 
@@ -87,17 +90,19 @@ async function runFile(browser, baseURL, file) {
 	page.on('pageerror', err => pageErrors.push(err.message))
 	page.on('error', err => pageErrors.push(err.message))
 	page.on('console', msg => {
+		const text = msg.text()
+		// if (msg.type() === 'log') console.log('    [page]', text)
 		if (msg.type() === 'error') {
 			if (
-				msg.text() !=
+				text !=
 				'Failed to load resource: the server responded with a status of 404 (Not Found)'
 			)
-				pageErrors.push(msg.text())
+				pageErrors.push(text)
 		}
 	})
 
 	try {
-		await page.goto(`${baseURL}/__run__?file=${file}`, {
+		await page.goto(`${baseURL}/${file}?test`, {
 			waitUntil: 'load',
 		})
 		await page.waitForFunction(
@@ -141,7 +146,7 @@ function report(file, results, ms, baseURL) {
 	}
 
 	console.log(` ${red('FAIL')}  ${file}  ${dim(`${ms}ms`)}`)
-	console.log(`  ${white(`${baseURL}/__run__?file=${file}`)}`)
+	console.log(`  ${white(`${baseURL}/${file}?test`)}`)
 
 	for (const err of results.errors)
 		console.log(`  ${err.title}\n    ${err.error}`)
@@ -240,14 +245,16 @@ async function runSuite(browser, baseURL, files) {
  *
  * @param {Browser} browser
  * @param {string} baseURL
+ * @param {boolean} [initialBailed]
  */
-function startWatching(browser, baseURL) {
+function startWatching(browser, baseURL, initialBailed) {
 	console.log(`\n  ${dim('Watching for changes...')}\n`)
 
 	let running = false
 	let pending = null
 	let timer = null
-	let lastBailed = false
+	let lastBailed = !!initialBailed
+	let lastFailed = initialBailed
 
 	function schedule(only) {
 		// after a bail, always re-run the full suite
@@ -258,16 +265,24 @@ function startWatching(browser, baseURL) {
 			for (const f of only) if (!pending.includes(f)) pending.push(f)
 		}
 		clearTimeout(timer)
-		timer = setTimeout(run, 200)
+		timer = setTimeout(run, 500)
 	}
 
 	async function run() {
-		if (running) return void (timer = setTimeout(run, 200))
+		clearTimeout(timer)
+
+		if (running) {
+			timer = setTimeout(run, 500)
+			return
+		}
 		running = true
 
 		const only = lastBailed ? undefined : pending || undefined
 		pending = null
 		clearCache()
+
+		console.clear()
+		process.stdout.write('\x1Bc')
 
 		const files = only || scanTests()
 		const label = only ? only.join(', ') : 'all tests'
@@ -275,6 +290,16 @@ function startWatching(browser, baseURL) {
 
 		const result = await runSuite(browser, baseURL, files)
 		lastBailed = result.bailed
+
+		// partial re-run passed but last full run had failures: re-run all
+		if (only && result.failed === 0 && lastFailed) {
+			lastFailed = false
+			pending = undefined
+			running = false
+			return run()
+		}
+
+		lastFailed = result.failed > 0
 
 		console.log(`\n  ${dim('Watching for changes...')}\n`)
 		running = false
@@ -299,9 +324,13 @@ const baseURL = `http://localhost:${port}`
 
 const browser = await puppeteer.launch({
 	headless: true,
-	args: ['--no-sandbox', '--disable-setuid-sandbox'],
+	args: ['--disable-ipc-flooding-protection'],
 })
 
+/*// doesnt work
+const context = browser.defaultBrowserContext()
+await context.overridePermissions(baseURL, ['fullscreen'])
+*/
 process.on('exit', () => {
 	browser.close().catch(() => {})
 	server.close()
@@ -309,10 +338,10 @@ process.on('exit', () => {
 process.on('SIGINT', () => process.exit())
 process.on('SIGTERM', () => process.exit())
 
-const { failed } = await runSuite(browser, baseURL, scanTests())
+const initial = await runSuite(browser, baseURL, scanTests())
 
 if (!noWatch) {
-	startWatching(browser, baseURL)
+	startWatching(browser, baseURL, initial.bailed)
 } else {
-	process.exit(failed > 0 ? 1 : 0)
+	process.exit(initial.failed > 0 ? 1 : 0)
 }

@@ -20,8 +20,8 @@ await test('random - chance respects the provided generator', expect => {
 
 await test('random - random returns a float in [0, 1)', expect => {
 	const value = random()
-	expect(value).toBeGreaterThanOrEqual(0)
-	expect(value).toBeLessThan(1)
+	expect(value >= 0).toBe(true)
+	expect(value < 1).toBe(true)
 })
 
 await test('random - randomBetween produces inclusive bounds', expect => {
@@ -42,7 +42,7 @@ await test('random - randomId returns a non-empty base36-like string', expect =>
 	const id = randomId()
 
 	expect(typeof id).toBe('string')
-	expect(id.length).toBeGreaterThan(0)
+	expect(id.length > 0).toBe(true)
 	expect(id).toMatch(/^[0-9a-z]+$/)
 })
 

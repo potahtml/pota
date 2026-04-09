@@ -24,23 +24,20 @@ await test('visibility - visibility helpers reflect visibilitychange events', ex
 	})
 
 	const seen = []
-	root(dispose => {
-		const visible = useDocumentVisible()
-		onDocumentVisible(value => {
-			seen.push(value)
-		})
-
-		expect(isDocumentVisible()).toBe(true)
-		expect(visible()).toBe(true)
-
-		state = 'hidden'
-		document.dispatchEvent(new Event('visibilitychange'))
-		state = 'visible'
-		document.dispatchEvent(new Event('visibilitychange'))
-
-		expect(seen.slice(-2)).toEqual([false, true])
-		dispose()
+	const visible = useDocumentVisible()
+	onDocumentVisible(value => {
+		seen.push(value)
 	})
+
+	expect(isDocumentVisible()).toBe(true)
+	expect(visible()).toBe(true)
+
+	state = 'hidden'
+	document.dispatchEvent(new Event('visibilitychange'))
+	state = 'visible'
+	document.dispatchEvent(new Event('visibilitychange'))
+
+	expect(seen.slice(-2)).toEqual([false, true])
 
 	if (descriptor) {
 		Object.defineProperty(

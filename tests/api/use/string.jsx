@@ -111,8 +111,8 @@ await test('string - diff returns annotated lines for multiline string differenc
 	const [da, db] = diff(a, b)
 
 	// first differing line should be marked with ->
-	expect(da).toContain('->')
-	expect(db).toContain('->')
+	expect(da).toInclude('->')
+	expect(db).toInclude('->')
 })
 
 await test('string - diff returns values as-is when not both multiline strings', expect => {

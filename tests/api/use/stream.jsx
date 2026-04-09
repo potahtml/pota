@@ -137,8 +137,8 @@ await test('stream - stop helpers stop tracks and support MediaRecorder-like obj
 	expect(audio.stopped).toBe(1)
 
 	stopTracks(media)
-	expect(audio.stopped).toBeGreaterThanOrEqual(2)
-	expect(video.stopped).toBeGreaterThanOrEqual(1)
+	expect(audio.stopped >= 2).toBe(true)
+	expect(video.stopped >= 1).toBe(true)
 
 	const OriginalMediaStream = globalThis.MediaStream
 	const OriginalMediaRecorder = globalThis.MediaRecorder

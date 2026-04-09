@@ -2,18 +2,10 @@
 
 // Tests for the Suspense component: async children, fallback while
 // pending, resolution, and cleanup.
-import {
-	test,
-	body,
-	macrotask,
-	microtask,
-	sleep,
-	sleep as wait,
-} from '#test'
+import { test, body, macrotask, microtask, sleep } from '#test'
 
 import { render } from 'pota'
 import { Suspense } from 'pota/components'
-
 // --- No promises ---------------------------------------------------------------
 
 await test('Suspense - renders non-promise children directly', expect => {
@@ -54,7 +46,7 @@ await test('Suspense - doesnt show fallback when no children at all', expect => 
 // --- Single promise ------------------------------------------------------------
 
 await test('Suspense - shows fallback while promise is pending', expect => {
-	const promise = wait(100).then(() => <p>loaded</p>)
+	const promise = sleep(100).then(() => <p>loaded</p>)
 	const dispose = render(
 		<Suspense fallback={<p>loading</p>}>{promise}</Suspense>,
 	)
@@ -63,7 +55,7 @@ await test('Suspense - shows fallback while promise is pending', expect => {
 })
 
 await test('Suspense - shows string fallback while pending', expect => {
-	const promise = wait(100).then(() => 'done')
+	const promise = sleep(100).then(() => 'done')
 	const dispose = render(
 		<Suspense fallback="loading...">{promise}</Suspense>,
 	)
@@ -72,34 +64,37 @@ await test('Suspense - shows string fallback while pending', expect => {
 })
 
 await test('Suspense - shows children after promise resolves', async expect => {
-	const promise = sleep(50).then(() => <p>loaded</p>)
+	const promise = sleep(50).then(() => <p>loaded 1</p>)
 	const dispose = render(
-		<Suspense fallback={<p>loading</p>}>{promise}</Suspense>,
+		<Suspense fallback={<p>loading 1</p>}>{promise}</Suspense>,
 	)
-	expect(body()).toBe('<p>loading</p>')
+	expect(body()).toBe('<p>loading 1</p>')
 	await promise
+	await sleep(1000)
 	await microtask()
-	expect(body()).toBe('<p>loaded</p>')
+	expect(body()).toBe('<p>loaded 1</p>')
 	dispose()
+	expect(body()).toBe('')
+	expect(body()).toBe('')
 })
 
 await test('Suspense - resolves string value from promise', async expect => {
-	const promise = sleep(20).then(() => 'done')
+	const promise = sleep(20).then(() => 'done 1')
 	const dispose = render(
-		<Suspense fallback="loading">{promise}</Suspense>,
+		<Suspense fallback="loading 1">{promise}</Suspense>,
 	)
-	expect(body()).toBe('loading')
+	expect(body()).toBe('loading 1')
 	await promise
 	await microtask()
-	expect(body()).toBe('done')
+	expect(body()).toBe('done 1')
 	dispose()
 })
 
 // --- Multiple promises --------------------------------------------------------
 
 await test('Suspense - waits for all separate promise children before showing', async expect => {
-	const p1 = wait(20).then(() => <p>a</p>)
-	const p2 = wait(40).then(() => <p>b</p>)
+	const p1 = sleep(20).then(() => <p>a</p>)
+	const p2 = sleep(40).then(() => <p>b</p>)
 	const dispose = render(
 		<Suspense fallback={<p>loading</p>}>
 			{p1}
@@ -116,8 +111,8 @@ await test('Suspense - waits for all separate promise children before showing', 
 })
 
 await test('Suspense - waits for all array promise children before showing', async expect => {
-	const p1 = wait(20).then(() => <p>a</p>)
-	const p2 = wait(40).then(() => <p>b</p>)
+	const p1 = sleep(20).then(() => <p>a</p>)
+	const p2 = sleep(40).then(() => <p>b</p>)
 	const dispose = render(
 		<Suspense fallback={<p>loading</p>}>{[p1, p2]}</Suspense>,
 	)
@@ -133,14 +128,14 @@ await test('Suspense - waits for all array promise children before showing', asy
 // --- No fallback --------------------------------------------------------------
 
 await test('Suspense - shows nothing while pending when no fallback', expect => {
-	const promise = wait(100).then(() => <p>loaded</p>)
+	const promise = sleep(100).then(() => <p>loaded</p>)
 	const dispose = render(<Suspense>{promise}</Suspense>)
 	expect(body()).toBe('')
 	dispose()
 })
 
 await test('Suspense - shows children after resolve with no fallback', async expect => {
-	const promise = wait(20).then(() => <p>loaded</p>)
+	const promise = sleep(20).then(() => <p>loaded</p>)
 	const dispose = render(<Suspense>{promise}</Suspense>)
 	await promise
 	await microtask()
@@ -151,7 +146,7 @@ await test('Suspense - shows children after resolve with no fallback', async exp
 // --- Nested -------------------------------------------------------------------
 
 await test('Suspense - nested: outer sync children render while inner is pending', async expect => {
-	const innerPromise = wait(20).then(() => <p>inner</p>)
+	const innerPromise = sleep(20).then(() => <p>inner</p>)
 	const dispose = render(
 		<Suspense fallback={<p>outer loading</p>}>
 			<p>outer</p>
@@ -169,9 +164,9 @@ await test('Suspense - nested: outer sync children render while inner is pending
 })
 
 await test('Suspense - deeply nested: three levels all resolve together', async expect => {
-	const pA = wait(20).then(() => 'A')
-	const pB = wait(30).then(() => 'B')
-	const pC = wait(40).then(() => 'C')
+	const pA = sleep(20).then(() => 'A')
+	const pB = sleep(30).then(() => 'B')
+	const pC = sleep(40).then(() => 'C')
 
 	const C = () => <p>{pC}</p>
 	const B = () => (
@@ -193,9 +188,9 @@ await test('Suspense - deeply nested: three levels all resolve together', async 
 	expect(body()).toBe('<p>loading</p>')
 	await Promise.all([pA, pB, pC])
 	await microtask()
-	expect(body()).toContain('A')
-	expect(body()).toContain('B')
-	expect(body()).toContain('C')
+	expect(body()).toInclude('A')
+	expect(body()).toInclude('B')
+	expect(body()).toInclude('C')
 	dispose()
 })
 
@@ -225,7 +220,7 @@ await test('Suspense - resolved promise: cleans up on dispose', async expect => 
 })
 
 await test('Suspense - dispose during pending clears the fallback', async expect => {
-	const promise = wait(30).then(() => <p>loaded</p>)
+	const promise = sleep(30).then(() => <p>loaded</p>)
 	const dispose = render(
 		<Suspense fallback={<p>loading</p>}>{promise}</Suspense>,
 	)

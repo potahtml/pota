@@ -3,7 +3,7 @@
 // use:enter-focus-next, use:prevent-enter, and use:size-to-input.
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { microtask, test, $ } from '#test'
 
 import { render } from 'pota'
 import {
@@ -176,20 +176,22 @@ await test('form - object2form adds to multi-select (never clears existing selec
 
 // --- JSX prop-plugins -------------------------------------------------------
 
-await test('form - use:click-focus-children-input focuses first focusable child on click', expect => {
+await test('form - use:click-focus-children-input focuses first focusable child on click', async expect => {
 	const dispose = render(
 		<div use:click-focus-children-input={true}>
 			<input id="child-input" />
 		</div>,
 	)
 
-	document.querySelector('div').click()
+	await microtask()
+
+	$('div').click()
 	expect(document.activeElement.id).toBe('child-input')
 
 	dispose()
 })
 
-await test('form - use:enter-focus-next advances focus when Enter is pressed', expect => {
+await test('form - use:enter-focus-next advances focus when Enter is pressed', async expect => {
 	const dispose = render(
 		<form>
 			<input
@@ -200,7 +202,9 @@ await test('form - use:enter-focus-next advances focus when Enter is pressed', e
 		</form>,
 	)
 
-	const first = document.querySelector('#first-input')
+	await microtask()
+
+	const first = $('#first-input')
 	first.focus()
 	first.dispatchEvent(
 		new KeyboardEvent('keydown', { bubbles: true, code: 'Enter' }),
@@ -210,13 +214,15 @@ await test('form - use:enter-focus-next advances focus when Enter is pressed', e
 	dispose()
 })
 
-await test('form - use:prevent-enter calls preventDefault on Enter', expect => {
+await test('form - use:prevent-enter calls preventDefault on Enter', async expect => {
 	const dispose = render(
 		<input
 			id="prevent-enter"
 			use:prevent-enter={true}
 		/>,
 	)
+
+	await microtask()
 
 	let prevented = false
 	const event = new KeyboardEvent('keydown', {
@@ -229,13 +235,13 @@ await test('form - use:prevent-enter calls preventDefault on Enter', expect => {
 		prevented = true
 		originalPrevent()
 	}
-	document.querySelector('#prevent-enter').dispatchEvent(event)
+	$('#prevent-enter').dispatchEvent(event)
 	expect(prevented).toBe(true)
 
 	dispose()
 })
 
-await test('form - use:size-to-input sets initial height from scrollHeight and updates on focus', expect => {
+await test('form - use:size-to-input sets initial height from scrollHeight and updates on focus', async expect => {
 	const originalScrollHeight = Object.getOwnPropertyDescriptor(
 		HTMLTextAreaElement.prototype,
 		'scrollHeight',
@@ -270,19 +276,17 @@ await test('form - use:size-to-input sets initial height from scrollHeight and u
 		</div>,
 	)
 
+	await microtask()
+
 	// initial height is set from scrollHeight (40)
-	expect(document.querySelector('#size-to-input').style.height).toBe(
-		'40px',
-	)
+	expect($('#size-to-input').style.height).toBe('40px')
 
 	// focus triggers resizeToContainer: compares scrollHeight vs parentNode.clientHeight
 	// clientHeight (50) > scrollHeight (40) → height set to clientHeight
 	document
 		.querySelector('#size-to-input')
 		.dispatchEvent(new FocusEvent('focus', { bubbles: true }))
-	expect(document.querySelector('#size-to-input').style.height).toBe(
-		'50px',
-	)
+	expect($('#size-to-input').style.height).toBe('50px')
 
 	dispose()
 

@@ -1,6 +1,6 @@
 /** @jsxImportSource pota */
 
-import { test } from '#test'
+import { microtask, test } from '#test'
 
 import { root } from 'pota'
 import {
@@ -16,7 +16,7 @@ await test('resize - documentSize reads viewport dimensions', expect => {
 	expect(typeof value.height).toBe('number')
 })
 
-await test('resize - emitter publishes updated document sizes on resize', expect => {
+await test('resize - emitter publishes updated document sizes on resize', async expect => {
 	const width = Object.getOwnPropertyDescriptor(
 		document.documentElement,
 		'clientWidth',
@@ -42,7 +42,7 @@ await test('resize - emitter publishes updated document sizes on resize', expect
 	})
 
 	const seen = []
-	root(dispose => {
+	await root(async dispose => {
 		const size = useDocumentSize()
 		onDocumentSize(value => {
 			seen.push(value)
@@ -53,6 +53,8 @@ await test('resize - emitter publishes updated document sizes on resize', expect
 		nextWidth = 640
 		nextHeight = 480
 		window.dispatchEvent(new Event('resize'))
+
+		await microtask()
 
 		expect(seen.at(-1)).toEqual({ width: 640, height: 480 })
 		dispose()
