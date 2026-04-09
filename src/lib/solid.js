@@ -525,16 +525,16 @@ export function createReactiveSystem() {
 	// SIGNAL
 
 	/**
-	 * @param {T} a
-	 * @param {T} b
+	 * @param {any} a
+	 * @param {any} b
 	 */
 	function equalsFalse(a, b) {
 		return false
 	}
 
 	/**
-	 * @param {T} a
-	 * @param {T} b
+	 * @param {any} a
+	 * @param {any} b
 	 */
 	function equals(a, b) {
 		return a === b
@@ -577,13 +577,10 @@ export function createReactiveSystem() {
 			return write(untrack(() => val(value)))
 		}
 
-		const s = [read, write, update]
+		const s = /** @type {any} */ ([read, write, update])
 
-		// @ts-ignore
 		s.read = read
-		// @ts-ignore
 		s.write = write
-		// @ts-ignore
 		s.update = update
 
 		if (options) {
@@ -592,7 +589,6 @@ export function createReactiveSystem() {
 			else if (s.equals) _equals = s.equals
 		}
 
-		// @ts-ignore
 		return s
 	}
 

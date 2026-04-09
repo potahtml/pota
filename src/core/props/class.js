@@ -72,7 +72,7 @@ export const setElementClass = (node, name, value) => {
 
 /**
  * @param {Element} node
- * @param {string} name
+ * @param {string | string[]} name
  * @param {unknown} value
  */
 const _setClassListValue = (node, name, value) => {
