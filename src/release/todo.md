@@ -9,7 +9,6 @@
 
 ### documentation
 
-- PRIORITY!! - online tests, a page full of tests
 - add proper 404
 - light theme
 - restructure the docs and switch to mdx
@@ -23,8 +22,6 @@
 
 ### reactivity
 
-- when updating a signal try to patch arrays for when value comes from
-  server
 - figure out if other things should be wrapped in
   `createReactiveSystem`
 
@@ -39,8 +36,6 @@
 
 - inline style objects and maybe merge different style approaches
 - refactor transform again !
-- figure out how to make the transform standalone because esm.sh is
-  driving me crazy
 - avoid double wrapping functions exclusively to use with the
   transform. Ex: not for tsc, react compiler, buildless/xml
 
