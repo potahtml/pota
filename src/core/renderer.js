@@ -648,7 +648,11 @@ function insertNode(parent, node, relative) {
  */
 export function render(children, parent, options = nothing) {
 	const dispose = root(dispose => {
-		insert(children, parent, options)
+		insert(
+			Factory(isFunction(children) ? children : () => children),
+			parent,
+			options,
+		)
 		return dispose
 	})
 
@@ -672,12 +676,11 @@ export function insert(
 ) {
 	if (options.clear && parent) parent.textContent = ''
 
-	const node = createChildren(
-		parent,
-		Factory(isFunction(children) ? children : () => children),
-		options.relative,
-	)
+	let node
+
 	cleanup(() => toDiff(flatToArray(node)))
+
+	node = createChildren(parent, children, options.relative)
 
 	return node
 }

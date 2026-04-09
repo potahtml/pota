@@ -11,4 +11,5 @@ import { insert } from '../core/renderer.js'
  */
 export function Portal(props) {
 	insert(props.children, props.mount)
+	// its portaling, it shouldnt return !
 }
