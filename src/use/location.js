@@ -118,7 +118,7 @@ async function canNavigate(href) {
 	const newBeforeLeave = []
 	for (const beforeLeave of BeforeLeave) {
 		if (href.indexOf(beforeLeave.href) !== 0) {
-			if (!(await beforeLeave.cb().catch(() => false))) {
+			if (!(await Promise.resolve(beforeLeave.cb()).catch(() => false))) {
 				return false
 			}
 		} else {
