@@ -5,6 +5,15 @@ import { setElementStyle } from '../core/props/style.js'
 import { addEvent } from '../lib/reactive.js'
 import { empty, entries, hasOwn, isArray } from '../lib/std.js'
 
+/**
+ * Returns `true` when the element is disabled, either directly or
+ * via an ancestor `<fieldset disabled>`.
+ *
+ * @param {Element} node
+ * @returns {boolean}
+ */
+export const isDisabled = node => node.matches(':disabled')
+
 export function focusNextInput(node, e) {
 	const { form } = node
 	if (form) {
