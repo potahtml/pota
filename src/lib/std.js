@@ -131,6 +131,19 @@ export const resolved = (promise, onDone) =>
 	})
 
 /**
+ * Given a promise it adds `onDone` to `then` and `catch` that gets
+ * ignored.
+ *
+ * ```js
+ * resolved(promise, onDone)
+ * // is same as
+ * promise.then(onDone).catch(onDone)
+ * ```
+ */
+export const resolvedIgnoreError = (promise, onDone) =>
+	promise.then(onDone).catch(e => onDone(e.toString()))
+
+/**
  * Runs an array of functions
  *
  * @param {Iterable<Function>} fns

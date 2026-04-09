@@ -95,7 +95,12 @@ await test('string - copyToClipboard resolves and ignores clipboard errors', asy
 		},
 	})
 
-	await copyToClipboard('ignored')
+	let didthrow = false
+	await copyToClipboard('ignored').catch(e => {
+		didthrow = true
+	})
+
+	expect(didthrow).toBe(false)
 
 	Object.defineProperty(navigator, 'clipboard', {
 		configurable: true,
