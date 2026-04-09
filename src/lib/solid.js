@@ -985,16 +985,17 @@ export function createReactiveSystem() {
 			 * `onCancel` if provided.
 			 */
 			let cleaned
-			const clean = cleanup(() => {
+
+			cleanup(() => {
+				// only run onCancel when actually is canceled
+				onCancel && cleaned === undefined && onCancel()
 				cleaned = null
-				onCancel && onCancel()
 			})
 
 			return (...args) => {
-				// TODO There may be something going on here
+				// if the function runs, then it wont be canceled
+				onCancel = null
 
-				// only remove the cleanup when not removed already
-				cleaned === undefined && o?.cleanupCancel(clean)
 				// only run callback when owner wasnt disposed
 				return cleaned !== null && runWithOwner(o, () => cb(...args))
 			}
