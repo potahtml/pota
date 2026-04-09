@@ -70,7 +70,7 @@ const parseXML = withWeakCache(
 			)
 		)
 
-		if (html[0].tagName === 'parsererror') {
+		if (html[0]?.tagName === 'parsererror') {
 			const err = html[0]
 			err.style.padding = '1em'
 			err.firstChild.textContent = 'HTML Syntax Error:'
