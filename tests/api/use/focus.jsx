@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/focus: focusNext/focusPrevious wrap-around,
+// and useDocumentFocus emitter.
 
 import { microtask, test } from '#test'
 
@@ -32,16 +34,18 @@ await test('focus - focusNext and focusPrevious cycle through tabbable elements'
 	three.remove()
 })
 
-await test('focus - document focus emitter reflects blur and focus events', expect => {
+await test('focus - document focus emitter reflects blur and focus events', async expect => {
 	const seen = []
 
-	root(async dispose => {
+	await root(async dispose => {
 		const value = useDocumentFocus()
 		onDocumentFocus(next => {
 			seen.push(next)
 		})
 
+		// baseline: value is a boolean signal, no events dispatched yet
 		expect(typeof value()).toBe('boolean')
+		expect(seen).toEqual([])
 
 		window.dispatchEvent(new FocusEvent('blur'))
 
@@ -54,4 +58,38 @@ await test('focus - document focus emitter reflects blur and focus events', expe
 		expect(seen.slice(-2)).toEqual([false, true])
 		dispose()
 	})
+})
+
+await test('focus - focusNext wraps around from last to first element', expect => {
+	const one = document.createElement('input')
+	const two = document.createElement('button')
+
+	document.body.append(one, two)
+
+	two.focus()
+	expect(document.activeElement).toBe(two)
+
+	focusNext()
+	// should wrap to first tabbable
+	expect(document.activeElement).toBe(one)
+
+	one.remove()
+	two.remove()
+})
+
+await test('focus - focusPrevious wraps around from first to last element', expect => {
+	const one = document.createElement('input')
+	const two = document.createElement('button')
+
+	document.body.append(one, two)
+
+	one.focus()
+	expect(document.activeElement).toBe(one)
+
+	focusPrevious()
+	// should wrap to last tabbable
+	expect(document.activeElement).toBe(two)
+
+	one.remove()
+	two.remove()
 })

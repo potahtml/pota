@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/event: preventDefault, stopPropagation, emit,
+// waitEvent, addEventNative/removeEventNative, and passiveEvent.
 
 import { test } from '#test'
 
@@ -68,7 +70,6 @@ await test('event - emit dispatches a bubbling custom event with detail', expect
 
 	node.addEventListener('ping', event => {
 		dispatched = true
-		console.log(event)
 		detail = event.detail
 	})
 
@@ -157,4 +158,23 @@ await test('event - passiveEvent creates an event listener object', expect => {
 
 	expect(handler.passive).toBe(true)
 	expect(calls).toBe(1)
+})
+
+await test('event - emit with custom options overrides defaults', expect => {
+	const node = document.createElement('div')
+	let captured
+
+	node.addEventListener('custom', e => {
+		captured = e
+	})
+
+	emit(node, 'custom', {
+		detail: { payload: 1 },
+		bubbles: false,
+		cancelable: false,
+	})
+
+	expect(captured.bubbles).toBe(false)
+	expect(captured.cancelable).toBe(false)
+	expect(captured.detail.payload).toBe(1)
 })

@@ -1,7 +1,8 @@
 /** @jsxImportSource pota */
 
 // Tests for the Suspense component: async children, fallback while
-// pending, resolution, and cleanup.
+// pending, resolution, rejected promises, multiple async children,
+// nested suspense, and cleanup.
 import { test, body, macrotask, microtask, sleep } from '#test'
 
 import { render } from 'pota'
@@ -70,11 +71,9 @@ await test('Suspense - shows children after promise resolves', async expect => {
 	)
 	expect(body()).toBe('<p>loading 1</p>')
 	await promise
-	await sleep(1000)
-	await microtask()
+	await macrotask()
 	expect(body()).toBe('<p>loaded 1</p>')
 	dispose()
-	expect(body()).toBe('')
 	expect(body()).toBe('')
 })
 
@@ -213,7 +212,7 @@ await test('Suspense - resolved promise: cleans up on dispose', async expect => 
 		<Suspense fallback="loading">{promise}</Suspense>,
 	)
 	await promise
-	await macrotask()
+	await microtask()
 	expect(body()).toBe('<p>loaded</p>')
 	dispose()
 	expect(body()).toBe('')
@@ -230,4 +229,45 @@ await test('Suspense - dispose during pending clears the fallback', async expect
 	await promise
 	await microtask()
 	expect(body()).toBe('')
+})
+
+await test('Suspense - rejected promise renders the error', async expect => {
+	const originalError = console.error
+	console.error = () => {} // suppress pota's error log for rejected promise
+
+	const promise = Promise.reject(new Error('fail'))
+	promise.catch(() => {}) // prevent unhandled rejection
+
+	const dispose = render(
+		<Suspense fallback={<p>loading</p>}>{promise}</Suspense>,
+	)
+
+	expect(body()).toBe('<p>loading</p>')
+
+	await macrotask()
+
+	// after rejection, the error is rendered
+	expect(body()).toInclude('Error: fail')
+
+	console.error = originalError
+	dispose()
+})
+
+await test('Suspense - multiple async children all resolve', async expect => {
+	const a = Promise.resolve(<span>a</span>)
+	const b = Promise.resolve(<span>b</span>)
+	const dispose = render(
+		<Suspense fallback="loading">
+			{a}
+			{b}
+		</Suspense>,
+	)
+
+	await Promise.all([a, b])
+	await macrotask()
+
+	expect(body()).toInclude('<span>a</span>')
+	expect(body()).toInclude('<span>b</span>')
+
+	dispose()
 })

@@ -3,9 +3,9 @@
 // Tests for CustomElement and customElement: one-time registration,
 // shadow root setup, stylesheet adoption, DOM helpers, html/hidden
 // setters, slots, and emitted custom events.
-import { $, test } from '#test'
+import { $, microtask, test } from '#test'
 
-import { render } from 'pota'
+import { render, listener } from 'pota'
 import { CustomElement, customElement } from 'pota/components'
 import { css } from 'pota/use/css'
 
@@ -135,4 +135,59 @@ await test('CustomElement - emit dispatches bubbling custom events with detail',
 	expect(seen[0].composed).toBe(true)
 
 	element.remove()
+})
+
+await test('customElement - lifecycle callbacks and property setters do not cause reactive tracking', async expect => {
+	class TrackingElement extends HTMLElement {
+		static observedAttributes = [
+			'string-attribute',
+			'stringattribute',
+		]
+
+		constructor() {
+			super()
+			expect(listener()).toBe(undefined)
+		}
+		connectedCallback() {
+			expect(listener()).toBe(undefined)
+		}
+		disconnectedCallback() {
+			expect(listener()).toBe(undefined)
+		}
+		adoptedCallback() {
+			expect(listener()).toBe(undefined)
+		}
+		attributeChangedCallback(name, oldValue, newValue) {
+			expect(listener()).toBe(undefined)
+		}
+		set boolean(value) {
+			expect(listener()).toBe(undefined)
+		}
+		set propcasetest(value) {
+			expect(listener()).toBe(undefined)
+		}
+		set propCASEtest(value) {
+			expect(listener()).toBe(undefined)
+		}
+	}
+
+	customElement(
+		'pota-test-custom-element-tracking',
+		TrackingElement,
+	)
+
+	const dispose = render(() => (
+		<pota-test-custom-element-tracking
+			string-attribute="lala"
+			stringattribute="lala"
+			propcasetest="lala1"
+			propCASEtest="lala2"
+			boolean={true}>
+			Test
+		</pota-test-custom-element-tracking>
+	))
+
+	await microtask()
+
+	dispose()
 })

@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/clickoutside: handler fires on outside clicks,
+// once variant, and cleanup on dispose.
 
 import { microtask, test } from '#test'
 
@@ -21,14 +23,16 @@ await test('clickoutside - handler runs only for clicks outside the node', async
 		</div>,
 	)
 
+	await microtask()
+
+	// click inside — should NOT trigger
 	document
 		.querySelector('#inside-child')
 		.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
 
 	expect(calls).toBe(0)
 
-	await microtask()
-
+	// click outside — should trigger
 	document.body.dispatchEvent(
 		new PointerEvent('pointerdown', { bubbles: true }),
 	)
@@ -63,4 +67,34 @@ await test('clickoutside - once variant runs a single time', async expect => {
 	expect(calls).toBe(1)
 
 	dispose()
+})
+
+await test('clickoutside - handler is cleaned up on dispose', async expect => {
+	let calls = 0
+	const dispose = render(
+		<div
+			id="cleanup-box"
+			use:clickoutside={() => {
+				calls++
+			}}
+		>
+			inside
+		</div>,
+	)
+
+	await microtask()
+
+	// baseline: handler works before dispose
+	document.body.dispatchEvent(
+		new PointerEvent('pointerdown', { bubbles: true }),
+	)
+	expect(calls).toBe(1)
+
+	dispose()
+
+	// after dispose, handler should not fire
+	document.body.dispatchEvent(
+		new PointerEvent('pointerdown', { bubbles: true }),
+	)
+	expect(calls).toBe(1)
 })

@@ -15,7 +15,7 @@ export {
 	sleep,
 } from 'pota/use/test'
 
-// test wrapper — clears body, tracks results for run()
+// test wrapper — clears body/head, tracks results for run()
 
 /**
  * @type {Promise<{
@@ -44,16 +44,59 @@ function formatError(e) {
 }
 
 /**
- * Wraps a test: clears the body, delegates to pota/use/test, tracks
- * the result.
+ * Wraps a test: clears body and head before, asserts they are
+ * clean after, delegates to pota/use/test, tracks the result.
  *
  * @type {typeof testImpl}
  */
 export function test(title, fn) {
-	const tracked = testImpl(title, fn).then(
-		() => ({ title, ok: true }),
-		e => ({ title, ok: false, error: formatError(e) }),
-	)
+	// clean slate before each test
+	document.body.innerHTML = ''
+	document.head.innerHTML = ''
+	document.adoptedStyleSheets = []
+
+	const tracked = testImpl(title, fn)
+		.then(
+			() => {
+				// verify body is clean
+				const bodyLeftover = document.body.innerHTML.trim()
+				if (bodyLeftover) {
+					return {
+						title,
+						ok: false,
+						error:
+							'body not empty after test: ' +
+							bodyLeftover.slice(0, 200),
+					}
+				}
+				// verify head is clean
+				// Chrome injects <title></title> on popstate/back navigation
+				const headLeftover = document.head.innerHTML
+				if (headLeftover !== '' && headLeftover !== '<title></title>') {
+					return {
+						title,
+						ok: false,
+						error:
+							'head not clean after test: ' +
+							headLeftover.slice(0, 200),
+					}
+				}
+				// verify no adopted stylesheets leaked
+				if (document.adoptedStyleSheets.length > 0) {
+					return {
+						title,
+						ok: false,
+						error:
+							'test left ' +
+							document.adoptedStyleSheets.length +
+							' adopted stylesheet(s) on document',
+					}
+				}
+				return { title, ok: true }
+			},
+			e => ({ title, ok: false, error: formatError(e) }),
+		)
+		.catch(e => ({ title, ok: false, error: formatError(e) }))
 
 	results.push(tracked)
 	return tracked

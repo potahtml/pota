@@ -1,8 +1,11 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/color: scale, setAlpha, textColor, validateColor,
+// textColorWhenBackgroundIs variants, and eyeDropper fallback.
 
 import { test } from '#test'
 
 import {
+	eyeDropper,
 	scale,
 	setAlpha,
 	textColor,
@@ -99,4 +102,22 @@ await test('color - textColorWhenBackgroundIsBlack and White return different re
 
 	expect(validateColor(onBlack)).toBe(onBlack)
 	expect(validateColor(onWhite)).toBe(onWhite)
+})
+
+// --- eyeDropper unsupported browser ------------------------------------------
+
+await test('color - eyeDropper returns undefined when unsupported', expect => {
+	const original = window.EyeDropper
+	window.EyeDropper = undefined
+
+	// suppress console.error from eyeDropper
+	const originalError = console.error
+	console.error = () => {}
+
+	const result = eyeDropper(() => {})
+
+	console.error = originalError
+	window.EyeDropper = original
+
+	expect(result).toBe(undefined)
 })

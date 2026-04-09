@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/bind: two-way binding for text, checkbox,
+// radio, contenteditable, select, number, and textarea inputs.
 
 import { test, $, $$, microtask } from '#test'
 
@@ -151,6 +153,73 @@ await test('bind - use:bind syncs select element both ways', async expect => {
 
 	selected('0')
 	expect(el.value).toBe('0')
+
+	dispose()
+})
+
+await test('bind - select element pre-selects matching option on mount', async expect => {
+	const selected = bind('2')
+	const dispose = render(
+		<select use:bind={selected}>
+			<option value="0">zero</option>
+			<option value="1">one</option>
+			<option value="2">two</option>
+		</select>,
+	)
+
+	await microtask()
+
+	expect($('select').value).toBe('2')
+
+	dispose()
+})
+
+await test('bind - bind with initial undefined starts with empty value', expect => {
+	const value = bind()
+	expect(value()).toBe(undefined)
+
+	value('hello')
+	expect(value()).toBe('hello')
+})
+
+await test('bind - use:bind on number input syncs numeric string', async expect => {
+	const val = bind('5')
+	const dispose = render(
+		<input
+			type="number"
+			use:bind={val}
+		/>,
+	)
+
+	await microtask()
+
+	const el = $('input')
+	expect(el.value).toBe('5')
+
+	el.value = '10'
+	el.dispatchEvent(new Event('input', { bubbles: true }))
+	expect(val()).toBe('10')
+
+	val('0')
+	expect(el.value).toBe('0')
+
+	dispose()
+})
+
+await test('bind - use:bind on textarea syncs value', async expect => {
+	const val = bind('initial')
+	const dispose = render(
+		<textarea use:bind={val} />,
+	)
+
+	await microtask()
+
+	const el = $('textarea')
+	expect(el.value).toBe('initial')
+
+	el.value = 'typed'
+	el.dispatchEvent(new Event('input', { bubbles: true }))
+	expect(val()).toBe('typed')
 
 	dispose()
 })

@@ -1169,6 +1169,11 @@ export function createReactiveSystem() {
 
 	// export
 
+	/** Returns the current reactive listener, if any. */
+	function listener() {
+		return Listener
+	}
+
 	return {
 		action,
 		asyncTracking,
@@ -1178,6 +1183,7 @@ export function createReactiveSystem() {
 		createSuspenseContext,
 		derived,
 		effect,
+		listener,
 		memo,
 		on,
 		owned,

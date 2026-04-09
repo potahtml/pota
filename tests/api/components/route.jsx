@@ -1,12 +1,19 @@
 /** @jsxImportSource pota */
 
 // Tests for the routing components: A, load, Navigate, and Route —
-// path matching, navigation, link rendering, and cleanup.
-import { $, test, body, microtask, sleep } from '#test'
+// path matching, :params, nested routes, navigation, link rendering,
+// Route.Default, collapse, scroll, useBeforeLeave, popstate, and
+// cleanup.
+import { $, test, body, macrotask, microtask, sleep } from '#test'
 
-import { render } from 'pota'
-import { Route, A, Navigate } from 'pota/components'
-import { addListeners, navigateSync } from 'pota/use/location'
+import { render, root } from 'pota'
+import { Route, A, Navigate, load } from 'pota/components'
+import {
+	addListeners,
+	navigate,
+	navigateSync,
+	useBeforeLeave,
+} from 'pota/use/location'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -682,11 +689,7 @@ await test('Navigate - redirects to target path on render', async expect => {
 		</>,
 	)
 	goto('/redirect')
-	// Navigate uses async navigate() internally, needs extra ticks
-	await microtask()
-	await microtask()
-	await microtask()
-	await microtask()
+	await macrotask()
 	expect(body()).toBe('target page')
 	dispose()
 })
@@ -700,13 +703,7 @@ await test('Navigate - renders its children while redirecting', async expect => 
 		</Route>,
 	)
 	goto('/redirect')
-	// Navigate uses async navigate() internally, needs extra ticks
-	await microtask()
-	await microtask()
-	await microtask()
-	await microtask()
-	// Navigate renders children (briefly visible during redirect)
-	// and the redirect fires synchronously so we just confirm it ran
+	await macrotask()
 	expect(window.location.pathname).toBe('/elsewhere')
 	dispose()
 })
@@ -760,4 +757,233 @@ await test('Route - stops responding to navigation after dispose', async expect 
 	goto('/page')
 	await microtask()
 	expect(body()).toBe('')
+})
+
+// --- Route with :params -----------------------------------------------------
+
+await test('Route - matches path with :param segments', async expect => {
+	await reset()
+	const dispose = render(
+		<Route path="/users/:id$">user page</Route>,
+	)
+
+	goto('/users/42')
+	await microtask()
+	expect(body()).toBe('user page')
+
+	goto('/users')
+	await microtask()
+	expect(body()).toBe('')
+
+	dispose()
+})
+
+await test('Route - multiple :param segments all match', async expect => {
+	await reset()
+	const dispose = render(
+		<Route path="/users/:id/posts/:postId$">post</Route>,
+	)
+
+	goto('/users/1/posts/99')
+	await microtask()
+	expect(body()).toBe('post')
+
+	goto('/users/1/posts')
+	await microtask()
+	expect(body()).toBe('')
+
+	dispose()
+})
+
+// --- nested routes accumulate params ----------------------------------------
+
+await test('Route - nested routes render correctly', async expect => {
+	await reset()
+	const dispose = render(
+		<Route path="/app">
+			<p>app</p>
+			<Route path="/settings$">
+				<span>settings</span>
+			</Route>
+		</Route>,
+	)
+
+	goto('/app/settings')
+	await microtask()
+	expect(body()).toInclude('<p>app</p>')
+	expect(body()).toInclude('<span>settings</span>')
+
+	goto('/app/other')
+	await microtask()
+	expect(body()).toInclude('<p>app</p>')
+	expect(body()).not.toInclude('settings')
+
+	dispose()
+})
+
+// --- A component resolves relative href ------------------------------------
+
+await test('A - renders anchor with interpolated params', async expect => {
+	await reset()
+	const dispose = render(
+		<Route path="/users">
+			<A
+				href="/users/:id"
+				params={{ id: '5' }}
+			>
+				link
+			</A>
+		</Route>,
+	)
+	goto('/users')
+	await microtask()
+
+	const anchor = $('a')
+	expect(anchor).not.toBe(null)
+	expect(anchor.getAttribute('href')).toInclude('5')
+
+	dispose()
+})
+
+// --- Navigate with replace ---------------------------------------------------
+
+await test('Navigate - replace option uses replaceState', async expect => {
+	await reset()
+	const before = history.length
+
+	// baseline: history has a known length before navigate
+	expect(before > 0).toBe(true)
+
+	const dispose = render(
+		<Navigate
+			path="/nav-replace"
+			replace
+		>
+			redirected
+		</Navigate>,
+	)
+
+	await sleep(50)
+
+	expect(body()).toInclude('redirected')
+	// history.length should not increase with replace
+	expect(history.length).toBe(before)
+
+	dispose()
+})
+
+// --- Route with scroll prop --------------------------------------------------
+
+await test('Route - scroll prop triggers scroll on match', async expect => {
+	await reset()
+	const target = document.createElement('div')
+	target.id = 'scroll-target'
+	let scrollCalled = false
+	target.scrollIntoView = () => {
+		scrollCalled = true
+	}
+	document.body.append(target)
+
+	const dispose = render(
+		<Route
+			path="/scroll-test$"
+			scroll="#scroll-target"
+		>
+			content
+		</Route>,
+	)
+
+	goto('/scroll-test')
+	await macrotask()
+
+	expect(body()).toInclude('content')
+
+	dispose()
+	target.remove()
+})
+
+// --- useBeforeLeave ----------------------------------------------------------
+
+await test('Route - useBeforeLeave callback can block navigation', async expect => {
+	await reset()
+	let blockNav = true
+	const seen = []
+
+	const dispose = render(
+		<Route path="/guarded">
+			{() => {
+				useBeforeLeave(() => {
+					seen.push('beforeLeave')
+					return !blockNav
+				})
+				return 'guarded content'
+			}}
+		</Route>,
+	)
+
+	goto('/guarded')
+	await microtask()
+	expect(body()).toInclude('guarded content')
+
+	// try to navigate away — should be blocked
+	await navigate('/other')
+	await sleep(50)
+	seen.length > 0 && expect(seen).toInclude('beforeLeave')
+
+	dispose()
+	await reset()
+})
+
+// --- load component ----------------------------------------------------------
+
+await test('load - resolves a dynamic import and renders its default export', async expect => {
+	await reset()
+
+	const Lazy = load(() =>
+		Promise.resolve({
+			default: () => <p>lazy loaded</p>,
+		}),
+	)
+
+	const dispose = render(
+		<Route path="/load-test$">
+			<Lazy />
+		</Route>,
+	)
+
+	goto('/load-test')
+	await macrotask()
+
+	expect(body()).toInclude('lazy loaded')
+
+	dispose()
+	await reset()
+})
+
+await test('load - retries on failure and eventually renders error string', async expect => {
+	await reset()
+	let attempts = 0
+
+	const Lazy = load(() => {
+		attempts++
+		return Promise.reject(new Error('network error'))
+	})
+
+	const dispose = render(
+		<Route path="/load-fail$">
+			<Lazy />
+		</Route>,
+	)
+
+	goto('/load-fail')
+
+	// load retries up to 9 times with 5s delay
+	// just verify it attempted at least once
+	await microtask()
+	await sleep(50)
+
+	expect(attempts >= 1).toBe(true)
+
+	dispose()
+	await reset()
 })

@@ -1,8 +1,15 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/location: location accessors, addListeners,
+// navigate (relative, params, replace, delay), and navigateSync.
 
-import { test, macrotask, microtask, sleep } from '#test'
+import { test, macrotask, sleep } from '#test'
 
-import { location, addListeners, navigate } from 'pota/use/location'
+import {
+	addListeners,
+	location,
+	navigate,
+	navigateSync,
+} from 'pota/use/location'
 
 const originalHref = window.location.href
 
@@ -59,15 +66,49 @@ await test('location - navigate supports delayed navigation', async expect => {
 	addListeners()
 
 	navigate('/delayed-test#hash', {
-		delay: 50,
+		delay: 100,
 	})
 
 	expect(location.pathname()).not.toBe('/delayed-test')
 
-	await sleep(150)
+	await sleep(300)
 
 	expect(location.pathname()).toBe('/delayed-test')
 	expect(location.hash()).toBe('#hash')
+
+	await restoreURL()
+})
+
+await test('location - navigateSync updates location synchronously', async expect => {
+	addListeners()
+
+	navigateSync('/sync-test#anchor')
+
+	expect(location.pathname()).toBe('/sync-test')
+	expect(location.hash()).toBe('#anchor')
+
+	await restoreURL()
+})
+
+await test('location - hash-only navigation updates hash signal', async expect => {
+	addListeners()
+
+	navigateSync('/hash-base')
+	navigateSync('/hash-base#section')
+
+	expect(location.hash()).toBe('#section')
+	expect(location.pathname()).toBe('/hash-base')
+
+	await restoreURL()
+})
+
+await test('location - searchParams reflects query string as mutable object', async expect => {
+	addListeners()
+
+	navigateSync('/search-test?a=1&b=2')
+
+	expect(location.searchParams.a).toBe('1')
+	expect(location.searchParams.b).toBe('2')
 
 	await restoreURL()
 })

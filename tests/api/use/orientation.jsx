@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/orientation: useOrientation emitter derives
+// horizontal/vertical from document size.
 
 import { microtask, test } from '#test'
 
@@ -45,6 +47,52 @@ await test('orientation - emitter derives horizontal and vertical from document 
 
 		await microtask()
 		expect(seen.at(-1)).toBe('horizontal')
+		dispose()
+	})
+
+	width
+		? Object.defineProperty(
+				document.documentElement,
+				'clientWidth',
+				width,
+			)
+		: delete document.documentElement.clientWidth
+	height
+		? Object.defineProperty(
+				document.documentElement,
+				'clientHeight',
+				height,
+			)
+		: delete document.documentElement.clientHeight
+})
+
+await test('orientation - square viewport reports horizontal', async expect => {
+	const width = Object.getOwnPropertyDescriptor(
+		document.documentElement,
+		'clientWidth',
+	)
+	const height = Object.getOwnPropertyDescriptor(
+		document.documentElement,
+		'clientHeight',
+	)
+
+	Object.defineProperty(document.documentElement, 'clientWidth', {
+		configurable: true,
+		get() {
+			return 500
+		},
+	})
+	Object.defineProperty(document.documentElement, 'clientHeight', {
+		configurable: true,
+		get() {
+			return 500
+		},
+	})
+
+	await root(async dispose => {
+		const orientation = useOrientation()
+		// width >= height → horizontal
+		expect(orientation()).toBe('horizontal')
 		dispose()
 	})
 

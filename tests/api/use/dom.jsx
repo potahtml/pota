@@ -1,4 +1,7 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/dom: createElement, selectors, class/attribute
+// helpers, toDiff, walkElements, addPart/removePart, activeElement,
+// importNode, isConnected, getDocumentForElement, tokenList.
 
 import { test } from '#test'
 
@@ -202,4 +205,64 @@ await test('dom - walkElements with Infinity collects all nested elements', expe
 	host.innerHTML = '<ul><li><span>a</span></li><li>b</li></ul>'
 	const names = walkElements(host).map(n => n.tagName)
 	expect(names).toEqual(['DIV', 'UL', 'LI', 'SPAN', 'LI'])
+})
+
+await test('dom - addPart and removePart manage CSS part tokens', expect => {
+	const el = createElement('div')
+
+	addPart(el, 'header')
+	expect(el.getAttribute('part')).toBe('header')
+
+	addPart(el, 'footer')
+	expect(el.getAttribute('part')).toInclude('header')
+	expect(el.getAttribute('part')).toInclude('footer')
+
+	removePart(el, 'header')
+	expect(el.getAttribute('part')).toBe('footer')
+	expect(el.getAttribute('part')).not.toInclude('header')
+})
+
+await test('dom - importNode clones a node into the current document', expect => {
+	const source = createElement('p')
+	source.textContent = 'clone me'
+
+	const cloned = importNode(source, true)
+	expect(cloned.textContent).toBe('clone me')
+	expect(cloned).not.toBe(source)
+})
+
+await test('dom - activeElement returns the currently focused element', expect => {
+	const input = createElement('input')
+	document.body.append(input)
+
+	// baseline: active element is not our input yet
+	expect(activeElement()).not.toBe(input)
+
+	input.focus()
+	expect(activeElement()).toBe(input)
+
+	input.blur()
+	input.remove()
+})
+
+await test('dom - walkElements with max limits collection', expect => {
+	const host = createElement('div')
+	host.innerHTML = '<p>1</p><p>2</p><p>3</p>'
+	const names = walkElements(host, 2).map(n => n.tagName)
+	expect(names).toEqual(['DIV', 'P'])
+})
+
+await test('dom - toDiff with prev and next sharing some nodes', expect => {
+	const a = createElement('span')
+	const b = createElement('span')
+	const c = createElement('span')
+	const parent = createElement('div')
+	parent.append(a, b, c)
+
+	// remove b from the list, keep a and c
+	toDiff([a, b, c], [a, c])
+
+	expect(b.parentNode).toBe(null)
+	expect(a.parentNode).toBe(parent)
+	expect(c.parentNode).toBe(parent)
 })

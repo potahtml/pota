@@ -1,5 +1,6 @@
-// Tests for pota/use/form: focusNextInput, form2object, object2form,
-// and the JSX prop-plugins use:click-focus-children-input,
+// Tests for pota/use/form: isDisabled, focusNextInput, form2object
+// (submitter, multiple values), object2form (checkbox, radio), and
+// the JSX prop-plugins use:click-focus-children-input,
 // use:enter-focus-next, use:prevent-enter, and use:size-to-input.
 /** @jsxImportSource pota */
 
@@ -9,9 +10,45 @@ import { render } from 'pota'
 import {
 	focusNextInput,
 	form2object,
+	isDisabled,
 	object2form,
 } from 'pota/use/form'
 import 'pota/use/form'
+
+// --- isDisabled -------------------------------------------------------------
+
+await test('form - isDisabled returns true for directly disabled element', expect => {
+	const dispose = render(
+		<form>
+			<input
+				name="off"
+				disabled
+			/>
+			<input name="on" />
+		</form>,
+	)
+
+	expect(isDisabled($('input[name="off"]'))).toBe(true)
+	expect(isDisabled($('input[name="on"]'))).toBe(false)
+
+	dispose()
+})
+
+await test('form - isDisabled returns true for element inside disabled fieldset', expect => {
+	const dispose = render(
+		<form>
+			<fieldset disabled>
+				<input name="child" />
+			</fieldset>
+			<input name="outside" />
+		</form>,
+	)
+
+	expect(isDisabled($('input[name="child"]'))).toBe(true)
+	expect(isDisabled($('input[name="outside"]'))).toBe(false)
+
+	dispose()
+})
 
 // --- focusNextInput ---------------------------------------------------------
 
@@ -304,4 +341,72 @@ await test('form - use:size-to-input sets initial height from scrollHeight and u
 			originalClientHeight,
 		)
 	}
+})
+
+await test('form - form2object includes submitter button name in result', expect => {
+	const form = document.createElement('form')
+	form.innerHTML = `
+		<input name="field" value="val" />
+		<button type="submit" name="action" value="save">Save</button>
+	`
+	document.body.append(form)
+
+	const button = form.querySelector('button')
+	const result = form2object(form, {}, button)
+
+	expect(result.field).toBe('val')
+	expect(result.action).toBe('save')
+
+	form.remove()
+})
+
+await test('form - form2object collects multiple values with same name into array', expect => {
+	const form = document.createElement('form')
+	form.innerHTML = `
+		<input name="tag" value="a" />
+		<input name="tag" value="b" />
+		<input name="tag" value="c" />
+	`
+	document.body.append(form)
+
+	const result = form2object(form)
+
+	expect(result.tag).toEqual(['a', 'b', 'c'])
+
+	form.remove()
+})
+
+await test('form - object2form sets checkbox checked state', expect => {
+	const form = document.createElement('form')
+	form.innerHTML = `
+		<input type="checkbox" name="agree" />
+	`
+	document.body.append(form)
+
+	object2form(form, { agree: true })
+
+	expect(form.querySelector('[name=agree]').checked).toBe(true)
+
+	object2form(form, { agree: false })
+
+	expect(form.querySelector('[name=agree]').checked).toBe(false)
+
+	form.remove()
+})
+
+await test('form - object2form sets radio button by value', expect => {
+	const form = document.createElement('form')
+	form.innerHTML = `
+		<input type="radio" name="color" value="red" />
+		<input type="radio" name="color" value="blue" />
+	`
+	document.body.append(form)
+
+	object2form(form, { color: 'blue' })
+
+	const radios = form.querySelectorAll('[name=color]')
+	expect(radios[0].checked).toBe(false)
+	expect(radios[1].checked).toBe(true)
+
+	form.remove()
 })

@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/paginate: page boundaries, next/previous,
+// paginateValues, boundary clamping, and single-page edge case.
 
 import { test } from '#test'
 
@@ -51,4 +53,44 @@ await test('paginate - paginateValues reacts to source and page size changes', e
 	expect(page.totalPages()).toBe(1)
 	expect(page.currentPage()).toBe(1)
 	expect(page.items()).toEqual(['x'])
+})
+
+await test('paginate - page clamps when total shrinks below current page', expect => {
+	const numItems = signal(20)
+	const page = paginate(
+		(start, end) =>
+			Array.from({ length: end - start }, (_, i) => start + i),
+		{
+			numItems: numItems.read,
+			numPerPage: () => 5,
+		},
+	)
+
+	// go to last page (page 4, 0-indexed 3)
+	page.next()
+	page.next()
+	page.next()
+	expect(page.currentPage()).toBe(4)
+
+	// shrink total: only 2 pages now
+	numItems.write(10)
+	expect(page.totalPages()).toBe(2)
+	// page should clamp to last valid page
+	expect(page.currentPage()).toBe(2)
+})
+
+await test('paginate - next returns false at last page, previous returns false at first', expect => {
+	const page = paginate(
+		(start, end) => [1, 2, 3].slice(start, end),
+		{
+			numItems: () => 3,
+			numPerPage: () => 3,
+		},
+	)
+
+	// only 1 page
+	expect(page.hasNext()).toBe(false)
+	expect(page.hasPrevious()).toBe(false)
+	expect(page.next()).toBe(false)
+	expect(page.previous()).toBe(false)
 })

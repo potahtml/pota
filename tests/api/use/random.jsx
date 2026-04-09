@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/random: chance, random, randomBetween,
+// randomColor, randomId, and randomSeeded (deterministic).
 
 import { test } from '#test'
 
@@ -52,4 +54,31 @@ await test('random - randomSeeded is deterministic', expect => {
 
 	expect([a(), a(), a()]).toEqual([b(), b(), b()])
 	expect(a()).toBe(b())
+})
+
+await test('random - randomSeeded with different seeds produces different results', expect => {
+	const a = randomSeeded(1)
+	const b = randomSeeded(2)
+
+	expect(a()).not.toBe(b())
+})
+
+await test('random - randomBetween defaults to 0-100', expect => {
+	const val = randomBetween()
+	expect(val >= 0).toBe(true)
+	expect(val <= 100).toBe(true)
+})
+
+await test('random - chance with 0 always returns false', expect => {
+	const gen = randomSeeded(42)
+	for (let i = 0; i < 10; i++) {
+		expect(chance(0, gen)).toBe(false)
+	}
+})
+
+await test('random - chance with 100 always returns true', expect => {
+	const gen = randomSeeded(42)
+	for (let i = 0; i < 10; i++) {
+		expect(chance(100, gen)).toBe(true)
+	}
 })

@@ -1,8 +1,10 @@
 /** @jsxImportSource pota */
 
 // Tests for the Switch/Match components: exclusive branch selection,
-// static and signal-driven switching, fallback, callback accessor,
-// no-when fallback Match, and cleanup.
+// static and signal-driven switching, fallback prop vs no-when Match,
+// callback accessor with reactive values, multiple truthy Matches,
+// when:undefined behavior, empty children, nested Switch, and
+// cleanup.
 //
 // Note: the children callback receives a memo accessor — call v() or
 // pass {v} reactively; both produce the current `when` value.
@@ -382,4 +384,305 @@ await test('Switch - cleans up on dispose', expect => {
 	expect(body()).toBe('<p>content</p>')
 	dispose()
 	expect(body()).toBe('')
+})
+
+// --- Match with when: undefined acts as fallback ----------------------------
+
+await test('Switch - Match with when undefined renders nothing', expect => {
+	const dispose = render(
+		<Switch>
+			<Match when={false}>
+				<p>a</p>
+			</Match>
+			<Match when={undefined}>
+				<p>should not render</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('')
+
+	dispose()
+})
+
+await test('Switch - Match without when prop acts as implicit fallback', expect => {
+	const dispose = render(
+		<Switch>
+			<Match when={false}>
+				<p>a</p>
+			</Match>
+			<Match>
+				<p>fallback</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>fallback</p>')
+
+	dispose()
+})
+
+// --- multiple truthy Matches: first wins ------------------------------------
+
+await test('Switch - only the first truthy Match renders', expect => {
+	const dispose = render(
+		<Switch>
+			<Match when={true}>
+				<p>first</p>
+			</Match>
+			<Match when={true}>
+				<p>second</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>first</p>')
+
+	dispose()
+})
+
+// --- no-when Match before truthy Match: truthy wins -------------------------
+
+await test('Switch - truthy Match wins even when no-when Match comes first', expect => {
+	const dispose = render(
+		<Switch>
+			<Match>
+				<p>fallback</p>
+			</Match>
+			<Match when={true}>
+				<p>winner</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>winner</p>')
+
+	dispose()
+})
+
+await test('Switch - no-when Match renders when all when-Matches are falsy', expect => {
+	const dispose = render(
+		<Switch>
+			<Match>
+				<p>fallback</p>
+			</Match>
+			<Match when={false}>
+				<p>a</p>
+			</Match>
+			<Match when={false}>
+				<p>b</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>fallback</p>')
+
+	dispose()
+})
+
+await test('Switch - truthy Match becomes falsy, falls back to no-when Match', expect => {
+	const active = signal(true)
+
+	const dispose = render(
+		<Switch>
+			<Match when={active.read}>
+				<p>active</p>
+			</Match>
+			<Match>
+				<p>fallback</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>active</p>')
+
+	active.write(false)
+	expect(body()).toBe('<p>fallback</p>')
+
+	active.write(true)
+	expect(body()).toBe('<p>active</p>')
+
+	dispose()
+})
+
+await test('Switch - no-when Match as sole child renders as fallback', expect => {
+	const dispose = render(
+		<Switch>
+			<Match>
+				<p>only child</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>only child</p>')
+
+	dispose()
+})
+
+await test('Switch - multiple no-when Matches: first one wins', expect => {
+	const dispose = render(
+		<Switch>
+			<Match when={false}>
+				<p>a</p>
+			</Match>
+			<Match>
+				<p>first fallback</p>
+			</Match>
+			<Match>
+				<p>second fallback</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>first fallback</p>')
+
+	dispose()
+})
+
+await test('Switch - no-when Match in the middle still acts as fallback', expect => {
+	const dispose = render(
+		<Switch>
+			<Match when={false}>
+				<p>a</p>
+			</Match>
+			<Match>
+				<p>middle fallback</p>
+			</Match>
+			<Match when={false}>
+				<p>b</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>middle fallback</p>')
+
+	dispose()
+})
+
+await test('Switch - switching between truthy Matches never shows no-when fallback', expect => {
+	const a = signal(true)
+	const b = signal(false)
+
+	const dispose = render(
+		<Switch>
+			<Match when={a.read}>
+				<p>A</p>
+			</Match>
+			<Match when={b.read}>
+				<p>B</p>
+			</Match>
+			<Match>
+				<p>fallback</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>A</p>')
+
+	a.write(false)
+	b.write(true)
+	expect(body()).toBe('<p>B</p>')
+
+	b.write(false)
+	a.write(true)
+	expect(body()).toBe('<p>A</p>')
+
+	// never showed fallback
+	dispose()
+})
+
+// --- dynamic Match conditions switching simultaneously ----------------------
+
+await test('Switch - dynamic conditions: switching which match is truthy', expect => {
+	const a = signal(true)
+	const b = signal(false)
+
+	const dispose = render(
+		<Switch fallback={<p>none</p>}>
+			<Match when={a.read}>
+				<p>A</p>
+			</Match>
+			<Match when={b.read}>
+				<p>B</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>A</p>')
+
+	a.write(false)
+	b.write(true)
+	expect(body()).toBe('<p>B</p>')
+
+	b.write(false)
+	expect(body()).toBe('<p>none</p>')
+
+	dispose()
+})
+
+// --- callback receives non-boolean truthy when value -------------------------
+
+await test('Switch - callback receives the actual when value, not just true', expect => {
+	const user = signal({ name: 'Ada' })
+
+	const dispose = render(
+		<Switch>
+			<Match when={user.read}>
+				{v => <p>{() => v().name}</p>}
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>Ada</p>')
+
+	user.write({ name: 'Grace' })
+	expect(body()).toBe('<p>Grace</p>')
+
+	dispose()
+})
+
+await test('Switch - callback receives numeric when value', expect => {
+	const dispose = render(
+		<Switch>
+			<Match when={42}>
+				{v => <p>{v()}</p>}
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>42</p>')
+
+	dispose()
+})
+
+// --- empty Switch ------------------------------------------------------------
+
+await test('Switch - empty children array renders fallback', expect => {
+	const dispose = render(
+		<Switch fallback={<p>empty</p>}>{[]}</Switch>,
+	)
+
+	expect(body()).toBe('<p>empty</p>')
+
+	dispose()
+})
+
+// --- fallback prop makes no-when Match unreachable ---------------------------
+
+await test('Switch - fallback prop makes no-when Match content unreachable', expect => {
+	const dispose = render(
+		<Switch fallback={<p>prop wins</p>}>
+			<Match when={false}>
+				<p>a</p>
+			</Match>
+			<Match>
+				<p>no-when ignored</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>prop wins</p>')
+	expect(body()).not.toInclude('no-when ignored')
+
+	dispose()
 })

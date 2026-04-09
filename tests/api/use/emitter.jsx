@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/emitter: lazy subscription, value publishing,
+// cleanup on dispose, re-subscription, and no initialValue.
 
 import { microtask, test } from '#test'
 
@@ -62,4 +64,58 @@ await test('emitter - on receives subsequent values inside an owner', async expe
 	})
 
 	expect(seen).toEqual(['second', 'third'])
+})
+
+await test('emitter - unsubscribing last listener cleans up native listener', expect => {
+	let dispatch
+	let onCalls = 0
+	let offCalls = 0
+
+	const emitter = new Emitter({
+		on(next) {
+			onCalls++
+			dispatch = next
+			return () => {
+				offCalls++
+			}
+		},
+		initialValue: () => 'init',
+	})
+
+	root(dispose => {
+		emitter.use()
+		expect(onCalls).toBe(1)
+		dispose()
+	})
+
+	expect(offCalls).toBe(1)
+
+	// re-subscribe creates a new listener
+	root(dispose => {
+		emitter.use()
+		expect(onCalls).toBe(2)
+		dispose()
+	})
+
+	expect(offCalls).toBe(2)
+})
+
+await test('emitter - use returns undefined when no initialValue is provided', expect => {
+	let dispatch
+	const emitter = new Emitter({
+		on(next) {
+			dispatch = next
+			return () => {}
+		},
+	})
+
+	root(dispose => {
+		const value = emitter.use()
+		expect(value()).toBe(undefined)
+
+		dispatch('first')
+		expect(value()).toBe('first')
+
+		dispose()
+	})
 })

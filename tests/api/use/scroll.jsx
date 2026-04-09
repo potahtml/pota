@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/scroll: scrollToElement, scrollToSelector,
+// scrollToSelectorWithFallback, scrollToLocationHash, scrollToTop.
 
 import { test } from '#test'
 
@@ -49,5 +51,49 @@ await test('scroll - selector helpers scroll to matching nodes or fall back to t
 
 	node.remove()
 	window.scrollTo = originalScroll
+	history.replaceState(null, '', originalHash || '#')
+})
+
+await test('scroll - scrollToSelector returns false for invalid selectors', expect => {
+	expect(scrollToSelector('[invalid')).toBe(false)
+})
+
+await test('scroll - scrollToSelectorWithFallback scrolls to element when found', expect => {
+	const node = document.createElement('div')
+	node.id = 'fallback-target'
+	let scrolled = false
+	node.scrollIntoView = () => {
+		scrolled = true
+	}
+	document.body.append(node)
+
+	scrollToSelectorWithFallback('#fallback-target')
+
+	expect(scrolled).toBe(true)
+
+	node.remove()
+})
+
+await test('scroll - scrollToLocationHash scrolls to element matching current hash', expect => {
+	const node = document.createElement('div')
+	node.id = 'hash-scroll-target'
+	let scrolled = false
+	node.scrollIntoView = () => {
+		scrolled = true
+	}
+	document.body.append(node)
+
+	const originalHash = window.location.hash
+
+	// baseline: not scrolled yet
+	expect(scrolled).toBe(false)
+
+	history.replaceState(null, '', '#hash-scroll-target')
+
+	scrollToLocationHash()
+
+	expect(scrolled).toBe(true)
+
+	node.remove()
 	history.replaceState(null, '', originalHash || '#')
 })

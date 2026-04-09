@@ -13,6 +13,7 @@ export {
 	derived,
 	effect,
 	externalSignal,
+	listener,
 	isResolved,
 	map,
 	memo,

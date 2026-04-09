@@ -1,7 +1,10 @@
 /** @jsxImportSource pota */
 
 // Tests for the For component: static lists, reactive arrays,
-// keyed reuse, empty fallback, and nested For loops.
+// keyed reuse, empty fallback, nested For loops, DOM reordering
+// (swap, insert, prepend, append, complete replacement), item
+// cleanup on removal, duplicate primitives/objects, restoreFocus,
+// reactiveIndex, and Map/Set iterables.
 import { microtask, test, body } from '#test'
 
 import { cleanup, map, render, signal } from 'pota'
@@ -263,6 +266,142 @@ await test('For - only creates new nodes for new items', expect => {
 	setItems(['a', 'b', 'c'])
 	// 'a' and 'b' should NOT be recreated
 	expect(created).toEqual(['a', 'b', 'c'])
+
+	dispose()
+})
+
+await test('For - swap two items preserves DOM identity', expect => {
+	const items = signal(['a', 'b', 'c'])
+	const nodes = {}
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				const el = <p>{item}</p>
+				nodes[item] = el
+				return el
+			}}
+		</For>,
+	)
+
+	// baseline: initial render is correct
+	expect(body()).toBe('<p>a</p><p>b</p><p>c</p>')
+
+	const nodeA = nodes['a']
+	const nodeC = nodes['c']
+
+	// swap first and last
+	items.write(['c', 'b', 'a'])
+	expect(body()).toBe('<p>c</p><p>b</p><p>a</p>')
+	expect(nodes['a']).toBe(nodeA)
+	expect(nodes['c']).toBe(nodeC)
+
+	dispose()
+})
+
+await test('For - insert in middle preserves surrounding nodes', expect => {
+	const items = signal(['a', 'c'])
+	const nodes = {}
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				const el = <p>{item}</p>
+				nodes[item] = el
+				return el
+			}}
+		</For>,
+	)
+
+	// baseline: initial render is correct
+	expect(body()).toBe('<p>a</p><p>c</p>')
+
+	const nodeA = nodes['a']
+	const nodeC = nodes['c']
+
+	items.write(['a', 'b', 'c'])
+	expect(body()).toBe('<p>a</p><p>b</p><p>c</p>')
+	expect(nodes['a']).toBe(nodeA)
+	expect(nodes['c']).toBe(nodeC)
+
+	dispose()
+})
+
+await test('For - prepend item shifts existing nodes', expect => {
+	const items = signal(['b', 'c'])
+	const nodes = {}
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				const el = <p>{item}</p>
+				nodes[item] = el
+				return el
+			}}
+		</For>,
+	)
+
+	// baseline: initial render is correct
+	expect(body()).toBe('<p>b</p><p>c</p>')
+
+	const nodeB = nodes['b']
+	const nodeC = nodes['c']
+
+	items.write(['a', 'b', 'c'])
+	expect(body()).toBe('<p>a</p><p>b</p><p>c</p>')
+	expect(nodes['b']).toBe(nodeB)
+	expect(nodes['c']).toBe(nodeC)
+
+	dispose()
+})
+
+await test('For - append item keeps existing nodes in place', expect => {
+	const items = signal(['a', 'b'])
+	const nodes = {}
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				const el = <p>{item}</p>
+				nodes[item] = el
+				return el
+			}}
+		</For>,
+	)
+
+	// baseline: initial render is correct
+	expect(body()).toBe('<p>a</p><p>b</p>')
+
+	const nodeA = nodes['a']
+	const nodeB = nodes['b']
+
+	items.write(['a', 'b', 'c'])
+	expect(body()).toBe('<p>a</p><p>b</p><p>c</p>')
+	expect(nodes['a']).toBe(nodeA)
+	expect(nodes['b']).toBe(nodeB)
+
+	dispose()
+})
+
+await test('For - complete replacement clears and rebuilds', expect => {
+	const items = signal(['a', 'b', 'c'])
+	const nodes = {}
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				const el = <p>{item}</p>
+				nodes[item] = el
+				return el
+			}}
+		</For>,
+	)
+
+	// baseline: initial render is correct
+	expect(body()).toBe('<p>a</p><p>b</p><p>c</p>')
+
+	const oldA = nodes['a']
+
+	items.write(['x', 'y'])
+	expect(body()).toBe('<p>x</p><p>y</p>')
+
+	// none of the old nodes should be reused
+	expect(nodes['x']).not.toBe(oldA)
 
 	dispose()
 })
@@ -559,11 +698,6 @@ await test('For - Show inside For with signal: toggling signal affects all items
 })
 
 await test('map - works with a Set iterable', expect => {
-	console.log(
-		map(new Set([10, 20, 30]), item => <li>{item}</li>)().map(item =>
-			item(),
-		),
-	)
 	const dispose = render(
 		<>
 			{map(new Set([10, 20, 30]), item => (
@@ -585,6 +719,160 @@ await test('map - works with a Map iterable (values)', expect => {
 	const dispose = render(map(source, item => <li>{item}</li>))
 
 	expect(body()).toBe('<li>alpha</li><li>beta</li>')
+
+	dispose()
+})
+
+// --- For restoreFocus --------------------------------------------------------
+
+await test('For - restoreFocus preserves focus after reorder', async expect => {
+	const items = signal(['a', 'b', 'c'])
+
+	const dispose = render(
+		<For
+			each={items.read}
+			restoreFocus
+		>
+			{item => <input data-id={item} />}
+		</For>,
+	)
+
+	// baseline: three inputs rendered in order
+	expect(document.querySelectorAll('input').length).toBe(3)
+	expect(document.querySelector('[data-id="a"]')).not.toBe(null)
+
+	const inputB = document.querySelector('[data-id="b"]')
+	inputB.focus()
+	expect(document.activeElement).toBe(inputB)
+
+	// reorder: move b to front
+	items.write(['b', 'a', 'c'])
+
+	await microtask()
+
+	// b should still be focused after reorder
+	const newB = document.querySelector('[data-id="b"]')
+	expect(newB).toBe(inputB)
+
+	dispose()
+})
+
+// --- For with Map/Set each ---------------------------------------------------
+
+await test('For - renders items from a Map as each value with key as index', expect => {
+	const data = signal(
+		new Map([
+			['x', 1],
+			['y', 2],
+		]),
+	)
+
+	const dispose = render(
+		<For each={data.read}>
+			{(val, key) => (
+				<span>
+					{key}:{val}
+				</span>
+			)}
+		</For>,
+	)
+
+	expect(body()).toBe('<span>x:1</span><span>y:2</span>')
+
+	dispose()
+})
+
+// --- For with single item ----------------------------------------------------
+
+await test('For - single item list renders and updates', expect => {
+	const items = signal(['only'])
+	const dispose = render(
+		<For each={items.read}>
+			{item => <p>{item}</p>}
+		</For>,
+	)
+
+	expect(body()).toBe('<p>only</p>')
+
+	items.write(['replaced'])
+	expect(body()).toBe('<p>replaced</p>')
+
+	items.write([])
+	expect(body()).toBe('')
+
+	dispose()
+})
+
+// --- For empty to non-empty to empty -----------------------------------------
+
+await test('For - toggling between empty and non-empty multiple times', expect => {
+	const items = signal([])
+	const dispose = render(
+		<For
+			each={items.read}
+			fallback={<p>none</p>}
+		>
+			{item => <span>{item}</span>}
+		</For>,
+	)
+
+	expect(body()).toBe('<p>none</p>')
+
+	items.write(['a'])
+	expect(body()).toBe('<span>a</span>')
+
+	items.write([])
+	expect(body()).toBe('<p>none</p>')
+
+	items.write(['x', 'y'])
+	expect(body()).toBe('<span>x</span><span>y</span>')
+
+	items.write([])
+	expect(body()).toBe('<p>none</p>')
+
+	dispose()
+})
+
+// --- For with duplicate objects (by reference) -------------------------------
+
+await test('For - item cleanup fires when item is removed from list', expect => {
+	const removed = []
+	const items = signal([1, 2, 3])
+
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				cleanup(() => removed.push(item))
+				return <li>{item}</li>
+			}}
+		</For>,
+	)
+
+	expect(body()).toBe('<li>1</li><li>2</li><li>3</li>')
+	expect(removed).toEqual([])
+
+	items.write([2, 3])
+	expect(body()).toBe('<li>2</li><li>3</li>')
+	expect(removed).toEqual([1])
+
+	items.write([3])
+	expect(body()).toBe('<li>3</li>')
+	expect(removed).toEqual([1, 2])
+
+	dispose()
+	expect(removed).toEqual([1, 2, 3])
+})
+
+await test('For - duplicate object references are handled', expect => {
+	const shared = { id: 'dup' }
+	const items = signal([shared, shared, shared])
+	const dispose = render(
+		<For each={items.read}>
+			{item => <p>{item.id}</p>}
+		</For>,
+	)
+
+	expect(body()).toBe('<p>dup</p><p>dup</p><p>dup</p>')
 
 	dispose()
 })

@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/resize: documentSize, useDocumentSize emitter,
+// and onDocumentSize callback.
 
 import { microtask, test } from '#test'
 
@@ -74,4 +76,36 @@ await test('resize - emitter publishes updated document sizes on resize', async 
 				height,
 			)
 		: delete document.documentElement.clientHeight
+})
+
+await test('resize - useDocumentSize returns a signal function', expect => {
+	root(dispose => {
+		const size = useDocumentSize()
+		expect(typeof size).toBe('function')
+		const value = size()
+		expect('width' in value).toBe(true)
+		expect('height' in value).toBe(true)
+		dispose()
+	})
+})
+
+await test('resize - onDocumentSize receives updates on multiple resizes', async expect => {
+	const seen = []
+
+	await root(async dispose => {
+		onDocumentSize(value => {
+			seen.push(value)
+		})
+
+		// baseline: no events yet
+		expect(seen).toEqual([])
+
+		window.dispatchEvent(new Event('resize'))
+		await microtask()
+		window.dispatchEvent(new Event('resize'))
+		await microtask()
+
+		expect(seen.length >= 2).toBe(true)
+		dispose()
+	})
 })

@@ -1,4 +1,5 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/browser: isMobile and isFirefox detection flags.
 
 import { test } from '#test'
 
@@ -11,4 +12,9 @@ await test('browser - exported flags match the current user agent checks', expec
 		/mobile|iphone|ipod|ios|ipad|android/i.test(userAgent),
 	)
 	expect(isFirefox).toBe(/firefox/i.test(userAgent))
+})
+
+await test('browser - flags are boolean constants', expect => {
+	expect(typeof isMobile).toBe('boolean')
+	expect(typeof isFirefox).toBe('boolean')
 })

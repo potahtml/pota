@@ -1,4 +1,7 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/string: dashesToCamelCase, capitalizeFirstLetter,
+// label, short, ensureString, toString, validateEmail, validatePassword,
+// wholeNumber, isEmoji, hash, copyToClipboard, and diff.
 
 import { test } from '#test'
 
@@ -156,4 +159,40 @@ await test('string - validateEmail rejects missing domain', expect => {
 await test('string - wholeNumber handles large integers', expect => {
 	expect(wholeNumber(1000000.7)).toBe(1000000)
 	expect(wholeNumber(-0)).toBe(0)
+})
+
+await test('string - ensureString handles non-string types', expect => {
+	expect(ensureString(null)).toBe('')
+	expect(ensureString(undefined)).toBe('')
+	expect(ensureString(42)).toBe('42')
+	expect(ensureString(true)).toBe('true')
+})
+
+await test('string - toString trims and limits length', expect => {
+	expect(toString('  hello  ')).toBe('hello')
+	expect(toString('abcdef', 3)).toBe('abc')
+})
+
+await test('string - short leaves strings under 40 chars intact', expect => {
+	expect(short('short')).toBe('short')
+})
+
+await test('string - isEmoji detects common emoji', expect => {
+	expect(isEmoji('😀')).toBe(true)
+	expect(isEmoji('a')).toBe(false)
+	expect(isEmoji('🇺🇸')).toBe(true)
+})
+
+await test('string - diff with single-line values returns them as-is', expect => {
+	const [a, b] = diff('hello', 'world')
+	expect(a).toBe('hello')
+	expect(b).toBe('world')
+})
+
+await test('string - capitalizeFirstLetter handles empty string', expect => {
+	expect(capitalizeFirstLetter('')).toBe('')
+})
+
+await test('string - dashesToCamelCase handles multiple dashes', expect => {
+	expect(dashesToCamelCase('a-b-c-d')).toBe('aBCD')
 })

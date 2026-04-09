@@ -2,16 +2,22 @@
 
 // Tests for internal std.js utilities: toValues, toEntries,
 // stringifySorted, withResolvers, entriesIncludingSymbols,
-// flatToArray, getValue, optional, nothing, emptyArray, walkParents.
+// flatToArray, getValue, optional, nothing, emptyArray, walkParents,
+// equals, range, removeFromArray, indexByKey, morphedBetweenArrayAndObject.
 import { test } from '#test'
 
 import {
 	emptyArray,
 	entriesIncludingSymbols,
+	equals,
 	flatToArray,
 	getValue,
+	indexByKey,
+	morphedBetweenArrayAndObject,
 	nothing,
 	optional,
+	range,
+	removeFromArray,
 	stringifySorted,
 	toEntries,
 	toValues,
@@ -142,4 +148,148 @@ await test('std - walkParents traverses until callback succeeds', expect => {
 
 	expect(stopped).toBe(true)
 	expect(seen).toEqual(['leaf', 'middle'])
+})
+
+await test('std - walkParents returns false when chain ends without stopping', expect => {
+	const seen = []
+	const stopped = walkParents(
+		{ name: 'only', parent: undefined },
+		'parent',
+		value => {
+			seen.push(value.name)
+			return false
+		},
+	)
+
+	expect(stopped).toBe(false)
+	expect(seen).toEqual(['only'])
+})
+
+await test('std - stringifySorted handles arrays of primitives', expect => {
+	expect(stringifySorted([3, 1, 2])).toBe('[\n  1,\n  2,\n  3\n]')
+})
+
+await test('std - getValue returns non-function values directly', expect => {
+	expect(getValue(42)).toBe(42)
+	expect(getValue('hello')).toBe('hello')
+	expect(getValue(null)).toBe(null)
+	expect(getValue(undefined)).toBe(undefined)
+})
+
+await test('std - flatToArray handles null and undefined', expect => {
+	expect(flatToArray(null)).toEqual([null])
+	expect(flatToArray(undefined)).toEqual([undefined])
+})
+
+await test('std - optional returns the raw falsy value when not undefined', expect => {
+	expect(optional(0)).toBe(0)
+	expect(optional('')).toBe('')
+	expect(optional(null)).toBe(null)
+	expect(optional(false)).toBe(false)
+	// all are falsy
+	expect(!!optional(0)).toBe(false)
+	expect(!!optional('')).toBe(false)
+	expect(!!optional(null)).toBe(false)
+	expect(!!optional(false)).toBe(false)
+})
+
+// --- equals ------------------------------------------------------------------
+
+await test('std - equals returns true for identical primitives', expect => {
+	expect(equals(1, 1)).toBe(true)
+	expect(equals('a', 'a')).toBe(true)
+	expect(equals(null, null)).toBe(true)
+	expect(equals(undefined, undefined)).toBe(true)
+})
+
+await test('std - equals returns true for NaN === NaN', expect => {
+	expect(equals(NaN, NaN)).toBe(true)
+})
+
+await test('std - equals returns false for NaN vs non-NaN', expect => {
+	expect(equals(NaN, 1)).toBe(false)
+	expect(equals(1, NaN)).toBe(false)
+})
+
+await test('std - equals compares arrays deeply', expect => {
+	expect(equals([1, [2, 3]], [1, [2, 3]])).toBe(true)
+	expect(equals([1, 2], [1, 3])).toBe(false)
+	expect(equals([1, 2], [1, 2, 3])).toBe(false)
+})
+
+await test('std - equals compares objects deeply', expect => {
+	expect(equals({ a: 1, b: { c: 2 } }, { a: 1, b: { c: 2 } })).toBe(
+		true,
+	)
+	expect(equals({ a: 1 }, { a: 2 })).toBe(false)
+	expect(equals({ a: 1 }, { a: 1, b: 2 })).toBe(false)
+})
+
+await test('std - equals compares RegExp by source and flags', expect => {
+	expect(equals(/abc/gi, /abc/gi)).toBe(true)
+	expect(equals(/abc/g, /abc/i)).toBe(false)
+	expect(equals(/abc/, /def/)).toBe(false)
+})
+
+await test('std - equals returns false for different constructors', expect => {
+	expect(equals([], {})).toBe(false)
+	expect(equals(new Date(0), { getTime: () => 0 })).toBe(false)
+})
+
+await test('std - equals compares Date objects by valueOf', expect => {
+	expect(equals(new Date(1000), new Date(1000))).toBe(true)
+	expect(equals(new Date(1000), new Date(2000))).toBe(false)
+})
+
+// --- range -------------------------------------------------------------------
+
+await test('std - range yields ascending sequence', expect => {
+	expect(Array.from(range(0, 3, 1))).toEqual([0, 1, 2, 3])
+})
+
+await test('std - range yields descending sequence with negative step', expect => {
+	expect(Array.from(range(3, 0, -1))).toEqual([3, 2, 1, 0])
+})
+
+await test('std - range with start equal to stop yields only start', expect => {
+	expect(Array.from(range(5, 5, 1))).toEqual([5])
+})
+
+await test('std - range with step larger than distance yields start and overshoot', expect => {
+	expect(Array.from(range(0, 2, 5))).toEqual([0, 5])
+})
+
+// --- removeFromArray ---------------------------------------------------------
+
+await test('std - removeFromArray removes first occurrence', expect => {
+	const arr = [1, 2, 3, 2, 1]
+	removeFromArray(arr, 2)
+	expect(arr).toEqual([1, 3, 2, 1])
+})
+
+await test('std - removeFromArray does nothing when value is absent', expect => {
+	const arr = [1, 2, 3]
+	removeFromArray(arr, 99)
+	expect(arr).toEqual([1, 2, 3])
+})
+
+// --- indexByKey ---------------------------------------------------------------
+
+await test('std - indexByKey creates object indexed by property', expect => {
+	const items = [
+		{ id: 'a', name: 'Ada' },
+		{ id: 'b', name: 'Bob' },
+	]
+	const byId = indexByKey(items, 'id')
+	expect(byId.a.name).toBe('Ada')
+	expect(byId.b.name).toBe('Bob')
+})
+
+// --- morphedBetweenArrayAndObject --------------------------------------------
+
+await test('std - morphedBetweenArrayAndObject detects type changes', expect => {
+	expect(morphedBetweenArrayAndObject([], {})).toBe(true)
+	expect(morphedBetweenArrayAndObject({}, [])).toBe(true)
+	expect(morphedBetweenArrayAndObject([], [])).toBe(false)
+	expect(morphedBetweenArrayAndObject({}, {})).toBe(false)
 })

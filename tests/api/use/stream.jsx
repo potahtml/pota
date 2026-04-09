@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/stream: copy/remove audio/video tracks,
+// stopTrack, stopTracks, and stopStream.
 
 import { test } from '#test'
 

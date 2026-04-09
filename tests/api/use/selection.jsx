@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/selection: getSelection/restoreSelection
+// round-trip, use:click-selects-all, and null/undefined edge cases.
 
 import { microtask, test, $ } from '#test'
 
@@ -40,4 +42,16 @@ await test('selection - use:click-selects-all selects the node contents', async 
 
 	window.getSelection().removeAllRanges()
 	dispose()
+})
+
+await test('selection - getSelection returns null when nothing is selected', expect => {
+	window.getSelection().removeAllRanges()
+	const result = getSelection()
+	expect(result).toBe(null)
+})
+
+await test('selection - restoreSelection is a no-op for undefined', expect => {
+	// should not throw
+	restoreSelection(undefined)
+	restoreSelection(null)
 })

@@ -1,7 +1,7 @@
 /** @jsxImportSource pota */
 
 // Tests for the Range component: numeric ranges, reactive bounds,
-// step, and empty/invalid ranges.
+// step, descending ranges, start equals stop, and array children.
 import { test, body } from '#test'
 
 import { render, signal } from 'pota'
@@ -253,5 +253,36 @@ await test('Range - accepts an array of callbacks as single child prop', expect 
 	expect(body()).toBe(
 		'<p>0-a</p><span>0-b</span><p>1-a</p><span>1-b</span>',
 	)
+	dispose()
+})
+
+// --- Range descending --------------------------------------------------------
+
+await test('Range - descending range with negative step', expect => {
+	const dispose = render(
+		<Range
+			start={3}
+			stop={1}
+			step={-1}
+		>
+			{item => <p>{item}</p>}
+		</Range>,
+	)
+	expect(body()).toBe('<p>3</p><p>2</p><p>1</p>')
+	dispose()
+})
+
+// --- Range start equals stop -------------------------------------------------
+
+await test('Range - start equals stop renders only that value', expect => {
+	const dispose = render(
+		<Range
+			start={5}
+			stop={5}
+		>
+			{item => <p>{item}</p>}
+		</Range>,
+	)
+	expect(body()).toBe('<p>5</p>')
 	dispose()
 })

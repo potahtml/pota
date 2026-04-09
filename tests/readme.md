@@ -10,21 +10,23 @@ transformed. No need for Component() functions calls.
 
 ## Notes
 
-- All test files should import helpers from `../index.js` (or
-  `../../index.js` for nested folders).
-- Tests run in a real Chromium browser (Playwright, headed by default
-  — see `headless: false` in `vitest.config.js`). DOM APIs are
-  available; `body()` from `pota/use/test` returns
+- All test files should import helpers from `#test` (aliased to
+  `pota/use/test`).
+- Tests run in a real Chromium browser (Puppeteer, headed by default).
+  DOM APIs are available; `body()` from `pota/use/test` returns
   `document.body.innerHTML`.
-- document is asserted empty after each test via `aroundEach`.
-- when using `render`, call the returned `dispose` function at the end
-  of the test — `aroundEach` asserts the document is empty afterward to
+- The test harness (`tools/test/test.js`) clears `document.body`,
+  `document.head`, and `document.adoptedStyleSheets` before each test,
+  and verifies all three are clean after each test. A test that leaves
+  DOM behind will fail.
+- When using `render`, call the returned `dispose` function at the end
+  of the test — the harness asserts the document is empty afterward to
   verify proper node cleanup.
 - Use JSX directly on all test files because these are transformed. No
-  need for Component() functions calls.
-- make sure test cover every situation possible
-- before writing each file, think if you would do something better
-  and do it
+  need for Component() function calls.
+- Make sure tests cover every situation possible.
+- Before writing each file, think if you would do something better
+  and do it.
 
 ## Agent Notes
 
@@ -67,12 +69,35 @@ transformed. No need for Component() functions calls.
 - Comments added for this purpose should be factual and specific. They
   should explain what is uncertain and why the test was left as-is.
 
+## Timing Considerations
+
+- **`microtask()`** — sufficient for deferred effects, `onProps`,
+  `onMount`, `ready`, and scheduler-batched callbacks.
+- **`macrotask()`** — needed for `Promise.resolve` chains that go
+  through multiple async steps (e.g. `readyAsync`, `action` with
+  promises, `CSSStyleSheet.replace()`).
+- **`sleep(ms)`** — only for truly time-dependent operations:
+  - `history.back()` needs **200ms** (browser-level async, cannot be
+    reduced).
+  - `navigate()` with `delay` option needs at least 2× the delay
+    value.
+  - `useTimeout` tests need sleep > timer delay.
+- Prefer `microtask` over `macrotask`, and `macrotask` over `sleep`.
+- Do not use double `await microtask()` — use a single `await
+  macrotask()` instead.
+- Namespaced props (`use:*`) registered with `onMicrotask=true` need
+  `await microtask()` after `render()`. Built-in props like
+  `use:ref`, `use:connected`, `use:disconnected`, `disabled`,
+  `class`, `style`, `on:*`, `prop:*` are immediate and do not.
+
 ## Current Gaps
 
 - `tests/package.exports.js` is not currently present in the tree, so
   export-surface coverage should not be considered complete until that
   file is restored or replaced.
 - Main remaining behavioral gap is `babel-preset` tooling coverage.
+- `map()` direct fallback usage (without `For`) is commented out —
+  the fallback cleanup mechanism doesn't work outside `For`.
 
 All test file paths below are relative to `tests/api/`.
 
@@ -113,74 +138,74 @@ Legend: [x] done · [ ] todo · [-] skip (untestable / out of scope)
 
 ### Reactivity
 
-| Export           | Test file            | Status |
-| ---------------- | -------------------- | ------ |
-| `signal`         | `api/reactivity.jsx` | [x]    |
-| `memo`           | `api/reactivity.jsx` | [x]    |
-| `derived`        | `api/reactivity.jsx` | [x]    |
-| `effect`         | `api/reactivity.jsx` | [x]    |
-| `syncEffect`     | `api/reactivity.jsx` | [x]    |
-| `asyncEffect`    | `api/reactivity.jsx` | [x]    |
-| `batch`          | `api/reactivity.jsx` | [x]    |
-| `untrack`        | `api/reactivity.jsx` | [x]    |
-| `on`             | `api/reactivity.jsx` | [x]    |
-| `root`           | `api/reactivity.jsx` | [x]    |
-| `owned`          | `api/reactivity.jsx` | [x]    |
-| `cleanup`        | `api/reactivity.jsx` | [x]    |
-| `context`        | `api/context.jsx`    | [x]    |
-| `action`         | `api/reactivity.jsx` | [x]    |
-| `externalSignal` | `api/reactivity.jsx` | [x]    |
-| `map`            | `api/reactivity.jsx` | [x]    |
-| `resolve`        | `api/reactivity.jsx` | [x]    |
-| `unwrap`         | `api/reactivity.jsx` | [x]    |
-| `isResolved`     | `api/reactivity.jsx` | [x]    |
-| `ref`            | `api/reactivity.jsx` | [x]    |
-| `withValue`      | `api/reactivity.jsx` | [x]    |
-| `getValue`       | `api/reactivity.jsx` | [x]    |
+| Export           | Test file                | Status |
+| ---------------- | ------------------------ | ------ |
+| `signal`         | `exports/reactivity.jsx` | [x]    |
+| `memo`           | `exports/reactivity.jsx` | [x]    |
+| `derived`        | `exports/reactivity.jsx` | [x]    |
+| `effect`         | `exports/reactivity.jsx` | [x]    |
+| `syncEffect`     | `exports/reactivity.jsx` | [x]    |
+| `asyncEffect`    | `exports/reactivity.jsx` | [x]    |
+| `batch`          | `exports/reactivity.jsx` | [x]    |
+| `untrack`        | `exports/reactivity.jsx` | [x]    |
+| `on`             | `exports/reactivity.jsx` | [x]    |
+| `root`           | `exports/reactivity.jsx` | [x]    |
+| `owned`          | `exports/reactivity.jsx` | [x]    |
+| `cleanup`        | `exports/reactivity.jsx` | [x]    |
+| `context`        | `exports/context.jsx`    | [x]    |
+| `action`         | `exports/reactivity.jsx` | [x]    |
+| `externalSignal` | `exports/reactivity.jsx` | [x]    |
+| `map`            | `exports/reactivity.jsx` | [x]    |
+| `resolve`        | `exports/reactivity.jsx` | [x]    |
+| `unwrap`         | `exports/reactivity.jsx` | [x]    |
+| `isResolved`     | `exports/reactivity.jsx` | [x]    |
+| `ref`            | `exports/reactivity.jsx` | [x]    |
+| `withValue`      | `exports/reactivity.jsx` | [x]    |
+| `getValue`       | `exports/reactivity.jsx` | [x]    |
 
 ### Renderer
 
-| Export      | Test file     | Status |
-| ----------- | ------------- | ------ |
-| `render`    | `api/dom.jsx` | [x]    |
-| `insert`    | `api/dom.jsx` | [x]    |
-| `toHTML`    | `api/dom.jsx` | [x]    |
-| `Component` | `api/dom.jsx` | [x]    |
+| Export      | Test file         | Status |
+| ----------- | ----------------- | ------ |
+| `render`    | `exports/dom.jsx` | [x]    |
+| `insert`    | `exports/dom.jsx` | [x]    |
+| `toHTML`    | `exports/dom.jsx` | [x]    |
+| `Component` | `exports/dom.jsx` | [x]    |
 
 ### Scheduler / DOM ready
 
-| Export       | Test file     | Status |
-| ------------ | ------------- | ------ |
-| `ready`      | `api/dom.jsx` | [x]    |
-| `readyAsync` | `api/dom.jsx` | [x]    |
+| Export       | Test file         | Status |
+| ------------ | ----------------- | ------ |
+| `ready`      | `exports/dom.jsx` | [x]    |
+| `readyAsync` | `exports/dom.jsx` | [x]    |
 
 ### Events
 
-| Export        | Test file     | Status |
-| ------------- | ------------- | ------ |
-| `addEvent`    | `api/dom.jsx` | [x]    |
-| `removeEvent` | `api/dom.jsx` | [x]    |
+| Export        | Test file         | Status |
+| ------------- | ----------------- | ------ |
+| `addEvent`    | `exports/dom.jsx` | [x]    |
+| `removeEvent` | `exports/dom.jsx` | [x]    |
 
 ### Props
 
-| Export          | Test file     | Status |
-| --------------- | ------------- | ------ |
-| `setAttribute`  | `api/dom.jsx` | [x]    |
-| `setProperty`   | `api/dom.jsx` | [x]    |
-| `setStyle`      | `api/dom.jsx` | [x]    |
-| `setClass`      | `api/dom.jsx` | [x]    |
-| `setClassList`  | `api/dom.jsx` | [x]    |
-| `propsPlugin`   | `api/dom.jsx` | [x]    |
-| `propsPluginNS` | `api/dom.jsx` | [x]    |
+| Export          | Test file         | Status |
+| --------------- | ----------------- | ------ |
+| `setAttribute`  | `exports/dom.jsx` | [x]    |
+| `setProperty`   | `exports/dom.jsx` | [x]    |
+| `setStyle`      | `exports/dom.jsx` | [x]    |
+| `setClass`      | `exports/dom.jsx` | [x]    |
+| `setClassList`  | `exports/dom.jsx` | [x]    |
+| `propsPlugin`   | `exports/dom.jsx` | [x]    |
+| `propsPluginNS` | `exports/dom.jsx` | [x]    |
 
 ### Component utilities
 
-| Export          | Test file     | Status |
-| --------------- | ------------- | ------ |
-| `isComponent`   | `api/dom.jsx` | [x]    |
-| `makeCallback`  | `api/dom.jsx` | [x]    |
-| `markComponent` | `api/dom.jsx` | [x]    |
-| `Pota`          | `api/dom.jsx` | [x]    |
+| Export          | Test file         | Status |
+| --------------- | ----------------- | ------ |
+| `isComponent`   | `exports/dom.jsx` | [x]    |
+| `makeCallback`  | `exports/dom.jsx` | [x]    |
+| `markComponent` | `exports/dom.jsx` | [x]    |
+| `Pota`          | `exports/dom.jsx` | [x]    |
 
 ### Version
 
@@ -190,29 +215,49 @@ Legend: [x] done · [ ] todo · [-] skip (untestable / out of scope)
 
 ### Internal std helpers
 
-| Export area                         | Test file               | Status |
-| ----------------------------------- | ----------------------- | ------ |
-| selected `src/lib/std.js` utilities | `api/miscellaneous.jsx` | [x]    |
+| Export area                         | Test file                   | Status |
+| ----------------------------------- | --------------------------- | ------ |
+| selected `src/lib/std.js` utilities | `exports/miscellaneous.jsx` | [x]    |
 
 ### JSX built-in props
 
-| Export area                         | Test file           | Status |
-| ----------------------------------- | ------------------- | ------ |
-| `use:ref`                           | `api/dom.jsx`       | [x]    |
-| `use:connected`, `use:disconnected` | `api/framework.jsx` | [x]    |
+| Export area                         | Test file               | Status |
+| ----------------------------------- | ----------------------- | ------ |
+| `use:ref`                           | `exports/dom.jsx`       | [x]    |
+| `use:connected`, `use:disconnected` | `exports/framework.jsx` | [x]    |
+| `use:css`                           | `exports/dom.jsx`       | [x]    |
 
 ### Framework integration
 
-| Export area                                  | Test file           | Status |
-| -------------------------------------------- | ------------------- | ------ |
-| framework-level JSX/reconciliation scenarios | `api/framework.jsx` | [x]    |
-| transform / JSX output scenarios             | `api/transform.jsx` | [x]    |
+| Export area                                  | Test file               | Status |
+| -------------------------------------------- | ----------------------- | ------ |
+| framework-level JSX/reconciliation scenarios | `exports/framework.jsx` | [x]    |
+| transform / JSX output scenarios             | `transform.jsx`         | [x]    |
+| SVG, MathML, foreignObject namespaces        | `exports/framework.jsx` | [x]    |
+| createPartial (JSX runtime)                  | `exports/framework.jsx` | [x]    |
 
 ### Framework expectations / invariants
 
-| Export area                                         | Test file           | Status |
-| --------------------------------------------------- | ------------------- | ------ |
+| Export area                                        | Test file          | Status |
+| -------------------------------------------------- | ------------------ | ------ |
 | immediate timing, prop semantics, and gotcha cases | `expectations.jsx` | [x]    |
+
+### Reactive tracking behavior
+
+| Export area                                                    | Test file                | Status |
+| -------------------------------------------------------------- | ------------------------ | ------ |
+| `() =>` wrapped vs unwrapped in Show, Switch, For, all others | `component-tracking.jsx` | [x]    |
+
+### Native HTML behavior
+
+| Export area                                                       | Test file   | Status |
+| ----------------------------------------------------------------- | ----------- | ------ |
+| form reset (all input types), label association, fieldset          | `forms.jsx` | [x]    |
+| details/summary, progress/meter, template, select multiple        | `forms.jsx` | [x]    |
+| reactive value/checked/selected/disabled/required/pattern/min/max | `forms.jsx` | [x]    |
+| validity API, input type switching, datalist, form.elements       | `forms.jsx` | [x]    |
+| focus/blur events, selection range, optgroup, spellcheck/wrap     | `forms.jsx` | [x]    |
+| aria attributes (string values, not boolean), role                | `forms.jsx` | [x]    |
 
 ---
 
@@ -245,7 +290,6 @@ Notes:
 | `use/location`     | `use/location.jsx`     | [x]    |
 | `use/orientation`  | `use/orientation.jsx`  | [x]    |
 | `use/paginate`     | `use/paginate.jsx`     | [x]    |
-| `use/polyfills`    | `use/polyfills.jsx`    | [x]    |
 | `use/random`       | `use/random.jsx`       | [x]    |
 | `use/resize`       | `use/resize.jsx`       | [x]    |
 | `use/scroll`       | `use/scroll.jsx`       | [x]    |
@@ -262,9 +306,9 @@ Notes:
 
 ## `pota/xml`
 
-| Export       | Test file     | Status |
-| ------------ | ------------- | ------ |
-| XML renderer | `api/xml.jsx` | [x]    |
+| Export       | Test file         | Status |
+| ------------ | ----------------- | ------ |
+| XML renderer | `exports/xml.jsx` | [x]    |
 
 ---
 

@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/visibility: isDocumentVisible,
+// useDocumentVisible emitter, and onDocumentVisible callback.
 
 import { test } from '#test'
 
@@ -46,4 +48,18 @@ await test('visibility - visibility helpers reflect visibilitychange events', ex
 			descriptor,
 		)
 	}
+})
+
+await test('visibility - isDocumentVisible returns boolean', expect => {
+	const result = isDocumentVisible()
+	expect(typeof result).toBe('boolean')
+})
+
+await test('visibility - useDocumentVisible returns a signal function', expect => {
+	root(dispose => {
+		const visible = useDocumentVisible()
+		expect(typeof visible).toBe('function')
+		expect(typeof visible()).toBe('boolean')
+		dispose()
+	})
 })

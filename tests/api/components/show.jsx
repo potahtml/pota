@@ -448,7 +448,7 @@ await test('Show - callback returning derived function stays reactive without re
 	dispose()
 })
 
-await test('Show - async children: renders empty until promise resolves', async expect => {
+await test('Show - async children: resolves and renders content', async expect => {
 	const content = new Promise(resolve =>
 		setTimeout(() => resolve(<p>async content</p>), 50),
 	)
@@ -457,6 +457,39 @@ await test('Show - async children: renders empty until promise resolves', async 
 	await content
 	await microtask()
 	expect(body()).toBe('<p>async content</p>')
+
+	dispose()
+})
+
+// --- Show with non-boolean truthy values in callback -------------------------
+
+await test('Show - truthy non-boolean when value is passed to callback', expect => {
+	const dispose = render(
+		<Show when={'hello'}>
+			{v => <p>{v()}</p>}
+		</Show>,
+	)
+
+	expect(body()).toBe('<p>hello</p>')
+
+	dispose()
+})
+
+await test('Show - numeric truthy when value is accessible in callback', expect => {
+	const count = signal(42)
+	const dispose = render(
+		<Show when={count.read}>
+			{v => <p>{v()}</p>}
+		</Show>,
+	)
+
+	expect(body()).toBe('<p>42</p>')
+
+	count.write(0)
+	expect(body()).toBe('')
+
+	count.write(99)
+	expect(body()).toBe('<p>99</p>')
 
 	dispose()
 })

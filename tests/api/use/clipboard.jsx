@@ -1,4 +1,6 @@
 /** @jsxImportSource pota */
+// Tests for pota/use/clipboard: use:clipboard copies string values,
+// reads from node text, and supports callback handlers.
 
 import { test, $, $$, microtask } from '#test'
 

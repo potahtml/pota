@@ -161,3 +161,35 @@ await test('context - Provider with reactive signal value updates consumers', ex
 
 	dispose()
 })
+
+await test('context - walk with empty chain returns false', expect => {
+	const Ctx = context({ name: 'root', parent: undefined })
+
+	const visited = []
+	const stopped = Ctx.walk(value => {
+		visited.push(value.name)
+		return false
+	})
+
+	expect(stopped).toBe(false)
+	expect(visited).toEqual(['root'])
+})
+
+await test('context - multiple Providers at the same level are independent', expect => {
+	const A = context('a-default')
+	const B = context('b-default')
+
+	const dispose = render(
+		<A.Provider value="a-val">
+			<B.Provider value="b-val">
+				<p>
+					{A()}-{B()}
+				</p>
+			</B.Provider>
+		</A.Provider>,
+	)
+
+	expect(body()).toBe('<p>a-val-b-val</p>')
+
+	dispose()
+})
