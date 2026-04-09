@@ -22,7 +22,8 @@ export default function createPlugin({ name }) {
 			name,
 			inherits: jsx.default,
 			visitor: {
-				JSXSpreadChild(path) {
+				JSXSpreadChild(path, state) {
+					if (state.pota.skip) return
 					// TODO
 					error(path, 'Spread children are not supported.')
 				},
@@ -31,6 +32,26 @@ export default function createPlugin({ name }) {
 						/** Pota babel state */
 
 						state.pota = { partials: {}, components: {}, files: {} }
+
+						// Skip files with a foreign JSX pragma
+						const comments = path.parent.comments || []
+						for (const comment of comments) {
+							const value = comment.value
+							const sourceMatch = value.match(
+								/@jsxImportSource\s+(\S+)/,
+							)
+							if (sourceMatch) {
+								if (sourceMatch[1] !== 'pota') {
+									state.pota.skip = true
+								}
+								break
+							}
+							if (/@jsx\s/.test(value)) {
+								state.pota.skip = true
+								break
+							}
+						}
+						if (state.pota.skip) return
 
 						if (false && options?.development) {
 							path.traverse(
@@ -60,6 +81,8 @@ export default function createPlugin({ name }) {
 						}
 					},
 					exit(path, state) {
+						if (state.pota.skip) return
+
 						/** Merge and hoist partial calls */
 						path.traverse(
 							{
@@ -79,6 +102,8 @@ export default function createPlugin({ name }) {
 				},
 				JSXFragment: {
 					exit(path, state) {
+						if (state.pota.skip) return
+
 						const expression = buildFragment(path, state)
 
 						path.replaceWith(t.inherits(expression, path.node))
@@ -86,6 +111,8 @@ export default function createPlugin({ name }) {
 				},
 				JSXElement: {
 					exit(path, state) {
+						if (state.pota.skip) return
+
 						const expression = isXHTMLTag(path)
 							? buildPartial(path, state)
 							: buildComponent(path, state)
@@ -93,7 +120,9 @@ export default function createPlugin({ name }) {
 						path.replaceWith(t.inherits(expression, path.node))
 					},
 				},
-				JSXAttribute(path) {
+				JSXAttribute(path, state) {
+					if (state.pota.skip) return
+
 					if (t.isJSXElement(path.node.value)) {
 						path.node.value = t.jsxExpressionContainer(
 							path.node.value,

@@ -172,6 +172,75 @@ test('output is parseable JS', () => {
 	})
 })
 
+// 9. Foreign @jsxImportSource pragma — should NOT be transformed
+test('foreign @jsxImportSource skips transform', () => {
+	const code = `
+		/** @jsxImportSource react */
+		const el = <div class="foreign">hello</div>
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		!result.code.includes('createPartial'),
+		'pota transformed a file with a foreign pragma',
+	)
+	assert(
+		!result.code.includes('pota/jsx-runtime'),
+		'pota injected its runtime import for a foreign pragma',
+	)
+	assert(
+		result.code.includes('<div'),
+		'JSX should remain untransformed',
+	)
+})
+
+// 10. @jsx pragma — should NOT be transformed
+test('classic @jsx pragma skips transform', () => {
+	const code = `
+		/** @jsx React.createElement */
+		const el = <div>hello</div>
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		!result.code.includes('createPartial'),
+		'pota transformed a file with a @jsx pragma',
+	)
+	assert(
+		result.code.includes('<div'),
+		'JSX should remain untransformed',
+	)
+})
+
+// 11. Pota @jsxImportSource — should still be transformed
+test('pota @jsxImportSource is transformed', () => {
+	const code = `
+		/** @jsxImportSource pota */
+		const el = <div class="mine">hello</div>
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		result.code.includes('createPartial'),
+		'JSX was not transformed with pota pragma',
+	)
+})
+
+// 12. No pragma — should still be transformed
+test('no pragma is transformed', () => {
+	const code = `const el = <div>hello</div>`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		result.code.includes('createPartial'),
+		'JSX was not transformed without a pragma',
+	)
+})
+
 // done
 const summary =
 	results.failed === 0
