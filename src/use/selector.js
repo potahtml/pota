@@ -14,6 +14,7 @@ export function usePrevious(fn) {
 	/** @param {T} [next] */
 	return next => {
 		previous = fn(next, previous)
+		return previous // for testing
 	}
 }
 
