@@ -18,3 +18,4 @@ await test('browser - flags are boolean constants', expect => {
 	expect(typeof isMobile).toBe('boolean')
 	expect(typeof isFirefox).toBe('boolean')
 })
+

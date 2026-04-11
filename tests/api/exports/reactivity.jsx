@@ -154,6 +154,38 @@ await test('batch - coalesces dependent effect work', expect => {
 	expect(seen).toEqual([3, 7])
 })
 
+await test('batch - multiple writes to the same signal inside a batch coalesce', expect => {
+	// The basic batch test above writes each signal exactly once. This
+	// test exercises the narrower case of writing the same signal several
+	// times inside one batch — the effect should still re-run exactly
+	// once and see the final value of each signal, without double
+	// notifications from the intermediate writes.
+	const a = signal(0)
+	const b = signal(0)
+	let runs = 0
+
+	root(() => {
+		syncEffect(() => {
+			runs++
+			a.read()
+			b.read()
+		})
+	})
+
+	expect(runs).toBe(1)
+
+	batch(() => {
+		a.write(1)
+		a.write(2)
+		b.write(3)
+		b.write(4)
+	})
+
+	expect(runs).toBe(2)
+	expect(a.read()).toBe(2)
+	expect(b.read()).toBe(4)
+})
+
 await test('untrack - avoids subscribing to incidental reads', expect => {
 	const tracked = signal(1)
 	const incidental = signal(10)
@@ -1063,6 +1095,34 @@ await test('effect - does not run after its root is disposed', expect => {
 	expect(seen).toEqual([0])
 })
 
+await test('syncEffect - does not run after its root is disposed', expect => {
+	// syncEffect is a separate subclass of Computation from effect and
+	// takes a different construction path (it runs immediately via
+	// `batch` instead of going through the Effects queue), so its root
+	// disposal deserves a dedicated test — a bug in one disposal path
+	// wouldn't necessarily be caught by the effect-based test above.
+	const count = signal(0)
+	let runs = 0
+
+	const dispose = root(d => {
+		syncEffect(() => {
+			runs++
+			count.read()
+		})
+		return d
+	})
+
+	expect(runs).toBe(1)
+
+	count.write(1)
+	expect(runs).toBe(2)
+
+	dispose()
+
+	count.write(2)
+	expect(runs).toBe(2)
+})
+
 // --- syncEffect runs before effect in same root ------------------------------
 
 await test('syncEffect - runs before deferred effect for same signal', expect => {
@@ -1145,4 +1205,228 @@ await test('withValue - non-function value calls fn once immediately', expect =>
 	withValue('hello', v => seen.push(v))
 
 	expect(seen).toEqual([42, 'hello'])
+})
+
+// ============================================================================
+// Additional coverage: reactive pitfalls and edge cases
+// ============================================================================
+
+// --- signal - NaN equality (Object.is treats NaN as equal) ---------------
+
+await test('signal - writing NaN twice does not re-notify', expect => {
+	const n = signal(0)
+	const seen = []
+
+	root(() => {
+		syncEffect(() => seen.push(n.read()))
+	})
+
+	n.write(NaN)
+	expect(seen.length).toBe(2)
+
+	n.write(NaN)
+	// Object.is(NaN, NaN) is true, so no re-trigger
+	expect(seen.length).toBe(2)
+})
+
+// --- effect reading multiple signals, only one changes -----------------
+
+await test('effect - multi-signal read triggers only when an actual dep changes', expect => {
+	const a = signal(1)
+	const b = signal(2)
+	let runs = 0
+
+	root(() => {
+		syncEffect(() => {
+			runs++
+			a.read()
+			b.read()
+		})
+	})
+
+	expect(runs).toBe(1)
+
+	a.write(a.read())
+	// same value written, no re-run
+	expect(runs).toBe(1)
+
+	a.write(10)
+	expect(runs).toBe(2)
+
+	b.write(20)
+	expect(runs).toBe(3)
+})
+
+// --- memo that depends on another memo --------------------------------
+
+await test('memo - chained memos update lazily down the chain', expect => {
+	const count = signal(1)
+	const doubled = memo(() => count.read() * 2)
+	const quadrupled = memo(() => doubled() * 2)
+
+	expect(quadrupled()).toBe(4)
+
+	count.write(3)
+
+	expect(doubled()).toBe(6)
+	expect(quadrupled()).toBe(12)
+})
+
+// --- cleanup runs exactly once per disposal --------------------------
+
+await test('cleanup - single cleanup fires exactly once on disposal', expect => {
+	const calls = []
+
+	const dispose = root(d => {
+		cleanup(() => calls.push('cleanup'))
+		return d
+	})
+
+	expect(calls).toEqual([])
+
+	dispose()
+	expect(calls).toEqual(['cleanup'])
+
+	// calling dispose again is a no-op for cleanup
+	dispose()
+	expect(calls).toEqual(['cleanup'])
+})
+
+// --- untrack inside a cleanup has no effect -------------------------
+
+await test('cleanup - runs in its own untracked context', expect => {
+	const count = signal(0)
+	const seen = []
+
+	const dispose = root(d => {
+		syncEffect(() => {
+			count.read()
+			cleanup(() => {
+				// reads here should not re-subscribe the parent
+				seen.push(count.read())
+			})
+		})
+		return d
+	})
+
+	expect(seen).toEqual([])
+
+	count.write(1)
+	expect(seen).toEqual([0])
+
+	dispose()
+	expect(seen).toEqual([0, 1])
+})
+
+// --- memo with object value: returns by reference --------------------
+
+await test('memo - returns the same object reference when deps do not change', expect => {
+	const flag = signal(true)
+	const m = memo(() => ({ truthy: flag.read() }))
+
+	const first = m()
+	const second = m()
+
+	expect(first).toBe(second)
+
+	flag.write(false)
+
+	const third = m()
+	expect(third).not.toBe(first)
+	expect(third.truthy).toBe(false)
+})
+
+// --- on with a reactive expression ----------------------------------
+
+await test('on - only triggers on explicit dep change, not on body read', expect => {
+	const dep = signal(1)
+	const other = signal(100)
+	const runs = []
+
+	root(() => {
+		syncEffect(
+			on(dep, () => {
+				runs.push([dep.read(), other.read()])
+			}),
+		)
+	})
+
+	expect(runs.length).toBe(1)
+
+	// writing `other` should not trigger
+	other.write(200)
+	expect(runs.length).toBe(1)
+
+	// writing `dep` triggers
+	dep.write(2)
+	expect(runs.length).toBe(2)
+	expect(runs[1][0]).toBe(2)
+})
+
+// --- untrack returns the callback value --------------------------
+
+await test('untrack - returns the value of the callback', expect => {
+	const s = signal(42)
+
+	const result = untrack(() => s.read() + 1)
+
+	expect(result).toBe(43)
+})
+
+// --- batch returns the callback result ----------------------------
+
+await test('batch - returns the callback return value', expect => {
+	const result = batch(() => 'batched')
+
+	expect(result).toBe('batched')
+})
+
+// --- resolve - unwrapping a simple value --------------------------
+
+await test('resolve - unwraps a plain value to itself', expect => {
+	expect(resolve('plain')).toBe('plain')
+	expect(resolve(42)).toBe(42)
+	expect(resolve(true)).toBe(true)
+	expect(resolve(null)).toBe(null)
+})
+
+// --- getValue with mixed input types ------------------------------
+
+await test('getValue - unwraps a function but passes through primitives', expect => {
+	expect(getValue(42)).toBe(42)
+	expect(getValue('s')).toBe('s')
+	expect(getValue(null)).toBe(null)
+	expect(getValue(undefined)).toBe(undefined)
+	expect(getValue(() => 'fn-result')).toBe('fn-result')
+})
+
+// --- cleanup gets called with previous return value via effect ---
+
+await test('effect - cleanup returned from the callback runs before the next invocation', async expect => {
+	const s = signal(0)
+	const order = []
+
+	const dispose = root(d => {
+		effect(() => {
+			const value = s.read()
+			order.push('run:' + value)
+			return () => order.push('cleanup:' + value)
+		})
+		return d
+	})
+
+	await microtask()
+	await microtask()
+
+	// first run: no cleanup yet
+	expect(order).toEqual(['run:0'])
+
+	s.write(1)
+	await microtask()
+	await microtask()
+
+	// cleanup from first run, then second run
+	expect(order).toEqual(['run:0', 'cleanup:0', 'run:1'])
+
+	dispose()
 })

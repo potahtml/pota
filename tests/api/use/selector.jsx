@@ -139,3 +139,64 @@ await test('selector - useSelector with Map values', expect => {
 		[false, false, true],
 	])
 })
+
+// --- usePrevious first call receives undefined as previous --------------
+
+await test('selector - usePrevious returns the first call return as previous on second call', expect => {
+	const previous = usePrevious((next, prev) => ({
+		next,
+		prev,
+	}))
+
+	const first = previous(1)
+	expect(first.prev).toBe(undefined)
+	expect(first.next).toBe(1)
+
+	const second = previous(2)
+	expect(second.next).toBe(2)
+	// `prev` is the entire return of the first invocation
+	expect(second.prev).toBe(first)
+})
+
+// --- useSelector with an empty Set has no selected items ---------------
+
+await test('selector - useSelector with empty Set reports nothing selected', expect => {
+	const current = signal(new Set())
+	const seen = []
+
+	root(() => {
+		const isSelected = useSelector(current.read)
+		syncEffect(() => {
+			seen.push([isSelected('a')(), isSelected('b')()])
+		})
+	})
+
+	expect(seen).toEqual([[false, false]])
+})
+
+// --- useSelector does not re-run for items whose selection didnt change -
+
+await test('selector - only items whose selection flipped re-run their effect', expect => {
+	const current = signal('a')
+	const seenA = []
+	const seenB = []
+
+	root(() => {
+		const isSelected = useSelector(current.read)
+		syncEffect(() => seenA.push(isSelected('a')()))
+		syncEffect(() => seenB.push(isSelected('b')()))
+	})
+
+	expect(seenA).toEqual([true])
+	expect(seenB).toEqual([false])
+
+	// transition a → b: both flip
+	current.write('b')
+	expect(seenA).toEqual([true, false])
+	expect(seenB).toEqual([false, true])
+
+	// transition b → c: only b flips (a stays false, c not observed)
+	current.write('c')
+	expect(seenA).toEqual([true, false])
+	expect(seenB).toEqual([false, true, false])
+})

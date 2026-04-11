@@ -994,3 +994,25 @@ await test('load - retries on failure and eventually renders error string', asyn
 	dispose()
 	await reset()
 })
+
+// --- Route with empty path matches root ------------------------------
+
+await test('Route - empty path matches / path', async expect => {
+	await reset()
+
+	goto('/')
+
+	const dispose = render(
+		<Route path="">
+			<p>root</p>
+		</Route>,
+	)
+
+	await microtask()
+
+	expect(body()).toInclude('root')
+
+	dispose()
+	await reset()
+})
+

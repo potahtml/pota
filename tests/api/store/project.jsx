@@ -1,9 +1,11 @@
 /** @jsxImportSource pota */
 
 // Tests for pota/store `project`: copy-on-write views over mutable
-// sources, including arrays, functions, and proxy identity.
+// sources, including arrays, functions, key enumeration, reactivity,
+// and write isolation.
 import { test } from '#test'
 
+import { root, syncEffect } from 'pota'
 import { mutable, project } from 'pota/store'
 
 await test('project - creates a copy-on-write view for nested objects and arrays', expect => {
@@ -82,4 +84,117 @@ await test('project - array mutations do not affect source', expect => {
 
 	expect(source.list).toEqual(['a', 'b'])
 	expect(view.list).toEqual(['z', 'b', 'c'])
+})
+
+// --- primitives pass through unchanged -----------------------------------
+
+await test('project - returns primitives as-is', expect => {
+	expect(project(42)).toBe(42)
+	expect(project('hello')).toBe('hello')
+	expect(project(null)).toBe(null)
+	expect(project(undefined)).toBe(undefined)
+	expect(project(true)).toBe(true)
+})
+
+// --- ownKeys: union of source and projection overrides -------------------
+
+await test('project - ownKeys returns the union of source and projection keys', expect => {
+	const source = mutable({ a: 1, b: 2 })
+	const view = project(source)
+
+	// Before adding, keys come from source
+	expect(Object.keys(view).sort()).toEqual(['a', 'b'])
+
+	view.c = 3
+
+	// After adding a new key, it's in the union
+	expect(Object.keys(view).sort()).toEqual(['a', 'b', 'c'])
+})
+
+// --- `in` operator checks both projection and source --------------------
+
+await test('project - `in` operator sees source keys too', expect => {
+	const source = mutable({ fromSource: 1 })
+	const view = project(source)
+
+	expect('fromSource' in view).toBe(true)
+
+	view.fromView = 2
+
+	expect('fromSource' in view).toBe(true)
+	expect('fromView' in view).toBe(true)
+})
+
+// --- reactivity: source updates flow through unless overridden ----------
+
+await test('project - source updates reflect in the projection when key is not overridden', expect => {
+	const source = mutable({ count: 1 })
+	const view = project(source)
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(view.count)
+		})
+	})
+
+	expect(seen).toEqual([1])
+
+	// updating the source should flow through
+	source.count = 2
+	expect(seen).toEqual([1, 2])
+})
+
+// --- source observers don't fire from projection writes ----------------
+
+await test('project - writing to projection does not trigger source observers', expect => {
+	const source = mutable({ name: 'Ada' })
+	const view = project(source)
+	const sourceSeen = []
+
+	root(() => {
+		syncEffect(() => {
+			sourceSeen.push(source.name)
+		})
+	})
+
+	expect(sourceSeen).toEqual(['Ada'])
+
+	// writing to the projection must not notify source observers
+	view.name = 'Grace'
+	expect(sourceSeen).toEqual(['Ada'])
+
+	// and source is untouched
+	expect(source.name).toBe('Ada')
+})
+
+// --- empty source --------------------------------------------------------
+
+await test('project - projecting an empty object works', expect => {
+	const source = mutable({})
+	const view = project(source)
+
+	expect(Object.keys(view)).toEqual([])
+
+	view.a = 1
+	expect(view.a).toBe(1)
+	expect('a' in source).toBe(false)
+})
+
+// --- object with mixed scalar and nested values --------------------------
+
+await test('project - mixed scalar and nested keys write independently', expect => {
+	const source = mutable({
+		scalar: 1,
+		nested: { value: 'x' },
+	})
+	const view = project(source)
+
+	view.scalar = 99
+	view.nested.value = 'y'
+
+	expect(source.scalar).toBe(1)
+	expect(source.nested.value).toBe('x')
+	expect(view.scalar).toBe(99)
+	expect(view.nested.value).toBe('y')
 })

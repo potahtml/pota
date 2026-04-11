@@ -78,3 +78,108 @@ await test('clipboard - use:clipboard can read text from the node or a callback'
 		value: original,
 	})
 })
+
+// --- multiple clicks copy multiple times --------------------------------
+
+await test('clipboard - multiple clicks queue multiple copy operations', async expect => {
+	const writes = []
+	const original = navigator.clipboard
+
+	Object.defineProperty(navigator, 'clipboard', {
+		configurable: true,
+		value: {
+			writeText(text) {
+				writes.push(text)
+				return Promise.resolve()
+			},
+		},
+	})
+
+	const dispose = render(
+		<button use:clipboard="multi">Copy</button>,
+	)
+
+	await microtask()
+
+	$('button').click()
+	$('button').click()
+	$('button').click()
+
+	expect(writes).toEqual(['multi', 'multi', 'multi'])
+
+	dispose()
+	Object.defineProperty(navigator, 'clipboard', {
+		configurable: true,
+		value: original,
+	})
+})
+
+// --- clipboard copies only trimmed innerText when value is true -------
+
+await test('clipboard - use:clipboard={true} trims surrounding whitespace', async expect => {
+	const writes = []
+	const original = navigator.clipboard
+
+	Object.defineProperty(navigator, 'clipboard', {
+		configurable: true,
+		value: {
+			writeText(text) {
+				writes.push(text)
+				return Promise.resolve()
+			},
+		},
+	})
+
+	const dispose = render(
+		<button use:clipboard={true}>   padded   </button>,
+	)
+
+	await microtask()
+	$('button').click()
+
+	expect(writes).toEqual(['padded'])
+
+	dispose()
+	Object.defineProperty(navigator, 'clipboard', {
+		configurable: true,
+		value: original,
+	})
+})
+
+// --- clipboard handler stops receiving events after dispose ----------
+
+await test('clipboard - click handler is cleaned up on dispose', async expect => {
+	const writes = []
+	const original = navigator.clipboard
+
+	Object.defineProperty(navigator, 'clipboard', {
+		configurable: true,
+		value: {
+			writeText(text) {
+				writes.push(text)
+				return Promise.resolve()
+			},
+		},
+	})
+
+	const dispose = render(
+		<button use:clipboard="value">Copy</button>,
+	)
+
+	await microtask()
+	const button = $('button')
+
+	button.click()
+	expect(writes).toEqual(['value'])
+
+	dispose()
+
+	// Attempt another click after dispose (button should be gone)
+	button.click()
+	expect(writes).toEqual(['value'])
+
+	Object.defineProperty(navigator, 'clipboard', {
+		configurable: true,
+		value: original,
+	})
+})

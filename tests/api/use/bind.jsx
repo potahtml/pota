@@ -223,3 +223,61 @@ await test('bind - use:bind on textarea syncs value', async expect => {
 
 	dispose()
 })
+
+// --- bind with empty string ----------------------------------------
+
+await test('bind - bind with empty string initial value', async expect => {
+	const value = bind('')
+	expect(value()).toBe('')
+
+	const dispose = render(<input use:bind={value} />)
+	await microtask()
+
+	expect($('input').value).toBe('')
+
+	value('something')
+	expect($('input').value).toBe('something')
+
+	dispose()
+})
+
+// --- unbinding via dispose leaves signal value in place ------------
+
+await test('bind - disposing the JSX scope leaves the bind signal value intact', async expect => {
+	const value = bind('hello')
+	const dispose = render(<input use:bind={value} />)
+
+	await microtask()
+
+	value('world')
+	expect($('input').value).toBe('world')
+
+	dispose()
+
+	// Signal is still usable after dispose
+	value('after-dispose')
+	expect(value()).toBe('after-dispose')
+})
+
+// --- bind with number as initial value -----------------------------
+
+await test('bind - bind accepts numeric initial values', expect => {
+	const value = bind(42)
+	expect(value()).toBe(42)
+
+	value(100)
+	expect(value()).toBe(100)
+})
+
+// --- multiple distinct binds are independent ----------------------
+
+await test('bind - multiple independent bind signals do not interfere', expect => {
+	const a = bind('a')
+	const b = bind('b')
+
+	a('changed')
+
+	expect(a()).toBe('changed')
+	expect(b()).toBe('b')
+})
+

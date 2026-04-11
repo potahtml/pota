@@ -158,3 +158,88 @@ await test('stream - stop helpers stop tracks and support MediaRecorder-like obj
 	globalThis.MediaStream = OriginalMediaStream
 	globalThis.MediaRecorder = OriginalMediaRecorder
 })
+
+// --- copy into an empty destination ---------------------------------------
+
+await test('stream - copyAudioTracks into empty destination adds the cloned track', expect => {
+	const clone = {
+		id: 'cloned',
+		kind: 'audio',
+		stop() {},
+	}
+	const source = {
+		getAudioTracks() {
+			return [
+				{
+					id: 'src',
+					kind: 'audio',
+					clone() {
+						return clone
+					},
+				},
+			]
+		},
+	}
+	const destination = {
+		audio: [],
+		getAudioTracks() {
+			return this.audio
+		},
+		addTrack(t) {
+			this.audio.push(t)
+		},
+		removeTrack(t) {
+			this.audio = this.audio.filter(a => a !== t)
+		},
+	}
+
+	copyAudioTracks(source, destination)
+
+	expect(destination.audio.length).toBe(1)
+	expect(destination.audio[0]).toBe(clone)
+})
+
+// --- removeAudioTracks when no audio tracks exist -------------------------
+
+await test('stream - removeAudioTracks on empty stream is a no-op', expect => {
+	let removed = 0
+	const stream = {
+		getAudioTracks() {
+			return []
+		},
+		removeTrack() {
+			removed++
+		},
+	}
+
+	expect(() => removeAudioTracks(stream)).not.toThrow()
+	expect(removed).toBe(0)
+})
+
+// --- stopStream with a plain non-MediaStream value is a no-op ------------
+
+await test('stream - stopStream with a plain object not inheriting from MediaStream is a no-op', expect => {
+	const plain = { getTracks: () => [] }
+
+	// plain objects don't inherit from MediaStream/MediaRecorder so
+	// stopStream silently skips
+	expect(() => stopStream(plain)).not.toThrow()
+})
+
+// --- stopTracks when all arrays are empty --------------------------------
+
+await test('stream - stopTracks on empty stream is a no-op', expect => {
+	const stream = {
+		getAudioTracks() {
+			return []
+		},
+		getVideoTracks() {
+			return []
+		},
+		getTracks() {
+			return []
+		},
+	}
+
+	expect(() => stopTracks(stream)).not.toThrow()
+})

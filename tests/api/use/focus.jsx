@@ -93,3 +93,52 @@ await test('focus - focusPrevious wraps around from first to last element', expe
 	one.remove()
 	two.remove()
 })
+
+// --- focusNext skips disabled elements ----------------------------------
+
+await test('focus - focusNext skips disabled inputs', expect => {
+	const one = document.createElement('input')
+	const two = document.createElement('input')
+	two.disabled = true
+	const three = document.createElement('input')
+
+	document.body.append(one, two, three)
+
+	one.focus()
+	focusNext()
+
+	// should land on `three`, not the disabled `two`
+	expect(document.activeElement).toBe(three)
+
+	one.remove()
+	two.remove()
+	three.remove()
+})
+
+// --- focusNext when no tabbable elements exist is a no-op --------------
+
+await test('focus - focusNext with no tabbable elements does nothing', expect => {
+	const originalActive = document.activeElement
+
+	// no tabbable elements added
+	expect(() => focusNext()).not.toThrow()
+
+	// active element unchanged
+	expect(document.activeElement).toBe(originalActive)
+})
+
+// --- single element wraps to itself ------------------------------------
+
+await test('focus - focusNext with a single tabbable element focuses it again', expect => {
+	const only = document.createElement('input')
+
+	document.body.append(only)
+
+	only.focus()
+	focusNext()
+
+	// Only one element: cycling lands back on the same element
+	expect(document.activeElement).toBe(only)
+
+	only.remove()
+})

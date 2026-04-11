@@ -271,3 +271,82 @@ await test('Suspense - multiple async children all resolve', async expect => {
 
 	dispose()
 })
+
+// --- suspense resolving to null renders nothing -----------------------
+
+await test('Suspense - promise resolving to null renders nothing', async expect => {
+	const p = Promise.resolve(null)
+
+	const dispose = render(<Suspense fallback="loading">{p}</Suspense>)
+
+	// initially fallback is shown
+	expect(body()).toBe('loading')
+
+	await p
+	await macrotask()
+
+	// after resolution, body is empty
+	expect(body()).toBe('')
+
+	dispose()
+})
+
+// --- suspense with fast-resolved promise --------------------------------
+
+await test('Suspense - already-resolved promise still shows fallback briefly', async expect => {
+	const p = Promise.resolve(<p>ready</p>)
+
+	const dispose = render(<Suspense fallback="loading">{p}</Suspense>)
+
+	// even pre-resolved promises flip through fallback
+	// (depends on framework — may resolve immediately or after microtask)
+	await p
+	await macrotask()
+
+	expect(body()).toBe('<p>ready</p>')
+
+	dispose()
+})
+
+// --- suspense with number fallback --------------------------------------
+
+await test('Suspense - numeric fallback renders as text', expect => {
+	const p = new Promise(() => {}) // never resolves
+
+	const dispose = render(<Suspense fallback={0}>{p}</Suspense>)
+
+	expect(body()).toBe('0')
+
+	dispose()
+})
+
+// --- nested suspense with independent async children -------------------
+
+await test('Suspense - nested independent suspense boundaries resolve separately', async expect => {
+	const inner = new Promise(resolve => {
+		setTimeout(() => resolve(<span>inner</span>), 10)
+	})
+	const outer = new Promise(resolve => {
+		setTimeout(() => resolve(<span>outer</span>), 20)
+	})
+
+	const dispose = render(
+		<Suspense fallback="outer-loading">
+			{outer}
+			<Suspense fallback="inner-loading">{inner}</Suspense>
+		</Suspense>,
+	)
+
+	// outer shows its fallback until BOTH outer and inner resolve
+	expect(body()).toBe('outer-loading')
+
+	await outer
+	await inner
+	await macrotask()
+
+	expect(body()).toInclude('outer')
+	expect(body()).toInclude('inner')
+
+	dispose()
+})
+

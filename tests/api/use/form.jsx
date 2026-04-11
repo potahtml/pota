@@ -360,7 +360,9 @@ await test('form - form2object includes submitter button name in result', expect
 	form.remove()
 })
 
-await test('form - form2object collects multiple values with same name into array', expect => {
+await test('form - form2object collects 3+ values with the same name by appending to the array', expect => {
+	// Exercises the `entry.push(value)` branch (3rd+ occurrence)
+	// that a 2-value test does not reach.
 	const form = document.createElement('form')
 	form.innerHTML = `
 		<input name="tag" value="a" />
@@ -409,4 +411,186 @@ await test('form - object2form sets radio button by value', expect => {
 	expect(radios[1].checked).toBe(true)
 
 	form.remove()
+})
+
+// --- form2object on an empty form returns empty object ---------------
+
+await test('form - form2object on an empty form yields an empty object', expect => {
+	const form = document.createElement('form')
+	document.body.append(form)
+
+	const result = form2object(form)
+	expect(Object.keys(result).length).toBe(0)
+
+	form.remove()
+})
+
+// --- object2form ignores keys that have no matching input -----------
+
+await test('form - object2form ignores keys that have no matching input', expect => {
+	const form = document.createElement('form')
+	form.innerHTML = '<input name="existing" />'
+	document.body.append(form)
+
+	expect(() => object2form(form, { nonExistent: 'value' })).not.toThrow()
+
+	form.remove()
+})
+
+// --- form2object preserves textarea values --------------------------
+
+await test('form - form2object captures textarea value', expect => {
+	const form = document.createElement('form')
+	form.innerHTML = '<textarea name="body">content</textarea>'
+	document.body.append(form)
+
+	const result = form2object(form)
+	expect(result.body).toBe('content')
+
+	form.remove()
+})
+
+// --- form2object with unchecked checkbox -----------------------------
+
+await test('form - form2object unchecked checkbox is not in the result or is false', expect => {
+	const form = document.createElement('form')
+	form.innerHTML = `
+		<input type="checkbox" name="notifications" />
+	`
+	document.body.append(form)
+
+	const result = form2object(form)
+	// Unchecked checkbox is typically omitted or falsy
+	expect(result.notifications === undefined || result.notifications === false)
+		.toBe(true)
+
+	form.remove()
+})
+
+// --- isDisabled on deeply nested fieldset -----------------------------
+
+await test('form - isDisabled returns true for input inside deeply nested disabled fieldset', expect => {
+	const dispose = render(
+		<form>
+			<fieldset disabled>
+				<fieldset>
+					<fieldset>
+						<input name="deep" />
+					</fieldset>
+				</fieldset>
+			</fieldset>
+		</form>,
+	)
+
+	expect(isDisabled($('input[name="deep"]'))).toBe(true)
+
+	dispose()
+})
+
+// --- use:enter-focus-next does nothing on non-Enter key --------------
+
+await test('form - use:enter-focus-next does nothing when another key is pressed', async expect => {
+	const dispose = render(
+		<form>
+			<input
+				id="first-noenter"
+				use:enter-focus-next={true}
+			/>
+			<input id="second-noenter" />
+		</form>,
+	)
+
+	await microtask()
+
+	const first = $('#first-noenter')
+	first.focus()
+	first.dispatchEvent(
+		new KeyboardEvent('keydown', { bubbles: true, code: 'Space' }),
+	)
+
+	// focus should NOT advance
+	expect(document.activeElement).toBe(first)
+
+	dispose()
+})
+
+// --- use:prevent-enter does not prevent non-Enter keys --------------
+
+await test('form - use:prevent-enter only prevents default on Enter', async expect => {
+	const dispose = render(
+		<input
+			id="prevent-specific"
+			use:prevent-enter={true}
+		/>,
+	)
+
+	await microtask()
+
+	const input = $('#prevent-specific')
+	const event = new KeyboardEvent('keydown', {
+		bubbles: true,
+		cancelable: true,
+		code: 'KeyA',
+	})
+
+	input.dispatchEvent(event)
+
+	// non-Enter key is not prevented
+	expect(event.defaultPrevented).toBe(false)
+
+	dispose()
+})
+
+// --- form2object with select single ---------------------------------
+
+await test('form - form2object reads single-select value', expect => {
+	const form = document.createElement('form')
+	form.innerHTML = `
+		<select name="role">
+			<option value="admin">Admin</option>
+			<option value="user" selected>User</option>
+			<option value="guest">Guest</option>
+		</select>
+	`
+	document.body.append(form)
+
+	const result = form2object(form)
+	expect(result.role).toBe('user')
+
+	form.remove()
+})
+
+// --- object2form on text input via setting value -------------------
+
+await test('form - object2form updates number input value as string', expect => {
+	const form = document.createElement('form')
+	form.innerHTML = `<input type="number" name="count" value="0" />`
+	document.body.append(form)
+
+	object2form(form, { count: 42 })
+
+	expect(form.querySelector('[name=count]').value).toBe('42')
+
+	form.remove()
+})
+
+// --- use:click-focus-children-input with no inputs is a no-op ------
+
+await test('form - use:click-focus-children-input does nothing with no focusable children', async expect => {
+	const dispose = render(
+		<div use:click-focus-children-input={true}>
+			<span>nothing here</span>
+		</div>,
+	)
+
+	await microtask()
+
+	const previous = document.activeElement
+
+	expect(() => $('div').click()).not.toThrow()
+
+	// focus unchanged (there's nothing focusable)
+	expect(document.activeElement).toBe(previous)
+
+	dispose()
 })

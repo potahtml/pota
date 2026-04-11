@@ -1060,14 +1060,6 @@ await test('JSX on:event - null handler is safely ignored', expect => {
 	dispose()
 })
 
-// --- setAttribute with number coerces to string ------------------------------
-
-await test('setAttribute - number value is coerced to string', expect => {
-	const node = document.createElement('div')
-	setAttribute(node, 'data-count', 42)
-	expect(node.getAttribute('data-count')).toBe('42')
-})
-
 // --- setStyle removes with undefined/null ------------------------------------
 
 await test('setStyle - undefined removes the property', expect => {
@@ -1085,4 +1077,216 @@ await test('setStyle - undefined removes the property', expect => {
 	})
 
 	node.remove()
+})
+
+// ============================================================================
+// Additional edge cases
+// ============================================================================
+
+// --- setAttribute with a number stringifies -----------------------------
+
+await test('setAttribute - number values are coerced to strings', expect => {
+	const node = document.createElement('div')
+	document.body.append(node)
+
+	setAttribute(node, 'data-count', 42)
+	expect(node.getAttribute('data-count')).toBe('42')
+
+	node.remove()
+})
+
+// --- setAttribute with an object produces "[object Object]" ----------
+
+await test('setAttribute - object value falls back to its string form', expect => {
+	const node = document.createElement('div')
+	document.body.append(node)
+
+	setAttribute(node, 'data-object', { a: 1 })
+	// default toString of object
+	expect(node.getAttribute('data-object')).toBe('[object Object]')
+
+	node.remove()
+})
+
+// --- setProperty can round-trip arbitrary types -----------------------
+
+await test('setProperty - stores any value directly on the element', expect => {
+	const node = document.createElement('div')
+	document.body.append(node)
+
+	const payload = { user: 'Ada' }
+	setProperty(node, 'customPayload', payload)
+
+	expect(node.customPayload).toBe(payload)
+
+	node.remove()
+})
+
+// --- setClassList with mixed true/false values -----------------------
+
+await test('setClassList - object form with mixed values adds true classes and removes false', expect => {
+	const node = document.createElement('div')
+	document.body.append(node)
+
+	setClassList(node, { a: true, b: false, c: true, d: false })
+
+	expect(node.classList.contains('a')).toBe(true)
+	expect(node.classList.contains('b')).toBe(false)
+	expect(node.classList.contains('c')).toBe(true)
+	expect(node.classList.contains('d')).toBe(false)
+
+	node.remove()
+})
+
+// --- use:ref assigning multiple writes in sequence -------------------
+
+await test('use:ref - reassigning the same signal ref during the same render', expect => {
+	const firstRef = ref()
+	const secondRef = ref()
+
+	const dispose = render(
+		<>
+			<p
+				id="a"
+				use:ref={firstRef}
+			/>
+			<p
+				id="b"
+				use:ref={secondRef}
+			/>
+		</>,
+	)
+
+	expect(firstRef().id).toBe('a')
+	expect(secondRef().id).toBe('b')
+
+	dispose()
+})
+
+// --- event handlers: passing undefined removes them ------------------
+
+await test('on:click - undefined handler does not throw', expect => {
+	const dispose = render(<button on:click={undefined}>click</button>)
+
+	$('button').click()
+	expect($('button').textContent).toBe('click')
+
+	dispose()
+})
+
+// --- toHTML with multiple top-level nodes returns a fragment ---------
+
+await test('toHTML - multiple top-level nodes return a fragment', expect => {
+	const result = toHTML(
+		<>
+			<p>a</p>
+			<p>b</p>
+		</>,
+	)
+
+	// fragment: has childNodes but no tag name
+	expect(result.nodeType).toBe(11) // DOCUMENT_FRAGMENT_NODE
+})
+
+// --- setClass with an empty string clears the className --------------
+
+await test('setClass - empty string clears the className', expect => {
+	const node = document.createElement('div')
+	node.className = 'existing'
+	document.body.append(node)
+
+	setClass(node, '')
+
+	expect(node.className).toBe('')
+
+	node.remove()
+})
+
+// --- setClass with null/undefined clears the className --------------
+
+await test('setClass - null value clears the className', expect => {
+	const node = document.createElement('div')
+	node.className = 'previous'
+	document.body.append(node)
+
+	setClass(node, null)
+	expect(node.className).toBe('')
+
+	node.remove()
+})
+
+// --- setClassList with empty string is a no-op ---------------------
+
+await test('setClassList - empty string does not throw and adds nothing', expect => {
+	const node = document.createElement('div')
+	document.body.append(node)
+
+	expect(() => setClassList(node, '')).not.toThrow()
+	expect(node.classList.length).toBe(0)
+
+	node.remove()
+})
+
+// --- setAttribute with empty string sets empty value --------------
+
+await test('setAttribute - empty string sets an empty-value attribute', expect => {
+	const node = document.createElement('div')
+	document.body.append(node)
+
+	setAttribute(node, 'data-empty', '')
+
+	expect(node.hasAttribute('data-empty')).toBe(true)
+	expect(node.getAttribute('data-empty')).toBe('')
+
+	node.remove()
+})
+
+// --- setAttribute with zero value -------------------------------
+
+await test('setAttribute - numeric 0 stringifies and sets "0"', expect => {
+	const node = document.createElement('div')
+	document.body.append(node)
+
+	setAttribute(node, 'data-count', 0)
+
+	expect(node.getAttribute('data-count')).toBe('0')
+
+	node.remove()
+})
+
+// --- render with a component returning text --------------------
+
+await test('render - function component returning text renders as text', expect => {
+	function Greeting() {
+		return 'hello'
+	}
+
+	const dispose = render(<Greeting />)
+
+	expect(body()).toBe('hello')
+
+	dispose()
+})
+
+// --- render with a component returning an array ---------------
+
+await test('render - function component returning an array renders each element', expect => {
+	function Multi() {
+		return [<p>a</p>, <p>b</p>, <p>c</p>]
+	}
+
+	const dispose = render(<Multi />)
+
+	expect(body()).toBe('<p>a</p><p>b</p><p>c</p>')
+
+	dispose()
+})
+
+// --- isComponent on non-function values ----------------------
+
+await test('isComponent - primitive values return false', expect => {
+	expect(isComponent(42)).toBe(false)
+	expect(isComponent('string')).toBe(false)
+	expect(isComponent(null)).toBe(false)
+	expect(isComponent(undefined)).toBe(false)
 })

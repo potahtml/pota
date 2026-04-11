@@ -25,7 +25,8 @@ const pkg = JSON.parse(
 const config = pkg.test || {}
 
 const testDir = config.dir || 'tests/api/'
-const timeout = config.timeout || 5000
+const timeout = config.timeout || 5_000
+const rerunTimeout = 5_000
 const concurrency = config.concurrency || 10
 const testExts = config.extensions || ['.jsx', '.tsx', '.ts']
 /** @type {string[]} */
@@ -269,14 +270,14 @@ function startWatching(browser, baseURL, initialBailed) {
 			for (const f of only) if (!pending.includes(f)) pending.push(f)
 		}
 		clearTimeout(timer)
-		timer = setTimeout(run, 500)
+		timer = setTimeout(run, rerunTimeout)
 	}
 
 	async function run() {
 		clearTimeout(timer)
 
 		if (running) {
-			timer = setTimeout(run, 500)
+			timer = setTimeout(run, rerunTimeout)
 			return
 		}
 		running = true

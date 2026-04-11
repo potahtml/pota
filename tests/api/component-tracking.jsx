@@ -550,3 +550,74 @@ await test('tracking - plain JSX with signal called once is static', expect => {
 
 	dispose()
 })
+
+// --- passing the signal itself is reactive --------------------------
+
+await test('tracking - passing the signal directly as a child is reactive', expect => {
+	const count = signal(1)
+
+	const dispose = render(<p>{count}</p>)
+
+	expect(body()).toBe('<p>1</p>')
+
+	count.write(2)
+	expect(body()).toBe('<p>2</p>')
+
+	count.write(99)
+	expect(body()).toBe('<p>99</p>')
+
+	dispose()
+})
+
+// --- wrapping in arrow with plain access makes it reactive ---------
+
+await test('tracking - arrow wrapping signal access makes it reactive', expect => {
+	const count = signal(1)
+
+	const dispose = render(<p>{() => count.read()}</p>)
+
+	expect(body()).toBe('<p>1</p>')
+
+	count.write(5)
+	expect(body()).toBe('<p>5</p>')
+
+	dispose()
+})
+
+// --- For with signal.read is reactive to items --------------------
+
+await test('tracking - For items prop as signal.read is reactive', expect => {
+	const items = signal([1, 2, 3])
+
+	const dispose = render(
+		<For each={items.read}>{v => <p>{v}</p>}</For>,
+	)
+
+	expect(body()).toBe('<p>1</p><p>2</p><p>3</p>')
+
+	items.write([10, 20])
+	expect(body()).toBe('<p>10</p><p>20</p>')
+
+	dispose()
+})
+
+// --- static function child reads value once ---------------------
+
+await test('tracking - component with non-function child uses snapshot', expect => {
+	const name = signal('Ada')
+
+	function Greeter(props) {
+		// reading name.read() once at component mount
+		return <p>hello {props.label}</p>
+	}
+
+	const dispose = render(<Greeter label={name.read()} />)
+
+	expect(body()).toBe('<p>hello Ada</p>')
+
+	name.write('Grace')
+	// still shows Ada because it was snapshot at mount time
+	expect(body()).toBe('<p>hello Ada</p>')
+
+	dispose()
+})

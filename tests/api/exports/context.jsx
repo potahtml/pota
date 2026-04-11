@@ -193,3 +193,100 @@ await test('context - multiple Providers at the same level are independent', exp
 
 	dispose()
 })
+
+// --- context with no default value ------------------------------------
+
+await test('context - reading with no explicit default returns undefined', expect => {
+	const Ctx = context()
+
+	expect(Ctx()).toBe(undefined)
+})
+
+// --- context with null as default -------------------------------------
+
+await test('context - null as default value is returned as-is', expect => {
+	const Ctx = context(null)
+
+	expect(Ctx()).toBe(null)
+})
+
+// --- context value propagates through nested components --------------
+
+await test('context - value propagates through intermediate components', expect => {
+	const Theme = context('light')
+
+	function Middle(props) {
+		return <section>{props.children}</section>
+	}
+
+	function Deep() {
+		return <p>theme:{Theme()}</p>
+	}
+
+	const dispose = render(
+		<Theme.Provider value="dark">
+			<Middle>
+				<Middle>
+					<Deep />
+				</Middle>
+			</Middle>
+		</Theme.Provider>,
+	)
+
+	expect(body()).toBe(
+		'<section><section><p>theme:dark</p></section></section>',
+	)
+
+	dispose()
+})
+
+// --- context reads return the outer value after inner Provider disposes -
+
+await test('context - functional override restores the outer value immediately after returning', expect => {
+	const Ctx = context('outer')
+	const snapshots = []
+
+	Ctx('inner', () => {
+		snapshots.push(Ctx())
+	})
+
+	snapshots.push(Ctx())
+
+	expect(snapshots).toEqual(['inner', 'outer'])
+})
+
+// --- context value of 0 (a falsy value) is preserved as default --------
+
+await test('context - zero as default value is not coerced to undefined', expect => {
+	const Ctx = context(0)
+
+	expect(Ctx()).toBe(0)
+})
+
+// --- context Provider with a function as value -------------------------
+
+await test('context - Provider value can be a function and consumers call it', expect => {
+	const Ctx = context(() => 'default-fn')
+
+	const dispose = render(
+		<Ctx.Provider value={() => 'override-fn'}>
+			<p>{() => Ctx()()}</p>
+		</Ctx.Provider>,
+	)
+
+	expect(body()).toBe('<p>override-fn</p>')
+
+	dispose()
+})
+
+// --- context reading back the complete object value ------------------
+
+await test('context - object value is preserved by reference through the provider', expect => {
+	const theme = { name: 'dark', shade: 9 }
+	const Ctx = context({ name: 'light', shade: 1 })
+
+	Ctx(theme, () => {
+		expect(Ctx()).toBe(theme)
+		expect(Ctx().name).toBe('dark')
+	})
+})

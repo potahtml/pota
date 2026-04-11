@@ -161,3 +161,64 @@ await test('Collapse - reactive children update while collapsed and reflect when
 
 	dispose()
 })
+
+// --- null and undefined treated as falsy --------------------------------
+
+await test('Collapse - when=null is treated as hidden', expect => {
+	const dispose = render(<Collapse when={null}>content</Collapse>)
+	expect($('pota-collapse').shadowRoot.innerHTML).toBe('')
+	dispose()
+})
+
+await test('Collapse - when=undefined is treated as hidden', expect => {
+	const dispose = render(<Collapse when={undefined}>content</Collapse>)
+	expect($('pota-collapse').shadowRoot.innerHTML).toBe('')
+	dispose()
+})
+
+// --- multiple rapid toggles --------------------------------------------
+
+await test('Collapse - multiple rapid toggles settle on the final value', expect => {
+	const when = signal(true)
+	const dispose = render(
+		<Collapse when={when.read}>content</Collapse>,
+	)
+
+	const collapse = $('pota-collapse')
+
+	when.write(false)
+	when.write(true)
+	when.write(false)
+	when.write(true)
+	when.write(false)
+
+	expect(collapse.shadowRoot.innerHTML).toBe('')
+
+	when.write(true)
+	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
+
+	dispose()
+})
+
+// --- empty children render an empty slot --------------------------------
+
+await test('Collapse - with no children still renders the wrapper when visible', expect => {
+	const dispose = render(<Collapse when={true}></Collapse>)
+
+	expect($('pota-collapse')).not.toBe(null)
+	expect($('pota-collapse').shadowRoot.innerHTML).toBe('<slot></slot>')
+
+	dispose()
+})
+
+// --- dispose cleans up the wrapper element -----------------------------
+
+await test('Collapse - dispose removes the wrapper element', expect => {
+	const dispose = render(<Collapse when={true}>content</Collapse>)
+
+	expect($('pota-collapse')).not.toBe(null)
+
+	dispose()
+
+	expect($('pota-collapse')).toBe(null)
+})

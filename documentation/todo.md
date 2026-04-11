@@ -9,9 +9,12 @@
 
 ### wip
 
-- split test/api/store/store.jsx into subfiles for mutable, signalify,
-  etc
-- make sure gitignore and npmignore are correct
+- make sure npmignore are correct
+- check tests passes before doing publish
+- figure out if top level runs the same as when owned, or make top
+  level owned, even if doesnt garbage collects - I couldnt figure out
+  this one out
+- maybe ask for coverage reporting
 
 ### documentation
 
@@ -44,6 +47,12 @@
 - refactor transform again !
 - avoid double wrapping functions exclusively to use with the
   transform. Ex: not for tsc, react compiler, buildless/xml
+- may ask for a Errored component
+- see if we can make root batched by default
+- maybe ask for a flush
+- improve jsx
+- get rid of colorsio
+- ask for performance improvements realted to polymorphism
 
 ### typescript
 

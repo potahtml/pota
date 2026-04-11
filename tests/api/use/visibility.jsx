@@ -63,3 +63,74 @@ await test('visibility - useDocumentVisible returns a signal function', expect =
 		dispose()
 	})
 })
+
+// --- hidden state reflected via isDocumentVisible() ------------------
+
+await test('visibility - isDocumentVisible reflects visibilityState of hidden', expect => {
+	const descriptor = Object.getOwnPropertyDescriptor(
+		Document.prototype,
+		'visibilityState',
+	)
+
+	Object.defineProperty(Document.prototype, 'visibilityState', {
+		configurable: true,
+		get() {
+			return 'hidden'
+		},
+	})
+
+	expect(isDocumentVisible()).toBe(false)
+
+	if (descriptor) {
+		Object.defineProperty(
+			Document.prototype,
+			'visibilityState',
+			descriptor,
+		)
+	}
+})
+
+// --- multiple consecutive state changes --------------------------------
+
+await test('visibility - onDocumentVisible fires once per state change', async expect => {
+	const descriptor = Object.getOwnPropertyDescriptor(
+		Document.prototype,
+		'visibilityState',
+	)
+	let state = 'visible'
+
+	Object.defineProperty(Document.prototype, 'visibilityState', {
+		configurable: true,
+		get() {
+			return state
+		},
+	})
+
+	const seen = []
+
+	root(dispose => {
+		onDocumentVisible(value => seen.push(value))
+
+		state = 'hidden'
+		document.dispatchEvent(new Event('visibilitychange'))
+
+		state = 'visible'
+		document.dispatchEvent(new Event('visibilitychange'))
+
+		state = 'hidden'
+		document.dispatchEvent(new Event('visibilitychange'))
+
+		dispose()
+	})
+
+	// three state changes, at least three notifications received
+	expect(seen.length >= 3).toBe(true)
+
+	if (descriptor) {
+		Object.defineProperty(
+			Document.prototype,
+			'visibilityState',
+			descriptor,
+		)
+	}
+})

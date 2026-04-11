@@ -262,3 +262,76 @@ await test('Tabs - Tabs.selected() provides reactive access to the selected tab 
 
 	dispose()
 })
+
+// --- dispose cleans up tabs ------------------------------------------
+
+await test('Tabs - dispose removes rendered tablist and panels', expect => {
+	const dispose = render(
+		<Tabs>
+			<Tabs.Labels>
+				<Tabs.Label>one</Tabs.Label>
+				<Tabs.Label>two</Tabs.Label>
+			</Tabs.Labels>
+			<Tabs.Panels>
+				<Tabs.Panel>p1</Tabs.Panel>
+				<Tabs.Panel>p2</Tabs.Panel>
+			</Tabs.Panels>
+		</Tabs>,
+	)
+
+	expect($('nav[role="tablist"]')).not.toBe(null)
+
+	dispose()
+
+	expect($('nav[role="tablist"]')).toBe(null)
+	expect($('section')).toBe(null)
+})
+
+// --- single tab renders and is selected ------------------------------
+
+await test('Tabs - a single tab is selected by default', expect => {
+	const dispose = render(
+		<Tabs>
+			<Tabs.Labels>
+				<Tabs.Label>only</Tabs.Label>
+			</Tabs.Labels>
+			<Tabs.Panels>
+				<Tabs.Panel>only panel</Tabs.Panel>
+			</Tabs.Panels>
+		</Tabs>,
+	)
+
+	expect($$('[role="tab"]').length).toBe(1)
+	expect($('[role="tab"]').getAttribute('aria-selected')).toBe('true')
+	expect(body()).toInclude('only panel')
+
+	dispose()
+})
+
+// --- clicking a label switches aria-selected on other tabs ----------
+
+await test('Tabs - clicking a label un-selects the previously selected tab', expect => {
+	const dispose = render(
+		<Tabs>
+			<Tabs.Labels>
+				<Tabs.Label>one</Tabs.Label>
+				<Tabs.Label>two</Tabs.Label>
+			</Tabs.Labels>
+			<Tabs.Panels>
+				<Tabs.Panel>p1</Tabs.Panel>
+				<Tabs.Panel>p2</Tabs.Panel>
+			</Tabs.Panels>
+		</Tabs>,
+	)
+
+	const tabs = $$('[role="tab"]')
+	expect(tabs[0].getAttribute('aria-selected')).toBe('true')
+	expect(tabs[1].getAttribute('aria-selected')).toBe('false')
+
+	tabs[1].dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+	expect(tabs[0].getAttribute('aria-selected')).toBe('false')
+	expect(tabs[1].getAttribute('aria-selected')).toBe('true')
+
+	dispose()
+})

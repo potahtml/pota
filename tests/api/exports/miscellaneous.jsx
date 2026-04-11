@@ -293,3 +293,98 @@ await test('std - morphedBetweenArrayAndObject detects type changes', expect => 
 	expect(morphedBetweenArrayAndObject([], [])).toBe(false)
 	expect(morphedBetweenArrayAndObject({}, {})).toBe(false)
 })
+
+// --- indexByKey with duplicate keys ----------------------------------
+
+await test('std - indexByKey overwrites when multiple items share a key', expect => {
+	const items = [
+		{ id: 'a', value: 1 },
+		{ id: 'a', value: 2 },
+	]
+	const byId = indexByKey(items, 'id')
+	// last one wins
+	expect(byId.a.value).toBe(2)
+})
+
+// --- indexByKey on empty array returns empty object -----------------
+
+await test('std - indexByKey on empty input returns an empty object', expect => {
+	const byId = indexByKey([], 'id')
+	expect(Object.keys(byId).length).toBe(0)
+})
+
+// --- removeFromArray in empty array is a no-op ----------------------
+
+await test('std - removeFromArray on empty array is a no-op', expect => {
+	const arr = []
+	removeFromArray(arr, 1)
+	expect(arr.length).toBe(0)
+})
+
+// --- range with start > stop and positive step generates nothing? ---
+
+await test('std - range behavior with start above stop and positive step', expect => {
+	// Depends on implementation; just verify it doesn't throw
+	expect(() => Array.from(range(5, 0, 1))).not.toThrow()
+})
+
+// --- withResolvers rejects externally -------------------------------
+
+await test('std - withResolvers can be externally rejected', async expect => {
+	const deferred = withResolvers()
+	let rejected
+	deferred.promise.catch(err => {
+		rejected = err
+	})
+
+	deferred.reject(new Error('intentional'))
+
+	await deferred.promise.catch(() => {})
+
+	expect(rejected.message).toBe('intentional')
+})
+
+// --- equals empty objects are equal -----------------------------
+
+await test('std - equals on two empty objects returns true', expect => {
+	expect(equals({}, {})).toBe(true)
+})
+
+// --- equals with null vs undefined -----------------------------
+
+await test('std - equals distinguishes null from undefined', expect => {
+	expect(equals(null, undefined)).toBe(false)
+	expect(equals(null, null)).toBe(true)
+	expect(equals(undefined, undefined)).toBe(true)
+})
+
+// --- optional with function returning function ----------------
+
+await test('std - optional unwraps nested functions', expect => {
+	expect(optional(() => () => 'result')).toBe('result')
+})
+
+// --- toValues with empty Map and Set --------------------------
+
+await test('std - toValues with empty Map yields nothing', expect => {
+	expect(Array.from(toValues(new Map()))).toEqual([])
+})
+
+await test('std - toValues with empty Set yields nothing', expect => {
+	expect(Array.from(toValues(new Set()))).toEqual([])
+})
+
+// --- nothing is an object ------------------------------------
+
+await test('std - nothing is a non-null object', expect => {
+	expect(typeof nothing).toBe('object')
+	expect(nothing).not.toBe(null)
+})
+
+// --- entriesIncludingSymbols preserves order (strings before symbols) -
+
+await test('std - entriesIncludingSymbols yields entries for symbol-only objects', expect => {
+	const key = Symbol('x')
+	const obj = { [key]: 42 }
+	expect(Array.from(entriesIncludingSymbols(obj))).toEqual([[key, 42]])
+})

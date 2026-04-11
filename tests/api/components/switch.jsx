@@ -686,3 +686,51 @@ await test('Switch - fallback prop makes no-when Match content unreachable', exp
 
 	dispose()
 })
+
+// --- Switch with no matching Match transitioning to matched via signal --
+
+await test('Switch - switching from no match to matched via signal', expect => {
+	const value = signal(null)
+
+	const dispose = render(
+		<Switch fallback={<p>none</p>}>
+			<Match when={() => value.read() === 'a'}>
+				<p>A</p>
+			</Match>
+			<Match when={() => value.read() === 'b'}>
+				<p>B</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>none</p>')
+
+	value.write('a')
+	expect(body()).toBe('<p>A</p>')
+
+	value.write('b')
+	expect(body()).toBe('<p>B</p>')
+
+	value.write(null)
+	expect(body()).toBe('<p>none</p>')
+
+	dispose()
+})
+
+// --- Switch dispose cleans up ----------------------------------------
+
+await test('Switch - dispose removes all rendered matches and fallbacks', expect => {
+	const dispose = render(
+		<Switch fallback={<p>fallback</p>}>
+			<Match when={true}>
+				<p>matched</p>
+			</Match>
+		</Switch>,
+	)
+
+	expect(body()).toBe('<p>matched</p>')
+
+	dispose()
+
+	expect(body()).toBe('')
+})

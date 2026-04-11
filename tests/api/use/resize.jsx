@@ -109,3 +109,32 @@ await test('resize - onDocumentSize receives updates on multiple resizes', async
 		dispose()
 	})
 })
+
+// --- multiple subscribers share a single resize listener --------------
+
+await test('resize - multiple useDocumentSize calls share one subscription', async expect => {
+	await root(async dispose => {
+		const a = useDocumentSize()
+		const b = useDocumentSize()
+		const c = useDocumentSize()
+
+		// all three return callable signal accessors
+		expect(typeof a).toBe('function')
+		expect(typeof b).toBe('function')
+		expect(typeof c).toBe('function')
+
+		// they all observe the same value
+		expect(a()).toEqual(b())
+		expect(b()).toEqual(c())
+
+		dispose()
+	})
+})
+
+// --- resize events outside of an active owner are still delivered ----
+
+await test('resize - resize dispatches do not throw outside an owner', expect => {
+	expect(() =>
+		window.dispatchEvent(new Event('resize')),
+	).not.toThrow()
+})

@@ -266,3 +266,25 @@ await test('dom - toDiff with prev and next sharing some nodes', expect => {
 	expect(a.parentNode).toBe(parent)
 	expect(c.parentNode).toBe(parent)
 })
+
+// --- tokenList with whitespace-only input returns empty ----------------
+
+await test('dom - tokenList with whitespace-only string returns empty array', expect => {
+	expect(tokenList('   \t  ')).toEqual([])
+})
+
+// --- tokenList splits tabs and newlines -------------------------------
+
+await test('dom - tokenList splits tabs and newlines as whitespace', expect => {
+	expect(tokenList('a\tb\nc')).toEqual(['a', 'b', 'c'])
+})
+
+// --- walkElements with zero max returns an empty array ----------------
+
+await test('dom - walkElements with max=0 returns an empty collection', expect => {
+	const host = createElement('div')
+	host.innerHTML = '<p>1</p><p>2</p>'
+
+	expect(walkElements(host, 0).length).toBe(0)
+})
+

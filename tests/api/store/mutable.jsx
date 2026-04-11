@@ -6,7 +6,7 @@
 // no-op, frozen nested objects, class instances, and JSX integration.
 import { $, test } from '#test'
 
-import { render, root, syncEffect } from 'pota'
+import { batch, render, root, syncEffect } from 'pota'
 import { mutable } from 'pota/store'
 
 await test('mutable - tracks nested object, array and map mutations', expect => {
@@ -834,4 +834,650 @@ await test('mutable - assigning beyond array length extends it', expect => {
 
 	expect(state.items.length).toBe(6)
 	expect(state.items[5]).toBe(99)
+})
+
+// ============================================================================
+// Additional coverage: edge cases, extra array methods, integration patterns
+// ============================================================================
+
+// --- reading a key that does not exist yet tracks its appearance -----------
+
+await test('mutable - reading a missing key tracks until it is added', expect => {
+	const state = mutable({ a: 1 })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.missing)
+		})
+	})
+
+	expect(seen).toEqual([undefined])
+
+	state.missing = 'added'
+
+	expect(seen).toEqual([undefined, 'added'])
+})
+
+// --- deleting a non-existent key is a silent no-op ------------------------
+
+await test('mutable - deleting a key that was never there does not trigger effects', expect => {
+	const state = mutable({ a: 1 })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push('ghost' in state)
+		})
+	})
+
+	expect(seen).toEqual([false])
+
+	delete state.ghost
+
+	expect(seen).toEqual([false])
+})
+
+// --- null and undefined values are set but still tracked -------------------
+
+await test('mutable - setting a property to null triggers the effect', expect => {
+	const state = mutable({ value: 'something' })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.value)
+		})
+	})
+
+	expect(seen).toEqual(['something'])
+
+	state.value = null
+
+	expect(seen).toEqual(['something', null])
+})
+
+await test('mutable - setting a property to undefined triggers the effect', expect => {
+	const state = mutable({ value: 1 })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.value)
+		})
+	})
+
+	expect(seen).toEqual([1])
+
+	state.value = undefined
+
+	expect(seen).toEqual([1, undefined])
+})
+
+// --- NaN equality: Object.is treats NaN as equal so no re-trigger ---------
+
+await test('mutable - assigning NaN twice does not re-trigger (Object.is equality)', expect => {
+	const state = mutable({ value: 0 })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.value)
+		})
+	})
+
+	expect(seen).toEqual([0])
+
+	state.value = NaN
+	expect(seen.length).toBe(2)
+	expect(Number.isNaN(seen[1])).toBe(true)
+
+	state.value = NaN
+	// Object.is(NaN, NaN) === true, so no additional trigger
+	expect(seen.length).toBe(2)
+})
+
+// --- batch: many writes to same key only re-run the effect once -----------
+
+await test('mutable - batching many writes to the same key only triggers once', expect => {
+	const state = mutable({ count: 0 })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.count)
+		})
+	})
+
+	expect(seen).toEqual([0])
+
+	batch(() => {
+		state.count = 1
+		state.count = 2
+		state.count = 3
+	})
+
+	// Effect sees initial value plus the final batched value
+	expect(seen).toEqual([0, 3])
+})
+
+// --- batch: writes to different keys read by one effect only trigger once -
+
+await test('mutable - batching writes across keys triggers a single re-run', expect => {
+	const state = mutable({ a: 1, b: 2 })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.a + state.b)
+		})
+	})
+
+	expect(seen).toEqual([3])
+
+	batch(() => {
+		state.a = 10
+		state.b = 20
+	})
+
+	expect(seen).toEqual([3, 30])
+})
+
+// --- multiple effects on the same key share tracking ----------------------
+
+await test('mutable - multiple effects reading the same key all re-run', expect => {
+	const state = mutable({ count: 1 })
+	const seenA = []
+	const seenB = []
+
+	root(() => {
+		syncEffect(() => seenA.push(state.count))
+		syncEffect(() => seenB.push(state.count))
+	})
+
+	expect(seenA).toEqual([1])
+	expect(seenB).toEqual([1])
+
+	state.count = 2
+
+	expect(seenA).toEqual([1, 2])
+	expect(seenB).toEqual([1, 2])
+})
+
+// --- Object.create(null) targets work as mutables -------------------------
+
+await test('mutable - Object.create(null) targets are proxied and reactive', expect => {
+	const raw = Object.create(null)
+	raw.a = 1
+	const state = mutable(raw)
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.a)
+		})
+	})
+
+	expect(seen).toEqual([1])
+
+	state.a = 2
+
+	expect(seen).toEqual([1, 2])
+})
+
+// --- spread operators: {...state} and [...state] -------------------------
+
+await test('mutable - object spread reads all keys and produces a plain object', expect => {
+	const state = mutable({ a: 1, b: 2, c: 3 })
+
+	const copy = { ...state }
+
+	expect(copy).toEqual({ a: 1, b: 2, c: 3 })
+	// spread returns a plain object, not a proxy
+	expect(copy).not.toBe(state)
+})
+
+await test('mutable - array spread produces a plain array with the same values', expect => {
+	const state = mutable({ items: [1, 2, 3] })
+
+	const copy = [...state.items]
+
+	expect(copy).toEqual([1, 2, 3])
+	expect(Array.isArray(copy)).toBe(true)
+})
+
+// --- Array.isArray on a mutable array still returns true ------------------
+
+await test('mutable - Array.isArray returns true for a mutable array', expect => {
+	const state = mutable({ items: [1, 2, 3] })
+
+	expect(Array.isArray(state.items)).toBe(true)
+})
+
+// --- JSON.stringify of a mutable produces the expected JSON ---------------
+
+await test('mutable - JSON.stringify of a mutable object produces the expected output', expect => {
+	const state = mutable({
+		a: 1,
+		b: 'two',
+		nested: { x: true },
+		list: [1, 2, 3],
+	})
+
+	expect(JSON.parse(JSON.stringify(state))).toEqual({
+		a: 1,
+		b: 'two',
+		nested: { x: true },
+		list: [1, 2, 3],
+	})
+})
+
+// --- destructuring reads the keys -----------------------------------------
+
+await test('mutable - destructuring reads the named keys', expect => {
+	const state = mutable({ name: 'Ada', age: 1 })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			const { name } = state
+			seen.push(name)
+		})
+	})
+
+	expect(seen).toEqual(['Ada'])
+
+	state.name = 'Grace'
+	expect(seen).toEqual(['Ada', 'Grace'])
+
+	// changing an un-destructured key does not trigger
+	state.age = 2
+	expect(seen).toEqual(['Ada', 'Grace'])
+})
+
+// --- for..of iteration over a mutable array is tracked --------------------
+
+await test('mutable - for..of over a mutable array tracks the full iteration', expect => {
+	const state = mutable({ items: ['a', 'b'] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			const out = []
+			for (const v of state.items) {
+				out.push(v)
+			}
+			seen.push(out)
+		})
+	})
+
+	expect(seen).toEqual([['a', 'b']])
+
+	state.items.push('c')
+
+	expect(seen).toEqual([
+		['a', 'b'],
+		['a', 'b', 'c'],
+	])
+})
+
+// --- for..in iteration over a mutable object is tracked ------------------
+
+await test('mutable - for..in over a mutable object tracks key additions', expect => {
+	const state = mutable({ a: 1, b: 2 })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			const keys = []
+			for (const k in state) keys.push(k)
+			seen.push(keys.sort())
+		})
+	})
+
+	expect(seen).toEqual([['a', 'b']])
+
+	state.c = 3
+
+	expect(seen.length).toBe(2)
+	expect(seen[1]).toEqual(['a', 'b', 'c'])
+})
+
+// --- extra array method coverage ------------------------------------------
+
+await test('mutable - tracks Array.prototype.at with a positive index', expect => {
+	const state = mutable({ items: [10, 20, 30] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.at(1))
+		})
+	})
+
+	expect(seen).toEqual([20])
+
+	state.items[1] = 99
+
+	expect(seen).toEqual([20, 99])
+})
+
+await test('mutable - tracks Array.prototype.at with a negative index', expect => {
+	const state = mutable({ items: [10, 20, 30] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.at(-1))
+		})
+	})
+
+	expect(seen).toEqual([30])
+
+	state.items[2] = 99
+
+	expect(seen).toEqual([30, 99])
+})
+
+await test('mutable - tracks Array.prototype.lastIndexOf', expect => {
+	const state = mutable({ items: ['a', 'b', 'a'] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.lastIndexOf('a'))
+		})
+	})
+
+	expect(seen).toEqual([2])
+
+	state.items.pop()
+
+	expect(seen).toEqual([2, 0])
+})
+
+await test('mutable - tracks Array.prototype.findIndex', expect => {
+	const state = mutable({ items: [{ id: 1 }, { id: 2 }, { id: 3 }] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.findIndex(x => x.id === 2))
+		})
+	})
+
+	expect(seen).toEqual([1])
+
+	state.items.unshift({ id: 0 })
+
+	expect(seen).toEqual([1, 2])
+})
+
+await test('mutable - tracks Array.prototype.findLast', expect => {
+	const state = mutable({ items: [1, 2, 3, 2, 1] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.findLast(x => x > 1))
+		})
+	})
+
+	expect(seen).toEqual([2])
+
+	state.items.push(3)
+
+	expect(seen).toEqual([2, 3])
+})
+
+await test('mutable - tracks Array.prototype.findLastIndex', expect => {
+	const state = mutable({ items: [1, 2, 3, 2, 1] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.findLastIndex(x => x === 2))
+		})
+	})
+
+	expect(seen).toEqual([3])
+
+	state.items.pop()
+
+	expect(seen).toEqual([3, 3])
+})
+
+await test('mutable - tracks Array.prototype.flat', expect => {
+	const state = mutable({ items: [[1, 2], [3, 4]] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.flat())
+		})
+	})
+
+	expect(seen).toEqual([[1, 2, 3, 4]])
+
+	state.items.push([5])
+
+	expect(seen).toEqual([
+		[1, 2, 3, 4],
+		[1, 2, 3, 4, 5],
+	])
+})
+
+await test('mutable - tracks Array.prototype.flatMap', expect => {
+	const state = mutable({ items: [1, 2, 3] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.flatMap(x => [x, x * 10]))
+		})
+	})
+
+	expect(seen).toEqual([[1, 10, 2, 20, 3, 30]])
+
+	state.items.push(4)
+
+	expect(seen).toEqual([
+		[1, 10, 2, 20, 3, 30],
+		[1, 10, 2, 20, 3, 30, 4, 40],
+	])
+})
+
+await test('mutable - tracks Array.prototype.concat', expect => {
+	const state = mutable({ items: [1, 2] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.concat([3, 4]))
+		})
+	})
+
+	expect(seen).toEqual([[1, 2, 3, 4]])
+
+	state.items.push(99)
+
+	expect(seen).toEqual([
+		[1, 2, 3, 4],
+		[1, 2, 99, 3, 4],
+	])
+})
+
+await test('mutable - tracks Array.prototype.toReversed (immutable)', expect => {
+	const state = mutable({ items: [1, 2, 3] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.toReversed())
+		})
+	})
+
+	expect(seen).toEqual([[3, 2, 1]])
+	// original untouched
+	expect(state.items).toEqual([1, 2, 3])
+
+	state.items.push(4)
+
+	expect(seen).toEqual([
+		[3, 2, 1],
+		[4, 3, 2, 1],
+	])
+})
+
+await test('mutable - tracks Array.prototype.toSorted (immutable)', expect => {
+	const state = mutable({ items: [3, 1, 2] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.toSorted())
+		})
+	})
+
+	expect(seen).toEqual([[1, 2, 3]])
+	// original untouched
+	expect(state.items).toEqual([3, 1, 2])
+
+	state.items.push(0)
+
+	expect(seen).toEqual([
+		[1, 2, 3],
+		[0, 1, 2, 3],
+	])
+})
+
+await test('mutable - tracks Array.prototype.with (immutable)', expect => {
+	const state = mutable({ items: [1, 2, 3] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.items.with(1, 99))
+		})
+	})
+
+	expect(seen).toEqual([[1, 99, 3]])
+	// original untouched
+	expect(state.items).toEqual([1, 2, 3])
+
+	state.items[1] = 50
+
+	expect(seen).toEqual([
+		[1, 99, 3],
+		[1, 99, 3],
+	])
+})
+
+// --- getters on inherited prototype chain of class instance --------------
+
+await test('mutable - class with a getter returning a computed value is reactive', expect => {
+	class Doubler {
+		_base = 1
+		get doubled() {
+			return this._base * 2
+		}
+		set doubled(v) {
+			this._base = v / 2
+		}
+	}
+
+	const state = mutable(new Doubler())
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.doubled)
+		})
+	})
+
+	expect(seen).toEqual([2])
+
+	state.doubled = 10
+	expect(seen).toEqual([2, 10])
+	expect(state._base).toBe(5)
+})
+
+// --- nested mutable passed as value preserves its identity --------------
+
+await test('mutable - assigning an already-mutable object to a key keeps its identity', expect => {
+	const inner = mutable({ count: 1 })
+	const outer = mutable({ inner: {} })
+
+	outer.inner = inner
+
+	// The stored value is the existing mutable proxy, not a new one
+	expect(outer.inner).toBe(inner)
+})
+
+// --- large numeric increments: only one re-run per change ---------------
+
+await test('mutable - a single assignment triggers exactly one effect run', expect => {
+	const state = mutable({ count: 0 })
+	let runs = 0
+
+	root(() => {
+		syncEffect(() => {
+			runs++
+			state.count
+		})
+	})
+
+	expect(runs).toBe(1)
+
+	state.count = 1
+	expect(runs).toBe(2)
+
+	state.count = 2
+	expect(runs).toBe(3)
+})
+
+// --- empty arrays and objects are still reactive ------------------------
+
+await test('mutable - empty object becomes reactive when keys are added', expect => {
+	const state = mutable({})
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push('a' in state ? state.a : 'empty')
+		})
+	})
+
+	expect(seen).toEqual(['empty'])
+
+	state.a = 1
+
+	expect(seen).toEqual(['empty', 1])
+})
+
+await test('mutable - empty array becomes reactive when items are pushed', expect => {
+	const state = mutable({ list: [] })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.list.length)
+		})
+	})
+
+	expect(seen).toEqual([0])
+
+	state.list.push('first')
+
+	expect(seen).toEqual([0, 1])
+})
+
+// --- Set and WeakMap are blacklisted (not proxied) ----------------------
+
+await test('mutable - Set instances are left untouched (blacklisted)', expect => {
+	const set = new Set([1, 2])
+	const state = mutable({ tags: set })
+
+	// the set is passed through as-is
+	expect(state.tags).toBe(set)
 })

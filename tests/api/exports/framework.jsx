@@ -595,6 +595,23 @@ await test('framework - deeply nested components render and clean up', expect =>
 	expect(cleaned).toEqual(['inner', 'middle', 'outer'])
 })
 
+// --- function component composition via direct return (no children) --------
+
+await test('framework - deeply nested function components resolve top-down', expect => {
+	// The test above uses children-prop composition (Outer > Middle > Inner).
+	// This exercises the distinct pattern of components returning other
+	// components directly: `const B = () => <A />`, so the renderer has to
+	// unwrap several layers of component returns before it hits an element.
+	const A = () => <p>A</p>
+	const B = () => <A />
+	const C = () => <B />
+	const D = () => <C />
+
+	const dispose = render(<D />)
+	expect(body()).toBe('<p>A</p>')
+	dispose()
+})
+
 // --- MathML namespace --------------------------------------------------------
 
 await test('framework - MathML elements render with correct namespace', expect => {
@@ -1122,4 +1139,301 @@ await test('framework - rendering same DOM node moves it', expect => {
 
 	parentA.remove()
 	parentB.remove()
+})
+
+// ============================================================================
+// Additional coverage: reactivity and render edge cases
+// ============================================================================
+
+// --- rendering a bare string --------------------------------------------
+
+await test('framework - render with a plain string creates a text node', expect => {
+	const dispose = render('hello')
+	expect(body()).toBe('hello')
+	dispose()
+})
+
+// --- rendering a bare number --------------------------------------------
+
+await test('framework - render with a bare number renders it as text', expect => {
+	const dispose = render(42)
+	expect(body()).toBe('42')
+	dispose()
+})
+
+// --- component with no return renders nothing -------------------------
+
+await test('framework - function component that returns undefined renders nothing', expect => {
+	function Empty() {}
+
+	const dispose = render(<Empty />)
+	expect(body()).toBe('')
+	dispose()
+})
+
+// --- event handlers on components are forwarded via props -------------
+
+await test('framework - event handlers pass through component props as callbacks', expect => {
+	let pressed = 0
+
+	function Btn(props) {
+		return <button on:click={props.onPress}>click</button>
+	}
+
+	const dispose = render(<Btn onPress={() => pressed++} />)
+
+	$('button').click()
+	$('button').click()
+
+	expect(pressed).toBe(2)
+	dispose()
+})
+
+// --- props are not reactive when destructured in component body ------
+
+await test('framework - destructuring props in a component body snapshots at mount', expect => {
+	const count = signal(1)
+
+	function Widget(props) {
+		const { value } = props
+		return <p>{value}</p>
+	}
+
+	const dispose = render(<Widget value={count.read()} />)
+
+	expect(body()).toBe('<p>1</p>')
+
+	count.write(2)
+	// destructured value is a snapshot — not reactive
+	expect(body()).toBe('<p>1</p>')
+
+	dispose()
+})
+
+// --- props property access IS reactive (if wrapped in a function) ----
+
+await test('framework - accessing props.value through a function stays reactive', expect => {
+	const count = signal(1)
+
+	function Widget(props) {
+		return <p>{() => props.value}</p>
+	}
+
+	const dispose = render(<Widget value={count} />)
+
+	expect(body()).toBe('<p>1</p>')
+
+	count.write(2)
+	expect(body()).toBe('<p>2</p>')
+
+	dispose()
+})
+
+// --- cleanup runs in reverse order for nested effects ----------------
+
+await test('framework - nested effects clean up in reverse creation order', async expect => {
+	const order = []
+
+	const dispose = root(d => {
+		effect(() => {
+			cleanup(() => order.push('outer'))
+			effect(() => {
+				cleanup(() => order.push('inner'))
+			})
+		})
+		return d
+	})
+
+	await microtask()
+	await microtask()
+
+	dispose()
+
+	// inner cleanup fires before outer
+	expect(order).toEqual(['inner', 'outer'])
+})
+
+// --- Map as iterable children ----------------------------------------
+
+await test('framework - Map as child iterates its values', expect => {
+	const items = new Map([
+		['x', 'a'],
+		['y', 'b'],
+		['z', 'c'],
+	])
+
+	const dispose = render(<div>{items}</div>)
+
+	// textContent includes all iterated values
+	expect($('div').textContent).toInclude('a')
+	expect($('div').textContent).toInclude('b')
+	expect($('div').textContent).toInclude('c')
+
+	dispose()
+})
+
+// --- Function returning an array ------------------------------------
+
+await test('framework - reactive child returning an array of elements updates correctly', expect => {
+	const items = signal(['a', 'b'])
+
+	const dispose = render(
+		<div>
+			{() => items.read().map(item => <span>{item}</span>)}
+		</div>,
+	)
+
+	expect($('div').innerHTML).toBe('<span>a</span><span>b</span>')
+
+	items.write(['x', 'y', 'z'])
+	expect($('div').innerHTML).toBe(
+		'<span>x</span><span>y</span><span>z</span>',
+	)
+
+	dispose()
+})
+
+// --- style as an object -----------------------------------------------
+
+await test('framework - style prop accepts an object and applies multiple properties', expect => {
+	const dispose = render(
+		<div style={{ color: 'red', 'background-color': 'blue' }} />,
+	)
+
+	const el = $('div')
+	expect(el.style.color).toBe('red')
+	expect(el.style.backgroundColor).toBe('blue')
+
+	dispose()
+})
+
+// --- class as an object ---------------------------------------------
+
+await test('framework - class prop accepts an object with boolean values', expect => {
+	const dispose = render(
+		<div class={{ one: true, two: false, three: true }} />,
+	)
+
+	const el = $('div')
+	expect(el.classList.contains('one')).toBe(true)
+	expect(el.classList.contains('two')).toBe(false)
+	expect(el.classList.contains('three')).toBe(true)
+
+	dispose()
+})
+
+// --- reactive class object updates classes --------------------------
+
+await test('framework - class object with signal values updates reactively', expect => {
+	const active = signal(false)
+
+	const dispose = render(
+		<div class={{ static: true, active: () => active.read() }} />,
+	)
+
+	const el = $('div')
+	expect(el.classList.contains('static')).toBe(true)
+	expect(el.classList.contains('active')).toBe(false)
+
+	active.write(true)
+	expect(el.classList.contains('active')).toBe(true)
+
+	active.write(false)
+	expect(el.classList.contains('active')).toBe(false)
+
+	dispose()
+})
+
+// --- render into a specific parent ----------------------------------
+
+await test('framework - render accepts a parent element as second argument', expect => {
+	const parent = document.createElement('section')
+	document.body.append(parent)
+
+	const dispose = render(<p>inside</p>, parent)
+
+	expect(parent.innerHTML).toBe('<p>inside</p>')
+	// body should not contain <p>inside</p> directly, only via parent
+	expect(parent.querySelector('p')).not.toBe(null)
+
+	dispose()
+	parent.remove()
+})
+
+// --- component with reactive signal prop --------------------------
+
+await test('framework - component receives a reactive prop and updates in its children', expect => {
+	const value = signal('first')
+
+	function Widget(props) {
+		return <p>v:{props.value}</p>
+	}
+
+	const dispose = render(<Widget value={value} />)
+
+	expect($('p').textContent).toBe('v:first')
+
+	value.write('second')
+	expect($('p').textContent).toBe('v:second')
+
+	dispose()
+})
+
+// --- Array.isArray on the component children --------------------
+
+await test('framework - component children prop can be iterated when provided as array', expect => {
+	let receivedLen
+
+	function Multi(props) {
+		// children is exposed by the framework — verify it exists
+		receivedLen = Array.isArray(props.children)
+			? props.children.length
+			: 1
+		return <div>{props.children}</div>
+	}
+
+	const dispose = render(
+		<Multi>
+			<span>a</span>
+			<span>b</span>
+			<span>c</span>
+		</Multi>,
+	)
+
+	// the framework may expose children as an array, single, or function
+	// just verify something was passed — specific shape depends on the framework
+	expect(receivedLen >= 1).toBe(true)
+	expect($$('span').length).toBe(3)
+
+	dispose()
+})
+
+// --- effect disposal order across multiple signals -------------
+
+await test('framework - effect rerun disposes all old owned children before the new run', async expect => {
+	const trigger = signal(0)
+	const events = []
+
+	const dispose = root(d => {
+		effect(() => {
+			const n = trigger.read()
+			events.push('run:' + n)
+			cleanup(() => events.push('cleanup:' + n))
+		})
+		return d
+	})
+
+	await microtask()
+	events.length = 0
+
+	trigger.write(1)
+	await microtask()
+	await microtask()
+
+	// cleanup from previous run must fire before the new run
+	const cleanupIndex = events.indexOf('cleanup:0')
+	const runIndex = events.indexOf('run:1')
+	expect(cleanupIndex < runIndex).toBe(true)
+
+	dispose()
 })

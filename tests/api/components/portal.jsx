@@ -220,3 +220,73 @@ await test('Portal - nested portals each render into own mount', expect => {
 	mountA.remove()
 	mountB.remove()
 })
+
+// --- portal with no children ------------------------------------------
+
+await test('Portal - renders nothing into mount when children are empty', expect => {
+	const mount = document.createElement('div')
+	document.body.appendChild(mount)
+
+	const dispose = render(<Portal mount={mount}></Portal>)
+
+	expect(mount.innerHTML).toBe('')
+
+	dispose()
+	mount.remove()
+})
+
+// --- portal with null/undefined children ------------------------------
+
+await test('Portal - null children render nothing into mount', expect => {
+	const mount = document.createElement('div')
+	document.body.appendChild(mount)
+
+	const dispose = render(<Portal mount={mount}>{null}</Portal>)
+
+	expect(mount.innerHTML).toBe('')
+
+	dispose()
+	mount.remove()
+})
+
+// --- portal with number children renders as text ---------------------
+
+await test('Portal - number children render as text', expect => {
+	const mount = document.createElement('div')
+	document.body.appendChild(mount)
+
+	const dispose = render(<Portal mount={mount}>{42}</Portal>)
+
+	expect(mount.textContent).toBe('42')
+
+	dispose()
+	mount.remove()
+})
+
+// --- portal preserves mount's other children -------------------------
+
+await test('Portal - disposing only removes portaled nodes, not pre-existing mount content', expect => {
+	const mount = document.createElement('div')
+	const preExisting = document.createElement('p')
+	preExisting.textContent = 'kept'
+	mount.appendChild(preExisting)
+	document.body.appendChild(mount)
+
+	const dispose = render(
+		<Portal mount={mount}>
+			<span>added</span>
+		</Portal>,
+	)
+
+	expect(mount.querySelector('span')).not.toBe(null)
+	expect(mount.querySelector('p').textContent).toBe('kept')
+
+	dispose()
+
+	// pre-existing node still there
+	expect(mount.querySelector('p').textContent).toBe('kept')
+	// portaled nodes gone
+	expect(mount.querySelector('span')).toBe(null)
+
+	mount.remove()
+})

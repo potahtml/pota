@@ -97,3 +97,33 @@ await test('scroll - scrollToLocationHash scrolls to element matching current ha
 	node.remove()
 	history.replaceState(null, '', originalHash || '#')
 })
+
+// --- scrollToSelector with empty string returns false ---------------
+
+await test('scroll - scrollToSelector returns false for empty selector', expect => {
+	expect(scrollToSelector('')).toBe(false)
+})
+
+// --- scrollToSelector with null returns false ----------------------
+
+await test('scroll - scrollToSelector returns false for null', expect => {
+	expect(scrollToSelector(null)).toBe(false)
+})
+
+// --- scrollToTop calls window.scrollTo with expected options -------
+
+await test('scroll - scrollToTop passes top=0 and auto behavior', expect => {
+	const originalScroll = window.scrollTo
+	let received
+
+	window.scrollTo = options => {
+		received = options
+	}
+
+	scrollToTop()
+
+	expect(received.top).toBe(0)
+	expect(received.behavior).toBe('auto')
+
+	window.scrollTo = originalScroll
+})

@@ -74,6 +74,20 @@ await test('color - setAlpha with 1 leaves color fully opaque', expect => {
 	expect(validateColor(opaque)).toBe(opaque)
 })
 
+// --- setAlpha actually honors the alpha parameter --------------------------
+
+await test('color - setAlpha at 0 and 1 produce different strings', expect => {
+	// Guards against a regression where setAlpha might ignore the alpha
+	// parameter and return the base color unchanged: using the same base
+	// color on both sides forces the difference to come from alpha alone.
+	const transparent = setAlpha('red', 0)
+	const opaque = setAlpha('red', 1)
+
+	expect(transparent).not.toBe(opaque)
+	expect(validateColor(transparent)).toBe(transparent)
+	expect(validateColor(opaque)).toBe(opaque)
+})
+
 // --- textColor for mid-range colors ------------------------------------------
 
 await test('color - textColor returns a string for mid-range grays', expect => {
@@ -120,4 +134,40 @@ await test('color - eyeDropper returns undefined when unsupported', expect => {
 	window.EyeDropper = original
 
 	expect(result).toBe(undefined)
+})
+
+// --- validateColor accepts hsl format ---------------------------------
+
+await test('color - validateColor accepts hsl format', expect => {
+	const value = 'hsl(120, 100%, 50%)'
+	expect(validateColor(value)).toBe(value)
+})
+
+// --- scale with count of 1 produces one color ------------------------
+
+await test('color - scale with count=1 produces a single color', expect => {
+	const colors = scale(['red', 'blue'], 1)
+
+	expect(colors.length).toBe(1)
+	expect(validateColor(colors[0])).toBe(colors[0])
+})
+
+// --- textColor for primary colors returns white or black -----------
+
+await test('color - textColor for red returns white or black', expect => {
+	const result = textColor('red')
+	expect(result === 'white' || result === 'black').toBe(true)
+})
+
+await test('color - textColor for blue returns white or black', expect => {
+	const result = textColor('blue')
+	expect(result === 'white' || result === 'black').toBe(true)
+})
+
+// --- validateColor rejects object and number inputs ---------------
+
+await test('color - validateColor rejects non-string input', expect => {
+	expect(validateColor(42)).toBe(undefined)
+	expect(validateColor({})).toBe(undefined)
+	expect(validateColor(null)).toBe(undefined)
 })

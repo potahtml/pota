@@ -45,8 +45,8 @@ function formatError(e) {
 }
 
 /**
- * Wraps a test: clears body and head before, asserts they are
- * clean after, delegates to pota/use/test, tracks the result.
+ * Wraps a test: clears body and head before, asserts they are clean
+ * after, delegates to pota/use/test, tracks the result.
  *
  * @type {typeof testImpl}
  */
@@ -72,8 +72,11 @@ export function test(title, fn) {
 				}
 				// verify head is clean
 				// Chrome injects <title></title> on popstate/back navigation
-				const headLeftover = document.head.innerHTML
-				if (headLeftover !== '' && headLeftover !== '<title></title>') {
+				const headLeftover = document.head.innerHTML.trim()
+				if (
+					headLeftover !== '' &&
+					headLeftover !== '<title></title>'
+				) {
 					return {
 						title,
 						ok: false,

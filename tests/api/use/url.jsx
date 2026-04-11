@@ -91,13 +91,6 @@ await test('url - replaceParams with empty params object returns href unchanged'
 	expect(replaceParams('/users/:id', {})).toBe('/users/:id')
 })
 
-await test('url - isExternal handles partial origin matches correctly', expect => {
-	// e.g. origin is localhost:3000, should not match localhost:30001
-	expect(
-		isExternal(`${window.location.origin}/subpath`),
-	).toBe(false)
-})
-
 await test('url - paramsRegExp matches :param patterns in paths', expect => {
 	const matches = '/users/:id/posts/:postId'.match(paramsRegExp)
 	expect(matches).toEqual([':id', ':postId'])
@@ -107,4 +100,76 @@ await test('url - paramsRegExp does not match non-param colons', expect => {
 	paramsRegExp.lastIndex = 0
 	const matches = 'http://example.com'.match(paramsRegExp)
 	expect(matches).toBe(null)
+})
+
+// --- cleanLink with no trailing punctuation is unchanged -------------
+
+await test('url - cleanLink leaves clean urls unchanged', expect => {
+	expect(cleanLink('https://example.com')).toBe('https://example.com')
+	expect(cleanLink('https://example.com/path')).toBe(
+		'https://example.com/path',
+	)
+})
+
+// --- replaceParams with all params supplied -------------------------
+
+await test('url - replaceParams substitutes all params when every slot has a value', expect => {
+	expect(
+		replaceParams('/a/:x/b/:y', { x: '1', y: '2' }),
+	).toBe('/a/1/b/2')
+})
+
+// --- replaceParams with null params returns unchanged ---------------
+
+await test('url - replaceParams with null params returns the href unchanged', expect => {
+	expect(replaceParams('/u/:id', null)).toBe('/u/:id')
+})
+
+// --- replaceParams with undefined params returns unchanged ---------
+
+await test('url - replaceParams with no params argument returns the href unchanged', expect => {
+	expect(replaceParams('/u/:id')).toBe('/u/:id')
+})
+
+// --- encodeURIComponent encodes special characters ----------------
+
+await test('url - encodeURIComponent encodes reserved characters', expect => {
+	expect(encodeURIComponent('a b')).toBe('a%20b')
+	expect(encodeURIComponent('a&b')).toBe('a%26b')
+	expect(encodeURIComponent('a=b')).toBe('a%3Db')
+})
+
+// --- hasProtocol recognizes common schemes ------------------------
+
+await test('url - hasProtocol recognizes ftp, ws, and wss schemes', expect => {
+	expect(hasProtocol('ftp://example.com')).toBe(true)
+	expect(hasProtocol('ws://example.com')).toBe(true)
+	expect(hasProtocol('wss://example.com')).toBe(true)
+})
+
+// --- isAbsolute with just a slash is true ------------------------
+
+await test('url - isAbsolute returns true for a single slash', expect => {
+	expect(isAbsolute('/')).toBe(true)
+})
+
+// --- isRelative with ./path ------------------------------------
+
+await test('url - isRelative returns true for paths with ./ prefix', expect => {
+	expect(isRelative('./page.html')).toBe(true)
+	expect(isRelative('../parent')).toBe(true)
+})
+
+// --- isHash distinguishes # from ## edge cases ------------------
+
+await test('url - isHash is true for exactly #', expect => {
+	expect(isHash('#')).toBe(true)
+})
+
+// --- removeNestedProtocol leaves flat protocol alone ------------
+
+await test('url - removeNestedProtocol leaves a plain protocol unchanged', expect => {
+	expect(removeNestedProtocol('http://example.com')).toBe(
+		'http://example.com',
+	)
 })

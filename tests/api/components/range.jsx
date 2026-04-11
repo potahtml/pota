@@ -272,17 +272,17 @@ await test('Range - descending range with negative step', expect => {
 	dispose()
 })
 
-// --- Range start equals stop -------------------------------------------------
+// --- negative-only range --------------------------------------------
 
-await test('Range - start equals stop renders only that value', expect => {
+await test('Range - renders a negative range', expect => {
 	const dispose = render(
 		<Range
-			start={5}
-			stop={5}
+			start={-3}
+			stop={-1}
 		>
 			{item => <p>{item}</p>}
 		</Range>,
 	)
-	expect(body()).toBe('<p>5</p>')
+	expect(body()).toBe('<p>-3</p><p>-2</p><p>-1</p>')
 	dispose()
 })

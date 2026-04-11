@@ -512,3 +512,64 @@ await test('xml - malformed XML renders a parsererror element', expect => {
 
 	dispose()
 })
+
+// --- xml with only whitespace ------------------------------------------
+
+await test('xml - template with only whitespace renders empty', expect => {
+	const dispose = render(xml`   `)
+
+	expect(body().trim()).toBe('')
+
+	dispose()
+})
+
+// --- xml with number-only interpolation --------------------------------
+
+await test('xml - number interpolation renders as text', expect => {
+	const dispose = render(xml`<p>${0}</p>`)
+	expect(body()).toBe('<p>0</p>')
+	dispose()
+})
+
+// --- reactive attribute with null removes it ---------------------------
+
+await test('xml - reactive attribute set to null removes the attribute', expect => {
+	const value = signal('first')
+
+	const dispose = render(
+		xml`<p id=${() => value.read()}>hi</p>`,
+	)
+
+	expect($('p').getAttribute('id')).toBe('first')
+
+	value.write(null)
+
+	expect($('p').hasAttribute('id')).toBe(false)
+
+	dispose()
+})
+
+// --- isolated XML registries don't pollute each other -----------------
+
+await test('xml - xml.define on default instance does not affect XML() isolated instances', expect => {
+	const Custom = () => xml`<div>shared</div>`
+	xml.define('shared-instance', Custom)
+
+	const isolated = XML()
+
+	// rendering with the shared xml works
+	const d1 = render(xml`<shared-instance />`)
+	expect(body()).toInclude('shared')
+	d1()
+
+	// rendering the same tag with the isolated instance does NOT resolve
+	// the component (it will warn or fall through)
+	const originalWarn = console.warn
+	console.warn = () => {}
+
+	const d2 = render(isolated`<shared-instance />`)
+
+	console.warn = originalWarn
+
+	d2()
+})

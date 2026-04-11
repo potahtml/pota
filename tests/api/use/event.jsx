@@ -178,3 +178,81 @@ await test('event - emit with custom options overrides defaults', expect => {
 	expect(captured.cancelable).toBe(false)
 	expect(captured.detail.payload).toBe(1)
 })
+
+// --- preventDefault on a non-cancelable event is a no-op --------------
+
+await test('event - preventDefault on a non-cancelable event does not set defaultPrevented', expect => {
+	const e = new Event('click', { cancelable: false })
+
+	preventDefault(e)
+
+	// Non-cancelable events ignore preventDefault per spec
+	expect(e.defaultPrevented).toBe(false)
+})
+
+// --- emit with empty detail --------------------------------------------
+
+await test('event - emit without detail still dispatches the event', expect => {
+	const node = document.createElement('div')
+	let fired = false
+
+	node.addEventListener('plain', () => (fired = true))
+
+	emit(node, 'plain')
+
+	expect(fired).toBe(true)
+})
+
+// --- emit returns the event (or similar) -----------------------------
+
+await test('event - emit on a disconnected node still dispatches', expect => {
+	const node = document.createElement('div')
+	let fired = false
+
+	node.addEventListener('offline', () => (fired = true))
+
+	// node is never appended to the document
+	emit(node, 'offline', { detail: null })
+
+	expect(fired).toBe(true)
+})
+
+// --- waitEvent rejects are cleaned up by subsequent waitEvent -------
+
+await test('event - waitEvent with multiple rejections resolves correctly on last', async expect => {
+	const node = document.createElement('div')
+	const a = waitEvent(node, 'go')
+	const b = waitEvent(node, 'go')
+	const c = waitEvent(node, 'go')
+
+	let aRejected = false
+	let bRejected = false
+	await a.catch(() => {
+		aRejected = true
+	})
+	await b.catch(() => {
+		bRejected = true
+	})
+
+	node.dispatchEvent(new Event('go'))
+	const result = await c
+
+	expect(aRejected).toBe(true)
+	expect(bRejected).toBe(true)
+	expect(result.type).toBe('go')
+})
+
+// --- stopPropagation does not set defaultPrevented --------------------
+
+await test('event - stopPropagation alone does not set defaultPrevented', expect => {
+	const e = new Event('click', { bubbles: true, cancelable: true })
+	let stopped = false
+	e.stopPropagation = () => {
+		stopped = true
+	}
+
+	stopPropagation(e)
+
+	expect(stopped).toBe(true)
+	expect(e.defaultPrevented).toBe(false)
+})

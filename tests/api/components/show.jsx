@@ -493,3 +493,95 @@ await test('Show - numeric truthy when value is accessible in callback', expect 
 
 	dispose()
 })
+
+// --- Show with empty string as when --------------------------------
+
+await test('Show - empty string when is treated as falsy', expect => {
+	const dispose = render(
+		<Show when={''}>
+			<p>content</p>
+		</Show>,
+	)
+
+	expect(body()).toBe('')
+
+	dispose()
+})
+
+// --- Show fallback is a function returning reactive ----------------
+
+await test('Show - fallback as a function that returns reactive content', expect => {
+	const flag = signal(false)
+	const label = signal('loading...')
+
+	const dispose = render(
+		<Show
+			when={flag.read}
+			fallback={() => <p>{label}</p>}
+		>
+			<p>ready</p>
+		</Show>,
+	)
+
+	expect(body()).toBe('<p>loading...</p>')
+
+	label.write('waiting')
+	expect(body()).toBe('<p>waiting</p>')
+
+	flag.write(true)
+	expect(body()).toBe('<p>ready</p>')
+
+	dispose()
+})
+
+// --- Show with children returning null callback -------------------
+
+await test('Show - children as callback returning null renders empty', expect => {
+	const dispose = render(
+		<Show when={true}>{() => null}</Show>,
+	)
+
+	expect(body()).toBe('')
+
+	dispose()
+})
+
+// --- Show with signal that starts at zero -----------------------
+
+await test('Show - signal starting at 0 is initially hidden', expect => {
+	const n = signal(0)
+	const dispose = render(
+		<Show
+			when={n.read}
+			fallback={<span>zero</span>}
+		>
+			<p>non-zero</p>
+		</Show>,
+	)
+
+	expect(body()).toBe('<span>zero</span>')
+
+	n.write(1)
+	expect(body()).toBe('<p>non-zero</p>')
+
+	dispose()
+})
+
+// --- Show dispose cleans up all rendered content ----------------
+
+await test('Show - dispose removes both shown content and fallback', expect => {
+	const flag = signal(true)
+
+	const dispose = render(
+		<Show
+			when={flag.read}
+			fallback={<span>fallback</span>}
+		>
+			<p>content</p>
+		</Show>,
+	)
+
+	expect(body()).toBe('<p>content</p>')
+	dispose()
+	expect(body()).toBe('')
+})

@@ -310,3 +310,57 @@ await test('Normalize - content is visible before dispose', expect => {
 	expect(body()).toBe('content')
 	dispose()
 })
+
+// --- Normalize with no children produces empty body -------------------
+
+await test('Normalize - no children produces empty body', expect => {
+	const dispose = render(<Normalize></Normalize>)
+	expect(body()).toBe('')
+	dispose()
+})
+
+// --- Normalize with only null and undefined -------------------------
+
+await test('Normalize - null and undefined alone produce empty body', expect => {
+	const dispose = render(
+		<Normalize>
+			{null}
+			{undefined}
+		</Normalize>,
+	)
+	expect(body()).toBe('')
+	dispose()
+})
+
+// --- Normalize with boolean children: booleans stringify via join -
+
+await test('Normalize - boolean children are stringified in the joined text', expect => {
+	// Normalize does `.join('')` on its children; booleans become
+	// 'true'/'false' text, not filtered.
+	const dispose = render(
+		<Normalize>
+			{true}
+			text
+			{false}
+		</Normalize>,
+	)
+	expect(body()).toBe('truetextfalse')
+	dispose()
+})
+
+// --- Normalize with signal toggling scalar types -----------------
+
+await test('Normalize - signal toggling between string and number stays in one text node', expect => {
+	const v = signal('hello')
+	const dispose = render(<Normalize>{v}</Normalize>)
+
+	expect(body()).toBe('hello')
+
+	v.write(42)
+	expect(body()).toBe('42')
+
+	v.write('back')
+	expect(body()).toBe('back')
+
+	dispose()
+})

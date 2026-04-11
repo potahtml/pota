@@ -957,3 +957,57 @@ await test('For - async children: renders empty until promise resolves', async e
 	expect(body()).toBe('a<p>loaded</p>')
 })
 */
+
+// --- For with null each (no fallback) renders nothing, not a crash -----
+
+await test('For - null each without a fallback renders nothing gracefully', expect => {
+	const dispose = render(
+		<For each={null}>{item => <p>{item}</p>}</For>,
+	)
+
+	expect(body()).toBe('')
+
+	dispose()
+})
+
+// --- For with undefined each (no fallback) renders nothing -------------
+
+await test('For - undefined each without a fallback renders nothing gracefully', expect => {
+	const dispose = render(
+		<For each={undefined}>{item => <p>{item}</p>}</For>,
+	)
+
+	expect(body()).toBe('')
+
+	dispose()
+})
+
+// --- For reactive: going from empty to non-empty ------------------
+
+await test('For - reactive signal going from empty to non-empty adds children', expect => {
+	const items = signal([])
+
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	expect(body()).toBe('')
+
+	items.write(['x'])
+
+	expect(body()).toBe('<p>x</p>')
+
+	dispose()
+})
+
+// --- For with falsy values in list -------------------------------
+
+await test('For - handles falsy scalar items (0, empty string)', expect => {
+	const dispose = render(
+		<For each={[0, '', false, null]}>{item => <p>{String(item)}</p>}</For>,
+	)
+
+	expect(body()).toBe('<p>0</p><p></p><p>false</p><p>null</p>')
+
+	dispose()
+})

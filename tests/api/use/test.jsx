@@ -106,3 +106,66 @@ await test('test - expect.toMatch validates against regex', async expect => {
 	})
 	await result
 })
+
+// --- isProxy returns false for primitives ----------------------------
+
+await test('test - isProxy returns false for primitive values', expect => {
+	expect(isProxy(42)).toBe(false)
+	expect(isProxy('hello')).toBe(false)
+	expect(isProxy(null)).toBe(false)
+	expect(isProxy(undefined)).toBe(false)
+	expect(isProxy(true)).toBe(false)
+})
+
+// --- isProxy recognizes array proxies -------------------------------
+
+await test('test - isProxy recognizes array proxies', expect => {
+	const arrProxy = new Proxy([], {})
+	expect(isProxy(arrProxy)).toBe(true)
+})
+
+// --- useTest.reset restarts test numbering --------------------------
+
+await test('test - useTest.reset restarts test numbering', async expect => {
+	const logs = []
+	const originalLog = console.log
+	console.log = v => logs.push(v)
+
+	useTest.reset()
+
+	await useTest('a', () => {})
+	await useTest('b', () => {})
+
+	expect(logs[0]).toBe('1 - a')
+	expect(logs[1]).toBe('2 - b')
+
+	useTest.reset()
+
+	await useTest('c', () => {})
+	expect(logs[2]).toBe('1 - c')
+
+	console.log = originalLog
+})
+
+// --- expect.toEqual passes for structurally equal objects -----------
+
+await test('test - expect.toEqual passes for deep-equal objects', async expect => {
+	useTest.reset()
+
+	const result = useTest('equal-test', expect => {
+		expect({ a: 1, b: { c: 2 } }).toEqual({ a: 1, b: { c: 2 } })
+	})
+	await result
+})
+
+// --- expect.not.toInclude rejects substring -------------------------
+
+await test('test - expect.not.toInclude rejects substrings that are present', async expect => {
+	useTest.reset()
+
+	// this should not throw at the outer level
+	const result = useTest('not-include', expect => {
+		expect('hello world').not.toInclude('zzz')
+	})
+	await result
+})

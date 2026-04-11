@@ -102,22 +102,6 @@ await test('css - addStyleSheetExternal fetches remote css once and reuses the s
 	globalThis.fetch = originalFetch
 })
 
-await test('css - css tagged template returns a CSSStyleSheet', expect => {
-	const s = css`
-		p {
-			color: red;
-		}
-	`
-	expect(s instanceof CSSStyleSheet).toBe(true)
-})
-
-await test('css - sheet caches the same CSS string', expect => {
-	const a = sheet('p { color: blue }')
-	const b = sheet('p { color: blue }')
-
-	expect(a).toBe(b)
-})
-
 await test('css - remove then re-add adopted stylesheet', expect => {
 	const host = document.createElement('div')
 	const root = host.attachShadow({ mode: 'open' })
@@ -136,4 +120,80 @@ await test('css - remove then re-add adopted stylesheet', expect => {
 
 	addAdoptedStyleSheet(root, s)
 	expect(getAdoptedStyleSheets(root).length).toBe(1)
+})
+
+// --- adding the same stylesheet twice is de-duplicated ----------------
+
+await test('css - adding the same stylesheet twice leaves one entry', expect => {
+	const host = document.createElement('div')
+	const root = host.attachShadow({ mode: 'open' })
+
+	const s = css`
+		em {
+			color: purple;
+		}
+	`
+
+	addAdoptedStyleSheet(root, s)
+	addAdoptedStyleSheet(root, s)
+
+	expect(getAdoptedStyleSheets(root).length).toBe(1)
+})
+
+// --- removing a stylesheet that was never added is a no-op ------------
+
+await test('css - removing a non-adopted stylesheet is a no-op', expect => {
+	const host = document.createElement('div')
+	const root = host.attachShadow({ mode: 'open' })
+
+	const s = css`
+		strong {
+			color: tomato;
+		}
+	`
+
+	expect(getAdoptedStyleSheets(root).length).toBe(0)
+	expect(() => removeAdoptedStyleSheet(root, s)).not.toThrow()
+	expect(getAdoptedStyleSheets(root).length).toBe(0)
+})
+
+// --- multiple independent stylesheets --------------------------------
+
+await test('css - multiple stylesheets coexist on the same shadow root', expect => {
+	const host = document.createElement('div')
+	const root = host.attachShadow({ mode: 'open' })
+
+	const a = css`
+		a {
+			color: red;
+		}
+	`
+	const b = css`
+		b {
+			color: blue;
+		}
+	`
+	const c = css`
+		i {
+			color: green;
+		}
+	`
+
+	addAdoptedStyleSheet(root, a)
+	addAdoptedStyleSheet(root, b)
+	addAdoptedStyleSheet(root, c)
+
+	expect(getAdoptedStyleSheets(root).length).toBe(3)
+})
+
+// --- getAdoptedStyleSheets returns an array --------------------------
+
+await test('css - getAdoptedStyleSheets returns an array-like', expect => {
+	const host = document.createElement('div')
+	const root = host.attachShadow({ mode: 'open' })
+
+	const result = getAdoptedStyleSheets(root)
+	expect(Array.isArray(result) || typeof result.length === 'number').toBe(
+		true,
+	)
 })

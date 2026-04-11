@@ -268,3 +268,48 @@ await test('Head - conditional reactive child is removed from head when toggled 
 
 	dispose()
 })
+
+// --- Head with just text children renders nothing visible --------------
+
+await test('Head - text children inside Head do not affect visible body', expect => {
+	const dispose = render(<Head>some text</Head>)
+
+	// text children don't end up in body
+	expect(document.body.textContent.trim()).toBe('')
+
+	dispose()
+})
+
+// --- Head with array of multiple link tags ----------------------------
+
+await test('Head - array of link tags all end up in head', expect => {
+	const dispose = render(
+		<Head>
+			{[
+				<link
+					rel="icon"
+					href="/a.png"
+				/>,
+				<link
+					rel="alternate"
+					href="/feed.xml"
+				/>,
+			]}
+		</Head>,
+	)
+
+	expect(
+		document.head.querySelector('link[href="/a.png"]'),
+	).not.toBe(null)
+	expect(
+		document.head.querySelector('link[href="/feed.xml"]'),
+	).not.toBe(null)
+
+	dispose()
+
+	expect(document.head.querySelector('link[href="/a.png"]')).toBe(null)
+	expect(document.head.querySelector('link[href="/feed.xml"]')).toBe(
+		null,
+	)
+})
+

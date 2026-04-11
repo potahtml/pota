@@ -55,3 +55,45 @@ await test('selection - restoreSelection is a no-op for undefined', expect => {
 	restoreSelection(undefined)
 	restoreSelection(null)
 })
+
+// --- restoreSelection round-trip through restore ------------------------
+
+await test('selection - restoreSelection handles a previously saved range twice in a row', expect => {
+	const node = document.createElement('div')
+	node.textContent = 'double'
+	document.body.appendChild(node)
+
+	const range = document.createRange()
+	range.selectNodeContents(node.firstChild)
+	window.getSelection().removeAllRanges()
+	window.getSelection().addRange(range)
+
+	const saved = getSelection()
+
+	window.getSelection().removeAllRanges()
+	restoreSelection(saved)
+	expect(getSelection().toString()).toBe('double')
+
+	window.getSelection().removeAllRanges()
+	restoreSelection(saved)
+	expect(getSelection().toString()).toBe('double')
+
+	node.remove()
+	window.getSelection().removeAllRanges()
+})
+
+// --- use:click-selects-all on a disposed element does not throw --------
+
+await test('selection - use:click-selects-all is cleaned up on dispose', async expect => {
+	const dispose = render(
+		<div use:click-selects-all={true}>selected</div>,
+	)
+
+	await microtask()
+
+	dispose()
+
+	// After dispose the element is gone; no errors expected
+	window.getSelection().removeAllRanges()
+	expect(getSelection()).toBe(null)
+})

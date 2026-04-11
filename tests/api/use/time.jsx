@@ -134,3 +134,65 @@ await test('time - useTimeout start returns the timer for chaining', async expec
 		timer.stop()
 	})
 })
+
+// --- now() returns a numeric value that increases over time ---------
+
+await test('time - now returns ascending values on successive calls', async expect => {
+	const first = now()
+	await sleep(5)
+	const second = now()
+
+	expect(second >= first).toBe(true)
+})
+
+// --- date formatter handles start of year ---------------------------
+
+await test('time - date formats January 1st correctly', expect => {
+	const ts = new Date(2020, 0, 1, 12, 0, 0).getTime()
+	expect(date(ts)).toBe('2020-01-01')
+})
+
+// --- time formatter pads single-digit values ------------------------
+
+await test('time - time formatter pads single-digit hours and minutes with zero', expect => {
+	const ts = new Date(2020, 0, 1, 5, 3, 0).getTime()
+	expect(time(ts)).toBe('05:03')
+})
+
+// --- useTimeout multiple starts restart the timer ------------------
+
+await test('time - useTimeout start() is re-callable without stop', async expect => {
+	const calls = []
+
+	await root(async () => {
+		const timer = useTimeout(() => calls.push('fired'), 5)
+
+		timer.start()
+		timer.start() // restart, should not double-fire
+
+		await sleep(20)
+
+		// Only one fire despite two starts
+		expect(calls).toEqual(['fired'])
+	})
+})
+
+// --- measure without the optional timeReport argument --------------
+
+await test('time - measure works when no timeReport callback is provided', expect => {
+	const originalTime = console.time
+	const originalTimeEnd = console.timeEnd
+
+	console.time = () => {}
+	console.timeEnd = () => {}
+
+	// 2-argument form: `timeReport` is undefined, so the
+	// `timeReport && timeReport(...)` branch must not throw.
+	const result = measure('job', () => 'computed')
+
+	console.time = originalTime
+	console.timeEnd = originalTimeEnd
+
+	expect(result).toBe('computed')
+})
+

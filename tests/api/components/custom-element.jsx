@@ -191,3 +191,92 @@ await test('customElement - lifecycle callbacks and property setters do not caus
 
 	dispose()
 })
+
+// --- hasSlot returns null when the slot name is not present ------------
+
+await test('CustomElement - hasSlot returns null for missing slot names', expect => {
+	class MissingSlotElement extends CustomElement {}
+
+	customElement(
+		'pota-test-custom-element-missing-slot',
+		MissingSlotElement,
+	)
+
+	const dispose = render(
+		<pota-test-custom-element-missing-slot>
+			<span>body only</span>
+		</pota-test-custom-element-missing-slot>,
+	)
+
+	const element = $('pota-test-custom-element-missing-slot')
+
+	expect(element.hasSlot('absent')).toBe(null)
+
+	dispose()
+})
+
+// --- query returns null when no match is found -------------------------
+
+await test('CustomElement - query returns null when no descendant matches', expect => {
+	class QueryElement extends CustomElement {}
+
+	customElement('pota-test-custom-element-query-null', QueryElement)
+
+	const dispose = render(
+		<pota-test-custom-element-query-null>
+			<span>child</span>
+		</pota-test-custom-element-query-null>,
+	)
+
+	const element = $('pota-test-custom-element-query-null')
+	expect(element.query('article')).toBe(null)
+
+	dispose()
+})
+
+// --- hidden setter true/false idempotence ------------------------------
+
+await test('CustomElement - setting hidden to the same value twice is stable', expect => {
+	class HiddenElement extends CustomElement {}
+
+	customElement('pota-test-custom-element-hidden-idempotent', HiddenElement)
+
+	const element = document.createElement(
+		'pota-test-custom-element-hidden-idempotent',
+	)
+	document.body.append(element)
+
+	element.hidden = true
+	element.hidden = true
+
+	expect(element.getAttribute('hidden')).toBe('')
+
+	element.hidden = false
+	element.hidden = false
+
+	expect(element.hasAttribute('hidden')).toBe(false)
+
+	element.remove()
+})
+
+// --- emit with no detail ------------------------------------------------
+
+await test('CustomElement - emit with no second argument still dispatches the event', expect => {
+	class NoDetailElement extends CustomElement {}
+
+	customElement('pota-test-custom-element-no-detail', NoDetailElement)
+
+	const element = /** @type NoDetailElement */ (
+		document.createElement('pota-test-custom-element-no-detail')
+	)
+	document.body.append(element)
+
+	let fired = false
+	element.addEventListener('ping', () => (fired = true), { once: true })
+
+	element.emit('ping')
+
+	expect(fired).toBe(true)
+
+	element.remove()
+})

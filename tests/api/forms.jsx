@@ -1940,3 +1940,222 @@ await test('forms - role attribute is set correctly', expect => {
 
 	dispose()
 })
+
+// --- required and autofocus attributes ----------------------------------
+
+await test('forms - required attribute renders on input', expect => {
+	const dispose = render(
+		<input
+			type="text"
+			required
+		/>,
+	)
+
+	expect($('input').required).toBe(true)
+
+	dispose()
+})
+
+await test('forms - autofocus attribute renders on input', expect => {
+	const dispose = render(
+		<input
+			type="text"
+			autofocus
+		/>,
+	)
+
+	expect($('input').autofocus).toBe(true)
+
+	dispose()
+})
+
+// --- min, max, step on range and number -------------------------------
+
+await test('forms - number input respects min, max, and step', expect => {
+	const dispose = render(
+		<input
+			type="number"
+			min="0"
+			max="100"
+			step="5"
+			value="25"
+		/>,
+	)
+
+	const input = $('input')
+	expect(input.min).toBe('0')
+	expect(input.max).toBe('100')
+	expect(input.step).toBe('5')
+	expect(input.value).toBe('25')
+
+	dispose()
+})
+
+// --- maxlength and minlength on text input ----------------------------
+
+await test('forms - maxlength and minlength attributes on text input', expect => {
+	const dispose = render(
+		<input
+			type="text"
+			maxlength="10"
+			minlength="3"
+		/>,
+	)
+
+	const input = $('input')
+	expect(input.maxLength).toBe(10)
+	expect(input.minLength).toBe(3)
+
+	dispose()
+})
+
+// --- pattern attribute -------------------------------------------------
+
+await test('forms - pattern attribute renders on input', expect => {
+	const dispose = render(
+		<input
+			type="text"
+			pattern="[A-Z]+"
+		/>,
+	)
+
+	expect($('input').pattern).toBe('[A-Z]+')
+
+	dispose()
+})
+
+// --- fieldset with legend renders ------------------------------------
+
+await test('forms - fieldset and legend render correctly', expect => {
+	const dispose = render(
+		<fieldset>
+			<legend>Personal Info</legend>
+			<input name="name" />
+		</fieldset>,
+	)
+
+	expect($('fieldset')).not.toBe(null)
+	expect($('legend').textContent).toBe('Personal Info')
+	expect($('input').name).toBe('name')
+
+	dispose()
+})
+
+// --- disabled fieldset disables all inputs inside ---------------------
+
+await test('forms - disabled fieldset disables all nested inputs', expect => {
+	const dispose = render(
+		<fieldset disabled>
+			<input name="a" />
+			<input name="b" />
+			<button>submit</button>
+		</fieldset>,
+	)
+
+	const [a, b] = $$('input')
+	expect(a.disabled).toBe(true)
+	expect(b.disabled).toBe(true)
+	expect($('button').disabled).toBe(true)
+
+	dispose()
+})
+
+// --- form method attribute --------------------------------------------
+
+await test('forms - form method attribute reflects on form element', expect => {
+	const dispose = render(<form method="post" />)
+
+	expect($('form').method).toBe('post')
+
+	dispose()
+})
+
+// --- form action attribute --------------------------------------------
+
+await test('forms - form action attribute renders on form', expect => {
+	const dispose = render(<form action="/submit" />)
+
+	expect($('form').action.endsWith('/submit')).toBe(true)
+
+	dispose()
+})
+
+// --- form target attribute --------------------------------------------
+
+await test('forms - form target attribute renders on form', expect => {
+	const dispose = render(<form target="_blank" />)
+
+	expect($('form').target).toBe('_blank')
+
+	dispose()
+})
+
+// --- form enctype attribute -------------------------------------------
+
+await test('forms - form enctype=multipart/form-data renders on form', expect => {
+	const dispose = render(
+		<form enctype="multipart/form-data" />,
+	)
+
+	expect($('form').enctype).toBe('multipart/form-data')
+
+	dispose()
+})
+
+// --- input inside label via nesting -----------------------------------
+
+await test('forms - input nested inside a label is associated implicitly', expect => {
+	const dispose = render(
+		<label>
+			name
+			<input name="username" />
+		</label>,
+	)
+
+	const label = $('label')
+	const input = $('input')
+
+	// clicking the label focuses the input
+	expect(label.contains(input)).toBe(true)
+
+	dispose()
+})
+
+// --- label with for attribute associates explicitly ------------------
+
+await test('forms - label with for associates explicitly to input by id', expect => {
+	const dispose = render(
+		<>
+			<label for="field-a">name</label>
+			<input
+				id="field-a"
+				name="username"
+			/>
+		</>,
+	)
+
+	expect($('label').htmlFor).toBe('field-a')
+	expect($('input').id).toBe('field-a')
+
+	dispose()
+})
+
+// --- input value binding via signal ------------------------------------
+
+await test('forms - input value from a signal updates reactively', expect => {
+	const text = signal('initial')
+
+	const dispose = render(
+		<input
+			type="text"
+			prop:value={() => text.read()}
+		/>,
+	)
+
+	expect($('input').value).toBe('initial')
+
+	text.write('updated')
+	expect($('input').value).toBe('updated')
+
+	dispose()
+})

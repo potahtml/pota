@@ -66,3 +66,46 @@ await test('animate - animatePartTo resolves immediately when no animations', as
 	expect(node.part.contains('old')).toBe(false)
 	expect(node.part.contains('new')).toBe(true)
 })
+
+// --- animateClassTo preserves other classes ---------------------------
+
+await test('animate - animateClassTo does not affect unrelated classes', async expect => {
+	const node = document.createElement('div')
+	node.className = 'old keep other'
+	node.getAnimations = () => []
+
+	await animateClassTo(node, 'old', 'new')
+
+	expect(node.classList.contains('old')).toBe(false)
+	expect(node.classList.contains('new')).toBe(true)
+	expect(node.classList.contains('keep')).toBe(true)
+	expect(node.classList.contains('other')).toBe(true)
+})
+
+// --- animatePartTo preserves other parts ------------------------------
+
+await test('animate - animatePartTo does not affect unrelated parts', async expect => {
+	const node = document.createElement('div')
+	node.part.add('old')
+	node.part.add('keep')
+	node.getAnimations = () => []
+
+	await animatePartTo(node, 'old', 'new')
+
+	expect(node.part.contains('old')).toBe(false)
+	expect(node.part.contains('new')).toBe(true)
+	expect(node.part.contains('keep')).toBe(true)
+})
+
+// --- animateClassTo with missing old class still adds new ------------
+
+await test('animate - animateClassTo adds the new class even if old was absent', async expect => {
+	const node = document.createElement('div')
+	node.className = 'other'
+	node.getAnimations = () => []
+
+	await animateClassTo(node, 'missing', 'added')
+
+	expect(node.classList.contains('added')).toBe(true)
+	expect(node.classList.contains('other')).toBe(true)
+})

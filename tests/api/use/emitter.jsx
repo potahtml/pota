@@ -119,3 +119,126 @@ await test('emitter - use returns undefined when no initialValue is provided', e
 		dispose()
 	})
 })
+
+// --- multiple simultaneous subscribers share one native subscription ----
+
+await test('emitter - multiple subscribers share the same native listener', expect => {
+	let onCalls = 0
+	let dispatch
+	const emitter = new Emitter({
+		on(next) {
+			onCalls++
+			dispatch = next
+			return () => {}
+		},
+		initialValue: () => 'base',
+	})
+
+	root(dispose => {
+		const a = emitter.use()
+		const b = emitter.use()
+
+		// one native subscription, both accessors see it
+		expect(onCalls).toBe(1)
+
+		dispatch('next')
+		expect(a()).toBe('next')
+		expect(b()).toBe(a())
+
+		dispose()
+	})
+})
+
+// --- initialValue is a plain value, not a function ---------------------
+
+await test('emitter - initialValue can be a plain non-function value', expect => {
+	const emitter = new Emitter({
+		on() {
+			return () => {}
+		},
+		initialValue: 'direct',
+	})
+
+	root(dispose => {
+		const value = emitter.use()
+		expect(value()).toBe('direct')
+		dispose()
+	})
+})
+
+// --- disposing a subscriber does not affect another active subscriber --
+
+await test('emitter - disposing one owner does not break the other owner', expect => {
+	let dispatch
+	let offCalls = 0
+	const emitter = new Emitter({
+		on(next) {
+			dispatch = next
+			return () => {
+				offCalls++
+			}
+		},
+		initialValue: () => 0,
+	})
+
+	let disposeFirst
+	let disposeSecond
+	let firstValue
+	let secondValue
+
+	root(d => {
+		disposeFirst = d
+		firstValue = emitter.use()
+	})
+	root(d => {
+		disposeSecond = d
+		secondValue = emitter.use()
+	})
+
+	// still one native subscription, both active
+	expect(offCalls).toBe(0)
+
+	disposeFirst()
+	// second owner still holds the subscription
+	expect(offCalls).toBe(0)
+
+	dispatch(42)
+	expect(secondValue()).toBe(42)
+
+	disposeSecond()
+	// now everyone is gone
+	expect(offCalls).toBe(1)
+})
+
+// --- on callback runs inside the owner, cleaned up on dispose ---------
+
+await test('emitter - `on` listener stops firing after the owner disposes', async expect => {
+	let dispatch
+	const seen = []
+
+	const emitter = new Emitter({
+		on(next) {
+			dispatch = next
+			return () => {}
+		},
+		initialValue: () => 'start',
+	})
+
+	let disposeOwner
+	root(d => {
+		disposeOwner = d
+		emitter.on(value => seen.push(value))
+	})
+
+	dispatch('a')
+	await microtask()
+
+	disposeOwner()
+
+	dispatch('b')
+	await microtask()
+
+	// only 'a' is observed; 'b' is after dispose
+	expect(seen.includes('a')).toBe(true)
+	expect(seen.includes('b')).toBe(false)
+})

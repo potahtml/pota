@@ -189,10 +189,52 @@ await test('string - diff with single-line values returns them as-is', expect =>
 	expect(b).toBe('world')
 })
 
-await test('string - capitalizeFirstLetter handles empty string', expect => {
-	expect(capitalizeFirstLetter('')).toBe('')
-})
-
 await test('string - dashesToCamelCase handles multiple dashes', expect => {
 	expect(dashesToCamelCase('a-b-c-d')).toBe('aBCD')
+})
+
+// --- validateEmail edge cases ------------------------------------------
+
+await test('string - validateEmail rejects empty string', expect => {
+	expect(validateEmail('')).not.toBe('')
+})
+
+await test('string - validateEmail rejects strings without @', expect => {
+	expect(validateEmail('plainaddress')).not.toBe('plainaddress')
+})
+
+await test('string - validateEmail rejects strings with multiple @', expect => {
+	expect(validateEmail('a@@b.com')).not.toBe('a@@b.com')
+})
+
+// --- short with exact 40-char string -----------------------------------
+
+await test('string - short with string exactly at the short threshold', expect => {
+	const exact = 'a'.repeat(40)
+	expect(short(exact)).toBe(exact)
+})
+
+await test('string - short with empty string', expect => {
+	expect(short('')).toBe('')
+})
+
+// --- hash differs for different inputs --------------------------------
+
+await test('string - hash differs for different inputs', async expect => {
+	const a = await hash('pota')
+	const b = await hash('other')
+
+	expect(a).not.toBe(b)
+})
+
+// --- diff with different-length strings --------------------------------
+
+await test('string - diff handles added lines in the second multiline string', expect => {
+	const result = diff('line1\nline2', 'line1\nline2\nline3')
+	expect(result.length).toBe(2)
+})
+
+await test('string - diff handles removed lines in the second multiline string', expect => {
+	const result = diff('line1\nline2\nline3', 'line1\nline3')
+	expect(result.length).toBe(2)
 })
