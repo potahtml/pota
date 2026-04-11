@@ -66,6 +66,10 @@ contents become the signed git tag message (`-F
 ./documentation/breaking-changes.md`). The tag is signed (`-s -a`),
 so a GPG key must be configured.
 
+`npm run release` chains `npm test && npm run test:babel-preset` in
+front of `release.js`, so a failing suite aborts before the version
+bump — no commit, tag, or push.
+
 ```
 npm run release
 ```

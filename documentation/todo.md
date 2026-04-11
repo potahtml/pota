@@ -10,7 +10,6 @@
 ### wip
 
 - make sure npmignore are correct
-- check tests passes before doing publish
 - figure out if top level runs the same as when owned, or make top
   level owned, even if doesnt garbage collects - I couldnt figure out
   this one out
