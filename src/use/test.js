@@ -308,6 +308,16 @@ export const sleep = (ms = 0) =>
 	new Promise(resolve => setTimeout(resolve, ms))
 
 /**
+ * Centralized "long" sleep for router/location tests that need to
+ * wait longer than a macrotask — e.g. `history.back()`, delayed
+ * navigation, `Navigate` with `replace`, `useBeforeLeave`. Tuning
+ * this single constant is enough to retime every flaky wait.
+ *
+ * @returns {Promise<void>}
+ */
+export const sleepLong = () => sleep(300)
+
+/**
  * Shorthand for `document.querySelector`.
  *
  * @param {string} selector - CSS selector.

@@ -671,9 +671,9 @@ export function createReactiveSystem() {
 	 * functions and promises recursively
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ const derived =
-		/** @type {import('./derived.d.ts').derived} */ (
+		/** @type {import('../../typescript/derived.d.ts').derived} */ (
 			/** @type {unknown} */ (...fn) =>
-				/** @type {import('./derived.d.ts').derived} */ (
+				/** @type {import('../../typescript/derived.d.ts').derived} */ (
 					/** @type {unknown} */ (new Derived(Owner, fn))
 				)
 		)
@@ -1098,7 +1098,7 @@ export function createReactiveSystem() {
 	 * Unwraps functions and promises recursively canceling if owner
 	 * gets disposed
 	 *
-	 * @type {import('./action.d.ts').action}
+	 * @type {import('../../typescript/action.d.ts').action}
 	 */
 	const action = (...cbs) =>
 		owned((...args) => {

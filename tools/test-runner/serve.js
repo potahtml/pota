@@ -51,7 +51,7 @@ window.addEventListener('unhandledrejection', e => {
 </script>
 <script type="module">
   await import('/${file}')
-  const { run } = await import('/tools/test/test.js')
+  const { run } = await import('/tools/test-runner/test.js')
   await run()
   window.__pota_results__.done = true
 </script>

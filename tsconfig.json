@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"rootDir": "src",
-		"outDir": "types",
+		"outDir": "generated/types",
 
 		"declaration": true,
 		// helps to click "implementation" and go to the source code
@@ -27,13 +27,11 @@
 		"jsx": "preserve",
 		"jsxImportSource": "pota",
 
-		"types": ["./src/jsx/jsx.d.ts"]
+		"types": ["./typescript/jsx.d.ts"]
 	},
 	"include": ["src"],
+	"files": ["typescript/RouterContext.d.ts"],
 	"exclude": [
-		"node_modules",
-		"src/babel-preset",
-		"src/babel-preset-standalone",
-		"src/release"
+		"node_modules"
 	]
 }

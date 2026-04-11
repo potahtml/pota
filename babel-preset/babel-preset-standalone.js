@@ -1,4 +1,4 @@
-import potaPreset from '../babel-preset/index.js'
+import potaPreset from './babel-preset.js'
 
 Babel.registerPreset('pota', (ctx, options = {}) => ({
 	presets: [

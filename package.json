@@ -4,42 +4,38 @@
 	"version": "0.20.227",
 	"author": "Tito Bouzout",
 	"homepage": "https://pota.quack.uy/",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/potahtml/pota.git"
-	},
 	"type": "module",
 	"types": "./typescript/exports.d.ts",
 	"main": "./src/exports.js",
 	"sideEffects": false,
 	"exports": {
 		"./babel-preset": {
-			"require": "./src/babel-preset/index.cjs",
-			"import": "./src/babel-preset/index.js",
-			"default": "./src/babel-preset/index.js"
+			"require": "./generated/babel-preset.cjs",
+			"import": "./babel-preset/babel-preset.js",
+			"default": "./babel-preset/babel-preset.js"
 		},
 		"./jsx-runtime": {
-			"types": "./src/jsx/jsx.d.ts",
+			"types": "./typescript/jsx.d.ts",
 			"default": "./src/jsx/jsx-runtime.js"
 		},
 		"./jsx-dev-runtime": {
-			"types": "./src/jsx/jsx.d.ts",
+			"types": "./typescript/jsx.d.ts",
 			"default": "./src/jsx/jsx-runtime.js"
 		},
 		"./xml": {
-			"types": "./types/core/xml.d.ts",
+			"types": "./generated/types/core/xml.d.ts",
 			"default": "./src/core/xml.js"
 		},
 		"./components": {
-			"types": "./types/components/@main.d.ts",
+			"types": "./generated/types/components/@main.d.ts",
 			"default": "./src/components/@main.js"
 		},
 		"./use/*": {
-			"types": "./types/use/*.d.ts",
+			"types": "./generated/types/use/*.d.ts",
 			"default": "./src/use/*.js"
 		},
 		"./store": {
-			"types": "./types/lib/store.d.ts",
+			"types": "./generated/types/lib/store.d.ts",
 			"default": "./src/lib/store.js"
 		},
 		".": {
@@ -48,35 +44,27 @@
 		}
 	},
 	"imports": {
-		"#test": "./tools/test/test.js"
+		"#test": "./tools/test-runner/test.js"
 	},
 	"scripts": {
-		"dev": "rm -Rf types/* && concurrently --kill-others \"npm:watch:*\"",
-		"watch:cptypes": "rsync -a --include='*/' --include='*.d.ts' --exclude='*' src/ types/; tail -f /dev/null",
-		"watch:types": "tsc -w",
-		"watch:build": "cd src/babel-preset && rollup -c -w",
-		"watch:generate": "npm run generate",
-		"types": "tsc",
-		"build": "cd src/babel-preset && rollup -c",
-		"build:standalone": "rollup -c src/babel-preset-standalone/rollup.config.js",
-		"release": "node src/release/release.mjs",
-		"format": "prettier . -w --config=./package.json --no-editorconfig",
-		"format-me": "prettier . -w --config=./package.json --no-editorconfig --plugin=file:///usr/local/lib/node_modules/prettier-plugin-jsdoc/dist/index.js",
-		"generate": "node src/release/generate.js",
-		"test": "node tools/test/runner.js",
-		"test:all": "node tools/test/runner.js --no-bail",
-		"test:once": "node tools/test/runner.js --no-watch",
-		"test:standalone": "node src/babel-preset-standalone/test/runner.js"
-	},
-	"test": {
-		"dir": "tests/api/",
-		"port": 7357,
-		"timeout": 5000,
-		"bail": true,
-		"watch": true,
-		"concurrency": 10,
-		"extensions": [".jsx", ".tsx", ".ts"],
-		"ignore": []
+		"dev": "npm run clean && node tools/watch.js",
+
+		"clean": "rm -Rf generated/*",
+
+		"build:typescript": "tsc",
+		"build:babel-preset": "rollup -c tools/babel-preset/rollup.config.js",
+		"build:generate": "node tools/generate.js",
+
+		"watch:typescript": "tsc -w",
+		"watch:babel-preset": "rollup -c tools/babel-preset/rollup.config.js -w",
+		"watch:generate": "node tools/generate.js -w",
+		"watch:test": "node tools/test-runner/runner.js -w -q",
+
+		"test": "node tools/test-runner/runner.js",
+		"test:babel-preset": "node tools/babel-preset/test/runner.js",
+
+		"release": "node tools/release.js",
+		"format": "prettier . -w --config=./package.json --no-editorconfig --plugin=prettier-plugin-jsdoc"
 	},
 	"dependencies": {
 		"colorjs.io": "^0.6.1",
@@ -98,10 +86,18 @@
 		"@types/babel__helper-module-imports": "^7.18.3",
 		"@types/babel__helper-plugin-utils": "^7.10.3",
 		"@types/node": "^25.5.0",
-		"concurrently": "^9.2.1",
+		"prettier-plugin-jsdoc": "^1.8.0",
 		"puppeteer": "^24.40.0",
 		"rollup": "^4.60.0",
 		"typescript": "^6.0.2"
+	},
+	"test": {
+		"dir": "tests/api/",
+		"port": 7357,
+		"timeout": 5000,
+		"concurrency": 10,
+		"extensions": [".jsx", ".tsx", ".ts"],
+		"ignore": []
 	},
 	"prettier": {
 		"printWidth": 70,
@@ -117,5 +113,31 @@
 		"proseWrap": "always",
 		"endOfLine": "lf",
 		"singleAttributePerLine": true
-	}
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/potahtml/pota.git"
+	},
+	"keywords": [
+		"reactive",
+		"renderer",
+		"jsx",
+		"signal",
+		"signals",
+		"store",
+		"ui",
+		"dom",
+		"babel-preset",
+		"solid"
+	],
+	"funding": [
+		{
+			"type": "github",
+			"url": "https://github.com/sponsors/titoBouzout"
+		},
+		{
+			"type": "opencollective",
+			"url": "https://opencollective.com/tito-bouzout"
+		}
+	]
 }

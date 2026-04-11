@@ -7,7 +7,9 @@ based on signalified objects and proxies.
 
 ## Start Here
 
-- `src/exports.js`: main public export map for `pota`
+- `src/exports.js`: main public export map for `pota` — read this
+  directly for the current API surface rather than trusting any
+  hand-maintained listing
 - `src/lib/reactive.js`: public reactive helpers layered on top of
   `createReactiveSystem()` from `src/lib/solid.js`
 - `src/core/renderer.js`: DOM creation, rendering, JSX runtime
@@ -16,7 +18,8 @@ based on signalified objects and proxies.
 - `src/components/`: built-in components (`Route`, `Suspense`,
   `CustomElement`, etc.)
 - `src/use/`: public utilities exposed as `pota/use/*`
-- `src/babel-preset/transform/`: custom JSX compiler internals
+- `babel-preset/transform/`: custom JSX compiler internals (separate
+  subpackage at the repo root; not typechecked)
 
 ## Project Reality
 
@@ -30,29 +33,81 @@ based on signalified objects and proxies.
 - The project is intentionally pre-1.0, types are still in progress,
   and SSR is explicitly out of scope.
 
-## Behavior Conventions
+## Library Semantics
 
-- Prefer derivation (`memo`, `derived`, `resolve`) over manual
-  synchronization via `effect`.
-- In JSX, pass reactive functions directly as children when possible:
-  `{count}` rather than `{count()}`.
-- For native elements, events use namespaced props such as
-  `on:click={...}`. For component props, the codebase also uses plain
-  camelCase callback props when the component defines them.
-- Use `class`, not `className`.
-- `src/release/llm.md` documents API conventions and the full export
-  listing. When in doubt, verify against current source.
+Non-obvious rules to follow when writing or reviewing pota code.
+
+### Signals
+
+- Tuple API: `const [read, write, update] = signal()`. Always use
+  this order; avoid two-element destructuring like `[read, set]`,
+  which confuses `write` with `update`.
+- `write(value)` sets or replaces the value directly — it does
+  **not** receive the previous value.
+- `update(prev => next)` receives the previous value.
+- When a signal is already in hand (passed as an argument, pulled
+  from context), use object style: `signal.read()`, `signal.write()`,
+  `signal.update()`. Destructure only when creating a signal locally.
+- Prefer **derivation** (`memo`, `derived`, `resolve`) over manual
+  synchronization. Effects are a last resort, not the default tool.
+
+### JSX and DOM
+
+- Native elements use namespaced event props: `on:click={handler}`.
+  Component props use camelCase: `onClick={handler}`.
+- For reactive text or children, pass the signal itself — `{count}`,
+  not `{count()}`.
+- Use `class=`, not `className=`.
+
+### TypeScript and JSDoc
+
+- Do not use `any` to paper over a missing type.
+- Do not use `@ts-ignore` / `@ts-expect-error` or similar suppression
+  comments. Fix the underlying type or code.
+- To force a type in JSDoc, use the parenthesized cast form:
+  `(/* @type {TheType} */ (value))`. Not a bare
+  `/* @type {TheType} */` comment on its own line.
+
+## Subpath Exports
+
+The public surface is defined by `package.json` `"exports"` and
+mirrors the directory layout under `src/`. Read `package.json` and
+the referenced file for the current shape. Summary of what each
+subpath is for:
+
+- **`pota`** — main entry (`src/exports.js`): reactive primitives,
+  renderer, prop helpers.
+- **`pota/components`** — built-in UI and routing components from
+  `src/components/`.
+- **`pota/store`** — reactive store helpers in `src/lib/store.js`
+  (`signalify`, `mutable`, `merge`, `replace`, `reset`, `project`,
+  `copy`, `readonly`, `firewall`, `updateBlacklist`).
+- **`pota/xml`** — compiler-less XML API in `src/core/xml.js`:
+  default `xml` tagged template plus `XML()` factory for isolated
+  instances with their own component registries.
+- **`pota/use/*`** — one subpath per file under `src/use/` (for
+  example `pota/use/location`, `pota/use/form`, `pota/use/animate`).
+- **`pota/jsx-runtime`** / **`pota/jsx-dev-runtime`** — JSX runtime
+  for bundlers (`src/jsx/jsx-runtime.js`).
+- **`pota/babel-preset`** — custom Babel preset that lowers JSX into
+  partials for the renderer; separate Rollup build under
+  `babel-preset/` at the repo root. The CJS artifact is emitted to
+  `generated/babel-preset.cjs`.
 
 ## Tests
 
-- `vitest.config.js` runs browser tests in Chromium through
-  Playwright.
-- Tests are `.jsx` files transformed with the local Babel preset.
-- `tests/api/index.js` clears `document.body` around each test and
-  asserts cleanup, so renderer changes should preserve proper node
-  disposal.
-- `tests/AGENTS.md` is the current coverage map and also documents
-  test writing conventions.
+- Browser tests run under Puppeteer through the custom runner at
+  `tools/test-runner/runner.js`. Config lives in `package.json` under the
+  `"test"` key (dir, port, timeout, concurrency, extensions, ignore).
+- `tools/test-runner/test.js` is the per-test harness: it clears
+  `document.body`, `document.head`, and `document.adoptedStyleSheets`
+  before each test and asserts cleanliness after, so renderer changes
+  must preserve proper node disposal.
+- Tests are `.jsx` / `.tsx` files transformed on the fly with the
+  local Babel preset via `tools/test-runner/transform.js`.
+- `npm test` runs once (all files, no bail). `npm run watch:test`
+  enables watch mode. `npm test -- --bail` stops on first failure.
+  Positional arguments filter by path substring: `npm test -- for`.
 
 ## Change Heuristics
 
@@ -64,10 +119,12 @@ based on signalified objects and proxies.
   `src/lib/store/`, verify ownership, cleanup, and proxy/reactivity
   behavior.
 - If you touch routing or navigation, read both
-  `src/components/route/` and `src/use/location.js`; they are coupled.
+  `src/components/route/` and `src/use/location.js`; they are
+  coupled.
 
 ## Deeper Notes
 
-- `.claude/CLAUDE.md`: project instructions and conventions
-- `src/release/llm.md`: API reference and usage conventions
-- `tests/AGENTS.md`: test coverage map and testing conventions
+- `.claude/CLAUDE.md`: project instructions and conventions specific
+  to Claude Code
+- `documentation/todo.md` and `documentation/breaking-changes.md`:
+  maintainer notes and pending release notes

@@ -32,7 +32,7 @@ of using this or SolidJS, you should use SolidJS.
 - TypeScript types are a work in progress and kind of messy.
 - Project will reach v1.0 once I'm happy with the API shape.
 - I keep notes related to this project
-  [here](https://github.com/potahtml/pota/blob/master/src/release/todo.md).
+  [here](https://github.com/potahtml/pota/blob/master/documentation/todo.md).
 - SSR is out of the scope of this project
 
 ### Links

@@ -106,8 +106,7 @@ export function Component(value, props) {
 				component(
 					propsOverride
 						? freeze({
-								/** @ts-expect-error freaking typescript */
-								...props,
+								.../** @type {object} */ (props),
 								...propsOverride,
 							})
 						: props,

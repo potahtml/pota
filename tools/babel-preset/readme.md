@@ -1,26 +1,28 @@
-# babel-preset-standalone
+# tools/babel-preset
 
-All-in-one browser bundle that makes pota run in the browser without
-Node and without a build step. Includes `@babel/standalone` + pota's
-Babel preset + TypeScript/TSX support in a single file.
+All-in-one browser bundle of pota's Babel preset. Makes pota run in
+the browser without Node and without a build step, bundling
+`@babel/standalone` + pota's Babel preset + TypeScript/TSX support
+into a single file.
 
 ## Usage
 
 ```html
-<script src="index.iife.js"></script>
+<script src="/generated/babel-preset-standalone.js"></script>
 <!-- Babel.transform(code, { presets: ['pota'] }) is ready -->
 <!-- Handles JSX, TSX, and TypeScript in one preset -->
 ```
 
 ## How it works
 
-`index.js` imports the pota preset from `../babel-preset/index.js`,
-composes it with standalone's built-in TypeScript preset
+`babel-preset/babel-preset-standalone.js` imports the pota preset from
+`./babel-preset.js`, composes it with standalone's
+built-in TypeScript preset
 (`isTSX: true, allExtensions: true`), and registers the result via
 `Babel.registerPreset('pota', ...)`.
 
 Rollup bundles the preset, then prepends `@babel/standalone/babel.js`
-as a banner. The result is a single IIFE file (`index.iife.js`) with
+as a banner. The result is a single IIFE file (`babel-preset-standalone.js`) with
 zero dependencies.
 
 ### Shim plugin
@@ -48,20 +50,22 @@ Everything else is bundled inline: `@babel/helper-plugin-utils`,
 
 ## Files
 
-| File               | Role                                        |
-| ------------------ | ------------------------------------------- |
-| `index.js`         | Entry: composes pota + TS preset, registers |
-| `rollup.config.js` | Build config (shim plugin + banner)         |
-| `index.iife.js`    | Build output (gitignored)                   |
-| `test/runner.js`   | Puppeteer runner                            |
-| `test/checks.js`   | Test assertions (8 checks)                  |
-| `test/index.html`  | Test page (loads index.iife.js)             |
+| File                            | Role                                        |
+| ------------------------------- | ------------------------------------------- |
+| `babel-preset/babel-preset.js`            | Preset source (input to rollup CJS build)   |
+| `babel-preset/babel-preset-standalone.js` | Entry: composes pota + TS preset, registers |
+| `tools/babel-preset/rollup.config.js`     | Merged build config: preset CJS + standalone IIFE |
+| `tools/babel-preset/test/runner.js`       | Puppeteer runner                            |
+| `tools/babel-preset/test/checks.js`       | Test assertions (12 checks)                 |
+| `tools/babel-preset/test/index.html`      | Test page (loads the built IIFE)            |
+| `generated/babel-preset.cjs`              | CJS build output (gitignored)               |
+| `generated/babel-preset-standalone.js`    | IIFE bundle output (gitignored)             |
 
 ## Commands
 
 ```
-npm run build:standalone   # rollup → index.iife.js
-npm run test:standalone    # puppeteer: 8 tests
+npm run watch:babel-preset    # rollup watch → generated/babel-preset.cjs + generated/babel-preset-standalone.js
+npm run test:babel-preset    # puppeteer: 12 tests
 ```
 
 ## devDependencies added

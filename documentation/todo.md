@@ -7,6 +7,12 @@
 - SLOW AND SIMPLE IS BETTER THAN FAST AND HARD TO UNDERSTAND
 - TAKE IT EASY, STEP BY STEP
 
+### wip
+
+- split test/api/store/store.jsx into subfiles for mutable, signalify,
+  etc
+- make sure gitignore and npmignore are correct
+
 ### documentation
 
 - add proper 404

@@ -64,7 +64,7 @@ async function run() {
 		})
 
 		await page.goto(
-			`http://localhost:${port}/src/babel-preset-standalone/test/index.html`,
+			`http://localhost:${port}/tools/babel-preset/test/index.html`,
 			{ waitUntil: 'domcontentloaded' },
 		)
 

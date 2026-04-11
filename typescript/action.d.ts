@@ -1,4 +1,4 @@
-/// <reference path="../../typescript/pota.d.ts"/>
+/// <reference path="./pota.d.ts"/>
 
 export declare function action<A extends any[]>(
 	f1: (...args: A) => void,

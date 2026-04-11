@@ -1,5 +1,3 @@
-/// <Reference path="./context.js.d.ts"/>
-
 import { cleanup, memo, signal, context } from '../../lib/reactive.js'
 import { nothing, removeFromArray } from '../../lib/std.js'
 

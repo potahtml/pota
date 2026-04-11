@@ -1,9 +1,8 @@
-src/release/**
+documentation/**
 
-src/babel-preset/transform/**
-src/babel-preset/rollup.config.js
-
-src/babel-preset-standalone/**
+babel-preset/transform/**
+generated/docs/**
+generated/babel-preset-standalone.js
 
 tests/**
 tools/**

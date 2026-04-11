@@ -15,7 +15,7 @@ transformed. No need for Component() functions calls.
 - Tests run in a real Chromium browser (Puppeteer, headed by default).
   DOM APIs are available; `body()` from `pota/use/test` returns
   `document.body.innerHTML`.
-- The test harness (`tools/test/test.js`) clears `document.body`,
+- The test harness (`tools/test-runner/test.js`) clears `document.body`,
   `document.head`, and `document.adoptedStyleSheets` before each test,
   and verifies all three are clean after each test. A test that leaves
   DOM behind will fail.

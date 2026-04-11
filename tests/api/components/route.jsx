@@ -4,7 +4,14 @@
 // path matching, :params, nested routes, navigation, link rendering,
 // Route.Default, collapse, scroll, useBeforeLeave, popstate, and
 // cleanup.
-import { $, test, body, macrotask, microtask, sleep } from '#test'
+import {
+	$,
+	test,
+	body,
+	macrotask,
+	microtask,
+	sleepLong,
+} from '#test'
 
 import { render, root } from 'pota'
 import { Route, A, Navigate, load } from 'pota/components'
@@ -728,7 +735,7 @@ await test('Route - responds to popstate (browser back)', async expect => {
 	// back() is truly async browser behavior; the popstate listener
 	// (from addListeners) calls setLocation internally
 	history.back()
-	await sleep(200)
+	await sleepLong()
 	expect(body()).toBe('page a')
 	dispose()
 })
@@ -863,7 +870,7 @@ await test('Navigate - replace option uses replaceState', async expect => {
 		</Navigate>,
 	)
 
-	await sleep(50)
+	await sleepLong()
 
 	expect(body()).toInclude('redirected')
 	// history.length should not increase with replace
@@ -927,7 +934,7 @@ await test('Route - useBeforeLeave callback can block navigation', async expect 
 
 	// try to navigate away — should be blocked
 	await navigate('/other')
-	await sleep(50)
+	await sleepLong()
 	seen.length > 0 && expect(seen).toInclude('beforeLeave')
 
 	dispose()
@@ -980,7 +987,7 @@ await test('load - retries on failure and eventually renders error string', asyn
 	// load retries up to 9 times with 5s delay
 	// just verify it attempted at least once
 	await microtask()
-	await sleep(50)
+	await sleepLong()
 
 	expect(attempts >= 1).toBe(true)
 

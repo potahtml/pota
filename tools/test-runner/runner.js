@@ -1,7 +1,5 @@
 // CLI test runner — scan, launch Puppeteer, report results
 
-console.clear()
-
 /** @import {Browser} from "puppeteer" */
 
 import puppeteer from 'puppeteer'
@@ -9,7 +7,14 @@ import fs from 'fs'
 import path from 'path'
 import { startServer } from './serve.js'
 import { clearCache } from './transform.js'
-import { filesRecursive, watch } from '../../src/release/utils.js'
+import {
+	filesRecursive,
+	watch,
+	red,
+	green,
+	dim,
+	white,
+} from '../utils.js'
 
 // --- config (package.json "test" + cli flags) ---
 
@@ -20,7 +25,6 @@ const pkg = JSON.parse(
 const config = pkg.test || {}
 
 const testDir = config.dir || 'tests/api/'
-const port = config.port || 0
 const timeout = config.timeout || 5000
 const concurrency = config.concurrency || 10
 const testExts = config.extensions || ['.jsx', '.tsx', '.ts']
@@ -28,9 +32,19 @@ const testExts = config.extensions || ['.jsx', '.tsx', '.ts']
 const ignore = config.ignore || []
 
 const args = process.argv.slice(2)
-const noWatch = args.includes('--no-watch') || config.watch === false
-const noBail = args.includes('--no-bail') || !config.bail
-const filter = args.find(a => !a.startsWith('--'))
+const doWatch = args.includes('--watch') || args.includes('-w')
+const bail = args.includes('--bail')
+const quiet = args.includes('--quiet') || args.includes('-q')
+const filter = args.find(
+	a => !a.startsWith('--') && !a.startsWith('-'),
+)
+
+// watch mode: stable port from config (so URLs stay the same across
+// reruns). one-shot: random port (avoids collisions with concurrent
+// runs).
+const port = doWatch ? config.port || 0 : 0
+
+if (!quiet) console.clear()
 
 /**
  * @typedef {{
@@ -41,17 +55,6 @@ const filter = args.find(a => !a.startsWith('--'))
  * 	done?: boolean
  * }} TestResults
  */
-
-// --- colors ---
-
-/** @param {string} t */
-const red = t => `\x1b[31m${t}\x1b[0m`
-/** @param {string} t */
-const green = t => `\x1b[32m${t}\x1b[0m`
-/** @param {string} t */
-const dim = t => `\x1b[2m${t}\x1b[0m`
-/** @param {string} t */
-const white = t => `\x1b[37m${t}\x1b[0m`
 
 // --- scan test files ---
 
@@ -139,9 +142,10 @@ function report(file, results, ms, baseURL) {
 	const failed = results.failed > 0 || results.pageErrors.length > 0
 
 	if (!failed) {
-		console.log(
-			` ${green('PASS')}  ${file}  ${dim(`(${results.passed}) ${ms}ms`)}`,
-		)
+		if (!quiet)
+			console.log(
+				` ${green('PASS')}  ${file}  ${dim(`(${results.passed}) ${ms}ms`)}`,
+			)
 		return
 	}
 
@@ -205,7 +209,7 @@ async function runSuite(browser, baseURL, files) {
 			passed += e.results.passed
 			failed += e.results.failed + e.results.pageErrors.length
 			report(e.file, e.results, e.ms, baseURL)
-			if (failed > 0 && !noBail) bailed = true
+			if (failed > 0 && bail) bailed = true
 		}
 	}
 
@@ -232,7 +236,7 @@ async function runSuite(browser, baseURL, files) {
 
 	const ms = (performance.now() - start) | 0
 	console.log(
-		`\n ${passed} passed, ${failed} failed, ${printed} of ${files.length} files  ${dim(`${ms}ms`)}`,
+		`\n ${green(passed)} passed, ${failed > 0 ? red(`${failed} failed`) : `${failed} failed`}, ${printed} of ${files.length} files  ${dim(`${ms}ms`)}\n`,
 	)
 
 	return { passed, failed, bailed }
@@ -248,7 +252,7 @@ async function runSuite(browser, baseURL, files) {
  * @param {boolean} [initialBailed]
  */
 function startWatching(browser, baseURL, initialBailed) {
-	console.log(`\n  ${dim('Watching for changes...')}\n`)
+	console.log(`  ${dim('Watching for changes...')}\n`)
 
 	let running = false
 	let pending = null
@@ -281,8 +285,10 @@ function startWatching(browser, baseURL, initialBailed) {
 		pending = null
 		clearCache()
 
-		console.clear()
-		process.stdout.write('\x1Bc')
+		if (!quiet) {
+			console.clear()
+			process.stdout.write('\x1Bc')
+		}
 
 		const files = only || scanTests()
 		const label = only ? only.join(', ') : 'all tests'
@@ -301,7 +307,7 @@ function startWatching(browser, baseURL, initialBailed) {
 
 		lastFailed = result.failed > 0
 
-		console.log(`\n  ${dim('Watching for changes...')}\n`)
+		console.log(`  ${dim('Watching for changes...')}\n`)
 		running = false
 	}
 
@@ -319,8 +325,8 @@ function startWatching(browser, baseURL, initialBailed) {
 
 // --- main ---
 
-const { server } = await startServer(port)
-const baseURL = `http://localhost:${port}`
+const { server, port: actualPort } = await startServer(port)
+const baseURL = `http://localhost:${actualPort}`
 
 const browser = await puppeteer.launch({
 	headless: true,
@@ -340,7 +346,7 @@ process.on('SIGTERM', () => process.exit())
 
 const initial = await runSuite(browser, baseURL, scanTests())
 
-if (!noWatch) {
+if (doWatch) {
 	startWatching(browser, baseURL, initial.bailed)
 } else {
 	process.exit(initial.failed > 0 ? 1 : 0)

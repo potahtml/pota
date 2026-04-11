@@ -5,7 +5,7 @@ import fs from 'fs'
 import path from 'path'
 
 const root = process.cwd()
-const presetPath = path.join(root, 'src/babel-preset')
+const presetPath = path.join(root, 'babel-preset/babel-preset.js')
 
 // bare specifier → local source path
 
@@ -18,7 +18,7 @@ const imports = {
 	'pota/store': '/src/lib/store.js',
 	'pota/xml': '/src/core/xml.js',
 	'colorjs.io': '/node_modules/colorjs.io/dist/color.js',
-	'#test': '/tools/test/test.js',
+	'#test': '/tools/test-runner/test.js',
 }
 
 /** Babel plugin that rewrites bare specifiers to local source paths. */

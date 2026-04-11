@@ -3,6 +3,26 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import terser from '@rollup/plugin-terser'
 
+/** Transforms the babel-plugin from `es` to `cjs` */
+const preset = {
+	input: 'babel-preset/babel-preset.js',
+	plugins: [terser()],
+	output: [
+		{
+			file: 'generated/babel-preset.cjs',
+			format: 'cjs',
+			sourcemap: false,
+		},
+	],
+	external: [
+		'@babel/core',
+		'@babel/helper-module-imports',
+		'@babel/helper-plugin-utils',
+		'@babel/plugin-syntax-jsx',
+		'parse5',
+	],
+}
+
 /**
  * Builds a single browser bundle: @babel/standalone + pota preset.
  *
@@ -17,7 +37,12 @@ import terser from '@rollup/plugin-terser'
  * can destructure properties without us listing all 1355 exports.
  */
 
-/** @type {Record<string, string | { code: string, syntheticNamedExports: boolean }>} */
+/**
+ * @type {Record<
+ * 	string,
+ * 	string | { code: string; syntheticNamedExports: boolean }
+ * >}
+ */
 const shims = {
 	'@babel/core': `
 		const p = globalThis.Babel.packages
@@ -54,14 +79,14 @@ const shimPlugin = {
 		if (!id.startsWith('\0shim:')) return null
 		const shim = shims[id.slice(6)]
 		if (!shim) return null
-		return typeof shim === 'string' ? shim : shim
+		return shim
 	},
 }
 
-export default {
-	input: 'src/babel-preset-standalone/index.js',
+const standalone = {
+	input: 'babel-preset/babel-preset-standalone.js',
 	output: {
-		file: 'src/babel-preset-standalone/index.iife.js',
+		file: 'generated/babel-preset-standalone.js',
 		format: 'iife',
 		sourcemap: false,
 		banner: readFileSync(
@@ -71,3 +96,5 @@ export default {
 	},
 	plugins: [shimPlugin, resolve(), commonjs(), terser()],
 }
+
+export default [preset, standalone]

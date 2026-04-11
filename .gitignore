@@ -1,10 +1,6 @@
 # generated
 
-src/babel-preset-standalone/index.iife.js
-src/babel-preset/index.cjs
-src/release/importmap.json
-src/release/types.json
-types
+generated
 
 # ai stuff
 
@@ -20,9 +16,6 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
-dist-ssr
-*.local
 
 .claude/*
 .codex/*

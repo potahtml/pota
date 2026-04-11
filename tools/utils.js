@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+export { execSync as $, spawn } from 'child_process'
 
 /**
  * Reads a UTF-8 encoded file from disk.
@@ -15,13 +16,14 @@ export const read = name =>
  *
  * @param {string} name
  * @param {string} content
- * @returns {boolean | undefined} True when the file was updated.
+ * @returns {boolean} True when the file was updated.
  */
 export const write = (name, content) => {
 	if (!exists(name) || read(name) !== content) {
 		fs.writeFileSync(mkdir(name), content)
 		return true
 	}
+	return false
 }
 
 /**
@@ -93,12 +95,9 @@ export const copy = (source, destination) =>
  * @returns {string}
  */
 export const mkdir = dir => {
-	fs.mkdirSync(
-		/[^\/]+\.[^\/]+$/.test(dir) ? path.dirname(dir) : dir,
-		{
-			recursive: true,
-		},
-	)
+	fs.mkdirSync(path.extname(dir) ? path.dirname(dir) : dir, {
+		recursive: true,
+	})
 	return dir
 }
 
@@ -109,7 +108,7 @@ export const mkdir = dir => {
  * @returns {string[]}
  */
 export const files = dir =>
-	fs.readdirSync(dir).map(file => dir + file)
+	fs.readdirSync(dir).map(file => path.join(dir, file))
 
 /**
  * Reads a directory and returns the names of its entries.
@@ -127,10 +126,8 @@ export const readdir = dir => fs.readdirSync(dir)
  */
 export const filesRecursive = dir =>
 	fs
-		.readdirSync(dir, {
-			recursive: true,
-		})
-		.map(file => dir + file)
+		.readdirSync(dir, { recursive: true })
+		.map(file => path.join(dir, file))
 
 /**
  * Watches a directory tree and runs a callback on changes.
@@ -141,3 +138,14 @@ export const filesRecursive = dir =>
  */
 export const watch = (dir, fn) =>
 	fs.watch(dir, { recursive: true }, fn)
+
+// --- colors ---
+
+/** @param {string} t */
+export const red = t => `\x1b[31m${t}\x1b[0m`
+/** @param {string} t */
+export const green = t => `\x1b[32m${t}\x1b[0m`
+/** @param {string} t */
+export const dim = t => `\x1b[2m${t}\x1b[0m`
+/** @param {string} t */
+export const white = t => `\x1b[37m${t}\x1b[0m`

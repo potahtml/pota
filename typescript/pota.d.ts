@@ -1,4 +1,4 @@
-import type { JSX } from '../src/jsx/jsx.d.ts'
+import type { JSX } from './jsx.d.ts'
 
 declare global {
 	// accessor

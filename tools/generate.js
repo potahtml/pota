@@ -1,8 +1,8 @@
 // this script creates importmap.json and types.json for use in docs/monaco
 
 import {
-	append,
 	filesRecursive,
+	green,
 	isDirectory,
 	read,
 	readdir,
@@ -10,19 +10,16 @@ import {
 	write,
 } from './utils.js'
 
-// continuously watch
-
-let timeout
-
-watch('./', () => {
-	clearTimeout(timeout)
-	timeout = setTimeout(run, 5000)
-})
-
-process.on('exit', run) // run on exit
+if (process.argv.includes('-w')) {
+	let timeout
+	watch('./', () => {
+		clearTimeout(timeout)
+		timeout = setTimeout(run, 5000)
+	})
+}
 
 function run() {
-	let changedSomething = false
+	let changedSomething = []
 
 	// importmap
 
@@ -47,15 +44,14 @@ function run() {
 					`"pota/${x.replace(/.js$/, '')}": "/node_modules/pota/src/lib/${x}"`,
 			)
 
-		changedSomething =
-			changedSomething ||
+		changedSomething.push(
 			write(
-				'./src/release/importmap.json',
+				'./generated/docs/importmap.json',
 				`{ "imports": {
 
 "pota": "/node_modules/pota/src/exports.js",
 
-"pota/babel-preset": "/node_modules/pota/src/babel-preset/index.js",
+"pota/babel-preset": "/node_modules/pota/babel-preset/babel-preset.js",
 "pota/jsx-runtime": "/node_modules/pota/src/jsx/jsx-runtime.js",
 "pota/jsx-dev-runtime": "/node_modules/pota/src/jsx/jsx-runtime.js",
 
@@ -67,7 +63,8 @@ ${use.join(',\n')},
 ${lib.join(',\n')}
 
 }}`,
-			)
+			),
+		)
 	}
 
 	// types
@@ -91,7 +88,9 @@ ${lib.join(',\n')}
 			}
 		}
 
-		const importmap = JSON.parse(read('./src/release/importmap.json'))
+		const importmap = JSON.parse(
+			read('./generated/docs/importmap.json'),
+		)
 		for (const moduleName in importmap.imports) {
 			if (
 				moduleName === 'pota/jsx-runtime' ||
@@ -104,17 +103,21 @@ ${lib.join(',\n')}
 			} else {
 				types.push({
 					f: moduleName + '/index.d.ts',
-					c: `export * from "${importmap.imports[moduleName].replace(/^.*\/pota\/src\//, 'pota/types/').replace(/\.js$/, '.d.ts')}"`,
+					c: `export * from "${importmap.imports[moduleName].replace(/^.*\/pota\/src\//, 'pota/generated/types/').replace(/\.js$/, '.d.ts')}"`,
 				})
 			}
 		}
 
-		changedSomething =
-			changedSomething ||
-			write('./src/release/types.json', JSON.stringify(types))
+		changedSomething.push(
+			write('./generated/docs/types.json', JSON.stringify(types)),
+		)
 	}
 
-	if (changedSomething) {
-		console.log('Generated importmap.json and types.json')
+	if (changedSomething.some(x => x)) {
+		console.log(
+			`Generated ${green('importmap.json')} and ${green('types.json')}\n`,
+		)
 	}
 }
+
+run()

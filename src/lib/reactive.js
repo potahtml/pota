@@ -111,7 +111,7 @@ export function withPrevValue(value, fn) {
 /**
  * Returns `true` when all derived has been resolved
  *
- * @template {ReturnType<import('./derived.d.ts').derived>} T
+ * @template {ReturnType<import('../../typescript/derived.d.ts').derived>} T
  * @param {...T} args
  * @returns {boolean}
  */

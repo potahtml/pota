@@ -13,6 +13,7 @@ export {
 	macrotask,
 	microtask,
 	sleep,
+	sleepLong,
 } from 'pota/use/test'
 
 // test wrapper — clears body/head, tracks results for run()
