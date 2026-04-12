@@ -43,8 +43,8 @@ export function paginateValues(items, numPerPage) {
  * Paginates items and provides "prev" and "next" functions to use on
  * pagination buttons
  *
- * @param {(start, end) => Accessor<unknown[]>} fetch - Function to
- *   get items from
+ * @param {(start: number, end: number) => unknown[]} fetch - Function
+ *   to get items from
  * @param {object} options
  * @param {Accessor<number>} options.numPerPage - How many items are
  *   displayed at the same time

@@ -11,11 +11,13 @@ import { isDisabled } from './form.js'
 
 /** @returns {HTMLElement[]} */
 const elements = () =>
-	toArray(
-		querySelectorAll(
-			document,
-			'input:not([type=hidden]), button, select, textarea, a, [tabindex], [contenteditable]',
-		),
+	/** @type {HTMLElement[]} */ (
+		toArray(
+			querySelectorAll(
+				document,
+				'input:not([type=hidden]), button, select, textarea, a, [tabindex], [contenteditable]',
+			),
+		)
 	)
 
 /**
@@ -23,8 +25,9 @@ const elements = () =>
  * start.
  */
 export function focusNext(all = elements()) {
-	// @ts-ignore
-	const idx = all.indexOf(activeElement())
+	const idx = all.indexOf(
+		/** @type {HTMLElement} */ (activeElement()),
+	)
 
 	// Try to find the next non-disabled element after current
 	all.some((el, i) => {

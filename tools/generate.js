@@ -98,12 +98,12 @@ ${lib.join(',\n')}
 			) {
 				types.push({
 					f: moduleName + '/index.d.ts',
-					c: `export * from "pota/typescript/exports.d.ts"`,
+					c: `export * from "typescript/exports.d.ts"`,
 				})
 			} else {
 				types.push({
 					f: moduleName + '/index.d.ts',
-					c: `export * from "${importmap.imports[moduleName].replace(/^.*\/pota\/src\//, 'pota/generated/types/').replace(/\.js$/, '.d.ts')}"`,
+					c: `export * from "${importmap.imports[moduleName].replace(/^.*\/?pota\/src\//, 'generated/types/').replace(/\.js$/, '.d.ts')}"`,
 				})
 			}
 		}

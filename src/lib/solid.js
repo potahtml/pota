@@ -812,7 +812,9 @@ export function createReactiveSystem() {
 		let result
 		syncEffect(() => {
 			const parentHandler =
-				Owner.context && Owner.context[errorHandlerId]
+				/** @type {((err: unknown) => void) | undefined} */ (
+					Owner.context && Owner.context[errorHandlerId]
+				)
 
 			const safeHandler = err => {
 				try {

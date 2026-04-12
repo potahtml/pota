@@ -25,7 +25,7 @@ import {
 const noError = Symbol()
 
 export function Errored(props) {
-	const [err, writeErr] = signal(noError)
+	const [err, writeErr] = signal(/** @type {unknown} */ (noError))
 	const [attempt, , updateAttempt] = signal(0)
 
 	const fallback = makeCallback(props.fallback)
