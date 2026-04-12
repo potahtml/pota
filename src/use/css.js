@@ -50,13 +50,16 @@ export const adoptedStyleSheets =
 	/* #__PURE__*/ getAdoptedStyleSheets(document)
 
 /**
- * Adds a style sheet to the document
+ * Adds a style sheet to the document. Idempotent — adding the same
+ * sheet twice leaves a single entry.
  *
  * @param {Document | ShadowRoot} document
  * @param {CSSStyleSheet} styleSheet
  */
-export const addAdoptedStyleSheet = (document, styleSheet) =>
-	getAdoptedStyleSheets(document).push(styleSheet)
+export const addAdoptedStyleSheet = (document, styleSheet) => {
+	const sheets = getAdoptedStyleSheets(document)
+	if (!sheets.includes(styleSheet)) sheets.push(styleSheet)
+}
 
 /**
  * Removes a style sheet from the document
