@@ -248,11 +248,10 @@ async function runSuite(browser, baseURL, files) {
 /**
  * Watches src/ and tests/ for changes and re-runs affected files.
  *
- * @param {Browser} browser
  * @param {string} baseURL
  * @param {boolean} [initialBailed]
  */
-function startWatching(browser, baseURL, initialBailed) {
+function startWatching(baseURL, initialBailed) {
 	console.log(`  ${dim('Watching for changes...')}\n`)
 
 	let running = false
@@ -260,6 +259,8 @@ function startWatching(browser, baseURL, initialBailed) {
 	let timer = null
 	let lastBailed = !!initialBailed
 	let lastFailed = initialBailed
+	let runCount = 0
+	const recycleEvery = 10
 
 	function schedule(only) {
 		// after a bail, always re-run the full suite
@@ -281,6 +282,12 @@ function startWatching(browser, baseURL, initialBailed) {
 			return
 		}
 		running = true
+
+		// recycle browser to avoid memory leaks
+		if (++runCount % recycleEvery === 0) {
+			await browser.close().catch(() => {})
+			browser = await launchBrowser()
+		}
 
 		const only = lastBailed ? undefined : pending || undefined
 		pending = null
@@ -329,10 +336,15 @@ function startWatching(browser, baseURL, initialBailed) {
 const { server, port: actualPort } = await startServer(port)
 const baseURL = `http://localhost:${actualPort}`
 
-const browser = await puppeteer.launch({
-	headless: true,
-	args: ['--disable-ipc-flooding-protection'],
-})
+/** Launches a fresh browser instance. */
+async function launchBrowser() {
+	return puppeteer.launch({
+		headless: true,
+		args: ['--disable-ipc-flooding-protection'],
+	})
+}
+
+let browser = await launchBrowser()
 
 /*// doesnt work
 const context = browser.defaultBrowserContext()
@@ -348,7 +360,7 @@ process.on('SIGTERM', () => process.exit())
 const initial = await runSuite(browser, baseURL, scanTests())
 
 if (doWatch) {
-	startWatching(browser, baseURL, initial.bailed)
+	startWatching(baseURL, initial.bailed)
 } else {
 	process.exit(initial.failed > 0 ? 1 : 0)
 }
