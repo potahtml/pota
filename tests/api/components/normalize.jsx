@@ -367,3 +367,56 @@ await test('Normalize - signal toggling between string and number stays in one t
 
 	dispose()
 })
+
+// --- use:normalize directive on native elements -------------------------
+
+await test('use:normalize - renders string children as textContent', expect => {
+	const dispose = render(<div use:normalize>hello</div>)
+	expect(body()).toBe('<div>hello</div>')
+	dispose()
+})
+
+await test('use:normalize - joins mixed children as text', expect => {
+	const dispose = render(
+		<div use:normalize>
+			{'foo'}
+			{42}
+			{'bar'}
+		</div>,
+	)
+	expect(body()).toBe('<div>foo42bar</div>')
+	dispose()
+})
+
+await test('use:normalize - resolves signal children as text', expect => {
+	const [val, setVal] = signal('first')
+	const dispose = render(<div use:normalize>{val}</div>)
+	expect(body()).toBe('<div>first</div>')
+	setVal('second')
+	expect(body()).toBe('<div>second</div>')
+	dispose()
+})
+
+await test('use:normalize - null and undefined become empty string', expect => {
+	const dispose = render(
+		<div use:normalize>
+			{'a'}
+			{null}
+			{undefined}
+			{'b'}
+		</div>,
+	)
+	expect(body()).toBe('<div>ab</div>')
+	dispose()
+})
+
+await test('use:normalize - number children cast to string', expect => {
+	const dispose = render(
+		<div use:normalize>
+			{0}
+			{1}
+		</div>,
+	)
+	expect(body()).toBe('<div>01</div>')
+	dispose()
+})

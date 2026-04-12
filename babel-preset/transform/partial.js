@@ -258,25 +258,23 @@ export function buildPartial(path, state) {
 						'setProperty',
 						inlinedNode,
 						'textContent',
-						t.arrowFunctionExpression(
-							[],
-							t.callExpression(
-								t.memberExpression(
-									callFunctionImport(
-										path,
-										state,
-										'pota',
-										'unwrap',
-										t.arrayExpression(
-											buildChildrenPartial(path).map(x =>
-												t.isArrowFunctionExpression(x) ? x.body : x,
-											),
+						callFunctionImport(
+							path,
+							state,
+							'pota/components',
+							'Normalize',
+							t.objectExpression([
+								t.objectProperty(
+									t.identifier('children'),
+									t.arrayExpression(
+										buildChildrenPartial(path).map(x =>
+											t.isArrowFunctionExpression(x)
+												? x.body
+												: x,
 										),
 									),
-									t.identifier('join'),
 								),
-								[t.stringLiteral('')],
-							),
+							]),
 						),
 					)
 
