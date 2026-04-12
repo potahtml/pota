@@ -204,11 +204,11 @@ export const walkElements = function (
 	 *
 	 * Also the first node could be a DocumentFragment
 	 */
-	node.nodeType === 1 && nodes.push(node)
+	node.nodeType === 1 && max > 0 && nodes.push(node)
 
 	walk.currentNode = node
 
-	while (nodes.length !== max && (node = walk.nextNode())) {
+	while (nodes.length < max && (node = walk.nextNode())) {
 		nodes.push(node)
 	}
 	return nodes
