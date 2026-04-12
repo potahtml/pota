@@ -71,15 +71,17 @@ export const removePart = (node, partName) =>
 
 /**
  * Splits a string by whitespace into tokens; returns `emptyArray` for
- * falsy input.
+ * falsy or whitespace-only input.
  *
  * @param {string | undefined | null} s
  * @returns {string[]}
  */
-export const tokenList = s =>
-	s
-		? s.trim().split(/\s+/)
-		: /** @type string[] */ (/** @type unknown */ emptyArray)
+export const tokenList = s => {
+	s = s?.trim()
+	return s
+		? s.split(/\s+/)
+		: /** @type string[] */ (/** @type unknown */ (emptyArray))
+}
 
 /**
  * Adds CSS classes to an element using either a string or an array.
