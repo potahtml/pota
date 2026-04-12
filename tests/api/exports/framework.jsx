@@ -830,7 +830,7 @@ await test('framework - child switching from single element to array to null', e
 
 // --- signal returning 0 and empty string render as text ----------------------
 
-await test('framework - falsy non-null values 0 and empty string render as text', expect => {
+await test('framework - falsy non-null values 0 and empty string render as text, booleans render as nothing', expect => {
 	const val = signal(0)
 	const dispose = render(<div>{val.read}</div>)
 
@@ -839,11 +839,12 @@ await test('framework - falsy non-null values 0 and empty string render as text'
 	val.write('')
 	expect($('div').textContent).toBe('')
 
+	// booleans are suppressed by the renderer
 	val.write(false)
-	expect($('div').textContent).toBe('false')
+	expect($('div').textContent).toBe('')
 
 	val.write(true)
-	expect($('div').textContent).toBe('true')
+	expect($('div').textContent).toBe('')
 
 	dispose()
 })
@@ -905,9 +906,9 @@ await test('framework - nested fragments flatten into parent', expect => {
 	dispose()
 })
 
-// --- booleans render as their string representation -------------------------
+// --- booleans render as nothing ---------------------------------------------
 
-await test('framework - boolean children render as text', expect => {
+await test('framework - boolean literal children are filtered out', expect => {
 	const dispose = render(
 		<div>
 			{false}
@@ -915,7 +916,7 @@ await test('framework - boolean children render as text', expect => {
 		</div>,
 	)
 
-	expect($('div').textContent).toBe('falsetrue')
+	expect($('div').textContent).toBe('')
 
 	dispose()
 })
@@ -1212,14 +1213,16 @@ await test('framework - destructuring props in a component body snapshots at mou
 
 // --- props property access IS reactive (if wrapped in a function) ----
 
-await test('framework - accessing props.value through a function stays reactive', expect => {
+await test('framework - passing a signal accessor as a prop stays reactive', expect => {
 	const count = signal(1)
 
 	function Widget(props) {
-		return <p>{() => props.value}</p>
+		// props.value is the reader function; pota wraps it
+		// in an effect when rendered as a child
+		return <p>{props.value}</p>
 	}
 
-	const dispose = render(<Widget value={count} />)
+	const dispose = render(<Widget value={count.read} />)
 
 	expect(body()).toBe('<p>1</p>')
 
@@ -1369,7 +1372,7 @@ await test('framework - component receives a reactive prop and updates in its ch
 		return <p>v:{props.value}</p>
 	}
 
-	const dispose = render(<Widget value={value} />)
+	const dispose = render(<Widget value={value.read} />)
 
 	expect($('p').textContent).toBe('v:first')
 

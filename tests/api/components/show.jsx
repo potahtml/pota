@@ -438,7 +438,9 @@ await test('Show - callback v is an accessor, callback is also an v() but casues
 await test('Show - callback returning derived function stays reactive without re-rendering Show', expect => {
 	const [val, setVal] = signal(0.6)
 	const dispose = render(
-		<Show when={val}>{v => () => v() > 0.5}</Show>,
+		// booleans render as nothing, so the derived function
+		// stringifies the comparison result to observe the value
+		<Show when={val}>{v => () => String(v() > 0.5)}</Show>,
 	)
 	expect(body()).toBe('true')
 	setVal(0.3)

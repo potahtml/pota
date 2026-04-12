@@ -555,8 +555,16 @@ export function createChildren(
 		case 'undefined': {
 			return undefined
 		}
+		case 'boolean': {
+			// Dynamic booleans (e.g. from `cond && <span/>` short-
+			// circuits) render as nothing. Literal booleans in markup
+			// are filtered out at compile time by the Babel preset
+			// (babel-preset/transform/children.js), so compile-time
+			// and runtime behavior stay consistent.
+			return undefined
+		}
 		default: {
-			// boolean/bigint/symbol/catch all
+			// bigint/symbol/catch all
 			// toString() is needed for `Symbol`
 			return createChildren(parent, child.toString(), relative)
 		}

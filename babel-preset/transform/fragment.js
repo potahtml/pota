@@ -11,5 +11,5 @@ export function buildFragment(path, state) {
 	} else if (children.length > 1) {
 		return t.arrayExpression(children)
 	}
-	return undefined
+	return t.nullLiteral()
 }

@@ -332,19 +332,22 @@ await test('Normalize - null and undefined alone produce empty body', expect => 
 	dispose()
 })
 
-// --- Normalize with boolean children: booleans stringify via join -
+// --- Normalize with boolean children: booleans filter out --------
 
-await test('Normalize - boolean children are stringified in the joined text', expect => {
-	// Normalize does `.join('')` on its children; booleans become
-	// 'true'/'false' text, not filtered.
+await test('Normalize - boolean children are filtered out leaving only text', expect => {
+	// Literal booleans (and null/undefined) are dropped at compile
+	// time by the Babel preset, so only the `text` JSXText survives
+	// into Normalize's joined output.
 	const dispose = render(
 		<Normalize>
+			{undefined}
+			{null}
 			{true}
 			text
 			{false}
 		</Normalize>,
 	)
-	expect(body()).toBe('truetextfalse')
+	expect(body()).toBe('text')
 	dispose()
 })
 
@@ -352,7 +355,7 @@ await test('Normalize - boolean children are stringified in the joined text', ex
 
 await test('Normalize - signal toggling between string and number stays in one text node', expect => {
 	const v = signal('hello')
-	const dispose = render(<Normalize>{v}</Normalize>)
+	const dispose = render(<Normalize>{v.read}</Normalize>)
 
 	expect(body()).toBe('hello')
 

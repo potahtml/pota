@@ -130,15 +130,17 @@ await test('transform - null and undefined children render nothing', expect => {
 	dispose()
 })
 
-await test('transform - boolean children render as their string form', expect => {
+await test('transform - boolean children are filtered out', expect => {
 	const dispose = render(
 		<p>
 			a{true}b{false}c
 		</p>,
 	)
 
-	// pota renders booleans as text (not suppressed like React/Solid)
-	expect(body()).toBe('<p>atruebfalsec</p>')
+	// boolean literals are filtered at compile time and runtime
+	// booleans are suppressed in the renderer — either way they
+	// render as nothing
+	expect(body()).toBe('<p>abc</p>')
 
 	dispose()
 })
@@ -181,10 +183,10 @@ await test('transform - ternary picks the matching branch', expect => {
 
 // --- reactive children ---------------------------------------------------
 
-await test('transform - signal passed as child is subscribed and updates in place', expect => {
+await test('transform - signal accessor passed as child is subscribed and updates in place', expect => {
 	const count = signal(0)
 
-	const dispose = render(<p>{count}</p>)
+	const dispose = render(<p>{count.read}</p>)
 
 	expect(body()).toBe('<p>0</p>')
 

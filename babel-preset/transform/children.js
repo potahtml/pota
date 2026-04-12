@@ -38,6 +38,17 @@ export function buildChildrenPartial(path) {
 			if (r) {
 				return t.stringLiteral(String(r.value))
 			}
+			// Literal null / undefined / boolean children render as
+			// nothing, so filter them out entirely. Runtime booleans
+			// (from `cond && X`) are also suppressed in the renderer
+			// (createChildren), so compile-time and runtime behavior
+			// stay consistent.
+			if (isNullUndefined(child) || isBoolean(child)) {
+				return null
+			}
+			if (isChildrenLiteral(child)) {
+				return t.stringLiteral(getChildrenLiteral(child))
+			}
 			return child
 		})
 		.filter(x => x !== null)
@@ -79,12 +90,7 @@ export function isChildrenLiteral(value) {
 		return isChildrenLiteral(value.expression)
 	}
 
-	return (
-		isString(value) ||
-		isNumber(value) ||
-		isBoolean(value) ||
-		isNullUndefined(value)
-	)
+	return isString(value) || isNumber(value)
 }
 
 /** Gets children string or number */
