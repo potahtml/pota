@@ -8,6 +8,7 @@ export {
 	action,
 	asyncEffect,
 	batch,
+	catchError,
 	cleanup,
 	context,
 	derived,

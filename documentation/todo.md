@@ -14,6 +14,11 @@
   level owned, even if doesnt garbage collects - I couldnt figure out
   this one out
 - maybe ask for coverage reporting
+- see if we can make root batched by default
+- maybe ask for a flush
+- improve jsx
+- get rid of colorsio
+- ask for performance improvements realted to polymorphism
 
 ### documentation
 
@@ -46,12 +51,6 @@
 - refactor transform again !
 - avoid double wrapping functions exclusively to use with the
   transform. Ex: not for tsc, react compiler, buildless/xml
-- may ask for a Errored component
-- see if we can make root batched by default
-- maybe ask for a flush
-- improve jsx
-- get rid of colorsio
-- ask for performance improvements realted to polymorphism
 
 ### typescript
 
@@ -84,11 +83,8 @@
 - uploads
 - record audio, video
 - splitter
-- Error component
 - maybe make a `<WithDocument document={document}/>` so stuff stops
   breaking with popups
-- web components slots
-- web components WIP
 
 ### tools
 

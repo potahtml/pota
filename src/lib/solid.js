@@ -58,6 +58,14 @@ export function createReactiveSystem() {
 
 	let Time = 0
 
+	const errorHandlerId = Symbol()
+
+	function routeError(node, err) {
+		const handler = node.context && node.context[errorHandlerId]
+		if (handler) handler(err)
+		else console.error(err)
+	}
+
 	function doRead(o) {
 		if (Listener) {
 			const sourceSlot = o.observers ? o.observers.length : 0
@@ -179,11 +187,19 @@ export function createReactiveSystem() {
 			if (!this.cleanups) {
 			} else if (isArray(this.cleanups)) {
 				for (let i = this.cleanups.length - 1; i >= 0; i--) {
-					this.cleanups[i]()
+					try {
+						this.cleanups[i]()
+					} catch (err) {
+						routeError(this, err)
+					}
 				}
 				this.cleanups = undefined
 			} else {
-				this.cleanups()
+				try {
+					this.cleanups()
+				} catch (err) {
+					routeError(this, err)
+				}
 				this.cleanups = undefined
 			}
 		}
@@ -220,11 +236,18 @@ export function createReactiveSystem() {
 
 			const time = Time
 
-			runWith(this.fn, this, this)
+			try {
+				runWith(this.fn, this, this)
 
-			/*} catch (err) {
+				/*} catch (err) {
+					this.updatedAt = time + 1
+				}*/
+			} catch (err) {
+				this.state = 1 /* STALE */
+				this.disposeOwned()
 				this.updatedAt = time + 1
-			}*/
+				routeError(this, err)
+			}
 
 			if (this.updatedAt < time) {
 				this.updatedAt = time
@@ -363,20 +386,27 @@ export function createReactiveSystem() {
 
 			const time = Time
 
-			const nextValue = runWith(this.fn, this, this)
+			try {
+				const nextValue = runWith(this.fn, this, this)
 
-			/*} catch (err) {
-				this.state = 1 // STALE
+				/*} catch (err) {
+					this.state = 1 // STALE
+					this.disposeOwned()
+
+					this.updatedAt = time + 1
+
+					throw err
+				} */
+
+				if (this.updatedAt <= time) {
+					this.write(nextValue)
+					this.updatedAt = time
+				}
+			} catch (err) {
+				this.state = 1 /* STALE */
 				this.disposeOwned()
-
 				this.updatedAt = time + 1
-
-				throw err
-			} */
-
-			if (this.updatedAt <= time) {
-				this.write(nextValue)
-				this.updatedAt = time
+				routeError(this, err)
 			}
 		}
 		queue() {
@@ -422,26 +452,35 @@ export function createReactiveSystem() {
 		update() {
 			this.dispose()
 
-			this.lastWrite = {}
+			const time = Time
 
-			runWith(
-				() => {
-					// @ts-expect-error
-					this.write(this.fn[0](), this.fn.slice(1))
-				},
-				this,
-				this,
-			)
-			/*
-				} catch (err) {
-					this.state = 1 // STALE
-					this.disposeOwned()
+			try {
+				this.lastWrite = {}
 
-					this.updatedAt = time + 1
+				runWith(
+					() => {
+						// @ts-expect-error
+						this.write(this.fn[0](), this.fn.slice(1))
+					},
+					this,
+					this,
+				)
+				/*
+					} catch (err) {
+						this.state = 1 // STALE
+						this.disposeOwned()
 
-					throw err
-				}
-			*/
+						this.updatedAt = time + 1
+
+						throw err
+					}
+				*/
+			} catch (err) {
+				this.state = 1 /* STALE */
+				this.disposeOwned()
+				this.updatedAt = time + 1
+				routeError(this, err)
+			}
 		}
 		write(nextValue, fns) {
 			this.isResolved = undefined
@@ -728,7 +767,11 @@ export function createReactiveSystem() {
 		}
 	}
 	function runWithOwner(owner, fn) {
-		return runWith(() => runUpdates(fn, true), owner)
+		try {
+			return runWith(() => runUpdates(fn, true), owner)
+		} catch (err) {
+			routeError(owner, err)
+		}
 	}
 
 	/**
@@ -756,6 +799,42 @@ export function createReactiveSystem() {
 	function cleanup(fn) {
 		Owner?.addCleanups(fn)
 		return fn
+	}
+
+	/**
+	 * Runs `fn` and routes any error — synchronous or reactive — from
+	 * its descendants to `handler` instead of the console.
+	 *
+	 * @param {() => any} fn
+	 * @param {(err: unknown) => void} handler
+	 */
+	function catchError(fn, handler) {
+		let result
+		syncEffect(() => {
+			const parentHandler =
+				Owner.context && Owner.context[errorHandlerId]
+
+			const safeHandler = err => {
+				try {
+					handler(err)
+				} catch (handlerErr) {
+					if (parentHandler) parentHandler(handlerErr)
+					else console.error(handlerErr)
+				}
+			}
+
+			Owner.context = {
+				...Owner.context,
+				[errorHandlerId]: safeHandler,
+			}
+			try {
+				result = untrack(fn)
+			} catch (err) {
+				Owner.disposeOwned()
+				safeHandler(err)
+			}
+		})
+		return result
 	}
 
 	// UPDATES
@@ -1061,7 +1140,7 @@ export function createReactiveSystem() {
 				)
 			})
 		} else if (isPromise(value)) {
-			asyncTracking.add()
+			const remove = asyncTracking.add()
 			/**
 			 * WriteDefaultValue is used to avoid a double write. If the
 			 * value has no promises, then it will be a native value or a
@@ -1074,19 +1153,20 @@ export function createReactiveSystem() {
 			wroteValue.value = true
 
 			value.then(
-				owned(
-					value => {
-						asyncTracking.remove()
-						withValue(
-							value,
-							fn,
-							writeDefaultValue,
-							wroteValue,
-							resolved,
-						)
-					},
-					() => asyncTracking.remove(),
-				),
+				owned(value => {
+					remove()
+					withValue(
+						value,
+						fn,
+						writeDefaultValue,
+						wroteValue,
+						resolved,
+					)
+				}, remove),
+				owned(err => {
+					remove()
+					throw err
+				}, remove),
 			)
 		} else {
 			fn(value)
@@ -1101,7 +1181,12 @@ export function createReactiveSystem() {
 		isFunction(value)
 			? track(() => resolve(getValue(value), cbs))
 			: isPromise(value)
-				? value.then(owned(value => resolve(value, cbs)))
+				? value.then(
+						owned(value => resolve(value, cbs)),
+						owned(err => {
+							throw err
+						}),
+					)
 				: cbs.length
 					? resolve(() => cbs[0](value), cbs.slice(1))
 					: value
@@ -1126,6 +1211,13 @@ export function createReactiveSystem() {
 
 		function add() {
 			count++
+			let removed
+			return () => {
+				if (removed === undefined) {
+					removed = null
+					remove()
+				}
+			}
 		}
 
 		function remove() {
@@ -1151,22 +1243,23 @@ export function createReactiveSystem() {
 				call(cbs)
 			}
 		}
-		return { add, remove, ready }
+		return { add, ready }
 	})()
 
 	/** Suspense */
 	class createSuspenseContext {
 		s = signal(false)
 		c = 0
+		r = []
 		add() {
 			this.c++
-			asyncTracking.add()
+			this.r.push(asyncTracking.add())
 		}
 		remove() {
 			if (--this.c === 0) {
 				this.s.write(true)
 			}
-			asyncTracking.remove()
+			this.r.pop()()
 		}
 		isEmpty() {
 			return this.c === 0
@@ -1186,6 +1279,7 @@ export function createReactiveSystem() {
 		action,
 		asyncTracking,
 		batch,
+		catchError,
 		cleanup,
 		context,
 		createSuspenseContext,

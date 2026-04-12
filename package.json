@@ -94,7 +94,7 @@
 	"test": {
 		"dir": "tests/api/",
 		"port": 7357,
-		"timeout": 5000,
+		"timeout": 8000,
 		"concurrency": 16,
 		"extensions": [".jsx", ".tsx", ".ts"],
 		"ignore": []

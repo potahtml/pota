@@ -1,5 +1,6 @@
 export { Collapse } from './Collapse.js'
 export { Dynamic } from './Dynamic.js'
+export { Errored } from './Errored.js'
 export { For } from './For.js'
 export { Head } from './Head.js'
 export { Portal } from './Portal.js'

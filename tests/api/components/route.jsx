@@ -14,7 +14,7 @@ import {
 } from '#test'
 
 import { render, root } from 'pota'
-import { Route, A, Navigate, load } from 'pota/components'
+import { Route, A, Navigate, load, Errored } from 'pota/components'
 import {
 	addListeners,
 	navigate,
@@ -991,6 +991,36 @@ await test('load - retries on failure and eventually renders error string', asyn
 
 	expect(attempts >= 1).toBe(true)
 
+	dispose()
+	await reset()
+})
+
+await test('load - after exhausting retries, error routes to Errored boundary', async expect => {
+	await reset()
+	const originalError = console.error
+	console.error = () => {}
+
+	// start at tries=9 so first failure immediately throws
+	const Lazy = load(
+		() => Promise.reject(new Error('permanent failure')),
+		9,
+	)
+
+	const dispose = render(
+		<Route path="/load-errored$">
+			<Errored fallback={err => <p>{err.message}</p>}>
+				<Lazy />
+			</Errored>
+		</Route>,
+	)
+
+	goto('/load-errored')
+	await macrotask()
+	await sleepLong()
+
+	expect(body()).toInclude('permanent failure')
+
+	console.error = originalError
 	dispose()
 	await reset()
 })

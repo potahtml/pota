@@ -21,9 +21,8 @@ import { scroll } from './scroll.js'
 export function load(component, tries = 0) {
 	return markComponent(() => {
 		/**
-		 * Owner is messed up because we are running the promise ourselves
-		 * to be able to catch errors. Once pota supports error handling
-		 * this wont be needed.
+		 * `owned` preserves the owner across the async boundary so
+		 * the loaded component renders in the correct reactive scope.
 		 */
 		let fn
 		const withOwner = markComponent(owned(() => fn()))
@@ -43,7 +42,10 @@ export function load(component, tries = 0) {
 							fn = () => load(component, tries)
 							useTimeout(() => resolve(withOwner), 5000).start()
 						} else {
-							resolve(e.toString())
+							fn = () => {
+								throw e
+							}
+							resolve(withOwner)
 						}
 					}),
 			)

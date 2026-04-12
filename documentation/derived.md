@@ -55,12 +55,12 @@ update() {
         this.state = 1 /* STALE */
         this.disposeOwned()
         this.updatedAt = time + 1
-        this.handleError(err)
+        routeError(this, err)
     }
 }
 ```
 
-`runWith(fn, listener, owner)` sets `Listener = Owner = this`, so
+`runWith(fn, owner, listener)` sets `Owner = Listener = this`, so
 signals read during `this.fn[0]()` register **this Derived** as
 an observer. The result is then written via `this.write(result,
 [f1, f2])` — the remaining functions are passed as the `fns`
