@@ -3,7 +3,7 @@ import { getValue, toArray } from '../lib/std.js'
 
 /**
  * @typedef {object} PaginatePage
- * @property {Accessor<unknown[]>} items - The sliced items
+ * @property {SignalAccessor<unknown[]>} items - The sliced items
  * @property {SignalAccessor<number>} currentPage - The page number
  * @property {SignalAccessor<number>} totalPages - Amount of pages
  * @property {() => boolean} hasNext - Returns a boolean indicating if
@@ -53,31 +53,40 @@ export function paginateValues(items, numPerPage) {
  * @returns {PaginatePage}
  */
 export function paginate(fetch, options) {
-	const [page, pageSet, pageUpdate] = signal(0)
+	const [page, , pageUpdate] = signal(0)
 
-	const totalPages = memo(() => {
-		const pages = Math.ceil(
-			/** @type {number} */ (getValue(options.numItems)) /
-				/** @type {number} */ (getValue(options.numPerPage)),
-		)
-		if (page() >= pages) pageSet(pages - 1)
-		return pages
-	})
+	const totalPages = memo(() =>
+		Math.max(
+			0,
+			Math.ceil(
+				/** @type {number} */ (getValue(options.numItems)) /
+					/** @type {number} */ (
+						getValue(options.numPerPage)
+					),
+			),
+		),
+	)
 
-	const hasPrevious = () => page() !== 0
-	const hasNext = () => page() + 1 < totalPages()
+	const currentPage = memo(() =>
+		Math.min(page(), Math.max(0, totalPages() - 1)),
+	)
+
+	const hasPrevious = () => currentPage() > 0
+	const hasNext = () => currentPage() + 1 < totalPages()
 
 	return {
 		items: memo(() => {
 			const numPerPage = getValue(options.numPerPage)
-			const start = page() * numPerPage
+			const start = currentPage() * numPerPage
 			return fetch(start, start + numPerPage)
 		}),
-		currentPage: () => page() + 1,
+		currentPage: () => currentPage() + 1,
 		totalPages,
 		hasNext,
-		next: () => hasNext() && pageUpdate(value => value + 1),
+		next: () =>
+			hasNext() && pageUpdate(value => value + 1),
 		hasPrevious,
-		previous: () => hasPrevious() && pageUpdate(value => value - 1),
+		previous: () =>
+			hasPrevious() && pageUpdate(value => value - 1),
 	}
 }
