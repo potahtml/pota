@@ -421,6 +421,9 @@ export function createReactiveSystem() {
 		}
 		update() {
 			this.dispose()
+
+			this.lastWrite = {}
+
 			runWith(
 				() => {
 					// @ts-expect-error
@@ -441,38 +444,42 @@ export function createReactiveSystem() {
 			*/
 		}
 		write(nextValue, fns) {
-			const time = Time
+			this.isResolved = undefined
 
-			if (this.updatedAt <= time) {
-				this.isResolved = undefined
+			const mine =
+				fns === undefined ? (this.lastWrite = {}) : this.lastWrite
 
-				withValue(
-					nextValue,
-					nextValue => {
-						if (this.updatedAt <= time) {
-							if (fns && fns.length) {
-								const fn = fns.shift()
-								this.write(() => fn(nextValue), fns)
-							} else {
-								this.isResolved = null
+			withValue(
+				nextValue,
+				nextValue => {
+					if (Listener || this.lastWrite === mine) {
+						if (fns && fns.length) {
+							this.write(() => fns[0](nextValue), fns.slice(1))
+						} else {
+							this.isResolved = null
 
-								this.writeNextValue(nextValue)
-								this.updatedAt = time
+							this.writeNextValue(nextValue)
+							this.updatedAt = Time
+							// Mark CLEAN so a subsequent read does
+							// not re-run the original fn and clobber
+							// the user-written value. The update()
+							// path already set CLEAN via dispose(),
+							// so this is a no-op there.
+							this.state = 0 /* CLEAN */
 
-								this.resolve && this.resolve(this)
-							}
+							this.resolve && this.resolve(this)
 						}
-					},
-					() => {
-						// is a promise so restore `then`
-						this.thenRestore()
+					}
+				},
+				() => {
+					// is a promise so restore `then`
+					this.thenRestore()
 
-						// remove the old value while the promise is resolving
-						// to avoid the "Florida - New York City" problem
-						this.writeNextValue(nothing)
-					},
-				)
-			}
+					// remove the old value while the promise is resolving
+					// to avoid the "Florida - New York City" problem
+					this.writeNextValue(nothing)
+				},
+			)
 		}
 		writeNextValue(value) {
 			if (!this.equals(this.value, value)) {
@@ -1026,9 +1033,14 @@ export function createReactiveSystem() {
 
 			resolved.push(value)
 
-			let pending = 0
+			// when empty it should update too
+			if (value.length === 0) {
+				fn(value)
+				return
+			}
+
+			let pending = value.length
 			value.forEach((item, i) => {
-				pending++
 				withValue(
 					item,
 					item => {
