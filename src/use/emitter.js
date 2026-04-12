@@ -1,4 +1,5 @@
 import { cleanup, effect, signal, untrack } from '../lib/reactive.js'
+import { getValue } from '../lib/std.js'
 
 /** @template T */
 export class Emitter {
@@ -14,7 +15,7 @@ export class Emitter {
 	/**
 	 * @param {{
 	 * 	on: (dispatch: (arg: T) => void) => () => void
-	 * 	initialValue?: () => T
+	 * 	initialValue?: T | (() => T)
 	 * }} arg
 	 */
 	constructor({ on, initialValue = () => undefined }) {
@@ -45,7 +46,7 @@ export class Emitter {
 		if (++this.#counter === 1) {
 			this.#signal = this.#signal || signal()
 			// value updates with initialValue
-			this.#signal.write(untrack(this.#initialValue))
+			this.#signal.write(untrack(() => getValue(this.#initialValue)))
 
 			this.#off = untrack(() => this.#on(this.#signal.write))
 		}
