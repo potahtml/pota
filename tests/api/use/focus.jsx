@@ -142,3 +142,45 @@ await test('focus - focusNext with a single tabbable element focuses it again', 
 
 	only.remove()
 })
+
+// --- scoped focusNext and focusPrevious ---------------------------------
+
+await test('focus - focusNext with scoped elements only cycles within scope', expect => {
+	const outside = document.createElement('input')
+	const one = document.createElement('button')
+	const two = document.createElement('input')
+
+	document.body.append(outside, one, two)
+
+	one.focus()
+	focusNext([one, two])
+	expect(document.activeElement).toBe(two)
+
+	// wraps within scope, not to `outside`
+	focusNext([one, two])
+	expect(document.activeElement).toBe(one)
+
+	outside.remove()
+	one.remove()
+	two.remove()
+})
+
+await test('focus - focusPrevious with scoped elements only cycles within scope', expect => {
+	const outside = document.createElement('input')
+	const one = document.createElement('button')
+	const two = document.createElement('input')
+
+	document.body.append(outside, one, two)
+
+	two.focus()
+	focusPrevious([one, two])
+	expect(document.activeElement).toBe(one)
+
+	// wraps within scope, not to `outside`
+	focusPrevious([one, two])
+	expect(document.activeElement).toBe(two)
+
+	outside.remove()
+	one.remove()
+	two.remove()
+})
