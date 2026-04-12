@@ -291,14 +291,15 @@ export function equals(a, b) {
 }
 
 export function deepFreeze(o) {
-	freeze(o)
-	for (const item of values(o)) {
-		if (item && typeof item === 'object' && !isFrozen(item)) {
+	if (o !== null && isObject(o) && !isFrozen(o)) {
+		freeze(o)
+		for (const item of values(o)) {
 			deepFreeze(item)
 		}
 	}
 	return o
 }
+
 /**
  * Unwraps an array/childNodes to the first item if the length is 1
  *
