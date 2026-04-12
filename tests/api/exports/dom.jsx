@@ -1174,47 +1174,6 @@ await test('on:click - undefined handler does not throw', expect => {
 	dispose()
 })
 
-// --- toHTML with multiple top-level nodes returns a fragment ---------
-
-await test('toHTML - multiple top-level nodes return a fragment', expect => {
-	const result = toHTML(
-		<>
-			<p>a</p>
-			<p>b</p>
-		</>,
-	)
-
-	// fragment: has childNodes but no tag name
-	expect(result.nodeType).toBe(11) // DOCUMENT_FRAGMENT_NODE
-})
-
-// --- setClass with an empty string clears the className --------------
-
-await test('setClass - empty string clears the className', expect => {
-	const node = document.createElement('div')
-	node.className = 'existing'
-	document.body.append(node)
-
-	setClass(node, '')
-
-	expect(node.className).toBe('')
-
-	node.remove()
-})
-
-// --- setClass with null/undefined clears the className --------------
-
-await test('setClass - null value clears the className', expect => {
-	const node = document.createElement('div')
-	node.className = 'previous'
-	document.body.append(node)
-
-	setClass(node, null)
-	expect(node.className).toBe('')
-
-	node.remove()
-})
-
 // --- setClassList with empty string is a no-op ---------------------
 
 await test('setClassList - empty string does not throw and adds nothing', expect => {

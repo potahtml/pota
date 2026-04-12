@@ -287,4 +287,3 @@ await test('dom - walkElements with max=0 returns an empty collection', expect =
 
 	expect(walkElements(host, 0).length).toBe(0)
 })
-

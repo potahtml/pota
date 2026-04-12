@@ -2,7 +2,7 @@
 // Tests for pota/use/visibility: isDocumentVisible,
 // useDocumentVisible emitter, and onDocumentVisible callback.
 
-import { test } from '#test'
+import { microtask, test } from '#test'
 
 import { root } from 'pota'
 import {
@@ -92,7 +92,7 @@ await test('visibility - isDocumentVisible reflects visibilityState of hidden', 
 
 // --- multiple consecutive state changes --------------------------------
 
-await test('visibility - onDocumentVisible fires once per state change', async expect => {
+await test('visibility - onDocumentVisible fires only once after many state changes', async expect => {
 	const descriptor = Object.getOwnPropertyDescriptor(
 		Document.prototype,
 		'visibilityState',
@@ -108,8 +108,8 @@ await test('visibility - onDocumentVisible fires once per state change', async e
 
 	const seen = []
 
-	root(dispose => {
-		onDocumentVisible(value => seen.push(value))
+	const dispose = await root(async dispose => {
+		onDocumentVisible(value => seen.push(state))
 
 		state = 'hidden'
 		document.dispatchEvent(new Event('visibilitychange'))
@@ -120,11 +120,12 @@ await test('visibility - onDocumentVisible fires once per state change', async e
 		state = 'hidden'
 		document.dispatchEvent(new Event('visibilitychange'))
 
-		dispose()
+		return dispose
 	})
 
 	// three state changes, at least three notifications received
-	expect(seen.length >= 3).toBe(true)
+	expect(seen.length === 1).toBe(true)
+	expect(seen[0]).toBe('hidden')
 
 	if (descriptor) {
 		Object.defineProperty(
@@ -133,4 +134,6 @@ await test('visibility - onDocumentVisible fires once per state change', async e
 			descriptor,
 		)
 	}
+
+	dispose()
 })

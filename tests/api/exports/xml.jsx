@@ -322,9 +322,7 @@ await test('xml - caches parsed templates for the same tagged template', expect 
 await test('xml - multiple interpolations in a single attribute value', expect => {
 	const a = 'hello'
 	const b = 'world'
-	const dispose = render(
-		xml`<p class="${a}-${b}">text</p>`,
-	)
+	const dispose = render(xml`<p class="${a}-${b}">text</p>`)
 
 	expect($('p').className).toBe('hello-world')
 
@@ -364,9 +362,7 @@ await test('xml - nested xml fragments inside custom components', expect => {
 
 	const items = [1, 2, 3]
 	const dispose = render(
-		myXml`<List>${items.map(
-			n => myXml`<li>${n}</li>`,
-		)}</List>`,
+		myXml`<List>${items.map(n => myXml`<li>${n}</li>`)}</List>`,
 	)
 
 	expect(body()).toBe('<ul><li>1</li><li>2</li><li>3</li></ul>')
@@ -412,8 +408,7 @@ await test('xml - built-in For component iterates reactive lists', expect => {
 	const items = signal([1, 2, 3])
 	const dispose = render(
 		xml`<For each="${items.read}">${item =>
-			xml`<span>${item}</span>`
-		}</For>`,
+			xml`<span>${item}</span>`}</For>`,
 	)
 
 	expect(body()).toInclude('<span>1</span>')
@@ -449,15 +444,11 @@ await test('xml - SVG elements render with correct namespace', expect => {
 // --- xml MathML namespace ----------------------------------------------------
 
 await test('xml - MathML elements render with correct namespace', expect => {
-	const dispose = render(
-		xml`<math><mrow><mi>x</mi></mrow></math>`,
-	)
+	const dispose = render(xml`<math><mrow><mi>x</mi></mrow></math>`)
 
 	const math = $('math')
 	expect(math).not.toBe(null)
-	expect(math.namespaceURI).toBe(
-		'http://www.w3.org/1998/Math/MathML',
-	)
+	expect(math.namespaceURI).toBe('http://www.w3.org/1998/Math/MathML')
 
 	dispose()
 })
@@ -467,11 +458,7 @@ await test('xml - MathML elements render with correct namespace', expect => {
 await test('xml - SVG child elements inside a JSX svg parent have correct namespace', expect => {
 	const svgChild = xml`<circle cx="10" cy="10" r="5"/>`
 
-	const dispose = render(
-		<svg>
-			{svgChild}
-		</svg>,
-	)
+	const dispose = render(<svg>{svgChild}</svg>)
 
 	const circle = $('circle')
 	expect(circle).not.toBe(null)
@@ -536,9 +523,7 @@ await test('xml - number interpolation renders as text', expect => {
 await test('xml - reactive attribute set to null removes the attribute', expect => {
 	const value = signal('first')
 
-	const dispose = render(
-		xml`<p id=${() => value.read()}>hi</p>`,
-	)
+	const dispose = render(xml`<p id="${() => value.read()}">hi</p>`)
 
 	expect($('p').getAttribute('id')).toBe('first')
 

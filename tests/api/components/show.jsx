@@ -517,7 +517,7 @@ await test('Show - fallback as a function that returns reactive content', expect
 	const dispose = render(
 		<Show
 			when={flag.read}
-			fallback={() => <p>{label}</p>}
+			fallback={() => <p>{label.read}</p>}
 		>
 			<p>ready</p>
 		</Show>,

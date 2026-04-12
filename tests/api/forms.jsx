@@ -14,6 +14,7 @@
 import { $, $$, body, microtask, test } from '#test'
 
 import { render, signal } from 'pota'
+import { isDisabled } from 'pota/use/form'
 
 // --- form reset --------------------------------------------------------------
 
@@ -571,9 +572,7 @@ await test('forms - reset restores multiple fields at once', expect => {
 
 await test('forms - reactive text input value updates via signal', expect => {
 	const val = signal('initial')
-	const dispose = render(
-		<input prop:value={val.read} />,
-	)
+	const dispose = render(<input prop:value={val.read} />)
 
 	expect($('input').value).toBe('initial')
 
@@ -629,9 +628,7 @@ await test('forms - reactive select value updates via signal', expect => {
 
 await test('forms - reactive textarea value updates via signal', expect => {
 	const val = signal('hello')
-	const dispose = render(
-		<textarea prop:value={val.read} />,
-	)
+	const dispose = render(<textarea prop:value={val.read} />)
 
 	expect($('textarea').value).toBe('hello')
 
@@ -679,9 +676,7 @@ await test('forms - reactive range input value updates via signal', expect => {
 
 await test('forms - reactive disabled attribute updates via signal', expect => {
 	const off = signal(false)
-	const dispose = render(
-		<input disabled={off.read} />,
-	)
+	const dispose = render(<input disabled={off.read} />)
 
 	expect($('input').disabled).toBe(false)
 
@@ -828,9 +823,7 @@ await test('forms - reactive selected toggled on single option', expect => {
 
 await test('forms - reactive required attribute toggles via signal', expect => {
 	const req = signal(false)
-	const dispose = render(
-		<input required={req.read} />,
-	)
+	const dispose = render(<input required={req.read} />)
 
 	expect($('input').required).toBe(false)
 
@@ -884,9 +877,7 @@ await test('forms - reactive step attribute updates via signal', expect => {
 
 await test('forms - reactive pattern attribute updates via signal', expect => {
 	const pattern = signal('[A-Z]+')
-	const dispose = render(
-		<input pattern={pattern.read} />,
-	)
+	const dispose = render(<input pattern={pattern.read} />)
 
 	expect($('input').pattern).toBe('[A-Z]+')
 
@@ -918,9 +909,7 @@ await test('forms - reactive readonly toggles via signal', expect => {
 
 await test('forms - reactive maxlength attribute updates via signal', expect => {
 	const ml = signal('10')
-	const dispose = render(
-		<input maxlength={ml.read} />,
-	)
+	const dispose = render(<input maxlength={ml.read} />)
 
 	expect($('input').maxLength).toBe(10)
 
@@ -1007,9 +996,7 @@ await test('forms - number input under min reports rangeUnderflow', expect => {
 
 await test('forms - reactive type attribute switches input behavior', expect => {
 	const type = signal('text')
-	const dispose = render(
-		<input prop:type={type.read} />,
-	)
+	const dispose = render(<input prop:type={type.read} />)
 
 	expect($('input').type).toBe('text')
 
@@ -1045,9 +1032,7 @@ await test('forms - reactive multiple attribute on select', expect => {
 
 await test('forms - reactive class on input toggles via signal', expect => {
 	const cls = signal('plain')
-	const dispose = render(
-		<input class={cls.read} />,
-	)
+	const dispose = render(<input class={cls.read} />)
 
 	expect($('input').className).toBe('plain')
 
@@ -1059,9 +1044,7 @@ await test('forms - reactive class on input toggles via signal', expect => {
 
 await test('forms - reactive style on input updates via signal', expect => {
 	const color = signal('black')
-	const dispose = render(
-		<input style:color={color.read} />,
-	)
+	const dispose = render(<input style:color={color.read} />)
 
 	expect($('input').style.color).toBe('black')
 
@@ -1098,9 +1081,7 @@ await test('forms - reactive rows and cols on textarea', expect => {
 
 await test('forms - reactive name attribute updates via signal', expect => {
 	const name = signal('first')
-	const dispose = render(
-		<input name={name.read} />,
-	)
+	const dispose = render(<input name={name.read} />)
 
 	expect($('input').name).toBe('first')
 
@@ -1111,9 +1092,7 @@ await test('forms - reactive name attribute updates via signal', expect => {
 })
 
 await test('forms - autocomplete attribute renders correctly', expect => {
-	const dispose = render(
-		<input autocomplete="email" />,
-	)
+	const dispose = render(<input autocomplete="email" />)
 
 	expect($('input').autocomplete).toBe('email')
 
@@ -1194,9 +1173,7 @@ await test('forms - focus and blur events fire on input', expect => {
 // --- input selection range --------------------------------------------------
 
 await test('forms - selectionStart and selectionEnd work on text input', expect => {
-	const dispose = render(
-		<input prop:value="hello world" />,
-	)
+	const dispose = render(<input prop:value="hello world" />)
 
 	const input = $('input')
 
@@ -1271,9 +1248,7 @@ await test('forms - reactive list of inputs via signal array', expect => {
 // --- spellcheck and wrap attributes -----------------------------------------
 
 await test('forms - spellcheck attribute renders correctly', expect => {
-	const dispose = render(
-		<textarea prop:spellcheck={false} />,
-	)
+	const dispose = render(<textarea prop:spellcheck={false} />)
 
 	expect($('textarea').spellcheck).toBe(false)
 
@@ -1281,9 +1256,7 @@ await test('forms - spellcheck attribute renders correctly', expect => {
 })
 
 await test('forms - wrap attribute on textarea', expect => {
-	const dispose = render(
-		<textarea wrap="off" />,
-	)
+	const dispose = render(<textarea wrap="off" />)
 
 	expect($('textarea').wrap).toBe('off')
 
@@ -1342,10 +1315,10 @@ await test('forms - disabled fieldset disables all child inputs', expect => {
 	)
 
 	expect($('fieldset').hasAttribute('disabled')).toBe(true)
-	expect($('input[name="a"]').matches(':disabled')).toBe(true)
-	expect($('select[name="b"]').matches(':disabled')).toBe(true)
-	expect($('textarea[name="c"]').matches(':disabled')).toBe(true)
-	expect($('button').matches(':disabled')).toBe(true)
+	expect(isDisabled($('input[name="a"]'))).toBe(true)
+	expect(isDisabled($('select[name="b"]'))).toBe(true)
+	expect(isDisabled($('textarea[name="c"]'))).toBe(true)
+	expect(isDisabled($('button'))).toBe(true)
 
 	dispose()
 })
@@ -2053,9 +2026,9 @@ await test('forms - disabled fieldset disables all nested inputs', expect => {
 	)
 
 	const [a, b] = $$('input')
-	expect(a.disabled).toBe(true)
-	expect(b.disabled).toBe(true)
-	expect($('button').disabled).toBe(true)
+	expect(isDisabled(a)).toBe(true)
+	expect(isDisabled(b)).toBe(true)
+	expect(isDisabled($('button'))).toBe(true)
 
 	dispose()
 })
@@ -2093,9 +2066,7 @@ await test('forms - form target attribute renders on form', expect => {
 // --- form enctype attribute -------------------------------------------
 
 await test('forms - form enctype=multipart/form-data renders on form', expect => {
-	const dispose = render(
-		<form enctype="multipart/form-data" />,
-	)
+	const dispose = render(<form enctype="multipart/form-data" />)
 
 	expect($('form').enctype).toBe('multipart/form-data')
 

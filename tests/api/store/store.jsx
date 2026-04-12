@@ -122,42 +122,22 @@ await test('firewall - tracks multiple independent signals together', expect => 
 
 // --- updateBlacklist ------------------------------------------------------
 
-await test('updateBlacklist - accepts a window-like object and keeps tracked constructors writable', expect => {
-	expect(() =>
-		updateBlacklist({
-			Object,
-			Array,
-			Map,
-			Symbol,
-			CustomThing: class CustomThing {},
-		}),
-	).not.toThrow()
-})
-
-await test('updateBlacklist - calling twice with the same input is a no-op', expect => {
-	const input = { Object, Array, Map }
-
+// updateBlacklist's contract is `Window & typeof globalThis`, so the
+// only meaningful check is that calling it against the real window
+// twice is idempotent and leaves `constructorsTracked` (Object,
+// Array, Map) still mutable afterwards.
+await test('updateBlacklist - idempotent when called twice with window', expect => {
 	expect(() => {
-		updateBlacklist(input)
-		updateBlacklist(input)
+		updateBlacklist(window)
+		updateBlacklist(window)
 	}).not.toThrow()
-})
 
-await test('updateBlacklist - empty-ish input does not break the store', expect => {
-	// A window stand-in with no extra constructors to blacklist.
-	expect(() => updateBlacklist({ Symbol })).not.toThrow()
-})
+	const state = mutable({
+		a: 1,
+		list: [1, 2],
+		map: new Map([['k', 1]]),
+	})
 
-await test('updateBlacklist - Object, Array, and Map remain mutable after update', expect => {
-	// After updateBlacklist runs, the three tracked constructors must
-	// still be tracked (that is the whole point of
-	// `constructorsTracked`). A mutable built from them should be
-	// reactive.
-	updateBlacklist({ Object, Array, Map, Symbol })
-
-	const state = mutable({ a: 1, list: [1, 2], map: new Map([['k', 1]]) })
-
-	// Writes should not throw (store still reactive / not locked down).
 	expect(() => {
 		state.a = 2
 		state.list.push(3)

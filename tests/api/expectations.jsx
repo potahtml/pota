@@ -5,7 +5,7 @@
 // hidden-but-mounted Collapse state, and reactive-pitfall patterns.
 import { $, $$, body, microtask, test } from '#test'
 
-import { ready, render, signal, memo, effect, root, syncEffect } from 'pota'
+import { ready, render, signal, memo, effect, root, syncEffect, cleanup, batch } from 'pota'
 import { Collapse, Suspense } from 'pota/components'
 
 await test('expectations - render inserts DOM synchronously, ref is immediate, and connected/ready wait for the next microtask', async expect => {
@@ -151,8 +151,8 @@ await test('expectations - reading a signal outside JSX captures the value at re
 await test('expectations - passing a signal directly as a child makes it reactive', expect => {
 	const count = signal(1)
 
-	// correct way: the signal itself is passed in
-	const dispose = render(<p>reactive: {count}</p>)
+	// correct way: the signal reader accessor is passed in
+	const dispose = render(<p>reactive: {count.read}</p>)
 
 	expect(body()).toBe('<p>reactive: 1</p>')
 
@@ -237,9 +237,9 @@ await test('expectations - an effect cleanup runs before the next invocation, no
 	const disposeRoot = root(dispose => {
 		effect(() => {
 			order.push('effect:' + trigger.read())
-			return () => {
+			cleanup(() => {
 				order.push('cleanup:' + trigger.read())
-			}
+			})
 		})
 		return dispose
 	})
@@ -285,10 +285,11 @@ await test('expectations - disposing a render call fully removes its rendered no
 await test('expectations - spread props containing a signal stay reactive after render', expect => {
 	const id = signal('first')
 
+	// In pota the reactive value inside a spread is a function
+	// (the reader accessor), not a getter: assignProps passes the
+	// value straight to withValue, which wraps functions in effects.
 	const props = {
-		get id() {
-			return id.read()
-		},
+		id: id.read,
 		class: 'static',
 	}
 
@@ -303,39 +304,43 @@ await test('expectations - spread props containing a signal stay reactive after 
 	dispose()
 })
 
-// --- syncEffect runs immediately, effect defers --------------------------
+// --- syncEffect runs before user effects in the same flush ---------------
 
-await test('expectations - syncEffect runs during write, effect runs on microtask', async expect => {
+await test('expectations - syncEffect runs before effect within the same flush, both coalesce across a batch', expect => {
 	const count = signal(0)
-	const syncRuns = []
-	const deferredRuns = []
+	const log = []
 
 	const dispose = root(dispose => {
 		syncEffect(() => {
-			syncRuns.push(count.read())
+			log.push('sync:' + count.read())
 		})
 		effect(() => {
-			deferredRuns.push(count.read())
+			log.push('user:' + count.read())
 		})
 		return dispose
 	})
 
-	expect(syncRuns).toEqual([0])
-	// deferred hasn't run yet in this tick
-	expect(deferredRuns).toEqual([])
+	// each ran immediately at creation, in construction order
+	expect(log).toEqual(['sync:0', 'user:0'])
 
-	await microtask()
-	expect(deferredRuns).toEqual([0])
+	log.length = 0
 
+	// a single write triggers both observers; the flush queue runs
+	// non-user (syncEffect) before user (effect)
 	count.write(1)
+	expect(log).toEqual(['sync:1', 'user:1'])
 
-	// syncEffect ran as part of the write
-	expect(syncRuns).toEqual([0, 1])
-	// effect is still deferred
-	expect(deferredRuns).toEqual([0])
+	log.length = 0
 
-	await microtask()
-	expect(deferredRuns).toEqual([0, 1])
+	// multiple writes inside a batch coalesce — each observer
+	// runs exactly once with the final value, preserving the
+	// sync-before-user order
+	batch(() => {
+		count.write(2)
+		count.write(3)
+		count.write(4)
+	})
+	expect(log).toEqual(['sync:4', 'user:4'])
 
 	dispose()
 })

@@ -205,7 +205,7 @@ await test('Dynamic - reactive text children in a function component update on s
 	const name = signal('Ada')
 
 	const dispose = render(
-		<Dynamic component={() => <p>{name}</p>} />,
+		<Dynamic component={() => <p>{name.read}</p>} />,
 	)
 
 	expect(body()).toBe('<p>Ada</p>')

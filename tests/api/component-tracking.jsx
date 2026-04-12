@@ -27,9 +27,7 @@ await test('tracking - Show callback wrapped in () => updates reactively', expec
 	const count = signal(1)
 
 	const dispose = render(
-		<Show when={count.read}>
-			{v => <p>{() => v()}</p>}
-		</Show>,
+		<Show when={count.read}>{v => <p>{() => v()}</p>}</Show>,
 	)
 
 	expect(body()).toBe('<p>1</p>')
@@ -49,9 +47,7 @@ await test('tracking - Show callback without () => does not update', expect => {
 	const count = signal(1)
 
 	const dispose = render(
-		<Show when={count.read}>
-			{v => <p>{v()}</p>}
-		</Show>,
+		<Show when={count.read}>{v => <p>{v()}</p>}</Show>,
 	)
 
 	expect(body()).toBe('<p>1</p>')
@@ -69,9 +65,7 @@ await test('tracking - Show callback with derived property wrapped updates', exp
 	const user = signal({ name: 'Ada' })
 
 	const dispose = render(
-		<Show when={user.read}>
-			{v => <p>{() => v().name}</p>}
-		</Show>,
+		<Show when={user.read}>{v => <p>{() => v().name}</p>}</Show>,
 	)
 
 	expect(body()).toBe('<p>Ada</p>')
@@ -88,9 +82,7 @@ await test('tracking - Show callback with derived property unwrapped does not up
 	const user = signal({ name: 'Ada' })
 
 	const dispose = render(
-		<Show when={user.read}>
-			{v => <p>{v().name}</p>}
-		</Show>,
+		<Show when={user.read}>{v => <p>{v().name}</p>}</Show>,
 	)
 
 	expect(body()).toBe('<p>Ada</p>')
@@ -108,9 +100,7 @@ await test('tracking - Switch callback wrapped in () => updates reactively', exp
 
 	const dispose = render(
 		<Switch>
-			<Match when={count.read}>
-				{v => <p>{() => v()}</p>}
-			</Match>
+			<Match when={count.read}>{v => <p>{() => v()}</p>}</Match>
 		</Switch>,
 	)
 
@@ -129,9 +119,7 @@ await test('tracking - Switch callback without () => does not update', expect =>
 
 	const dispose = render(
 		<Switch>
-			<Match when={count.read}>
-				{v => <p>{v()}</p>}
-			</Match>
+			<Match when={count.read}>{v => <p>{v()}</p>}</Match>
 		</Switch>,
 	)
 
@@ -150,9 +138,7 @@ await test('tracking - Switch callback with derived property wrapped updates', e
 
 	const dispose = render(
 		<Switch>
-			<Match when={user.read}>
-				{v => <p>{() => v().name}</p>}
-			</Match>
+			<Match when={user.read}>{v => <p>{() => v().name}</p>}</Match>
 		</Switch>,
 	)
 
@@ -171,9 +157,7 @@ await test('tracking - Switch callback with derived property unwrapped does not 
 
 	const dispose = render(
 		<Switch>
-			<Match when={user.read}>
-				{v => <p>{v().name}</p>}
-			</Match>
+			<Match when={user.read}>{v => <p>{v().name}</p>}</Match>
 		</Switch>,
 	)
 
@@ -247,9 +231,7 @@ await test('tracking - Show wrapped callback re-reads fresh value after toggle',
 	const count = signal(1)
 
 	const dispose = render(
-		<Show when={count.read}>
-			{v => <p>{() => v()}</p>}
-		</Show>,
+		<Show when={count.read}>{v => <p>{() => v()}</p>}</Show>,
 	)
 
 	expect(body()).toBe('<p>1</p>')
@@ -269,9 +251,7 @@ await test('tracking - signal passed directly to Show children is reactive', exp
 	const count = signal(1)
 
 	const dispose = render(
-		<Show when={true}>
-			<p>{count.read}</p>
-		</Show>,
+		<Show when={true}>{() => <p>{count.read}</p>}</Show>,
 	)
 
 	expect(body()).toBe('<p>1</p>')
@@ -460,9 +440,7 @@ await test('tracking - Portal children with signal called once are static', expe
 await test('tracking - Normalize children with signal accessor are reactive', expect => {
 	const count = signal(1)
 
-	const dispose = render(
-		<Normalize>{count.read}</Normalize>,
-	)
+	const dispose = render(<Normalize>{count.read}</Normalize>)
 
 	expect(body()).toBe('1')
 
@@ -475,9 +453,7 @@ await test('tracking - Normalize children with signal accessor are reactive', ex
 await test('tracking - Normalize children with signal called once are static', expect => {
 	const count = signal(1)
 
-	const dispose = render(
-		<Normalize>{count.read()}</Normalize>,
-	)
+	const dispose = render(<Normalize>{count.read()}</Normalize>)
 
 	expect(body()).toBe('1')
 
@@ -547,24 +523,6 @@ await test('tracking - plain JSX with signal called once is static', expect => {
 
 	count.write(2)
 	expect(body()).toBe('<p>1</p>')
-
-	dispose()
-})
-
-// --- passing the signal itself is reactive --------------------------
-
-await test('tracking - passing the signal directly as a child is reactive', expect => {
-	const count = signal(1)
-
-	const dispose = render(<p>{count}</p>)
-
-	expect(body()).toBe('<p>1</p>')
-
-	count.write(2)
-	expect(body()).toBe('<p>2</p>')
-
-	count.write(99)
-	expect(body()).toBe('<p>99</p>')
 
 	dispose()
 })
