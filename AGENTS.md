@@ -97,8 +97,9 @@ subpath is for:
 ## Tests
 
 - Browser tests run under Puppeteer through the custom runner at
-  `tools/test-runner/runner.js`. Config lives in `package.json` under the
-  `"test"` key (dir, port, timeout, concurrency, extensions, ignore).
+  `tools/test-runner/runner.js`. Config lives in `package.json` under
+  the `"test"` key (dir, port, timeout, concurrency, extensions,
+  ignore).
 - `tools/test-runner/test.js` is the per-test harness: it clears
   `document.body`, `document.head`, and `document.adoptedStyleSheets`
   before each test and asserts cleanliness after, so renderer changes
@@ -108,6 +109,51 @@ subpath is for:
 - `npm test` runs once (all files, no bail). `npm run watch:test`
   enables watch mode. `npm test -- --bail` stops on first failure.
   Positional arguments filter by path substring: `npm test -- for`.
+
+### Test runner architecture
+
+The runner has four files:
+
+| File                          | Role                                          |
+| ----------------------------- | --------------------------------------------- |
+| `tools/test-runner/runner.js` | CLI entry: scan, launch Puppeteer, run suite  |
+| `tools/test-runner/serve.js`  | HTTP server + HTML harness with console/error capture |
+| `tools/test-runner/test.js`   | Browser-side test wrapper, collects results   |
+| `tools/test-runner/report.js` | Node-side formatting: `report()` and `summary()` |
+
+**Data flow:** The HTML harness (`serve.js`) intercepts
+`console.log/warn/error`, `window error`, and
+`unhandledrejection` events in the browser. A `pack()` function
+converts error-like objects (anything with `.stack` or `.message`)
+into plain serializable `{ __error, message, stack, cause }` markers,
+and DOM events (`ErrorEvent`, `PromiseRejectionEvent`) into
+`{ __event, ... }` markers. Everything else passes through as-is.
+
+`test.js` runs in the browser, wraps `pota/use/test`, and mutates
+the shared `window.__pota_results__` object — test assertion
+failures are packed via `packError()` preserving `{ expected, value }`
+objects. Uncaught errors and unhandled rejections are captured by the
+harness listeners and also written to `__pota_results__`.
+
+On the Node side, `report.js` uses `unpack()` to convert `__error`
+markers back to stack strings, and passes everything else to Node's
+native `console.log/warn/error` for formatting — objects, arrays,
+and primitives are printed by Node, not stringified manually.
+
+**Console output flags:** By default, console output from passing
+tests is hidden. Use `--log`, `--warn`, `--error` to show specific
+types. On failure, `console.error` and `console.warn` entries
+auto-show; `console.log` still requires `--log`. Assertion failures
+are displayed via their `console.error` output from `pota/use/test`
+(which includes colored diffs), not from `results.errors` — the
+raw `{ title, expected, value }` rejections are skipped to avoid
+duplication. Uncaught errors and unhandled rejections are shown
+from `results.errors` (they have no matching console output).
+
+**Formatting test:** `tests/api/console-formatting.jsx` exercises
+the full capture pipeline: all console methods with various types,
+error objects with cause chains, assertion failure shapes, and
+`ErrorEvent`/`PromiseRejectionEvent` packing.
 
 ## Change Heuristics
 

@@ -22,26 +22,26 @@ export {
  * @type {Promise<{
  * 	title: string
  * 	ok: boolean
- * 	error?: string
+ * 	error?: unknown
  * }>[]}
  */
 const results = []
 
 /**
- * Extracts a readable message from a test rejection value.
+ * Converts an error to a plain serializable object.
  *
  * @param {unknown} e
  */
-function formatError(e) {
-	if (e.message) return e.message
-	if (e.expected !== undefined)
-		return (
-			'expected ' +
-			JSON.stringify(e.expected) +
-			' but got ' +
-			JSON.stringify(e.value)
-		)
-	return String(e)
+function packError(e) {
+	if (typeof e === 'object' && e !== null) {
+		if (e.stack || e.message) {
+			const o = { __error: true, message: e.message, stack: e.stack }
+			if (e.cause) o.cause = packError(e.cause)
+			return o
+		}
+		return e
+	}
+	return e
 }
 
 /**
@@ -98,9 +98,9 @@ export function test(title, fn) {
 				}
 				return { title, ok: true }
 			},
-			e => ({ title, ok: false, error: formatError(e) }),
+			e => ({ title, ok: false, error: packError(e) }),
 		)
-		.catch(e => ({ title, ok: false, error: formatError(e) }))
+		.catch(e => ({ title, ok: false, error: packError(e) }))
 
 	results.push(tracked)
 	return tracked
@@ -113,7 +113,7 @@ export function test(title, fn) {
  * window.**pota_results**.
  */
 export async function run() {
-	const out = { passed: 0, failed: 0, errors: [] }
+	const out = window.__pota_results__
 
 	for (const r of await Promise.all(results)) {
 		if (r.ok) {
@@ -125,5 +125,4 @@ export async function run() {
 	}
 
 	out.done = true
-	window.__pota_results__ = out
 }

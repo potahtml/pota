@@ -7,14 +7,8 @@ import fs from 'fs'
 import path from 'path'
 import { startServer } from './serve.js'
 import { clearCache } from './transform.js'
-import {
-	filesRecursive,
-	watch,
-	red,
-	green,
-	dim,
-	white,
-} from '../utils.js'
+import { filesRecursive, watch, dim } from '../utils.js'
+import { report, summary } from './report.js'
 
 // --- config (package.json "test" + cli flags) ---
 
@@ -36,6 +30,12 @@ const args = process.argv.slice(2)
 const doWatch = args.includes('--watch') || args.includes('-w')
 const bail = args.includes('--bail')
 const quiet = args.includes('--quiet') || args.includes('-q')
+const reportOpts = {
+	quiet,
+	log: args.includes('--log'),
+	warn: args.includes('--warn'),
+	error: args.includes('--error'),
+}
 const filter = args.find(
 	a => !a.startsWith('--') && !a.startsWith('-'),
 )
@@ -51,8 +51,8 @@ if (!quiet) console.clear()
  * @typedef {{
  * 	passed: number
  * 	failed: number
- * 	errors: { title: string; error: string }[]
- * 	pageErrors: string[]
+ * 	errors: object[]
+ * 	console: { type: string; args: unknown[] }[]
  * 	done?: boolean
  * }} TestResults
  */
@@ -89,22 +89,6 @@ async function runFile(browser, baseURL, file) {
 	await page.bringToFront()
 	await page.emulateFocusedPage(true)
 
-	const pageErrors = []
-
-	page.on('pageerror', err => pageErrors.push(err.message))
-	page.on('error', err => pageErrors.push(err.message))
-	page.on('console', msg => {
-		const text = msg.text()
-		// if (msg.type() === 'log') console.log('    [page]', text)
-		if (msg.type() === 'error') {
-			if (
-				text !=
-				'Failed to load resource: the server responded with a status of 404 (Not Found)'
-			)
-				pageErrors.push(text)
-		}
-	})
-
 	try {
 		await page.goto(`${baseURL}/${file}?test`, {
 			waitUntil: 'load',
@@ -114,52 +98,16 @@ async function runFile(browser, baseURL, file) {
 			{ timeout },
 		)
 
-		const results = await page.evaluate(() => window.__pota_results__)
-		results.pageErrors = pageErrors
-		return results
+		return await page.evaluate(() => window.__pota_results__)
 	} catch (e) {
 		return {
 			passed: 0,
 			failed: 1,
-			errors: [{ title: file, error: e.message }],
-			pageErrors,
+			errors: [{ __event: 'error', error: e.message }],
+			console: [],
 		}
 	} finally {
 		await page.close().catch(() => {})
-	}
-}
-
-// --- print results for one file ---
-
-/**
- * Prints PASS/FAIL output for one test file.
- *
- * @param {string} file
- * @param {TestResults} results
- * @param {number} ms
- * @param {string} baseURL
- */
-function report(file, results, ms, baseURL) {
-	const failed = results.failed > 0 || results.pageErrors.length > 0
-
-	if (!failed) {
-		if (!quiet)
-			console.log(
-				` ${green('PASS')}  ${file}  ${dim(`(${results.passed}) ${ms}ms`)}`,
-			)
-		return
-	}
-
-	console.log(` ${red('FAIL')}  ${file}  ${dim(`${ms}ms`)}`)
-	console.log(`  ${white(`${baseURL}/${file}?test`)}`)
-
-	for (const err of results.errors)
-		console.log(`  ${err.title}\n    ${err.error}`)
-
-	let prev
-	for (const err of results.pageErrors) {
-		if (err !== prev) console.log(`  ${err}`)
-		prev = err
 	}
 }
 
@@ -208,8 +156,8 @@ async function runSuite(browser, baseURL, files) {
 		) {
 			const e = entries[printed++]
 			passed += e.results.passed
-			failed += e.results.failed + e.results.pageErrors.length
-			report(e.file, e.results, e.ms, baseURL)
+			failed += e.results.failed
+			report(e.file, e.results, e.ms, baseURL, reportOpts)
 			if (failed > 0 && bail) bailed = true
 		}
 	}
@@ -236,29 +184,39 @@ async function runSuite(browser, baseURL, files) {
 	flush()
 
 	const ms = (performance.now() - start) | 0
-	console.log(
-		`\n ${green(passed)} passed, ${failed > 0 ? red(`${failed} failed`) : `${failed} failed`}, ${printed} of ${files.length} files  ${dim(`${ms}ms`)}\n`,
-	)
+	summary(passed, failed, printed, files.length, ms)
 
 	return { passed, failed, bailed }
 }
 
 // --- watch mode ---
 
+/** Launches a fresh browser instance. */
+function launchBrowser() {
+	return puppeteer.launch({
+		headless: true,
+		args: ['--disable-ipc-flooding-protection'],
+	})
+}
+
 /**
  * Watches src/ and tests/ for changes and re-runs affected files.
  *
  * @param {string} baseURL
- * @param {boolean} [initialBailed]
  */
-function startWatching(baseURL, initialBailed) {
+async function startWatching(baseURL) {
+	let browser = await launchBrowser()
+	process.on('exit', () => browser.close().catch(() => {}))
+
+	const initial = await runSuite(browser, baseURL, scanTests())
+
 	console.log(`  ${dim('Watching for changes...')}\n`)
 
 	let running = false
 	let pending = null
 	let timer = null
-	let lastBailed = !!initialBailed
-	let lastFailed = initialBailed
+	let lastBailed = !!initial.bailed
+	let lastFailed = initial.failed > 0
 	let runCount = 0
 	const recycleEvery = 10
 
@@ -336,31 +294,15 @@ function startWatching(baseURL, initialBailed) {
 const { server, port: actualPort } = await startServer(port)
 const baseURL = `http://localhost:${actualPort}`
 
-/** Launches a fresh browser instance. */
-async function launchBrowser() {
-	return puppeteer.launch({
-		headless: true,
-		args: ['--disable-ipc-flooding-protection'],
-	})
-}
-
-let browser = await launchBrowser()
-
-/*// doesnt work
-const context = browser.defaultBrowserContext()
-await context.overridePermissions(baseURL, ['fullscreen'])
-*/
-process.on('exit', () => {
-	browser.close().catch(() => {})
-	server.close()
-})
+process.on('exit', () => server.close())
 process.on('SIGINT', () => process.exit())
 process.on('SIGTERM', () => process.exit())
 
-const initial = await runSuite(browser, baseURL, scanTests())
-
 if (doWatch) {
-	startWatching(baseURL, initial.bailed)
+	startWatching(baseURL)
 } else {
-	process.exit(initial.failed > 0 ? 1 : 0)
+	const browser = await launchBrowser()
+	const { failed } = await runSuite(browser, baseURL, scanTests())
+	await browser.close()
+	process.exit(failed > 0 ? 1 : 0)
 }

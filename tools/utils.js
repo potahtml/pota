@@ -148,4 +148,6 @@ export const green = t => `\x1b[32m${t}\x1b[0m`
 /** @param {string} t */
 export const dim = t => `\x1b[2m${t}\x1b[0m`
 /** @param {string} t */
+export const yellow = t => `\x1b[33m${t}\x1b[0m`
+/** @param {string} t */
 export const white = t => `\x1b[37m${t}\x1b[0m`

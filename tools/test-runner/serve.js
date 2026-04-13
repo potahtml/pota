@@ -30,21 +30,51 @@ function harness(file) {
 	return `<!DOCTYPE html>
 <html>
 <script>
-window.__pota_results__ = { passed: 0, failed: 0, errors: [], done: false }
+window.__pota_results__ = { passed: 0, failed: 0, errors: [], console: [], done: false }
+
+// pack: convert objects to plain serializable form
+function pack(arg) {
+  if (typeof arg === 'object' && arg !== null) {
+    if (arg instanceof ErrorEvent) {
+      return { __event: 'error', error: pack(arg.error || arg.message), filename: arg.filename, lineno: arg.lineno }
+    }
+    if (arg instanceof PromiseRejectionEvent) {
+      return { __event: 'rejection', reason: pack(arg.reason) }
+    }
+    if (arg.stack || arg.message) {
+      const o = { __error: true, message: arg.message, stack: arg.stack }
+      if (arg.cause) o.cause = pack(arg.cause)
+      return o
+    }
+    return arg
+  }
+  return arg
+}
+
+// capture console calls with raw structured arguments
+;(function() {
+  const origLog = console.log
+  const origWarn = console.warn
+  const origError = console.error
+
+  function capture(type, args) {
+    window.__pota_results__.console.push({
+      type: type,
+      args: Array.from(args).map(pack)
+    })
+  }
+  console.log = function() { capture('log', arguments); origLog.apply(console, arguments) }
+  console.warn = function() { capture('warn', arguments); origWarn.apply(console, arguments) }
+  console.error = function() { capture('error', arguments); origError.apply(console, arguments) }
+})()
+
 window.addEventListener('error', e => {
-  window.__pota_results__.errors.push({
-    title: 'uncaught error',
-    error: e.message + (e.filename ? ' at ' + e.filename + ':' + e.lineno : ''),
-  })
+  window.__pota_results__.errors.push(pack(e))
   window.__pota_results__.failed++
   window.__pota_results__.done = true
 })
 window.addEventListener('unhandledrejection', e => {
-  const msg = e.reason?.message || e.reason?.error || String(e.reason)
-  window.__pota_results__.errors.push({
-    title: 'unhandled rejection',
-    error: msg,
-  })
+  window.__pota_results__.errors.push(pack(e))
   window.__pota_results__.failed++
   window.__pota_results__.done = true
 })
