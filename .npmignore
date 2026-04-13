@@ -1,18 +1,19 @@
 documentation/**
 
-babel-preset/transform/**
 generated/docs/**
 generated/babel-preset-standalone.js
 
 tests/**
 tools/**
 
+.gitignore
+.npmignore
 AGENTS.md
-.vscode
-.github
+
 .claude
+.github
+.vscode
 .codex
 
-.gitignore
 node_modules
 tsconfig.tsbuildinfo

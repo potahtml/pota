@@ -9,13 +9,7 @@
 
 ### wip
 
-- make sure npmignore are correct
-- figure out if top level runs the same as when owned, or make top
-  level owned, even if doesnt garbage collects - I couldnt figure out
-  this one out
 - maybe ask for coverage reporting
-- see if we can make root batched by default
-- maybe ask for a flush
 - improve jsx
 - get rid of colorsio
 - ask for performance improvements realted to polymorphism
