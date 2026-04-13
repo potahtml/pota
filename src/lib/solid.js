@@ -90,18 +90,23 @@ export function createReactiveSystem() {
 		}
 	}
 
+	let _writeTarget
+
+	function _markObservers() {
+		for (const observer of _writeTarget) {
+			if (observer.state === 0 /* CLEAN */) {
+				observer.queue()
+				observer.observers && downstream(observer)
+			}
+
+			observer.state = 1 /* STALE */
+		}
+	}
+
 	function doWrite(o) {
 		if (o.observers && o.observers.length) {
-			runUpdates(() => {
-				for (const observer of o.observers) {
-					if (observer.state === 0 /* CLEAN */) {
-						observer.queue()
-						observer.observers && downstream(observer)
-					}
-
-					observer.state = 1 /* STALE */
-				}
-			})
+			_writeTarget = o.observers
+			runUpdates(_markObservers)
 		}
 	}
 
@@ -449,6 +454,10 @@ export function createReactiveSystem() {
 		run = () => {
 			this.update()
 		}
+		_runFn = () => {
+			// @ts-expect-error
+			this.write(this.fn[0](), this.fn.slice(1))
+		}
 		update() {
 			this.dispose()
 
@@ -457,14 +466,7 @@ export function createReactiveSystem() {
 			try {
 				this.lastWrite = {}
 
-				runWith(
-					() => {
-						// @ts-expect-error
-						this.write(this.fn[0](), this.fn.slice(1))
-					},
-					this,
-					this,
-				)
+				runWith(this._runFn, this, this)
 				/*
 					} catch (err) {
 						this.state = 1 // STALE
