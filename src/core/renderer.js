@@ -68,6 +68,8 @@ const useXMLNS = context()
 /**
  * Used by the regular JSX transform, as `<>...</>` or
  * `<Fragment>...</Fragment>`.
+ *
+ * @type {ParentComponent}
  */
 export const Fragment = props => props.children
 
@@ -80,17 +82,25 @@ export const Fragment = props => props.children
  * reactivity tree (think of nested effects that clear inner effects,
  * context, etc).
  *
- * @template {string | Function | Element | object | symbol} T
- * @template {ComponentProps<T>} P
- * @param {T} value
- * @param {P} [props]
- * @returns {(props?: Partial<P>) => Children}
+ * @type {{
+ * 	<T extends string | Function | Element | object | symbol>(
+ * 		value: T,
+ * 	): (props?: Partial<ComponentProps<T>>) => JSX.Element
+ * 	<T extends keyof JSX.IntrinsicElements>(
+ * 		value: T,
+ * 		props: ComponentProps<T>,
+ * 	): (props?: Partial<ComponentProps<T>>) => JSX.Element
+ * 	<T extends Function | Element | object | symbol, P>(
+ * 		value: T,
+ * 		props: P,
+ * 	): (props?: Partial<P>) => JSX.Element
+ * }}
  * @url https://pota.quack.uy/Component
  */
-export function Component(value, props) {
+export const Component = (value, props = undefined) => {
 	if (value === Fragment) {
-		return /** @type P & {children: Children} */ (
-			/** @type {unkonwn} */ props
+		return /** @type {{ children: JSX.Element }} */ (
+			/** @type {unknown} */ (props)
 		).children
 	}
 
@@ -120,7 +130,7 @@ export function Component(value, props) {
  * @template T
  * @param {string | Function | Element | object | symbol} value -
  *   Component value
- * @returns {(props?: Props<T>) => Children}
+ * @returns {(props?: JSX.Props<T>) => JSX.Element}
  */
 function Factory(value) {
 	switch (typeof value) {
@@ -150,7 +160,7 @@ function Factory(value) {
 /**
  * Creates a x/html element from a tagName
  *
- * @template {Props<{ xmlns?: string; is?: string }>} P
+ * @template {JSX.Props<{ xmlns?: string; is?: string }>} P
  * @param {string} tagName
  * @param {P} props
  * @returns {Element} Element
@@ -251,11 +261,11 @@ function parseXML(content, xmlns) {
  * Creates an instance of a class component and handles lifecycle
  * methods
  *
- * @param {{ new (props: any): ElementClass }} value - The class
+ * @param {{ new (props: any): JSX.ElementClass }} value - The class
  *   constructor
- * @param {Props<unknown>} props - Props to pass to the class
+ * @param {JSX.Props<unknown>} props - Props to pass to the class
  *   constructor
- * @returns {Children} The rendered output
+ * @returns {JSX.Element} The rendered output
  */
 function createClass(value, props = nothing) {
 	const i = new value(props)
@@ -271,7 +281,7 @@ function createClass(value, props = nothing) {
  *
  * @template T
  * @param {string | Function | Element | object | symbol} value
- * @returns {(props?: Props<T>) => Children}
+ * @returns {(props?: JSX.Props<T>) => JSX.Element}
  */
 export function createComponent(value) {
 	const component = Factory(value)
@@ -291,7 +301,7 @@ export function createComponent(value) {
  * 	[i: number]: number
  * 	m?: number
  * } & Record<string, unknown>} [propsData]
- * @returns {(props: T[]) => Children}
+ * @returns {(props: T[]) => JSX.Element}
  */
 export function createPartial(content, propsData = nothing) {
 	let clone = () => {
@@ -313,13 +323,13 @@ export function createPartial(content, propsData = nothing) {
 /**
  * @template T
  * @param {Element} node
- * @param {Children[]} props
+ * @param {JSX.Element[]} props
  * @param {{
  * 	x?: string
  * 	[i: number]: number
  * 	m?: number
  * } & Record<string, unknown>} propsData
- * @returns {Children}
+ * @returns {JSX.Element}
  */
 function assignPartialProps(node, props, propsData) {
 	if (props) {
@@ -342,7 +352,7 @@ function assignPartialProps(node, props, propsData) {
  *
  * @template T
  * @param {Element} node - Element to assign props to
- * @param {Props<T>} props - Props to assign
+ * @param {JSX.Props<T>} props - Props to assign
  * @returns {Element} The element with props assigned
  */
 function createNode(node, props = nothing) {
@@ -356,11 +366,11 @@ function createNode(node, props = nothing) {
  *
  * @template T
  * @param {Element | DocumentFragment} parent
- * @param {Children | ((...unknonwn) => T)} child
+ * @param {JSX.Element | ((...unknonwn) => T)} child
  * @param {boolean} [relative]
  * @param {Text} [prev]
  * @param {true} [isComponent]
- * @returns {Children}
+ * @returns {JSX.Element}
  */
 export function createChildren(
 	parent,
@@ -396,7 +406,7 @@ export function createChildren(
 			if ($isComponent in child) {
 				return createChildren(
 					parent,
-					untrack(/** @type {() => Children} */ (child)),
+					untrack(/** @type {() => JSX.Element} */ (child)),
 					relative,
 					undefined,
 					true,
@@ -646,7 +656,7 @@ function insertNode(parent, node, relative) {
 /**
  * Inserts children into a parent
  *
- * @param {any} children - Thing to render
+ * @param {JSX.Element} children - Thing to render
  * @param {Element | null} [parent] - Mount point, defaults to
  *   document.body
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
@@ -671,7 +681,7 @@ export function render(children, parent, options = nothing) {
 }
 
 /**
- * @param {any} children - Thing to render
+ * @param {JSX.Element} children - Thing to render
  * @param {Element | null} [parent] - Mount point, defaults to
  *   `document.body`
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
@@ -696,8 +706,8 @@ export function insert(
 /**
  * Creates and returns HTML Elements for `children`
  *
- * @param {Children} children
- * @returns {Children}
+ * @param {JSX.Element} children
+ * @returns {JSX.Element}
  * @url https://pota.quack.uy/toHTML
  */
 export function toHTML(children) {
@@ -717,7 +727,7 @@ context.toHTML = toHTML
 /**
  * Creates and returns a DocumentFragment for `children`
  *
- * @param {Children} children
+ * @param {JSX.Element} children
  * @returns {DocumentFragment}
  * @url https://pota.quack.uy/toHTML
  */

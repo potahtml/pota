@@ -3,12 +3,13 @@ documentation/**
 generated/docs/**
 generated/babel-preset-standalone.js
 
+typescript/readme.md
+
 tests/**
 tools/**
 
 .gitignore
 .npmignore
-AGENTS.md
 
 .claude
 .github

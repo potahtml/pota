@@ -30,7 +30,7 @@ import {
 } from '../components/@main.js'
 import { createComment, createTextNode } from '../use/dom.js'
 
-/** @type {Record<string, Component>} */
+/** @type {Record<string, JSX.ElementType>} */
 const defaultRegistry = {
 	A,
 	Collapse,
@@ -57,11 +57,11 @@ const splitId = /(rosa19611227)/
  * Makes Nodes from TemplateStringsArray
  *
  * @param {TemplateStringsArray} content
- * @returns {DOMElement[]}
+ * @returns {JSX.DOMElement[]}
  */
 const parseXML = withWeakCache(
 	(/** @type TemplateStringsArray */ content) => {
-		const html = /** @type {DOMElement[]} */ (
+		const html = /** @type {JSX.DOMElement[]} */ (
 			/** @type unknown */ (
 				new DOMParser().parseFromString(
 					`<xml ${namespaces.xmlns}>${content.join(id)}</xml>`,
@@ -86,9 +86,9 @@ const parseXML = withWeakCache(
  * Recursively walks a template and transforms it to `h` calls.
  *
  * @param {typeof xml} xml
- * @param {DOMElement[]} cached
+ * @param {JSX.DOMElement[]} cached
  * @param {...unknown} values
- * @returns {Children}
+ * @returns {JSX.Element}
  */
 function toH(xml, cached, values) {
 	let index = 0
@@ -96,14 +96,14 @@ function toH(xml, cached, values) {
 	 * Recursively transforms DOM nodes into Component calls.
 	 *
 	 * @param {ChildNode} node
-	 * @returns {Children}
+	 * @returns {JSX.Element}
 	 */
 	function nodes(node) {
 		const { nodeType } = node
 		if (nodeType === 1) {
 			// element
 			const { tagName, attributes, childNodes } =
-				/** @type {DOMElement} */ (node)
+				/** @type {JSX.DOMElement} */ (node)
 
 			// gather props
 			/** @type {Record<string, Accessor<unknown>>} */
@@ -164,9 +164,9 @@ function toH(xml, cached, values) {
  * @returns {((
  * 	template: TemplateStringsArray,
  * 	...values: unknown[]
- * ) => Children) & {
- * 	components: Record<string, Component>
- * 	define: (userComponents: Record<string, Component>) => void
+ * ) => JSX.Element) & {
+ * 	components: Record<string, JSX.ElementType>
+ * 	define: (userComponents: Record<string, JSX.ElementType>) => void
  * }}
  * @url https://pota.quack.uy/XML
  */
@@ -186,7 +186,7 @@ export function XML() {
 	/**
 	 * Registers custom components that can be referenced by tag name.
 	 *
-	 * @param {Record<string, Component>} userComponents
+	 * @param {Record<string, JSX.ElementType>} userComponents
 	 */
 	xml.define = userComponents => {
 		for (const name in userComponents) {

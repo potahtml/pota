@@ -4,12 +4,10 @@ import { insert } from '../core/renderer.js'
  * Portals children to a different element while keeping the original
  * scope
  *
- * @param {object} props
- * @param {DOMElement} props.mount
- * @param {Children} [props.children]
+ * @type {ParentComponent<{ mount: JSX.DOMElement }>}
  * @url https://pota.quack.uy/Components/Portal
  */
-export function Portal(props) {
+export const Portal = props => {
 	insert(props.children, props.mount)
 	// its portaling, it shouldnt return !
 }

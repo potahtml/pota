@@ -8,11 +8,7 @@ import {
 /**
  * Provides a fallback till children promises resolve (recursively)
  *
- * @template T
- * @param {object} props
- * @param {Children} [props.fallback]
- * @param {Children} [props.children]
- * @returns {Children}
+ * @type {FlowComponent<{ fallback?: JSX.Element }>}
  * @url https://pota.quack.uy/Components/Suspense
  */
 export const Suspense = props =>

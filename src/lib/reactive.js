@@ -86,7 +86,7 @@ export function signalFunction(value) {
 /**
  * To set and read refs. To use in ref attribute.
  *
- * @template {DOMElement} T
+ * @template {JSX.DOMElement} T
  * @returns {SignalFunction<T>}
  */
 export const ref = () => signalFunction()
@@ -113,7 +113,7 @@ export function withPrevValue(value, fn) {
 /**
  * Returns `true` when all derived has been resolved
  *
- * @template {ReturnType<import('../../typescript/derived.d.ts').derived>} T
+ * @template {ReturnType<import('#type/derived.d.ts').derived>} T
  * @param {...T} args
  * @returns {boolean}
  */
@@ -128,6 +128,7 @@ export function isResolved(...args) {
  *   function that receives a `currentRunningEffect` that should be
  *   awaited for when wanting to run effects synchronously, that's it
  *   one effect after another.
+ * @returns {void}
  */
 export function asyncEffect(fn) {
 	/** @type {Promise<any>[]} */
@@ -212,10 +213,10 @@ class Row {
 			}
 			if (reactiveIndex) {
 				this.indexSignal = signal(index)
-				/** @type Children[] */
+				/** @type JSX.Element[] */
 				this.nodes = fn(item, this.indexSignal.read)
 			} else {
-				/** @type Children[] */
+				/** @type JSX.Element[] */
 				this.nodes = fn(item, index)
 			}
 		})
@@ -253,7 +254,7 @@ class Row {
 		}
 		this._end = nodes
 	}
-	/** @returns {DOMElement[]} */
+	/** @returns {JSX.DOMElement[]} */
 	nodesForRow() {
 		const begin = this.begin()
 		const end = this.end()
@@ -278,9 +279,9 @@ class Row {
  *
  * @template T
  * @param {Each<T>} list
- * @param {(...args: unknown[]) => Children} callback
+ * @param {(...args: unknown[]) => JSX.Element} callback
  * @param {boolean} [noSort]
- * @param {Children} [fallback]
+ * @param {JSX.Element} [fallback]
  * @param {boolean} [reactiveIndex] - Make indices reactive signals
  */
 export function map(list, callback, noSort, fallback, reactiveIndex) {
@@ -326,7 +327,7 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
 
 	/**
 	 * @param {Function} [fn]
-	 * @returns {Children}
+	 * @returns {JSX.Element}
 	 */
 	function mapper(fn) {
 		const cb = fn
@@ -502,8 +503,9 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
  * Resolves and returns `children` in a memo. A memo in a memo, so
  * reactivity on the inner memo doesnt trigger reactivity outside.
  *
- * @template {Children} T
+ * @template {JSX.Element} T
  * @param {T | (() => T)} fn
+ * @returns {SignalAccessor<T>}
  * @url https://pota.quack.uy/resolve
  */
 export function resolve(fn) {
@@ -514,7 +516,7 @@ export function resolve(fn) {
 /**
  * Recursively unwrap children functions
  *
- * @param {Children} children
+ * @param {JSX.Element} children
  */
 export function unwrap(children) {
 	if (isFunction(children)) {
@@ -567,7 +569,7 @@ export const isComponent = value =>
  * non-reactive children will run untracked, regular children will
  * just return.
  *
- * @template {Children | Children[]} T
+ * @template {JSX.Element | JSX.Element[]} T
  * @param {T} children
  * @returns {(...args: unknown[]) => T}
  */
@@ -612,12 +614,11 @@ export function markComponent(fn) {
 /**
  * Adds an event listener to a node
  *
- * @template {Document | typeof window | DOMElement} TargetElement
- * @template {keyof EventType} Name
+ * @template {Document | typeof window | JSX.DOMElement} TargetElement
+ * @template {keyof JSX.EventType} Name
  * @param {TargetElement} node - Element to add the event listener
  * @param {Name} type - The name of the event listener
- * @param {EventHandler<EventType[Name], TargetElement>} handler
- *
+ * @param {JSX.EventHandler<JSX.EventType[Name], TargetElement>} handler
  *   - Function to handle the event
  *
  * @returns {Function} - An `off` function for removing the event
@@ -631,7 +632,7 @@ export function addEvent(node, type, handler) {
 			/** @type unknown */ handler
 		),
 		!isFunction(handler)
-			? /** @type {EventHandlerOptions} */ (handler)
+			? /** @type {JSX.EventHandlerOptions} */ (handler)
 			: undefined,
 	)
 
@@ -650,12 +651,11 @@ export function addEvent(node, type, handler) {
 /**
  * Removes an event listener from a node
  *
- * @template {Document | typeof window | DOMElement} TargetElement
- * @template {keyof EventType} Name
+ * @template {Document | typeof window | JSX.DOMElement} TargetElement
+ * @template {keyof JSX.EventType} Name
  * @param {TargetElement} node - Element to add the event listener
  * @param {Name} type - The name of the event listener
- * @param {EventHandler<EventType[Name], TargetElement>} handler
- *
+ * @param {JSX.EventHandler<JSX.EventType[Name], TargetElement>} handler
  *   - Function to handle the event
  *
  * @returns {Function} - An `on` function for adding back the event
@@ -669,7 +669,7 @@ export function removeEvent(node, type, handler) {
 			/** @type unknown */ handler
 		),
 		!isFunction(handler)
-			? /** @type {EventHandlerOptions} */ (handler)
+			? /** @type {JSX.EventHandlerOptions} */ (handler)
 			: undefined,
 	)
 
@@ -680,7 +680,7 @@ export function removeEvent(node, type, handler) {
  * It gives a handler an owner, so stuff runs batched on it, and
  * things like context and cleanup work
  *
- * @template {EventHandler<Event, Element>} T
+ * @template {JSX.EventHandler<Event, Element>} T
  * @param {T} handler
  */
 export const ownedEvent = handler =>

@@ -40,7 +40,13 @@ export {
 
 // RENDERER
 
-export { Component, insert, render, toHTML } from './core/renderer.js'
+export {
+	Component,
+	Fragment,
+	insert,
+	render,
+	toHTML,
+} from './core/renderer.js'
 
 // EVENTS
 

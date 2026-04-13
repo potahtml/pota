@@ -153,8 +153,7 @@ await test('cleanup — error during effect re-run is caught', expect => {
 				effect(() => {
 					read()
 					cleanup(() => {
-						if (read() === 1)
-							throw new Error('cleanup on rerun')
+						if (read() === 1) throw new Error('cleanup on rerun')
 					})
 				})
 			},
@@ -264,8 +263,7 @@ await test('cleanup — error during memo re-evaluation is caught', expect => {
 				m = memo(() => {
 					read()
 					cleanup(() => {
-						if (read() === 1)
-							throw new Error('memo cleanup')
+						if (read() === 1) throw new Error('memo cleanup')
 					})
 					return read() * 10
 				})

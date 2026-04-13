@@ -5,15 +5,23 @@ import { getValue, isFunction } from '../lib/std.js'
 /**
  * Renders its children based on a condition
  *
- * @template T
- * @param {object} props
- * @param {When<T>} props.when
- * @param {Children} [props.fallback]
- * @param {(arg: SignalAccessor<Accessed<T>>) => Children} [props.children]
- * @returns {Children}
+ * @type {{
+ * 	<T>(props: {
+ * 		when: When<T>
+ * 		fallback?: JSX.Element
+ * 		children: Children<
+ * 			(arg: SignalAccessor<Accessed<T>>) => JSX.Element
+ * 		>
+ * 	}): JSX.Element
+ * 	(props: {
+ * 		when: When<any>
+ * 		fallback?: JSX.Element
+ * 		children?: JSX.Element
+ * 	}): JSX.Element
+ * }}
  * @url https://pota.quack.uy/Components/Show
  */
-export function Show(props) {
+export const Show = props => {
 	// callback
 	const callback = makeCallback(props.children)
 

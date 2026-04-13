@@ -9,22 +9,18 @@ import { makeCallback, map } from '../lib/reactive.js'
 import { onFixes } from '../core/scheduler.js'
 
 /**
- * Renders reactive values from an signal that returns an Iterable
+ * Renders reactive values from a signal that returns an Iterable
  * object
  *
- * @template T
- * @param {object} props
- * @param {Each<T>} props.each
- * @param {boolean} [props.restoreFocus] - If the focused element
- *   moves it may lose focus
- * @param {boolean} [props.reactiveIndex] - Make indices reactive
- *   signals
- * @param {(item: T, index: number) => Children} [props.children]
- * @param {Children} [props.fallback]
- * @returns {Children}
+ * @type {<T>(props: {
+ * 	each: Each<T>
+ * 	restoreFocus?: boolean
+ * 	reactiveIndex?: boolean
+ * 	children?: Children<(item: T, index: number) => JSX.Element>
+ * 	fallback?: JSX.Element
+ * }) => JSX.Element}
  * @url https://pota.quack.uy/Components/For
  */
-
 export const For = props =>
 	map(
 		() => {

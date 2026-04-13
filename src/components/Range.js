@@ -5,14 +5,16 @@ import { For } from './For.js'
 /**
  * Renders children based on the `range` function arguments
  *
- * @param {object} props
- * @param {Accessor<number>} [props.start]
- * @param {Accessor<number>} [props.stop]
- * @param {Accessor<number>} [props.step]
- * @param {Children} [props.children]
- * @returns {Children}
+ * @type {FlowComponent<
+ * 	{
+ * 		start?: Accessor<number>
+ * 		stop?: Accessor<number>
+ * 		step?: Accessor<number>
+ * 	},
+ * 	Children<(item: number, index: number) => JSX.Element>
+ * >}
+ * @url https://pota.quack.uy/Components/Range
  */
-
 export const Range = props =>
 	Component(For, {
 		each: () =>

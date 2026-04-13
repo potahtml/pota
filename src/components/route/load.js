@@ -13,16 +13,16 @@ import { scroll } from './scroll.js'
  * the hash of the url, or fallbacks defined on the `<Route>`
  * components.
  *
- * @param {() => Promise<{ default: () => Children }>} component -
- *   Import statement
- * @returns {Component}
+ * @template {(...args: any[]) => JSX.Element} C
+ * @param {() => Promise<{ default: C }>} component - Import statement
+ * @returns {C}
  * @url https://pota.quack.uy/load
  */
 export function load(component, tries = 0) {
 	return markComponent(() => {
 		/**
-		 * `owned` preserves the owner across the async boundary so
-		 * the loaded component renders in the correct reactive scope.
+		 * `owned` preserves the owner across the async boundary so the
+		 * loaded component renders in the correct reactive scope.
 		 */
 		let fn
 		const withOwner = markComponent(owned(() => fn()))

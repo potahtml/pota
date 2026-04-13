@@ -1,8 +1,8 @@
 # Errored component — design & implementation notes
 
 Notes for `pota/components`' `Errored` export: a classic error
-boundary, pota-flavored. Status: **implemented**. Tests live next to
-this file at `tests/api/components/errored.jsx`.
+boundary, pota-flavored. Status: **implemented**. Tests at
+`tests/api/components/errored.jsx`.
 
 ## Why
 
@@ -238,7 +238,8 @@ try/catch and routes errors via `routeError(this, err)`. This ensures:
 ```js
 const noError = Symbol()
 
-export function Errored(props) {
+/** @type {FlowComponent<{ fallback?: ... }>} */
+export const Errored = props => {
   const [err, writeErr] = signal(noError)
   const [attempt, , updateAttempt] = signal(0)
 
@@ -304,12 +305,6 @@ Notes on the shape:
   built-ins.
 - `catchError` is exposed from `pota` directly (via
   `src/exports.js`).
-
-## Follow-ups
-
-- Extend `typescript/exports.d.ts` (or wherever component types live)
-  with the `Errored` prop types — currently the component is typed
-  via JSDoc only.
 
 ## Test coverage
 

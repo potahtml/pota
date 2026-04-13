@@ -21,10 +21,7 @@ import { isDisabled } from 'pota/use/form'
 await test('forms - reset button restores text inputs to default value', expect => {
 	const dispose = render(
 		<form id="reset-text">
-			<input
-				name="name"
-				value="default"
-			/>
+			<input name="name" value="default" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -44,15 +41,8 @@ await test('forms - reset button restores text inputs to default value', expect 
 await test('forms - reset button restores checkbox to default checked state', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="checkbox"
-				name="agree"
-				checked
-			/>
-			<input
-				type="checkbox"
-				name="opt"
-			/>
+			<input type="checkbox" name="agree" checked />
+			<input type="checkbox" name="opt" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -77,22 +67,9 @@ await test('forms - reset button restores checkbox to default checked state', ex
 await test('forms - reset button restores radio group to default selection', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="radio"
-				name="color"
-				value="red"
-			/>
-			<input
-				type="radio"
-				name="color"
-				value="blue"
-				checked
-			/>
-			<input
-				type="radio"
-				name="color"
-				value="green"
-			/>
+			<input type="radio" name="color" value="red" />
+			<input type="radio" name="color" value="blue" checked />
+			<input type="radio" name="color" value="green" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -117,10 +94,7 @@ await test('forms - reset button restores select to default selected option', ex
 		<form>
 			<select name="fruit">
 				<option value="apple">Apple</option>
-				<option
-					value="banana"
-					selected
-				>
+				<option value="banana" selected>
 					Banana
 				</option>
 				<option value="cherry">Cherry</option>
@@ -163,13 +137,7 @@ await test('forms - reset button restores textarea to default content', expect =
 await test('forms - reset button restores range input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="range"
-				name="vol"
-				min="0"
-				max="100"
-				value="50"
-			/>
+			<input type="range" name="vol" min="0" max="100" value="50" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -189,11 +157,7 @@ await test('forms - reset button restores range input to default value', expect 
 await test('forms - reset button restores color input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="color"
-				name="bg"
-				value="#ff0000"
-			/>
+			<input type="color" name="bg" value="#ff0000" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -213,11 +177,7 @@ await test('forms - reset button restores color input to default value', expect 
 await test('forms - reset button restores date input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="date"
-				name="dob"
-				value="2020-01-15"
-			/>
+			<input type="date" name="dob" value="2020-01-15" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -237,11 +197,7 @@ await test('forms - reset button restores date input to default value', expect =
 await test('forms - reset button restores time input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="time"
-				name="alarm"
-				value="08:30"
-			/>
+			<input type="time" name="alarm" value="08:30" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -261,11 +217,7 @@ await test('forms - reset button restores time input to default value', expect =
 await test('forms - reset button restores number input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="number"
-				name="qty"
-				value="5"
-			/>
+			<input type="number" name="qty" value="5" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -285,15 +237,8 @@ await test('forms - reset button restores number input to default value', expect
 await test('forms - reset button restores hidden input value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="hidden"
-				name="token"
-				value="secret"
-			/>
-			<input
-				name="visible"
-				value="hello"
-			/>
+			<input type="hidden" name="token" value="secret" />
+			<input name="visible" value="hello" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -325,10 +270,7 @@ await test('forms - reset button restores hidden input value', expect => {
 await test('forms - reset button clears file input', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="file"
-				name="upload"
-			/>
+			<input type="file" name="upload" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -370,11 +312,7 @@ await test('forms - reset button restores output to default value', expect => {
 await test('forms - reset button restores password input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="password"
-				name="pass"
-				value="initial"
-			/>
+			<input type="password" name="pass" value="initial" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -394,11 +332,7 @@ await test('forms - reset button restores password input to default value', expe
 await test('forms - reset button restores email input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="email"
-				name="mail"
-				value="a@b.com"
-			/>
+			<input type="email" name="mail" value="a@b.com" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -418,11 +352,7 @@ await test('forms - reset button restores email input to default value', expect 
 await test('forms - reset button restores search input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="search"
-				name="q"
-				value="initial query"
-			/>
+			<input type="search" name="q" value="initial query" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -444,11 +374,7 @@ await test('forms - reset button restores search input to default value', expect
 await test('forms - reset button restores url input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="url"
-				name="site"
-				value="https://example.com"
-			/>
+			<input type="url" name="site" value="https://example.com" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -470,11 +396,7 @@ await test('forms - reset button restores url input to default value', expect =>
 await test('forms - reset button restores tel input to default value', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="tel"
-				name="phone"
-				value="555-1234"
-			/>
+			<input type="tel" name="phone" value="555-1234" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -521,10 +443,7 @@ await test('forms - reset fires the reset event on the form', expect => {
 	let resetFired = false
 	const dispose = render(
 		<form on:reset={() => (resetFired = true)}>
-			<input
-				name="x"
-				value="a"
-			/>
+			<input name="x" value="a" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -538,19 +457,9 @@ await test('forms - reset fires the reset event on the form', expect => {
 await test('forms - reset restores multiple fields at once', expect => {
 	const dispose = render(
 		<form>
-			<input
-				name="first"
-				value="Ada"
-			/>
-			<input
-				name="last"
-				value="Lovelace"
-			/>
-			<input
-				type="number"
-				name="age"
-				value="36"
-			/>
+			<input name="first" value="Ada" />
+			<input name="last" value="Lovelace" />
+			<input type="number" name="age" value="36" />
 			<button type="reset">Reset</button>
 		</form>,
 	)
@@ -588,10 +497,7 @@ await test('forms - reactive text input value updates via signal', expect => {
 await test('forms - reactive checkbox checked updates via signal', expect => {
 	const checked = signal(false)
 	const dispose = render(
-		<input
-			type="checkbox"
-			prop:checked={checked.read}
-		/>,
+		<input type="checkbox" prop:checked={checked.read} />,
 	)
 
 	expect($('input').checked).toBe(false)
@@ -641,10 +547,7 @@ await test('forms - reactive textarea value updates via signal', expect => {
 await test('forms - reactive number input value updates via signal', expect => {
 	const val = signal(10)
 	const dispose = render(
-		<input
-			type="number"
-			prop:value={val.read}
-		/>,
+		<input type="number" prop:value={val.read} />,
 	)
 
 	expect($('input').value).toBe('10')
@@ -658,12 +561,7 @@ await test('forms - reactive number input value updates via signal', expect => {
 await test('forms - reactive range input value updates via signal', expect => {
 	const val = signal(25)
 	const dispose = render(
-		<input
-			type="range"
-			min="0"
-			max="100"
-			prop:value={val.read}
-		/>,
+		<input type="range" min="0" max="100" prop:value={val.read} />,
 	)
 
 	expect($('input').value).toBe('25')
@@ -722,22 +620,13 @@ await test('forms - reactive selected on option updates via signal', expect => {
 	const which = signal('a')
 	const dispose = render(
 		<select>
-			<option
-				value="a"
-				selected={() => which.read() === 'a'}
-			>
+			<option value="a" selected={() => which.read() === 'a'}>
 				A
 			</option>
-			<option
-				value="b"
-				selected={() => which.read() === 'b'}
-			>
+			<option value="b" selected={() => which.read() === 'b'}>
 				B
 			</option>
-			<option
-				value="c"
-				selected={() => which.read() === 'c'}
-			>
+			<option value="c" selected={() => which.read() === 'c'}>
 				C
 			</option>
 		</select>,
@@ -758,22 +647,13 @@ await test('forms - reactive selected on multiple select via signal', expect => 
 	const items = signal(['a', 'c'])
 	const dispose = render(
 		<select multiple>
-			<option
-				value="a"
-				selected={() => items.read().includes('a')}
-			>
+			<option value="a" selected={() => items.read().includes('a')}>
 				A
 			</option>
-			<option
-				value="b"
-				selected={() => items.read().includes('b')}
-			>
+			<option value="b" selected={() => items.read().includes('b')}>
 				B
 			</option>
-			<option
-				value="c"
-				selected={() => items.read().includes('c')}
-			>
+			<option value="c" selected={() => items.read().includes('c')}>
 				C
 			</option>
 		</select>,
@@ -798,10 +678,7 @@ await test('forms - reactive selected toggled on single option', expect => {
 	const dispose = render(
 		<select>
 			<option value="x">X</option>
-			<option
-				value="y"
-				selected={active.read}
-			>
+			<option value="y" selected={active.read}>
 				Y
 			</option>
 		</select>,
@@ -840,11 +717,7 @@ await test('forms - reactive min and max attributes update via signal', expect =
 	const min = signal('0')
 	const max = signal('100')
 	const dispose = render(
-		<input
-			type="number"
-			min={min.read}
-			max={max.read}
-		/>,
+		<input type="number" min={min.read} max={max.read} />,
 	)
 
 	expect($('input').min).toBe('0')
@@ -860,12 +733,7 @@ await test('forms - reactive min and max attributes update via signal', expect =
 
 await test('forms - reactive step attribute updates via signal', expect => {
 	const step = signal('1')
-	const dispose = render(
-		<input
-			type="number"
-			step={step.read}
-		/>,
-	)
+	const dispose = render(<input type="number" step={step.read} />)
 
 	expect($('input').step).toBe('1')
 
@@ -890,10 +758,7 @@ await test('forms - reactive pattern attribute updates via signal', expect => {
 await test('forms - reactive readonly toggles via signal', expect => {
 	const ro = signal(false)
 	const dispose = render(
-		<input
-			prop:readOnly={ro.read}
-			value="text"
-		/>,
+		<input prop:readOnly={ro.read} value="text" />,
 	)
 
 	expect($('input').readOnly).toBe(false)
@@ -924,10 +789,7 @@ await test('forms - reactive maxlength attribute updates via signal', expect => 
 await test('forms - required empty input reports invalid via validity', expect => {
 	const dispose = render(
 		<form>
-			<input
-				name="name"
-				required
-			/>
+			<input name="name" required />
 		</form>,
 	)
 
@@ -940,10 +802,7 @@ await test('forms - required empty input reports invalid via validity', expect =
 
 await test('forms - email input with invalid value reports typeMismatch', expect => {
 	const dispose = render(
-		<input
-			type="email"
-			prop:value="not-an-email"
-		/>,
+		<input type="email" prop:value="not-an-email" />,
 	)
 
 	expect($('input').validity.typeMismatch).toBe(true)
@@ -952,12 +811,7 @@ await test('forms - email input with invalid value reports typeMismatch', expect
 })
 
 await test('forms - pattern mismatch reports patternMismatch', expect => {
-	const dispose = render(
-		<input
-			pattern="[0-9]+"
-			prop:value="abc"
-		/>,
-	)
+	const dispose = render(<input pattern="[0-9]+" prop:value="abc" />)
 
 	expect($('input').validity.patternMismatch).toBe(true)
 
@@ -966,11 +820,7 @@ await test('forms - pattern mismatch reports patternMismatch', expect => {
 
 await test('forms - number input out of range reports rangeOverflow', expect => {
 	const dispose = render(
-		<input
-			type="number"
-			max="10"
-			prop:value={20}
-		/>,
+		<input type="number" max="10" prop:value={20} />,
 	)
 
 	expect($('input').validity.rangeOverflow).toBe(true)
@@ -980,11 +830,7 @@ await test('forms - number input out of range reports rangeOverflow', expect => 
 
 await test('forms - number input under min reports rangeUnderflow', expect => {
 	const dispose = render(
-		<input
-			type="number"
-			min="5"
-			prop:value={1}
-		/>,
+		<input type="number" min="5" prop:value={1} />,
 	)
 
 	expect($('input').validity.rangeUnderflow).toBe(true)
@@ -1060,10 +906,7 @@ await test('forms - reactive rows and cols on textarea', expect => {
 	const rows = signal('3')
 	const cols = signal('40')
 	const dispose = render(
-		<textarea
-			rows={rows.read}
-			cols={cols.read}
-		/>,
+		<textarea rows={rows.read} cols={cols.read} />,
 	)
 
 	expect($('textarea').rows).toBe(3)
@@ -1104,10 +947,7 @@ await test('forms - autocomplete attribute renders correctly', expect => {
 await test('forms - input with list attribute associates to datalist', expect => {
 	const dispose = render(
 		<div>
-			<input
-				list="fruits"
-				name="fruit"
-			/>
+			<input list="fruits" name="fruit" />
 			<datalist id="fruits">
 				<option value="Apple" />
 				<option value="Banana" />
@@ -1192,10 +1032,7 @@ await test('forms - selectionStart and selectionEnd work on text input', expect 
 await test('forms - disabled optgroup disables its options', expect => {
 	const dispose = render(
 		<select>
-			<optgroup
-				label="Disabled"
-				disabled
-			>
+			<optgroup label="Disabled" disabled>
 				<option value="a">A</option>
 			</optgroup>
 			<optgroup label="Enabled">
@@ -1220,12 +1057,7 @@ await test('forms - reactive list of inputs via signal array', expect => {
 	const dispose = render(
 		<form>
 			{() =>
-				fields.read().map(name => (
-					<input
-						name={name}
-						value={name}
-					/>
-				))
+				fields.read().map(name => <input name={name} value={name} />)
 			}
 		</form>,
 	)
@@ -1284,10 +1116,7 @@ await test('forms - label wrapping an input focuses it on click', expect => {
 		<form>
 			<label>
 				Email
-				<input
-					type="email"
-					name="email"
-				/>
+				<input type="email" name="email" />
 			</label>
 		</form>,
 	)
@@ -1382,11 +1211,7 @@ await test('forms - button with explicit type=button does not submit', expect =>
 await test('forms - hidden input carries value but is not visible', expect => {
 	const dispose = render(
 		<form>
-			<input
-				type="hidden"
-				name="token"
-				value="abc123"
-			/>
+			<input type="hidden" name="token" value="abc123" />
 		</form>,
 	)
 
@@ -1402,11 +1227,7 @@ await test('forms - hidden input carries value but is not visible', expect => {
 
 await test('forms - data-* attributes are accessible via dataset', expect => {
 	const dispose = render(
-		<div
-			data-id="42"
-			data-name="test"
-			data-is-active="true"
-		>
+		<div data-id="42" data-name="test" data-is-active="true">
 			content
 		</div>,
 	)
@@ -1490,12 +1311,7 @@ await test('forms - reactive open on details toggles programmatically', expect =
 
 await test('forms - progress element reflects value and max', expect => {
 	const val = signal(30)
-	const dispose = render(
-		<progress
-			prop:value={val.read}
-			max="100"
-		/>,
-	)
+	const dispose = render(<progress prop:value={val.read} max="100" />)
 
 	const progress = $('progress')
 	expect(progress.value).toBe(30)
@@ -1509,13 +1325,7 @@ await test('forms - progress element reflects value and max', expect => {
 
 await test('forms - meter element reflects value, min, max', expect => {
 	const dispose = render(
-		<meter
-			prop:value={60}
-			min="0"
-			max="100"
-			low="25"
-			high="75"
-		/>,
+		<meter prop:value={60} min="0" max="100" low="25" high="75" />,
 	)
 
 	const meter = $('meter')
@@ -1550,21 +1360,12 @@ await test('forms - template element content is not rendered to DOM', expect => 
 await test('forms - select multiple tracks multiple selections', expect => {
 	const dispose = render(
 		<form>
-			<select
-				name="items"
-				multiple
-			>
+			<select name="items" multiple>
 				<option value="a">A</option>
-				<option
-					value="b"
-					selected
-				>
+				<option value="b" selected>
 					B
 				</option>
-				<option
-					value="c"
-					selected
-				>
+				<option value="c" selected>
 					C
 				</option>
 			</select>
@@ -1639,12 +1440,7 @@ await test('forms - output element displays computed value', expect => {
 
 await test('forms - range input respects min, max, and value', expect => {
 	const dispose = render(
-		<input
-			type="range"
-			min="0"
-			max="100"
-			prop:value={50}
-		/>,
+		<input type="range" min="0" max="100" prop:value={50} />,
 	)
 
 	const input = $('input')
@@ -1698,15 +1494,8 @@ await test('forms - submit with novalidate bypasses validation', expect => {
 				submitted = true
 			}}
 		>
-			<input
-				name="email"
-				type="email"
-				required
-			/>
-			<button
-				type="submit"
-				formnovalidate
-			>
+			<input name="email" type="email" required />
+			<button type="submit" formnovalidate>
 				Skip Validation
 			</button>
 		</form>,
@@ -1741,11 +1530,7 @@ await test('forms - input with form attribute associates to form by id', expect 
 			<form id="remote-form">
 				<button type="reset">Reset</button>
 			</form>
-			<input
-				form="remote-form"
-				name="remote"
-				value="original"
-			/>
+			<input form="remote-form" name="remote" value="original" />
 		</div>,
 	)
 
@@ -1790,10 +1575,7 @@ await test('forms - input event fires on typing, change on blur', expect => {
 await test('forms - disabled button does not fire click handler', expect => {
 	const clicks = []
 	const dispose = render(
-		<button
-			disabled
-			on:click={() => clicks.push('click')}
-		>
+		<button disabled on:click={() => clicks.push('click')}>
 			No Click
 		</button>,
 	)
@@ -1828,12 +1610,7 @@ await test('forms - submit event can be prevented', expect => {
 // --- input defaultValue vs value ---------------------------------------------
 
 await test('forms - defaultValue is preserved separately from value', expect => {
-	const dispose = render(
-		<input
-			name="field"
-			value="default"
-		/>,
-	)
+	const dispose = render(<input name="field" value="default" />)
 
 	const input = $('input')
 	expect(input.defaultValue).toBe('default')
@@ -1867,12 +1644,7 @@ await test('forms - checkbox can be set to indeterminate state', expect => {
 // --- input readonly ----------------------------------------------------------
 
 await test('forms - readonly input has value but cannot be edited by user', expect => {
-	const dispose = render(
-		<input
-			readonly
-			value="locked"
-		/>,
-	)
+	const dispose = render(<input readonly value="locked" />)
 
 	const input = $('input')
 	expect(input.readOnly).toBe(true)
@@ -1886,10 +1658,7 @@ await test('forms - readonly input has value but cannot be edited by user', expe
 await test('forms - aria attributes render correctly', expect => {
 	const expanded = signal('false')
 	const dispose = render(
-		<button
-			aria-expanded={expanded.read}
-			aria-label="Toggle menu"
-		>
+		<button aria-expanded={expanded.read} aria-label="Toggle menu">
 			Menu
 		</button>,
 	)
@@ -1917,12 +1686,7 @@ await test('forms - role attribute is set correctly', expect => {
 // --- required and autofocus attributes ----------------------------------
 
 await test('forms - required attribute renders on input', expect => {
-	const dispose = render(
-		<input
-			type="text"
-			required
-		/>,
-	)
+	const dispose = render(<input type="text" required />)
 
 	expect($('input').required).toBe(true)
 
@@ -1930,12 +1694,7 @@ await test('forms - required attribute renders on input', expect => {
 })
 
 await test('forms - autofocus attribute renders on input', expect => {
-	const dispose = render(
-		<input
-			type="text"
-			autofocus
-		/>,
-	)
+	const dispose = render(<input type="text" autofocus />)
 
 	expect($('input').autofocus).toBe(true)
 
@@ -1946,13 +1705,7 @@ await test('forms - autofocus attribute renders on input', expect => {
 
 await test('forms - number input respects min, max, and step', expect => {
 	const dispose = render(
-		<input
-			type="number"
-			min="0"
-			max="100"
-			step="5"
-			value="25"
-		/>,
+		<input type="number" min="0" max="100" step="5" value="25" />,
 	)
 
 	const input = $('input')
@@ -1968,11 +1721,7 @@ await test('forms - number input respects min, max, and step', expect => {
 
 await test('forms - maxlength and minlength attributes on text input', expect => {
 	const dispose = render(
-		<input
-			type="text"
-			maxlength="10"
-			minlength="3"
-		/>,
+		<input type="text" maxlength="10" minlength="3" />,
 	)
 
 	const input = $('input')
@@ -1985,12 +1734,7 @@ await test('forms - maxlength and minlength attributes on text input', expect =>
 // --- pattern attribute -------------------------------------------------
 
 await test('forms - pattern attribute renders on input', expect => {
-	const dispose = render(
-		<input
-			type="text"
-			pattern="[A-Z]+"
-		/>,
-	)
+	const dispose = render(<input type="text" pattern="[A-Z]+" />)
 
 	expect($('input').pattern).toBe('[A-Z]+')
 
@@ -2098,10 +1842,7 @@ await test('forms - label with for associates explicitly to input by id', expect
 	const dispose = render(
 		<>
 			<label for="field-a">name</label>
-			<input
-				id="field-a"
-				name="username"
-			/>
+			<input id="field-a" name="username" />
 		</>,
 	)
 
@@ -2117,10 +1858,7 @@ await test('forms - input value from a signal updates reactively', expect => {
 	const text = signal('initial')
 
 	const dispose = render(
-		<input
-			type="text"
-			prop:value={() => text.read()}
-		/>,
+		<input type="text" prop:value={() => text.read()} />,
 	)
 
 	expect($('input').value).toBe('initial')

@@ -15,11 +15,11 @@
 			"default": "./babel-preset/babel-preset.js"
 		},
 		"./jsx-runtime": {
-			"types": "./typescript/jsx.d.ts",
+			"types": "./typescript/jsx/runtime.d.ts",
 			"default": "./src/jsx/jsx-runtime.js"
 		},
 		"./jsx-dev-runtime": {
-			"types": "./typescript/jsx.d.ts",
+			"types": "./typescript/jsx/runtime.d.ts",
 			"default": "./src/jsx/jsx-runtime.js"
 		},
 		"./xml": {
@@ -44,7 +44,8 @@
 		}
 	},
 	"imports": {
-		"#test": "./tools/test-runner/test.js"
+		"#test": "./tools/test-runner/test.js",
+		"#type/*": "./typescript/private/*"
 	},
 	"scripts": {
 		"dev": "npm run clean && node tools/watch.js",
@@ -62,6 +63,7 @@
 
 		"test": "node tools/test-runner/runner.js",
 		"test:babel-preset": "node tools/babel-preset/test/runner.js",
+		"test:typescript": "tsc && tsc -p tests/tsconfig.json --noEmit",
 
 		"release": "npm run test && npm run test:babel-preset && node tools/release.js",
 		"format": "prettier . -w --config=./package.json --no-editorconfig --plugin=prettier-plugin-jsdoc"
@@ -112,7 +114,7 @@
 		"arrowParens": "avoid",
 		"proseWrap": "always",
 		"endOfLine": "lf",
-		"singleAttributePerLine": true
+		"singleAttributePerLine": false
 	},
 	"repository": {
 		"type": "git",

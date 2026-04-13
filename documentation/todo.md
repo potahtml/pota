@@ -10,7 +10,6 @@
 ### wip
 
 - maybe ask for coverage reporting
-- improve jsx
 - get rid of colorsio
 - ask for performance improvements realted to polymorphism
 

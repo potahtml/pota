@@ -106,7 +106,7 @@ export function assignProp(node, name, value) {
  * Assigns a prop to an Element
  *
  * @template T
- * @param {DOMElement} node
+ * @param {JSX.DOMElement} node
  * @param {string} name
  * @param {any} value
  * @param {string} localName

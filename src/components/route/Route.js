@@ -27,15 +27,15 @@ import { scroll } from './scroll.js'
  *   removing it from the document.
  * @property {When<any>} when - To stop rendering the route even if
  *   the path matches.
- * @property {Children} fallback - Fallback children.
- * @property {Children} children - Children to render.
+ * @property {JSX.Element} fallback - Fallback children.
+ * @property {JSX.Element} children - JSX.Element to render.
  */
 
 /**
  * Renders children if the path matches the current location
  *
  * @param {Partial<RouteProps>} props
- * @returns {Children}
+ * @returns {JSX.Element}
  * @url https://pota.quack.uy/Components/Route/Route
  */
 export function Route(props) {
@@ -116,9 +116,7 @@ export function Route(props) {
 /**
  * Renders children when no sibling `Route` matches
  *
- * @param {object} props
- * @param {Children} [props.children]
- * @returns {Children}
+ * @type {ParentComponent}
  */
 Route.Default = props => {
 	return Component(Show, {

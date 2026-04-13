@@ -5,7 +5,7 @@ import { Portal } from './Portal.js'
 /**
  * Mounts children on `document.head`
  *
- * @param {Props} props
+ * @type {FlowComponent}
  * @url https://pota.quack.uy/Components/Head
  */
 export const Head = props =>

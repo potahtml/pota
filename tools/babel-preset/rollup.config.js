@@ -21,6 +21,9 @@ const preset = {
 		'@babel/plugin-syntax-jsx',
 		'parse5',
 	],
+	watch: {
+		clearScreen: false,
+	},
 }
 
 /**
@@ -95,6 +98,9 @@ const standalone = {
 		),
 	},
 	plugins: [shimPlugin, resolve(), commonjs(), terser()],
+	watch: {
+		clearScreen: false,
+	},
 }
 
 export default [preset, standalone]

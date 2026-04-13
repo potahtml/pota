@@ -7,24 +7,24 @@ import {
 	signal,
 } from '../lib/reactive.js'
 
+const noError = Symbol()
+
 /**
  * Catches errors thrown by descendants and renders a fallback.
  *
  * Protects its subtree from both synchronous throws during render and
  * reactive throws inside descendant effects, memos, and deriveds. The
  * `fallback` can be a JSX element, plain value, or a `(err, reset) =>
- * Children` function.
+ * JSX.Element` function.
  *
- * @param {object} props
- * @param {Children} [props.children]
- * @param {Children
- * 	| ((err: unknown, reset: () => void) => Children)} [props.fallback]
- * @returns {Children}
+ * @type {FlowComponent<{
+ * 	fallback?:
+ * 		| JSX.Element
+ * 		| ((err: unknown, reset: () => void) => JSX.Element)
+ * }>}
  * @url https://pota.quack.uy/Components/Errored
  */
-const noError = Symbol()
-
-export function Errored(props) {
+export const Errored = props => {
 	const [err, writeErr] = signal(/** @type {unknown} */ (noError))
 	const [attempt, , updateAttempt] = signal(0)
 

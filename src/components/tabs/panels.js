@@ -10,7 +10,7 @@ import { Show } from '../Show.js'
  *
  * @param {object} props
  * @param {import('./panels.js').Panel[]} [props.children]
- * @returns {Children}
+ * @returns {JSX.Element}
  * @url https://pota.quack.uy/Components/Tabs
  */
 export function Panels(props) {
@@ -41,7 +41,7 @@ export function Panels(props) {
  * Passthrough for content in TabPanel
  *
  * @param {Merge<
- * 	Elements['section'],
+ * 	JSX.Elements['section'],
  * 	{
  * 		collapse?: boolean
  * 	}

@@ -32,8 +32,6 @@ import {
  *   developer tools context, so dev-tools context doesnt mess up the
  *   real context
  *
- * WARNING: typings here are a mess, Im slowly working on it.
- *
  * @url https://www.solidjs.com/
  * @url https://github.com/solidjs/solid
  * @url https://github.com/solidjs/signals
@@ -127,7 +125,7 @@ export function createReactiveSystem() {
 
 		/**
 		 * @param {Computation} owner
-		 * @param {object} [options]
+		 * @param {EffectOptions} [options]
 		 */
 		constructor(owner, options) {
 			if (owner) {
@@ -140,7 +138,7 @@ export function createReactiveSystem() {
 
 			options && assign(this, options)
 		}
-		/** @param {Function} fn */
+		/** @param {() => void} fn */
 		addCleanups(fn) {
 			if (!this.cleanups) {
 				this.cleanups = fn
@@ -150,7 +148,7 @@ export function createReactiveSystem() {
 				this.cleanups = [this.cleanups, fn]
 			}
 		}
-		/** @param {Function} fn */
+		/** @param {() => void} fn */
 		cleanupCancel(fn) {
 			if (!this.cleanups) {
 			} else if (this.cleanups === fn) {
@@ -226,7 +224,7 @@ export function createReactiveSystem() {
 		/**
 		 * @param {Computation} owner
 		 * @param {Function} fn
-		 * @param {object} [options]
+		 * @param {EffectOptions} [options]
 		 */
 		constructor(owner, fn, options) {
 			super(owner, options)
@@ -243,10 +241,6 @@ export function createReactiveSystem() {
 
 			try {
 				runWith(this.fn, this, this)
-
-				/*} catch (err) {
-					this.updatedAt = time + 1
-				}*/
 			} catch (err) {
 				this.state = 1 /* STALE */
 				this.disposeOwned()
@@ -301,7 +295,7 @@ export function createReactiveSystem() {
 		/**
 		 * @param {Computation} owner
 		 * @param {Function} fn
-		 * @param {object} [options]
+		 * @param {EffectOptions} [options]
 		 */
 		constructor(owner, fn, options) {
 			super(owner, fn, options)
@@ -314,7 +308,7 @@ export function createReactiveSystem() {
 		/**
 		 * @param {Computation} owner
 		 * @param {Function} fn
-		 * @param {object} [options]
+		 * @param {EffectOptions} [options]
 		 */
 		constructor(owner, fn, options) {
 			super(owner, fn, options)
@@ -332,15 +326,16 @@ export function createReactiveSystem() {
 		observers
 		observerSlots
 
-		// options:
-		// equals
 		/**
 		 * @param {Computation} owner
 		 * @param {Function} fn
-		 * @param {object} [options]
+		 * @param {SignalOptions<T>} [options] - Accepts `equals`
 		 */
 		constructor(owner, fn, options) {
-			super(owner, fn, options)
+			// Memo extends Computation (EffectOptions) but accepts
+			// SignalOptions<T>. Pass undefined to super — Memo
+			// applies the signal-specific options itself below.
+			super(owner, fn, undefined)
 
 			if (options) {
 				assign(this, options)
@@ -393,15 +388,6 @@ export function createReactiveSystem() {
 
 			try {
 				const nextValue = runWith(this.fn, this, this)
-
-				/*} catch (err) {
-					this.state = 1 // STALE
-					this.disposeOwned()
-
-					this.updatedAt = time + 1
-
-					throw err
-				} */
 
 				if (this.updatedAt <= time) {
 					this.write(nextValue)
@@ -467,16 +453,6 @@ export function createReactiveSystem() {
 				this.lastWrite = {}
 
 				runWith(this._runFn, this, this)
-				/*
-					} catch (err) {
-						this.state = 1 // STALE
-						this.disposeOwned()
-
-						this.updatedAt = time + 1
-
-						throw err
-					}
-				*/
 			} catch (err) {
 				this.state = 1 /* STALE */
 				this.disposeOwned()
@@ -562,7 +538,7 @@ export function createReactiveSystem() {
 	 *
 	 * @template T
 	 * @param {(dispose: () => void) => T} fn
-	 * @param {object} [options]
+	 * @param {EffectOptions} [options]
 	 * @returns {T}
 	 */
 	function root(fn, options) {
@@ -645,7 +621,8 @@ export function createReactiveSystem() {
 	 *
 	 * @template T
 	 * @param {() => T} fn
-	 * @param {object} [options]
+	 * @param {EffectOptions} [options]
+	 * @returns {void}
 	 */
 	function effect(fn, options) {
 		new Effect(Owner, fn, options)
@@ -656,7 +633,7 @@ export function createReactiveSystem() {
 	 *
 	 * @template T
 	 * @param {() => T} fn
-	 * @param {object} [options]
+	 * @param {EffectOptions} [options]
 	 */
 	function track(fn, options) {
 		let ran
@@ -677,8 +654,8 @@ export function createReactiveSystem() {
 	 *
 	 * @template T
 	 * @param {() => T} fn
-	 * @param {object} [options]
-	 * @returns T
+	 * @param {EffectOptions} [options]
+	 * @returns {void}
 	 */
 	function syncEffect(fn, options) {
 		new SyncEffect(Owner, fn, options)
@@ -688,9 +665,10 @@ export function createReactiveSystem() {
 	 * Creates an effect with explicit dependencies
 	 *
 	 * @template T
-	 * @param {Function} depend - Function that causes tracking
+	 * @param {() => any} depend - Function that causes tracking
 	 * @param {() => T} fn - Function that wont cause tracking
-	 * @param {object} [options]
+	 * @param {EffectOptions} [options]
+	 * @returns {void}
 	 */
 	function on(depend, fn, options) {
 		effect(() => {
@@ -703,13 +681,21 @@ export function createReactiveSystem() {
 	 * Creates a read-only signal from the return value of a function
 	 * that automatically updates
 	 *
+	 * The return type intersects `SignalAccessor<T>` with a phantom `{
+	 * readonly memo?: void }` property. The phantom never exists at
+	 * runtime — its sole purpose is to give TypeScript more structural
+	 * information so it can infer `T` cleanly when memo() is called
+	 * inline inside another generic context, e.g. `<For each={memo(()
+	 * => [...])}>`. Without it, bidirectional inference between two
+	 * generic calls collapses `T` to `unknown`.
+	 *
 	 * @template T
 	 * @param {() => T} fn - Function to re-run when dependencies change
 	 * @param {SignalOptions<T>} [options]
-	 * @returns {SignalAccessor<T>}
+	 * @returns {SignalAccessor<T> & { readonly memo?: void }}
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function memo(fn, options = undefined) {
-		return /** @type {SignalAccessor<T>} */ (
+		return /** @type {SignalAccessor<T> & { readonly memo?: void }} */ (
 			/** @type {unknown} */ (new Memo(Owner, fn, options).read)
 		)
 	}
@@ -719,9 +705,9 @@ export function createReactiveSystem() {
 	 * functions and promises recursively
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ const derived =
-		/** @type {import('../../typescript/derived.d.ts').derived} */ (
+		/** @type {import('#type/derived.d.ts').derived} */ (
 			/** @type {unknown} */ (...fn) =>
-				/** @type {import('../../typescript/derived.d.ts').derived} */ (
+				/** @type {import('#type/derived.d.ts').derived} */ (
 					/** @type {unknown} */ (new Derived(Owner, fn))
 				)
 		)
@@ -794,7 +780,7 @@ export function createReactiveSystem() {
 	/**
 	 * Runs a callback on cleanup, returns callback
 	 *
-	 * @template {Function} T
+	 * @template {() => void} T
 	 * @param {T} fn
 	 * @returns {T}
 	 */
@@ -807,8 +793,10 @@ export function createReactiveSystem() {
 	 * Runs `fn` and routes any error — synchronous or reactive — from
 	 * its descendants to `handler` instead of the console.
 	 *
-	 * @param {() => any} fn
+	 * @template T
+	 * @param {() => T} fn
 	 * @param {(err: unknown) => void} handler
+	 * @returns {T | undefined}
 	 */
 	function catchError(fn, handler) {
 		let result
@@ -986,6 +974,7 @@ export function createReactiveSystem() {
 	 *
 	 * @template T
 	 * @param {T} [defaultValue] - Default value for the context
+	 * @returns {Context<T>}
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function context(
 		defaultValue = undefined,
@@ -993,11 +982,18 @@ export function createReactiveSystem() {
 		const id = Symbol()
 
 		/**
-		 * @overload Runs `fn` with a new value as context
+		 * @overload Runs `fn` with the full context value
 		 * @param {T} newValue - New value for the context
-		 * @param {() => Children} fn - Callback to run with the new
+		 * @param {() => JSX.Element} fn - Callback to run with the new
 		 *   context value
-		 * @returns {Children} Context value
+		 * @returns {JSX.Element} Context value
+		 */
+		/**
+		 * @overload Runs `fn` with a partial override of the context
+		 * @param {Partial<T>} newValue - Partial override
+		 * @param {() => JSX.Element} fn - Callback to run with the new
+		 *   context value
+		 * @returns {JSX.Element} Context value
 		 */
 		/**
 		 * @overload Gets the context value
@@ -1026,13 +1022,15 @@ export function createReactiveSystem() {
 		 *
 		 * @param {object} props
 		 * @param {Partial<T>} props.value
-		 * @param {Children} props.children
-		 * @returns {Children} Children
+		 * @param {JSX.Element} [props.children]
+		 * @returns {JSX.Element}
 		 * @url https://pota.quack.uy/Reactivity/Context
 		 */
 		useContext.Provider = props =>
-			// @ts-expect-error
-			useContext(props.value, () => context.toHTML(props.children))
+			useContext(props.value, () =>
+				// @ts-expect-error `toHTML` is attached by renderer.js at module init
+				context.toHTML(props.children),
+			)
 
 		/**
 		 * Maps context following `parent` property (if any). When `true`
@@ -1040,6 +1038,7 @@ export function createReactiveSystem() {
 		 *
 		 * @param {(context: T) => boolean | void} callback
 		 * @param {T} [context]
+		 * @returns {boolean}
 		 */
 		useContext.walk = (callback, context) =>
 			walkParents(context || useContext(), 'parent', callback)
@@ -1199,7 +1198,7 @@ export function createReactiveSystem() {
 	 * Unwraps functions and promises recursively canceling if owner
 	 * gets disposed
 	 *
-	 * @type {import('../../typescript/action.d.ts').action}
+	 * @type {import('#type/action.d.ts').action}
 	 */
 	const action = (...cbs) =>
 		owned((...args) => {

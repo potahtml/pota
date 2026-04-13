@@ -10,13 +10,10 @@ import {
  * Renders the first child that matches the given `when` condition, or
  * a fallback in case of no match
  *
- * @param {object} props
- * @param {Children} [props.children]
- * @param {Children} [props.fallback]
- * @returns {Children}
+ * @type {FlowComponent<{ fallback?: JSX.Element }>}
  * @url https://pota.quack.uy/Components/Switch
  */
-export function Switch(props) {
+export const Switch = props => {
 	const matches = resolve(() =>
 		isArray(props.children) ? props.children : [props.children],
 	)
@@ -43,10 +40,18 @@ export function Switch(props) {
 /**
  * Renders the content if the `when` condition is true
  *
- * @template T
- * @param {object} props
- * @param {When<any>} props.when
- * @param {Children} [props.children]
- * @returns {Children}
+ * @type {{
+ * 	<T>(props: {
+ * 		when: When<T>
+ * 		children: Children<
+ * 			(value: SignalAccessor<Accessed<T>>) => JSX.Element
+ * 		>
+ * 	}): JSX.Element
+ * 	<T>(props: {
+ * 		when: When<T>
+ * 		children?: JSX.Element
+ * 	}): JSX.Element
+ * }}
+ * @url https://pota.quack.uy/Components/Switch
  */
 export const Match = identity

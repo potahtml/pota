@@ -8,7 +8,7 @@ import { getValue } from '../../lib/std.js'
  * Renders a list of tabs
  *
  * @param {Merge<
- * 	Elements['nav'],
+ * 	JSX.Elements['nav'],
  * 	{
  * 		children: import('./labels.js').Label[]
  * 	}
@@ -76,7 +76,7 @@ export function Labels(props) {
  * Passthrough for label in TabList
  *
  * @param {Merge<
- * 	Elements['button'],
+ * 	JSX.Elements['button'],
  * 	{
  * 		selected?: boolean
  * 		name?: string

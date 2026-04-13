@@ -6,16 +6,13 @@ import { CustomElement, customElement } from './CustomElement.js'
  * Similar to `Show`, but doesn't remove its children from the
  * document
  *
- * @template T
- * @param {{
- * 	when: When<any> // Condition to show/hide children
- * 	children?: Children // Content to show when condition is true
- * 	fallback?: Children // Content to show when condition is false
- * }} props
- * @returns {Children}
+ * @type {FlowComponent<{
+ * 	when: When<any>
+ * 	fallback?: JSX.Element
+ * }>}
  * @url https://pota.quack.uy/Components/Collapse
  */
-export function Collapse(props) {
+export const Collapse = props => {
 	// need to include the class here because else its not treeshaked
 
 	class CollapseElement extends CustomElement {

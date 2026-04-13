@@ -1,4 +1,4 @@
-/// <reference path="./pota.d.ts"/>
+/// <reference path="../public/pota.d.ts"/>
 
 export declare function derived<A extends any[], R>(
 	f1: (...args: A) => R,

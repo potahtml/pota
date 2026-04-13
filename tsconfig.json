@@ -7,7 +7,7 @@
 		// helps to click "implementation" and go to the source code
 		"declarationMap": true,
 		"emitDeclarationOnly": true,
-		// "preserveWatchOutput": true,
+		"preserveWatchOutput": true,
 		"pretty": false,
 
 		"allowJs": true,
@@ -25,13 +25,20 @@
 		"lib": ["ESNext", "DOM"],
 
 		"jsx": "preserve",
-		"jsxImportSource": "pota",
-
-		"types": ["./typescript/jsx.d.ts"]
+		"jsxImportSource": "pota"
 	},
 	"include": ["src"],
-	"files": ["typescript/RouterContext.d.ts"],
-	"exclude": [
-		"node_modules"
-	]
+	// hand-maintained .d.ts files that src/ JSDoc needs for
+	// type-checking (ambient types like JSX, Accessor, Dynamic).
+	// These are outside "include" so tsc won't find them
+	// automatically — listing them here makes their types globally
+	// available to the checked source files. They are NOT emitted
+	// to generated/types/ (tsc skips .d.ts during emit).
+	"files": [
+		"typescript/public/components.d.ts",
+		"typescript/public/pota.d.ts",
+		"typescript/jsx/components.d.ts",
+		"typescript/jsx/namespace.d.ts"
+	],
+	"exclude": ["node_modules"]
 }

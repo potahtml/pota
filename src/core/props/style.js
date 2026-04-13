@@ -6,8 +6,8 @@ import { isFunction, isObject, isString } from '../../lib/std.js'
 /**
  * Applies style attributes (string/object/function) to an element.
  *
- * @param {DOMElement} node
- * @param {StyleAttribute} value
+ * @param {JSX.DOMElement} node
+ * @param {JSX.StyleAttribute} value
  * @url https://pota.quack.uy/props/setStyle
  */
 export const setStyle = (node, value) => {
@@ -17,9 +17,9 @@ export const setStyle = (node, value) => {
 /**
  * Applies styles within a namespace (e.g. `style:color` bindings).
  *
- * @param {DOMElement} node
+ * @param {JSX.DOMElement} node
  * @param {string} localName
- * @param {StyleAttribute} value
+ * @param {JSX.StyleAttribute} value
  */
 export const setStyleNS = (node, localName, value) => {
 	setNodeStyle(
@@ -33,7 +33,7 @@ export const setStyleNS = (node, localName, value) => {
  * assignments.
  *
  * @param {CSSStyleDeclaration} style
- * @param {StyleAttribute} value
+ * @param {JSX.StyleAttribute} value
  */
 function setNodeStyle(style, value) {
 	if (isString(value)) {
@@ -50,7 +50,7 @@ function setNodeStyle(style, value) {
 /**
  * Sets a single style property, unwrapping reactive values.
  *
- * @param {DOMElement} node
+ * @param {JSX.DOMElement} node
  * @param {string} name
  * @param {unknown} value
  */

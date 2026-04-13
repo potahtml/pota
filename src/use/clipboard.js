@@ -6,8 +6,10 @@ import { addEvent } from '../lib/reactive.js'
 import { propsPlugin } from '../core/props/plugin.js'
 
 /**
- * @param {DOMElement} node
- * @param {((e: EventEvent<EventType['click'], DOMElement>) => string)
+ * @param {JSX.DOMElement} node
+ * @param {((
+ * 			e: JSX.EventEvent<JSX.EventType['click'], JSX.DOMElement>,
+ * 	  ) => string)
  * 	| boolean
  * 	| string} value
  * @url https://pota.quack.uy/use/clipboard

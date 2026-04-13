@@ -10,7 +10,7 @@ import { useRoute } from './context.js'
  * Scroll to hash first, if doesnt, scroll to positions defined by the
  * Routes.
  *
- * @param {RouteContext} context
+ * @param {import('#type/Route.d.ts').Context} context
  */
 export function scroll(context) {
 	if (

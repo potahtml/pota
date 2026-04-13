@@ -10,11 +10,11 @@ let group = 0
 /**
  * Context wrapper for tabs
  *
- * @param {object} props
- * @param {number} [props.selected] - Which tab index to select by
- *   default
- * @param {Children} [props.children]
- * @returns {Children}
+ * @param {{
+ * 	selected?: number
+ * 	children?: JSX.Element
+ * }} props
+ * @returns {JSX.Element}
  * @url https://pota.quack.uy/Components/Tabs
  */
 export function Tabs(props) {

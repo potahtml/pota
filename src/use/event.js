@@ -91,7 +91,7 @@ export const addEventNative = (where, type, handler) =>
 			/** @type unknown */ handler
 		),
 		!isFunction(handler)
-			? /** @type {EventHandlerOptions} */ (handler)
+			? /** @type {JSX.EventHandlerOptions} */ (handler)
 			: undefined,
 	)
 
@@ -111,7 +111,7 @@ export const removeEventNative = (where, type, handler) =>
 			/** @type unknown */ handler
 		),
 		!isFunction(handler)
-			? /** @type {EventHandlerOptions} */ (handler)
+			? /** @type {JSX.EventHandlerOptions} */ (handler)
 			: undefined,
 	)
 

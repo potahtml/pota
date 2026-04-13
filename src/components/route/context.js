@@ -4,13 +4,13 @@ import { nothing, removeFromArray } from '../../lib/std.js'
 import { isAbsolute } from '../../use/url.js'
 
 /**
- * @param {Partial<RouteContext>} props
- * @returns {RouteContext}
+ * @param {Partial<import('#type/Route.d.ts').Context>} props
+ * @returns {import('#type/Route.d.ts').Context}
  */
 export function create(props) {
-	/** @type SignalObject<RouteContext[]> */
+	/** @type SignalObject<import('#type/Route.d.ts').Context[]> */
 	const [children, _, updateChildren] = signal(
-		/** @type {RouteContext[]} */ ([]),
+		/** @type {import('#type/Route.d.ts').Context[]} */ ([]),
 	)
 
 	return {

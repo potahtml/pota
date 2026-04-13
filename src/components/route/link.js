@@ -8,17 +8,16 @@ import { useRoute } from './context.js'
 /**
  * Creates a link with Route features
  *
- * @param {{
- * 	href: string
- * 	params?: Record<string, string>
- * 	replace?: boolean
- * } & Elements['a']} props
- *
- * @returns {Children}
+ * @type {Component<
+ * 	{
+ * 		href: string
+ * 		params?: Record<string, string>
+ * 		replace?: boolean
+ * 	} & JSX.Elements['a']
+ * >}
  * @url https://pota.quack.uy/Components/Route/A
  */
-
-export function A(props) {
+export const A = props => {
 	addListeners()
 
 	const href = useRoute().resolve(
