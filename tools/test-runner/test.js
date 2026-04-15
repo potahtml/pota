@@ -19,6 +19,24 @@ export {
 // test wrapper — clears body/head, tracks results for run()
 
 /**
+ * @typedef {{
+ * 	__error: true
+ * 	message?: string
+ * 	stack?: string
+ * 	cause?: unknown
+ * }} PackedError
+ */
+
+/**
+ * @typedef {{
+ * 	passed: number
+ * 	failed: number
+ * 	errors: { title: string; error: unknown }[]
+ * 	done?: boolean
+ * }} TestResults
+ */
+
+/**
  * @type {Promise<{
  * 	title: string
  * 	ok: boolean
@@ -31,12 +49,21 @@ const results = []
  * Converts an error to a plain serializable object.
  *
  * @param {unknown} e
+ * @returns {unknown}
  */
 function packError(e) {
 	if (typeof e === 'object' && e !== null) {
-		if (e.stack || e.message) {
-			const o = { __error: true, message: e.message, stack: e.stack }
-			if (e.cause) o.cause = packError(e.cause)
+		const err = /** @type {{ message?: string; stack?: string; cause?: unknown }} */ (
+			e
+		)
+		if (err.stack || err.message) {
+			/** @type {PackedError} */
+			const o = {
+				__error: true,
+				message: err.message,
+				stack: err.stack,
+			}
+			if (err.cause) o.cause = packError(err.cause)
 			return o
 		}
 		return e
@@ -113,7 +140,9 @@ export function test(title, fn) {
  * window.**pota_results**.
  */
 export async function run() {
-	const out = window.__pota_results__
+	const out = /** @type {{ __pota_results__: TestResults }} */ (
+		/** @type {unknown} */ (window)
+	).__pota_results__
 
 	for (const r of await Promise.all(results)) {
 		if (r.ok) {

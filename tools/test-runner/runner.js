@@ -49,12 +49,26 @@ if (!quiet) console.clear()
 
 /**
  * @typedef {{
+ * 	title?: string
+ * 	__event?: string
+ * 	error?: unknown
+ * 	reason?: unknown
+ * }} ErrorEntry
+ */
+
+/**
+ * @typedef {{
  * 	passed: number
  * 	failed: number
- * 	errors: object[]
- * 	console: { type: string; args: unknown[] }[]
+ * 	errors: ErrorEntry[]
+ * 	console: { type: 'log' | 'warn' | 'error'; args: unknown[] }[]
  * 	done?: boolean
  * }} TestResults
+ */
+
+/**
+ * @typedef {Window &
+ * 	typeof globalThis & { __pota_results__: TestResults }} TestWindow
  */
 
 // --- scan test files ---
@@ -94,16 +108,22 @@ async function runFile(browser, baseURL, file) {
 			waitUntil: 'load',
 		})
 		await page.waitForFunction(
-			() => window.__pota_results__?.done === true,
+			() =>
+				/** @type {TestWindow} */ (window).__pota_results__
+					?.done === true,
 			{ timeout },
 		)
 
-		return await page.evaluate(() => window.__pota_results__)
+		return await page.evaluate(
+			() => /** @type {TestWindow} */ (window).__pota_results__,
+		)
 	} catch (e) {
 		return {
 			passed: 0,
 			failed: 1,
-			errors: [{ __event: 'error', error: e.message }],
+			errors: [
+				{ __event: 'error', error: /** @type {Error} */ (e).message },
+			],
 			console: [],
 		}
 	} finally {

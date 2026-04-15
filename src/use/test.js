@@ -16,8 +16,11 @@ let num = 1
  * `expect` function to make assertions.
  *
  * @param {string} title - The title of the test case.
- * @param {(expect: (arg: unknown) => Expect) => void | Promise<unknown>} fn - The test
- *   function containing assertions.
+ * @param {(
+ * 	expect: (arg: unknown) => Expect,
+ * ) => void | Promise<unknown>} fn
+ *   - The test function containing assertions.
+ *
  * @param {boolean} [stopTesting] - If true, no more tests will be run
  *   after this one.
  * @returns {Promise<unknown>} A promise that resolves when all
@@ -321,9 +324,9 @@ export const sleepLong = () => sleep(300)
  * Shorthand for `document.querySelector`.
  *
  * @param {string} selector - CSS selector.
- * @param {Document | Element} [node] - Root to query from (defaults
- *   to `document`).
- * @returns {Element | null}
+ * @param {Document | HTMLElement} [node] - Root to query from
+ *   (defaults to `document`).
+ * @returns {HTMLElement | null}
  */
 export const $ = (selector, node = document) =>
 	node.querySelector(selector)
@@ -332,9 +335,9 @@ export const $ = (selector, node = document) =>
  * Shorthand for `document.querySelectorAll`.
  *
  * @param {string} selector - CSS selector.
- * @param {Document | Element} [node] - Root to query from (defaults
- *   to `document`).
- * @returns {NodeListOf<Element>}
+ * @param {Document | HTMLElement} [node] - Root to query from
+ *   (defaults to `document`).
+ * @returns {NodeListOf<HTMLElement>}
  */
 export const $$ = (selector, node = document) =>
 	node.querySelectorAll(selector)

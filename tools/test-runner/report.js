@@ -3,15 +3,59 @@
 import { red, green, yellow, dim, white } from '../utils.js'
 
 /**
+ * @typedef {{
+ * 	__error: true
+ * 	message?: string
+ * 	stack?: string
+ * 	cause?: unknown
+ * }} PackedError
+ */
+
+/**
+ * @typedef {{
+ * 	__event: string
+ * 	error?: unknown
+ * 	reason?: unknown
+ * 	filename?: string
+ * 	lineno?: number
+ * }} PackedEvent
+ */
+
+/**
+ * @typedef {{
+ * 	title?: string
+ * 	__event?: string
+ * 	error?: unknown
+ * 	reason?: unknown
+ * }} ErrorEntry
+ */
+
+/**
+ * @typedef {{
+ * 	passed: number
+ * 	failed: number
+ * 	errors: ErrorEntry[]
+ * 	console?: { type: 'log' | 'warn' | 'error'; args: unknown[] }[]
+ * 	done?: boolean
+ * }} TestResults
+ */
+
+/**
  * Unpacks a browser value: error markers become their stack,
  * everything else passes through for Node's console to format.
  *
  * @param {unknown} arg
+ * @returns {unknown}
  */
 function unpack(arg) {
-	if (typeof arg === 'object' && arg !== null && arg.__error) {
-		let s = arg.stack || arg.message
-		if (arg.cause) s += '\nCaused by: ' + unpack(arg.cause)
+	if (
+		typeof arg === 'object' &&
+		arg !== null &&
+		'__error' in arg
+	) {
+		const e = /** @type {PackedError} */ (arg)
+		let s = e.stack || e.message || ''
+		if (e.cause) s += '\nCaused by: ' + unpack(e.cause)
 		return s
 	}
 	return arg
@@ -27,7 +71,7 @@ const consoleTypes = {
  * Prints PASS/FAIL output for one test file.
  *
  * @param {string} file
- * @param {object} results
+ * @param {TestResults} results
  * @param {number} ms
  * @param {string} baseURL
  * @param {{
@@ -47,7 +91,8 @@ export function report(file, results, ms, baseURL, opts) {
 			)
 	} else {
 		console.log(` ${red('FAIL')}  ${file}  ${dim(`${ms}ms`)}`)
-		console.log(`  ${white(`${baseURL}/${file}?test`)}`)
+		console.log(`\n  ${white(`${baseURL}/${file}?test`)} (test)`)
+		console.log(`  ${white(`${baseURL}/${file}`)} (source)\n`)
 
 		for (const err of results.errors) {
 			// assertion failures (with .title) are shown via their

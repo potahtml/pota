@@ -114,6 +114,7 @@ function serveFile(res, filePath) {
  * files.
  *
  * @param {number} port
+ * @returns {Promise<{ server: import('http').Server; port: number }>}
  */
 export function startServer(port) {
 	return new Promise(resolve => {
@@ -144,7 +145,7 @@ export function startServer(port) {
 			} catch (e) {
 				// return syntax/transform errors as valid JS so the
 				// browser shows the real message instead of a parse error
-				const msg = (e.message || String(e))
+				const msg = (/** @type {Error} */ (e).message || String(e))
 					.replace(/\\/g, '\\\\')
 					.replace(/`/g, '\\`')
 				if (!res.headersSent)
@@ -155,8 +156,11 @@ export function startServer(port) {
 			}
 		})
 
-		server.listen(port, () =>
-			resolve({ server, port: server.address().port }),
-		)
+		server.listen(port, () => {
+			const addr = server.address()
+			const actualPort =
+				addr && typeof addr === 'object' ? addr.port : 0
+			resolve({ server, port: actualPort })
+		})
 	})
 }
