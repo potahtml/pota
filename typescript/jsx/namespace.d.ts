@@ -23,7 +23,7 @@
 /// <reference path="../public/pota.d.ts" />
 /// <reference path="./properties.d.ts" />
 
-interface CSSProperties extends import('csstype').PropertiesHyphen {
+type CSSProperties = import('csstype').PropertiesHyphen & {
 	[key: `-${string}`]: number | string | undefined
 }
 
@@ -31,25 +31,27 @@ type NSStyle = {
 	[Key in Exclude<
 		keyof import('csstype').PropertiesHyphen,
 		`-${string}`
-	> as `style:${Key}`]?: Accessor<import('csstype').PropertiesHyphen[Key]>
+	> as `style:${Key}`]?: Attribute<
+		import('csstype').PropertiesHyphen[Key]
+	>
 }
 
-interface CSSAttributes extends NSStyle {
+type CSSAttributes = NSStyle & {
 	class?:
 		| Record<
 				string,
-				Accessor<string | boolean | number | null | undefined>
+				Attribute<string | boolean | number | null | undefined>
 		  >
-		| Accessor<string>
+		| Attribute<string>
 
-	style?: Accessor<
-		| { [P in keyof CSSProperties]: Accessor<CSSProperties[P]> }
+	style?: Attribute<
+		| { [P in keyof CSSProperties]: Attribute<CSSProperties[P]> }
 		| string
 	>
 
-	'use:css'?: Accessor<string>
+	'use:css'?: Attribute<string>
 
-	[attr: `class:${string}`]: Accessor<
+	[attr: `class:${string}`]: Attribute<
 		string | boolean | number | null | undefined
 	>
 }
@@ -87,22 +89,21 @@ declare namespace JSX {
 		// fancy
 		| object // such CSSStyleSheet
 		// dom
-		| globalThis.Element
+		| DOMElement
 		| ChildNode
 		| ElementType
 		// | DocumentFragment cannot be `children`, we use `childNodes` instead
 		// recurse
 		| (() => Element)
 		| Promise<Element>
-		| PromiseSettledResult<Element>
 		| Element[]
 
 	// JSX.ElementType - shape of a `component`
 
 	type ElementType =
 		| keyof IntrinsicElements
-		| (new (props?) => ElementClass)
-		| ((props?) => Element)
+		| (new (props?: Record<string, unknown>) => ElementClass)
+		| ((props?: Record<string, unknown>) => Element)
 		| { toString(): Element }
 
 	// JSX.ElementClass - shape of `class` component
@@ -116,16 +117,13 @@ declare namespace JSX {
 
 	// TYPES
 
-	type DOMElement = HTMLElement | SVGElement | MathMLElement | Element
-	// | globalThis.Element
-
 	type Props<T = {}> = T & { children?: Element }
 
 	type BooleanAttribute = boolean | ''
 
 	type EnumeratedPseudoBoolean = 'false' | 'true'
 
-	type StyleAttribute = Accessor<CSSProperties | string>
+	type StyleAttribute = Attribute<CSSProperties | string>
 
 	// EVENTS
 
@@ -168,7 +166,7 @@ declare namespace JSX {
 		node: Element,
 	) => void
 
-	type CallbackBind = SignalFunction | CallbackBind[] // recursive type
+	type CallbackBind = SignalFunction<any> | CallbackBind[] // recursive type
 
 	// CORE
 
@@ -228,43 +226,43 @@ declare namespace JSX {
 			AriaAttributes,
 			EventHandlersElement<Element> {
 		// properties
-		'prop:innerHTML'?: Accessor<number | string>
-		'prop:textContent'?: Accessor<number | string>
+		'prop:innerHTML'?: Attribute<number | string>
+		'prop:textContent'?: Attribute<number | string>
 
 		// attributes
 
 		// xml
-		xmlns?: Accessor<string>
-		[attr: `xmlns:${string}`]: Accessor<string>
+		xmlns?: Attribute<string>
+		[attr: `xmlns:${string}`]: Attribute<string>
 
-		autofocus?: Accessor<BooleanAttribute>
-		elementtiming?: Accessor<string>
-		id?: Accessor<string>
-		nonce?: Accessor<string>
-		part?: Accessor<string>
-		slot?: Accessor<string>
-		tabindex?: Accessor<number | string>
+		autofocus?: Attribute<BooleanAttribute>
+		elementtiming?: Attribute<string>
+		id?: Attribute<string>
+		nonce?: Attribute<string>
+		part?: Attribute<string>
+		slot?: Attribute<string>
+		tabindex?: Attribute<number | string>
 	}
 
 	interface HTMLAttributes<
 		Element,
 	> extends ElementAttributes<Element> {
 		// properties
-		'prop:innerText'?: Accessor<number | string>
+		'prop:innerText'?: Attribute<number | string>
 
 		// attributes
-		accesskey?: Accessor<string>
-		anchor?: Accessor<string>
-		autocapitalize?: Accessor<
+		accesskey?: Attribute<string>
+		anchor?: Attribute<string>
+		autocapitalize?: Attribute<
 			'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters'
 		>
-		autocorrect?: Accessor<'on' | 'off'>
-		contenteditable?: Accessor<
+		autocorrect?: Attribute<'on' | 'off'>
+		contenteditable?: Attribute<
 			EnumeratedPseudoBoolean | 'plaintext-only' | 'inherit' | ''
 		>
-		dir?: Accessor<'ltr' | 'rtl' | 'auto'>
-		draggable?: Accessor<EnumeratedPseudoBoolean>
-		enterkeyhint?: Accessor<
+		dir?: Attribute<'ltr' | 'rtl' | 'auto'>
+		draggable?: Attribute<EnumeratedPseudoBoolean>
+		enterkeyhint?: Attribute<
 			| 'enter'
 			| 'done'
 			| 'go'
@@ -273,10 +271,10 @@ declare namespace JSX {
 			| 'search'
 			| 'send'
 		>
-		exportparts?: Accessor<string>
-		hidden?: Accessor<'' | 'hidden' | 'until-found'>
-		inert?: Accessor<BooleanAttribute>
-		inputmode?: Accessor<
+		exportparts?: Attribute<string>
+		hidden?: Attribute<'' | 'hidden' | 'until-found'>
+		inert?: Attribute<BooleanAttribute>
+		inputmode?: Attribute<
 			| 'decimal'
 			| 'email'
 			| 'none'
@@ -286,85 +284,85 @@ declare namespace JSX {
 			| 'text'
 			| 'url'
 		>
-		is?: Accessor<string>
-		lang?: Accessor<string>
-		popover?: Accessor<'' | 'manual' | 'auto' | 'hint'>
-		spellcheck?: Accessor<'' | EnumeratedPseudoBoolean>
-		title?: Accessor<string>
-		translate?: Accessor<'yes' | 'no'>
+		is?: Attribute<string>
+		lang?: Attribute<string>
+		popover?: Attribute<'' | 'manual' | 'auto' | 'hint'>
+		spellcheck?: Attribute<'' | EnumeratedPseudoBoolean>
+		title?: Attribute<string>
+		translate?: Attribute<'yes' | 'no'>
 
 		// microdata
-		itemid?: Accessor<string>
-		itemprop?: Accessor<string>
-		itemref?: Accessor<string>
-		itemscope?: Accessor<BooleanAttribute>
-		itemtype?: Accessor<string>
+		itemid?: Attribute<string>
+		itemprop?: Attribute<string>
+		itemref?: Attribute<string>
+		itemscope?: Attribute<BooleanAttribute>
+		itemtype?: Attribute<string>
 
 		// RDFa attributes
-		about?: Accessor<string>
-		datatype?: Accessor<string>
-		inlist?: Accessor<any>
-		prefix?: Accessor<string>
-		property?: Accessor<string>
-		resource?: Accessor<string>
-		typeof?: Accessor<string>
-		vocab?: Accessor<string>
+		about?: Attribute<string>
+		datatype?: Attribute<string>
+		inlist?: Attribute<any>
+		prefix?: Attribute<string>
+		property?: Attribute<string>
+		resource?: Attribute<string>
+		typeof?: Attribute<string>
+		vocab?: Attribute<string>
 
 		/** @experimental */
-		virtualkeyboardpolicy?: Accessor<'' | 'auto' | 'manual'>
+		virtualkeyboardpolicy?: Attribute<'' | 'auto' | 'manual'>
 		/** @experimental */
-		writingsuggestions?: Accessor<EnumeratedPseudoBoolean>
+		writingsuggestions?: Attribute<EnumeratedPseudoBoolean>
 
 		/** @deprecated */
-		contextmenu?: Accessor<string>
+		contextmenu?: Attribute<string>
 	}
 	interface SVGAttributes<
 		Element,
 	> extends ElementAttributes<Element> {
-		[attr: `${string}`]: Accessor<any> // catch all TODO
+		[attr: `${string}`]: Attribute<any> // catch all TODO
 	}
 	interface MathMLAttributes<
 		Element,
 	> extends ElementAttributes<Element> {
-		dir?: Accessor<'ltr' | 'rtl' | 'auto'>
-		displaystyle?: Accessor<BooleanAttribute>
-		scriptlevel?: Accessor<string>
+		dir?: Attribute<'ltr' | 'rtl' | 'auto'>
+		displaystyle?: Attribute<BooleanAttribute>
+		scriptlevel?: Attribute<string>
 
 		/** @deprecated */
-		href?: Accessor<string>
+		href?: Attribute<string>
 		/** @deprecated */
-		mathbackground?: Accessor<string>
+		mathbackground?: Attribute<string>
 		/** @deprecated */
-		mathcolor?: Accessor<string>
+		mathcolor?: Attribute<string>
 		/** @deprecated */
-		mathsize?: Accessor<string>
+		mathsize?: Attribute<string>
 	}
 
 	/* SPECIAL INTERFACES */
 
 	interface HTMLMediaHTMLAttributes<Element> {
 		// attributes
-		autoplay?: Accessor<BooleanAttribute>
-		controls?: Accessor<BooleanAttribute>
-		controlslist?: Accessor<
+		autoplay?: Attribute<BooleanAttribute>
+		controls?: Attribute<BooleanAttribute>
+		controlslist?: Attribute<
 			| 'nodownload'
 			| 'nofullscreen'
 			| 'noplaybackrate'
 			| 'noremoteplayback'
 			| (string & {})
 		>
-		crossorigin?: Accessor<'anonymous' | 'use-credentials' | ''>
-		disableremoteplayback?: Accessor<BooleanAttribute>
-		loop?: Accessor<BooleanAttribute>
-		muted?: Accessor<BooleanAttribute>
-		preload?: Accessor<'none' | 'metadata' | 'auto' | ''>
-		src?: Accessor<string>
+		crossorigin?: Attribute<'anonymous' | 'use-credentials' | ''>
+		disableremoteplayback?: Attribute<BooleanAttribute>
+		loop?: Attribute<BooleanAttribute>
+		muted?: Attribute<BooleanAttribute>
+		preload?: Attribute<'none' | 'metadata' | 'auto' | ''>
+		src?: Attribute<string>
 
 		'on:encrypted'?: EventHandlers<MediaEncryptedEvent, Element>
 		'on:waitingforkey'?: EventHandlers<Event, Element>
 
 		/** @deprecated */
-		mediagroup?: Accessor<string>
+		mediagroup?: Attribute<string>
 	}
 
 	/* SPECIAL ELEMENTS */
@@ -372,30 +370,30 @@ declare namespace JSX {
 	interface HTMLWebViewElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		allowpopups?: Accessor<BooleanAttribute>
-		disableblinkfeatures?: Accessor<string>
-		disablewebsecurity?: Accessor<BooleanAttribute>
-		enableblinkfeatures?: Accessor<string>
-		httpreferrer?: Accessor<string>
-		nodeintegration?: Accessor<BooleanAttribute>
-		nodeintegrationinsubframes?: Accessor<BooleanAttribute>
-		partition?: Accessor<string>
-		plugins?: Accessor<BooleanAttribute>
-		preload?: Accessor<string>
-		src?: Accessor<string>
-		useragent?: Accessor<string>
-		webpreferences?: Accessor<string>
+		allowpopups?: Attribute<BooleanAttribute>
+		disableblinkfeatures?: Attribute<string>
+		disablewebsecurity?: Attribute<BooleanAttribute>
+		enableblinkfeatures?: Attribute<string>
+		httpreferrer?: Attribute<string>
+		nodeintegration?: Attribute<BooleanAttribute>
+		nodeintegrationinsubframes?: Attribute<BooleanAttribute>
+		partition?: Attribute<string>
+		plugins?: Attribute<BooleanAttribute>
+		preload?: Attribute<string>
+		src?: Attribute<string>
+		useragent?: Attribute<string>
+		webpreferences?: Attribute<string>
 
 		// does this exists?
-		allowfullscreen?: Accessor<BooleanAttribute>
-		autosize?: Accessor<BooleanAttribute>
+		allowfullscreen?: Attribute<BooleanAttribute>
+		autosize?: Attribute<BooleanAttribute>
 
 		/** @deprecated */
-		blinkfeatures?: Accessor<string>
+		blinkfeatures?: Attribute<string>
 		/** @deprecated */
-		disableguestresize?: Accessor<BooleanAttribute>
+		disableguestresize?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		guestinstance?: Accessor<string>
+		guestinstance?: Attribute<string>
 	}
 
 	/* HTMLElements */
@@ -403,11 +401,11 @@ declare namespace JSX {
 	interface HTMLAnchorElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		download?: Accessor<string | BooleanAttribute>
-		href?: Accessor<string>
-		hreflang?: Accessor<string>
-		ping?: Accessor<string>
-		referrerpolicy?: Accessor<
+		download?: Attribute<string | BooleanAttribute>
+		href?: Attribute<string>
+		hreflang?: Attribute<string>
+		ping?: Attribute<string>
+		referrerpolicy?: Attribute<
 			| 'no-referrer'
 			| 'no-referrer-when-downgrade'
 			| 'origin'
@@ -417,35 +415,35 @@ declare namespace JSX {
 			| 'strict-origin-when-cross-origin'
 			| 'unsafe-url'
 		>
-		rel?: Accessor<string>
-		target?: Accessor<
+		rel?: Attribute<string>
+		target?: Attribute<
 			'_self' | '_blank' | '_parent' | '_top' | (string & {})
 		>
-		type?: Accessor<string>
+		type?: Attribute<string>
 
 		/** @experimental */
-		attributionsrc?: Accessor<string>
+		attributionsrc?: Attribute<string>
 
 		/** @deprecated */
-		charset?: Accessor<string>
+		charset?: Attribute<string>
 		/** @deprecated */
-		coords?: Accessor<string>
+		coords?: Attribute<string>
 		/** @deprecated */
-		name?: Accessor<string>
+		name?: Attribute<string>
 		/** @deprecated */
-		rev?: Accessor<string>
+		rev?: Attribute<string>
 		/** @deprecated */
-		shape?: Accessor<'rect' | 'circle' | 'poly' | 'default'>
+		shape?: Attribute<'rect' | 'circle' | 'poly' | 'default'>
 	}
 	interface HTMLAreaElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		alt?: Accessor<string>
-		coords?: Accessor<string>
-		download?: Accessor<string | BooleanAttribute>
-		href?: Accessor<string>
-		ping?: Accessor<string>
-		referrerpolicy?: Accessor<
+		alt?: Attribute<string>
+		coords?: Attribute<string>
+		download?: Attribute<string | BooleanAttribute>
+		href?: Attribute<string>
+		ping?: Attribute<string>
+		referrerpolicy?: Attribute<
 			| 'no-referrer'
 			| 'no-referrer-when-downgrade'
 			| 'origin'
@@ -455,17 +453,17 @@ declare namespace JSX {
 			| 'strict-origin-when-cross-origin'
 			| 'unsafe-url'
 		>
-		rel?: Accessor<string>
-		shape?: Accessor<'rect' | 'circle' | 'poly' | 'default'>
-		target?: Accessor<
+		rel?: Attribute<string>
+		shape?: Attribute<'rect' | 'circle' | 'poly' | 'default'>
+		target?: Attribute<
 			'_self' | '_blank' | '_parent' | '_top' | (string & {})
 		>
 
 		/** @experimental */
-		attributionsrc?: Accessor<string>
+		attributionsrc?: Attribute<string>
 
 		/** @deprecated */
-		nohref?: Accessor<BooleanAttribute>
+		nohref?: Attribute<BooleanAttribute>
 	}
 	interface HTMLAudioElementAttributes<Element>
 		extends
@@ -475,13 +473,13 @@ declare namespace JSX {
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		clear?: Accessor<string>
+		clear?: Attribute<string>
 	}
 	interface HTMLBaseElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		href?: Accessor<string>
-		target?: Accessor<
+		href?: Attribute<string>
+		target?: Attribute<
 			'_self' | '_blank' | '_parent' | '_top' | (string & {})
 		>
 	}
@@ -491,30 +489,30 @@ declare namespace JSX {
 	interface HTMLBodyElementAttributes<Element>
 		extends HTMLAttributes<Element>, EventHandlersWindow<Element> {
 		/** @deprecated */
-		alink?: Accessor<string>
+		alink?: Attribute<string>
 		/** @deprecated */
-		background?: Accessor<string>
+		background?: Attribute<string>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		bottommargin?: Accessor<number | string>
+		bottommargin?: Attribute<number | string>
 		/** @deprecated */
-		leftmargin?: Accessor<number | string>
+		leftmargin?: Attribute<number | string>
 		/** @deprecated */
-		link?: Accessor<string>
+		link?: Attribute<string>
 		/** @deprecated */
-		rightmargin?: Accessor<number | string>
+		rightmargin?: Attribute<number | string>
 		/** @deprecated */
-		text?: Accessor<string>
+		text?: Attribute<string>
 		/** @deprecated */
-		topmargin?: Accessor<number | string>
+		topmargin?: Attribute<number | string>
 		/** @deprecated */
-		vlink?: Accessor<string>
+		vlink?: Attribute<string>
 	}
 	interface HTMLButtonElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		command?: Accessor<
+		command?: Attribute<
 			| 'show-modal'
 			| 'close'
 			| 'show-popover'
@@ -522,45 +520,45 @@ declare namespace JSX {
 			| 'toggle-popover'
 			| (string & {})
 		>
-		commandfor?: Accessor<string>
-		disabled?: Accessor<BooleanAttribute>
-		form?: Accessor<string>
-		formaction?: Accessor<string>
-		formenctype?: Accessor<
+		commandfor?: Attribute<string>
+		disabled?: Attribute<BooleanAttribute>
+		form?: Attribute<string>
+		formaction?: Attribute<string>
+		formenctype?: Attribute<
 			| 'application/x-www-form-urlencoded'
 			| 'multipart/form-data'
 			| 'text/plain'
 		>
-		formmethod?: Accessor<'post' | 'get' | 'dialog'>
-		formnovalidate?: Accessor<BooleanAttribute>
-		formtarget?: Accessor<
+		formmethod?: Attribute<'post' | 'get' | 'dialog'>
+		formnovalidate?: Attribute<BooleanAttribute>
+		formtarget?: Attribute<
 			'_self' | '_blank' | '_parent' | '_top' | (string & {})
 		>
-		name?: Accessor<string>
-		popovertarget?: Accessor<string>
-		popovertargetaction?: Accessor<'hide' | 'show' | 'toggle'>
-		type?: Accessor<'submit' | 'reset' | 'button' | 'menu'>
-		value?: Accessor<number | string>
+		name?: Attribute<string>
+		popovertarget?: Attribute<string>
+		popovertargetaction?: Attribute<'hide' | 'show' | 'toggle'>
+		type?: Attribute<'submit' | 'reset' | 'button' | 'menu'>
+		value?: Attribute<number | string>
 	}
 	interface HTMLCanvasElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		height?: Accessor<number | string>
-		width?: Accessor<number | string>
+		height?: Attribute<number | string>
+		width?: Attribute<number | string>
 
 		/** @deprecated */
-		'moz-opaque'?: Accessor<BooleanAttribute>
+		'moz-opaque'?: Attribute<BooleanAttribute>
 	}
 	interface HTMLDListElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		compact?: Accessor<BooleanAttribute>
+		compact?: Attribute<BooleanAttribute>
 	}
 	interface HTMLDataElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		value?: Accessor<number | string>
+		value?: Attribute<number | string>
 	}
 	interface HTMLDataListElementAttributes<
 		Element,
@@ -568,24 +566,24 @@ declare namespace JSX {
 	interface HTMLDetailsElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		name?: Accessor<string>
-		open?: Accessor<BooleanAttribute>
+		name?: Attribute<string>
+		open?: Attribute<BooleanAttribute>
 	}
 	interface HTMLDialogElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		open?: Accessor<BooleanAttribute>
+		open?: Attribute<BooleanAttribute>
 		tabindex?: never
-		"prop:tabindex"?:never
+		'prop:tabindex'?: never
 
 		/** @experimental */
-		closedby?: Accessor<'any' | 'closerequest' | 'none'>
+		closedby?: Attribute<'any' | 'closerequest' | 'none'>
 	}
 	interface HTMLDivElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'right' | 'justify' | 'center'>
+		align?: Attribute<'left' | 'right' | 'justify' | 'center'>
 	}
 	interface HTMLElementAttributes<
 		Element,
@@ -593,91 +591,91 @@ declare namespace JSX {
 	interface HTMLEmbedElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		height?: Accessor<number | string>
-		src?: Accessor<string>
-		type?: Accessor<string>
-		width?: Accessor<number | string>
+		height?: Attribute<number | string>
+		src?: Attribute<string>
+		type?: Attribute<string>
+		width?: Attribute<number | string>
 
 		/** @deprecated */
-		align?: Accessor<'left' | 'right' | 'justify' | 'center'>
+		align?: Attribute<'left' | 'right' | 'justify' | 'center'>
 		/** @deprecated */
-		name?: Accessor<string>
+		name?: Attribute<string>
 	}
 	interface HTMLFieldSetElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		disabled?: Accessor<BooleanAttribute>
-		form?: Accessor<string>
-		name?: Accessor<string>
+		disabled?: Attribute<BooleanAttribute>
+		form?: Attribute<string>
+		name?: Attribute<string>
 	}
 	interface HTMLFormElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		'accept-charset'?: Accessor<string>
-		action?: Accessor<string>
-		autocomplete?: Accessor<'on' | 'off'>
-		encoding?: Accessor<
+		'accept-charset'?: Attribute<string>
+		action?: Attribute<string>
+		autocomplete?: Attribute<'on' | 'off'>
+		encoding?: Attribute<
 			| 'application/x-www-form-urlencoded'
 			| 'multipart/form-data'
 			| 'text/plain'
 		>
-		enctype?: Accessor<
+		enctype?: Attribute<
 			| 'application/x-www-form-urlencoded'
 			| 'multipart/form-data'
 			| 'text/plain'
 		>
-		method?: Accessor<'post' | 'get' | 'dialog'>
-		name?: Accessor<string>
-		novalidate?: Accessor<BooleanAttribute>
-		rel?: Accessor<string>
-		target?: Accessor<
+		method?: Attribute<'post' | 'get' | 'dialog'>
+		name?: Attribute<string>
+		novalidate?: Attribute<BooleanAttribute>
+		rel?: Attribute<string>
+		target?: Attribute<
 			'_self' | '_blank' | '_parent' | '_top' | (string & {})
 		>
 
 		/** @deprecated */
-		accept?: Accessor<string>
+		accept?: Attribute<string>
 	}
 	interface HTMLHRElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<string>
+		align?: Attribute<string>
 		/** @deprecated */
-		color?: Accessor<string>
+		color?: Attribute<string>
 		/** @deprecated */
-		noshade?: Accessor<BooleanAttribute>
+		noshade?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		size?: Accessor<string>
+		size?: Attribute<string>
 		/** @deprecated */
-		width?: Accessor<string>
+		width?: Attribute<string>
 	}
 	interface HTMLHeadElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		profile?: Accessor<string>
+		profile?: Attribute<string>
 	}
 	interface HTMLHeadingElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'right' | 'justify' | 'center'>
+		align?: Attribute<'left' | 'right' | 'justify' | 'center'>
 	}
 	interface HTMLHtmlElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		version?: Accessor<string>
+		version?: Attribute<string>
 	}
 	interface HTMLIFrameElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		allow?: Accessor<string>
-		allowfullscreen?: Accessor<BooleanAttribute>
-		height?: Accessor<number | string>
-		loading?: Accessor<'eager' | 'lazy'>
-		name?: Accessor<string>
-		referrerpolicy?: Accessor<
+		allow?: Attribute<string>
+		allowfullscreen?: Attribute<BooleanAttribute>
+		height?: Attribute<number | string>
+		loading?: Attribute<'eager' | 'lazy'>
+		name?: Attribute<string>
+		referrerpolicy?: Attribute<
 			| 'no-referrer'
 			| 'no-referrer-when-downgrade'
 			| 'origin'
@@ -687,7 +685,7 @@ declare namespace JSX {
 			| 'strict-origin-when-cross-origin'
 			| 'unsafe-url'
 		>
-		sandbox?: Accessor<
+		sandbox?: Attribute<
 			| 'allow-downloads-without-user-activation'
 			| 'allow-downloads'
 			| 'allow-forms'
@@ -705,56 +703,56 @@ declare namespace JSX {
 			| 'allow-top-navigation-to-custom-protocols'
 			| string
 		>
-		src?: Accessor<string>
-		srcdoc?: Accessor<string>
-		width?: Accessor<number | string>
+		src?: Attribute<string>
+		srcdoc?: Attribute<string>
+		width?: Attribute<number | string>
 
 		/** @non-standard */
-		browsingtopics?: Accessor<BooleanAttribute>
+		browsingtopics?: Attribute<BooleanAttribute>
 
 		/** @experimental */
-		credentialless?: Accessor<BooleanAttribute>
+		credentialless?: Attribute<BooleanAttribute>
 		/** @experimental */
-		csp?: Accessor<string>
+		csp?: Attribute<string>
 		/** @experimental */
-		sharedstoragewritable?: Accessor<BooleanAttribute>
+		sharedstoragewritable?: Attribute<BooleanAttribute>
 		/** @experimental */
-		adauctionheaders?: Accessor<BooleanAttribute>
+		adauctionheaders?: Attribute<BooleanAttribute>
 		/** @experimental */
-		privatetoken?: Accessor<string>
+		privatetoken?: Attribute<string>
 
 		/** @deprecated */
-		allowpaymentrequest?: Accessor<BooleanAttribute>
+		allowpaymentrequest?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		allowtransparency?: Accessor<BooleanAttribute>
+		allowtransparency?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		align?: Accessor<string>
+		align?: Attribute<string>
 		/** @deprecated */
-		frameborder?: Accessor<number | string>
+		frameborder?: Attribute<number | string>
 		/** @deprecated */
-		longdesc?: Accessor<string>
+		longdesc?: Attribute<string>
 		/** @deprecated */
-		marginheight?: Accessor<number | string>
+		marginheight?: Attribute<number | string>
 		/** @deprecated */
-		marginwidth?: Accessor<number | string>
+		marginwidth?: Attribute<number | string>
 		/** @deprecated */
-		scrolling?: Accessor<'yes' | 'no' | 'auto'>
+		scrolling?: Attribute<'yes' | 'no' | 'auto'>
 		/** @deprecated */
-		seamless?: Accessor<BooleanAttribute>
+		seamless?: Attribute<BooleanAttribute>
 	}
 	interface HTMLImageElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		alt?: Accessor<string>
-		attributionsrc?: Accessor<string>
-		browsingtopics?: Accessor<string>
-		crossorigin?: Accessor<'anonymous' | 'use-credentials' | ''>
-		decoding?: Accessor<'sync' | 'async' | 'auto'>
-		fetchpriority?: Accessor<'high' | 'low' | 'auto'>
-		height?: Accessor<number | string>
-		ismap?: Accessor<BooleanAttribute>
-		loading?: Accessor<'eager' | 'lazy'>
-		referrerpolicy?: Accessor<
+		alt?: Attribute<string>
+		attributionsrc?: Attribute<string>
+		browsingtopics?: Attribute<string>
+		crossorigin?: Attribute<'anonymous' | 'use-credentials' | ''>
+		decoding?: Attribute<'sync' | 'async' | 'auto'>
+		fetchpriority?: Attribute<'high' | 'low' | 'auto'>
+		height?: Attribute<number | string>
+		ismap?: Attribute<BooleanAttribute>
+		loading?: Attribute<'eager' | 'lazy'>
+		referrerpolicy?: Attribute<
 			| 'no-referrer'
 			| 'no-referrer-when-downgrade'
 			| 'origin'
@@ -764,42 +762,40 @@ declare namespace JSX {
 			| 'strict-origin-when-cross-origin'
 			| 'unsafe-url'
 		>
-		sizes?: Accessor<string>
-		src?: Accessor<string>
-		srcset?: Accessor<string>
-		usemap?: Accessor<string>
-		width?: Accessor<number | string>
+		sizes?: Attribute<string>
+		src?: Attribute<string>
+		srcset?: Attribute<string>
+		usemap?: Attribute<string>
+		width?: Attribute<number | string>
 
 		/** @experimental */
-		sharedstoragewritable?: Accessor<BooleanAttribute>
+		sharedstoragewritable?: Attribute<BooleanAttribute>
 
 		/** @deprecated */
-		align?: Accessor<'top' | 'middle' | 'bottom' | 'left' | 'right'>
+		align?: Attribute<'top' | 'middle' | 'bottom' | 'left' | 'right'>
 		/** @deprecated */
-		border?: Accessor<string>
+		border?: Attribute<string>
 		/** @deprecated */
-		hspace?: Accessor<number | string>
+		hspace?: Attribute<number | string>
 		/** @deprecated */
-		intrinsicsize?: Accessor<string>
+		intrinsicsize?: Attribute<string>
 		/** @deprecated */
-		longdesc?: Accessor<string>
+		longdesc?: Attribute<string>
 		/** @deprecated */
-		lowsrc?: Accessor<string>
+		lowsrc?: Attribute<string>
 		/** @deprecated */
-		name?: Accessor<string>
+		name?: Attribute<string>
 		/** @deprecated */
-		vspace?: Accessor<number | string>
+		vspace?: Attribute<number | string>
 	}
 	interface HTMLInputElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-
-
 		// attributes
-		accept?: Accessor<string>
-		alt?: Accessor<string>
-		alpha?: Accessor<BooleanAttribute>
-		autocomplete?: Accessor<
+		accept?: Attribute<string>
+		alt?: Attribute<string>
+		alpha?: Attribute<BooleanAttribute>
+		autocomplete?: Attribute<
 			| 'additional-name'
 			| 'address-level1'
 			| 'address-level2'
@@ -864,43 +860,43 @@ declare namespace JSX {
 			| 'work'
 			| (string & {})
 		>
-		capture?: Accessor<
+		capture?: Attribute<
 			'user' | 'environment' | BooleanAttribute | (string & {})
 		>
-		checked?: Accessor<BooleanAttribute>
-		colorspace?: Accessor<string>
-		dirname?: Accessor<string>
-		disabled?: Accessor<BooleanAttribute>
-		form?: Accessor<string>
-		formaction?: Accessor<string>
-		formenctype?: Accessor<
+		checked?: Attribute<BooleanAttribute>
+		colorspace?: Attribute<string>
+		dirname?: Attribute<string>
+		disabled?: Attribute<BooleanAttribute>
+		form?: Attribute<string>
+		formaction?: Attribute<string>
+		formenctype?: Attribute<
 			| 'application/x-www-form-urlencoded'
 			| 'multipart/form-data'
 			| 'text/plain'
 		>
-		formmethod?: Accessor<'post' | 'get' | 'dialog'>
-		formnovalidate?: Accessor<BooleanAttribute>
-		formtarget?: Accessor<string>
-		height?: Accessor<number | string>
-		incremental?: Accessor<BooleanAttribute>
-		list?: Accessor<string>
-		max?: Accessor<number | string>
-		maxlength?: Accessor<number | string>
-		min?: Accessor<number | string>
-		minlength?: Accessor<number | string>
-		multiple?: Accessor<BooleanAttribute>
-		name?: Accessor<string>
-		pattern?: Accessor<string>
-		placeholder?: Accessor<string>
-		popovertarget?: Accessor<string>
-		popovertargetaction?: Accessor<'hide' | 'show' | 'toggle'>
-		readonly?: Accessor<BooleanAttribute>
-		required?: Accessor<BooleanAttribute>
-		results?: Accessor<number | string>
-		size?: Accessor<number | string>
-		src?: Accessor<string>
-		step?: Accessor<number | string>
-		type?: Accessor<
+		formmethod?: Attribute<'post' | 'get' | 'dialog'>
+		formnovalidate?: Attribute<BooleanAttribute>
+		formtarget?: Attribute<string>
+		height?: Attribute<number | string>
+		incremental?: Attribute<BooleanAttribute>
+		list?: Attribute<string>
+		max?: Attribute<number | string>
+		maxlength?: Attribute<number | string>
+		min?: Attribute<number | string>
+		minlength?: Attribute<number | string>
+		multiple?: Attribute<BooleanAttribute>
+		name?: Attribute<string>
+		pattern?: Attribute<string>
+		placeholder?: Attribute<string>
+		popovertarget?: Attribute<string>
+		popovertargetaction?: Attribute<'hide' | 'show' | 'toggle'>
+		readonly?: Attribute<BooleanAttribute>
+		required?: Attribute<BooleanAttribute>
+		results?: Attribute<number | string>
+		size?: Attribute<number | string>
+		src?: Attribute<string>
+		step?: Attribute<number | string>
+		type?: Attribute<
 			| 'button'
 			| 'checkbox'
 			| 'color'
@@ -924,39 +920,39 @@ declare namespace JSX {
 			| 'url'
 			| 'week'
 		>
-		value?: Accessor<number | string>
-		webkitdirectory?: Accessor<BooleanAttribute>
-		width?: Accessor<number | string>
+		value?: Attribute<number | string>
+		webkitdirectory?: Attribute<BooleanAttribute>
+		width?: Attribute<number | string>
 
 		/** @deprecated */
-		align?: Accessor<string>
+		align?: Attribute<string>
 		/** @deprecated */
-		usemap?: Accessor<string>
+		usemap?: Attribute<string>
 	}
 	interface HTMLLIElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		value?: Accessor<number | string>
+		value?: Attribute<number | string>
 
 		/** @deprecated */
-		type?: Accessor<'1' | 'a' | 'A' | 'i' | 'I'>
+		type?: Attribute<'1' | 'a' | 'A' | 'i' | 'I'>
 	}
 	interface HTMLLabelElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		for?: Accessor<string>
-		form?: Accessor<string>
+		for?: Attribute<string>
+		form?: Attribute<string>
 	}
 	interface HTMLLegendElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<string>
+		align?: Attribute<string>
 	}
 	interface HTMLLinkElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		as?: Accessor<
+		as?: Attribute<
 			| 'audio'
 			| 'document'
 			| 'embed'
@@ -971,17 +967,17 @@ declare namespace JSX {
 			| 'video'
 			| 'worker'
 		>
-		color?: Accessor<string>
-		crossorigin?: Accessor<'anonymous' | 'use-credentials' | ''>
-		disabled?: Accessor<BooleanAttribute>
-		fetchpriority?: Accessor<'high' | 'low' | 'auto'>
-		href?: Accessor<string>
-		hreflang?: Accessor<string>
-		imagesizes?: Accessor<string>
-		imagesrcset?: Accessor<string>
-		integrity?: Accessor<string>
-		media?: Accessor<string>
-		referrerpolicy?: Accessor<
+		color?: Attribute<string>
+		crossorigin?: Attribute<'anonymous' | 'use-credentials' | ''>
+		disabled?: Attribute<BooleanAttribute>
+		fetchpriority?: Attribute<'high' | 'low' | 'auto'>
+		href?: Attribute<string>
+		hreflang?: Attribute<string>
+		imagesizes?: Attribute<string>
+		imagesrcset?: Attribute<string>
+		integrity?: Attribute<string>
+		media?: Attribute<string>
+		referrerpolicy?: Attribute<
 			| 'no-referrer'
 			| 'no-referrer-when-downgrade'
 			| 'origin'
@@ -991,144 +987,144 @@ declare namespace JSX {
 			| 'strict-origin-when-cross-origin'
 			| 'unsafe-url'
 		>
-		rel?: Accessor<string>
-		sizes?: Accessor<string>
-		type?: Accessor<string>
+		rel?: Attribute<string>
+		sizes?: Attribute<string>
+		type?: Attribute<string>
 
 		/** @experimental */
-		blocking?: Accessor<'render'>
+		blocking?: Attribute<'render'>
 
 		/** @deprecated */
-		charset?: Accessor<string>
+		charset?: Attribute<string>
 		/** @deprecated */
-		rev?: Accessor<string>
+		rev?: Attribute<string>
 		/** @deprecated */
-		target?: Accessor<string>
+		target?: Attribute<string>
 	}
 	interface HTMLMapElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		name?: Accessor<string>
+		name?: Attribute<string>
 	}
 	interface HTMLMenuElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		compact?: Accessor<BooleanAttribute>
+		compact?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		label?: Accessor<string>
+		label?: Attribute<string>
 		/** @deprecated */
-		type?: Accessor<'context' | 'toolbar'>
+		type?: Attribute<'context' | 'toolbar'>
 	}
 	interface HTMLMetaElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		charset?: Accessor<string>
-		content?: Accessor<string>
-		'http-equiv'?: Accessor<
+		charset?: Attribute<string>
+		content?: Attribute<string>
+		'http-equiv'?: Attribute<
 			| 'content-security-policy'
 			| 'content-type'
 			| 'default-style'
 			| 'x-ua-compatible'
 			| 'refresh'
 		>
-		media?: Accessor<string>
-		name?: Accessor<string>
+		media?: Attribute<string>
+		name?: Attribute<string>
 
 		/** @deprecated */
-		scheme?: Accessor<string>
+		scheme?: Attribute<string>
 	}
 	interface HTMLMeterElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		form?: Accessor<string>
-		high?: Accessor<number | string>
-		low?: Accessor<number | string>
-		max?: Accessor<number | string>
-		min?: Accessor<number | string>
-		optimum?: Accessor<number | string>
-		value?: Accessor<number | string>
+		form?: Attribute<string>
+		high?: Attribute<number | string>
+		low?: Attribute<number | string>
+		max?: Attribute<number | string>
+		min?: Attribute<number | string>
+		optimum?: Attribute<number | string>
+		value?: Attribute<number | string>
 	}
 	interface HTMLModElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		cite?: Accessor<string>
-		datetime?: Accessor<string>
+		cite?: Attribute<string>
+		datetime?: Attribute<string>
 	}
 	interface HTMLOListElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		reversed?: Accessor<BooleanAttribute>
-		start?: Accessor<number | string>
-		type?: Accessor<'1' | 'a' | 'A' | 'i' | 'I'>
+		reversed?: Attribute<BooleanAttribute>
+		start?: Attribute<number | string>
+		type?: Attribute<'1' | 'a' | 'A' | 'i' | 'I'>
 
 		/** @deprecated */
-		compact?: Accessor<BooleanAttribute>
+		compact?: Attribute<BooleanAttribute>
 	}
 	interface HTMLObjectElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		data?: Accessor<string>
-		form?: Accessor<string>
-		height?: Accessor<number | string>
-		name?: Accessor<string>
-		type?: Accessor<string>
-		width?: Accessor<number | string>
-		wmode?: Accessor<string>
+		data?: Attribute<string>
+		form?: Attribute<string>
+		height?: Attribute<number | string>
+		name?: Attribute<string>
+		type?: Attribute<string>
+		width?: Attribute<number | string>
+		wmode?: Attribute<string>
 
 		/** @deprecated */
-		align?: Accessor<string>
+		align?: Attribute<string>
 		/** @deprecated */
-		archive?: Accessor<string>
+		archive?: Attribute<string>
 		/** @deprecated */
-		border?: Accessor<string>
+		border?: Attribute<string>
 		/** @deprecated */
-		classid?: Accessor<string>
+		classid?: Attribute<string>
 		/** @deprecated */
-		code?: Accessor<string>
+		code?: Attribute<string>
 		/** @deprecated */
-		codebase?: Accessor<string>
+		codebase?: Attribute<string>
 		/** @deprecated */
-		codetype?: Accessor<string>
+		codetype?: Attribute<string>
 		/** @deprecated */
-		declare?: Accessor<BooleanAttribute>
+		declare?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		hspace?: Accessor<number | string>
+		hspace?: Attribute<number | string>
 		/** @deprecated */
-		standby?: Accessor<string>
+		standby?: Attribute<string>
 		/** @deprecated */
-		typemustmatch?: Accessor<BooleanAttribute>
+		typemustmatch?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		usemap?: Accessor<string>
+		usemap?: Attribute<string>
 		/** @deprecated */
-		vspace?: Accessor<number | string>
+		vspace?: Attribute<number | string>
 	}
 	interface HTMLOptGroupElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		disabled?: Accessor<BooleanAttribute>
-		label?: Accessor<string>
+		disabled?: Attribute<BooleanAttribute>
+		label?: Attribute<string>
 	}
 	interface HTMLOptionElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		disabled?: Accessor<BooleanAttribute>
-		label?: Accessor<string>
-		selected?: Accessor<BooleanAttribute>
-		value?: Accessor<number | string>
+		disabled?: Attribute<BooleanAttribute>
+		label?: Attribute<string>
+		selected?: Attribute<BooleanAttribute>
+		value?: Attribute<number | string>
 	}
 	interface HTMLOutputElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		for?: Accessor<string>
-		form?: Accessor<string>
-		name?: Accessor<string>
+		for?: Attribute<string>
+		form?: Attribute<string>
+		name?: Attribute<string>
 	}
 	interface HTMLParagraphElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'right' | 'justify' | 'center'>
+		align?: Attribute<'left' | 'right' | 'justify' | 'center'>
 	}
 	interface HTMLPictureElementAttributes<
 		Element,
@@ -1137,44 +1133,44 @@ declare namespace JSX {
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		width?: Accessor<number | string>
+		width?: Attribute<number | string>
 		/** @deprecated */
-		wrap?: Accessor<string>
+		wrap?: Attribute<string>
 	}
 	interface HTMLPreElementListingAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		width?: Accessor<number | string>
+		width?: Attribute<number | string>
 	}
 	interface HTMLPreElementXmpAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		width?: Accessor<number | string>
+		width?: Attribute<number | string>
 	}
 	interface HTMLProgressElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		max?: Accessor<number | string>
-		value?: Accessor<number | string>
+		max?: Attribute<number | string>
+		value?: Attribute<number | string>
 	}
 	interface HTMLQuoteElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		cite?: Accessor<string>
+		cite?: Attribute<string>
 	}
 	interface HTMLScriptElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		async?: Accessor<BooleanAttribute>
-		crossorigin?: Accessor<'anonymous' | 'use-credentials' | ''>
-		defer?: Accessor<BooleanAttribute>
-		fetchpriority?: Accessor<'high' | 'low' | 'auto'>
-		for?: Accessor<string>
-		integrity?: Accessor<string>
-		nomodule?: Accessor<BooleanAttribute>
-		referrerpolicy?: Accessor<
+		async?: Attribute<BooleanAttribute>
+		crossorigin?: Attribute<'anonymous' | 'use-credentials' | ''>
+		defer?: Attribute<BooleanAttribute>
+		fetchpriority?: Attribute<'high' | 'low' | 'auto'>
+		for?: Attribute<string>
+		integrity?: Attribute<string>
+		nomodule?: Attribute<BooleanAttribute>
+		referrerpolicy?: Attribute<
 			| 'no-referrer'
 			| 'no-referrer-when-downgrade'
 			| 'origin'
@@ -1184,27 +1180,27 @@ declare namespace JSX {
 			| 'strict-origin-when-cross-origin'
 			| 'unsafe-url'
 		>
-		src?: Accessor<string>
-		type?: Accessor<
+		src?: Attribute<string>
+		type?: Attribute<
 			'importmap' | 'module' | 'speculationrules' | (string & {})
 		>
 
 		/** @experimental */
-		attributionsrc?: Accessor<string>
+		attributionsrc?: Attribute<string>
 		/** @experimental */
-		blocking?: Accessor<'render'>
+		blocking?: Attribute<'render'>
 
 		/** @deprecated */
-		charset?: Accessor<string>
+		charset?: Attribute<string>
 		/** @deprecated */
-		event?: Accessor<string>
+		event?: Attribute<string>
 		/** @deprecated */
-		language?: Accessor<string>
+		language?: Attribute<string>
 	}
 	interface HTMLSelectElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		autocomplete?: Accessor<
+		autocomplete?: Attribute<
 			| 'additional-name'
 			| 'address-level1'
 			| 'address-level2'
@@ -1269,29 +1265,29 @@ declare namespace JSX {
 			| 'work'
 			| (string & {})
 		>
-		disabled?: Accessor<BooleanAttribute>
-		form?: Accessor<string>
-		multiple?: Accessor<BooleanAttribute>
-		name?: Accessor<string>
-		required?: Accessor<BooleanAttribute>
-		size?: Accessor<number | string>
-		value?: Accessor<number | string>
+		disabled?: Attribute<BooleanAttribute>
+		form?: Attribute<string>
+		multiple?: Attribute<BooleanAttribute>
+		name?: Attribute<string>
+		required?: Attribute<BooleanAttribute>
+		size?: Attribute<number | string>
+		value?: Attribute<number | string>
 	}
 	interface HTMLSlotElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		name?: Accessor<string>
+		name?: Attribute<string>
 	}
 	interface HTMLSourceElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		height?: Accessor<number | string>
-		media?: Accessor<string>
-		sizes?: Accessor<string>
-		src?: Accessor<string>
-		srcset?: Accessor<string>
-		type?: Accessor<string>
-		width?: Accessor<number | string>
+		height?: Attribute<number | string>
+		media?: Attribute<string>
+		sizes?: Attribute<string>
+		src?: Attribute<string>
+		srcset?: Attribute<string>
+		type?: Attribute<string>
+		width?: Attribute<number | string>
 	}
 	interface HTMLSpanElementAttributes<
 		Element,
@@ -1299,113 +1295,119 @@ declare namespace JSX {
 	interface HTMLStyleElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		media?: Accessor<string>
+		media?: Attribute<string>
 
 		/** @experimental */
-		blocking?: Accessor<'render'>
+		blocking?: Attribute<'render'>
 
 		/** @deprecated */
-		scoped?: Accessor<BooleanAttribute>
+		scoped?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		type?: Accessor<string>
+		type?: Attribute<string>
 	}
 	interface HTMLTableCaptionElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'center' | 'right'>
+		align?: Attribute<'left' | 'center' | 'right'>
 	}
 	interface HTMLTableCellTdElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		colspan?: Accessor<number | string>
-		headers?: Accessor<string>
-		rowspan?: Accessor<number | string>
+		colspan?: Attribute<number | string>
+		headers?: Attribute<string>
+		rowspan?: Attribute<number | string>
 
 		/** @deprecated */
-		abbr?: Accessor<string>
+		abbr?: Attribute<string>
 		/** @deprecated */
-		align?: Accessor<'left' | 'center' | 'right' | 'justify' | 'char'>
+		align?: Attribute<
+			'left' | 'center' | 'right' | 'justify' | 'char'
+		>
 		/** @deprecated */
-		axis?: Accessor<string>
+		axis?: Attribute<string>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		char?: Accessor<string>
+		char?: Attribute<string>
 		/** @deprecated */
-		charoff?: Accessor<string>
+		charoff?: Attribute<string>
 		/** @deprecated */
-		height?: Accessor<number | string>
+		height?: Attribute<number | string>
 		/** @deprecated */
-		nowrap?: Accessor<BooleanAttribute>
+		nowrap?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		scope?: Accessor<'col' | 'row' | 'rowgroup' | 'colgroup'>
+		scope?: Attribute<'col' | 'row' | 'rowgroup' | 'colgroup'>
 		/** @deprecated */
-		valign?: Accessor<'baseline' | 'bottom' | 'middle' | 'top'>
+		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 		/** @deprecated */
-		width?: Accessor<number | string>
+		width?: Attribute<number | string>
 	}
 	interface HTMLTableCellThElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		abbr?: Accessor<string>
-		colspan?: Accessor<number | string>
-		headers?: Accessor<string>
-		rowspan?: Accessor<number | string>
-		scope?: Accessor<'col' | 'row' | 'rowgroup' | 'colgroup'>
+		abbr?: Attribute<string>
+		colspan?: Attribute<number | string>
+		headers?: Attribute<string>
+		rowspan?: Attribute<number | string>
+		scope?: Attribute<'col' | 'row' | 'rowgroup' | 'colgroup'>
 
 		/** @deprecated */
-		align?: Accessor<'left' | 'center' | 'right' | 'justify' | 'char'>
+		align?: Attribute<
+			'left' | 'center' | 'right' | 'justify' | 'char'
+		>
 		/** @deprecated */
-		axis?: Accessor<string>
+		axis?: Attribute<string>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		char?: Accessor<string>
+		char?: Attribute<string>
 		/** @deprecated */
-		charoff?: Accessor<string>
+		charoff?: Attribute<string>
 		/** @deprecated */
-		height?: Accessor<string>
+		height?: Attribute<string>
 		/** @deprecated */
-		nowrap?: Accessor<BooleanAttribute>
+		nowrap?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		valign?: Accessor<'baseline' | 'bottom' | 'middle' | 'top'>
+		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 		/** @deprecated */
-		width?: Accessor<number | string>
+		width?: Attribute<number | string>
 	}
 	interface HTMLTableColElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		span?: Accessor<number | string>
+		span?: Attribute<number | string>
 
 		/** @deprecated */
-		align?: Accessor<'left' | 'center' | 'right' | 'justify' | 'char'>
+		align?: Attribute<
+			'left' | 'center' | 'right' | 'justify' | 'char'
+		>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		char?: Accessor<string>
+		char?: Attribute<string>
 		/** @deprecated */
-		charoff?: Accessor<string>
+		charoff?: Attribute<string>
 		/** @deprecated */
-		valign?: Accessor<'baseline' | 'bottom' | 'middle' | 'top'>
+		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 		/** @deprecated */
-		width?: Accessor<number | string>
+		width?: Attribute<number | string>
 	}
 	interface HTMLTableElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'center' | 'right'>
+		align?: Attribute<'left' | 'center' | 'right'>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		border?: Accessor<number | string>
+		border?: Attribute<number | string>
 		/** @deprecated */
-		cellpadding?: Accessor<number | string>
+		cellpadding?: Attribute<number | string>
 		/** @deprecated */
-		cellspacing?: Accessor<number | string>
+		cellspacing?: Attribute<number | string>
 		/** @deprecated */
-		frame?: Accessor<
+		frame?: Attribute<
 			| 'void'
 			| 'above'
 			| 'below'
@@ -1417,25 +1419,27 @@ declare namespace JSX {
 			| 'border'
 		>
 		/** @deprecated */
-		rules?: Accessor<'none' | 'groups' | 'rows' | 'cols' | 'all'>
+		rules?: Attribute<'none' | 'groups' | 'rows' | 'cols' | 'all'>
 		/** @deprecated */
-		summary?: Accessor<string>
+		summary?: Attribute<string>
 		/** @deprecated */
-		width?: Accessor<number | string>
+		width?: Attribute<number | string>
 	}
 	interface HTMLTableRowElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'center' | 'right' | 'justify' | 'char'>
+		align?: Attribute<
+			'left' | 'center' | 'right' | 'justify' | 'char'
+		>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		char?: Accessor<string>
+		char?: Attribute<string>
 		/** @deprecated */
-		charoff?: Accessor<string>
+		charoff?: Attribute<string>
 		/** @deprecated */
-		valign?: Accessor<'baseline' | 'bottom' | 'middle' | 'top'>
+		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 	}
 	interface HTMLTableSectionElementAttributes<
 		Element,
@@ -1444,58 +1448,63 @@ declare namespace JSX {
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'center' | 'right' | 'justify' | 'char'>
+		align?: Attribute<
+			'left' | 'center' | 'right' | 'justify' | 'char'
+		>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		char?: Accessor<string>
+		char?: Attribute<string>
 		/** @deprecated */
-		charoff?: Accessor<string>
+		charoff?: Attribute<string>
 		/** @deprecated */
-		valign?: Accessor<'baseline' | 'bottom' | 'middle' | 'top'>
+		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 	}
 	interface HTMLTableSectionFootElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'center' | 'right' | 'justify' | 'char'>
+		align?: Attribute<
+			'left' | 'center' | 'right' | 'justify' | 'char'
+		>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		char?: Accessor<string>
+		char?: Attribute<string>
 		/** @deprecated */
-		charoff?: Accessor<string>
+		charoff?: Attribute<string>
 		/** @deprecated */
-		valign?: Accessor<'baseline' | 'bottom' | 'middle' | 'top'>
+		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 	}
 	interface HTMLTableSectionHeadElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		align?: Accessor<'left' | 'center' | 'right' | 'justify' | 'char'>
+		align?: Attribute<
+			'left' | 'center' | 'right' | 'justify' | 'char'
+		>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		char?: Accessor<string>
+		char?: Attribute<string>
 		/** @deprecated */
-		charoff?: Accessor<string>
+		charoff?: Attribute<string>
 		/** @deprecated */
-		valign?: Accessor<'baseline' | 'bottom' | 'middle' | 'top'>
+		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 	}
 	interface HTMLTemplateElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		shadowrootclonable?: Accessor<BooleanAttribute>
-		shadowrootcustomelementregistry?: Accessor<BooleanAttribute>
-		shadowrootdelegatesfocus?: Accessor<BooleanAttribute>
-		shadowrootmode?: Accessor<'open' | 'closed'>
-		shadowrootserializable?: Accessor<BooleanAttribute>
+		shadowrootclonable?: Attribute<BooleanAttribute>
+		shadowrootcustomelementregistry?: Attribute<BooleanAttribute>
+		shadowrootdelegatesfocus?: Attribute<BooleanAttribute>
+		shadowrootmode?: Attribute<'open' | 'closed'>
+		shadowrootserializable?: Attribute<BooleanAttribute>
 	}
 	interface HTMLTextAreaElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-
-		autocomplete?: Accessor<
+		autocomplete?: Attribute<
 			| 'additional-name'
 			| 'address-level1'
 			| 'address-level2'
@@ -1560,23 +1569,23 @@ declare namespace JSX {
 			| 'work'
 			| (string & {})
 		>
-		cols?: Accessor<number | string>
-		dirname?: Accessor<string>
-		disabled?: Accessor<BooleanAttribute>
-		form?: Accessor<string>
-		maxlength?: Accessor<number | string>
-		minlength?: Accessor<number | string>
-		name?: Accessor<string>
-		placeholder?: Accessor<string>
-		readonly?: Accessor<BooleanAttribute>
-		required?: Accessor<BooleanAttribute>
-		rows?: Accessor<number | string>
-		wrap?: Accessor<'hard' | 'soft' | 'off'>
+		cols?: Attribute<number | string>
+		dirname?: Attribute<string>
+		disabled?: Attribute<BooleanAttribute>
+		form?: Attribute<string>
+		maxlength?: Attribute<number | string>
+		minlength?: Attribute<number | string>
+		name?: Attribute<string>
+		placeholder?: Attribute<string>
+		readonly?: Attribute<BooleanAttribute>
+		required?: Attribute<BooleanAttribute>
+		rows?: Attribute<number | string>
+		wrap?: Attribute<'hard' | 'soft' | 'off'>
 	}
 	interface HTMLTimeElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		datetime?: Accessor<string>
+		datetime?: Attribute<string>
 	}
 	interface HTMLTitleElementAttributes<
 		Element,
@@ -1584,8 +1593,8 @@ declare namespace JSX {
 	interface HTMLTrackElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
-		default?: Accessor<BooleanAttribute>
-		kind?: Accessor<
+		default?: Attribute<BooleanAttribute>
+		kind?: Attribute<
 			| 'alternative'
 			| 'descriptions'
 			| 'main'
@@ -1598,27 +1607,27 @@ declare namespace JSX {
 			| 'chapters'
 			| 'metadata'
 		>
-		label?: Accessor<string>
-		src?: Accessor<string>
-		srclang?: Accessor<string>
+		label?: Attribute<string>
+		src?: Attribute<string>
+		srclang?: Attribute<string>
 	}
 	interface HTMLUListElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		compact?: Accessor<BooleanAttribute>
+		compact?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		type?: Accessor<'circle' | 'disc' | 'square'>
+		type?: Attribute<'circle' | 'disc' | 'square'>
 	}
 	interface HTMLVideoElementAttributes<Element>
 		extends
 			HTMLAttributes<Element>,
 			HTMLMediaHTMLAttributes<Element> {
-		disablepictureinpicture?: Accessor<BooleanAttribute>
-		height?: Accessor<number | string>
-		playsinline?: Accessor<BooleanAttribute>
-		poster?: Accessor<string>
-		width?: Accessor<number | string>
+		disablepictureinpicture?: Attribute<BooleanAttribute>
+		height?: Attribute<number | string>
+		playsinline?: Attribute<BooleanAttribute>
+		poster?: Attribute<string>
+		width?: Attribute<number | string>
 
 		'on:enterpictureinpicture'?: EventHandlers<
 			PictureInPictureEvent,
@@ -1636,83 +1645,83 @@ declare namespace JSX {
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		compact?: Accessor<BooleanAttribute>
+		compact?: Attribute<BooleanAttribute>
 	}
 
 	interface HTMLFontElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		color?: Accessor<string>
+		color?: Attribute<string>
 		/** @deprecated */
-		face?: Accessor<string>
+		face?: Attribute<string>
 		/** @deprecated */
-		size?: Accessor<string>
+		size?: Attribute<string>
 	}
 	interface HTMLFrameElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		frameborder?: Accessor<string>
+		frameborder?: Attribute<string>
 		/** @deprecated */
-		longdesc?: Accessor<string>
+		longdesc?: Attribute<string>
 		/** @deprecated */
-		marginheight?: Accessor<string>
+		marginheight?: Attribute<string>
 		/** @deprecated */
-		marginwidth?: Accessor<string>
+		marginwidth?: Attribute<string>
 		/** @deprecated */
-		name?: Accessor<string>
+		name?: Attribute<string>
 		/** @deprecated */
-		noresize?: Accessor<BooleanAttribute>
+		noresize?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		scrolling?: Accessor<'yes' | 'no'>
+		scrolling?: Attribute<'yes' | 'no'>
 		/** @deprecated */
-		src?: Accessor<string>
+		src?: Attribute<string>
 	}
 	interface HTMLFrameSetElementAttributes<Element>
 		extends HTMLAttributes<Element>, EventHandlersWindow<Element> {
 		/** @deprecated */
-		cols?: Accessor<number | string>
+		cols?: Attribute<number | string>
 		/** @deprecated */
-		rows?: Accessor<number | string>
+		rows?: Attribute<number | string>
 	}
 	interface HTMLMarqueeElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		behavior?: Accessor<'scroll' | 'slide' | 'alternate'>
+		behavior?: Attribute<'scroll' | 'slide' | 'alternate'>
 		/** @deprecated */
-		bgcolor?: Accessor<string>
+		bgcolor?: Attribute<string>
 		/** @deprecated */
-		direction?: Accessor<'left' | 'right' | 'up' | 'down'>
+		direction?: Attribute<'left' | 'right' | 'up' | 'down'>
 		/** @deprecated */
-		height?: Accessor<number | string>
+		height?: Attribute<number | string>
 		/** @deprecated */
-		hspace?: Accessor<number | string>
+		hspace?: Attribute<number | string>
 		/** @deprecated */
-		loop?: Accessor<number | string>
+		loop?: Attribute<number | string>
 		/** @deprecated */
-		scrollamount?: Accessor<number | string>
+		scrollamount?: Attribute<number | string>
 		/** @deprecated */
-		scrolldelay?: Accessor<number | string>
+		scrolldelay?: Attribute<number | string>
 		/** @deprecated */
-		truespeed?: Accessor<BooleanAttribute>
+		truespeed?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		vspace?: Accessor<number | string>
+		vspace?: Attribute<number | string>
 		/** @deprecated */
-		width?: Accessor<number | string>
+		width?: Attribute<number | string>
 	}
 	interface HTMLParamElementAttributes<
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		name?: Accessor<string>
+		name?: Attribute<string>
 		/** @deprecated */
-		value?: Accessor<number | string>
+		value?: Attribute<number | string>
 		/** @deprecated */
-		type?: Accessor<string>
+		type?: Attribute<string>
 		/** @deprecated */
-		valuetype?: Accessor<'data' | 'ref' | 'object'>
+		valuetype?: Attribute<'data' | 'ref' | 'object'>
 	}
 
 	interface HTMLUnknownElementAttributes<
@@ -1722,17 +1731,17 @@ declare namespace JSX {
 		Element,
 	> extends HTMLAttributes<Element> {
 		/** @deprecated */
-		challenge?: Accessor<string>
+		challenge?: Attribute<string>
 		/** @deprecated */
-		disabled?: Accessor<BooleanAttribute>
+		disabled?: Attribute<BooleanAttribute>
 		/** @deprecated */
-		form?: Accessor<string>
+		form?: Attribute<string>
 		/** @deprecated */
-		keyparams?: Accessor<string>
+		keyparams?: Attribute<string>
 		/** @deprecated */
-		keytype?: Accessor<string>
+		keytype?: Attribute<string>
 		/** @deprecated */
-		name?: Accessor<string>
+		name?: Attribute<string>
 	}
 
 	/* MathMLElements */
@@ -1740,24 +1749,24 @@ declare namespace JSX {
 	interface MathMLAnnotationElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		encoding?: Accessor<string>
+		encoding?: Attribute<string>
 
 		/** @deprecated */
-		src?: Accessor<string>
+		src?: Attribute<string>
 	}
 	interface MathMLAnnotationXmlElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		encoding?: Accessor<string>
+		encoding?: Attribute<string>
 
 		/** @deprecated */
-		src?: Accessor<string>
+		src?: Attribute<string>
 	}
 
 	interface MathMLMathElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		display?: Accessor<'block' | 'inline'>
+		display?: Attribute<'block' | 'inline'>
 	}
 	interface MathMLMerrorElementAttributes<
 		Element,
@@ -1765,26 +1774,26 @@ declare namespace JSX {
 	interface MathMLMfracElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		linethickness?: Accessor<string>
+		linethickness?: Attribute<string>
 
 		/** @deprecated */
-		denomalign?: Accessor<'center' | 'left' | 'right'>
+		denomalign?: Attribute<'center' | 'left' | 'right'>
 		/** @deprecated */
-		numalign?: Accessor<'center' | 'left' | 'right'>
+		numalign?: Attribute<'center' | 'left' | 'right'>
 	}
 	interface MathMLMiElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		mathvariant?: Accessor<'normal'>
+		mathvariant?: Attribute<'normal'>
 	}
 
 	interface MathMLMmultiscriptsElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @deprecated */
-		subscriptshift?: Accessor<string>
+		subscriptshift?: Attribute<string>
 		/** @deprecated */
-		superscriptshift?: Accessor<string>
+		superscriptshift?: Attribute<string>
 	}
 	interface MathMLMnElementAttributes<
 		Element,
@@ -1792,34 +1801,34 @@ declare namespace JSX {
 	interface MathMLMoElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		fence?: Accessor<BooleanAttribute>
-		form?: Accessor<'prefix' | 'infix' | 'postfix'>
-		largeop?: Accessor<BooleanAttribute>
-		lspace?: Accessor<string>
-		maxsize?: Accessor<string>
-		minsize?: Accessor<string>
-		movablelimits?: Accessor<BooleanAttribute>
-		rspace?: Accessor<string>
-		separator?: Accessor<BooleanAttribute>
-		stretchy?: Accessor<BooleanAttribute>
-		symmetric?: Accessor<BooleanAttribute>
+		fence?: Attribute<BooleanAttribute>
+		form?: Attribute<'prefix' | 'infix' | 'postfix'>
+		largeop?: Attribute<BooleanAttribute>
+		lspace?: Attribute<string>
+		maxsize?: Attribute<string>
+		minsize?: Attribute<string>
+		movablelimits?: Attribute<BooleanAttribute>
+		rspace?: Attribute<string>
+		separator?: Attribute<BooleanAttribute>
+		stretchy?: Attribute<BooleanAttribute>
+		symmetric?: Attribute<BooleanAttribute>
 
 		/** @non-standard */
-		accent?: Accessor<BooleanAttribute>
+		accent?: Attribute<BooleanAttribute>
 	}
 	interface MathMLMoverElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		accent?: Accessor<BooleanAttribute>
+		accent?: Attribute<BooleanAttribute>
 	}
 	interface MathMLMpaddedElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		depth?: Accessor<string>
-		height?: Accessor<string>
-		lspace?: Accessor<string>
-		voffset?: Accessor<string>
-		width?: Accessor<string>
+		depth?: Attribute<string>
+		height?: Attribute<string>
+		lspace?: Attribute<string>
+		voffset?: Attribute<string>
+		width?: Attribute<string>
 	}
 	interface MathMLMphantomElementAttributes<
 		Element,
@@ -1837,16 +1846,16 @@ declare namespace JSX {
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @deprecated */
-		lquote?: Accessor<string>
+		lquote?: Attribute<string>
 		/** @deprecated */
-		rquote?: Accessor<string>
+		rquote?: Attribute<string>
 	}
 	interface MathMLMspaceElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		depth?: Accessor<string>
-		height?: Accessor<string>
-		width?: Accessor<string>
+		depth?: Attribute<string>
+		height?: Attribute<string>
+		width?: Attribute<string>
 	}
 	interface MathMLMsqrtElementAttributes<
 		Element,
@@ -1855,77 +1864,77 @@ declare namespace JSX {
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @deprecated */
-		background?: Accessor<string>
+		background?: Attribute<string>
 		/** @deprecated */
-		color?: Accessor<string>
+		color?: Attribute<string>
 		/** @deprecated */
-		fontsize?: Accessor<string>
+		fontsize?: Attribute<string>
 		/** @deprecated */
-		fontstyle?: Accessor<string>
+		fontstyle?: Attribute<string>
 		/** @deprecated */
-		fontweight?: Accessor<string>
+		fontweight?: Attribute<string>
 		/** @deprecated */
-		scriptminsize?: Accessor<string>
+		scriptminsize?: Attribute<string>
 		/** @deprecated */
-		scriptsizemultiplier?: Accessor<string>
+		scriptsizemultiplier?: Attribute<string>
 	}
 	interface MathMLMsubElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @deprecated */
-		subscriptshift?: Accessor<string>
+		subscriptshift?: Attribute<string>
 	}
 	interface MathMLMsubsupElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @deprecated */
-		subscriptshift?: Accessor<string>
+		subscriptshift?: Attribute<string>
 		/** @deprecated */
-		superscriptshift?: Accessor<string>
+		superscriptshift?: Attribute<string>
 	}
 	interface MathMLMsupElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @deprecated */
-		superscriptshift?: Accessor<string>
+		superscriptshift?: Attribute<string>
 	}
 	interface MathMLMtableElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @non-standard */
-		align?: Accessor<
+		align?: Attribute<
 			'axis' | 'baseline' | 'bottom' | 'center' | 'top'
 		>
 		/** @non-standard */
-		columnalign?: Accessor<'center' | 'left' | 'right'>
+		columnalign?: Attribute<'center' | 'left' | 'right'>
 		/** @non-standard */
-		columnlines?: Accessor<'dashed' | 'none' | 'solid'>
+		columnlines?: Attribute<'dashed' | 'none' | 'solid'>
 		/** @non-standard */
-		columnspacing?: Accessor<string>
+		columnspacing?: Attribute<string>
 		/** @non-standard */
-		frame?: Accessor<'dashed' | 'none' | 'solid'>
+		frame?: Attribute<'dashed' | 'none' | 'solid'>
 		/** @non-standard */
-		framespacing?: Accessor<string>
+		framespacing?: Attribute<string>
 		/** @non-standard */
-		rowalign?: Accessor<
+		rowalign?: Attribute<
 			'axis' | 'baseline' | 'bottom' | 'center' | 'top'
 		>
 		/** @non-standard */
-		rowlines?: Accessor<'dashed' | 'none' | 'solid'>
+		rowlines?: Attribute<'dashed' | 'none' | 'solid'>
 		/** @non-standard */
-		rowspacing?: Accessor<string>
+		rowspacing?: Attribute<string>
 		/** @non-standard */
-		width?: Accessor<string>
+		width?: Attribute<string>
 	}
 	interface MathMLMtdElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		columnspan?: Accessor<number | string>
-		rowspan?: Accessor<number | string>
+		columnspan?: Attribute<number | string>
+		rowspan?: Attribute<number | string>
 		/** @non-standard */
-		columnalign?: Accessor<'center' | 'left' | 'right'>
+		columnalign?: Attribute<'center' | 'left' | 'right'>
 		/** @non-standard */
-		rowalign?: Accessor<
+		rowalign?: Attribute<
 			'axis' | 'baseline' | 'bottom' | 'center' | 'top'
 		>
 	}
@@ -1936,22 +1945,22 @@ declare namespace JSX {
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @non-standard */
-		columnalign?: Accessor<'center' | 'left' | 'right'>
+		columnalign?: Attribute<'center' | 'left' | 'right'>
 		/** @non-standard */
-		rowalign?: Accessor<
+		rowalign?: Attribute<
 			'axis' | 'baseline' | 'bottom' | 'center' | 'top'
 		>
 	}
 	interface MathMLMunderElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		accentunder?: Accessor<BooleanAttribute>
+		accentunder?: Attribute<BooleanAttribute>
 	}
 	interface MathMLMunderoverElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		accent?: Accessor<BooleanAttribute>
-		accentunder?: Accessor<BooleanAttribute>
+		accent?: Attribute<BooleanAttribute>
+		accentunder?: Attribute<BooleanAttribute>
 	}
 	interface MathMLSemanticsElementAttributes<
 		Element,
@@ -1963,23 +1972,23 @@ declare namespace JSX {
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @deprecated */
-		actiontype?: Accessor<'statusline' | 'toggle'>
+		actiontype?: Attribute<'statusline' | 'toggle'>
 		/** @deprecated */
-		selection?: Accessor<string>
+		selection?: Attribute<string>
 	}
 
 	interface MathMLMencloseElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
 		/** @non-standard */
-		notation?: Accessor<string>
+		notation?: Attribute<string>
 	}
 	interface MathMLMfencedElementAttributes<
 		Element,
 	> extends MathMLAttributes<Element> {
-		close?: Accessor<string>
-		open?: Accessor<string>
-		separators?: Accessor<string>
+		close?: Attribute<string>
+		open?: Attribute<string>
+		separators?: Attribute<string>
 	}
 
 	/* SVGElements */
@@ -2177,7 +2186,8 @@ declare namespace JSX {
 
 	interface HTMLSpecialElements {
 		/** @url https://www.electronjs.org/docs/latest/api/webview-tag */
-		webview: HTMLWebViewElementAttributes<HTMLElement> & Properties<HTMLElement>
+		webview: HTMLWebViewElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 	}
 
 	interface HTMLElements {
@@ -2185,7 +2195,8 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
 		 */
-		a: HTMLAnchorElementAttributes<HTMLAnchorElement> & Properties<HTMLAnchorElement>
+		a: HTMLAnchorElementAttributes<HTMLAnchorElement> &
+			Properties<HTMLAnchorElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/abbr
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2195,27 +2206,32 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/address
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		address: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		address: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/area
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLAreaElement
 		 */
-		area: HTMLAreaElementAttributes<HTMLAreaElement> & Properties<HTMLAreaElement>
+		area: HTMLAreaElementAttributes<HTMLAreaElement> &
+			Properties<HTMLAreaElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		article: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		article: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		aside: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		aside: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLAudioElement
 		 */
-		audio: HTMLAudioElementAttributes<HTMLAudioElement> & Properties<HTMLAudioElement>
+		audio: HTMLAudioElementAttributes<HTMLAudioElement> &
+			Properties<HTMLAudioElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/b
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2227,7 +2243,8 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLBaseElement
 		 */
 
-		base: HTMLBaseElementAttributes<HTMLBaseElement> & Properties<HTMLBaseElement>
+		base: HTMLBaseElementAttributes<HTMLBaseElement> &
+			Properties<HTMLBaseElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdi
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2239,43 +2256,50 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
 
-		bdo: HTMLBdoElementAttributes<HTMLElement> & Properties<HTMLElement>
+		bdo: HTMLBdoElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLQuoteElement
 		 */
 
-		blockquote: HTMLQuoteElementAttributes<HTMLQuoteElement> & Properties<HTMLQuoteElement>
+		blockquote: HTMLQuoteElementAttributes<HTMLQuoteElement> &
+			Properties<HTMLQuoteElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLBodyElement
 		 */
 
-		body: HTMLBodyElementAttributes<HTMLBodyElement> & Properties<HTMLBodyElement>
+		body: HTMLBodyElementAttributes<HTMLBodyElement> &
+			Properties<HTMLBodyElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLBRElement
 		 */
 
-		br: HTMLBRElementAttributes<HTMLBRElement> & Properties<HTMLBRElement>
+		br: HTMLBRElementAttributes<HTMLBRElement> &
+			Properties<HTMLBRElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLButtonElement
 		 */
 
-		button: HTMLButtonElementAttributes<HTMLButtonElement> & Properties<HTMLButtonElement>
+		button: HTMLButtonElementAttributes<HTMLButtonElement> &
+			Properties<HTMLButtonElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement
 		 */
 
-		canvas: HTMLCanvasElementAttributes<HTMLCanvasElement> & Properties<HTMLCanvasElement>
+		canvas: HTMLCanvasElementAttributes<HTMLCanvasElement> &
+			Properties<HTMLCanvasElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableCaptionElement
 		 */
 
-		caption: HTMLTableCaptionElementAttributes<HTMLTableCaptionElement> & Properties<HTMLTableCaptionElement>
+		caption: HTMLTableCaptionElementAttributes<HTMLTableCaptionElement> &
+			Properties<HTMLTableCaptionElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2293,24 +2317,28 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableColElement
 		 */
 
-		col: HTMLTableColElementAttributes<HTMLTableColElement> & Properties<HTMLTableColElement>
+		col: HTMLTableColElementAttributes<HTMLTableColElement> &
+			Properties<HTMLTableColElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableColElement
 		 */
 
-		colgroup: HTMLTableColElementAttributes<HTMLTableColElement> & Properties<HTMLTableColElement>
+		colgroup: HTMLTableColElementAttributes<HTMLTableColElement> &
+			Properties<HTMLTableColElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/data
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLDataElement
 		 */
 
-		data: HTMLDataElementAttributes<HTMLDataElement> & Properties<HTMLDataElement>
+		data: HTMLDataElementAttributes<HTMLDataElement> &
+			Properties<HTMLDataElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLDataListElement
 		 */
-		datalist: HTMLDataListElementAttributes<HTMLDataListElement> & Properties<HTMLDataListElement>
+		datalist: HTMLDataListElementAttributes<HTMLDataListElement> &
+			Properties<HTMLDataListElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dd
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2320,12 +2348,14 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLModElement
 		 */
-		del: HTMLModElementAttributes<HTMLModElement> & Properties<HTMLModElement>
+		del: HTMLModElementAttributes<HTMLModElement> &
+			Properties<HTMLModElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLDetailsElement
 		 */
-		details: HTMLDetailsElementAttributes<HTMLDetailsElement> & Properties<HTMLDetailsElement>
+		details: HTMLDetailsElementAttributes<HTMLDetailsElement> &
+			Properties<HTMLDetailsElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dfn
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2335,17 +2365,20 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement
 		 */
-		dialog: HTMLDialogElementAttributes<HTMLDialogElement> & Properties<HTMLDialogElement>
+		dialog: HTMLDialogElementAttributes<HTMLDialogElement> &
+			Properties<HTMLDialogElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement
 		 */
-		div: HTMLDivElementAttributes<HTMLDivElement> & Properties<HTMLDivElement>
+		div: HTMLDivElementAttributes<HTMLDivElement> &
+			Properties<HTMLDivElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLDListElement
 		 */
-		dl: HTMLDListElementAttributes<HTMLDListElement> & Properties<HTMLDListElement>
+		dl: HTMLDListElementAttributes<HTMLDListElement> &
+			Properties<HTMLDListElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2360,87 +2393,104 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/embed
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLEmbedElement
 		 */
-		embed: HTMLEmbedElementAttributes<HTMLEmbedElement> & Properties<HTMLEmbedElement>
+		embed: HTMLEmbedElementAttributes<HTMLEmbedElement> &
+			Properties<HTMLEmbedElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLFieldSetElement
 		 */
-		fieldset: HTMLFieldSetElementAttributes<HTMLFieldSetElement> & Properties<HTMLFieldSetElement>
+		fieldset: HTMLFieldSetElementAttributes<HTMLFieldSetElement> &
+			Properties<HTMLFieldSetElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figcaption
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		figcaption: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		figcaption: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		figure: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		figure: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		footer: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		footer: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement
 		 */
-		form: HTMLFormElementAttributes<HTMLFormElement> & Properties<HTMLFormElement>
+		form: HTMLFormElementAttributes<HTMLFormElement> &
+			Properties<HTMLFormElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLHeadingElement
 		 */
-		h1: HTMLHeadingElementAttributes<HTMLHeadingElement> & Properties<HTMLHeadingElement>
+		h1: HTMLHeadingElementAttributes<HTMLHeadingElement> &
+			Properties<HTMLHeadingElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h2
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLHeadingElement
 		 */
-		h2: HTMLHeadingElementAttributes<HTMLHeadingElement> & Properties<HTMLHeadingElement>
+		h2: HTMLHeadingElementAttributes<HTMLHeadingElement> &
+			Properties<HTMLHeadingElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h3
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLHeadingElement
 		 */
-		h3: HTMLHeadingElementAttributes<HTMLHeadingElement> & Properties<HTMLHeadingElement>
+		h3: HTMLHeadingElementAttributes<HTMLHeadingElement> &
+			Properties<HTMLHeadingElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h4
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLHeadingElement
 		 */
-		h4: HTMLHeadingElementAttributes<HTMLHeadingElement> & Properties<HTMLHeadingElement>
+		h4: HTMLHeadingElementAttributes<HTMLHeadingElement> &
+			Properties<HTMLHeadingElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h5
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLHeadingElement
 		 */
-		h5: HTMLHeadingElementAttributes<HTMLHeadingElement> & Properties<HTMLHeadingElement>
+		h5: HTMLHeadingElementAttributes<HTMLHeadingElement> &
+			Properties<HTMLHeadingElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h6
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLHeadingElement
 		 */
-		h6: HTMLHeadingElementAttributes<HTMLHeadingElement> & Properties<HTMLHeadingElement>
+		h6: HTMLHeadingElementAttributes<HTMLHeadingElement> &
+			Properties<HTMLHeadingElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLHeadElement
 		 */
-		head: HTMLHeadElementAttributes<HTMLHeadElement> & Properties<HTMLHeadElement>
+		head: HTMLHeadElementAttributes<HTMLHeadElement> &
+			Properties<HTMLHeadElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		header: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		header: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hgroup
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		hgroup: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		hgroup: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLHRElement
 		 */
-		hr: HTMLHRElementAttributes<HTMLHRElement> & Properties<HTMLHRElement>
+		hr: HTMLHRElementAttributes<HTMLHRElement> &
+			Properties<HTMLHRElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/html
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLHtmlElement
 		 */
-		html: HTMLHtmlElementAttributes<HTMLHtmlElement> & Properties<HTMLHtmlElement>
+		html: HTMLHtmlElementAttributes<HTMLHtmlElement> &
+			Properties<HTMLHtmlElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/i
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2450,22 +2500,26 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLIFrameElement
 		 */
-		iframe: HTMLIFrameElementAttributes<HTMLIFrameElement> & Properties<HTMLIFrameElement>
+		iframe: HTMLIFrameElementAttributes<HTMLIFrameElement> &
+			Properties<HTMLIFrameElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
 		 */
-		img: HTMLImageElementAttributes<HTMLImageElement> & Properties<HTMLImageElement>
+		img: HTMLImageElementAttributes<HTMLImageElement> &
+			Properties<HTMLImageElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement
 		 */
-		input: HTMLInputElementAttributes<HTMLInputElement> & Properties<HTMLInputElement>
+		input: HTMLInputElementAttributes<HTMLInputElement> &
+			Properties<HTMLInputElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLModElement
 		 */
-		ins: HTMLModElementAttributes<HTMLModElement> & Properties<HTMLModElement>
+		ins: HTMLModElementAttributes<HTMLModElement> &
+			Properties<HTMLModElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2475,22 +2529,26 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement
 		 */
-		label: HTMLLabelElementAttributes<HTMLLabelElement> & Properties<HTMLLabelElement>
+		label: HTMLLabelElementAttributes<HTMLLabelElement> &
+			Properties<HTMLLabelElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLLegendElement
 		 */
-		legend: HTMLLegendElementAttributes<HTMLLegendElement> & Properties<HTMLLegendElement>
+		legend: HTMLLegendElementAttributes<HTMLLegendElement> &
+			Properties<HTMLLegendElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLLIElement
 		 */
-		li: HTMLLIElementAttributes<HTMLLIElement> & Properties<HTMLLIElement>
+		li: HTMLLIElementAttributes<HTMLLIElement> &
+			Properties<HTMLLIElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement
 		 */
-		link: HTMLLinkElementAttributes<HTMLLinkElement> & Properties<HTMLLinkElement>
+		link: HTMLLinkElementAttributes<HTMLLinkElement> &
+			Properties<HTMLLinkElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2500,7 +2558,8 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/map
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLMapElement
 		 */
-		map: HTMLMapElementAttributes<HTMLMapElement> & Properties<HTMLMapElement>
+		map: HTMLMapElementAttributes<HTMLMapElement> &
+			Properties<HTMLMapElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2510,17 +2569,20 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/menu
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLMenuElement
 		 */
-		menu: HTMLMenuElementAttributes<HTMLMenuElement> & Properties<HTMLMenuElement>
+		menu: HTMLMenuElementAttributes<HTMLMenuElement> &
+			Properties<HTMLMenuElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLMetaElement
 		 */
-		meta: HTMLMetaElementAttributes<HTMLMetaElement> & Properties<HTMLMetaElement>
+		meta: HTMLMetaElementAttributes<HTMLMetaElement> &
+			Properties<HTMLMetaElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLMeterElement
 		 */
-		meter: HTMLMeterElementAttributes<HTMLMeterElement> & Properties<HTMLMeterElement>
+		meter: HTMLMeterElementAttributes<HTMLMeterElement> &
+			Properties<HTMLMeterElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2530,57 +2592,68 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noscript
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		noscript: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		noscript: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLObjectElement
 		 */
-		object: HTMLObjectElementAttributes<HTMLObjectElement> & Properties<HTMLObjectElement>
+		object: HTMLObjectElementAttributes<HTMLObjectElement> &
+			Properties<HTMLObjectElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLOListElement
 		 */
-		ol: HTMLOListElementAttributes<HTMLOListElement> & Properties<HTMLOListElement>
+		ol: HTMLOListElementAttributes<HTMLOListElement> &
+			Properties<HTMLOListElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptGroupElement
 		 */
-		optgroup: HTMLOptGroupElementAttributes<HTMLOptGroupElement> & Properties<HTMLOptGroupElement>
+		optgroup: HTMLOptGroupElementAttributes<HTMLOptGroupElement> &
+			Properties<HTMLOptGroupElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptionElement
 		 */
-		option: HTMLOptionElementAttributes<HTMLOptionElement> & Properties<HTMLOptionElement>
+		option: HTMLOptionElementAttributes<HTMLOptionElement> &
+			Properties<HTMLOptionElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLOutputElement
 		 */
-		output: HTMLOutputElementAttributes<HTMLOutputElement> & Properties<HTMLOutputElement>
+		output: HTMLOutputElementAttributes<HTMLOutputElement> &
+			Properties<HTMLOutputElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLParagraphElement
 		 */
-		p: HTMLParagraphElementAttributes<HTMLParagraphElement> & Properties<HTMLParagraphElement>
+		p: HTMLParagraphElementAttributes<HTMLParagraphElement> &
+			Properties<HTMLParagraphElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLPictureElement
 		 */
-		picture: HTMLPictureElementAttributes<HTMLPictureElement> & Properties<HTMLPictureElement>
+		picture: HTMLPictureElementAttributes<HTMLPictureElement> &
+			Properties<HTMLPictureElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLPreElement
 		 */
-		pre: HTMLPreElementAttributes<HTMLPreElement> & Properties<HTMLPreElement>
+		pre: HTMLPreElementAttributes<HTMLPreElement> &
+			Properties<HTMLPreElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLProgressElement
 		 */
-		progress: HTMLProgressElementAttributes<HTMLProgressElement> & Properties<HTMLProgressElement>
+		progress: HTMLProgressElementAttributes<HTMLProgressElement> &
+			Properties<HTMLProgressElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLQuoteElement
 		 */
-		q: HTMLQuoteElementAttributes<HTMLQuoteElement> & Properties<HTMLQuoteElement>
+		q: HTMLQuoteElementAttributes<HTMLQuoteElement> &
+			Properties<HTMLQuoteElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rp
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2610,52 +2683,62 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLScriptElement
 		 */
-		script: HTMLScriptElementAttributes<HTMLScriptElement> & Properties<HTMLScriptElement>
+		script: HTMLScriptElementAttributes<HTMLScriptElement> &
+			Properties<HTMLScriptElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		search: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		search: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		section: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		section: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLSelectElement
 		 */
-		select: HTMLSelectElementAttributes<HTMLSelectElement> & Properties<HTMLSelectElement>
+		select: HTMLSelectElementAttributes<HTMLSelectElement> &
+			Properties<HTMLSelectElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLSlotElement
 		 */
-		slot: HTMLSlotElementAttributes<HTMLSlotElement> & Properties<HTMLSlotElement>
+		slot: HTMLSlotElementAttributes<HTMLSlotElement> &
+			Properties<HTMLSlotElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/small
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		small: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		small: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLSourceElement
 		 */
-		source: HTMLSourceElementAttributes<HTMLSourceElement> & Properties<HTMLSourceElement>
+		source: HTMLSourceElementAttributes<HTMLSourceElement> &
+			Properties<HTMLSourceElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLSpanElement
 		 */
-		span: HTMLSpanElementAttributes<HTMLSpanElement> & Properties<HTMLSpanElement>
+		span: HTMLSpanElementAttributes<HTMLSpanElement> &
+			Properties<HTMLSpanElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		strong: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		strong: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLStyleElement
 		 */
-		style: HTMLStyleElementAttributes<HTMLStyleElement> & Properties<HTMLStyleElement>
+		style: HTMLStyleElementAttributes<HTMLStyleElement> &
+			Properties<HTMLStyleElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2665,7 +2748,8 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		summary: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		summary: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2675,62 +2759,74 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableElement
 		 */
-		table: HTMLTableElementAttributes<HTMLTableElement> & Properties<HTMLTableElement>
+		table: HTMLTableElementAttributes<HTMLTableElement> &
+			Properties<HTMLTableElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableSectionElement
 		 */
-		tbody: HTMLTableSectionBodyElementAttributes<HTMLTableSectionElement> & Properties<HTMLTableSectionElement>
+		tbody: HTMLTableSectionBodyElementAttributes<HTMLTableSectionElement> &
+			Properties<HTMLTableSectionElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableCellElement
 		 */
-		td: HTMLTableCellTdElementAttributes<HTMLTableCellElement> & Properties<HTMLTableCellElement>
+		td: HTMLTableCellTdElementAttributes<HTMLTableCellElement> &
+			Properties<HTMLTableCellElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTemplateElement
 		 */
-		template: HTMLTemplateElementAttributes<HTMLTemplateElement> & Properties<HTMLTemplateElement>
+		template: HTMLTemplateElementAttributes<HTMLTemplateElement> &
+			Properties<HTMLTemplateElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTextAreaElement
 		 */
-		textarea: HTMLTextAreaElementAttributes<HTMLTextAreaElement> & Properties<HTMLTextAreaElement>
+		textarea: HTMLTextAreaElementAttributes<HTMLTextAreaElement> &
+			Properties<HTMLTextAreaElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableSectionElement
 		 */
-		tfoot: HTMLTableSectionFootElementAttributes<HTMLTableSectionElement> & Properties<HTMLTableSectionElement>
+		tfoot: HTMLTableSectionFootElementAttributes<HTMLTableSectionElement> &
+			Properties<HTMLTableSectionElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableCellElement
 		 */
-		th: HTMLTableCellThElementAttributes<HTMLTableCellElement> & Properties<HTMLTableCellElement>
+		th: HTMLTableCellThElementAttributes<HTMLTableCellElement> &
+			Properties<HTMLTableCellElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableSectionElement
 		 */
-		thead: HTMLTableSectionHeadElementAttributes<HTMLTableSectionElement> & Properties<HTMLTableSectionElement>
+		thead: HTMLTableSectionHeadElementAttributes<HTMLTableSectionElement> &
+			Properties<HTMLTableSectionElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTimeElement
 		 */
-		time: HTMLTimeElementAttributes<HTMLTimeElement> & Properties<HTMLTimeElement>
+		time: HTMLTimeElementAttributes<HTMLTimeElement> &
+			Properties<HTMLTimeElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTitleElement
 		 */
-		title: HTMLTitleElementAttributes<HTMLTitleElement> & Properties<HTMLTitleElement>
+		title: HTMLTitleElementAttributes<HTMLTitleElement> &
+			Properties<HTMLTitleElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableRowElement
 		 */
-		tr: HTMLTableRowElementAttributes<HTMLTableRowElement> & Properties<HTMLTableRowElement>
+		tr: HTMLTableRowElementAttributes<HTMLTableRowElement> &
+			Properties<HTMLTableRowElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLTrackElement
 		 */
-		track: HTMLTrackElementAttributes<HTMLTrackElement> & Properties<HTMLTrackElement>
+		track: HTMLTrackElementAttributes<HTMLTrackElement> &
+			Properties<HTMLTrackElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/u
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2740,7 +2836,8 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUListElement
 		 */
-		ul: HTMLUListElementAttributes<HTMLUListElement> & Properties<HTMLUListElement>
+		ul: HTMLUListElementAttributes<HTMLUListElement> &
+			Properties<HTMLUListElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/var
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2750,7 +2847,8 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement
 		 */
-		video: HTMLVideoElementAttributes<HTMLVideoElement> & Properties<HTMLVideoElement>
+		video: HTMLVideoElementAttributes<HTMLVideoElement> &
+			Properties<HTMLVideoElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/wbr
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
@@ -2766,25 +2864,29 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/acronym
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		acronym: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		acronym: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/applet
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		applet: HTMLUnknownElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		applet: HTMLUnknownElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/basefont
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		basefont: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		basefont: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bgsound
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		bgsound: HTMLUnknownElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		bgsound: HTMLUnknownElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/big
@@ -2796,79 +2898,92 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blink
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		blink: HTMLUnknownElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		blink: HTMLUnknownElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/center
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		center: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		center: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dir
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLDirectoryElement
 		 */
-		dir: HTMLDirectoryElementAttributes<HTMLDirectoryElement> & Properties<HTMLDirectoryElement>
+		dir: HTMLDirectoryElementAttributes<HTMLDirectoryElement> &
+			Properties<HTMLDirectoryElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/font
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLFontElement
 		 */
-		font: HTMLFontElementAttributes<HTMLFontElement> & Properties<HTMLFontElement>
+		font: HTMLFontElementAttributes<HTMLFontElement> &
+			Properties<HTMLFontElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/frame
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLFrameElement
 		 */
-		frame: HTMLFrameElementAttributes<HTMLFrameElement> & Properties<HTMLFrameElement>
+		frame: HTMLFrameElementAttributes<HTMLFrameElement> &
+			Properties<HTMLFrameElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/frameset
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLFrameSetElement
 		 */
-		frameset: HTMLFrameSetElementAttributes<HTMLFrameSetElement> & Properties<HTMLFrameSetElement>
+		frameset: HTMLFrameSetElementAttributes<HTMLFrameSetElement> &
+			Properties<HTMLFrameSetElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/isindex
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		isindex: HTMLUnknownElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		isindex: HTMLUnknownElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/keygen
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		keygen: HTMLKeygenElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		keygen: HTMLKeygenElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/listing
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLPreElement
 		 */
-		listing: HTMLPreElementListingAttributes<HTMLPreElement> & Properties<HTMLPreElement>
+		listing: HTMLPreElementListingAttributes<HTMLPreElement> &
+			Properties<HTMLPreElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLMarqueeElement
 		 */
-		marquee: HTMLMarqueeElementAttributes<HTMLMarqueeElement> & Properties<HTMLMarqueeElement>
+		marquee: HTMLMarqueeElementAttributes<HTMLMarqueeElement> &
+			Properties<HTMLMarqueeElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/menuitem
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		menuitem: HTMLElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		menuitem: HTMLElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/multicol
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		multicol: HTMLUnknownElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		multicol: HTMLUnknownElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nextid
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		nextid: HTMLUnknownElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		nextid: HTMLUnknownElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nobr
@@ -2880,31 +2995,36 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noembed
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		noembed: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		noembed: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noindex
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		noindex: HTMLUnknownElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		noindex: HTMLUnknownElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noframes
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		noframes: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		noframes: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/param
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLParamElement
 		 */
-		param: HTMLParamElementAttributes<HTMLParamElement> & Properties<HTMLParamElement>
+		param: HTMLParamElementAttributes<HTMLParamElement> &
+			Properties<HTMLParamElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/plaintext
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		plaintext: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		plaintext: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/rb
@@ -2922,13 +3042,15 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/spacer
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLUnknownElement
 		 */
-		spacer: HTMLUnknownElementAttributes<HTMLUnknownElement> & Properties<HTMLUnknownElement>
+		spacer: HTMLUnknownElementAttributes<HTMLUnknownElement> &
+			Properties<HTMLUnknownElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strike
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
 		 */
-		strike: HTMLElementAttributes<HTMLElement> & Properties<HTMLElement>
+		strike: HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 		/**
 		 * @deprecated
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tt
@@ -2940,7 +3062,8 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/HTML/Element/xmp
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/HTMLPreElement
 		 */
-		xmp: HTMLPreElementXmpAttributes<HTMLPreElement> & Properties<HTMLPreElement>
+		xmp: HTMLPreElementXmpAttributes<HTMLPreElement> &
+			Properties<HTMLPreElement>
 	}
 
 	// MathMLElements
@@ -2950,7 +3073,8 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/annotation
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		annotation: MathMLAnnotationElementAttributes<MathMLElement> & Properties<MathMLElement>
+		annotation: MathMLAnnotationElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/annotation-xml
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
@@ -2960,143 +3084,171 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/math
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		math: MathMLMathElementAttributes<MathMLElement> & Properties<MathMLElement>
+		math: MathMLMathElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/merror
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		merror: MathMLMerrorElementAttributes<MathMLElement> & Properties<MathMLElement>
+		merror: MathMLMerrorElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfrac
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mfrac: MathMLMfracElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mfrac: MathMLMfracElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mi
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mi: MathMLMiElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mi: MathMLMiElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mmultiscripts
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mmultiscripts: MathMLMmultiscriptsElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mmultiscripts: MathMLMmultiscriptsElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mn
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mn: MathMLMnElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mn: MathMLMnElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mo
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mo: MathMLMoElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mo: MathMLMoElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mover
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mover: MathMLMoverElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mover: MathMLMoverElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mpadded
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mpadded: MathMLMpaddedElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mpadded: MathMLMpaddedElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mphantom
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mphantom: MathMLMphantomElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mphantom: MathMLMphantomElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mprescripts
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mprescripts: MathMLMprescriptsElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mprescripts: MathMLMprescriptsElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mroot
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mroot: MathMLMrootElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mroot: MathMLMrootElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mrow
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mrow: MathMLMrowElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mrow: MathMLMrowElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/ms
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		ms: MathMLMsElementAttributes<MathMLElement> & Properties<MathMLElement>
+		ms: MathMLMsElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mspace
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mspace: MathMLMspaceElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mspace: MathMLMspaceElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msqrt
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		msqrt: MathMLMsqrtElementAttributes<MathMLElement> & Properties<MathMLElement>
+		msqrt: MathMLMsqrtElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mstyle
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mstyle: MathMLMstyleElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mstyle: MathMLMstyleElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msub
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		msub: MathMLMsubElementAttributes<MathMLElement> & Properties<MathMLElement>
+		msub: MathMLMsubElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msubsup
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		msubsup: MathMLMsubsupElementAttributes<MathMLElement> & Properties<MathMLElement>
+		msubsup: MathMLMsubsupElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msup
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		msup: MathMLMsupElementAttributes<MathMLElement> & Properties<MathMLElement>
+		msup: MathMLMsupElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtable
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mtable: MathMLMtableElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mtable: MathMLMtableElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtd
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mtd: MathMLMtdElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mtd: MathMLMtdElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtext
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mtext: MathMLMtextElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mtext: MathMLMtextElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mtr
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mtr: MathMLMtrElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mtr: MathMLMtrElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/munder
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		munder: MathMLMunderElementAttributes<MathMLElement> & Properties<MathMLElement>
+		munder: MathMLMunderElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/munderover
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		munderover: MathMLMunderoverElementAttributes<MathMLElement> & Properties<MathMLElement>
+		munderover: MathMLMunderoverElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/semantics
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		semantics: MathMLSemanticsElementAttributes<MathMLElement> & Properties<MathMLElement>
+		semantics: MathMLSemanticsElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @non-standard
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/menclose
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		menclose: MathMLMencloseElementAttributes<MathMLElement> & Properties<MathMLElement>
+		menclose: MathMLMencloseElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 	}
 
 	// MathMLDeprecatedElements
@@ -3107,14 +3259,16 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/maction
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		maction: MathMLMactionElementAttributes<MathMLElement> & Properties<MathMLElement>
+		maction: MathMLMactionElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 		/**
 		 * @deprecated
 		 * @non-standard
 		 * @url https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfenced
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/MathMLElement
 		 */
-		mfenced: MathMLMfencedElementAttributes<MathMLElement> & Properties<MathMLElement>
+		mfenced: MathMLMfencedElementAttributes<MathMLElement> &
+			Properties<MathMLElement>
 	}
 
 	// SVGElements
@@ -3124,177 +3278,212 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animate
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGAnimateElement
 		 */
-		animate: SVGAnimateElementAttributes<SVGAnimateElement> & Properties<SVGAnimateElement>
+		animate: SVGAnimateElementAttributes<SVGAnimateElement> &
+			Properties<SVGAnimateElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateMotion
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGAnimateMotionElement
 		 */
-		animateMotion: SVGAnimateMotionElementAttributes<SVGAnimateMotionElement> & Properties<SVGAnimateMotionElement>
+		animateMotion: SVGAnimateMotionElementAttributes<SVGAnimateMotionElement> &
+			Properties<SVGAnimateMotionElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/animateTransform
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGAnimateTransformElement
 		 */
-		animateTransform: SVGAnimateTransformElementAttributes<SVGAnimateTransformElement> & Properties<SVGAnimateTransformElement>
+		animateTransform: SVGAnimateTransformElementAttributes<SVGAnimateTransformElement> &
+			Properties<SVGAnimateTransformElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGCircleElement
 		 */
-		circle: SVGCircleElementAttributes<SVGCircleElement> & Properties<SVGCircleElement>
+		circle: SVGCircleElementAttributes<SVGCircleElement> &
+			Properties<SVGCircleElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/clipPath
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGClipPathElement
 		 */
-		clipPath: SVGClipPathElementAttributes<SVGClipPathElement> & Properties<SVGClipPathElement>
+		clipPath: SVGClipPathElementAttributes<SVGClipPathElement> &
+			Properties<SVGClipPathElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGDefsElement
 		 */
-		defs: SVGDefsElementAttributes<SVGDefsElement> & Properties<SVGDefsElement>
+		defs: SVGDefsElementAttributes<SVGDefsElement> &
+			Properties<SVGDefsElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/desc
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGDescElement
 		 */
-		desc: SVGDescElementAttributes<SVGDescElement> & Properties<SVGDescElement>
+		desc: SVGDescElementAttributes<SVGDescElement> &
+			Properties<SVGDescElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/ellipse
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGEllipseElement
 		 */
-		ellipse: SVGEllipseElementAttributes<SVGEllipseElement> & Properties<SVGEllipseElement>
+		ellipse: SVGEllipseElementAttributes<SVGEllipseElement> &
+			Properties<SVGEllipseElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feBlend
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEBlendElement
 		 */
-		feBlend: SVGFEBlendElementAttributes<SVGFEBlendElement> & Properties<SVGFEBlendElement>
+		feBlend: SVGFEBlendElementAttributes<SVGFEBlendElement> &
+			Properties<SVGFEBlendElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feColorMatrix
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEColorMatrixElement
 		 */
-		feColorMatrix: SVGFEColorMatrixElementAttributes<SVGFEColorMatrixElement> & Properties<SVGFEColorMatrixElement>
+		feColorMatrix: SVGFEColorMatrixElementAttributes<SVGFEColorMatrixElement> &
+			Properties<SVGFEColorMatrixElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feComponentTransfer
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEComponentTransferElement
 		 */
-		feComponentTransfer: SVGFEComponentTransferElementAttributes<SVGFEComponentTransferElement> & Properties<SVGFEComponentTransferElement>
+		feComponentTransfer: SVGFEComponentTransferElementAttributes<SVGFEComponentTransferElement> &
+			Properties<SVGFEComponentTransferElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feComposite
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFECompositeElement
 		 */
-		feComposite: SVGFECompositeElementAttributes<SVGFECompositeElement> & Properties<SVGFECompositeElement>
+		feComposite: SVGFECompositeElementAttributes<SVGFECompositeElement> &
+			Properties<SVGFECompositeElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feConvolveMatrix
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEConvolveMatrixElement
 		 */
-		feConvolveMatrix: SVGFEConvolveMatrixElementAttributes<SVGFEConvolveMatrixElement> & Properties<SVGFEConvolveMatrixElement>
+		feConvolveMatrix: SVGFEConvolveMatrixElementAttributes<SVGFEConvolveMatrixElement> &
+			Properties<SVGFEConvolveMatrixElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDiffuseLighting
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEDiffuseLightingElement
 		 */
-		feDiffuseLighting: SVGFEDiffuseLightingElementAttributes<SVGFEDiffuseLightingElement> & Properties<SVGFEDiffuseLightingElement>
+		feDiffuseLighting: SVGFEDiffuseLightingElementAttributes<SVGFEDiffuseLightingElement> &
+			Properties<SVGFEDiffuseLightingElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDisplacementMap
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEDisplacementMapElement
 		 */
-		feDisplacementMap: SVGFEDisplacementMapElementAttributes<SVGFEDisplacementMapElement> & Properties<SVGFEDisplacementMapElement>
+		feDisplacementMap: SVGFEDisplacementMapElementAttributes<SVGFEDisplacementMapElement> &
+			Properties<SVGFEDisplacementMapElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDistantLight
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEDistantLightElement
 		 */
-		feDistantLight: SVGFEDistantLightElementAttributes<SVGFEDistantLightElement> & Properties<SVGFEDistantLightElement>
+		feDistantLight: SVGFEDistantLightElementAttributes<SVGFEDistantLightElement> &
+			Properties<SVGFEDistantLightElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDropShadow
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEDropShadowElement
 		 */
-		feDropShadow: SVGFEDropShadowElementAttributes<SVGFEDropShadowElement> & Properties<SVGFEDropShadowElement>
+		feDropShadow: SVGFEDropShadowElementAttributes<SVGFEDropShadowElement> &
+			Properties<SVGFEDropShadowElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFlood
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEFloodElement
 		 */
-		feFlood: SVGFEFloodElementAttributes<SVGFEFloodElement> & Properties<SVGFEFloodElement>
+		feFlood: SVGFEFloodElementAttributes<SVGFEFloodElement> &
+			Properties<SVGFEFloodElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncA
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEFuncAElement
 		 */
-		feFuncA: SVGFEFuncAElementAttributes<SVGFEFuncAElement> & Properties<SVGFEFuncAElement>
+		feFuncA: SVGFEFuncAElementAttributes<SVGFEFuncAElement> &
+			Properties<SVGFEFuncAElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncB
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEFuncBElement
 		 */
-		feFuncB: SVGFEFuncBElementAttributes<SVGFEFuncBElement> & Properties<SVGFEFuncBElement>
+		feFuncB: SVGFEFuncBElementAttributes<SVGFEFuncBElement> &
+			Properties<SVGFEFuncBElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncG
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEFuncGElement
 		 */
-		feFuncG: SVGFEFuncGElementAttributes<SVGFEFuncGElement> & Properties<SVGFEFuncGElement>
+		feFuncG: SVGFEFuncGElementAttributes<SVGFEFuncGElement> &
+			Properties<SVGFEFuncGElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncR
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEFuncRElement
 		 */
-		feFuncR: SVGFEFuncRElementAttributes<SVGFEFuncRElement> & Properties<SVGFEFuncRElement>
+		feFuncR: SVGFEFuncRElementAttributes<SVGFEFuncRElement> &
+			Properties<SVGFEFuncRElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feGaussianBlur
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEGaussianBlurElement
 		 */
-		feGaussianBlur: SVGFEGaussianBlurElementAttributes<SVGFEGaussianBlurElement> & Properties<SVGFEGaussianBlurElement>
+		feGaussianBlur: SVGFEGaussianBlurElementAttributes<SVGFEGaussianBlurElement> &
+			Properties<SVGFEGaussianBlurElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feImage
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEImageElement
 		 */
-		feImage: SVGFEImageElementAttributes<SVGFEImageElement> & Properties<SVGFEImageElement>
+		feImage: SVGFEImageElementAttributes<SVGFEImageElement> &
+			Properties<SVGFEImageElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMerge
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEMergeElement
 		 */
-		feMerge: SVGFEMergeElementAttributes<SVGFEMergeElement> & Properties<SVGFEMergeElement>
+		feMerge: SVGFEMergeElementAttributes<SVGFEMergeElement> &
+			Properties<SVGFEMergeElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMergeNode
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEMergeNodeElement
 		 */
-		feMergeNode: SVGFEMergeNodeElementAttributes<SVGFEMergeNodeElement> & Properties<SVGFEMergeNodeElement>
+		feMergeNode: SVGFEMergeNodeElementAttributes<SVGFEMergeNodeElement> &
+			Properties<SVGFEMergeNodeElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMorphology
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEMorphologyElement
 		 */
-		feMorphology: SVGFEMorphologyElementAttributes<SVGFEMorphologyElement> & Properties<SVGFEMorphologyElement>
+		feMorphology: SVGFEMorphologyElementAttributes<SVGFEMorphologyElement> &
+			Properties<SVGFEMorphologyElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feOffset
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEOffsetElement
 		 */
-		feOffset: SVGFEOffsetElementAttributes<SVGFEOffsetElement> & Properties<SVGFEOffsetElement>
+		feOffset: SVGFEOffsetElementAttributes<SVGFEOffsetElement> &
+			Properties<SVGFEOffsetElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/fePointLight
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFEPointLightElement
 		 */
-		fePointLight: SVGFEPointLightElementAttributes<SVGFEPointLightElement> & Properties<SVGFEPointLightElement>
+		fePointLight: SVGFEPointLightElementAttributes<SVGFEPointLightElement> &
+			Properties<SVGFEPointLightElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feSpecularLighting
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFESpecularLightingElement
 		 */
-		feSpecularLighting: SVGFESpecularLightingElementAttributes<SVGFESpecularLightingElement> & Properties<SVGFESpecularLightingElement>
+		feSpecularLighting: SVGFESpecularLightingElementAttributes<SVGFESpecularLightingElement> &
+			Properties<SVGFESpecularLightingElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feSpotLight
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFESpotLightElement
 		 */
-		feSpotLight: SVGFESpotLightElementAttributes<SVGFESpotLightElement> & Properties<SVGFESpotLightElement>
+		feSpotLight: SVGFESpotLightElementAttributes<SVGFESpotLightElement> &
+			Properties<SVGFESpotLightElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTile
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFETileElement
 		 */
-		feTile: SVGFETileElementAttributes<SVGFETileElement> & Properties<SVGFETileElement>
+		feTile: SVGFETileElementAttributes<SVGFETileElement> &
+			Properties<SVGFETileElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTurbulence
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFETurbulenceElement
 		 */
-		feTurbulence: SVGFETurbulenceElementAttributes<SVGFETurbulenceElement> & Properties<SVGFETurbulenceElement>
+		feTurbulence: SVGFETurbulenceElementAttributes<SVGFETurbulenceElement> &
+			Properties<SVGFETurbulenceElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/filter
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGFilterElement
 		 */
-		filter: SVGFilterElementAttributes<SVGFilterElement> & Properties<SVGFilterElement>
+		filter: SVGFilterElementAttributes<SVGFilterElement> &
+			Properties<SVGFilterElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGForeignObjectElement
 		 */
-		foreignObject: SVGForeignObjectElementAttributes<SVGForeignObjectElement> & Properties<SVGForeignObjectElement>
+		foreignObject: SVGForeignObjectElementAttributes<SVGForeignObjectElement> &
+			Properties<SVGForeignObjectElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGGElement
@@ -3304,118 +3493,141 @@ declare namespace JSX {
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGImageElement
 		 */
-		image: SVGImageElementAttributes<SVGImageElement> & Properties<SVGImageElement>
+		image: SVGImageElementAttributes<SVGImageElement> &
+			Properties<SVGImageElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/line
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGLineElement
 		 */
-		line: SVGLineElementAttributes<SVGLineElement> & Properties<SVGLineElement>
+		line: SVGLineElementAttributes<SVGLineElement> &
+			Properties<SVGLineElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGLinearGradientElement
 		 */
-		linearGradient: SVGLinearGradientElementAttributes<SVGLinearGradientElement> & Properties<SVGLinearGradientElement>
+		linearGradient: SVGLinearGradientElementAttributes<SVGLinearGradientElement> &
+			Properties<SVGLinearGradientElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/marker
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGMarkerElement
 		 */
-		marker: SVGMarkerElementAttributes<SVGMarkerElement> & Properties<SVGMarkerElement>
+		marker: SVGMarkerElementAttributes<SVGMarkerElement> &
+			Properties<SVGMarkerElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/mask
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGMaskElement
 		 */
-		mask: SVGMaskElementAttributes<SVGMaskElement> & Properties<SVGMaskElement>
+		mask: SVGMaskElementAttributes<SVGMaskElement> &
+			Properties<SVGMaskElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/metadata
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGMetadataElement
 		 */
-		metadata: SVGMetadataElementAttributes<SVGMetadataElement> & Properties<SVGMetadataElement>
+		metadata: SVGMetadataElementAttributes<SVGMetadataElement> &
+			Properties<SVGMetadataElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/mpath
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGMPathElement
 		 */
-		mpath: SVGMPathElementAttributes<SVGMPathElement> & Properties<SVGMPathElement>
+		mpath: SVGMPathElementAttributes<SVGMPathElement> &
+			Properties<SVGMPathElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGPathElement
 		 */
-		path: SVGPathElementAttributes<SVGPathElement> & Properties<SVGPathElement>
+		path: SVGPathElementAttributes<SVGPathElement> &
+			Properties<SVGPathElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/pattern
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGPatternElement
 		 */
-		pattern: SVGPatternElementAttributes<SVGPatternElement> & Properties<SVGPatternElement>
+		pattern: SVGPatternElementAttributes<SVGPatternElement> &
+			Properties<SVGPatternElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polygon
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGPolygonElement
 		 */
-		polygon: SVGPolygonElementAttributes<SVGPolygonElement> & Properties<SVGPolygonElement>
+		polygon: SVGPolygonElementAttributes<SVGPolygonElement> &
+			Properties<SVGPolygonElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGPolylineElement
 		 */
-		polyline: SVGPolylineElementAttributes<SVGPolylineElement> & Properties<SVGPolylineElement>
+		polyline: SVGPolylineElementAttributes<SVGPolylineElement> &
+			Properties<SVGPolylineElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/radialGradient
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGRadialGradientElement
 		 */
-		radialGradient: SVGRadialGradientElementAttributes<SVGRadialGradientElement> & Properties<SVGRadialGradientElement>
+		radialGradient: SVGRadialGradientElementAttributes<SVGRadialGradientElement> &
+			Properties<SVGRadialGradientElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGRectElement
 		 */
-		rect: SVGRectElementAttributes<SVGRectElement> & Properties<SVGRectElement>
+		rect: SVGRectElementAttributes<SVGRectElement> &
+			Properties<SVGRectElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/set
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGSetElement
 		 */
-		set: SVGSetElementAttributes<SVGSetElement> & Properties<SVGSetElement>
+		set: SVGSetElementAttributes<SVGSetElement> &
+			Properties<SVGSetElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/stop
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGStopElement
 		 */
-		stop: SVGStopElementAttributes<SVGStopElement> & Properties<SVGStopElement>
+		stop: SVGStopElementAttributes<SVGStopElement> &
+			Properties<SVGStopElement>
 
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/svg
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGSVGElement
 		 */
-		svg: SVGSVGElementAttributes<SVGSVGElement> & Properties<SVGSVGElement>
+		svg: SVGSVGElementAttributes<SVGSVGElement> &
+			Properties<SVGSVGElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/switch
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGSwitchElement
 		 */
-		switch: SVGSwitchElementAttributes<SVGSwitchElement> & Properties<SVGSwitchElement>
+		switch: SVGSwitchElementAttributes<SVGSwitchElement> &
+			Properties<SVGSwitchElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/symbol
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGSymbolElement
 		 */
-		symbol: SVGSymbolElementAttributes<SVGSymbolElement> & Properties<SVGSymbolElement>
+		symbol: SVGSymbolElementAttributes<SVGSymbolElement> &
+			Properties<SVGSymbolElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGTextElement
 		 */
-		text: SVGTextElementAttributes<SVGTextElement> & Properties<SVGTextElement>
+		text: SVGTextElementAttributes<SVGTextElement> &
+			Properties<SVGTextElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/textPath
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGTextPathElement
 		 */
-		textPath: SVGTextPathElementAttributes<SVGTextPathElement> & Properties<SVGTextPathElement>
+		textPath: SVGTextPathElementAttributes<SVGTextPathElement> &
+			Properties<SVGTextPathElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/tspan
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGTSpanElement
 		 */
-		tspan: SVGTSpanElementAttributes<SVGTSpanElement> & Properties<SVGTSpanElement>
+		tspan: SVGTSpanElementAttributes<SVGTSpanElement> &
+			Properties<SVGTSpanElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGUseElement
 		 */
-		use: SVGUseElementAttributes<SVGUseElement> & Properties<SVGUseElement>
+		use: SVGUseElementAttributes<SVGUseElement> &
+			Properties<SVGUseElement>
 		/**
 		 * @url https://developer.mozilla.org/en-US/docs/Web/SVG/Element/view
 		 * @url https://developer.mozilla.org/en-US/docs/Web/API/SVGViewElement
 		 */
-		view: SVGViewElementAttributes<SVGViewElement> & Properties<SVGViewElement>
+		view: SVGViewElementAttributes<SVGViewElement> &
+			Properties<SVGViewElement>
 	}
 
 	/** EVENTS */
@@ -3620,13 +3832,13 @@ declare namespace JSX {
 		 * Identifies the currently active element when DOM focus is on a
 		 * composite widget, textbox, group, or application.
 		 */
-		'aria-activedescendant'?: Accessor<string>
+		'aria-activedescendant'?: Attribute<string>
 		/**
 		 * Indicates whether assistive technologies will present all, or
 		 * only parts of, the changed region based on the change
 		 * notifications defined by the aria-relevant attribute.
 		 */
-		'aria-atomic'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-atomic'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Similar to the global aria-label. Defines a string value that
 		 * labels the current element, which is intended to be converted
@@ -3634,7 +3846,7 @@ declare namespace JSX {
 		 *
 		 * @see aria-label.
 		 */
-		'aria-braillelabel'?: Accessor<string>
+		'aria-braillelabel'?: Attribute<string>
 		/**
 		 * Defines a human-readable, author-localized abbreviated
 		 * description for the role of an element intended to be converted
@@ -3652,14 +3864,14 @@ declare namespace JSX {
 		 *
 		 * @see aria-roledescription.
 		 */
-		'aria-brailleroledescription'?: Accessor<string>
+		'aria-brailleroledescription'?: Attribute<string>
 		/**
 		 * Indicates whether inputting text could trigger display of one
 		 * or more predictions of the user's intended value for an input
 		 * and specifies how predictions would be presented if they are
 		 * made.
 		 */
-		'aria-autocomplete'?: Accessor<
+		'aria-autocomplete'?: Attribute<
 			'none' | 'inline' | 'list' | 'both'
 		>
 		/**
@@ -3667,52 +3879,52 @@ declare namespace JSX {
 		 * technologies MAY want to wait until the modifications are
 		 * complete before exposing them to the user.
 		 */
-		'aria-busy'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-busy'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Indicates the current "checked" state of checkboxes, radio
 		 * buttons, and other widgets.
 		 *
 		 * @see aria-pressed @see aria-selected.
 		 */
-		'aria-checked'?: Accessor<EnumeratedPseudoBoolean | 'mixed'>
+		'aria-checked'?: Attribute<EnumeratedPseudoBoolean | 'mixed'>
 		/**
 		 * Defines the total number of columns in a table, grid, or
 		 * treegrid.
 		 *
 		 * @see aria-colindex.
 		 */
-		'aria-colcount'?: Accessor<number | string>
+		'aria-colcount'?: Attribute<number | string>
 		/**
 		 * Defines an element's column index or position with respect to
 		 * the total number of columns within a table, grid, or treegrid.
 		 *
 		 * @see aria-colcount @see aria-colspan.
 		 */
-		'aria-colindex'?: Accessor<number | string>
+		'aria-colindex'?: Attribute<number | string>
 		/**
 		 * Defines a human-readable text alternative of the numeric
 		 * aria-colindex.
 		 */
-		'aria-colindextext'?: Accessor<number | string>
+		'aria-colindextext'?: Attribute<number | string>
 		/**
 		 * Defines the number of columns spanned by a cell or gridcell
 		 * within a table, grid, or treegrid.
 		 *
 		 * @see aria-colindex @see aria-rowspan.
 		 */
-		'aria-colspan'?: Accessor<number | string>
+		'aria-colspan'?: Attribute<number | string>
 		/**
 		 * Identifies the element (or elements) whose contents or presence
 		 * are controlled by the current element.
 		 *
 		 * @see aria-owns.
 		 */
-		'aria-controls'?: Accessor<string>
+		'aria-controls'?: Attribute<string>
 		/**
 		 * Indicates the element that represents the current item within a
 		 * container or set of related elements.
 		 */
-		'aria-current'?: Accessor<
+		'aria-current'?: Attribute<
 			| EnumeratedPseudoBoolean
 			| 'page'
 			| 'step'
@@ -3725,35 +3937,35 @@ declare namespace JSX {
 		 *
 		 * @see aria-labelledby
 		 */
-		'aria-describedby'?: Accessor<string>
+		'aria-describedby'?: Attribute<string>
 		/**
 		 * Defines a string value that describes or annotates the current
 		 * element.
 		 *
 		 * @see aria-describedby
 		 */
-		'aria-description'?: Accessor<string>
+		'aria-description'?: Attribute<string>
 		/**
 		 * Identifies the element that provides a detailed, extended
 		 * description for the object.
 		 *
 		 * @see aria-describedby.
 		 */
-		'aria-details'?: Accessor<string>
+		'aria-details'?: Attribute<string>
 		/**
 		 * Indicates that the element is perceivable but disabled, so it
 		 * is not editable or otherwise operable.
 		 *
 		 * @see aria-hidden @see aria-readonly.
 		 */
-		'aria-disabled'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-disabled'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Indicates what functions can be performed when a dragged object
 		 * is released on the drop target.
 		 *
 		 * @deprecated In ARIA 1.1
 		 */
-		'aria-dropeffect'?: Accessor<
+		'aria-dropeffect'?: Attribute<
 			'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup'
 		>
 		/**
@@ -3762,32 +3974,32 @@ declare namespace JSX {
 		 *
 		 * @see aria-invalid @see aria-describedby.
 		 */
-		'aria-errormessage'?: Accessor<string>
+		'aria-errormessage'?: Attribute<string>
 		/**
 		 * Indicates whether the element, or another grouping element it
 		 * controls, is currently expanded or collapsed.
 		 */
-		'aria-expanded'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-expanded'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Identifies the next element (or elements) in an alternate
 		 * reading order of content which, at the user's discretion,
 		 * allows assistive technology to override the general default of
 		 * reading in document source order.
 		 */
-		'aria-flowto'?: Accessor<string>
+		'aria-flowto'?: Attribute<string>
 		/**
 		 * Indicates an element's "grabbed" state in a drag-and-drop
 		 * operation.
 		 *
 		 * @deprecated In ARIA 1.1
 		 */
-		'aria-grabbed'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-grabbed'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Indicates the availability and type of interactive popup
 		 * element, such as menu or dialog, that can be triggered by an
 		 * element.
 		 */
-		'aria-haspopup'?: Accessor<
+		'aria-haspopup'?: Attribute<
 			| EnumeratedPseudoBoolean
 			| 'menu'
 			| 'listbox'
@@ -3801,62 +4013,62 @@ declare namespace JSX {
 		 *
 		 * @see aria-disabled.
 		 */
-		'aria-hidden'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-hidden'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Indicates the entered value does not conform to the format
 		 * expected by the application.
 		 *
 		 * @see aria-errormessage.
 		 */
-		'aria-invalid'?: Accessor<
+		'aria-invalid'?: Attribute<
 			EnumeratedPseudoBoolean | 'grammar' | 'spelling'
 		>
 		/**
 		 * Indicates keyboard shortcuts that an author has implemented to
 		 * activate or give focus to an element.
 		 */
-		'aria-keyshortcuts'?: Accessor<string>
+		'aria-keyshortcuts'?: Attribute<string>
 		/**
 		 * Defines a string value that labels the current element.
 		 *
 		 * @see aria-labelledby.
 		 */
-		'aria-label'?: Accessor<string>
+		'aria-label'?: Attribute<string>
 		/**
 		 * Identifies the element (or elements) that labels the current
 		 * element.
 		 *
 		 * @see aria-describedby.
 		 */
-		'aria-labelledby'?: Accessor<string>
+		'aria-labelledby'?: Attribute<string>
 		/**
 		 * Defines the hierarchical level of an element within a
 		 * structure.
 		 */
-		'aria-level'?: Accessor<number | string>
+		'aria-level'?: Attribute<number | string>
 		/**
 		 * Indicates that an element will be updated, and describes the
 		 * types of updates the user agents, assistive technologies, and
 		 * user can expect from the live region.
 		 */
-		'aria-live'?: Accessor<'off' | 'assertive' | 'polite'>
+		'aria-live'?: Attribute<'off' | 'assertive' | 'polite'>
 		/** Indicates whether an element is modal when displayed. */
-		'aria-modal'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-modal'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Indicates whether a text box accepts multiple lines of input or
 		 * only a single line.
 		 */
-		'aria-multiline'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-multiline'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Indicates that the user may select more than one item from the
 		 * current selectable descendants.
 		 */
-		'aria-multiselectable'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-multiselectable'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Indicates whether the element's orientation is horizontal,
 		 * vertical, or unknown/ambiguous.
 		 */
-		'aria-orientation'?: Accessor<'horizontal' | 'vertical'>
+		'aria-orientation'?: Attribute<'horizontal' | 'vertical'>
 		/**
 		 * Identifies an element (or elements) in order to define a
 		 * visual, functional, or contextual parent/child relationship
@@ -3865,14 +4077,14 @@ declare namespace JSX {
 		 *
 		 * @see aria-controls.
 		 */
-		'aria-owns'?: Accessor<string>
+		'aria-owns'?: Attribute<string>
 		/**
 		 * Defines a short hint (a word or short phrase) intended to aid
 		 * the user with data entry when the control has no value. A hint
 		 * could be a sample value or a brief description of the expected
 		 * format.
 		 */
-		'aria-placeholder'?: Accessor<string>
+		'aria-placeholder'?: Attribute<string>
 		/**
 		 * Defines an element's number or position in the current set of
 		 * listitems or treeitems. Not required if all elements in the set
@@ -3880,27 +4092,27 @@ declare namespace JSX {
 		 *
 		 * @see aria-setsize.
 		 */
-		'aria-posinset'?: Accessor<number | string>
+		'aria-posinset'?: Attribute<number | string>
 		/**
 		 * Indicates the current "pressed" state of toggle buttons.
 		 *
 		 * @see aria-checked @see aria-selected.
 		 */
-		'aria-pressed'?: Accessor<EnumeratedPseudoBoolean | 'mixed'>
+		'aria-pressed'?: Attribute<EnumeratedPseudoBoolean | 'mixed'>
 		/**
 		 * Indicates that the element is not editable, but is otherwise
 		 * operable.
 		 *
 		 * @see aria-disabled.
 		 */
-		'aria-readonly'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-readonly'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Indicates what notifications the user agent will trigger when
 		 * the accessibility tree within a live region is modified.
 		 *
 		 * @see aria-atomic.
 		 */
-		'aria-relevant'?: Accessor<
+		'aria-relevant'?: Attribute<
 			| 'additions'
 			| 'additions removals'
 			| 'additions text'
@@ -3916,40 +4128,40 @@ declare namespace JSX {
 		 * Indicates that user input is required on the element before a
 		 * form may be submitted.
 		 */
-		'aria-required'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-required'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Defines a human-readable, author-localized description for the
 		 * role of an element.
 		 */
-		'aria-roledescription'?: Accessor<string>
+		'aria-roledescription'?: Attribute<string>
 		/**
 		 * Defines the total number of rows in a table, grid, or treegrid.
 		 *
 		 * @see aria-rowindex.
 		 */
-		'aria-rowcount'?: Accessor<number | string>
+		'aria-rowcount'?: Attribute<number | string>
 		/**
 		 * Defines an element's row index or position with respect to the
 		 * total number of rows within a table, grid, or treegrid.
 		 *
 		 * @see aria-rowcount @see aria-rowspan.
 		 */
-		'aria-rowindex'?: Accessor<number | string>
+		'aria-rowindex'?: Attribute<number | string>
 		/** Defines a human-readable text alternative of aria-rowindex. */
-		'aria-rowindextext'?: Accessor<number | string>
+		'aria-rowindextext'?: Attribute<number | string>
 		/**
 		 * Defines the number of rows spanned by a cell or gridcell within
 		 * a table, grid, or treegrid.
 		 *
 		 * @see aria-rowindex @see aria-colspan.
 		 */
-		'aria-rowspan'?: Accessor<number | string>
+		'aria-rowspan'?: Attribute<number | string>
 		/**
 		 * Indicates the current "selected" state of various widgets.
 		 *
 		 * @see aria-checked @see aria-pressed.
 		 */
-		'aria-selected'?: Accessor<EnumeratedPseudoBoolean>
+		'aria-selected'?: Attribute<EnumeratedPseudoBoolean>
 		/**
 		 * Defines the number of items in the current set of listitems or
 		 * treeitems. Not required if all elements in the set are present
@@ -3957,30 +4169,30 @@ declare namespace JSX {
 		 *
 		 * @see aria-posinset.
 		 */
-		'aria-setsize'?: Accessor<number | string>
+		'aria-setsize'?: Attribute<number | string>
 		/**
 		 * Indicates if items in a table or grid are sorted in ascending
 		 * or descending order.
 		 */
-		'aria-sort'?: Accessor<
+		'aria-sort'?: Attribute<
 			'none' | 'ascending' | 'descending' | 'other'
 		>
 		/** Defines the maximum allowed value for a range widget. */
-		'aria-valuemax'?: Accessor<number | string>
+		'aria-valuemax'?: Attribute<number | string>
 		/** Defines the minimum allowed value for a range widget. */
-		'aria-valuemin'?: Accessor<number | string>
+		'aria-valuemin'?: Attribute<number | string>
 		/**
 		 * Defines the current value for a range widget.
 		 *
 		 * @see aria-valuetext.
 		 */
-		'aria-valuenow'?: Accessor<number | string>
+		'aria-valuenow'?: Attribute<number | string>
 		/**
 		 * Defines the human readable text alternative of aria-valuenow
 		 * for a range widget.
 		 */
-		'aria-valuetext'?: Accessor<string>
-		role?: Accessor<
+		'aria-valuetext'?: Attribute<string>
+		role?: Attribute<
 			| 'alert'
 			| 'alertdialog'
 			| 'application'
@@ -4068,4 +4280,3 @@ declare namespace JSX {
 		>
 	}
 }
-

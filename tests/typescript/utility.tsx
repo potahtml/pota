@@ -378,7 +378,7 @@ setClassList(node, { a: true }, { b: false })
 
 // propsPlugin(name, plugin, onMicrotask?)
 propsPlugin<boolean>('use:my-flag', (node, value) => {
-	// node is JSX.DOMElement, value is typed from the generic
+	// node is DOMElement, value is typed from the generic
 	const v: boolean = value
 })
 

@@ -59,9 +59,9 @@ const ec: JSX.ElementClass = {
 	cleanup: () => {},
 }
 
-// JSX.DOMElement
-const de1: JSX.DOMElement = document.createElement('div')
-const de2: JSX.DOMElement = document.createElementNS(
+// DOMElement
+const de1: DOMElement = document.createElement('div')
+const de2: DOMElement = document.createElementNS(
 	'http://www.w3.org/2000/svg',
 	'svg',
 )

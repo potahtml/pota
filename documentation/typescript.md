@@ -125,7 +125,7 @@ Components that don't use utility types (with reasons):
 
 1. **Ambient types, no duplication.** The JSX namespace and
    reactive types are global. Source JSDoc uses `JSX.Element`,
-   `JSX.DOMElement`, etc. directly — no alias layer.
+   `DOMElement`, etc. directly — no alias layer.
 
 2. **JSDoc is the primary source for component signatures.** The
    JSDoc in `src/components/*.js` drives both in-editor hover and

@@ -6,9 +6,9 @@ import { addEvent } from '../lib/reactive.js'
 import { propsPlugin } from '../core/props/plugin.js'
 
 /**
- * @param {JSX.DOMElement} node
+ * @param {DOMElement} node
  * @param {((
- * 			e: JSX.EventEvent<JSX.EventType['click'], JSX.DOMElement>,
+ * 			e: JSX.EventEvent<JSX.EventType['click'], DOMElement>,
  * 	  ) => string)
  * 	| boolean
  * 	| string} value

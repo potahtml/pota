@@ -4,7 +4,7 @@ import { insert } from '../core/renderer.js'
  * Portals children to a different element while keeping the original
  * scope
  *
- * @type {ParentComponent<{ mount: JSX.DOMElement }>}
+ * @type {ParentComponent<{ mount: DOMElement }>}
  * @url https://pota.quack.uy/Components/Portal
  */
 export const Portal = props => {

@@ -86,7 +86,7 @@ export function signalFunction(value) {
 /**
  * To set and read refs. To use in ref attribute.
  *
- * @template {JSX.DOMElement} T
+ * @template {DOMElement} T
  * @returns {SignalFunction<T>}
  */
 export const ref = () => signalFunction()
@@ -254,7 +254,7 @@ class Row {
 		}
 		this._end = nodes
 	}
-	/** @returns {JSX.DOMElement[]} */
+	/** @returns {DOMElement[]} */
 	nodesForRow() {
 		const begin = this.begin()
 		const end = this.end()
@@ -505,22 +505,26 @@ export function map(list, callback, noSort, fallback, reactiveIndex) {
  *
  * @template {JSX.Element} T
  * @param {T | (() => T)} fn
- * @returns {SignalAccessor<T>}
+ * @returns {SignalAccessor<Resolved<T>>}
  * @url https://pota.quack.uy/resolve
  */
 export function resolve(fn) {
-	const children = isFunction(fn) ? memo(fn) : () => fn
+	const children = isFunction(fn)
+		? memo(/** @type {() => T} */ (fn))
+		: () => fn
 	return memo(() => unwrap(children()))
 }
 
 /**
  * Recursively unwrap children functions
  *
- * @param {JSX.Element} children
+ * @template T
+ * @param {T} children
+ * @returns {Resolved<T>}
  */
 export function unwrap(children) {
 	if (isFunction(children)) {
-		return unwrap(children())
+		return unwrap(/** @type {any} */ (children)())
 	}
 
 	if (isArray(children)) {
@@ -531,10 +535,10 @@ export function unwrap(children) {
 				? childrens.push(...child)
 				: childrens.push(child)
 		}
-		return childrens
+		return /** @type {Resolved<T>} */ (childrens)
 	}
 
-	return children
+	return /** @type {Resolved<T>} */ (children)
 }
 /**
  * Extend `Pota` and define a `render(){}` method to create a class
@@ -614,7 +618,7 @@ export function markComponent(fn) {
 /**
  * Adds an event listener to a node
  *
- * @template {Document | typeof window | JSX.DOMElement} TargetElement
+ * @template {Document | typeof window | DOMElement} TargetElement
  * @template {keyof JSX.EventType} Name
  * @param {TargetElement} node - Element to add the event listener
  * @param {Name} type - The name of the event listener
@@ -651,7 +655,7 @@ export function addEvent(node, type, handler) {
 /**
  * Removes an event listener from a node
  *
- * @template {Document | typeof window | JSX.DOMElement} TargetElement
+ * @template {Document | typeof window | DOMElement} TargetElement
  * @template {keyof JSX.EventType} Name
  * @param {TargetElement} node - Element to add the event listener
  * @param {Name} type - The name of the event listener

@@ -99,9 +99,13 @@ export const Fragment = props => props.children
  */
 export const Component = (value, props = undefined) => {
 	if (value === Fragment) {
-		return /** @type {{ children: JSX.Element }} */ (
-			/** @type {unknown} */ (props)
-		).children
+		return /** @type {(props?: object) => JSX.Element} */ (
+			/** @type {unknown} */ (
+				/** @type {{ children: JSX.Element }} */ (
+					/** @type {unknown} */ (props)
+				).children
+			)
+		)
 	}
 
 	/** Freeze props so isnt directly writable */
@@ -196,6 +200,7 @@ let usedXML
  * @param {string} xmlns
  * @param {(xmlns: string) => T} fn
  * @param {string} [tagName]
+ * @returns {T}
  */
 function withXMLNS(xmlns, fn, tagName) {
 	if (!usedXML) {
@@ -209,7 +214,7 @@ function withXMLNS(xmlns, fn, tagName) {
 
 	if (xmlns && xmlns !== nsContext) {
 		// the xmlns changed, use the new xmlns
-		return useXMLNS(xmlns, () => fn(xmlns))
+		return /** @type {T} */ (useXMLNS(xmlns, () => fn(xmlns)))
 	}
 
 	/**
@@ -217,7 +222,7 @@ function withXMLNS(xmlns, fn, tagName) {
 	 * browser behaviour)
 	 */
 	if (nsContext && tagName === 'foreignObject') {
-		return useXMLNS(NS.html, () => fn(nsContext))
+		return /** @type {T} */ (useXMLNS(NS.html, () => fn(nsContext)))
 	}
 
 	return fn(nsContext)
@@ -317,13 +322,21 @@ export function createPartial(content, propsData = nothing) {
 	}
 
 	return props =>
-		markComponent(() => assignPartialProps(clone(), props, propsData))
+		markComponent(() =>
+			assignPartialProps(
+				clone(),
+				/** @type {Array<(node: Node) => void>} */ (
+					/** @type {unknown} */ (props)
+				),
+				propsData,
+			),
+		)
 }
 
 /**
  * @template T
  * @param {Element} node
- * @param {JSX.Element[]} props
+ * @param {Array<(node: Node) => void>} props
  * @param {{
  * 	x?: string
  * 	[i: number]: number
@@ -420,7 +433,9 @@ export function createChildren(
 			// For - TODO move this to the `For` component
 			if ($isMap in child) {
 				effect(() => {
-					child(child => createChildren(parent, child, true))
+					/** @type {(cb: (c: JSX.Element) => void) => void} */ (
+						child
+					)(child => createChildren(parent, child, true))
 				})
 				// map has own dom removal
 			} else {
@@ -430,8 +445,15 @@ export function createChildren(
 					// maybe a signal (at least a function) so needs an effect
 					node = toDiff(
 						node,
-						flatToArray(
-							createChildren(parent, child(), true, node[0]),
+						/** @type {DOMElement[]} */ (
+							flatToArray(
+								createChildren(
+									parent,
+									/** @type {() => JSX.Element} */ (child)(),
+									true,
+									node[0],
+								),
+							)
 						),
 						true,
 					)

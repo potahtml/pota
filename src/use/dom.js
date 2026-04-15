@@ -225,7 +225,7 @@ export const walkElements = function (
  * @template T
  * @param {T} value - Maybe function
  * @param {...unknown} args? - Arguments
- * @returns {JSX.DOMElement | T | undefined}
+ * @returns {DOMElement | T | undefined}
  */
 export function getValueElement(value, ...args) {
 	const element = getValueWithArguments(value, ...args)
@@ -235,13 +235,13 @@ export function getValueElement(value, ...args) {
 /**
  * Removes from the DOM `prev` elements not found in `next`
  *
- * @param {JSX.DOMElement[]} [prev=[]] - Array with previous elements.
+ * @param {DOMElement[]} [prev=[]] - Array with previous elements.
  *   Default is `[]`
- * @param {JSX.DOMElement[]} [next=[]] - Array with next elements.
+ * @param {DOMElement[]} [next=[]] - Array with next elements.
  *   Default is `[]`
  * @param {boolean} [short=false] - Whether to use fast clear. Default
  *   is `false`
- * @returns {JSX.DOMElement[]} The next array of elements
+ * @returns {DOMElement[]} The next array of elements
  */
 export function toDiff(prev = [], next = [], short = false) {
 	// if theres something to remove

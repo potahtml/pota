@@ -529,11 +529,11 @@ export const isSymbol = value => typeof value === 'symbol'
 export const isBoolean = value => typeof value === 'boolean'
 
 /**
- * Returns `true` when `value` may be a promise
+ * Returns `true` when `value` may be a promise (any thenable)
  *
  * @template T
  * @param {T} value
- * @returns {value is Promise<T>}
+ * @returns {value is Extract<T, PromiseLike<unknown>>}
  */
 export const isPromise = value =>
 	isFunction(/** @type {any} */ (value)?.then)

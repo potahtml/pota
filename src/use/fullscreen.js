@@ -10,14 +10,14 @@ import {
 import { document, documentElement, getValueElement } from './dom.js'
 
 /**
- * @param {JSX.DOMElement} node
+ * @param {DOMElement} node
  * @param {Function} value
  * @url https://pota.quack.uy/use/fullscreen
  */
 const fullscreen = (node, value) =>
 	addEvent(node, 'click', e => {
 		toggleFullscreen(
-			/** @type {JSX.DOMElement} */ (getValueElement(value, e, node)),
+			/** @type {DOMElement} */ (getValueElement(value, e, node)),
 		)
 	})
 
@@ -51,11 +51,11 @@ export const { on: onFullscreen, use: useFullscreen } = new Emitter({
  */
 export const exitFullscreen = () => document.exitFullscreen()
 
-/** @param {JSX.DOMElement} element */
+/** @param {DOMElement} element */
 export const requestFullscreen = element =>
 	element.requestFullscreen()
 
-/** @param {JSX.DOMElement} element */
+/** @param {DOMElement} element */
 export function toggleFullscreen(element) {
 	isFullscreen()
 		? exitFullscreen()

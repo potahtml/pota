@@ -17,10 +17,15 @@ export const bind = value =>
 	derived(isFunction(value) ? value : () => value)
 
 /**
- * @param {HTMLInputElement} node
+ * @param {DOMElement} n
  * @param {Function} value
  */
-function bindValue(node, value) {
+function bindValue(n, value) {
+	if (!(n instanceof HTMLElement)) return
+	const node =
+		/** @type {HTMLElement & { type?: string; checked?: boolean; value?: string | number }} */ (
+			n
+		)
 	flatForEach(value, value => {
 		effect(() => {
 			// set initial value

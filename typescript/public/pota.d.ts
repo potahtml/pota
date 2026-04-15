@@ -17,6 +17,32 @@ type Accessed<T> =
 							? Accessed<R>
 							: T
 
+type Attribute<T> =
+	| (() => Attribute<T>)
+	| PromiseLike<Attribute<T>>
+	| SignalAccessor<T>
+	| T
+
+/**
+ * Result of recursively invoking functions and flattening nested
+ * arrays — mirrors the runtime behavior of `unwrap`/`resolve`.
+ */
+type Resolved<T> = T extends readonly (infer U)[]
+	? Array<ResolvedDeep<U>>
+	: T extends () => infer R
+		? Resolved<R>
+		: T
+
+type ResolvedDeep<T> = T extends readonly (infer U)[]
+	? ResolvedDeep<U>
+	: T extends () => infer R
+		? ResolvedDeep<R>
+		: T
+
+// dom
+
+type DOMElement = HTMLElement | SVGElement | MathMLElement
+
 // signal
 
 type SignalAccessor<T> = () => T
@@ -62,10 +88,10 @@ type SignalChanged = boolean
  * Options accepted by `effect`, `syncEffect`, `root`, and `on`.
  * Currently accepts no user-facing fields; the runtime passes the
  * object to the underlying `Computation` base class. Typed with
- * `Record<string, never>` (not `{}`) to reject arbitrary properties
- * — prevents accidental overrides of internal `Computation` fields
- * like `state`, `fn`, or `updatedAt` while leaving a named anchor
- * for future options.
+ * `Record<string, never>` (not `{}`) to reject arbitrary properties —
+ * prevents accidental overrides of internal `Computation` fields like
+ * `state`, `fn`, or `updatedAt` while leaving a named anchor for
+ * future options.
  */
 type EffectOptions = undefined | Record<string, never>
 

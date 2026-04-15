@@ -4,10 +4,10 @@ type SkipPropsFrom = HTMLUnknownElement & HTMLElement & Element & Node
 /**
  * Value types allowed on a `prop:*`. Primitives plus the writable
  * non-primitive DOM-object props worth exposing:
- *   - `HTMLMediaElement.srcObject`
- *   - `HTMLButtonElement.popoverTargetElement` / `commandForElement`
- *     (and the same via PopoverTargetAttributes mixin on
- *     HTMLInputElement)
+ *
+ * - `HTMLMediaElement.srcObject`
+ * - `HTMLButtonElement.popoverTargetElement` / `commandForElement` (and
+ *   the same via PopoverTargetAttributes mixin on HTMLInputElement)
  */
 type PropValue =
 	| string
@@ -19,13 +19,15 @@ type PropValue =
 	| Blob
 	| File
 	| Element
+	| Date
 
 /**
  * Ergonomics widening applied to the emitted `Accessor<…>`:
- *   - general `string` → `string | number` (HTML coerces numbers)
- *   - string literal unions (`'on' | 'off'`) stay exact, so users
- *     still get autocomplete / narrowing
- *   - other types pass through unchanged
+ *
+ * - General `string` → `string | number` (HTML coerces numbers)
+ * - String literal unions (`'on' | 'off'`) stay exact, so users still
+ *   get autocomplete / narrowing
+ * - Other types pass through unchanged
  */
 type WidenPropValue<V> = [V] extends [string]
 	? string extends V
@@ -37,8 +39,8 @@ type WidenPropValue<V> = [V] extends [string]
  * Writable, element-specific DOM properties exposed as `prop:*`
  * attributes. Filters out: base-class keys, aria-* keys, readonly
  * keys, value types outside `PropValue`, and the generic `string`
- * index signature (e.g. `HTMLFormElement[name: string]: any`) so
- * it doesn't shadow specific keys with `Accessor<any>` ergonomics.
+ * index signature (e.g. `HTMLFormElement[name: string]: any`) so it
+ * doesn't shadow specific keys with `Accessor<any>` ergonomics.
  */
 type Properties<T> = {
 	[K in keyof T as K extends keyof SkipPropsFrom
@@ -53,7 +55,7 @@ type Properties<T> = {
 							? never
 							: `prop:${K}`
 						: never
-			: never]?: Accessor<WidenPropValue<T[K]>>
+			: never]?: Attribute<WidenPropValue<T[K]>>
 }
 
 /**

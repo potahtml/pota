@@ -61,11 +61,11 @@ const splitId = /(rosa19611227)/
  * Makes Nodes from TemplateStringsArray
  *
  * @param {TemplateStringsArray} content
- * @returns {JSX.DOMElement[]}
+ * @returns {DOMElement[]}
  */
 const parseXML = withWeakCache(
 	(/** @type TemplateStringsArray */ content) => {
-		const html = /** @type {JSX.DOMElement[]} */ (
+		const html = /** @type {DOMElement[]} */ (
 			/** @type unknown */ (
 				new DOMParser().parseFromString(
 					`<xml ${namespaces.xmlns}>${content.join(id)}</xml>`,
@@ -79,7 +79,8 @@ const parseXML = withWeakCache(
 			err.style.padding = '1em'
 			err.firstChild.textContent = 'HTML Syntax Error:'
 
-			err.firstChild.nextSibling.style.cssText = ''
+			const next = /** @type {HTMLElement} */ (err.firstChild.nextSibling)
+			next.style.cssText = ''
 			err.lastChild.replaceWith(createTextNode(content))
 		}
 		return html
@@ -90,7 +91,7 @@ const parseXML = withWeakCache(
  * Recursively walks a template and transforms it to `h` calls.
  *
  * @param {typeof xml} xml
- * @param {JSX.DOMElement[]} cached
+ * @param {DOMElement[]} cached
  * @param {...unknown} values
  * @returns {JSX.Element}
  */
@@ -107,7 +108,7 @@ function toH(xml, cached, values) {
 		if (nodeType === 1) {
 			// element
 			const { tagName, attributes, childNodes } =
-				/** @type {JSX.DOMElement} */ (node)
+				/** @type {DOMElement} */ (node)
 
 			// gather props
 			/** @type {Record<string, Accessor<unknown>>} */

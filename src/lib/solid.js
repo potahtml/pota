@@ -1088,7 +1088,7 @@ export function createReactiveSystem() {
 	 * the result to a callback
 	 *
 	 * @template T
-	 * @param {Accessor<T> | Promise<T>} value
+	 * @param {Attribute<T>} value
 	 * @param {(value: T) => void} fn
 	 */
 	function withValue(

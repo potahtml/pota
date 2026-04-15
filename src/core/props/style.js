@@ -6,7 +6,7 @@ import { isFunction, isObject, isString } from '../../lib/std.js'
 /**
  * Applies style attributes (string/object/function) to an element.
  *
- * @param {JSX.DOMElement} node
+ * @param {DOMElement} node
  * @param {JSX.StyleAttribute} value
  * @url https://pota.quack.uy/props/setStyle
  */
@@ -17,7 +17,7 @@ export const setStyle = (node, value) => {
 /**
  * Applies styles within a namespace (e.g. `style:color` bindings).
  *
- * @param {JSX.DOMElement} node
+ * @param {DOMElement} node
  * @param {string} localName
  * @param {JSX.StyleAttribute} value
  */
@@ -50,7 +50,7 @@ function setNodeStyle(style, value) {
 /**
  * Sets a single style property, unwrapping reactive values.
  *
- * @param {JSX.DOMElement} node
+ * @param {DOMElement} node
  * @param {string} name
  * @param {unknown} value
  */

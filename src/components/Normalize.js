@@ -9,6 +9,6 @@ import { unwrap } from '../lib/reactive.js'
  */
 export const Normalize = props => () =>
 	// returnng null when string is empty avoids 1 text node
-	unwrap([props.children])
+	unwrap(/** @type {any[]} */ ([props.children]))
 		.map(x => x?.toString())
 		.join('') || null
