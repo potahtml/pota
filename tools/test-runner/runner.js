@@ -7,7 +7,7 @@ import fs from 'fs'
 import path from 'path'
 import { startServer } from './serve.js'
 import { clearCache } from './transform.js'
-import { filesRecursive, watch, dim } from '../utils.js'
+import { filesRecursive, watch, dim, white } from '../utils.js'
 import { report, summary } from './report.js'
 
 // --- config (package.json "test" + cli flags) ---
@@ -257,8 +257,10 @@ async function startWatching(baseURL) {
 		}
 
 		const files = only || scanTests()
-		const label = only ? only.join(', ') : 'all tests'
-		console.log(`${dim(`--- re-running ${label} ---`)}\n`)
+		const label = only
+			? only.map(f => white(f)).join(', ')
+			: 'all tests'
+		console.log(`${dim('--- re-running')} ${label} ${dim('---')}`)
 
 		const result = await runSuite(browser, baseURL, files)
 		lastBailed = result.bailed
@@ -278,9 +280,9 @@ async function startWatching(baseURL) {
 	}
 
 	watch(path.join(root, 'src/'), () => schedule())
-	watch(path.join(root, 'tests/'), (_, filename) => {
+	watch(path.join(root, testDir), (_, filename) => {
 		if (!filename) return schedule()
-		const rel = 'tests/' + filename
+		const rel = testDir + filename
 		if (testExts.some(ext => rel.endsWith(ext))) {
 			schedule([rel])
 		} else {
