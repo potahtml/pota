@@ -84,7 +84,11 @@ subpath is for:
   `copy`, `readonly`, `firewall`, `updateBlacklist`).
 - **`pota/xml`** — compiler-less XML API in `src/core/xml.js`:
   default `xml` tagged template plus `XML()` factory for isolated
-  instances with their own component registries.
+  instances with their own component registries. Templates are parsed
+  as `text/xml`, so markup must be well-formed: void elements need a
+  trailing slash (`<br/>`, `<img src=""/>`), every open tag must be
+  closed, and attribute values must be quoted. Ill-formed input
+  renders a `parsererror` element (it does not throw).
 - **`pota/use/*`** — one subpath per file under `src/use/` (for
   example `pota/use/location`, `pota/use/form`, `pota/use/animate`).
 - **`pota/jsx-runtime`** / **`pota/jsx-dev-runtime`** — JSX runtime

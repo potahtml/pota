@@ -538,17 +538,19 @@ await test('xml - reactive attribute set to null removes the attribute', expect 
 
 await test('xml - xml.define on default instance does not affect XML() isolated instances', expect => {
 	const Custom = () => xml`<div>shared</div>`
-	xml.define('shared-instance', Custom)
+	xml.define({ 'shared-instance': Custom })
 
 	const isolated = XML()
 
-	// rendering with the shared xml works
+	// rendering with the shared xml works: the registered component
+	// resolves and renders its output, not the raw <shared-instance> tag
 	const d1 = render(xml`<shared-instance />`)
-	expect(body()).toInclude('shared')
+	expect(body()).toBe('<div>shared</div>')
 	d1()
 
 	// rendering the same tag with the isolated instance does NOT resolve
-	// the component (it will warn or fall through)
+	// the component: it falls through to a raw custom element and the
+	// registered component's output is absent
 	const originalWarn = console.warn
 	console.warn = () => {}
 
@@ -556,5 +558,427 @@ await test('xml - xml.define on default instance does not affect XML() isolated 
 
 	console.warn = originalWarn
 
+	expect(body()).not.toInclude('<div>shared</div>')
+
 	d2()
+})
+
+// --- use:ref -----------------------------------------------------------
+
+await test('xml - use:ref receives the element', expect => {
+	let captured = null
+	const dispose = render(
+		xml`<p use:ref="${el => (captured = el)}">hi</p>`,
+	)
+
+	expect(captured).not.toBe(null)
+	expect(captured.tagName).toBe('P')
+	expect(captured.textContent).toBe('hi')
+
+	dispose()
+})
+
+// --- style attribute and style:name ------------------------------------
+
+await test('xml - static style string sets inline styles', expect => {
+	const dispose = render(
+		xml`<p style="color: red; background: blue;">text</p>`,
+	)
+
+	const el = $('p')
+	expect(el.style.color).toBe('red')
+	expect(el.style.backgroundColor).toBe('blue')
+
+	dispose()
+})
+
+await test('xml - style:name sets a single style property reactively', expect => {
+	const color = signal('red')
+	const dispose = render(
+		xml`<p style:color="${color.read}">text</p>`,
+	)
+
+	expect($('p').style.color).toBe('red')
+
+	color.write('green')
+	expect($('p').style.color).toBe('green')
+
+	dispose()
+})
+
+// --- class:name --------------------------------------------------------
+
+await test('xml - class:name toggles a single class reactively', expect => {
+	const on = signal(false)
+	const dispose = render(xml`<p class:active="${on.read}">x</p>`)
+
+	expect($('p').classList.contains('active')).toBe(false)
+
+	on.write(true)
+	expect($('p').classList.contains('active')).toBe(true)
+
+	on.write(false)
+	expect($('p').classList.contains('active')).toBe(false)
+
+	dispose()
+})
+
+// --- Comments ----------------------------------------------------------
+
+await test('xml - preserves static comment nodes', expect => {
+	const dispose = render(xml`<div><!--hello--></div>`)
+
+	const div = $('div')
+	const comment = div.firstChild
+	expect(comment.nodeType).toBe(8)
+	expect(comment.nodeValue).toBe('hello')
+
+	dispose()
+})
+
+await test('xml - interpolates values into comments', expect => {
+	const name = 'world'
+	const dispose = render(xml`<div><!--hi ${name}--></div>`)
+
+	const comment = $('div').firstChild
+	expect(comment.nodeType).toBe(8)
+	expect(comment.nodeValue).toInclude('hi world')
+
+	dispose()
+})
+
+// --- mixed children ----------------------------------------------------
+
+await test('xml - mixes text, signals and elements as siblings', expect => {
+	const n = signal(1)
+	const el = xml`<b>bold</b>`
+	const dispose = render(
+		xml`<p>start ${n.read} mid ${el} end</p>`,
+	)
+
+	expect(body()).toBe('<p>start 1 mid <b>bold</b> end</p>')
+
+	n.write(2)
+	expect(body()).toBe('<p>start 2 mid <b>bold</b> end</p>')
+
+	dispose()
+})
+
+// --- built-in Dynamic --------------------------------------------------
+
+await test('xml - built-in Dynamic renders a string tag', expect => {
+	const dispose = render(
+		xml`<Dynamic component="section">inside</Dynamic>`,
+	)
+
+	expect(body()).toBe('<section>inside</section>')
+
+	dispose()
+})
+
+await test('xml - built-in Dynamic renders a function component', expect => {
+	const Card = props => xml`<section>${props.children}</section>`
+	const dispose = render(
+		xml`<Dynamic component="${Card}">inside</Dynamic>`,
+	)
+
+	expect(body()).toBe('<section>inside</section>')
+
+	dispose()
+})
+
+// --- built-in Switch / Match -------------------------------------------
+
+await test('xml - built-in Switch picks the first truthy Match', expect => {
+	const which = signal('b')
+	const dispose = render(
+		xml`
+			<Switch fallback="none">
+				<Match when="${() => which.read() === 'a'}"><p>A</p></Match>
+				<Match when="${() => which.read() === 'b'}"><p>B</p></Match>
+			</Switch>
+		`,
+	)
+
+	expect(body()).toInclude('<p>B</p>')
+	expect(body()).not.toInclude('<p>A</p>')
+
+	which.write('a')
+	expect(body()).toInclude('<p>A</p>')
+	expect(body()).not.toInclude('<p>B</p>')
+
+	dispose()
+})
+
+// --- built-in Portal ---------------------------------------------------
+
+await test('xml - built-in Portal mounts children into the target node', expect => {
+	const mount = document.createElement('div')
+	document.body.appendChild(mount)
+
+	const dispose = render(
+		xml`<Portal mount="${mount}"><p>portaled</p></Portal>`,
+	)
+
+	expect(mount.innerHTML).toBe('<p>portaled</p>')
+
+	dispose()
+	mount.remove()
+})
+
+// --- function attribute value (non-signal) -----------------------------
+
+await test('xml - a plain function attribute value is treated reactively', expect => {
+	let n = 0
+	const cls = signal('a')
+	const dispose = render(
+		xml`<p class="${() => {
+			n++
+			return cls.read()
+		}}">x</p>`,
+	)
+
+	expect($('p').className).toBe('a')
+	const first = n
+
+	cls.write('b')
+	expect($('p').className).toBe('b')
+	expect(n > first).toBe(true)
+
+	dispose()
+})
+
+// --- disposal isolation ------------------------------------------------
+
+await test('xml - dispose stops reactivity and a subsequent render is independent', expect => {
+	const a = signal('first')
+	const disposeA = render(xml`<p>${a.read}</p>`)
+
+	expect(body()).toBe('<p>first</p>')
+
+	disposeA()
+	expect(body()).toBe('')
+
+	// mutating the disposed signal must not affect the (now empty) DOM
+	a.write('second')
+	expect(body()).toBe('')
+
+	// a fresh render using a new signal is unaffected by the previous one
+	const b = signal('x')
+	const disposeB = render(xml`<p>${b.read}</p>`)
+
+	expect(body()).toBe('<p>x</p>')
+
+	b.write('y')
+	expect(body()).toBe('<p>y</p>')
+
+	disposeB()
+})
+
+await test('xml - removed event listeners do not fire after dispose', expect => {
+	const seen = []
+	const dispose = render(
+		xml`<button on:click="${() => seen.push('hit')}">go</button>`,
+	)
+
+	const btn = $('button')
+	btn.click()
+	expect(seen).toEqual(['hit'])
+
+	dispose()
+
+	// after dispose the listener must not fire even if we keep the node
+	btn.click()
+	expect(seen).toEqual(['hit'])
+})
+
+// --- Multiple interpolations in one text node --------------------------
+
+await test('xml - multiple interpolations inside a single text node', expect => {
+	const a = 'hello'
+	const b = 'world'
+	const dispose = render(xml`<p>${a} and ${b}!</p>`)
+
+	expect(body()).toBe('<p>hello and world!</p>')
+
+	dispose()
+})
+
+// --- data-* / aria-* attributes ----------------------------------------
+
+await test('xml - data-* and aria-* attributes are preserved', expect => {
+	const dispose = render(
+		xml`<p data-testid="${'card'}" aria-label="${'greeting'}">hi</p>`,
+	)
+
+	const el = $('p')
+	expect(el.getAttribute('data-testid')).toBe('card')
+	expect(el.getAttribute('aria-label')).toBe('greeting')
+
+	dispose()
+})
+
+// --- Self-closing elements ---------------------------------------------
+
+await test('xml - self-closing void elements render without children', expect => {
+	const dispose = render(xml`<div><br/><img src="${'x.png'}"/></div>`)
+
+	const br = $('br')
+	const img = $('img')
+	expect(br).not.toBe(null)
+	expect(img).not.toBe(null)
+	expect(img.getAttribute('src')).toBe('x.png')
+	expect(br.childNodes.length).toBe(0)
+
+	dispose()
+})
+
+// --- XML entities ------------------------------------------------------
+
+await test('xml - decodes XML entities in text', expect => {
+	const dispose = render(xml`<p>a &amp; b &lt; c</p>`)
+
+	expect($('p').textContent).toBe('a & b < c')
+
+	dispose()
+})
+
+// --- null / undefined interpolation in text ----------------------------
+
+await test('xml - null interpolated as child renders as empty', expect => {
+	const dispose = render(xml`<p>a${null}b</p>`)
+
+	expect($('p').textContent).toBe('ab')
+
+	dispose()
+})
+
+await test('xml - undefined interpolated as child renders as empty', expect => {
+	const dispose = render(xml`<p>a${undefined}b</p>`)
+
+	expect($('p').textContent).toBe('ab')
+
+	dispose()
+})
+
+// --- Boolean signal attribute ------------------------------------------
+
+await test('xml - boolean signal attribute toggles presence', expect => {
+	const on = signal(true)
+	const dispose = render(
+		xml`<input disabled="${on.read}" />`,
+	)
+
+	const el = $('input')
+	expect(el.hasAttribute('disabled')).toBe(true)
+
+	on.write(false)
+	expect(el.hasAttribute('disabled')).toBe(false)
+
+	on.write(true)
+	expect(el.hasAttribute('disabled')).toBe(true)
+
+	dispose()
+})
+
+// --- Deeply nested array of xml fragments ------------------------------
+
+await test('xml - deeply nested arrays of xml fragments are flattened', expect => {
+	const groups = [
+		[xml`<li>a</li>`, xml`<li>b</li>`],
+		[xml`<li>c</li>`],
+	]
+	const dispose = render(xml`<ul>${groups}</ul>`)
+
+	expect(body()).toBe('<ul><li>a</li><li>b</li><li>c</li></ul>')
+
+	dispose()
+})
+
+// --- Event handler receives the DOM event ------------------------------
+
+await test('xml - on:* handler receives the DOM event', expect => {
+	let received = null
+	const dispose = render(
+		xml`<button on:click="${e => (received = e)}">go</button>`,
+	)
+
+	$('button').click()
+
+	expect(received).not.toBe(null)
+	expect(received.type).toBe('click')
+	expect(received.target.tagName).toBe('BUTTON')
+
+	dispose()
+})
+
+// --- SVG case-sensitive attribute --------------------------------------
+
+await test('xml - SVG preserves attribute name case (viewBox)', expect => {
+	const dispose = render(
+		xml`<svg viewBox="0 0 10 10"><rect width="5" height="5"/></svg>`,
+	)
+
+	const svg = $('svg')
+	expect(svg.getAttribute('viewBox')).toBe('0 0 10 10')
+	// not present under a lowercased name
+	expect(svg.hasAttribute('viewbox')).toBe(false)
+
+	dispose()
+})
+
+// --- Same xml template rendered into two independent mounts -----------
+
+await test('xml - the same xml call renders independently into two mounts', expect => {
+	const mountA = document.createElement('div')
+	const mountB = document.createElement('div')
+	document.body.appendChild(mountA)
+	document.body.appendChild(mountB)
+
+	const v = signal(1)
+
+	const disposeA = render(xml`<p>${v.read}</p>`, mountA)
+	const disposeB = render(xml`<p>${v.read}</p>`, mountB)
+
+	expect(mountA.innerHTML).toBe('<p>1</p>')
+	expect(mountB.innerHTML).toBe('<p>1</p>')
+
+	v.write(2)
+	expect(mountA.innerHTML).toBe('<p>2</p>')
+	expect(mountB.innerHTML).toBe('<p>2</p>')
+
+	disposeA()
+	disposeB()
+	mountA.remove()
+	mountB.remove()
+})
+
+// --- Function child (non-signal) ---------------------------------------
+
+await test('xml - plain function as a child is treated reactively', expect => {
+	const n = signal(0)
+	const dispose = render(
+		xml`<p>${() => `n=${n.read()}`}</p>`,
+	)
+
+	expect(body()).toBe('<p>n=0</p>')
+
+	n.write(3)
+	expect(body()).toBe('<p>n=3</p>')
+
+	dispose()
+})
+
+// --- Component as interpolation target ---------------------------------
+
+await test('xml - a function component can be resolved via Dynamic with interpolation', expect => {
+	const Badge = props => xml`<b>${props.children}</b>`
+
+	const dispose = render(
+		xml`<Dynamic component="${Badge}">hi</Dynamic>`,
+	)
+
+	expect(body()).toBe('<b>hi</b>')
+
+	dispose()
 })
