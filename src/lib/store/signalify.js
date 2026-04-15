@@ -22,7 +22,7 @@ import { tracker } from './tracker.js'
  * @param {T} target
  * @param {PropertyKey[]} [keys] - To transform specific keys. It is
  *   possible to signalify keys that don't exists yet.
- * @returns {T}
+ * @returns {T & Record<string, any>}
  */
 export function signalify(target, keys) {
 	keys ? signalifyKeys(target, keys) : signalifyObject(target)

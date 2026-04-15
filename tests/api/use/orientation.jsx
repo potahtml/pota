@@ -56,14 +56,16 @@ await test('orientation - emitter derives horizontal and vertical from document 
 				'clientWidth',
 				width,
 			)
-		: delete document.documentElement.clientWidth
+		: delete (/** @type {any} */ (document.documentElement))
+				.clientWidth
 	height
 		? Object.defineProperty(
 				document.documentElement,
 				'clientHeight',
 				height,
 			)
-		: delete document.documentElement.clientHeight
+		: delete (/** @type {any} */ (document.documentElement))
+				.clientHeight
 })
 
 await test('orientation - square viewport reports horizontal', async expect => {
@@ -102,14 +104,16 @@ await test('orientation - square viewport reports horizontal', async expect => {
 				'clientWidth',
 				width,
 			)
-		: delete document.documentElement.clientWidth
+		: delete (/** @type {any} */ (document.documentElement))
+				.clientWidth
 	height
 		? Object.defineProperty(
 				document.documentElement,
 				'clientHeight',
 				height,
 			)
-		: delete document.documentElement.clientHeight
+		: delete (/** @type {any} */ (document.documentElement))
+				.clientHeight
 })
 
 // --- useOrientation returns a signal function --------------------------
@@ -186,12 +190,14 @@ await test('orientation - transitions both ways horizontal ↔ vertical', async 
 				'clientWidth',
 				width,
 			)
-		: delete document.documentElement.clientWidth
+		: delete (/** @type {any} */ (document.documentElement))
+				.clientWidth
 	height
 		? Object.defineProperty(
 				document.documentElement,
 				'clientHeight',
 				height,
 			)
-		: delete document.documentElement.clientHeight
+		: delete (/** @type {any} */ (document.documentElement))
+				.clientHeight
 })

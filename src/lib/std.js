@@ -39,28 +39,30 @@ export const setPrototypeOf = Object.setPrototypeOf
 export const toArray = Array.from
 
 /**
- * @template T
- * @param {T} value
+ * @param {unknown} value
+ * @returns {Iterable<unknown>}
  */
 export const toValues = value =>
 	isArray(value)
 		? value
 		: isObject(value) && 'values' in /** @type {object} */ (value)
-			? /** @type {{ values(): IterableIterator<T> }} */ (
+			? /** @type {{ values(): IterableIterator<unknown> }} */ (
 					value
 				).values()
-			: toArray(/** @type {Iterable<T> | ArrayLike<T>} */ (value))
+			: toArray(/** @type {Iterable<unknown>} */ (value))
 
 /**
- * @template T
- * @param {T} value
+ * @param {unknown} value
+ * @returns {Iterable<[unknown, unknown]>}
  */
 export const toEntries = value =>
 	isObject(value) && 'entries' in /** @type {object} */ (value)
-		? /** @type {{ entries(): IterableIterator<[string, T]> }} */ (
+		? /** @type {{ entries(): IterableIterator<[unknown, unknown]> }} */ (
 				value
 			).entries()
-		: toArray(/** @type {Iterable<T> | ArrayLike<T>} */ (value))
+		: toArray(
+				/** @type {Iterable<[unknown, unknown]>} */ (value),
+			)
 
 export const iterator = Symbol.iterator
 export const Iterator = window.Iterator

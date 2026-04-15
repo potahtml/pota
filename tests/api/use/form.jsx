@@ -179,14 +179,18 @@ await test('form - object2form restores text, checkbox, radio, and select values
 		kind: 'a',
 	})
 
-	expect(form.querySelector('[name=title]').value).toBe('updated')
-	expect(form.querySelector('[name=published]').checked).toBe(false)
-	expect(form.querySelector('[name=kind][value=a]').checked).toBe(
-		true,
-	)
-	expect(form.querySelector('[name=kind][value=b]').checked).toBe(
-		false,
-	)
+	expect(
+		(/** @type {HTMLInputElement} */ (form.querySelector('[name=title]'))).value,
+	).toBe('updated')
+	expect(
+		(/** @type {HTMLInputElement} */ (form.querySelector('[name=published]'))).checked,
+	).toBe(false)
+	expect(
+		(/** @type {HTMLInputElement} */ (form.querySelector('[name=kind][value=a]'))).checked,
+	).toBe(true)
+	expect(
+		(/** @type {HTMLInputElement} */ (form.querySelector('[name=kind][value=b]'))).checked,
+	).toBe(false)
 })
 
 await test('form - object2form adds to multi-select (never clears existing selections)', expect => {
@@ -205,9 +209,9 @@ await test('form - object2form adds to multi-select (never clears existing selec
 	object2form(form, { tags: ['y'] })
 
 	expect(
-		Array.from(form.querySelector('[name=tags]').selectedOptions).map(
-			option => option.value,
-		),
+		Array.from(
+			(/** @type {HTMLSelectElement} */ (form.querySelector('[name=tags]'))).selectedOptions,
+		).map(option => option.value),
 	).toEqual(['x', 'y', 'z'])
 })
 
@@ -387,11 +391,15 @@ await test('form - object2form sets checkbox checked state', expect => {
 
 	object2form(form, { agree: true })
 
-	expect(form.querySelector('[name=agree]').checked).toBe(true)
+	expect(
+		(/** @type {HTMLInputElement} */ (form.querySelector('[name=agree]'))).checked,
+	).toBe(true)
 
 	object2form(form, { agree: false })
 
-	expect(form.querySelector('[name=agree]').checked).toBe(false)
+	expect(
+		(/** @type {HTMLInputElement} */ (form.querySelector('[name=agree]'))).checked,
+	).toBe(false)
 
 	form.remove()
 })
@@ -406,7 +414,9 @@ await test('form - object2form sets radio button by value', expect => {
 
 	object2form(form, { color: 'blue' })
 
-	const radios = form.querySelectorAll('[name=color]')
+	const radios = /** @type {NodeListOf<HTMLInputElement>} */ (
+		form.querySelectorAll('[name=color]')
+	)
 	expect(radios[0].checked).toBe(false)
 	expect(radios[1].checked).toBe(true)
 
@@ -569,7 +579,9 @@ await test('form - object2form updates number input value as string', expect => 
 
 	object2form(form, { count: 42 })
 
-	expect(form.querySelector('[name=count]').value).toBe('42')
+	expect(
+		(/** @type {HTMLInputElement} */ (form.querySelector('[name=count]'))).value,
+	).toBe('42')
 
 	form.remove()
 })

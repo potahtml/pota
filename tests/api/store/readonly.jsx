@@ -16,7 +16,7 @@ await test('readonly - prevents writes on root and nested objects', expect => {
 	}).toThrow()
 
 	expect(() => {
-		value.user = { name: 'Other' }
+		/** @type {any} */ (value).user = { name: 'Other' }
 	}).toThrow()
 
 	expect(value.user.name).toBe('Ada')
@@ -50,7 +50,7 @@ await test('readonly - prevents adding new keys to the root object', expect => {
 	const value = readonly({ a: 1 })
 
 	expect(() => {
-		value.b = 2
+		/** @type {any} */ (value).b = 2
 	}).toThrow()
 
 	expect('b' in value).toBe(false)
@@ -60,7 +60,7 @@ await test('readonly - prevents deleting keys from the root object', expect => {
 	const value = readonly({ a: 1 })
 
 	expect(() => {
-		delete value.a
+		delete (/** @type {any} */ (value)).a
 	}).toThrow()
 
 	expect(value.a).toBe(1)
@@ -129,6 +129,6 @@ await test('readonly - empty object is frozen and cannot gain keys', expect => {
 
 	expect(Object.isFrozen(value)).toBe(true)
 	expect(() => {
-		value.a = 1
+		/** @type {any} */ (value).a = 1
 	}).toThrow()
 })

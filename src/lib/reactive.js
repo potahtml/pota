@@ -113,7 +113,7 @@ export function withPrevValue(value, fn) {
 /**
  * Returns `true` when all derived has been resolved
  *
- * @template {ReturnType<import('#type/derived.d.ts').derived>} T
+ * @template {Derived<any>} T
  * @param {...T} args
  * @returns {boolean}
  */
@@ -155,7 +155,7 @@ export function asyncEffect(fn) {
  * to patch a signal array with data that comes from a server without
  * losing references to what its already there avoiding a store.
  *
- * @template {{ id?: string }[]} T
+ * @template {{ id?: string; [key: string]: any }[]} T
  * @param {T} initialValue
  * @param {SignalOptions<T>} [options]
  * @returns {SignalObject<T>}
@@ -277,14 +277,24 @@ class Row {
 /**
  * Reactive Map
  *
- * @template T
- * @param {Each<T>} list
- * @param {(...args: unknown[]) => JSX.Element} callback
- * @param {boolean} [noSort]
- * @param {JSX.Element} [fallback]
- * @param {boolean} [reactiveIndex] - Make indices reactive signals
+ * @type {{
+ * 	<T>(
+ * 		list: Each<T>,
+ * 		callback: (item: T, index: () => number) => JSX.Element,
+ * 		noSort: boolean | undefined,
+ * 		fallback: JSX.Element | undefined,
+ * 		reactiveIndex: true,
+ * 	): (fn?: Function) => JSX.Element
+ * 	<T>(
+ * 		list: Each<T>,
+ * 		callback: (item: T, index: number) => JSX.Element,
+ * 		noSort?: boolean,
+ * 		fallback?: JSX.Element,
+ * 		reactiveIndex?: boolean,
+ * 	): (fn?: Function) => JSX.Element
+ * }}
  */
-export function map(list, callback, noSort, fallback, reactiveIndex) {
+export const map = (list, callback, noSort, fallback, reactiveIndex) => {
 	const cache = new Map()
 	const duplicates = new Map() // for when caching by value is not possible [1, 2, 1, 1, 1]
 
@@ -619,10 +629,10 @@ export function markComponent(fn) {
  * Adds an event listener to a node
  *
  * @template {Document | typeof window | DOMElement} TargetElement
- * @template {keyof JSX.EventType} Name
+ * @template {JSX.EventName} Name
  * @param {TargetElement} node - Element to add the event listener
  * @param {Name} type - The name of the event listener
- * @param {JSX.EventHandler<JSX.EventType[Name], TargetElement>} handler
+ * @param {JSX.EventHandler<JSX.EventTypeFor<Name>, TargetElement>} handler
  *   - Function to handle the event
  *
  * @returns {Function} - An `off` function for removing the event
@@ -656,10 +666,10 @@ export function addEvent(node, type, handler) {
  * Removes an event listener from a node
  *
  * @template {Document | typeof window | DOMElement} TargetElement
- * @template {keyof JSX.EventType} Name
+ * @template {JSX.EventName} Name
  * @param {TargetElement} node - Element to add the event listener
  * @param {Name} type - The name of the event listener
- * @param {JSX.EventHandler<JSX.EventType[Name], TargetElement>} handler
+ * @param {JSX.EventHandler<JSX.EventTypeFor<Name>, TargetElement>} handler
  *   - Function to handle the event
  *
  * @returns {Function} - An `on` function for adding back the event

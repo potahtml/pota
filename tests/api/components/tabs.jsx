@@ -152,6 +152,7 @@ await test('Tabs - hidden labels toggle visibility reactively', expect => {
 })
 
 await test('Tabs - Label forwards props and passes click metadata', expect => {
+	/** @type {any} */
 	let clicked
 	const dispose = render(
 		<Tabs>

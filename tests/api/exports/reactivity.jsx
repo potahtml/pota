@@ -460,16 +460,6 @@ await test('resolve - wrapping props.children gives a stable memoized accessor',
 	dispose()
 })
 
-await test('ref - creates a writable signal function', expect => {
-	const nodeRef = ref()
-
-	expect(nodeRef()).toBe(undefined)
-
-	nodeRef('value')
-
-	expect(nodeRef()).toBe('value')
-})
-
 await test('withValue and getValue - unwrap functions and promises', async expect => {
 	const count = signal(1)
 	const seen = []
@@ -537,6 +527,7 @@ await test('owned - calls onCancel when owner is disposed without calling the ow
 await test('owned - calling the owned fn before disposal suppresses onCancel', expect => {
 	const seen = []
 
+	/** @type {ReturnType<typeof owned>} */
 	let fn
 	const dispose = root(d => {
 		fn = owned(
@@ -555,6 +546,7 @@ await test('owned - calling the owned fn before disposal suppresses onCancel', e
 await test('owned - does not run callback after owner is disposed', expect => {
 	const seen = []
 
+	/** @type {ReturnType<typeof owned>} */
 	let fn
 	const dispose = root(d => {
 		fn = owned(value => seen.push(value))
@@ -1291,6 +1283,7 @@ await test('map - renders fallback when list is empty and clears it when items a
 
 await test('map - handles duplicate primitive values', expect => {
 	const items = signal([1, 1, 1])
+	/** @type {any} */
 	let nodes
 
 	root(() => {
@@ -1326,20 +1319,6 @@ await test('map - reactive index updates when items reorder', expect => {
 		{ item: 'b', index: 1 },
 		{ item: 'c', index: 2 },
 	])
-})
-
-// --- ref as signal function --------------------------------------------------
-
-await test('ref - works as a signal function for read and write', expect => {
-	const r = ref()
-
-	expect(r()).toBe(undefined)
-
-	r('hello')
-	expect(r()).toBe('hello')
-
-	r(42)
-	expect(r()).toBe(42)
 })
 
 // --- withValue with array of values ------------------------------------------
@@ -1645,7 +1624,7 @@ await test('signal - writing NaN twice does not re-notify when equals is Object.
 	// pota's default equality is strict === , so NaN !== NaN and a
 	// second NaN write would re-trigger. Opt into Object.is via the
 	// equals option to get the de-duping behavior.
-	const n = signal(0, { equals: Object.is })
+	const n = signal(/** @type {number} */ (0), { equals: Object.is })
 	const seen = []
 
 	root(() => {

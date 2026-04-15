@@ -111,7 +111,7 @@ await test('bind - use:bind syncs contenteditable nodes through innerText', asyn
 	const value = bind('hello')
 	const dispose = render(
 		<div
-			contentEditable
+			contenteditable="true"
 			use:bind={value}
 		/>,
 	)

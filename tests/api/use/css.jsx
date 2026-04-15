@@ -81,13 +81,15 @@ await test('css - addStyleSheetExternal fetches remote css once and reuses the s
 	const rootB = hostB.attachShadow({ mode: 'open' })
 	let calls = 0
 
-	globalThis.fetch = url => {
-		calls++
-		return Promise.resolve({
-			text: () =>
-				Promise.resolve(`/* ${url} */ :host { color: red; }`),
-		})
-	}
+	globalThis.fetch = /** @type {any} */ (
+		url => {
+			calls++
+			return Promise.resolve({
+				text: () =>
+					Promise.resolve(`/* ${url} */ :host { color: red; }`),
+			})
+		}
+	)
 
 	addStyleSheetExternal(rootA, 'http://example.test/a.css')
 	addStyleSheetExternal(rootB, 'http://example.test/a.css')
@@ -192,7 +194,7 @@ await test('css - getAdoptedStyleSheets returns an array-like', expect => {
 	const host = document.createElement('div')
 	const root = host.attachShadow({ mode: 'open' })
 
-	const result = getAdoptedStyleSheets(root)
+	const result = /** @type {any} */ (getAdoptedStyleSheets(root))
 	expect(Array.isArray(result) || typeof result.length === 'number').toBe(
 		true,
 	)

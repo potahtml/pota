@@ -233,7 +233,9 @@ await test('std - equals compares RegExp by source and flags', expect => {
 
 await test('std - equals returns false for different constructors', expect => {
 	expect(equals([], {})).toBe(false)
-	expect(equals(new Date(0), { getTime: () => 0 })).toBe(false)
+	expect(
+		equals(new Date(0), /** @type {any} */ ({ getTime: () => 0 })),
+	).toBe(false)
 })
 
 await test('std - equals compares Date objects by valueOf', expect => {
@@ -332,6 +334,7 @@ await test('std - range behavior with start above stop and positive step', expec
 
 await test('std - withResolvers can be externally rejected', async expect => {
 	const deferred = withResolvers()
+	/** @type {any} */
 	let rejected
 	deferred.promise.catch(err => {
 		rejected = err

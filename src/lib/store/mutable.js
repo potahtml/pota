@@ -38,12 +38,13 @@ function createProxy(target, Handler) {
 /**
  * Makes a recursive modifiable and trackeable object. Transforms in
  * place properties into signals via get/set. Works with inherited
- * getters/setters.
+ * getters/setters. New keys can be added at runtime; reads of
+ * not-yet-existing keys are tracked until they are added.
  *
  * @template T
  * @param {T} value
  * @param {boolean} [clone] - If to `copy` the value first
- * @returns {T}
+ * @returns {T & Record<string, any>}
  */
 export function mutable(value, clone) {
 	/** Return value as is when is not an object */

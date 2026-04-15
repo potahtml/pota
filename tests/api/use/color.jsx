@@ -121,8 +121,9 @@ await test('color - textColorWhenBackgroundIsBlack and White return different re
 // --- eyeDropper unsupported browser ------------------------------------------
 
 await test('color - eyeDropper returns undefined when unsupported', expect => {
-	const original = window.EyeDropper
-	window.EyeDropper = undefined
+	const win = /** @type {any} */ (window)
+	const original = win.EyeDropper
+	win.EyeDropper = undefined
 
 	// suppress console.error from eyeDropper
 	const originalError = console.error
@@ -131,7 +132,7 @@ await test('color - eyeDropper returns undefined when unsupported', expect => {
 	const result = eyeDropper(() => {})
 
 	console.error = originalError
-	window.EyeDropper = original
+	win.EyeDropper = original
 
 	expect(result).toBe(undefined)
 })
@@ -167,7 +168,7 @@ await test('color - textColor for blue returns white or black', expect => {
 // --- validateColor rejects object and number inputs ---------------
 
 await test('color - validateColor rejects non-string input', expect => {
-	expect(validateColor(42)).toBe(undefined)
-	expect(validateColor({})).toBe(undefined)
-	expect(validateColor(null)).toBe(undefined)
+	expect(validateColor(/** @type {any} */ (42))).toBe(undefined)
+	expect(validateColor(/** @type {any} */ ({}))).toBe(undefined)
+	expect(validateColor(/** @type {any} */ (null))).toBe(undefined)
 })

@@ -354,7 +354,7 @@ await test('Normalize - boolean children are filtered out leaving only text', ex
 // --- Normalize with signal toggling scalar types -----------------
 
 await test('Normalize - signal toggling between string and number stays in one text node', expect => {
-	const v = signal('hello')
+	const v = signal(/** @type {string | number} */ ('hello'))
 	const dispose = render(<Normalize>{v.read}</Normalize>)
 
 	expect(body()).toBe('hello')

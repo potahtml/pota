@@ -10,9 +10,14 @@ import { getValue } from '../../lib/std.js'
  * @param {Merge<
  * 	JSX.Elements['nav'],
  * 	{
- * 		children: import('./labels.js').Label[]
+ * 		children: JSX.Element
  * 	}
  * >} props
+ *   - `children` is expected to be `Tabs.Label` elements. Not
+ *       enforced by TypeScript: JSX expressions always resolve to
+ *       `JSX.Element`, so the specific component identity cannot be
+ *       constrained at the type level.
+ *
  * @url https://pota.quack.uy/Components/Tabs
  */
 export function Labels(props) {
@@ -81,12 +86,17 @@ export function Labels(props) {
  * 		selected?: boolean
  * 		name?: string
  * 		hidden?: Accessor<boolean>
- * 		onClick?: (
- * 			event: Event,
- * 			group: number,
- * 			index: number,
- * 			props: object,
- * 		) => void
+ * 		onClick?: (info: {
+ * 			event: Event
+ * 			group: number
+ * 			id: number
+ * 			props: {
+ * 				name?: string
+ * 				selected?: boolean
+ * 				hidden?: Accessor<boolean>
+ * 				[key: string]: any
+ * 			}
+ * 		}) => void
  * 	}
  * >} props
  * @url https://pota.quack.uy/Components/Tabs

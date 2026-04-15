@@ -58,7 +58,7 @@ export const short = (string = '') =>
 /**
  * Ensures any value becomes a string (defaults to empty string).
  *
- * @param {string} s
+ * @param {unknown} s
  */
 export const ensureString = s => String(s || '')
 

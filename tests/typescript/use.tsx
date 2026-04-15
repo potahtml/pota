@@ -467,7 +467,7 @@ rerenders()
 // childNodes returns the count, not the list
 const chCount: number = childNodes()
 const el: Element | null = $('.foo')
-const els: NodeListOf<Element> = $$('.foo')
+const els: Element[] = $$('.foo')
 
 // microtask / sleep are awaitable
 async function testAsyncs() {

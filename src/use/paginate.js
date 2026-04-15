@@ -19,7 +19,8 @@ import { getValue, toArray } from '../lib/std.js'
  * Paginates `items` and provides "prev" and "next" functions to use
  * on pagination buttons
  *
- * @param {Accessor<unknown[]>} items - List of items to paginate
+ * @param {Accessor<{ values(): Iterable<unknown> }>} items - List of
+ *   items to paginate
  * @param {Accessor<number>} numPerPage - How many to display at the
  *   same time
  * @returns {PaginatePage}

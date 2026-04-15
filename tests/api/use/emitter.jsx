@@ -169,6 +169,7 @@ await test('emitter - initialValue can be a plain non-function value', expect =>
 // --- disposing a subscriber does not affect another active subscriber --
 
 await test('emitter - disposing one owner does not break the other owner', expect => {
+	/** @type {any} */
 	let dispatch
 	let offCalls = 0
 	const emitter = new Emitter({
@@ -181,9 +182,13 @@ await test('emitter - disposing one owner does not break the other owner', expec
 		initialValue: () => 0,
 	})
 
+	/** @type {any} */
 	let disposeFirst
+	/** @type {any} */
 	let disposeSecond
+	/** @type {any} */
 	let firstValue
+	/** @type {any} */
 	let secondValue
 
 	root(d => {
@@ -213,6 +218,7 @@ await test('emitter - disposing one owner does not break the other owner', expec
 // --- on callback runs inside the owner, cleaned up on dispose ---------
 
 await test('emitter - `on` listener stops firing after the owner disposes', async expect => {
+	/** @type {any} */
 	let dispatch
 	const seen = []
 
@@ -224,6 +230,7 @@ await test('emitter - `on` listener stops firing after the owner disposes', asyn
 		initialValue: () => 'start',
 	})
 
+	/** @type {any} */
 	let disposeOwner
 	root(d => {
 		disposeOwner = d

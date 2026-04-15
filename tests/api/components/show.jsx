@@ -180,7 +180,7 @@ await test('Show - signal: toggles multiple times', expect => {
 
 await test('Show - signal: reactive value updates inside callback when signal changes', expect => {
 	// Note: use {v} not {v()} inside JSX - passing the function lets pota track it reactively
-	const [val, setVal] = signal('a')
+	const [val, setVal] = signal(/** @type {string | boolean} */ ('a'))
 	const dispose = render(
 		<Show
 			when={val}
@@ -234,7 +234,7 @@ await test('Show - array of mixed elements and callbacks', expect => {
 })
 
 await test('Show - array of callbacks reacts to signal toggle', expect => {
-	const [val, setVal] = signal('a')
+	const [val, setVal] = signal(/** @type {string | boolean} */ ('a'))
 	const dispose = render(
 		<Show
 			when={val}

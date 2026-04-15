@@ -207,6 +207,7 @@ await test('Errored - reset re-renders children when cause is fixed', expect => 
 		return <p>ok</p>
 	}
 
+	/** @type {any} */
 	let resetFn
 	const dispose = render(
 		<Errored
@@ -239,6 +240,7 @@ await test('Errored - reset with persistent failure re-catches', expect => {
 		throw new Error('still broken')
 	}
 
+	/** @type {any} */
 	let resetFn
 	const dispose = render(
 		<Errored

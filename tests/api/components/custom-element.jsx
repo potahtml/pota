@@ -59,8 +59,8 @@ await test('CustomElement - html accepts strings and components and hidden toggl
 
 	customElement('pota-test-custom-element-html', DemoElement)
 
-	const element = document.createElement(
-		'pota-test-custom-element-html',
+	const element = /** @type {DemoElement} */ (
+		document.createElement('pota-test-custom-element-html')
 	)
 	document.body.append(element)
 
@@ -93,7 +93,9 @@ await test('CustomElement - query and hasSlot inspect light DOM children on the 
 		</pota-test-custom-element-slots>,
 	)
 
-	const element = $('pota-test-custom-element-slots')
+	const element = /** @type {SlotElement} */ (
+		$('pota-test-custom-element-slots')
+	)
 
 	expect(element.hasSlot('title').outerHTML).toBe(
 		'<span slot="title">Title</span>',
@@ -119,7 +121,7 @@ await test('CustomElement - emit dispatches bubbling custom events with detail',
 		event =>
 			seen.push({
 				target: event.target,
-				detail: event.detail,
+				detail: /** @type {CustomEvent} */ (event).detail,
 				bubbles: event.bubbles,
 				composed: event.composed,
 			}),
@@ -208,7 +210,9 @@ await test('CustomElement - hasSlot returns null for missing slot names', expect
 		</pota-test-custom-element-missing-slot>,
 	)
 
-	const element = $('pota-test-custom-element-missing-slot')
+	const element = /** @type {MissingSlotElement} */ (
+		$('pota-test-custom-element-missing-slot')
+	)
 
 	expect(element.hasSlot('absent')).toBe(null)
 
@@ -228,7 +232,9 @@ await test('CustomElement - query returns null when no descendant matches', expe
 		</pota-test-custom-element-query-null>,
 	)
 
-	const element = $('pota-test-custom-element-query-null')
+	const element = /** @type {QueryElement} */ (
+		$('pota-test-custom-element-query-null')
+	)
 	expect(element.query('article')).toBe(null)
 
 	dispose()

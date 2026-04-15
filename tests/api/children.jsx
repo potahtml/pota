@@ -38,6 +38,8 @@ document.body.innerHTML = ''
 /**
  * Captures `props.children` so tests can assert on its runtime type
  * and value. Returns null so nothing lands in the DOM.
+ *
+ * @type {any}
  */
 let captured
 function Inspect(props) {

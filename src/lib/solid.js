@@ -1021,13 +1021,13 @@ export function createReactiveSystem() {
 		 * Sets the `value` for the context
 		 *
 		 * @param {object} props
-		 * @param {Partial<T>} props.value
+		 * @param {Partial<T> | { [K in keyof T]?: Accessor<T[K]> }} props.value
 		 * @param {JSX.Element} [props.children]
 		 * @returns {JSX.Element}
 		 * @url https://pota.quack.uy/Reactivity/Context
 		 */
 		useContext.Provider = props =>
-			useContext(props.value, () =>
+			useContext(/** @type {Partial<T>} */ (props.value), () =>
 				// @ts-expect-error `toHTML` is attached by renderer.js at module init
 				context.toHTML(props.children),
 			)

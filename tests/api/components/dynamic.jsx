@@ -48,7 +48,10 @@ await test('Dynamic - renders function components and forwards children and prop
 await test('Dynamic - supports function components that return multiple nodes', expect => {
 	const dispose = render(
 		<Dynamic
-			component={props => props.items.map(item => <p>{item}</p>)}
+			component={
+				/** @param {any} props */
+				props => props.items.map(item => <p>{item}</p>)
+			}
 			items={['a', 'b', 'c']}
 		/>,
 	)
@@ -91,7 +94,9 @@ await test('Dynamic - DOESNT switches between tag names, functions and existing 
 	const node = document.createElement('aside')
 	node.textContent = 'node'
 
-	const current = signal('p')
+	const current = signal(
+		/** @type {string | ((props: any) => any)} */ ('p'),
+	)
 
 	const dispose = render(() => (
 		<Dynamic component={current.read()}>content</Dynamic>
@@ -108,7 +113,10 @@ await test('Dynamic - DOESNT switches between tag names, functions and existing 
 await test('Dynamic - function component returning array of primitives (no JSX)', expect => {
 	const dispose = render(
 		<Dynamic
-			component={props => props.list.map(item => item + '!')}
+			component={
+				/** @param {any} props */
+				props => props.list.map(item => item + '!')
+			}
 			list={[1, 2, 3]}
 		/>,
 	)
@@ -119,7 +127,10 @@ await test('Dynamic - function component returning array of primitives (no JSX)'
 await test('Dynamic - function component filtering list returns subset', expect => {
 	const dispose = render(
 		<Dynamic
-			component={props => props.list.filter(item => item % 2 === 0)}
+			component={
+				/** @param {any} props */
+				props => props.list.filter(item => item % 2 === 0)
+			}
 			list={[1, 2, 3, 4]}
 		/>,
 	)

@@ -38,7 +38,8 @@ export const Switch = props => {
 }
 
 /**
- * Renders the content if the `when` condition is true
+ * Renders the content if the `when` condition is true. Without a
+ * `when` prop, acts as the internal fallback branch for `Switch`.
  *
  * @type {{
  * 	<T>(props: {
@@ -51,6 +52,7 @@ export const Switch = props => {
  * 		when: When<T>
  * 		children?: JSX.Element
  * 	}): JSX.Element
+ * 	(props: { children?: JSX.Element }): JSX.Element
  * }}
  * @url https://pota.quack.uy/Components/Switch
  */

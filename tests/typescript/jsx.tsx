@@ -21,6 +21,7 @@ import {
 	Tabs,
 } from 'pota/components'
 import { Component, context, Pota, derived, memo, signal } from 'pota'
+import { bind } from 'pota/use/bind'
 
 declare module 'pota' {
 	namespace JSX {
@@ -145,6 +146,7 @@ class MyComponent extends Pota {
 }
 
 function typescript(props) {
+	const myspan = bind('')
 	return (
 		<span
 			on:click={read}
@@ -177,7 +179,7 @@ function typescript(props) {
 			<Div />
 			{Div2}
 			<span
-				use:bind={signal}
+				use:bind={myspan}
 				use:ref={element => {
 					console.log(element)
 				}}
@@ -306,13 +308,9 @@ const svgRefTest = (
 // style as string
 const styleStringTest = <div style="color: red" />
 
-// style as object — known issue: csstype mapped type loses
-// concrete keys in Accessor union, only index sig remains
+// style as object
 const styleObjTest = (
-	<div
-		// @ts-expect-error style object keys not resolved
-		style={{ color: 'red', 'font-size': '14px' }}
-	/>
+	<div style={{ color: 'red', 'font-size': '14px' }} />
 )
 
 // style as signal
@@ -1789,7 +1787,9 @@ const conditional = (
 )
 
 // promise as child
-const promiseChild = <div>{Promise.resolve(<span>async</span>)}</div>
+const promiseChild = (
+	<div>{Promise.resolve(<span>async</span>)}</div>
+)
 
 // signal as on:click handler
 const [handler] = signal((e: MouseEvent) => {})

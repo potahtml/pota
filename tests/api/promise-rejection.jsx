@@ -22,6 +22,7 @@ import { Errored } from 'pota/components'
 // --- catchError level ------------------------------------------------
 
 await test('catchError — catches rejected promise in derived', async expect => {
+	/** @type {any} */
 	let caught
 	root(() => {
 		catchError(
@@ -43,6 +44,7 @@ await test('catchError — catches rejected promise in derived', async expect =>
 })
 
 await test('catchError — catches non-Error rejected value', async expect => {
+	/** @type {any} */
 	let caught
 	root(() => {
 		catchError(
@@ -61,6 +63,7 @@ await test('catchError — catches non-Error rejected value', async expect => {
 })
 
 await test('catchError — catches rejected promise via signal change', async expect => {
+	/** @type {any} */
 	let caught
 	const [read, write] = signal(false)
 	root(() => {
@@ -89,6 +92,7 @@ await test('catchError — catches rejected promise via signal change', async ex
 })
 
 await test('catchError — rejection does not break sibling effects', async expect => {
+	/** @type {any} */
 	let caught
 	const seen = []
 	const [read, write] = signal(0)
@@ -121,6 +125,7 @@ await test('catchError — rejection does not break sibling effects', async expe
 
 await test('catchError — rejection without handler goes to console.error', async expect => {
 	const original = console.error
+	/** @type {any} */
 	let logged
 	console.error = err => {
 		logged = err
@@ -142,6 +147,7 @@ await test('catchError — rejection without handler goes to console.error', asy
 // --- action / resolve rejection --------------------------------------
 
 await test('action — rejected promise routes to catchError handler', async expect => {
+	/** @type {any} */
 	let caught
 	root(() => {
 		catchError(
@@ -164,6 +170,7 @@ await test('action — rejected promise routes to catchError handler', async exp
 
 await test('action — rejected promise without handler goes to console.error', async expect => {
 	const original = console.error
+	/** @type {any} */
 	let logged
 	console.error = err => {
 		logged = err
@@ -183,6 +190,7 @@ await test('action — rejected promise without handler goes to console.error', 
 })
 
 await test('action — rejection in chain stage routes to handler', async expect => {
+	/** @type {any} */
 	let caught
 	root(() => {
 		catchError(

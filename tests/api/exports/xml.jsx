@@ -566,6 +566,7 @@ await test('xml - xml.define on default instance does not affect XML() isolated 
 // --- use:ref -----------------------------------------------------------
 
 await test('xml - use:ref receives the element', expect => {
+	/** @type {any} */
 	let captured = null
 	const dispose = render(
 		xml`<p use:ref="${el => (captured = el)}">hi</p>`,
@@ -898,6 +899,7 @@ await test('xml - deeply nested arrays of xml fragments are flattened', expect =
 // --- Event handler receives the DOM event ------------------------------
 
 await test('xml - on:* handler receives the DOM event', expect => {
+	/** @type {any} */
 	let received = null
 	const dispose = render(
 		xml`<button on:click="${e => (received = e)}">go</button>`,

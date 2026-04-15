@@ -232,7 +232,7 @@ await test('signalify - getter-only property stays readable and read-only', expe
 	expect(seen).toEqual([3.14])
 	// In strict mode, assigning to a getter-only property throws.
 	expect(() => {
-		source.pi = 1
+		/** @type {any} */ (source).pi = 1
 	}).toThrow()
 })
 

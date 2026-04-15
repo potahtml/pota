@@ -82,6 +82,7 @@ await test('cleanup — returned by cleanup() for cancellation', expect => {
 // --- errors in cleanup -----------------------------------------------
 
 await test('cleanup — error routes to catchError handler', expect => {
+	/** @type {any} */
 	let caught
 	const dispose = root(dispose => {
 		catchError(
@@ -105,6 +106,7 @@ await test('cleanup — error routes to catchError handler', expect => {
 
 await test('cleanup — error without handler goes to console.error', expect => {
 	const original = console.error
+	/** @type {any} */
 	let logged
 	console.error = err => {
 		logged = err
@@ -145,6 +147,7 @@ await test('cleanup — remaining cleanups still run after one throws', expect =
 })
 
 await test('cleanup — error during effect re-run is caught', expect => {
+	/** @type {any} */
 	let caught
 	const [read, write] = signal(0)
 	root(dispose => {
@@ -203,6 +206,7 @@ await test('cleanup — error does not prevent sibling effects from running', ex
 })
 
 await test('cleanup — error in nested owned child is caught by handler', expect => {
+	/** @type {any} */
 	let caught
 	const dispose = root(dispose => {
 		catchError(
@@ -243,7 +247,7 @@ await test('cleanup — all cleanups throw, all errors are routed', expect => {
 					throw new Error('c')
 				})
 			},
-			err => errors.push(err.message),
+			err => errors.push(/** @type {Error} */ (err).message),
 		)
 		return dispose
 	})
@@ -254,8 +258,10 @@ await test('cleanup — all cleanups throw, all errors are routed', expect => {
 })
 
 await test('cleanup — error during memo re-evaluation is caught', expect => {
+	/** @type {any} */
 	let caught
 	const [read, write] = signal(0)
+	/** @type {any} */
 	let m
 	root(dispose => {
 		catchError(
@@ -367,7 +373,7 @@ await test('cleanup — error when catchError disposes owned on sync throw', exp
 				})
 				throw new Error('sync throw')
 			},
-			err => errors.push(err.message),
+			err => errors.push(/** @type {Error} */ (err).message),
 		)
 	})
 	// both errors are routed: the cleanup error during

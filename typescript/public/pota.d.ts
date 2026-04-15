@@ -26,18 +26,27 @@ type Attribute<T> =
 /**
  * Result of recursively invoking functions and flattening nested
  * arrays — mirrors the runtime behavior of `unwrap`/`resolve`.
+ *
+ * `D` is a depth budget used to prevent infinite instantiation when a
+ * broad union like `JSX.Element` (which includes `(() => Element)`
+ * and `Element[]`) is passed in. Budget is generous enough for
+ * realistic nesting; past it, the remaining type is left as-is.
  */
-type Resolved<T> = T extends readonly (infer U)[]
-	? Array<ResolvedDeep<U>>
-	: T extends () => infer R
-		? Resolved<R>
-		: T
+type Resolved<T, D extends 0[] = []> = D['length'] extends 5
+	? T
+	: T extends readonly (infer U)[]
+		? Array<ResolvedDeep<U, [0, ...D]>>
+		: T extends () => infer R
+			? Resolved<R, [0, ...D]>
+			: T
 
-type ResolvedDeep<T> = T extends readonly (infer U)[]
-	? ResolvedDeep<U>
-	: T extends () => infer R
-		? ResolvedDeep<R>
-		: T
+type ResolvedDeep<T, D extends 0[] = []> = D['length'] extends 5
+	? T
+	: T extends readonly (infer U)[]
+		? ResolvedDeep<U, [0, ...D]>
+		: T extends () => infer R
+			? ResolvedDeep<R, [0, ...D]>
+			: T
 
 // dom
 
@@ -98,8 +107,8 @@ type EffectOptions = undefined | Record<string, never>
 // derived
 
 type DerivedSignal<R> = {
-	(value: R): SignalChanged // setter
-	(): R // getter
+	(value: R | (() => R) | PromiseLike<R>): SignalChanged
+	(): R
 	run: Function
 	resolved: SignalAccessor<boolean>
 }

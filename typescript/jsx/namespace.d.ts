@@ -95,7 +95,7 @@ declare namespace JSX {
 		// | DocumentFragment cannot be `children`, we use `childNodes` instead
 		// recurse
 		| (() => Element)
-		| Promise<Element>
+		| Promise<unknown>
 		| Element[]
 
 	// JSX.ElementType - shape of a `component`
@@ -3824,6 +3824,11 @@ declare namespace JSX {
 	// EventType["click"] = MouseEvent
 	type EventType = ExtractEventType<EventHandlersElement<Element>> &
 		ExtractEventType<EventHandlersWindow<Element>>
+
+	// EventTypeFor<"click"> = MouseEvent
+	// EventTypeFor<"my-custom"> = CustomEvent
+	type EventTypeFor<K> =
+		K extends keyof EventType ? EventType[K] : CustomEvent
 
 	/** ARIA */
 

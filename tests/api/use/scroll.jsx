@@ -114,6 +114,7 @@ await test('scroll - scrollToSelector returns false for null', expect => {
 
 await test('scroll - scrollToTop passes top=0 and auto behavior', expect => {
 	const originalScroll = window.scrollTo
+	/** @type {any} */
 	let received
 
 	window.scrollTo = options => {

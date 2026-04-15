@@ -243,9 +243,10 @@ window.Proxy = new Proxy(Proxy, {
  * Returns true if value is a proxy. This is defined for
  * debugging/testing purposes.
  *
- * @param {object} value
+ * @param {unknown} value
  */
-export const isProxy = value => proxies.has(value)
+export const isProxy = value =>
+	proxies.has(/** @type {object} */ (value))
 
 /**
  * Injects a temporary stylesheet that highlights DOM nodes whenever
@@ -321,23 +322,102 @@ export const sleep = (ms = 0) =>
 export const sleepLong = () => sleep(300)
 
 /**
- * Shorthand for `document.querySelector`.
+ * Walks past descendant/combinator boundaries (` `, `>`, `+`, `~`, `,`)
+ * to the final compound selector — e.g. `'div input[name="x"]'`
+ * → `'input[name="x"]'`, `'a, b > c'` → `'c'`.
  *
- * @param {string} selector - CSS selector.
- * @param {Document | HTMLElement} [node] - Root to query from
- *   (defaults to `document`).
- * @returns {HTMLElement | null}
+ * @template {string} S
+ * @typedef {S extends `${string} ${infer R}`
+ * 	? LastCompound<R>
+ * 	: S extends `${string}>${infer R}`
+ * 		? LastCompound<R>
+ * 		: S extends `${string}+${infer R}`
+ * 			? LastCompound<R>
+ * 			: S extends `${string}~${infer R}`
+ * 				? LastCompound<R>
+ * 				: S extends `${string},${infer R}`
+ * 					? LastCompound<R>
+ * 					: S} LastCompound
  */
-export const $ = (selector, node = document) =>
-	node.querySelector(selector)
 
 /**
- * Shorthand for `document.querySelectorAll`.
+ * Extracts the tag portion of a compound selector — everything before
+ * the first `[`, `.`, `#`, or `:`. `'input[name="x"]'` → `'input'`,
+ * `'button.primary'` → `'button'`, `'input'` → `'input'`.
  *
- * @param {string} selector - CSS selector.
- * @param {Document | HTMLElement} [node] - Root to query from
- *   (defaults to `document`).
- * @returns {NodeListOf<HTMLElement>}
+ * @template {string} S
+ * @typedef {S extends `${infer T}[${string}`
+ * 	? T
+ * 	: S extends `${infer T}.${string}`
+ * 		? T
+ * 		: S extends `${infer T}#${string}`
+ * 			? T
+ * 			: S extends `${infer T}:${string}`
+ * 				? T
+ * 				: S} CompoundTag
  */
-export const $$ = (selector, node = document) =>
-	node.querySelectorAll(selector)
+
+/**
+ * Walks the selector to its last compound, then extracts the tag.
+ * For `'div input[name="x"]'` this resolves to `'input'`; for
+ * `'.foo'` it resolves to `'.foo'` (no tag).
+ *
+ * @template {string} S
+ * @typedef {CompoundTag<LastCompound<S>>} SelectorTag
+ */
+
+/**
+ * Resolves a CSS selector string to its element type, extracting the
+ * leading tag. Falls back to `HTMLElement` when the prefix is not a
+ * known tag name (e.g. class/id-only selectors).
+ *
+ * @template {string} S
+ * @typedef {SelectorTag<S> extends keyof HTMLElementTagNameMap
+ * 	? HTMLElementTagNameMap[SelectorTag<S>]
+ * 	: SelectorTag<S> extends keyof SVGElementTagNameMap
+ * 		? SVGElementTagNameMap[SelectorTag<S>]
+ * 		: SelectorTag<S> extends keyof MathMLElementTagNameMap
+ * 			? MathMLElementTagNameMap[SelectorTag<S>]
+ * 			: HTMLElement} SelectorElement
+ */
+
+/**
+ * Shorthand for `document.querySelector`. Infers the element type from
+ * the selector's leading tag, so `$('input')`, `$('input[name="x"]')`,
+ * and `$('input.foo')` all return `HTMLInputElement | null`. Pass an
+ * explicit element type as a type parameter to override:
+ * `$<HTMLDivElement>('.my-class')`.
+ *
+ * @type {{
+ * 	<S extends string>(
+ * 		selector: S,
+ * 		node?: Document | HTMLElement,
+ * 	): SelectorElement<S> | null
+ * 	<E extends Element = HTMLElement>(
+ * 		selector: string,
+ * 		node?: Document | HTMLElement,
+ * 	): E | null
+ * }}
+ */
+export const $ = (selector, node) =>
+	(node || document).querySelector(selector)
+
+/**
+ * Shorthand for `document.querySelectorAll`, spread into an array so
+ * callers get `Array` methods (`map`, `filter`, etc.). Infers the
+ * element type from the selector's leading tag (see `$`).
+ *
+ * @type {{
+ * 	<S extends string>(
+ * 		selector: S,
+ * 		node?: Document | HTMLElement,
+ * 	): SelectorElement<S>[]
+ * 	<E extends Element = HTMLElement>(
+ * 		selector: string,
+ * 		node?: Document | HTMLElement,
+ * 	): E[]
+ * }}
+ */
+export const $$ = (selector, node) => [
+	...(node || document).querySelectorAll(selector),
+]

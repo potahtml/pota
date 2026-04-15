@@ -19,7 +19,7 @@ await test('animate - animateClassTo swaps classes without waiting when there ar
 await test('animate - animatePartTo swaps parts and waits for animationend when needed', async expect => {
 	const node = document.createElement('div')
 	node.part.add('from')
-	node.getAnimations = () => [{}]
+	node.getAnimations = /** @type {any} */ (() => [{}])
 
 	const waiting = animatePartTo(node, 'from', 'to')
 
@@ -36,7 +36,7 @@ await test('animate - animatePartTo swaps parts and waits for animationend when 
 await test('animate - animateClassTo waits for animationend when animations exist', async expect => {
 	const node = document.createElement('div')
 	node.className = 'current'
-	node.getAnimations = () => [{}] // has active animation
+	node.getAnimations = /** @type {any} */ (() => [{}]) // has active animation
 
 	// baseline: class is current before animation
 	expect(node.className).toBe('current')

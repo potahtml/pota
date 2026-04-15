@@ -741,7 +741,9 @@ await test('For - restoreFocus preserves focus after reorder', async expect => {
 	expect(document.querySelectorAll('input').length).toBe(3)
 	expect(document.querySelector('[data-id="a"]')).not.toBe(null)
 
-	const inputB = document.querySelector('[data-id="b"]')
+	const inputB = /** @type {HTMLElement} */ (
+		document.querySelector('[data-id="b"]')
+	)
 	inputB.focus()
 	expect(document.activeElement).toBe(inputB)
 

@@ -758,7 +758,7 @@ await test('mutable - frozen nested objects are not proxied', expect => {
 	// frozen object should not be wrapped in a proxy
 	expect(state.data.inner).toBe('frozen')
 	expect(() => {
-		state.data.inner = 'changed'
+		/** @type {any} */ (state.data).inner = 'changed'
 	}).toThrow()
 })
 

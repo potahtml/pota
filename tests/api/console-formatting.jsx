@@ -9,6 +9,10 @@
 import { test } from '#test'
 import { test as useTest } from 'pota/use/test'
 
+// `pack` is exposed by the harness in serve.js — alias it once with a
+// loose type so the tests don't need to extend Window in 5 places.
+const { pack } = /** @type {any} */ (window)
+
 // --- console.log: types and combinations ---
 
 await test('console - log string', () => {
@@ -83,7 +87,7 @@ await test('console - error Error object', () => {
 await test('console - error Error with cause chain', () => {
 	const err = new Error('outer')
 	err.cause = new Error('middle')
-	err.cause.cause = new Error('root cause')
+	;(/** @type {Error} */ (err.cause)).cause = new Error('root cause')
 	console.error(err)
 })
 
@@ -123,6 +127,10 @@ await test('console - no arguments', () => {
 
 // Helper: run an inner test that fails, return the rejection.
 // Suppresses console.error so the failure doesn't pollute output.
+/**
+ * @param {Parameters<typeof useTest>[1]} fn
+ * @returns {Promise<any>}
+ */
 async function expectFailure(fn) {
 	useTest.reset()
 	const origError = console.error
@@ -223,7 +231,7 @@ await test('console - ErrorEvent is packed with __event marker', expect => {
 		filename: 'test.js',
 		lineno: 42,
 	})
-	const packed = window.pack(event)
+	const packed = pack(event)
 
 	expect(packed.__event).toBe('error')
 	expect(packed.error.__error).toBe(true)
@@ -238,7 +246,7 @@ await test('console - ErrorEvent with string message (no Error object)', expect 
 		filename: 'foo.js',
 		lineno: 10,
 	})
-	const packed = window.pack(event)
+	const packed = pack(event)
 
 	expect(packed.__event).toBe('error')
 	// error is the message string since event.error is null
@@ -252,7 +260,7 @@ await test('console - PromiseRejectionEvent is packed with __event marker', expe
 		promise: Promise.resolve(),
 		reason: new Error('rejected'),
 	})
-	const packed = window.pack(event)
+	const packed = pack(event)
 
 	expect(packed.__event).toBe('rejection')
 	expect(packed.reason.__error).toBe(true)
@@ -264,7 +272,7 @@ await test('console - PromiseRejectionEvent with non-Error reason', expect => {
 		promise: Promise.resolve(),
 		reason: 'string rejection',
 	})
-	const packed = window.pack(event)
+	const packed = pack(event)
 
 	expect(packed.__event).toBe('rejection')
 	expect(packed.reason).toBe('string rejection')
@@ -275,7 +283,7 @@ await test('console - PromiseRejectionEvent with object reason', expect => {
 		promise: Promise.resolve(),
 		reason: { code: 'FAIL', info: [1, 2] },
 	})
-	const packed = window.pack(event)
+	const packed = pack(event)
 
 	expect(packed.__event).toBe('rejection')
 	expect(packed.reason.code).toBe('FAIL')

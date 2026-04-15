@@ -135,7 +135,7 @@ await test('string - diff returns values as-is when not both multiline strings',
 
 await test('string - diff returns values as-is for identical multiline strings', expect => {
 	const s = 'line1\nline2'
-	const [a, b] = diff(s, s)
+	const [a, b] = /** @type {[string, string]} */ (diff(s, s))
 	// both are annotated but no -> marker on first line
 	expect(a.startsWith('  ')).toBe(true)
 	expect(b.startsWith('  ')).toBe(true)

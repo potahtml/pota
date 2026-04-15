@@ -55,7 +55,7 @@ export const exitFullscreen = () => document.exitFullscreen()
 export const requestFullscreen = element =>
 	element.requestFullscreen()
 
-/** @param {DOMElement} element */
+/** @param {DOMElement} [element] */
 export function toggleFullscreen(element) {
 	isFullscreen()
 		? exitFullscreen()

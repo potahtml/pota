@@ -84,7 +84,7 @@ await test('merge - replaces when type morphs between array and object', expect 
 	merge(target, { data: { key: 'value' } })
 
 	expect(Array.isArray(target.data)).toBe(false)
-	expect(target.data.key).toBe('value')
+	expect((/** @type {any} */ (target.data)).key).toBe('value')
 })
 
 await test('merge - replaces when type morphs from object to array', expect => {

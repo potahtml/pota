@@ -21,14 +21,7 @@ import {
 	Switch,
 	Tabs,
 } from 'pota/components'
-import {
-	Component,
-	Pota,
-	context,
-	derived,
-	memo,
-	signal,
-} from 'pota'
+import { Component, Pota, context, derived, memo, signal } from 'pota'
 
 // Shared user component declarations (duplicated — not shared
 // across files intentionally)
@@ -784,9 +777,8 @@ const forMemoDerived = (
 	</For>
 )
 
-// For: each with inline derived — works (Derived overload reorder
-// placed setter before getter so structural matching uses the
-// getter as the primary signature)
+// For: each with inline derived — phantom-marker overload on For
+// extracts the item type through the dual-signature Derived<R>.
 const forDerivedArray = (
 	<For each={derived(() => [10, 20, 30])}>
 		{(item, index) => {
@@ -998,9 +990,7 @@ const Level2 = withErrorBoundary(Level1)
 const Level3 = withTiming(Level2)
 
 // Original Card's prop types survive all 3 wraps
-const threeLevelTest = (
-	<Level3 title="still typed">deep</Level3>
-)
+const threeLevelTest = <Level3 title="still typed">deep</Level3>
 
 // --- nested Context.Provider chain — typed inside children ---
 
@@ -1109,9 +1099,9 @@ const lazyCardViaDynamic = <Dynamic component={LazyCard} />
 // (JSX.Element's recursive union contains Promise<Element>). So
 // rendering a promise as a child type-checks.
 
-const promiseChild: Promise<JSX.Element> = Promise.resolve(
-	<span>loaded</span>,
-)
+const promiseChild: Promise<JSX.Element> = new Promise(resolve => (
+	<span>loaded</span>
+))
 
 const suspenseWithPromise = (
 	<Suspense fallback="loading">

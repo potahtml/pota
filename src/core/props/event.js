@@ -5,10 +5,10 @@ import { flatForEach } from '../../lib/std.js'
  * Attaches event handlers (singular or array) to an element.
  *
  * @template {DOMElement} TargetElement
- * @template {keyof JSX.EventType} Name
+ * @template {JSX.EventName} Name
  * @param {TargetElement} node
  * @param {Name} name
- * @param {JSX.EventHandlers<JSX.EventType[Name], TargetElement>} value
+ * @param {JSX.EventHandlers<JSX.EventTypeFor<Name>, TargetElement>} value
  */
 export const setEvent = (node, name, value) => {
 	flatForEach(value, value => {
@@ -27,10 +27,10 @@ export const setEvent = (node, name, value) => {
  * element.
  *
  * @template {DOMElement} TargetElement
- * @template {keyof JSX.EventType} Name
+ * @template {JSX.EventName} Name
  * @param {TargetElement} node
  * @param {Name} localName
- * @param {JSX.EventHandlers<JSX.EventType[Name], TargetElement>} value
+ * @param {JSX.EventHandlers<JSX.EventTypeFor<Name>, TargetElement>} value
  */
 export const setEventNS = (node, localName, value) => {
 	flatForEach(value, value => {

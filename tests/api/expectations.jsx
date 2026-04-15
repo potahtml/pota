@@ -47,7 +47,7 @@ await test('expectations - render inserts DOM synchronously, ref is immediate, a
 await test('expectations - plain props default to attributes, so prop:innerHTML is required for DOM content writes', expect => {
 	const dispose = render(
 		<>
-			<div innerHTML="<b>attribute only</b>" />
+			<div {...{ innerHTML: '<b>attribute only</b>' }} />
 			<div prop:innerHTML="<b>real content</b>" />
 		</>,
 	)
@@ -105,7 +105,9 @@ await test('expectations - Collapse hides output without unmounting uncontrolled
 		</Collapse>,
 	)
 
-	const input = document.getElementById('field')
+	const input = /** @type {HTMLInputElement} */ (
+		document.getElementById('field')
+	)
 	input.value = 'typed'
 
 	const collapse = document.getElementsByTagName('pota-collapse')[0]
@@ -125,7 +127,9 @@ await test('expectations - Collapse hides output without unmounting uncontrolled
 
 	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
 	expect(document.getElementById('field')).toBe(input)
-	expect(document.getElementById('field').value).toBe('typed')
+	expect(
+		(/** @type {HTMLInputElement} */ (document.getElementById('field'))).value,
+	).toBe('typed')
 
 	dispose()
 })
@@ -217,6 +221,7 @@ await test('expectations - memo recomputes only when its tracked dependencies ch
 // --- refs assigned synchronously right at element creation ---------------
 
 await test('expectations - a use:ref callback receives the real DOM element on the same tick as render', expect => {
+	/** @type {any} */
 	let captured = null
 
 	const dispose = render(<p use:ref={node => (captured = node)}>hi</p>)

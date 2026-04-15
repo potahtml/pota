@@ -15,6 +15,7 @@ import {
 } from 'pota/use/stream'
 
 await test('stream - copy and remove helpers operate on audio and video tracks', expect => {
+	/** @type {any} */
 	const sourceAudio = {
 		id: 'a1',
 		kind: 'audio',
@@ -28,6 +29,7 @@ await test('stream - copy and remove helpers operate on audio and video tracks',
 			}
 		},
 	}
+	/** @type {any} */
 	const sourceVideo = {
 		id: 'v1',
 		kind: 'video',
@@ -41,6 +43,7 @@ await test('stream - copy and remove helpers operate on audio and video tracks',
 			}
 		},
 	}
+	/** @type {any} */
 	const source = {
 		audio: [sourceAudio],
 		video: [sourceVideo],
@@ -51,6 +54,7 @@ await test('stream - copy and remove helpers operate on audio and video tracks',
 			return this.video
 		},
 	}
+	/** @type {any} */
 	const destination = {
 		audio: [
 			{
@@ -99,6 +103,7 @@ await test('stream - copy and remove helpers operate on audio and video tracks',
 })
 
 await test('stream - stop helpers stop tracks and support MediaRecorder-like objects', expect => {
+	/** @type {any} */
 	const audio = {
 		id: 'a1',
 		kind: 'audio',
@@ -107,6 +112,7 @@ await test('stream - stop helpers stop tracks and support MediaRecorder-like obj
 			this.stopped++
 		},
 	}
+	/** @type {any} */
 	const video = {
 		id: 'v1',
 		kind: 'video',
@@ -115,6 +121,7 @@ await test('stream - stop helpers stop tracks and support MediaRecorder-like obj
 			this.stopped++
 		},
 	}
+	/** @type {any} */
 	const media = {
 		audio: [audio],
 		video: [video],
@@ -128,6 +135,7 @@ await test('stream - stop helpers stop tracks and support MediaRecorder-like obj
 			return [...this.audio, ...this.video]
 		},
 	}
+	/** @type {any} */
 	const recorder = {
 		stopped: 0,
 		stop() {
@@ -145,8 +153,8 @@ await test('stream - stop helpers stop tracks and support MediaRecorder-like obj
 	const OriginalMediaStream = globalThis.MediaStream
 	const OriginalMediaRecorder = globalThis.MediaRecorder
 
-	globalThis.MediaStream = function MediaStream() {}
-	globalThis.MediaRecorder = function MediaRecorder() {}
+	globalThis.MediaStream = /** @type {any} */ (function MediaStream() {})
+	globalThis.MediaRecorder = /** @type {any} */ (function MediaRecorder() {})
 	Object.setPrototypeOf(media, globalThis.MediaStream.prototype)
 	Object.setPrototypeOf(recorder, globalThis.MediaRecorder.prototype)
 
@@ -162,11 +170,13 @@ await test('stream - stop helpers stop tracks and support MediaRecorder-like obj
 // --- copy into an empty destination ---------------------------------------
 
 await test('stream - copyAudioTracks into empty destination adds the cloned track', expect => {
+	/** @type {any} */
 	const clone = {
 		id: 'cloned',
 		kind: 'audio',
 		stop() {},
 	}
+	/** @type {any} */
 	const source = {
 		getAudioTracks() {
 			return [
@@ -180,6 +190,7 @@ await test('stream - copyAudioTracks into empty destination adds the cloned trac
 			]
 		},
 	}
+	/** @type {any} */
 	const destination = {
 		audio: [],
 		getAudioTracks() {
@@ -203,6 +214,7 @@ await test('stream - copyAudioTracks into empty destination adds the cloned trac
 
 await test('stream - removeAudioTracks on empty stream is a no-op', expect => {
 	let removed = 0
+	/** @type {any} */
 	const stream = {
 		getAudioTracks() {
 			return []
@@ -219,6 +231,7 @@ await test('stream - removeAudioTracks on empty stream is a no-op', expect => {
 // --- stopStream with a plain non-MediaStream value is a no-op ------------
 
 await test('stream - stopStream with a plain object not inheriting from MediaStream is a no-op', expect => {
+	/** @type {any} */
 	const plain = { getTracks: () => [] }
 
 	// plain objects don't inherit from MediaStream/MediaRecorder so
@@ -229,6 +242,7 @@ await test('stream - stopStream with a plain object not inheriting from MediaStr
 // --- stopTracks when all arrays are empty --------------------------------
 
 await test('stream - stopTracks on empty stream is a no-op', expect => {
+	/** @type {any} */
 	const stream = {
 		getAudioTracks() {
 			return []

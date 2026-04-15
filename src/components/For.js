@@ -12,13 +12,24 @@ import { onFixes } from '../core/scheduler.js'
  * Renders reactive values from a signal that returns an Iterable
  * object
  *
- * @type {<T>(props: {
- * 	each: Each<T>
- * 	restoreFocus?: boolean
- * 	reactiveIndex?: boolean
- * 	children?: Children<(item: T, index: number) => JSX.Element>
- * 	fallback?: JSX.Element
- * }) => JSX.Element}
+ * @type {{
+ * 	<T>(props: {
+ * 		each: Each<T>
+ * 		restoreFocus?: boolean
+ * 		reactiveIndex?: false
+ * 		children?: Children<(item: T, index: number) => JSX.Element>
+ * 		fallback?: JSX.Element
+ * 	}): JSX.Element
+ * 	<T>(props: {
+ * 		each: Each<T>
+ * 		restoreFocus?: boolean
+ * 		reactiveIndex: true
+ * 		children?: Children<
+ * 			(item: T, index: () => number) => JSX.Element
+ * 		>
+ * 		fallback?: JSX.Element
+ * 	}): JSX.Element
+ * }}
  * @url https://pota.quack.uy/Components/For
  */
 export const For = props =>

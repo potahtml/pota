@@ -284,10 +284,6 @@ dNum(100)
 const dNumResolved: boolean = dNum.resolved()
 
 // isResolved() — top-level helper
-// KNOWN BUG: isResolved is constrained to T extends ReturnType<derived>,
-// which collapses to Derived<unknown>. A typed Derived<number> fails
-// the constraint due to setter contravariance. Untyped works.
-// @ts-expect-error variance issue with constrained generic
 const dNumIsResolved: boolean = isResolved(dNum)
 const dUntypedIsResolved: boolean = isResolved(derived(() => 42 as any))
 
@@ -387,7 +383,7 @@ async function awaitDerivedSanity() {
 // --- negative: derived does NOT expose arbitrary properties ---
 
 const dNeg = derived(() => 42)
-// @ts-expect-error derived has no .foo property
+// @ts-expect-error Derived does not expose arbitrary properties
 const _dNoFoo = dNeg.foo
 
 // ============================================

@@ -112,8 +112,12 @@ await test('framework - keyed list reordering preserves DOM node identity and un
 		</For>,
 	)
 
-	const firstNode = $('[data-id="a"]')
-	const secondNode = $('[data-id="b"]')
+	const firstNode = /** @type {HTMLInputElement} */ (
+		$('[data-id="a"]')
+	)
+	const secondNode = /** @type {HTMLInputElement} */ (
+		$('[data-id="b"]')
+	)
 
 	firstNode.value = 'typed A'
 	secondNode.value = 'typed B'
@@ -122,8 +126,12 @@ await test('framework - keyed list reordering preserves DOM node identity and un
 
 	expect($$('input')[0]).toBe(secondNode)
 	expect($$('input')[1]).toBe(firstNode)
-	expect($('[data-id="a"]').value).toBe('typed A')
-	expect($('[data-id="b"]').value).toBe('typed B')
+	expect(
+		(/** @type {HTMLInputElement} */ ($('[data-id="a"]'))).value,
+	).toBe('typed A')
+	expect(
+		(/** @type {HTMLInputElement} */ ($('[data-id="b"]'))).value,
+	).toBe('typed B')
 
 	dispose()
 })
@@ -360,6 +368,7 @@ await test('framework - Set as child renders all values', expect => {
 // --- component props are frozen ----------------------------------------------
 
 await test('framework - component props object is frozen', expect => {
+	/** @type {any} */
 	let capturedProps
 
 	function Capture(props) {
@@ -831,7 +840,7 @@ await test('framework - child switching from single element to array to null', e
 // --- signal returning 0 and empty string render as text ----------------------
 
 await test('framework - falsy non-null values 0 and empty string render as text, booleans render as nothing', expect => {
-	const val = signal(0)
+	const val = signal(/** @type {number | string | boolean} */ (0))
 	const dispose = render(<div>{val.read}</div>)
 
 	expect($('div').textContent).toBe('0')
@@ -1385,6 +1394,7 @@ await test('framework - component receives a reactive prop and updates in its ch
 // --- Array.isArray on the component children --------------------
 
 await test('framework - component children prop can be iterated when provided as array', expect => {
+	/** @type {any} */
 	let receivedLen
 
 	function Multi(props) {

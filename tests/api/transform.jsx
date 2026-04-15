@@ -15,6 +15,9 @@ const spread1 = (
 	<div
 		style="border: blue;"
 		{...style}
+		// duplicate `style` is intentional — this test pins that the
+		// later explicit prop wins after a spread.
+		// @ts-expect-error
 		style="border: red;"
 		prop:not-identifier={/* @static */ ' '.trim()}
 	/>
@@ -25,6 +28,10 @@ const spread3 = (
 		{...style}
 		{...{ ...style, ...style2 }}
 		style="border: orange;"
+		// `nada:nada` and `something` are intentionally non-standard
+		// — pins that arbitrary namespaced/extra props in spreads
+		// merge correctly.
+		// @ts-expect-error
 		nada:nada="test"
 	/>
 )
@@ -215,7 +222,7 @@ await test('transform - function child is subscribed and re-renders on signal ch
 // --- attributes -----------------------------------------------------------
 
 await test('transform - number attribute is stringified', expect => {
-	const dispose = render(<input tabIndex={3} />)
+	const dispose = render(<input tabindex={3} />)
 
 	expect($('input').getAttribute('tabindex')).toBe('3')
 

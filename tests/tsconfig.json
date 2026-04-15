@@ -4,5 +4,5 @@
 		"rootDir": "..",
 		"noEmit": true
 	},
-	"include": ["typescript/**/*.tsx"]
+	"include": ["**/*.jsx", "**/*.tsx", "**/*.d.ts"]
 }

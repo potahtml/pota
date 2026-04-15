@@ -26,6 +26,10 @@ type Context<T> = {
 			value: Partial<T>
 			children?: JSX.Element
 		}): JSX.Element
+		(props: {
+			value: { [K in keyof T]?: Accessor<T[K]> }
+			children?: JSX.Element
+		}): JSX.Element
 	}
 	/** Walk parent contexts; return `true` to stop */
 	walk: (

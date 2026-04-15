@@ -979,9 +979,9 @@ await test('forms - form.elements contains all named controls', expect => {
 
 	const form = $('form')
 	expect(form.elements.length).toBe(4)
-	expect(form.elements.a).toBe($('input[name="a"]'))
-	expect(form.elements.c).toBe($('select'))
-	expect(form.elements.d).toBe($('textarea'))
+	expect(form.elements.namedItem('a')).toBe($('input[name="a"]'))
+	expect(form.elements.namedItem('c')).toBe($('select'))
+	expect(form.elements.namedItem('d')).toBe($('textarea'))
 
 	dispose()
 })
@@ -1080,6 +1080,7 @@ await test('forms - reactive list of inputs via signal array', expect => {
 // --- spellcheck and wrap attributes -----------------------------------------
 
 await test('forms - spellcheck attribute renders correctly', expect => {
+	// @ts-expect-error prop:spellcheck not defined
 	const dispose = render(<textarea prop:spellcheck={false} />)
 
 	expect($('textarea').spellcheck).toBe(false)
@@ -1656,7 +1657,7 @@ await test('forms - readonly input has value but cannot be edited by user', expe
 // --- aria attributes ---------------------------------------------------------
 
 await test('forms - aria attributes render correctly', expect => {
-	const expanded = signal('false')
+	const expanded = signal(/** @type {'false' | 'true'} */ ('false'))
 	const dispose = render(
 		<button aria-expanded={expanded.read} aria-label="Toggle menu">
 			Menu

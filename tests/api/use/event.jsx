@@ -70,7 +70,7 @@ await test('event - emit dispatches a bubbling custom event with detail', expect
 
 	node.addEventListener('ping', event => {
 		dispatched = true
-		detail = event.detail
+		detail = /** @type {CustomEvent} */ (event).detail
 	})
 
 	emit(node, 'ping', {
@@ -162,6 +162,7 @@ await test('event - passiveEvent creates an event listener object', expect => {
 
 await test('event - emit with custom options overrides defaults', expect => {
 	const node = document.createElement('div')
+	/** @type {any} */
 	let captured
 
 	node.addEventListener('custom', e => {
