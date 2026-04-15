@@ -7,12 +7,6 @@
 - SLOW AND SIMPLE IS BETTER THAN FAST AND HARD TO UNDERSTAND
 - TAKE IT EASY, STEP BY STEP
 
-### wip
-
-- maybe ask for coverage reporting
-- get rid of colorsio
-- ask for performance improvements realted to polymorphism
-
 ### documentation
 
 - add proper 404
@@ -30,9 +24,6 @@
 
 - figure out if other things should be wrapped in
   `createReactiveSystem`
-
-### reactivity wishes
-
 - figure out if top level runs the same as when owned, or make top
   level owned, even if doesnt garbage collects - I couldnt figure out
   this one out
@@ -44,11 +35,6 @@
 - refactor transform again !
 - avoid double wrapping functions exclusively to use with the
   transform. Ex: not for tsc, react compiler, buildless/xml
-
-### typescript
-
-- type components somehow
-- type reactivity
 
 ### use
 
@@ -94,3 +80,9 @@ position is the previous position or so
 - v0.19.206 lin - pos 21 / 10k - 38ms - 4ms / 1k - 3ms - 0.25ms
 - v0.20.224 lin - pos 18 / 10k - 41ms - 4ms / 1k - 3ms - 0.25ms
 - v0.20.227 lin - pos 18 / 10k - 51ms - 7ms / 1k - 6ms - 0.6ms
+
+### for terminator
+
+- maybe ask for coverage reporting
+- get rid of colorsio dependency (I only use 1 function I think)
+- fix xml being run every single time
