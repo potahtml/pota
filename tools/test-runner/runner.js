@@ -80,7 +80,10 @@ if (!quiet) console.clear()
  */
 function scanTests() {
 	return filesRecursive(path.join(root, testDir))
-		.filter(f => testExts.some(ext => f.endsWith(ext)))
+		.filter(
+			f =>
+				!f.endsWith('.d.ts') && testExts.some(ext => f.endsWith(ext)),
+		)
 		.map(f => f.slice(root.length + 1))
 		.filter(f => !filter || f.includes(filter))
 		.filter(f => filter || !ignore.some(i => f.includes(i)))
@@ -109,8 +112,8 @@ async function runFile(browser, baseURL, file) {
 		})
 		await page.waitForFunction(
 			() =>
-				/** @type {TestWindow} */ (window).__pota_results__
-					?.done === true,
+				/** @type {TestWindow} */ (window).__pota_results__?.done ===
+				true,
 			{ timeout },
 		)
 
