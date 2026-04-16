@@ -37,7 +37,7 @@ const spread3 = (
 )
 const spread4 = <div {...{ ...style, ...style2 }} />
 
-await test('transform - spread1 renders with later explicit props winning', expect => {
+await test('transform - explicit prop after spread overrides the spread value', expect => {
 	const dispose = render(spread1)
 
 	expect(body()).toBe(
@@ -47,7 +47,7 @@ await test('transform - spread1 renders with later explicit props winning', expe
 	dispose()
 })
 
-await test('transform - spread2 renders spread object props', expect => {
+await test('transform - spread of an object renders all its keys as props', expect => {
 	const dispose = render(spread2)
 
 	expect(body()).toBe(
@@ -57,7 +57,7 @@ await test('transform - spread2 renders spread object props', expect => {
 	dispose()
 })
 
-await test('transform - spread3 merges nested spread expressions and explicit props', expect => {
+await test('transform - nested spreads merge with explicit props and namespaced keys', expect => {
 	const dispose = render(spread3)
 
 	expect(body()).toBe(
@@ -67,7 +67,7 @@ await test('transform - spread3 merges nested spread expressions and explicit pr
 	dispose()
 })
 
-await test('transform - spread4 renders merged spread object values', expect => {
+await test('transform - spread of a nested object spread merges into props', expect => {
 	const dispose = render(spread4)
 
 	expect(body()).toBe(

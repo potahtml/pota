@@ -90,7 +90,7 @@ await test('Dynamic - pre-existing node values are preserved across render', exp
 	dispose()
 })
 
-await test('Dynamic - DOESNT switches between tag names, functions and existing nodes reactively', expect => {
+await test('Dynamic - does NOT switch between tag names, functions and existing nodes reactively', expect => {
 	const node = document.createElement('aside')
 	node.textContent = 'node'
 

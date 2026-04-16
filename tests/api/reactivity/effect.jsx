@@ -50,9 +50,9 @@ await test('asyncEffect - queues async runs sequentially', async expect => {
 	expect(seen).toEqual(['a', 'b', 'c'])
 })
 
-// --- effect doesnt return cleanup -----------------------------------------------
+// --- effect does not return cleanup -----------------------------------------------
 
-await test('effect - effect doesnt returns cleanup', expect => {
+await test('effect - does not return cleanup', expect => {
 	const count = signal(1)
 	const seen = []
 

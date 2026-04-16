@@ -115,7 +115,7 @@ await test('Head - rendering the same singleton head elements twice leaves one l
 	disposeA()
 })
 
-await test('Head - disposing the latest singleton render DOESNT restores the previous values', expect => {
+await test('Head - disposing the latest singleton render does NOT restore the previous values', expect => {
 	const disposeA = render(
 		<Head>
 			<title>First</title>

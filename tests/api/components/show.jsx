@@ -417,7 +417,7 @@ await test('Show - async children: does not render if when toggles false before 
 	dispose()
 })
 
-await test('Show - callback v is an accessor, callback is also an v() but casues no tracking. Only v reflect current value', expect => {
+await test('Show - callback v is an accessor; v() reads without tracking, only v reflects current value', expect => {
 	const [val, setVal] = signal(42)
 	const dispose = render(
 		<Show when={val}>

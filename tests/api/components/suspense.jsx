@@ -38,7 +38,7 @@ await test('Suspense - renders multiple non-promise children directly', expect =
 	dispose()
 })
 
-await test('Suspense - doesnt show fallback when no children at all', expect => {
+await test('Suspense - does not show fallback when no children at all', expect => {
 	const dispose = render(<Suspense fallback={<p>loading</p>} />)
 	expect(body()).toBe('')
 	dispose()

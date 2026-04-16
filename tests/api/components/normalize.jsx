@@ -57,7 +57,7 @@ await test('Normalize - joins mixed children into 1 node', expect => {
 	dispose()
 })
 
-await test('Normalize - it doesnt render empty string', expect => {
+await test('Normalize - does not render empty string', expect => {
 	const dispose = render(<Normalize>{''}</Normalize>)
 	expect(body()).toBe('')
 	expect(childNodes()).toBe(1)
