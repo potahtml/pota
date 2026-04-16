@@ -86,3 +86,9 @@ position is the previous position or so
 - maybe ask for coverage reporting
 - get rid of colorsio dependency (I only use 1 function I think)
 - fix xml being run every single time
+- ask whats missing on the babel-preset
+
+### for terminator typescript
+
+- merge/replace/reset - should merge/replace/reset keys from source to
+  target
