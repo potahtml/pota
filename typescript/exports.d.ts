@@ -8,8 +8,8 @@
 
 /** Export modules here */
 
-export { derived } from './private/derived.d.ts'
-export { action } from './private/action.d.ts'
+export * from './private/derived.d.ts'
+export * from './private/action.d.ts'
 
 export * from '../generated/types/exports.d.ts'
 // Re-exported so consumers can write `declare module 'pota'`

@@ -34,7 +34,8 @@ export default function createPlugin({ name }) {
 						state.pota = { partials: {}, components: {}, files: {} }
 
 						// Skip files with a foreign JSX pragma
-						const comments = path.parent.comments || []
+						const comments =
+							/** @type {Babel.File} */ (path.parent).comments || []
 						for (const comment of comments) {
 							const value = comment.value
 							const sourceMatch = value.match(

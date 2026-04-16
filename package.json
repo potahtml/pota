@@ -63,7 +63,7 @@
 
 		"test": "node tools/test-runner/runner.js",
 		"test:babel-preset": "node tools/babel-preset/test/runner.js",
-		"test:typescript": "tsc && tsc -p tests/tsconfig.json --noEmit",
+		"test:typescript": "tsc && tsc -p tests/tsconfig.json && tsc -p babel-preset/tsconfig.json",
 
 		"release": "npm run test && npm run test:babel-preset && node tools/release.js",
 		"format": "prettier . -w --config=./package.json --no-editorconfig --plugin=prettier-plugin-jsdoc"

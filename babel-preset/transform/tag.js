@@ -21,7 +21,11 @@ export function getTagFunctionName(path) {
 	} else if (t.isStringLiteral(tagExpr)) {
 		return tagExpr.value
 	} else if (t.isMemberExpression(tagExpr)) {
-		return tagExpr.object.name + '.' + tagExpr.property.name
+		return (
+			/** @type {Babel.Identifier} */ (tagExpr.object).name +
+			'.' +
+			/** @type {Babel.Identifier} */ (tagExpr.property).name
+		)
 	} else {
 		console.log(tagExpr)
 		throw path.buildCodeFrameError(
@@ -52,8 +56,7 @@ export function convertJSXIdentifier(node, parent) {
 		if (node.name === 'this' && t.isReferenced(node, parent)) {
 			return t.thisExpression()
 		} else if (t.isValidIdentifier(node.name, false)) {
-			node.type = 'Identifier'
-			return node
+			return t.inherits(t.identifier(node.name), node)
 		} else {
 			return t.stringLiteral(node.name)
 		}

@@ -150,7 +150,8 @@ export function buildPartial(path, state) {
 			inlinedNode,
 			// do not spread if its a single object
 			objectSpread.length === 1
-				? objectSpread[0].argument
+				? /** @type {Babel.SpreadElement} */ (objectSpread[0])
+						.argument
 				: t.objectExpression(objectSpread),
 		)
 	} else {

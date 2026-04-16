@@ -1,6 +1,5 @@
-import * as core from '@babel/core'
+import { template, types as t } from '@babel/core'
 import { generateUidIdentifier } from './utils.js'
-const t = core.types
 
 /** Adds `__dev` prop to jsx as `<Component __dev={{..}}` */
 export function devToolsProps(path, state) {
@@ -164,11 +163,18 @@ function mergeArguments(args, devToolsArgument, argNumber) {
 		// merge current __dev with new __dev
 		for (const prop of args[argNumber].properties) {
 			// merge current __dev.pota with new __dev.pota
-			if (t.isObjectProperty(prop) && prop.key.name === '__dev') {
+			if (
+				t.isObjectProperty(prop) &&
+				t.isIdentifier(prop.key) &&
+				prop.key.name === '__dev' &&
+				t.isObjectExpression(prop.value)
+			) {
 				for (const _prop of prop.value.properties) {
 					if (
 						t.isObjectProperty(_prop) &&
-						_prop.key.name === '__pota'
+						t.isIdentifier(_prop.key) &&
+						_prop.key.name === '__pota' &&
+						t.isObjectExpression(_prop.value)
 					) {
 						_prop.value.properties.unshift(
 							...devToolsArgument.properties[0].value.properties[0]
@@ -242,7 +248,10 @@ function makeDynamicSource(path, state) {
 	const component = path.node.arguments[0]
 	let name
 	if (t.isMemberExpression(component)) {
-		name = component.object.name + '.' + component.property.name
+		name =
+			/** @type {t.Identifier} */ (component.object).name +
+			'.' +
+			/** @type {t.Identifier} */ (component.property).name
 	} else if (t.isStringLiteral(component)) {
 		name = component.value
 	} else {
@@ -404,8 +413,10 @@ function getFilenameIdentifier(path, state, filename) {
 	return state.pota.files[filename]
 }
 
+/** @returns {t.ObjectExpression} */
 function makeDevObject(kind, name, file, position) {
-	return core.template.expression.ast`{
+	return /** @type {t.ObjectExpression} */ (
+		template.expression.ast`{
 		__dev:{
 			__pota: {
 				kind: ${t.stringLiteral(kind)},
@@ -415,10 +426,13 @@ function makeDevObject(kind, name, file, position) {
 			}
 		}
   	}`
+	)
 }
 
+/** @returns {t.ObjectExpression} */
 function makePotaObject(kind, name, file, position) {
-	return core.template.expression.ast`{
+	return /** @type {t.ObjectExpression} */ (
+		template.expression.ast`{
 		__pota: {
 			kind: ${t.stringLiteral(kind)},
 			name: ${t.stringLiteral(name)},
@@ -426,4 +440,5 @@ function makePotaObject(kind, name, file, position) {
 			file: ${file} + ${t.stringLiteral(position)}
 		}
   	}`
+	)
 }

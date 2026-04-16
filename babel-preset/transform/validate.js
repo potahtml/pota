@@ -2,10 +2,13 @@ import { error } from './utils.js'
 
 import { parse, parseFragment, serialize } from 'parse5'
 
-const bodyElement = parse(
-	`<!DOCTYPE html><html><head></head><body></body></html>`,
-	// @ts-expect-error
-).childNodes[1].childNodes[1]
+/** @typedef {import('parse5').DefaultTreeAdapterTypes.Element} Element */
+
+const htmlElement = /** @type {Element} */ (
+	parse(`<!DOCTYPE html><html><head></head><body></body></html>`)
+		.childNodes[1]
+)
+const bodyElement = /** @type {Element} */ (htmlElement.childNodes[1])
 
 /**
  * Parses HTML fragment and serializes it to check browser parsing
@@ -15,7 +18,7 @@ const bodyElement = parse(
  * @returns {string} Serialized HTML after browser-like parsing
  */
 function innerHTML(htmlFragment) {
-	return serialize(parseFragment(bodyElement, htmlFragment))
+	return serialize(parseFragment(bodyElement, htmlFragment, {}))
 }
 
 /**

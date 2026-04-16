@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"rootDir": ".",
+		"noEmit": true,
+
+		"allowJs": true,
+		"checkJs": true,
+		"strict": true,
+		"noImplicitAny": false,
+		"strictNullChecks": false,
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"target": "ESNext",
+		"lib": ["ESNext"],
+
+		"types": ["node"]
+	},
+	"include": ["./**/*.js"],
+	"files": ["types.d.ts"],
+	"exclude": ["babel-preset-standalone.js", "node_modules"]
+}

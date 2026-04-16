@@ -127,7 +127,11 @@ export function isFunctionNamed(node, name) {
 	if (node.expression) {
 		return isFunctionNamed(node.expression, name)
 	}
-	return t.isCallExpression(node) && node.callee.name === name
+	return (
+		t.isCallExpression(node) &&
+		t.isIdentifier(node.callee) &&
+		node.callee.name === name
+	)
 }
 
 export function isNonTrackingAssignement(node) {
