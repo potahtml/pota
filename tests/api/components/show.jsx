@@ -4,7 +4,7 @@
 // fallback, children-as-callback, arrays, nesting, and async children.
 import { test, body, microtask } from '#test'
 
-import { render, signal } from 'pota'
+import { context, render, signal } from 'pota'
 import { Show } from 'pota/components'
 
 await test('Show - renders children when `when` is true', expect => {
@@ -586,4 +586,30 @@ await test('Show - dispose removes both shown content and fallback', expect => {
 	expect(body()).toBe('<p>content</p>')
 	dispose()
 	expect(body()).toBe('')
+})
+
+await test('Show - context is available after Show re-shows', expect => {
+	const Ctx = context('default')
+	const visible = signal(true)
+	const seen = []
+
+	const dispose = render(
+		<Ctx.Provider value="provided">
+			<Show when={visible.read}>
+				{() => {
+					seen.push(Ctx())
+					return <p>{Ctx()}</p>
+				}}
+			</Show>
+		</Ctx.Provider>,
+	)
+
+	expect(seen).toEqual(['provided'])
+
+	visible.write(false)
+	visible.write(true)
+
+	expect(seen).toEqual(['provided', 'provided'])
+
+	dispose()
 })

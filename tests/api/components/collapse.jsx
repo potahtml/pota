@@ -222,3 +222,44 @@ await test('Collapse - dispose removes the wrapper element', expect => {
 
 	expect($('pota-collapse')).toBe(null)
 })
+
+await test('Collapse - hides output but preserves uncontrolled input state across visibility toggles', expect => {
+	const visible = signal(true)
+
+	const dispose = render(
+		<Collapse when={visible.read}>
+			<input
+				id="field"
+				value="start"
+			/>
+		</Collapse>,
+	)
+
+	const input = /** @type {HTMLInputElement} */ (
+		document.getElementById('field')
+	)
+	input.value = 'typed'
+
+	const collapse = document.getElementsByTagName('pota-collapse')[0]
+
+	// showing
+	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
+
+	visible.write(false)
+
+	// empty
+	expect(collapse.shadowRoot.innerHTML).toBe('')
+
+	expect(document.getElementById('field')).toBe(input)
+	expect(input.value).toBe('typed')
+
+	visible.write(true)
+
+	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
+	expect(document.getElementById('field')).toBe(input)
+	expect(
+		(/** @type {HTMLInputElement} */ (document.getElementById('field'))).value,
+	).toBe('typed')
+
+	dispose()
+})

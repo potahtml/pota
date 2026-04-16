@@ -290,3 +290,22 @@ await test('context - object value is preserved by reference through the provide
 		expect(Ctx().name).toBe('dark')
 	})
 })
+
+// --- from reactivity.jsx -------------------------------------------------
+
+await test('context - provides defaults and nested overrides', expect => {
+	const Theme = context('light')
+
+	expect(Theme()).toBe('light')
+	expect(Theme('dark', () => Theme('contrast', () => Theme()))).toBe(
+		'contrast',
+	)
+	expect(Theme('dark', () => Theme())).toBe('dark')
+})
+
+await test('context - undefined default value works', expect => {
+	const Ctx = context()
+	expect(Ctx()).toBe(undefined)
+	expect(Ctx('hello', () => Ctx())).toBe('hello')
+	expect(Ctx()).toBe(undefined)
+})

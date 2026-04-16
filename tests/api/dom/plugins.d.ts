@@ -1,6 +1,7 @@
 // JSX prop augmentations for the custom prop plugins registered in
-// `dom.jsx` via `propsPluginNS`. Declares the `qa:*` and `inspect:*`
-// namespaces so the matching JSX call sites typecheck without `any`.
+// `plugins.jsx` via `propsPluginNS`. Declares the `qa:*` and
+// `inspect:*` namespaces so the matching JSX call sites typecheck
+// without `any`.
 
 declare namespace JSX {
 	interface ElementAttributes<Element> {

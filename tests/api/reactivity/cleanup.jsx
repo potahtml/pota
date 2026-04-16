@@ -1,11 +1,10 @@
 /** @jsxImportSource pota */
 
 // Tests for `cleanup()` — registering disposal callbacks on the
-// current owner. Covers: basic behavior, execution order, errors
-// inside cleanup functions (routed via routeError), and interaction
-// with the error boundary system.
+// current owner. Covers: basic behavior, execution order, component
+// scope unmount, untracked context, error routing through catchError.
 
-import { test } from '#test'
+import { test, body, microtask } from '#test'
 import {
 	cleanup,
 	catchError,
@@ -14,7 +13,132 @@ import {
 	memo,
 	syncEffect,
 	root,
+	render,
 } from 'pota'
+
+await test('cleanup - multiple callbacks run in LIFO order on dispose', expect => {
+	const seen = []
+
+	const dispose = root(d => {
+		cleanup(() => seen.push('first'))
+		cleanup(() => seen.push('second'))
+		cleanup(() => seen.push('third'))
+		return d
+	})
+
+	dispose()
+
+	expect(seen).toEqual(['third', 'second', 'first'])
+})
+
+await test('cleanup - runs when a component scope is unmounted', expect => {
+	const seen = []
+
+	function Component() {
+		cleanup(() => seen.push('cleaned'))
+		return <p>content</p>
+	}
+
+	const dispose = render(Component)
+
+	expect(body()).toBe('<p>content</p>')
+	expect(seen).toEqual([])
+
+	dispose()
+
+	expect(seen).toEqual(['cleaned'])
+})
+
+// --- cleanup order inside effect ---------------------------------------------
+
+await test('cleanup - multiple cleanups inside single effect run in reverse', expect => {
+	const trigger = signal(0)
+	const order = []
+
+	const dispose = root(d => {
+		effect(() => {
+			trigger.read()
+			cleanup(() => order.push('a'))
+			cleanup(() => order.push('b'))
+			cleanup(() => order.push('c'))
+		})
+		return d
+	})
+
+	expect(order).toEqual([])
+
+	trigger.write(1)
+	expect(order).toEqual(['c', 'b', 'a'])
+
+	dispose()
+})
+
+// --- cleanup runs exactly once per disposal --------------------------
+
+await test('cleanup - single cleanup fires exactly once on disposal', expect => {
+	const calls = []
+
+	const dispose = root(d => {
+		cleanup(() => calls.push('cleanup'))
+		return d
+	})
+
+	expect(calls).toEqual([])
+
+	dispose()
+	expect(calls).toEqual(['cleanup'])
+
+	// calling dispose again is a no-op for cleanup
+	dispose()
+	expect(calls).toEqual(['cleanup'])
+})
+
+// --- untrack inside a cleanup has no effect -------------------------
+
+await test('cleanup - runs in its own untracked context', expect => {
+	const count = signal(0)
+	const other = signal(100)
+	const seen = []
+	let runs = 0
+
+	const dispose = root(d => {
+		syncEffect(() => {
+			runs++
+			count.read()
+			cleanup(() => {
+				// cleanup fires before the next effect run (and on
+				// dispose). It reads the latest committed value of
+				// `count`, plus `other` — a signal the parent never
+				// tracked. Reading `other` inside cleanup must NOT
+				// subscribe the parent effect, otherwise writing to
+				// `other` below would force another run.
+				seen.push([count.read(), other.read()])
+			})
+		})
+		return d
+	})
+
+	expect(runs).toBe(1)
+	expect(seen).toEqual([])
+
+	// triggering the effect — the previous cleanup fires first, and
+	// reads the post-write values that are live at that moment
+	count.write(1)
+	expect(runs).toBe(2)
+	expect(seen).toEqual([[1, 100]])
+
+	// proof the cleanup's read of `other` did not subscribe the parent
+	other.write(200)
+	expect(runs).toBe(2)
+	expect(seen).toEqual([[1, 100]])
+
+	dispose()
+	// dispose runs the final cleanup with the current committed values
+	expect(seen).toEqual([
+		[1, 100],
+		[1, 200],
+	])
+})
 
 // --- basic behavior --------------------------------------------------
 
@@ -380,4 +504,57 @@ await test('cleanup — error when catchError disposes owned on sync throw', exp
 	// disposeOwned AND the original sync throw
 	expect(errors.includes('owned cleanup')).toBe(true)
 	expect(errors.includes('sync throw')).toBe(true)
+})
+
+await test('cleanup — runs before the next effect invocation, not after', async expect => {
+	const trigger = signal(0)
+	const order = []
+
+	const disposeRoot = root(dispose => {
+		effect(() => {
+			order.push('effect:' + trigger.read())
+			cleanup(() => {
+				order.push('cleanup:' + trigger.read())
+			})
+		})
+		return dispose
+	})
+
+	// effect is deferred (not sync), wait one macrotask
+	await microtask()
+	await microtask()
+
+	order.length = 0 // ignore initial run timing differences
+
+	trigger.write(1)
+	await microtask()
+	await microtask()
+
+	// after the run: cleanup from previous run, then the new run
+	expect(order[0]).toBe('cleanup:1')
+	expect(order[1]).toBe('effect:1')
+
+	disposeRoot()
+})
+
+await test('cleanup - nested effects clean up in reverse creation order', async expect => {
+	const order = []
+
+	const dispose = root(d => {
+		effect(() => {
+			cleanup(() => order.push('outer'))
+			effect(() => {
+				cleanup(() => order.push('inner'))
+			})
+		})
+		return d
+	})
+
+	await microtask()
+	await microtask()
+
+	dispose()
+
+	// inner cleanup fires before outer
+	expect(order).toEqual(['inner', 'outer'])
 })

@@ -1,9 +1,10 @@
 /** @jsxImportSource pota */
 
-// Tests for the routing components: A, load, Navigate, and Route —
-// path matching, :params, nested routes, navigation, link rendering,
-// Route.Default, collapse, scroll, useBeforeLeave, popstate, and
-// cleanup.
+// Tests for the `Route` component (and `Route.Default`) — path
+// matching, :params, nested routes, hash routing, when prop,
+// fallback, collapse, scroll, useBeforeLeave, popstate, and
+// cleanup. (Tests for `A`, `Navigate`, and `load()` live in
+// their own files.)
 import {
 	$,
 	test,
@@ -14,7 +15,7 @@ import {
 } from '#test'
 
 import { render, root } from 'pota'
-import { Route, A, Navigate, load, Errored } from 'pota/components'
+import { Route } from 'pota/components'
 import {
 	addListeners,
 	navigate,
@@ -574,147 +575,6 @@ await test('Route - collapse keeps pota-collapse in DOM when unmatched', async e
 
 // ─── A component ─────────────────────────────────────────────────────────────
 
-await test('A - renders an anchor element', async expect => {
-	await reset()
-	const dispose = render(
-		<Route path="/start">
-			<A href="/end">go</A>
-		</Route>,
-	)
-	goto('/start')
-	await microtask()
-	expect($('a')).not.toBe(null)
-	expect($('a').textContent).toBe('go')
-	dispose()
-})
-
-await test('A - resolves href on the rendered anchor', async expect => {
-	await reset()
-	const dispose = render(
-		<Route path="/start">
-			<A href="/destination">link</A>
-		</Route>,
-	)
-	goto('/start')
-	await microtask()
-	expect($('a').getAttribute('href')).toBe('/destination')
-	dispose()
-})
-
-await test('A - does not navigate when metaKey is held', async expect => {
-	await reset()
-	const dispose = render(
-		<>
-			<Route path="/start$">
-				<A href="/end">go</A>
-			</Route>
-			<Route path="/end$">end</Route>
-		</>,
-	)
-	goto('/start')
-	await microtask()
-	document
-		.querySelector('a')
-		.dispatchEvent(
-			new MouseEvent('click', { bubbles: true, metaKey: true }),
-		)
-	await microtask()
-	// body still shows the /start content (the link), not /end
-	expect(body()).toBe('<a href="/end">go</a>')
-	dispose()
-})
-
-await test('A - does not navigate when ctrlKey is held', async expect => {
-	await reset()
-	const dispose = render(
-		<>
-			<Route path="/start$">
-				<A href="/end">go</A>
-			</Route>
-			<Route path="/end$">end</Route>
-		</>,
-	)
-	goto('/start')
-	await microtask()
-	document
-		.querySelector('a')
-		.dispatchEvent(
-			new MouseEvent('click', { bubbles: true, ctrlKey: true }),
-		)
-	await microtask()
-	expect(body()).toBe('<a href="/end">go</a>')
-	dispose()
-})
-
-await test('A - does not pass params prop to rendered anchor', async expect => {
-	await reset()
-	const dispose = render(
-		<Route path="/page">
-			<A
-				href="/target"
-				params={{ id: '1' }}
-			>
-				link
-			</A>
-		</Route>,
-	)
-	goto('/page')
-	await microtask()
-	expect($('a').hasAttribute('params')).toBe(false)
-	dispose()
-})
-
-await test('A - forwards extra props to anchor', async expect => {
-	await reset()
-	const dispose = render(
-		<Route path="/page">
-			<A
-				href="/target"
-				class="my-link"
-			>
-				link
-			</A>
-		</Route>,
-	)
-	goto('/page')
-	await microtask()
-	expect($('a.my-link')).not.toBe(null)
-	dispose()
-})
-
-// ─── Navigate component ───────────────────────────────────────────────────────
-
-await test('Navigate - redirects to target path on render', async expect => {
-	await reset()
-	const origin = window.location.origin
-	const dispose = render(
-		<>
-			<Route path="/redirect$">
-				<Navigate path={`${origin}/target`} />
-			</Route>
-			<Route path="/target$">target page</Route>
-		</>,
-	)
-	goto('/redirect')
-	await macrotask()
-	expect(body()).toBe('target page')
-	dispose()
-})
-
-await test('Navigate - renders its children while redirecting', async expect => {
-	await reset()
-	const origin = window.location.origin
-	const dispose = render(
-		<Route path="/redirect$">
-			<Navigate path={`${origin}/elsewhere`}>Redirecting...</Navigate>
-		</Route>,
-	)
-	goto('/redirect')
-	await macrotask()
-	expect(window.location.pathname).toBe('/elsewhere')
-	dispose()
-})
-
 // ─── Browser history ─────────────────────────────────────────────────────────
 
 await test('Route - responds to popstate (browser back)', async expect => {
@@ -828,57 +688,6 @@ await test('Route - nested routes render correctly', async expect => {
 	dispose()
 })
 
-// --- A component resolves relative href ------------------------------------
-
-await test('A - renders anchor with interpolated params', async expect => {
-	await reset()
-	const dispose = render(
-		<Route path="/users">
-			<A
-				href="/users/:id"
-				params={{ id: '5' }}
-			>
-				link
-			</A>
-		</Route>,
-	)
-	goto('/users')
-	await microtask()
-
-	const anchor = $('a')
-	expect(anchor).not.toBe(null)
-	expect(anchor.getAttribute('href')).toInclude('5')
-
-	dispose()
-})
-
-// --- Navigate with replace ---------------------------------------------------
-
-await test('Navigate - replace option uses replaceState', async expect => {
-	await reset()
-	const before = history.length
-
-	// baseline: history has a known length before navigate
-	expect(before > 0).toBe(true)
-
-	const dispose = render(
-		<Navigate
-			path="/nav-replace"
-			replace
-		>
-			redirected
-		</Navigate>,
-	)
-
-	await sleepLong()
-
-	expect(body()).toInclude('redirected')
-	// history.length should not increase with replace
-	expect(history.length).toBe(before)
-
-	dispose()
-})
-
 // --- Route with scroll prop --------------------------------------------------
 
 await test('Route - scroll prop triggers scroll on match', async expect => {
@@ -937,90 +746,6 @@ await test('Route - useBeforeLeave callback can block navigation', async expect 
 	await sleepLong()
 	seen.length > 0 && expect(seen).toInclude('beforeLeave')
 
-	dispose()
-	await reset()
-})
-
-// --- load component ----------------------------------------------------------
-
-await test('load - resolves a dynamic import and renders its default export', async expect => {
-	await reset()
-
-	const Lazy = load(() =>
-		Promise.resolve({
-			default: () => <p>lazy loaded</p>,
-		}),
-	)
-
-	const dispose = render(
-		<Route path="/load-test$">
-			<Lazy />
-		</Route>,
-	)
-
-	goto('/load-test')
-	await macrotask()
-
-	expect(body()).toInclude('lazy loaded')
-
-	dispose()
-	await reset()
-})
-
-await test('load - retries on failure and eventually renders error string', async expect => {
-	await reset()
-	let attempts = 0
-
-	const Lazy = load(() => {
-		attempts++
-		return Promise.reject(new Error('network error'))
-	})
-
-	const dispose = render(
-		<Route path="/load-fail$">
-			<Lazy />
-		</Route>,
-	)
-
-	goto('/load-fail')
-
-	// load retries up to 9 times with 5s delay
-	// just verify it attempted at least once
-	await microtask()
-	await sleepLong()
-
-	expect(attempts >= 1).toBe(true)
-
-	dispose()
-	await reset()
-})
-
-await test('load - after exhausting retries, error routes to Errored boundary', async expect => {
-	await reset()
-	const originalError = console.error
-	console.error = () => {}
-
-	// start at tries=9 so first failure immediately throws
-	const Lazy = load(
-		() => Promise.reject(new Error('permanent failure')),
-		9,
-	)
-
-	const dispose = render(
-		<Route path="/load-errored$">
-			<Errored fallback={err => <p>{err.message}</p>}>
-				<Lazy />
-			</Errored>
-		</Route>,
-	)
-
-	goto('/load-errored')
-	await macrotask()
-	await sleepLong()
-
-	expect(body()).toInclude('permanent failure')
-
-	console.error = originalError
 	dispose()
 	await reset()
 })

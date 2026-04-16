@@ -350,3 +350,31 @@ await test('Suspense - nested independent suspense boundaries resolve separately
 	dispose()
 })
 
+await test('Suspense - sync children skip the fallback; promise children show it immediately', async expect => {
+	const disposeSync = render(
+		<Suspense fallback={<p>loading</p>}>
+			<p>sync child</p>
+		</Suspense>,
+	)
+
+	expect(body()).toBe('<p>sync child</p>')
+
+	disposeSync()
+
+	const asyncChild = new Promise(resolve => {
+		setTimeout(() => resolve(<p>async child</p>), 100)
+	})
+
+	const disposeAsync = render(
+		<Suspense fallback={<p>loading</p>}>{asyncChild}</Suspense>,
+	)
+
+	expect(body()).toBe('<p>loading</p>')
+
+	await asyncChild
+
+	expect(body()).toBe('<p>async child</p>')
+
+	disposeAsync()
+})
+

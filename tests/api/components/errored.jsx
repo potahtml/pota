@@ -4,7 +4,7 @@
 // throws in its subtree (sync render, effects, memos, deriveds,
 // event handlers) and renders a fallback. Also covers reset(),
 // nesting, cleanup, and parent/sibling state preservation.
-import { $, test, body, microtask } from '#test'
+import { $, test, body, microtask, sleep } from '#test'
 
 import {
 	render,
@@ -999,6 +999,103 @@ await test('Errored - error inside batch is caught', expect => {
 	expect(body()).toBe(
 		'<div><p id="counter">1</p><p>batched</p></div>',
 	)
+
+	console.error = originalError
+	dispose()
+})
+
+// --- Async / promise rejection ------------------------------------------------
+//
+// `withValue` chains `.then(onFulfilled, onRejected)` — rejected promises
+// inside an Errored boundary route to the fallback via the catchError
+// context provided by the boundary.
+
+await test('Errored — catches rejected promise and shows fallback', async expect => {
+	const originalError = console.error
+	console.error = () => {}
+
+	const Async = () => {
+		const d = derived(
+			() => Promise.reject(new Error('async fail')),
+		)
+		return <p>{d}</p>
+	}
+
+	const dispose = render(
+		<Errored fallback={err => <p>{err.message}</p>}>
+			<Async />
+		</Errored>,
+	)
+
+	await sleep(50)
+	expect(body()).toBe('<p>async fail</p>')
+
+	console.error = originalError
+	dispose()
+})
+
+await test('Errored — rejected promise does not break parent', async expect => {
+	const originalError = console.error
+	console.error = () => {}
+
+	const [count, setCount] = signal(0)
+
+	const Async = () => {
+		const d = derived(
+			() => Promise.reject(new Error('fail')),
+		)
+		return <p>{d}</p>
+	}
+
+	const dispose = render(
+		<div>
+			<p id="parent">{count}</p>
+			<Errored fallback={<p>caught</p>}>
+				<Async />
+			</Errored>
+		</div>,
+	)
+
+	await sleep(50)
+	expect(body()).toBe(
+		'<div><p id="parent">0</p><p>caught</p></div>',
+	)
+
+	// parent still updates
+	setCount(1)
+	expect($('#parent').textContent).toBe('1')
+
+	console.error = originalError
+	dispose()
+})
+
+await test('Errored — promise that resolves then rejects on signal change', async expect => {
+	const originalError = console.error
+	console.error = () => {}
+
+	const [shouldFail, setShouldFail] = signal(false)
+
+	const Async = () => {
+		const d = derived(() =>
+			shouldFail()
+				? Promise.reject(new Error('failed'))
+				: Promise.resolve('ok'),
+		)
+		return <p>{d}</p>
+	}
+
+	const dispose = render(
+		<Errored fallback={err => <p>{err.message}</p>}>
+			<Async />
+		</Errored>,
+	)
+
+	await sleep(50)
+	expect(body()).toBe('<p>ok</p>')
+
+	setShouldFail(true)
+	await sleep(50)
+	expect(body()).toBe('<p>failed</p>')
 
 	console.error = originalError
 	dispose()

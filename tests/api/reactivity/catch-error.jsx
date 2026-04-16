@@ -5,7 +5,7 @@
 // reactive throws (effect, memo, derived), nesting, siblings,
 // cleanup, and fallback to console.error when no handler exists.
 
-import { test } from '#test'
+import { test, sleep } from '#test'
 import {
 	catchError,
 	signal,
@@ -643,26 +643,6 @@ await test('owned — error in callback is caught by catchError handler', expect
 	expect(caught.message).toBe('owned boom')
 })
 
-await test('owned — error without handler goes to console.error', expect => {
-	const original = console.error
-	/** @type {any} */ let logged
-	console.error = err => {
-		logged = err
-	}
-
-	/** @type {any} */ let ownedFn
-	root(() => {
-		ownedFn = owned(() => {
-			throw new Error('owned unhandled')
-		})
-	})
-	ownedFn()
-
-	expect(logged instanceof Error).toBe(true)
-	expect(logged.message).toBe('owned unhandled')
-	console.error = original
-})
-
 await test('owned — disposed callback does not run or route', expect => {
 	/** @type {any} */ let caught
 	/** @type {any} */ let ownedFn
@@ -707,22 +687,6 @@ await test('root — throw inside root is caught by outer catchError', expect =>
 	})
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('root boom')
-})
-
-await test('root — throw without handler goes to console.error', expect => {
-	const original = console.error
-	/** @type {any} */ let logged
-	console.error = err => {
-		logged = err
-	}
-
-	root(() => {
-		throw new Error('root unhandled')
-	})
-
-	expect(logged instanceof Error).toBe(true)
-	expect(logged.message).toBe('root unhandled')
-	console.error = original
 })
 
 // --- handler error escalation ----------------------------------------
@@ -1163,66 +1127,6 @@ await test('catchError — two boundaries triggered by same signal catch indepen
 	expect(caughtB.message).toBe('B')
 })
 
-// --- batch prevents extra evaluation during reset -------------------
-
-await test('unbatched reset pattern causes extra memo evaluation', expect => {
-	const [flag, setFlag] = signal(true)
-	const [counter, , updateCounter] = signal(0)
-
-	let outerRuns = 0
-
-	root(dispose => {
-		const inner = memo(() => 'content-' + counter())
-
-		const outer = memo(() => {
-			outerRuns++
-			if (flag()) return 'fallback'
-			return inner()
-		})
-
-		expect(outer()).toBe('fallback')
-		expect(outerRuns).toBe(1)
-
-		// two writes WITHOUT batch: outer evaluates twice
-		setFlag(false)
-		updateCounter(n => n + 1)
-		expect(outer()).toBe('content-1')
-		expect(outerRuns).toBe(3)
-
-		dispose()
-	})
-})
-
-await test('batched reset pattern avoids extra memo evaluation', expect => {
-	const [flag, setFlag] = signal(true)
-	const [counter, , updateCounter] = signal(0)
-
-	let outerRuns = 0
-
-	root(dispose => {
-		const inner = memo(() => 'content-' + counter())
-
-		const outer = memo(() => {
-			outerRuns++
-			if (flag()) return 'fallback'
-			return inner()
-		})
-
-		expect(outer()).toBe('fallback')
-		outerRuns = 0
-
-		// same two writes WITH batch: outer evaluates once
-		batch(() => {
-			setFlag(false)
-			updateCounter(n => n + 1)
-		})
-		expect(outer()).toBe('content-1')
-		expect(outerRuns).toBe(1)
-
-		dispose()
-	})
-})
-
 // --- error after async resolution ------------------------------------
 
 await test('catchError — error triggered after promise resolution is caught', async expect => {
@@ -1250,3 +1154,161 @@ await test('catchError — error triggered after promise resolution is caught', 
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('post-async')
 })
+
+// --- Promise rejection routing ---------------------------------------
+//
+// `withValue` chains `.then(onFulfilled, onRejected)` — rejected
+// promises inside a catchError scope route to the error handler via
+// `owned` → `runWithOwner` → `routeError`.
+
+await test('catchError — catches rejected promise in derived', async expect => {
+	/** @type {any} */
+	let caught
+	root(() => {
+		catchError(
+			() => {
+				const d = derived(
+					() => Promise.reject(new Error('rejected')),
+				)
+				d()
+			},
+			err => {
+				caught = err
+			},
+		)
+	})
+
+	await sleep(50)
+	expect(caught instanceof Error).toBe(true)
+	expect(caught.message).toBe('rejected')
+})
+
+await test('catchError — catches non-Error rejected value', async expect => {
+	/** @type {any} */
+	let caught
+	root(() => {
+		catchError(
+			() => {
+				const d = derived(() => Promise.reject('plain string'))
+				d()
+			},
+			err => {
+				caught = err
+			},
+		)
+	})
+
+	await sleep(50)
+	expect(caught).toBe('plain string')
+})
+
+await test('catchError — catches rejected promise via signal change', async expect => {
+	/** @type {any} */
+	let caught
+	const [read, write] = signal(false)
+	root(() => {
+		catchError(
+			() => {
+				const d = derived(() =>
+					read()
+						? Promise.reject(new Error('later'))
+						: 'ok',
+				)
+				d()
+			},
+			err => {
+				caught = err
+			},
+		)
+	})
+
+	await sleep(50)
+	expect(caught).toBe(undefined) // no rejection yet
+
+	write(true) // now derived returns a rejecting promise
+	await sleep(50)
+	expect(caught instanceof Error).toBe(true)
+	expect(caught.message).toBe('later')
+})
+
+await test('catchError — rejection does not break sibling effects', async expect => {
+	/** @type {any} */
+	let caught
+	const seen = []
+	const [read, write] = signal(0)
+
+	root(() => {
+		catchError(
+			() => {
+				const d = derived(
+					() => Promise.reject(new Error('boom')),
+				)
+				d()
+			},
+			err => {
+				caught = err
+			},
+		)
+		// sibling effect
+		effect(() => {
+			seen.push(read())
+		})
+	})
+
+	await sleep(50)
+	expect(caught.message).toBe('boom')
+	expect(seen).toEqual([0])
+
+	write(1)
+	expect(seen).toEqual([0, 1])
+})
+
+await test('catchError — rejection without handler goes to console.error', async expect => {
+	const original = console.error
+	/** @type {any} */
+	let logged
+	console.error = err => {
+		logged = err
+	}
+
+	root(() => {
+		const d = derived(
+			() => Promise.reject(new Error('no handler')),
+		)
+		d()
+	})
+
+	await sleep(50)
+	expect(logged instanceof Error).toBe(true)
+	expect(logged.message).toBe('no handler')
+	console.error = original
+})
+
+await test('catchError — thrown error in one effect does not break other effects (no handler)', expect => {
+	const trigger = signal(0)
+	const seen = []
+	const originalError = console.error
+	console.error = () => {}
+
+	const dispose = root(d => {
+		effect(() => {
+			if (trigger.read() === 1) throw new Error('boom')
+		})
+		effect(() => {
+			seen.push('ok:' + trigger.read())
+		})
+		return d
+	})
+
+	// baseline: both effects ran without error
+	expect(seen).toInclude('ok:0')
+
+	trigger.write(1)
+
+	// second effect should still have run despite first throwing
+	expect(seen).toInclude('ok:1')
+
+	console.error = originalError
+	dispose()
+})
+

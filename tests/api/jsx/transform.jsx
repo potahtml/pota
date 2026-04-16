@@ -541,3 +541,85 @@ await test('transform - aria-* attributes render with dash preserved', expect =>
 
 	dispose()
 })
+
+// --- reactive pitfalls: closing over a signal value vs reading it --------
+
+await test('transform - reading a signal outside JSX captures the value at render time (not reactive)', expect => {
+	const count = signal(1)
+
+	// wrong way: snapshot taken at JSX construction
+	const dispose = render(<p>static: {count.read()}</p>)
+
+	expect(body()).toBe('<p>static: 1</p>')
+
+	count.write(2)
+
+	// value is NOT reactive — still shows 1
+	expect(body()).toBe('<p>static: 1</p>')
+
+	dispose()
+})
+
+await test('transform - signal accessor as JSX child stays reactive across writes', expect => {
+	const count = signal(1)
+
+	// correct way: the signal reader accessor is passed in
+	const dispose = render(<p>reactive: {count.read}</p>)
+
+	expect(body()).toBe('<p>reactive: 1</p>')
+
+	count.write(2)
+
+	// value updates in place
+	expect(body()).toBe('<p>reactive: 2</p>')
+
+	dispose()
+})
+
+await test('transform - spread props containing a signal stay reactive after render', expect => {
+	const id = signal('first')
+
+	// In pota the reactive value inside a spread is a function
+	// (the reader accessor), not a getter: assignProps passes the
+	// value straight to withValue, which wraps functions in effects.
+	const props = {
+		id: id.read,
+		class: 'static',
+	}
+
+	const dispose = render(<p {...props}>hi</p>)
+
+	expect($('p').getAttribute('id')).toBe('first')
+	expect($('p').className).toBe('static')
+
+	id.write('second')
+	expect($('p').getAttribute('id')).toBe('second')
+
+	dispose()
+})
+
+await test('transform - function child is invoked once per signal change (no extra DOM-append calls)', expect => {
+	const count = signal(0)
+	let calls = 0
+
+	const dispose = render(
+		<p>
+			{() => {
+				calls++
+				return count.read()
+			}}
+		</p>,
+	)
+
+	expect(calls).toBe(1)
+	expect(body()).toBe('<p>0</p>')
+
+	count.write(1)
+	expect(calls).toBe(2)
+	expect(body()).toBe('<p>1</p>')
+
+	count.write(2)
+	expect(calls).toBe(3)
+
+	dispose()
+})
