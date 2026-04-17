@@ -5,9 +5,9 @@
 // and value correctness.
 //
 // This file is in the test-runner `ignore` list so the default
-// `npm test` does not include it. Run explicitly with:
+// `npm run test:api` does not include it. Run explicitly with:
 //
-//   npm test -- derived-chain-expected
+//   npm run test:api -- derived-chain-expected
 //
 // See also `derived-chain-current.jsx` for baseline regression
 // tests and `documentation/derived.md` for the design doc.

@@ -48,11 +48,10 @@ await test('JSX prop:innerHTML - sets HTML content via property', expect => {
 await test('setProperty - reactive signal updates property', expect => {
 	const node = document.createElement('input')
 	const val = signal('first')
-	let dispose
 
-	root(d => {
-		dispose = d
+	const dispose = root(d => {
 		setProperty(node, 'value', val.read)
+		return d
 	})
 
 	expect(node.value).toBe('first')
@@ -72,7 +71,7 @@ await test('setProperty - stores any value directly on the element', expect => {
 	const payload = { user: 'Ada' }
 	setProperty(node, 'customPayload', payload)
 
-	expect(node.customPayload).toBe(payload)
+	expect(/** @type {any} */ (node).customPayload).toBe(payload)
 
 	node.remove()
 })

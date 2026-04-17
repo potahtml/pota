@@ -2,6 +2,7 @@
 	"compilerOptions": {
 		"rootDir": ".",
 		"noEmit": true,
+		"preserveWatchOutput": true,
 
 		"allowJs": true,
 		"checkJs": true,

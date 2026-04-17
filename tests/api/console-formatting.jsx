@@ -4,7 +4,7 @@
 // across console methods, error shapes, and edge cases.
 //
 // Run with flags to inspect output:
-//   npm test -- console-formatting --log --warn --error
+//   npm run test:api -- console-formatting --log --warn --error
 
 import { test } from '#test'
 import { test as useTest } from 'pota/use/test'

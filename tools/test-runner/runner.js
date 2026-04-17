@@ -30,6 +30,7 @@ const args = process.argv.slice(2)
 const doWatch = args.includes('--watch') || args.includes('-w')
 const bail = args.includes('--bail')
 const quiet = args.includes('--quiet') || args.includes('-q')
+const noClear = quiet || args.includes('--no-clear')
 const reportOpts = {
 	quiet,
 	log: args.includes('--log'),
@@ -45,7 +46,7 @@ const filter = args.find(
 // runs).
 const port = doWatch ? config.port || 0 : 0
 
-if (!quiet) console.clear()
+if (!noClear) console.clear()
 
 /**
  * @typedef {{
@@ -274,7 +275,7 @@ async function startWatching(baseURL) {
 		pending = null
 		clearCache()
 
-		if (!quiet) {
+		if (!noClear) {
 			console.clear()
 			process.stdout.write('\x1Bc')
 		}

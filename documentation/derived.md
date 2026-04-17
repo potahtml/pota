@@ -16,7 +16,7 @@ Related files:
   regression tests
 - `tests/api/reactivity/derived-chain-expected.jsx` — per-stage
   re-run and user-write override tests. Run explicitly with
-  `npm test -- derived-chain-expected`
+  `npm run test:api -- derived-chain-expected`
 
 ## Public shape
 
@@ -216,5 +216,5 @@ temporary override, not a permanent one.
   value correctness. Run explicitly:
 
   ```
-  npm test -- derived-chain-expected
+  npm run test:api -- derived-chain-expected
   ```

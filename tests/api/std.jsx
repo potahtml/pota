@@ -23,7 +23,7 @@ import {
 	toValues,
 	walkParents,
 	withResolvers,
-} from '../../../src/lib/std.js'
+} from '../../src/lib/std.js'
 
 await test('std - toValues returns arrays directly and values iterators for map-like objects', expect => {
 	const array = ['a', 'b']

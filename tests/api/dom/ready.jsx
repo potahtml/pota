@@ -9,9 +9,7 @@ import { ready, readyAsync, render, root, withValue } from 'pota'
 await test('ready and readyAsync - flush after synchronous and async work', async expect => {
 	const seen = []
 
-	let dispose
-	root(rootDispose => {
-		dispose = rootDispose
+	const dispose = root(d => {
 		ready(() => seen.push('ready'))
 		withValue(
 			Promise.resolve('done'),
@@ -19,6 +17,7 @@ await test('ready and readyAsync - flush after synchronous and async work', asyn
 			() => seen.push('pending'),
 		)
 		readyAsync(() => seen.push('readyAsync'))
+		return d
 	})
 
 	expect(seen).toEqual(['pending'])
@@ -54,10 +53,9 @@ await test('ready - inside a component fires after component mounts', async expe
 await test('readyAsync - fires after microtask when no async work is pending', async expect => {
 	const seen = []
 
-	let dispose
-	root(rootDispose => {
-		dispose = rootDispose
+	const dispose = root(d => {
 		readyAsync(() => seen.push('fired'))
+		return d
 	})
 
 	expect(seen).toEqual([])
@@ -72,12 +70,11 @@ await test('readyAsync - fires after microtask when no async work is pending', a
 await test('readyAsync - batches multiple callbacks into one flush', async expect => {
 	const seen = []
 
-	let dispose
-	root(rootDispose => {
-		dispose = rootDispose
+	const dispose = root(d => {
 		readyAsync(() => seen.push('a'))
 		readyAsync(() => seen.push('b'))
 		readyAsync(() => seen.push('c'))
+		return d
 	})
 
 	expect(seen).toEqual([])
@@ -113,21 +110,21 @@ await test('readyAsync - does not fire after owner is disposed', async expect =>
 await test('readyAsync - waits for async work added during promise resolution', async expect => {
 	const seen = []
 
-	let resolveOuter
+	/** @type {(value: unknown) => void} */
+	let resolveOuter = () => {}
 	const outer = new Promise(r => {
 		resolveOuter = r
 	})
 	const inner = Promise.resolve('inner-done')
 
-	let dispose
-	root(rootDispose => {
-		dispose = rootDispose
+	const dispose = root(d => {
 		withValue(
 			outer,
 			value => seen.push(value),
 			() => seen.push('outer-pending'),
 		)
 		readyAsync(() => seen.push('readyAsync'))
+		return d
 	})
 
 	expect(seen).toEqual(['outer-pending'])

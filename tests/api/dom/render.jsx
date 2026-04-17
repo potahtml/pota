@@ -98,11 +98,13 @@ await test('insert - appends without clear when asked to keep existing content',
 })
 
 await test('toHTML - creates detached DOM nodes', expect => {
-	const nodes = toHTML(
-		<>
-			<p>a</p>
-			<p>b</p>
-		</>,
+	const nodes = /** @type {NodeListOf<HTMLParagraphElement>} */ (
+		toHTML(
+			<>
+				<p>a</p>
+				<p>b</p>
+			</>,
+		)
 	)
 
 	expect(nodes.length).toBe(2)
@@ -113,7 +115,9 @@ await test('toHTML - creates detached DOM nodes', expect => {
 })
 
 await test('toHTML - returns a single detached node when markup has one root', expect => {
-	const nodes = toHTML(<p>single</p>)
+	const nodes = /** @type {HTMLParagraphElement} */ (
+		toHTML(<p>single</p>)
+	)
 
 	expect(nodes instanceof HTMLParagraphElement).toBe(true)
 	expect(nodes.outerHTML).toBe('<p>single</p>')

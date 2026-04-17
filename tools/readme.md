@@ -16,17 +16,44 @@ published package.
 
 ## One-shot vs watch
 
-Each build task and the test runner have two script variants:
+Each build task and the browser test runner have two script variants:
 
 | One-shot (exits when done)   | Watch (stays alive, rebuilds on changes) |
 | ---------------------------- | ---------------------------------------- |
-| `npm run build:typescript`   | `npm run watch:typescript`               |
+| `npm run build:ts`           | `npm run watch:ts`                       |
 | `npm run build:babel-preset` | `npm run watch:babel-preset`             |
 | `npm run build:generate`     | `npm run watch:generate`                 |
-| `npm test`                   | `npm run watch:test`                     |
+| `npm run test:api`           | `npm run watch:test`                     |
 
-Use `build:*` to check output once (e.g. verify a change compiled
-correctly). Use `watch:*` (via `npm run dev`) during active development.
+Use `build:*` to regenerate artifacts once (e.g. verify a change
+compiled correctly). Use `watch:*` (via `npm run dev`) during
+active development.
+
+## Typecheck scripts
+
+Three scoped typecheck scripts, each with a watch variant:
+
+| One-shot                       | Watch                          | Config                        | Emits?         |
+| ------------------------------ | ------------------------------ | ----------------------------- | -------------- |
+| `npm run test:ts`              | `npm run watch:ts`             | `tsconfig.json` (`src/`)      | yes — `generated/types/` |
+| `npm run test:ts-tests`        | `npm run watch:ts-tests`       | `tests/tsconfig.json`         | no (`noEmit`)  |
+| `npm run test:ts-babel-preset` | `npm run watch:ts-babel-preset` | `babel-preset/tsconfig.json` | no (`noEmit`)  |
+
+`test:ts` and `build:ts` are the same command (`tsc`); the alias
+exists so `test:types` can group the three typechecks under one
+name. `test:types` chains them sequentially and is itself the
+first stage of `npm test`.
+
+All three tsconfigs set `preserveWatchOutput: true` (root +
+`babel-preset/` directly; `tests/` inherits from root) so their
+diagnostics don't wipe the shared `npm run dev` console when
+another watcher reports.
+
+## Full verification
+
+`npm test` runs the whole suite: `test:types` → `test:api` →
+`test:babel-preset`. That's what `npm run release` chains in front
+of `tools/release.js`.
 
 ## watch.js
 
@@ -66,9 +93,10 @@ contents become the signed git tag message (`-F
 ./documentation/breaking-changes.md`). The tag is signed (`-s -a`),
 so a GPG key must be configured.
 
-`npm run release` chains `npm test && npm run test:babel-preset` in
-front of `release.js`, so a failing suite aborts before the version
-bump — no commit, tag, or push.
+`npm run release` chains `npm test` in front of `release.js` (which
+covers types, browser tests, and the babel-preset smoke suite), so a
+failing suite aborts before the version bump — no commit, tag, or
+push.
 
 ```
 npm run release

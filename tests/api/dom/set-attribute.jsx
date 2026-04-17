@@ -9,12 +9,11 @@ import { render, root, setAttribute, setProperty, signal } from 'pota'
 await test('setAttribute and setProperty - support raw values and reactive accessors', expect => {
 	const node = document.createElement('input')
 	const title = signal('hello')
-	let dispose
 
-	root(rootDispose => {
-		dispose = rootDispose
+	const dispose = root(d => {
 		setAttribute(node, 'data-title', title.read)
 		setProperty(node, 'value', title.read)
+		return d
 	})
 
 	expect(node.getAttribute('data-title')).toBe('hello')
@@ -66,13 +65,12 @@ await test('setAttribute - true sets empty string, false removes', expect => {
 // --- reactive attribute removal ----------------------------------------------
 
 await test('setAttribute - reactive signal switching to false removes attribute', expect => {
-	const val = signal('yes')
+	const val = signal(/** @type {string | boolean} */ ('yes'))
 	const node = document.createElement('div')
-	let dispose
 
-	root(d => {
-		dispose = d
+	const dispose = root(d => {
 		setAttribute(node, 'data-active', val.read)
+		return d
 	})
 
 	expect(node.getAttribute('data-active')).toBe('yes')
@@ -104,8 +102,13 @@ await test('setAttribute - object value falls back to its string form', expect =
 	const node = document.createElement('div')
 	document.body.append(node)
 
-	setAttribute(node, 'data-object', { a: 1 })
-	// default toString of object
+	// Passing an object is outside the declared type — we cast to
+	// exercise the default `toString()` coercion path at runtime.
+	setAttribute(
+		node,
+		'data-object',
+		/** @type {any} */ ({ a: 1 }),
+	)
 	expect(node.getAttribute('data-object')).toBe('[object Object]')
 
 	node.remove()

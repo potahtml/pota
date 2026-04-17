@@ -729,7 +729,7 @@ export function insert(
  * Creates and returns HTML Elements for `children`
  *
  * @param {JSX.Element} children
- * @returns {JSX.Element}
+ * @returns {ChildNode | NodeListOf<ChildNode>}
  * @url https://pota.quack.uy/toHTML
  */
 export function toHTML(children) {

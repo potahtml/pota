@@ -139,7 +139,7 @@ await test('forms - form.checkValidity passes when every field is valid', expect
 
 await test('forms - novalidate on form still exposes per-field validity flags', expect => {
 	const dispose = render(
-		<form noValidate>
+		<form novalidate>
 			<input name="a" required />
 		</form>,
 	)

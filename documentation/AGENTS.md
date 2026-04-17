@@ -116,9 +116,12 @@ subpath is for:
   must preserve proper node disposal.
 - Tests are `.jsx` / `.tsx` files transformed on the fly with the
   local Babel preset via `tools/test-runner/transform.js`.
-- `npm test` runs once (all files, no bail). `npm run watch:test`
-  enables watch mode. `npm test -- --bail` stops on first failure.
-  Positional arguments filter by path substring: `npm test -- for`.
+- `npm run test:api` runs the browser suite once (all files, no
+  bail). `npm run watch:test` enables watch mode. `npm run test:api
+  -- --bail` stops on first failure. Positional arguments filter by
+  path substring: `npm run test:api -- for`. `npm test` orchestrates
+  `test:types` + `test:api` + `test:babel-preset` — use it when you
+  want the full verification pass.
 
 ### Test runner architecture
 

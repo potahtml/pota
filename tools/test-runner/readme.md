@@ -53,6 +53,7 @@ CLI flags:
 | `--watch` / `-w`      | enable watch mode (re-run on changes)          |
 | `--bail`              | stop on first failing file                     |
 | `--quiet` / `-q`      | hide passing tests and suppress console clears |
+| `--no-clear`          | suppress console clears only (passing tests still shown) |
 | `--log`               | show captured `console.log` from passing tests |
 | `--warn`              | show captured `console.warn` from passing tests |
 | `--error`             | show captured `console.error` from passing tests |
@@ -64,11 +65,15 @@ their flags; `console.log` still needs `--log`.
 ## Usage
 
 ```
-npm test                            # run once, all files
+npm run test:api                    # run once, all files
 npm run watch:test                  # watch mode
-npm test -- --bail                  # stop on first failure
-npm test -- route                   # filter by name
+npm run test:api -- --bail          # stop on first failure
+npm run test:api -- route           # filter by name
 ```
+
+`npm test` also runs this suite, but chains `test:types` and
+`test:babel-preset` around it. Use `test:api` when you only want
+the browser tests or need to pass flags/filters to the runner.
 
 ## Import rewriting
 

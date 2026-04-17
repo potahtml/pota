@@ -204,7 +204,7 @@ await test('JSX class prop - array with null/falsy items skips them', expect => 
 })
 
 await test('JSX class prop - reactive switching from string to array', expect => {
-	const cls = signal('initial')
+	const cls = signal(/** @type {string | string[]} */ ('initial'))
 	const dispose = render(
 		<p class={cls.read}>text</p>,
 	)
@@ -220,7 +220,9 @@ await test('JSX class prop - reactive switching from string to array', expect =>
 })
 
 await test('JSX class prop - reactive switching from array to string', expect => {
-	const cls = signal(['alpha', 'beta'])
+	const cls = signal(
+		/** @type {string | string[]} */ (['alpha', 'beta']),
+	)
 	const dispose = render(
 		<p class={cls.read}>text</p>,
 	)
@@ -237,7 +239,12 @@ await test('JSX class prop - reactive switching from array to string', expect =>
 })
 
 await test('JSX class prop - reactive switching from object to array', expect => {
-	const cls = signal({ active: true, hidden: true })
+	const cls = signal(
+		/** @type {Record<string, boolean> | string[]} */ ({
+			active: true,
+			hidden: true,
+		}),
+	)
 	const dispose = render(
 		<p class={cls.read}>text</p>,
 	)
@@ -256,7 +263,12 @@ await test('JSX class prop - reactive switching from object to array', expect =>
 })
 
 await test('JSX class prop - reactive switching from array to object', expect => {
-	const cls = signal(['alpha', 'beta'])
+	const cls = signal(
+		/** @type {string[] | Record<string, boolean>} */ ([
+			'alpha',
+			'beta',
+		]),
+	)
 	const dispose = render(
 		<p class={cls.read}>text</p>,
 	)

@@ -116,7 +116,7 @@ tests/
     console-formatting.jsx  test-runner capture pipeline
     std.jsx                 selected `src/lib/std.js` utilities
     xml.jsx                 `pota/xml` tagged-template renderer
-  typescript/               typecheck-only (.tsx), run via `npm run test:typescript`
+  typescript/               typecheck-only (.tsx), run via `npm run test:ts-tests`
 ```
 
 The Puppeteer runner discovers everything under `tests/api/` that
@@ -157,7 +157,7 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 | `context.jsx`                   | `context` / Provider / `walk`                   |
 | `derived.jsx`                   | `derived` — primitive semantics, promise / array handling, `lastWrite` token |
 | `derived-chain-current.jsx`     | multi-stage chain baselines                     |
-| `derived-chain-expected.jsx`    | per-stage re-run + user-write override (run explicitly: `npm test -- derived-chain-expected`) |
+| `derived-chain-expected.jsx`    | per-stage re-run + user-write override (run explicitly: `npm run test:api -- derived-chain-expected`) |
 | `effect.jsx`                    | `effect`                                        |
 | `external-signal.jsx`           | `externalSignal`                                |
 | `map.jsx`                       | `map`                                           |
@@ -246,7 +246,7 @@ imports from `#test` and the matching `pota/use/<name>` subpath.
 
 ## `tests/typescript/` — typecheck-only tests
 
-Run via `npm run test:typescript` (`tsc -p tests/tsconfig.json`).
+Run via `npm run test:ts-tests` (`tsc -p tests/tsconfig.json`).
 Catalog of scope in `documentation/typescript.md`.
 
 | File             | Scope                                                |

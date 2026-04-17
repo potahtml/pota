@@ -37,12 +37,14 @@ type NSStyle = {
 }
 
 type CSSAttributes = NSStyle & {
-	class?:
+	class?: Attribute<
+		| string
+		| Array<string | false | null | undefined>
 		| Record<
 				string,
 				Attribute<string | boolean | number | null | undefined>
 		  >
-		| Attribute<string>
+	>
 
 	style?: Attribute<
 		| { [P in keyof CSSProperties]: Attribute<CSSProperties[P]> }
@@ -69,6 +71,24 @@ declare namespace JSX {
 	interface ElementChildrenAttribute {
 		children: {}
 	}
+
+	/**
+	 * Called by TS with the component type `C` and the inferred props
+	 * shape `P` — the return type is what JSX actually validates against.
+	 *
+	 * For class components (extending `Pota` / any `ElementClass`), the
+	 * runtime `createClass` merges JSX props on top of the class's
+	 * `props` field defaults, so every individual prop is optional at
+	 * the JSX call site. Wrapping `P` in `Partial` expresses that.
+	 *
+	 * Function components pass through unchanged — their props are
+	 * whatever the function's signature declares.
+	 */
+	type LibraryManagedAttributes<C, P> = C extends abstract new (
+		...args: any
+	) => ElementClass
+		? Partial<P>
+		: P
 
 	/*
 		JSX.IntrinsicClassAttributes // class attributes

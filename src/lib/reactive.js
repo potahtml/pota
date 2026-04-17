@@ -553,7 +553,13 @@ export function unwrap(children) {
 /**
  * Extend `Pota` and define a `render(){}` method to create a class
  * component. `ready(cb)` and `cleanup(cb)` methods will be registered
- * automatically
+ * automatically.
+ *
+ * JSX props become `Partial<P>` via `JSX.LibraryManagedAttributes`
+ * — the renderer merges JSX props on top of the `props` field
+ * defaults (see `createClass` in `src/core/renderer.js`), so every
+ * individual JSX prop is optional at the call site. Inside
+ * `render()`, the parameter is the full `P`.
  *
  * @template {Record<string, unknown>} [P=Record<string, unknown>]
  *   Default is `Record<string, unknown>`

@@ -9,7 +9,9 @@ await test('isComponent, markComponent and makeCallback - normalize public compo
 	const marked = markComponent(() => 'y')
 	const callback = makeCallback([
 		'left',
-		value => `-${value()}-`,
+		/** @type {(value: () => string) => string} */ (
+			value => `-${value()}-`
+		),
 		'right',
 	])
 	const value = signal('mid')
