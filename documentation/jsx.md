@@ -114,10 +114,13 @@ Describes the overloaded function returned by `context()`:
 - `()` — read the current value (returns `T`)
 - `(value: T, fn)` — run `fn` with the **full** context value
 - `(value: Partial<T>, fn)` — run `fn` with a **partial** override
-- `.Provider` — component with two overloads:
+- `.Provider` — component with three overloads:
   - `<Ctx.Provider value={fullT}>` matches strictly
   - `<Ctx.Provider value={partialT}>` falls through to the
     `Partial<T>` overload
+  - `<Ctx.Provider value={{ [K]: Accessor<T[K]> }}>` — a reactive
+    override where each key is an `Accessor<T[K]>` (plain value or
+    signal / derived)
 - `.walk(callback, context?): boolean` — walks parent contexts;
   returns `true` when the callback stopped iteration by returning
   `true`
@@ -158,10 +161,11 @@ For each `K in keyof T`, Properties maps to `prop:${K}` only if:
 6. `IsReadonlyKey<T, K>` is false — writable
 
 `PropValue` is `string | number | boolean | null | MediaStream |
-MediaSource | Blob | File | Element` — primitives plus the writable
-DOM object types needed for `<audio>` / `<video>.srcObject` and
-for the popover / command APIs (`popoverTargetElement`,
-`commandForElement` on `<button>` / `<input>`).
+MediaSource | Blob | File | Element | Date` — primitives plus the
+writable DOM object types needed for `<audio>` / `<video>.srcObject`,
+the popover / command APIs (`popoverTargetElement`,
+`commandForElement` on `<button>` / `<input>`), and `Date` so
+`<input type="date">` `prop:valueAsDate` stays writable.
 
 The value type is `Accessor<V>` where `V` is `T[K]` with one
 ergonomic widening: **general `string` → `string | number`**. HTML

@@ -37,14 +37,29 @@ All options live in `package.json` under the `"test"` key:
 | ------------- | ------------------------- | -------------------------------- |
 | `dir`         | `"tests/api/"`            | test directory (relative to cwd) |
 | `port`        | `7357` (watch mode only)  | server port in watch mode; one-shot runs always use a random port |
-| `timeout`     | `5000`                    | per-file timeout (ms)            |
-| `concurrency` | `10`                      | parallel browser tabs            |
+| `timeout`     | `8000`                    | per-file timeout (ms)            |
+| `concurrency` | `16`                      | parallel browser tabs            |
 | `extensions`  | `[".jsx", ".tsx", ".ts"]` | file extensions to test          |
 | `ignore`      | `[]`                      | path substrings to exclude       |
 
-CLI flags: `--watch` / `-w` (enable watch mode), `--bail` (stop on
-first failure), `--quiet` / `-q` (hide passing tests and suppress
-console clears), positional filter substring.
+The runner falls back to built-in defaults (`5000`, `10`) if the keys
+are missing from `package.json`, but the shipped `package.json`
+overrides both.
+
+CLI flags:
+
+| Flag                  | Purpose                                        |
+| --------------------- | ---------------------------------------------- |
+| `--watch` / `-w`      | enable watch mode (re-run on changes)          |
+| `--bail`              | stop on first failing file                     |
+| `--quiet` / `-q`      | hide passing tests and suppress console clears |
+| `--log`               | show captured `console.log` from passing tests |
+| `--warn`              | show captured `console.warn` from passing tests |
+| `--error`             | show captured `console.error` from passing tests |
+| *positional*          | filter — only run files whose path contains it |
+
+On failure, `console.error` and `console.warn` auto-show even without
+their flags; `console.log` still needs `--log`.
 
 ## Usage
 

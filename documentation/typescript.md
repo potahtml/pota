@@ -286,6 +286,7 @@ type PropValue =
 	| string | number | boolean | null
 	| MediaStream | MediaSource | Blob | File
 	| Element
+	| Date
 ```
 
 This auto-generates through `Properties<T>`:
@@ -293,6 +294,7 @@ This auto-generates through `Properties<T>`:
 - `prop:srcObject` on `<audio>` / `<video>` (Media API)
 - `prop:popoverTargetElement` on `<button>` / `<input>` (Popover API)
 - `prop:commandForElement` on `<button>` (Command / Invoker API)
+- `prop:valueAsDate` on `<input>` (Date API)
 
 No hand-coded declarations needed for any of these. `null` stays in
 the union so nullable DOM props like `crossOrigin: string | null`
@@ -343,10 +345,13 @@ Applied patterns in pota:
   `<For each={derived(...)}>` infers `T` cleanly.
 - **`SignalFunction<T>`** — same pattern (setter, then getter).
 - **`Context<T>`** — setter(T) → setter(Partial<T>) → getter last.
-- **`Context<T>.Provider`** — full-T overload first (strict call
-  site), `Partial<T>` overload last (broader structural view).
-  `<Ctx.Provider value={fullT}>` matches overload 1 strictly;
-  `<Ctx.Provider value={partial}>` falls through to overload 2.
+- **`Context<T>.Provider`** — three overloads: full-T first
+  (strict call site), `Partial<T>` second (partial override view),
+  then `{ [K in keyof T]?: Accessor<T[K]> }` last (broader
+  structural view, allows signals / derived / plain accessors per
+  key). `<Ctx.Provider value={fullT}>` matches overload 1;
+  `<Ctx.Provider value={partial}>` falls through to overload 2;
+  reactive overrides hit overload 3.
 - **`Component()`** — factory first, intrinsic-tag-strict second,
   free-`P` last (see next bullet).
 

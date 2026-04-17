@@ -10,11 +10,13 @@ Related files:
 - `src/lib/reactive.js` — re-export wiring
 - `src/use/bind.js` — primary user-facing consumer (`bind` wraps
   `derived`)
-- `tests/api/exports/reactivity.jsx` — regression tests
-- `tests/api/derived-chain-current.jsx` — baseline regression tests
-- `tests/api/derived-chain-expected.jsx` — per-stage re-run and
-  user-write override tests (in the test-runner `ignore` list; run
-  explicitly with `npm test -- derived-chain-expected`)
+- `tests/api/reactivity/derived.jsx` — primary regression tests
+  (signal semantics, promise unwrapping, `lastWrite` token behavior)
+- `tests/api/reactivity/derived-chain-current.jsx` — baseline
+  regression tests
+- `tests/api/reactivity/derived-chain-expected.jsx` — per-stage
+  re-run and user-write override tests. Run explicitly with
+  `npm test -- derived-chain-expected`
 
 ## Public shape
 
@@ -48,9 +50,7 @@ update() {
     const time = Time
     try {
         this.lastWrite = {}
-        runWith(() => {
-            this.write(this.fn[0](), this.fn.slice(1))
-        }, this, this)
+        runWith(this._runFn, this, this)
     } catch (err) {
         this.state = 1 /* STALE */
         this.disposeOwned()
@@ -58,13 +58,19 @@ update() {
         routeError(this, err)
     }
 }
+
+_runFn = () => {
+    this.write(this.fn[0](), this.fn.slice(1))
+}
 ```
 
 `runWith(fn, owner, listener)` sets `Owner = Listener = this`, so
 signals read during `this.fn[0]()` register **this Derived** as
-an observer. The result is then written via `this.write(result,
-[f1, f2])` — the remaining functions are passed as the `fns`
-tail, which starts the recursive chain dispatch.
+an observer. `_runFn` is a pre-bound arrow so `runWith` can
+dispatch without rebinding on every run. It calls
+`this.write(result, [f1, f2])` — the remaining functions are
+passed as the `fns` tail, which starts the recursive chain
+dispatch.
 
 `this.lastWrite = {}` stamps a fresh token once for the entire
 chain run. All stages share this token.
@@ -127,9 +133,9 @@ This closes two races:
    resolution time). The first promise's token is now stale, so
    its later resolution is rejected.
 
-Covered by tests under `tests/api/exports/reactivity.jsx` —
-search for `sync write during pending promise` and
-`second resolves at 10ms`.
+Covered by tests under `tests/api/reactivity/derived.jsx` —
+search for `stale-promise rejection` and the
+`lastWrite token` section.
 
 ### Chain re-runs: `Listener` check
 
@@ -197,13 +203,17 @@ temporary override, not a permanent one.
 
 ## Tests
 
-- `tests/api/derived-chain-current.jsx` — baseline regression
-  tests: single-stage, multi-stage pure, multi-stage with
-  intermediate deps, unrelated signal isolation.
+- `tests/api/reactivity/derived.jsx` — primary regression
+  tests: read/write, promise unwrapping, async token semantics,
+  `await d` thenable, `isResolved`.
 
-- `tests/api/derived-chain-expected.jsx` — per-stage re-run
-  tests, multi-hop chains, user write override semantics, value
-  correctness. In the test-runner `ignore` list; run explicitly:
+- `tests/api/reactivity/derived-chain-current.jsx` — baseline
+  regression tests: single-stage, multi-stage pure, multi-stage
+  with intermediate deps, unrelated signal isolation.
+
+- `tests/api/reactivity/derived-chain-expected.jsx` — per-stage
+  re-run tests, multi-hop chains, user write override semantics,
+  value correctness. Run explicitly:
 
   ```
   npm test -- derived-chain-expected

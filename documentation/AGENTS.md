@@ -14,9 +14,15 @@ based on signalified objects and proxies.
   `createReactiveSystem()` from `src/lib/solid.js`
 - `src/core/renderer.js`: DOM creation, rendering, JSX runtime
   helpers, partial instantiation
+- `src/core/scheduler.js`: priority queue for `onFixes`, `onProps`,
+  `onMount`, `ready`, `onDone`, and `readyAsync`
 - `src/core/props/@main.js`: prop dispatch and plugin registration
-- `src/components/`: built-in components (`Route`, `Suspense`,
-  `CustomElement`, etc.)
+- `src/lib/store.js` + `src/lib/store/`: signalified objects,
+  `mutable`, reconcile (`merge` / `replace` / `reset`), and
+  `project` / `firewall`
+- `src/components/`: built-in components (`Show`, `For`, `Match`,
+  `Switch`, `Range`, `Collapse`, `Suspense`, `Errored`, `Portal`,
+  `Head`, `Normalize`, `Dynamic`, `CustomElement`, `Route`, `Tabs`)
 - `src/use/`: public utilities exposed as `pota/use/*`
 - `babel-preset/transform/`: custom JSX compiler internals (separate
   subpackage at the repo root; not typechecked)
@@ -164,10 +170,16 @@ error objects with cause chains, assertion failure shapes, and
 - If you touch `src/core/renderer.js`, also inspect affected built-in
   components and the JSX transform output paths.
 - If you touch `src/core/props/` or `src/use/dom.js`, verify DOM
-  behavior and attribute/property semantics first.
+  behavior and attribute/property semantics first. See
+  `documentation/props-pipeline.md` for the dispatcher and value
+  semantics.
+- If you touch `src/core/scheduler.js`, see
+  `documentation/scheduler.md` for priority ordering and the
+  microtask lifecycle.
 - If you touch `src/lib/reactive.js`, `src/lib/solid.js`, or
   `src/lib/store/`, verify ownership, cleanup, and proxy/reactivity
-  behavior.
+  behavior. See `documentation/reactivity.md` for the engine and
+  `documentation/derived.md` for `Derived` specifics.
 - If you touch routing or navigation, read both
   `src/components/route/` and `src/use/location.js`; they are
   coupled.
@@ -178,3 +190,19 @@ error objects with cause chains, assertion failure shapes, and
   to Claude Code
 - `documentation/todo.md` and `documentation/breaking-changes.md`:
   maintainer notes and pending release notes
+- `documentation/reactivity.md`: deep-dive on
+  `createReactiveSystem()` — global state, Root / Computation /
+  Memo / Derived hierarchy, the `runUpdates` flush cycle
+- `documentation/derived.md`: `Derived` internals — chain
+  dispatch, `lastWrite` token, per-stage re-runs
+- `documentation/scheduler.md`: priority queue (`onFixes`,
+  `onProps`, `onMount`, `ready`, `onDone`), microtask lifecycle,
+  `readyAsync`
+- `documentation/props-pipeline.md`: `assignProps` dispatch,
+  plugin maps (`plugins` / `pluginsNS`), namespace handling,
+  value semantics per setter
+- `documentation/jsx.md` and `documentation/typescript.md`: type
+  surface (JSX namespace, `Properties<T>`, component utility
+  types, overload ordering)
+- `documentation/errored.md`: error boundary design + how errors
+  route through context

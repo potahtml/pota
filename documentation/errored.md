@@ -1,7 +1,7 @@
 # Errored component — design & implementation notes
 
 Notes for `pota/components`' `Errored` export: a classic error
-boundary, pota-flavored. Status: **implemented**. Tests at
+boundary, pota-flavored. Tests at
 `tests/api/components/errored.jsx`.
 
 ## Why
@@ -351,7 +351,7 @@ Notes on the shape:
 | nested: inner catches reactive, outer unaffected   | reactive inner-first          |
 | error inside batch is caught                       | batch integration             |
 
-### `tests/api/catch-error.jsx`
+### `tests/api/reactivity/catch-error.jsx`
 
 | Test                                               | What it proves                |
 | -------------------------------------------------- | ----------------------------- |
@@ -405,7 +405,11 @@ Notes on the shape:
 | unbatched reset causes extra memo evaluation       | batch proof (unbatched)       |
 | batched reset avoids extra memo evaluation         | batch proof (batched)         |
 
-### `tests/api/promise-rejection.jsx`
+### Rejected promise routing — split across `tests/api/components/errored.jsx` and `tests/api/reactivity/derived.jsx`
+
+Rejected promises route through `withValue` → `owned` → `routeError`.
+There is no separate `promise-rejection.jsx` file any more — the
+coverage lives alongside the primitive that triggers it:
 
 | Test                                               | What it proves                |
 | -------------------------------------------------- | ----------------------------- |
@@ -421,7 +425,7 @@ Notes on the shape:
 | action rejected promise without handler → console  | resolve rejection fallback    |
 | action rejection in chain stage routes to handler  | resolve chain rejection       |
 
-### `tests/api/cleanup.jsx`
+### `tests/api/reactivity/cleanup.jsx`
 
 | Test                                               | What it proves                |
 | -------------------------------------------------- | ----------------------------- |
