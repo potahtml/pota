@@ -1,7 +1,7 @@
 {
 	"name": "pota",
 	"description": "pota is a small and pluggable Reactive Web Renderer.",
-	"version": "0.20.227",
+	"version": "0.20.228",
 	"author": "Tito Bouzout",
 	"homepage": "https://pota.quack.uy/",
 	"type": "module",
@@ -49,31 +49,23 @@
 	},
 	"scripts": {
 		"dev": "npm run clean && npm run build:ts && node tools/watch.js",
-
 		"clean": "rm -Rf generated/*",
-
 		"build:ts": "tsc",
 		"build:babel-preset": "rollup -c tools/babel-preset/rollup.config.js",
 		"build:generate": "node tools/generate.js",
-
 		"watch:ts": "tsc -w",
 		"watch:ts-tests": "tsc -p tests/tsconfig.json -w",
 		"watch:ts-babel-preset": "tsc -p babel-preset/tsconfig.json -w",
-
 		"watch:babel-preset": "rollup -c tools/babel-preset/rollup.config.js -w",
 		"watch:generate": "node tools/generate.js -w",
 		"watch:test": "node tools/test-runner/runner.js -w -q",
-
 		"test": "npm run test:types && npm run test:api -- --no-clear -q && npm run test:babel-preset",
-
 		"test:api": "node tools/test-runner/runner.js",
 		"test:babel-preset": "node tools/babel-preset/test/runner.js",
-
 		"test:types": "npm run test:ts && npm run test:ts-tests && npm run test:ts-babel-preset",
 		"test:ts": "tsc",
 		"test:ts-tests": "tsc -p tests/tsconfig.json",
 		"test:ts-babel-preset": "tsc -p babel-preset/tsconfig.json",
-
 		"release": "npm run test && node tools/release.js",
 		"format": "prettier . -w --config=./package.json --no-editorconfig --plugin=prettier-plugin-jsdoc"
 	},
@@ -107,7 +99,11 @@
 		"port": 7357,
 		"timeout": 8000,
 		"concurrency": 16,
-		"extensions": [".jsx", ".tsx", ".ts"],
+		"extensions": [
+			".jsx",
+			".tsx",
+			".ts"
+		],
 		"ignore": []
 	},
 	"prettier": {
