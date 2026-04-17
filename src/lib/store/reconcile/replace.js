@@ -14,7 +14,11 @@ import { copy } from '../copy.js'
 
 /**
  * Merge `source` into `target` and removes from `target` keys not
- * present in `source`
+ * present in `source`. Returns `target` for convenience; the returned
+ * reference is the same object that was passed in. Note that the
+ * returned type `T & U` approximates the final shape — keys of `T`
+ * absent from `U` are deleted at runtime but still appear in the
+ * returned type.
  *
  * ```js
  * import { replace } from 'pota/store'
@@ -54,14 +58,19 @@ import { copy } from '../copy.js'
  * ```
  *
  * @template T
+ * @template U
  * @param {T} target
- * @param {object} source
- * @param {object} [keys] Keep references on objects with the same key
+ * @param {U} source
+ * @param {import('#type/store.d.ts').KeysOption<U>} [keys] Keep
+ *   references on objects with the same key. Shape mirrors `source`.
+ * @returns {T & U}
  */
-export const replace = (target, source, keys) =>
+export const replace = (target, source, keys) => (
 	batch(() =>
 		untrack(() => reconcile(target, copy(source), keys, '')),
-	)
+	),
+	/** @type {T & U} */ (target)
+)
 
 function reconcile(target, source, keys, id, inArray) {
 	for (id in source) {

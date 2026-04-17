@@ -47,6 +47,77 @@ const r = replace(state, { list: [7], nested: { a: 4, b: 5 } })
 // reset — reset to source shape
 reset(state, { list: [], nested: { a: 0 } })
 
+// ============================================
+// reconcile — return values
+// ============================================
+// merge / replace / reset each return target so callers can capture
+// a narrowed shape. The returned reference is the same object.
+
+// merge returns T & U — source keys are visible on the result
+const mergedState = storeMerge(
+	{ a: 1 } as { a: number },
+	{ b: 2 } as { b: number },
+)
+const merged_a: number = mergedState.a
+const merged_b: number = mergedState.b
+
+// replace returns T & U
+const replacedState = replace(
+	{ a: 1 } as { a: number },
+	{ b: 2 } as { b: number },
+)
+const replaced_b: number = replacedState.b
+
+// reset returns T & U
+const resetState = reset(
+	{ a: 1 } as { a: number },
+	{ b: 2 } as { b: number },
+)
+const reset_a: number = resetState.a
+const reset_b: number = resetState.b
+
+// ============================================
+// reconcile — keys option
+// ============================================
+// The keys option mirrors the target path down to arrays; at an
+// array the leaf is `{ key: <fieldName> }`.
+
+type Row = { id: number; name: string }
+type Nested = { rows: Row[] }
+type Deep = { group: { users: Row[] } }
+
+const rowsTarget = mutable<Nested>({
+	rows: [{ id: 1, name: 'a' }],
+})
+
+// valid: key option at the array path
+storeMerge(rowsTarget, { rows: [{ id: 2, name: 'b' }] }, {
+	rows: { key: 'id' },
+})
+replace(rowsTarget, { rows: [{ id: 2, name: 'b' }] }, {
+	rows: { key: 'name' },
+})
+
+storeMerge(rowsTarget, { rows: [{ id: 2, name: 'b' }] }, {
+	// @ts-expect-error — 'notAField' is not a key of Row
+	rows: { key: 'notAField' },
+})
+
+// @ts-expect-error — 'notARow' is not a property of target
+storeMerge(rowsTarget, { rows: [] }, { notARow: { key: 'id' } })
+
+// nested path: keys mirrors { group: { users: { key } } }
+const deepTarget = mutable<Deep>({
+	group: { users: [{ id: 1, name: 'a' }] },
+})
+
+storeMerge(deepTarget, { group: { users: [{ id: 2, name: 'b' }] } }, {
+	group: { users: { key: 'id' } },
+})
+
+// @ts-expect-error — primitive leaf has no keys option
+storeMerge({ a: 1 } as { a: number }, { a: 2 }, { a: { key: 'x' } })
+
 // copy — shallow copy
 const copied = copy(state)
 

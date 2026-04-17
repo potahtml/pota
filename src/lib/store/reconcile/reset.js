@@ -8,7 +8,9 @@ import {
 import { copy } from '../copy.js'
 
 /**
- * Resets from `target` whats defined in `source`
+ * Resets from `target` whats defined in `source`. Returns `target`
+ * for convenience; the returned reference is the same object that was
+ * passed in.
  *
  * ```js
  * import { reset } from 'pota/store'
@@ -22,11 +24,15 @@ import { copy } from '../copy.js'
  * ```
  *
  * @template T
+ * @template U
  * @param {T} target
- * @param {object} source
+ * @param {U} source
+ * @returns {T & U}
  */
-export const reset = (target, source) =>
-	batch(() => untrack(() => reconcile(target, copy(source))))
+export const reset = (target, source) => (
+	batch(() => untrack(() => reconcile(target, copy(source)))),
+	/** @type {T & U} */ (target)
+)
 
 function reconcile(target, source, id) {
 	for (id in source) {
