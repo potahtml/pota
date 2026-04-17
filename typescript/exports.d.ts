@@ -1,4 +1,4 @@
-/** Export ambient(d.ts files without exports) here */
+/** Export ambient(non-module d.ts files) here */
 
 /// <reference path="./public/pota.d.ts" />
 /// <reference path="./public/components.d.ts" />

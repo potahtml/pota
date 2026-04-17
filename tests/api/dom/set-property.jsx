@@ -97,3 +97,32 @@ await test('JSX prop: vs plain prop - plain props default to attributes, prop:in
 
 	dispose()
 })
+
+// --- <progress> null case ------------------------------------------------
+
+await test('setProperty - null / undefined on progress.value do not break the element', expect => {
+	// The source comment in `props/property.js` calls this out:
+	// writing `undefined` to `progress.value` breaks the whole tag.
+	// The setter normalises nullish writes to `null` so the element
+	// returns to its indeterminate state cleanly.
+	const node = document.createElement('progress')
+	node.max = 100
+	document.body.append(node)
+
+	setProperty(node, 'value', 50)
+	expect(node.value).toBe(50)
+
+	setProperty(node, 'value', null)
+	// After `null`, progress.value reports 0 (the spec's "no value"
+	// reading). The key is that neither the write nor the readback
+	// throws.
+	expect(node.value).toBe(0)
+
+	setProperty(node, 'value', 75)
+	expect(node.value).toBe(75)
+
+	setProperty(node, 'value', undefined)
+	expect(node.value).toBe(0)
+
+	node.remove()
+})

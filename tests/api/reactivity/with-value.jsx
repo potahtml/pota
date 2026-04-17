@@ -2,8 +2,14 @@
 // promise handling, plain-value passthrough, array-of-functions,
 // pending callback semantics.
 
-import { test, microtask } from '#test'
-import { signal, withValue, getValue, root } from 'pota'
+import { test, microtask, sleep } from '#test'
+import {
+	signal,
+	withValue,
+	getValue,
+	catchError,
+	root,
+} from 'pota'
 
 await test('withValue and getValue - unwrap functions and promises', async expect => {
 	const count = signal(1)
@@ -76,4 +82,104 @@ await test('getValue - unwraps a function but passes through primitives', expect
 	expect(getValue(null)).toBe(null)
 	expect(getValue(undefined)).toBe(undefined)
 	expect(getValue(() => 'fn-result')).toBe('fn-result')
+})
+
+// --- withValue empty array resolves immediately ------------------------
+
+await test('withValue - empty array calls fn once with []', expect => {
+	const seen = []
+
+	root(() => {
+		withValue(
+			[],
+			value => seen.push(value),
+			() => seen.push('pending'),
+		)
+	})
+
+	// No items to wait for — fn runs immediately with the empty array.
+	expect(seen).toEqual([[]])
+})
+
+// --- withValue with mixed sync and async items --------------------------
+
+await test('withValue - array mixing sync primitives and a promise waits for all', async expect => {
+	const seen = []
+
+	root(() => {
+		withValue(
+			['sync', Promise.resolve('async'), 42],
+			value => seen.push(value),
+			() => seen.push('pending'),
+		)
+	})
+
+	// Before the promise settles the default is written once.
+	expect(seen).toEqual(['pending'])
+
+	await microtask()
+
+	// After resolution, fn is called exactly once with the fully
+	// resolved array.
+	expect(seen).toEqual(['pending', ['sync', 'async', 42]])
+})
+
+// --- withValue promise rejection routes to catchError -----------------
+
+await test('withValue - rejected promise routes to the nearest catchError', async expect => {
+	/** @type {any} */
+	let caught
+	const seen = []
+
+	root(() => {
+		catchError(
+			() => {
+				withValue(
+					Promise.reject(new Error('withValue fail')),
+					value => seen.push(value),
+					() => seen.push('pending'),
+				)
+			},
+			err => {
+				caught = err
+			},
+		)
+	})
+
+	expect(seen).toEqual(['pending'])
+
+	await sleep(10)
+
+	expect(caught instanceof Error).toBe(true)
+	expect(caught.message).toBe('withValue fail')
+	// fn never got called because the promise rejected — only the
+	// pending default was written.
+	expect(seen).toEqual(['pending'])
+})
+
+// --- withValue unhandled rejection falls through to console.error ----
+
+await test('withValue - rejection without handler reaches console.error', async expect => {
+	const original = console.error
+	/** @type {any} */ let logged
+	console.error = err => {
+		logged = err
+	}
+
+	const dispose = root(d => {
+		withValue(
+			Promise.reject(new Error('unhandled wv')),
+			() => {},
+			() => {},
+		)
+		return d
+	})
+
+	await sleep(10)
+
+	expect(logged instanceof Error).toBe(true)
+	expect(logged.message).toBe('unhandled wv')
+
+	console.error = original
+	dispose()
 })

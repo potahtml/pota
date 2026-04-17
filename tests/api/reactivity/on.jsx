@@ -2,7 +2,7 @@
 // body-read isolation.
 
 import { test } from '#test'
-import { signal, on, root } from 'pota'
+import { signal, on, batch, memo, root } from 'pota'
 
 await test('on - tracks only explicit dependencies', expect => {
 	const trigger = signal(1)
@@ -79,4 +79,78 @@ await test('on - only triggers on explicit dep change, not on body read', expect
 	dep.write(2)
 	expect(runs.length).toBe(2)
 	expect(runs[1][0]).toBe(2)
+})
+
+// --- on stops firing after its owner is disposed --------------------
+
+await test('on - stops firing after owner is disposed', expect => {
+	const dep = signal(0)
+	const runs = []
+
+	const dispose = root(d => {
+		on(dep.read, () => runs.push(dep.read()))
+		return d
+	})
+
+	expect(runs).toEqual([0])
+
+	dep.write(1)
+	expect(runs).toEqual([0, 1])
+
+	dispose()
+
+	dep.write(2)
+	expect(runs).toEqual([0, 1]) // no further runs after dispose
+})
+
+// --- on inside batch fires once per batch ---------------------------
+
+await test('on - batched writes produce a single run', expect => {
+	const a = signal(1)
+	const b = signal(2)
+	const runs = []
+
+	root(() => {
+		on(
+			() => [a.read(), b.read()],
+			() => runs.push([a.read(), b.read()]),
+		)
+	})
+
+	expect(runs).toEqual([[1, 2]])
+
+	batch(() => {
+		a.write(10)
+		b.write(20)
+	})
+
+	// Only ONE re-run even though two tracked deps changed.
+	expect(runs).toEqual([
+		[1, 2],
+		[10, 20],
+	])
+})
+
+// --- on with a memo as dependency -----------------------------------
+
+await test('on - re-runs when a tracked memo value changes', expect => {
+	const a = signal(1)
+	const b = signal(2)
+	const seen = []
+
+	root(() => {
+		const sum = memo(() => a.read() + b.read())
+		// `on(depend, fn)` calls `fn()` without arguments — read the
+		// memo inside the body (untracked, so only `depend` drives
+		// subscriptions).
+		on(sum, () => seen.push(sum()))
+	})
+
+	expect(seen).toEqual([3])
+
+	a.write(4)
+	expect(seen).toEqual([3, 6])
+
+	b.write(10)
+	expect(seen).toEqual([3, 6, 14])
 })
