@@ -86,9 +86,13 @@ import { Errored } from 'pota/components'
   the subtree before it threw.
 - Errors thrown inside cleanup functions during disposal are caught
   and routed to the nearest boundary. Remaining cleanups still run.
-- Rejected promises in `derived` (via `withValue`) and `action`
-  chains (via `resolve`) are caught and routed to the nearest
-  boundary.
+- Rejected promises are caught and routed to the nearest boundary,
+  regardless of how they reach the renderer:
+  - inside `derived` (via `withValue`),
+  - inside `action` chains (via `resolve`),
+  - as a bare promise child (e.g. a component that returns
+    `new Promise(...)` or `{somePromise}` in JSX — the renderer's
+    promise branch chains an `owned` rejection handler).
 
 ### Non-goals
 
@@ -421,6 +425,7 @@ coverage lives alongside the primitive that triggers it:
 | Errored catches rejection and shows fallback       | DOM-level rejection           |
 | rejected promise does not break parent             | parent preservation           |
 | promise resolves then rejects on signal change     | reactive rejection            |
+| component returning rejected promise caught        | bare promise child routing    |
 | action rejected promise routes to handler          | resolve rejection routing     |
 | action rejected promise without handler → console  | resolve rejection fallback    |
 | action rejection in chain stage routes to handler  | resolve chain rejection       |

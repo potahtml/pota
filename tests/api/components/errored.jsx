@@ -1069,6 +1069,56 @@ await test('Errored — rejected promise does not break parent', async expect =>
 	dispose()
 })
 
+await test('Errored — component returning rejected promise is caught by fallback', async expect => {
+	const originalError = console.error
+	console.error = () => {}
+
+	const [attempt, , updateAttempt] = signal(0)
+
+	function AsyncBoom() {
+		return new Promise((_, reject) => {
+			setTimeout(() => reject(new Error('fetch failed')), 20)
+		})
+	}
+
+	/** @type {any} */
+	let resetFn
+	const dispose = render(
+		<Errored
+			fallback={(err, reset) => {
+				resetFn = reset
+				return (
+					<div>
+						<p>Something broke: {String(err)}</p>
+						<button
+							on:click={() => {
+								updateAttempt(n => n + 1)
+								reset()
+							}}
+						>
+							retry
+						</button>
+					</div>
+				)
+			}}
+		>
+			<p>Loading…</p>
+			<AsyncBoom />
+		</Errored>,
+	)
+
+	// before the promise rejects, children show
+	expect(body()).toBe('<p>Loading…</p>')
+
+	await sleep(80)
+	expect(body()).toBe(
+		'<div><p>Something broke: Error: fetch failed</p><button>retry</button></div>',
+	)
+
+	console.error = originalError
+	dispose()
+})
+
 await test('Errored — promise that resolves then rejects on signal change', async expect => {
 	const originalError = console.error
 	console.error = () => {}

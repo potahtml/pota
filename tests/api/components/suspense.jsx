@@ -6,7 +6,7 @@
 import { test, body, macrotask, microtask, sleep } from '#test'
 
 import { render } from 'pota'
-import { Suspense } from 'pota/components'
+import { Suspense, Errored } from 'pota/components'
 // --- No promises ---------------------------------------------------------------
 
 await test('Suspense - renders non-promise children directly', expect => {
@@ -231,9 +231,34 @@ await test('Suspense - dispose during pending clears the fallback', async expect
 	expect(body()).toBe('')
 })
 
-await test('Suspense - rejected promise renders the error', async expect => {
+await test('Suspense - rejected promise propagates to Errored boundary', async expect => {
 	const originalError = console.error
-	console.error = () => {} // suppress pota's error log for rejected promise
+	console.error = () => {}
+
+	const promise = Promise.reject(new Error('fail'))
+	promise.catch(() => {}) // prevent unhandled rejection
+
+	const dispose = render(
+		<Errored fallback={err => <p>{err.message}</p>}>
+			<Suspense fallback={<p>loading</p>}>{promise}</Suspense>
+		</Errored>,
+	)
+
+	expect(body()).toBe('<p>loading</p>')
+
+	await macrotask()
+
+	// rejection routes through catchError to the Errored fallback
+	expect(body()).toInclude('<p>fail</p>')
+
+	console.error = originalError
+	dispose()
+})
+
+await test('Suspense - rejected promise without Errored logs to console.error', async expect => {
+	const originalError = console.error
+	const errors = []
+	console.error = e => errors.push(e)
 
 	const promise = Promise.reject(new Error('fail'))
 	promise.catch(() => {}) // prevent unhandled rejection
@@ -246,8 +271,9 @@ await test('Suspense - rejected promise renders the error', async expect => {
 
 	await macrotask()
 
-	// after rejection, the error is rendered
-	expect(body()).toInclude('Error: fail')
+	// no boundary: rejection routes to console.error via routeError
+	expect(errors.length > 0).toBe(true)
+	expect(String(errors[0])).toInclude('fail')
 
 	console.error = originalError
 	dispose()

@@ -1218,14 +1218,11 @@ export function createReactiveSystem() {
 			return () => {
 				if (removed === undefined) {
 					removed = null
-					remove()
+					--count === 0 && queue()
 				}
 			}
 		}
 
-		function remove() {
-			--count === 0 && queue()
-		}
 		function ready(fn) {
 			fns.push(owned(fn))
 			queue()
@@ -1253,16 +1250,19 @@ export function createReactiveSystem() {
 	class createSuspenseContext {
 		s = signal(false)
 		c = 0
-		r = []
 		add() {
 			this.c++
-			this.r.push(asyncTracking.add())
-		}
-		remove() {
-			if (--this.c === 0) {
-				this.s.write(true)
+			const asyncRemove = asyncTracking.add()
+			let removed
+			return () => {
+				if (removed === undefined) {
+					removed = null
+					if (--this.c === 0) {
+						this.s.write(true)
+					}
+					asyncRemove()
+				}
 			}
-			this.r.pop()()
 		}
 		isEmpty() {
 			return this.c === 0

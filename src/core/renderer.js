@@ -325,7 +325,7 @@ export function createPartial(content, propsData = nothing) {
 		markComponent(() =>
 			assignPartialProps(
 				clone(),
-				/** @type {Array<(node: Node) => void>} */ (
+				/** @type {((node: Node) => void)[]} */ (
 					/** @type {unknown} */ (props)
 				),
 				propsData,
@@ -336,7 +336,7 @@ export function createPartial(content, propsData = nothing) {
 /**
  * @template T
  * @param {Element} node
- * @param {Array<(node: Node) => void>} props
+ * @param {((node: Node) => void)[]} props
  * @param {{
  * 	x?: string
  * 	[i: number]: number
@@ -433,9 +433,8 @@ export function createChildren(
 			// For - TODO move this to the `For` component
 			if ($isMap in child) {
 				effect(() => {
-					/** @type {(cb: (c: JSX.Element) => void) => void} */ (
-						child
-					)(child => createChildren(parent, child, true))
+					/** @ts-ignore-error @type {(cb: (c: JSX.Element) => void) => void} */
+					child(child => createChildren(parent, child, true))
 				})
 				// map has own dom removal
 			} else {
@@ -523,23 +522,24 @@ export function createChildren(
 
 			// async values
 			if ('then' in child) {
-				const suspense = useSuspense()
-				suspense.add()
+				const remove = useSuspense().add()
 
 				const [value, setValue] = signal(undefined)
-				const onResult = owned(
-					result => {
+
+				child.then(
+					owned(result => {
 						if (isComponent && isFunction(result)) {
 							markComponent(result)
 						}
 
 						setValue(result)
-						suspense.remove()
-					},
-					() => suspense.remove(),
+						remove()
+					}, remove),
+					owned(err => {
+						remove()
+						throw err
+					}, remove),
 				)
-
-				resolved(child, onResult)
 
 				return createChildren(parent, value, relative)
 			}
