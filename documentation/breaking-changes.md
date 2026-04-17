@@ -1,3 +1,16 @@
+# pota v0.20.230
+
+- **`Collapse` no longer renders a `<pota-collapse>` custom element.**
+  The component now wraps children in a plain `<div>` whose inline
+  `display` toggles between `contents` (visible) and `none` (hidden),
+  with fallback mounted as a sibling node. Consumers that queried
+  `pota-collapse` or walked its `shadowRoot` need to target the
+  wrapper `<div>` directly (or add their own marker attribute).
+  Semantically unchanged: children stay mounted across toggles so
+  reactive subscriptions, form values, and scroll position are
+  preserved. Fallback is now real reactive JSX instead of stringified
+  `innerHTML`.
+
 # pota v0.20.229
 
 - **Bare promise children now route rejections to error boundaries.**

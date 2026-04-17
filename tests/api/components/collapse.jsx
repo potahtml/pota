@@ -1,77 +1,88 @@
 /** @jsxImportSource pota */
 
-// Tests for the Collapse component: visibility slot rendering, signal
-// toggling, fallback slot, reactive children while collapsed, and
-// cleanup.
+// Tests for the Collapse component: the wrapper toggles display
+// between contents/none, children stay mounted across toggles,
+// fallback mounts as a sibling only when hidden.
 import { $, test, body } from '#test'
 
 import { render, signal } from 'pota'
 import { Collapse } from 'pota/components'
 
-await test('Collapse - renders through a pota-collapse element and shows a slot when visible', expect => {
+await test('Collapse - renders a display:contents div wrapper when visible', expect => {
 	const dispose = render(<Collapse when={true}>visible</Collapse>)
 
-	expect($('pota-collapse')).not.toBe(null)
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe(
-		'<slot></slot>',
+	const wrapper = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
 	)
+	expect(wrapper.tagName).toBe('DIV')
+	expect(wrapper.style.display).toBe('contents')
+	expect(wrapper.textContent).toBe('visible')
 
 	dispose()
 })
 
-await test('Collapse - hides the slot but keeps light DOM children mounted when false', expect => {
+await test('Collapse - hides the wrapper but keeps light DOM children mounted when false', expect => {
 	const dispose = render(
 		<Collapse when={false}>
 			<p id="kept">kept</p>
 		</Collapse>,
 	)
 
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe('')
-	expect(document.getElementById('kept')).not.toBe(null)
-	expect(body()).toBe(
-		'<pota-collapse><p id="kept">kept</p></pota-collapse>',
+	const wrapper = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
 	)
+	expect(wrapper.style.display).toBe('none')
+	expect(document.getElementById('kept')).not.toBe(null)
+	expect(wrapper.innerHTML).toBe('<p id="kept">kept</p>')
 
 	dispose()
 })
 
 await test('Collapse - shows fallback content when false and children when true', expect => {
 	const dispose1 = render(
-		<Collapse
-			when={true}
-			fallback={<p>fallback</p>}
-		>
+		<Collapse when={true} fallback={<p>fallback</p>}>
 			<p>content</p>
 		</Collapse>,
 	)
 
-	expect(body()).toBe('<pota-collapse><p>content</p></pota-collapse>')
+	const wrapper1 = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
+	)
+	expect(wrapper1.style.display).toBe('contents')
+	expect(wrapper1.innerHTML).toBe('<p>content</p>')
+	expect(body().includes('fallback')).toBe(false)
+
 	dispose1()
 
 	const dispose2 = render(
-		<Collapse
-			when={false}
-			fallback={<p>fallback</p>}
-		>
+		<Collapse when={false} fallback={<p>fallback</p>}>
 			<p>content</p>
 		</Collapse>,
 	)
 
-	expect(body()).toBe('<pota-collapse><p>content</p></pota-collapse>')
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe('')
+	const wrapper2 = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
+	)
+	expect(wrapper2.style.display).toBe('none')
+	expect(wrapper2.innerHTML).toBe('<p>content</p>')
+	expect(body().includes('<p>fallback</p>')).toBe(true)
 
 	dispose2()
 })
 
 await test('Collapse - treats falsy and truthy values as visibility switches', expect => {
 	const dispose1 = render(<Collapse when={0}>content</Collapse>)
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe('')
+	expect(
+		/** @type {HTMLDivElement} */ (document.body.firstElementChild)
+			.style.display,
+	).toBe('none')
 	dispose1()
 
 	const dispose2 = render(<Collapse when="yes">content</Collapse>)
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe(
-		'<slot></slot>',
-	)
+	expect(
+		/** @type {HTMLDivElement} */ (document.body.firstElementChild)
+			.style.display,
+	).toBe('contents')
 	dispose2()
 })
 
@@ -84,19 +95,16 @@ await test('Collapse - toggles reactively without recreating the child node', ex
 	)
 
 	const node = document.getElementById('node')
+	const wrapper = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
+	)
 
 	when.write(false)
-
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe('')
-
+	expect(wrapper.style.display).toBe('none')
 	expect(document.getElementById('node')).toBe(node)
 
 	when.write(true)
-
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe(
-		'<slot></slot>',
-	)
-
+	expect(wrapper.style.display).toBe('contents')
 	expect(document.getElementById('node')).toBe(node)
 
 	dispose()
@@ -106,25 +114,25 @@ await test('Collapse - switches between fallback and children reactively', expec
 	const when = signal(false)
 
 	const dispose = render(
-		<Collapse
-			when={when.read}
-			fallback="loading"
-		>
+		<Collapse when={when.read} fallback="loading">
 			done
 		</Collapse>,
 	)
 
-	const collapse = $('pota-collapse')
+	const wrapper = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
+	)
 
-	expect(collapse.shadowRoot.innerHTML).toBe('loading')
+	expect(wrapper.style.display).toBe('none')
+	expect(body().includes('loading')).toBe(true)
 
 	when.write(true)
-
-	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
+	expect(wrapper.style.display).toBe('contents')
+	expect(body().includes('loading')).toBe(false)
 
 	when.write(false)
-
-	expect(collapse.shadowRoot.innerHTML).toBe('loading')
+	expect(wrapper.style.display).toBe('none')
+	expect(body().includes('loading')).toBe(true)
 
 	dispose()
 })
@@ -139,25 +147,23 @@ await test('Collapse - reactive children update while collapsed and reflect when
 		</Collapse>,
 	)
 
-	const collapse = document.querySelector('pota-collapse')
-
-	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
-	expect(document.querySelector('p').textContent).toBe(
-		'original',
+	const wrapper = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
 	)
+
+	expect(wrapper.style.display).toBe('contents')
+	expect($('p').textContent).toBe('original')
 
 	// collapse, then update text while hidden
 	when.write(false)
-	expect(collapse.shadowRoot.innerHTML).toBe('')
+	expect(wrapper.style.display).toBe('none')
 
 	text.write('updated')
 
 	// show again — children should have updated content
 	when.write(true)
-	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
-	expect(document.querySelector('p').textContent).toBe(
-		'updated',
-	)
+	expect(wrapper.style.display).toBe('contents')
+	expect($('p').textContent).toBe('updated')
 
 	dispose()
 })
@@ -166,13 +172,21 @@ await test('Collapse - reactive children update while collapsed and reflect when
 
 await test('Collapse - when=null is treated as hidden', expect => {
 	const dispose = render(<Collapse when={null}>content</Collapse>)
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe('')
+	expect(
+		/** @type {HTMLDivElement} */ (document.body.firstElementChild)
+			.style.display,
+	).toBe('none')
 	dispose()
 })
 
 await test('Collapse - when=undefined is treated as hidden', expect => {
-	const dispose = render(<Collapse when={undefined}>content</Collapse>)
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe('')
+	const dispose = render(
+		<Collapse when={undefined}>content</Collapse>,
+	)
+	expect(
+		/** @type {HTMLDivElement} */ (document.body.firstElementChild)
+			.style.display,
+	).toBe('none')
 	dispose()
 })
 
@@ -184,7 +198,9 @@ await test('Collapse - multiple rapid toggles settle on the final value', expect
 		<Collapse when={when.read}>content</Collapse>,
 	)
 
-	const collapse = $('pota-collapse')
+	const wrapper = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
+	)
 
 	when.write(false)
 	when.write(true)
@@ -192,21 +208,25 @@ await test('Collapse - multiple rapid toggles settle on the final value', expect
 	when.write(true)
 	when.write(false)
 
-	expect(collapse.shadowRoot.innerHTML).toBe('')
+	expect(wrapper.style.display).toBe('none')
 
 	when.write(true)
-	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
+	expect(wrapper.style.display).toBe('contents')
 
 	dispose()
 })
 
-// --- empty children render an empty slot --------------------------------
+// --- empty children still render the wrapper ---------------------------
 
 await test('Collapse - with no children still renders the wrapper when visible', expect => {
 	const dispose = render(<Collapse when={true}></Collapse>)
 
-	expect($('pota-collapse')).not.toBe(null)
-	expect($('pota-collapse').shadowRoot.innerHTML).toBe('<slot></slot>')
+	const wrapper = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
+	)
+	expect(wrapper).not.toBe(null)
+	expect(wrapper.tagName).toBe('DIV')
+	expect(wrapper.style.display).toBe('contents')
 
 	dispose()
 })
@@ -216,11 +236,11 @@ await test('Collapse - with no children still renders the wrapper when visible',
 await test('Collapse - dispose removes the wrapper element', expect => {
 	const dispose = render(<Collapse when={true}>content</Collapse>)
 
-	expect($('pota-collapse')).not.toBe(null)
+	expect(document.body.firstElementChild).not.toBe(null)
 
 	dispose()
 
-	expect($('pota-collapse')).toBe(null)
+	expect(document.body.firstElementChild).toBe(null)
 })
 
 await test('Collapse - hides output but preserves uncontrolled input state across visibility toggles', expect => {
@@ -228,10 +248,7 @@ await test('Collapse - hides output but preserves uncontrolled input state acros
 
 	const dispose = render(
 		<Collapse when={visible.read}>
-			<input
-				id="field"
-				value="start"
-			/>
+			<input id="field" value="start" />
 		</Collapse>,
 	)
 
@@ -240,25 +257,28 @@ await test('Collapse - hides output but preserves uncontrolled input state acros
 	)
 	input.value = 'typed'
 
-	const collapse = document.getElementsByTagName('pota-collapse')[0]
+	const wrapper = /** @type {HTMLDivElement} */ (
+		document.body.firstElementChild
+	)
 
 	// showing
-	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
+	expect(wrapper.style.display).toBe('contents')
 
 	visible.write(false)
 
-	// empty
-	expect(collapse.shadowRoot.innerHTML).toBe('')
+	// hidden
+	expect(wrapper.style.display).toBe('none')
 
 	expect(document.getElementById('field')).toBe(input)
 	expect(input.value).toBe('typed')
 
 	visible.write(true)
 
-	expect(collapse.shadowRoot.innerHTML).toBe('<slot></slot>')
+	expect(wrapper.style.display).toBe('contents')
 	expect(document.getElementById('field')).toBe(input)
 	expect(
-		(/** @type {HTMLInputElement} */ (document.getElementById('field'))).value,
+		/** @type {HTMLInputElement} */ (document.getElementById('field'))
+			.value,
 	).toBe('typed')
 
 	dispose()

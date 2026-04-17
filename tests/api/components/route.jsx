@@ -5,14 +5,7 @@
 // fallback, collapse, scroll, useBeforeLeave, popstate, and
 // cleanup. (Tests for `A`, `Navigate`, and `load()` live in
 // their own files.)
-import {
-	$,
-	test,
-	body,
-	macrotask,
-	microtask,
-	sleepLong,
-} from '#test'
+import { $, test, body, macrotask, microtask, sleepLong } from '#test'
 
 import { render, root } from 'pota'
 import { Route } from 'pota/components'
@@ -470,10 +463,7 @@ await test('Route - hash route with Route.Default', async expect => {
 await test('Route - when=false blocks render even when path matches', async expect => {
 	await reset()
 	const dispose = render(
-		<Route
-			path="/guarded"
-			when={false}
-		>
+		<Route path="/guarded" when={false}>
 			guarded
 		</Route>,
 	)
@@ -486,10 +476,7 @@ await test('Route - when=false blocks render even when path matches', async expe
 await test('Route - when=true renders normally when path matches', async expect => {
 	await reset()
 	const dispose = render(
-		<Route
-			path="/allowed"
-			when={true}
-		>
+		<Route path="/allowed" when={true}>
 			allowed
 		</Route>,
 	)
@@ -502,10 +489,7 @@ await test('Route - when=true renders normally when path matches', async expect 
 await test('Route - fallback renders when path does not match', async expect => {
 	await reset()
 	const dispose = render(
-		<Route
-			path="/page"
-			fallback="fallback"
-		>
+		<Route path="/page" fallback="fallback">
 			page
 		</Route>,
 	)
@@ -518,10 +502,7 @@ await test('Route - fallback renders when path does not match', async expect => 
 await test('Route - fallback hides when path matches', async expect => {
 	await reset()
 	const dispose = render(
-		<Route
-			path="/page"
-			fallback="fallback"
-		>
+		<Route path="/page" fallback="fallback">
 			page
 		</Route>,
 	)
@@ -534,10 +515,7 @@ await test('Route - fallback hides when path matches', async expect => {
 await test('Route - fallback toggles with navigation', async expect => {
 	await reset()
 	const dispose = render(
-		<Route
-			path="/page$"
-			fallback="fallback"
-		>
+		<Route path="/page$" fallback="fallback">
 			page
 		</Route>,
 	)
@@ -553,23 +531,23 @@ await test('Route - fallback toggles with navigation', async expect => {
 	dispose()
 })
 
-await test('Route - collapse keeps pota-collapse in DOM when unmatched', async expect => {
+await test('Route - collapse keeps the wrapper in DOM when unmatched', async expect => {
 	await reset()
 	const dispose = render(
-		<Route
-			path="/kept"
-			collapse
-		>
+		<Route path="/kept" collapse>
 			kept
 		</Route>,
 	)
 	goto('/kept')
 	await microtask()
-	expect($('pota-collapse')).not.toBe(null)
+	const wrapper = /** @type {HTMLDivElement} */ ($('div'))
+	expect(wrapper).not.toBe(null)
+	expect(wrapper.style.display).toBe('contents')
 	goto('/other')
 	await microtask()
-	// pota-collapse stays in DOM (Collapse behaviour vs Show)
-	expect($('pota-collapse')).not.toBe(null)
+	// wrapper stays in DOM but is hidden (Collapse behaviour vs Show)
+	expect($('div')).toBe(wrapper)
+	expect(wrapper.style.display).toBe('none')
 	dispose()
 })
 
@@ -630,9 +608,7 @@ await test('Route - stops responding to navigation after dispose', async expect 
 
 await test('Route - matches path with :param segments', async expect => {
 	await reset()
-	const dispose = render(
-		<Route path="/users/:id$">user page</Route>,
-	)
+	const dispose = render(<Route path="/users/:id$">user page</Route>)
 
 	goto('/users/42')
 	await microtask()
@@ -701,10 +677,7 @@ await test('Route - scroll prop triggers scroll on match', async expect => {
 	document.body.append(target)
 
 	const dispose = render(
-		<Route
-			path="/scroll-test$"
-			scroll="#scroll-target"
-		>
+		<Route path="/scroll-test$" scroll="#scroll-target">
 			content
 		</Route>,
 	)
@@ -770,4 +743,3 @@ await test('Route - empty path matches / path', async expect => {
 	dispose()
 	await reset()
 })
-
