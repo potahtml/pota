@@ -294,7 +294,13 @@ class Row {
  * 	): (fn?: Function) => JSX.Element
  * }}
  */
-export const map = (list, callback, noSort, fallback, reactiveIndex) => {
+export const map = (
+	list,
+	callback,
+	noSort,
+	fallback,
+	reactiveIndex,
+) => {
 	const cache = new Map()
 	const duplicates = new Map() // for when caching by value is not possible [1, 2, 1, 1, 1]
 
@@ -451,38 +457,38 @@ export const map = (list, callback, noSort, fallback, reactiveIndex) => {
 				if (unsort.length) {
 					let unsorted = unsort.length
 					if (unsorted) {
-						// handle swap - unsorted rows should move only next to already sorted
-						for (const usort of unsort) {
-							if (
-								rows[usort.index - 1] &&
-								(unsorted === 1 ||
-									!unsort.includes(rows[usort.index - 1]) ||
-									sorted.includes(rows[usort.index - 1]))
-							) {
-								rows[usort.index - 1]
-									.end()
-									.after(...usort.nodesForRow())
-								sorted.push(usort)
-								unsorted--
-							} else if (
-								rows[usort.index + 1] &&
-								(unsorted === 1 ||
-									!unsort.includes(rows[usort.index + 1]) ||
-									sorted.includes(rows[usort.index - 1]))
-							) {
-								rows[usort.index + 1]
-									.begin()
-									.before(...usort.nodesForRow())
-								sorted.push(usort)
-								unsorted--
+						if (sorted.length) {
+							// handle swap - unsorted rows should move only next to already sorted
+							for (const usort of unsort) {
+								if (
+									rows[usort.index - 1] &&
+									(unsorted === 1 ||
+										!unsort.includes(rows[usort.index - 1]) ||
+										sorted.includes(rows[usort.index - 1]))
+								) {
+									rows[usort.index - 1]
+										.end()
+										.after(...usort.nodesForRow())
+									sorted.push(usort)
+									unsorted--
+								} else if (
+									rows[usort.index + 1] &&
+									(unsorted === 1 ||
+										!unsort.includes(rows[usort.index + 1]) ||
+										sorted.includes(rows[usort.index + 1]))
+								) {
+									rows[usort.index + 1]
+										.begin()
+										.before(...usort.nodesForRow())
+									sorted.push(usort)
+									unsorted--
+								}
 							}
 						}
-
 						if (unsorted) {
 							// handles all other cases
 							// best for any combination of: push/pop/shift/unshift/insertion/deletion
 							// must check in reverse as on creation stuff is added to the end
-
 							let current = rows[rows.length - 1]
 							for (let i = rows.length - 1; i > 0; i--) {
 								const previous = rows[i - 1]
@@ -555,11 +561,11 @@ export function unwrap(children) {
  * component. `ready(cb)` and `cleanup(cb)` methods will be registered
  * automatically.
  *
- * JSX props become `Partial<P>` via `JSX.LibraryManagedAttributes`
- * — the renderer merges JSX props on top of the `props` field
- * defaults (see `createClass` in `src/core/renderer.js`), so every
- * individual JSX prop is optional at the call site. Inside
- * `render()`, the parameter is the full `P`.
+ * JSX props become `Partial<P>` via `JSX.LibraryManagedAttributes` —
+ * the renderer merges JSX props on top of the `props` field defaults
+ * (see `createClass` in `src/core/renderer.js`), so every individual
+ * JSX prop is optional at the call site. Inside `render()`, the
+ * parameter is the full `P`.
  *
  * @template {Record<string, unknown>} [P=Record<string, unknown>]
  *   Default is `Record<string, unknown>`

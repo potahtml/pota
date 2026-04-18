@@ -8,7 +8,10 @@ import { flatForEach } from '../../lib/std.js'
  * @template {JSX.EventName} Name
  * @param {TargetElement} node
  * @param {Name} name
- * @param {JSX.EventHandlers<JSX.EventTypeFor<Name>, TargetElement>} value
+ * @param {JSX.EventHandlers<
+ * 	JSX.EventTypeFor<Name>,
+ * 	TargetElement
+ * >} value
  */
 export const setEvent = (node, name, value) => {
 	flatForEach(value, value => {
@@ -30,7 +33,10 @@ export const setEvent = (node, name, value) => {
  * @template {JSX.EventName} Name
  * @param {TargetElement} node
  * @param {Name} localName
- * @param {JSX.EventHandlers<JSX.EventTypeFor<Name>, TargetElement>} value
+ * @param {JSX.EventHandlers<
+ * 	JSX.EventTypeFor<Name>,
+ * 	TargetElement
+ * >} value
  */
 export const setEventNS = (node, localName, value) => {
 	flatForEach(value, value => {
