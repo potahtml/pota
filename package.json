@@ -95,16 +95,13 @@
 		"typescript": "^6.0.2"
 	},
 	"test": {
-		"dir": "tests/api/",
+		"dirs": ["tests/api/"],
+		"extensions": [".jsx", ".tsx", ".ts"],
+		"watch": ["src/", "babel-preset/"],
+		"ignore": [],
 		"port": 7357,
 		"timeout": 8000,
-		"concurrency": 16,
-		"extensions": [
-			".jsx",
-			".tsx",
-			".ts"
-		],
-		"ignore": []
+		"concurrency": 16
 	},
 	"prettier": {
 		"printWidth": 70,

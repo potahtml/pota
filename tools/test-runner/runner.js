@@ -18,13 +18,16 @@ const pkg = JSON.parse(
 )
 const config = pkg.test || {}
 
-const testDir = config.dir || 'tests/api/'
+/** @type {string[]} */
+const testDirs = config.dirs || ['tests/']
 const timeout = config.timeout || 5_000
 const rerunTimeout = 5_000
 const concurrency = config.concurrency || 10
 const testExts = config.extensions || ['.jsx', '.tsx', '.ts']
 /** @type {string[]} */
 const ignore = config.ignore || []
+/** @type {string[]} */
+const watchDirs = config.watch || ['./']
 
 const args = process.argv.slice(2)
 const doWatch = args.includes('--watch') || args.includes('-w')
@@ -75,12 +78,13 @@ if (!noClear) console.clear()
 // --- scan test files ---
 
 /**
- * Finds test files in testDir, filtered by CLI argument.
+ * Finds test files in testDirs, filtered by CLI argument.
  *
  * @returns {string[]}
  */
 function scanTests() {
-	return filesRecursive(path.join(root, testDir))
+	return testDirs
+		.flatMap(dir => filesRecursive(path.join(root, dir)))
 		.filter(
 			f =>
 				!f.endsWith('.d.ts') && testExts.some(ext => f.endsWith(ext)),
@@ -303,16 +307,20 @@ async function startWatching(baseURL) {
 		running = false
 	}
 
-	watch(path.join(root, 'src/'), () => schedule())
-	watch(path.join(root, testDir), (_, filename) => {
-		if (!filename) return schedule()
-		const rel = testDir + filename
-		if (testExts.some(ext => rel.endsWith(ext))) {
-			schedule([rel])
-		} else {
-			schedule()
-		}
-	})
+	for (const dir of watchDirs) {
+		watch(path.join(root, dir), () => schedule())
+	}
+	for (const dir of testDirs) {
+		watch(path.join(root, dir), (_, filename) => {
+			if (!filename) return schedule()
+			const rel = dir + filename
+			if (testExts.some(ext => rel.endsWith(ext))) {
+				schedule([rel])
+			} else {
+				schedule()
+			}
+		})
+	}
 }
 
 // --- main ---
