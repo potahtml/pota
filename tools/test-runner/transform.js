@@ -46,7 +46,10 @@ function rewriteImports() {
 /**
  * Babel plugin: injects the source line number as a third argument to
  * `test('title', fn)` calls so the runner can print clickable
- * file:line links for failing tests.
+ * file:line links for failing tests. Only annotates calls whose
+ * `test` identifier resolves to a direct import of pota's test
+ * function (`pota/use/test` or the `#test` alias). Local wrappers
+ * named `test` and inner helpers shadowing the name are left alone.
  */
 function annotateTestLine() {
 	return {
@@ -56,6 +59,12 @@ function annotateTestLine() {
 				if (callee.type !== 'Identifier' || callee.name !== 'test')
 					return
 				if (path.node.arguments.length >= 3) return
+				const binding = path.scope.getBinding('test')
+				if (!binding || binding.kind !== 'module') return
+				const importDecl = binding.path.parent
+				if (importDecl.type !== 'ImportDeclaration') return
+				const source = importDecl.source.value
+				if (source !== 'pota/use/test' && source !== '#test') return
 				const line = path.node.loc?.start.line
 				if (!line) return
 				path.node.arguments.push({
