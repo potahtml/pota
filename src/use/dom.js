@@ -42,6 +42,40 @@ export const createElementNS = bind('createElementNS')
 export const createTextNode = bind('createTextNode')
 export const createComment = bind('createComment')
 
+/**
+ * Cleans a text value using the same whitespace rules JSX applies to
+ * `JSXText` children: strip leading/trailing whitespace adjacent to
+ * tags, drop blank lines, and add a single trailing space to non-last
+ * lines that survived. Returns `''` when the input was pure
+ * whitespace. Mirrors `cleanJSXElementLiteralChild` in
+ * `babel-preset/transform/children.js` so xml↔jsx round-trips don't
+ * have to fix up whitespace.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+export function cleanJSXText(value) {
+	const lines = value.split(/\r\n|\n|\r/)
+	let lastNonEmptyLine = 0
+	for (let i = 0; i < lines.length; i++) {
+		if (/[^ \t]/.test(lines[i])) {
+			lastNonEmptyLine = i
+		}
+	}
+	let str = ''
+	for (let i = 0; i < lines.length; i++) {
+		let trimmedLine = lines[i].replace(/\t/g, ' ')
+		if (i !== 0) trimmedLine = trimmedLine.replace(/^ +/, '')
+		if (i !== lines.length - 1)
+			trimmedLine = trimmedLine.replace(/ +$/, '')
+		if (trimmedLine) {
+			if (i !== lastNonEmptyLine) trimmedLine += ' '
+			str += trimmedLine
+		}
+	}
+	return str
+}
+
 export const importNode = bind('importNode')
 
 export const createTreeWalker = bind('createTreeWalker')

@@ -229,6 +229,7 @@ await test('XML - define on one instance does not pollute another', expect => {
 	expect('Widget' in a.components).toBe(true)
 })
 
+
 // --- Built-in Show component -------------------------------------------
 
 await test('xml - built-in Show renders children when condition is truthy', expect => {
@@ -345,6 +346,103 @@ await test('xml - reactive interpolation in attribute updates on signal change',
 
 	suffix.write('danger')
 	expect($('p').className).toBe('link-danger')
+
+	dispose()
+})
+
+// --- partial interpolation across attribute types ---------------------------
+
+await test('xml - partial interpolation in id attribute concatenates to a single string', expect => {
+	const a = 'user'
+	const b = 42
+	const dispose = render(xml`<p id="${a}-${b}">text</p>`)
+
+	expect($('p').getAttribute('id')).toBe('user-42')
+
+	dispose()
+})
+
+await test('xml - partial interpolation with no static text between values', expect => {
+	const a = 'foo'
+	const b = 'bar'
+	const dispose = render(xml`<p id="${a}${b}">text</p>`)
+
+	expect($('p').getAttribute('id')).toBe('foobar')
+
+	dispose()
+})
+
+await test('xml - partial interpolation with three or more segments', expect => {
+	const a = 'one'
+	const b = 'two'
+	const c = 'three'
+	const dispose = render(xml`<p id="${a}-${b}-${c}">text</p>`)
+
+	expect($('p').getAttribute('id')).toBe('one-two-three')
+
+	dispose()
+})
+
+await test('xml - partial interpolation in data-* attribute concatenates to a single string', expect => {
+	const id = 'card'
+	const n = 7
+	const dispose = render(
+		xml`<p data-key="${id}-${n}">text</p>`,
+	)
+
+	expect($('p').getAttribute('data-key')).toBe('card-7')
+
+	dispose()
+})
+
+await test('xml - reactive partial interpolation in id attribute updates on signal change', expect => {
+	const prefix = signal('user')
+	const suffix = signal('1')
+	const dispose = render(
+		xml`<p id="${prefix.read}-${suffix.read}">text</p>`,
+	)
+
+	expect($('p').getAttribute('id')).toBe('user-1')
+
+	prefix.write('admin')
+	expect($('p').getAttribute('id')).toBe('admin-1')
+
+	suffix.write('2')
+	expect($('p').getAttribute('id')).toBe('admin-2')
+
+	dispose()
+})
+
+await test('xml - partial interpolation in href attribute concatenates to a single string', expect => {
+	const base = 'https://example.com'
+	const path = 'page'
+	const dispose = render(
+		xml`<a href="${base}/${path}">link</a>`,
+	)
+
+	expect($('a').getAttribute('href')).toBe('https://example.com/page')
+
+	dispose()
+})
+
+await test('xml - partial interpolation with numeric segments', expect => {
+	const x = 10
+	const y = 20
+	const dispose = render(xml`<p id="pos-${x}x${y}">text</p>`)
+
+	expect($('p').getAttribute('id')).toBe('pos-10x20')
+
+	dispose()
+})
+
+await test('xml - partial interpolation in title attribute is a string, not an array', expect => {
+	const a = 'hello'
+	const b = 'world'
+	const dispose = render(xml`<p title="${a} ${b}">text</p>`)
+
+	// title must be a single concatenated string, not array.toString'd
+	// (which would yield "hello,world" or "hello, ,world")
+	expect($('p').getAttribute('title')).toBe('hello world')
 
 	dispose()
 })
@@ -510,6 +608,217 @@ await test('xml - template with only whitespace renders empty', expect => {
 	dispose()
 })
 
+// --- JSX-style whitespace cleaning ------------------------------------
+
+await test('xml - leading and trailing whitespace adjacent to tags is stripped', expect => {
+	const dispose = render(xml`<p>
+		hello
+	</p>`)
+
+	expect($('p').textContent).toBe('hello')
+
+	dispose()
+})
+
+await test('xml - blank lines between sibling elements are dropped', expect => {
+	const dispose = render(xml`
+		<div>
+			<p>a</p>
+			<p>b</p>
+		</div>
+	`)
+
+	const div = $('div')
+	// only the two <p> children survive — no whitespace text nodes
+	expect(div.children.length).toBe(2)
+	expect(div.childNodes.length).toBe(2)
+	expect(div.children[0].tagName).toBe('P')
+	expect(div.children[1].tagName).toBe('P')
+
+	dispose()
+})
+
+await test('xml - multi-line text in element collapses to single spaces', expect => {
+	const dispose = render(xml`<p>
+		hello
+		world
+	</p>`)
+
+	// "hello" and "world" join with a single space, leading/trailing
+	// whitespace stripped — matches JSX
+	expect($('p').textContent).toBe('hello world')
+
+	dispose()
+})
+
+await test('xml - tabs become spaces in surviving text', expect => {
+	const dispose = render(xml`<p>a\tb</p>`)
+
+	expect($('p').textContent).toBe('a b')
+
+	dispose()
+})
+
+await test('xml - intra-line whitespace between interpolations is preserved', expect => {
+	const a = 'hello'
+	const b = 'world'
+	const dispose = render(xml`<p>${a} ${b}</p>`)
+
+	expect($('p').textContent).toBe('hello world')
+
+	dispose()
+})
+
+await test('xml - whitespace between component siblings does not interfere with Switch', expect => {
+	const which = signal('b')
+	const dispose = render(xml`
+		<Switch fallback="none">
+			<Match when="${() => which.read() === 'a'}"><p>A</p></Match>
+			<Match when="${() => which.read() === 'b'}"><p>B</p></Match>
+		</Switch>
+	`)
+
+	// previously the whitespace text nodes between <Match> siblings
+	// would survive into Switch's children and crash on `match.when`
+	expect(body()).toInclude('<p>B</p>')
+	expect(body()).not.toInclude('<p>A</p>')
+
+	dispose()
+})
+
+await test('xml - top-level whitespace around a fragment is dropped', expect => {
+	const dispose = render(xml`
+		<p>hi</p>
+	`)
+
+	// no surrounding text nodes — body is just the <p>
+	expect(body()).toBe('<p>hi</p>')
+
+	dispose()
+})
+
+await test('xml - text adjacent to interpolation strips outer whitespace but keeps inner spaces', expect => {
+	const name = 'world'
+	const dispose = render(xml`<p>
+		hello ${name}
+	</p>`)
+
+	expect($('p').textContent).toBe('hello world')
+
+	dispose()
+})
+
+// --- xml whitespace matches jsx ---------------------------------------
+// Stronger contract: render the same source whitespace via both xml and
+// jsx into separate mounts and compare their innerHTML directly. If the
+// xml whitespace algorithm drifts from the babel preset's
+// `cleanJSXElementLiteralChild`, these tests catch it without us having
+// to encode an "expected" string.
+
+function xmlJsxSame(expect, xmlEl, jsxEl) {
+	const xmlMount = document.createElement('div')
+	const jsxMount = document.createElement('div')
+	document.body.appendChild(xmlMount)
+	document.body.appendChild(jsxMount)
+	const dx = render(xmlEl, xmlMount)
+	const dj = render(jsxEl, jsxMount)
+	expect(xmlMount.innerHTML).toBe(jsxMount.innerHTML)
+	dx()
+	dj()
+	xmlMount.remove()
+	jsxMount.remove()
+}
+
+await test('xml/jsx parity - sibling elements with blank lines between them', expect => {
+	xmlJsxSame(
+		expect,
+		xml`
+			<div>
+				<p>a</p>
+				<p>b</p>
+			</div>
+		`,
+		<div>
+			<p>a</p>
+			<p>b</p>
+		</div>,
+	)
+})
+
+await test('xml/jsx parity - multi-line text inside an element collapses identically', expect => {
+	xmlJsxSame(
+		expect,
+		xml`<p>
+			hello
+			world
+		</p>`,
+		<p>
+			hello
+			world
+		</p>,
+	)
+})
+
+await test('xml/jsx parity - leading and trailing whitespace inside an element is stripped', expect => {
+	xmlJsxSame(
+		expect,
+		xml`<p>
+			hello
+		</p>`,
+		<p>hello</p>,
+	)
+})
+
+await test('xml/jsx parity - top-level fragment with surrounding whitespace', expect => {
+	xmlJsxSame(
+		expect,
+		xml`
+			<p>hi</p>
+		`,
+		<p>hi</p>,
+	)
+})
+
+await test('xml/jsx parity - text + interpolation on the same line', expect => {
+	const name = 'world'
+	xmlJsxSame(
+		expect,
+		xml`<p>hello ${name}</p>`,
+		<p>hello {name}</p>,
+	)
+})
+
+await test('xml/jsx parity - text + interpolation across multiple lines', expect => {
+	const name = 'world'
+	xmlJsxSame(
+		expect,
+		xml`<p>
+			hello ${name}
+		</p>`,
+		<p>
+			hello {name}
+		</p>,
+	)
+})
+
+await test('xml/jsx parity - nested elements with mixed text children', expect => {
+	xmlJsxSame(
+		expect,
+		xml`
+			<div>
+				<p>start</p>
+				<span>middle</span>
+				<p>end</p>
+			</div>
+		`,
+		<div>
+			<p>start</p>
+			<span>middle</span>
+			<p>end</p>
+		</div>,
+	)
+})
+
 // --- xml with number-only interpolation --------------------------------
 
 await test('xml - number interpolation renders as text', expect => {
@@ -644,6 +953,71 @@ await test('xml - interpolates values into comments', expect => {
 	const comment = $('div').firstChild
 	expect(comment.nodeType).toBe(8)
 	expect(comment.nodeValue).toInclude('hi world')
+
+	dispose()
+})
+
+await test('xml - static comment in a component used twice appears in both places (distinct nodes)', expect => {
+	const myXml = XML()
+
+	function Commented() {
+		return myXml`<section><!--marker--></section>`
+	}
+
+	myXml.define({ Commented })
+
+	const dispose = render(
+		myXml`<div><Commented/><Commented/></div>`,
+	)
+
+	const sections = document.body.querySelectorAll('section')
+	expect(sections.length).toBe(2)
+
+	const c0 = sections[0].firstChild
+	const c1 = sections[1].firstChild
+	expect(c0.nodeType).toBe(8)
+	expect(c1.nodeType).toBe(8)
+	expect(c0.nodeValue).toBe('marker')
+	expect(c1.nodeValue).toBe('marker')
+	// must be distinct nodes — a shared cached node would only appear
+	// in the second placement (DOM nodes can't be in two locations)
+	expect(c0 === c1).toBe(false)
+
+	dispose()
+})
+
+await test('xml - interpolated comment in a component used twice appears in both places (distinct nodes, both reactive)', expect => {
+	const myXml = XML()
+	const label = signal('a')
+
+	function Commented() {
+		return myXml`<section><!--mark:${label.read}--></section>`
+	}
+
+	myXml.define({ Commented })
+
+	const dispose = render(
+		myXml`<div><Commented/><Commented/></div>`,
+	)
+
+	const sections = document.body.querySelectorAll('section')
+	expect(sections.length).toBe(2)
+
+	const c0 = sections[0].firstChild
+	const c1 = sections[1].firstChild
+	expect(c0.nodeType).toBe(8)
+	expect(c1.nodeType).toBe(8)
+	expect(c0.nodeValue).toBe('mark:a')
+	expect(c1.nodeValue).toBe('mark:a')
+	// distinct nodes — if the per-render builder cached a single
+	// Comment instance across renders, the first placement would be
+	// empty and only the second would carry the comment
+	expect(c0 === c1).toBe(false)
+
+	// both update reactively
+	label.write('b')
+	expect(c0.nodeValue).toBe('mark:b')
+	expect(c1.nodeValue).toBe('mark:b')
 
 	dispose()
 })
