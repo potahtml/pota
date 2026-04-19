@@ -48,7 +48,7 @@
 		"#type/*": "./typescript/private/*"
 	},
 	"scripts": {
-		"dev": "npm run clean && npm run build:ts && node tools/watch.js",
+		"dev": "npm run clean && (npm run build:ts || true) && node tools/watch.js",
 		"clean": "rm -Rf generated/*",
 		"build:ts": "tsc",
 		"build:babel-preset": "rollup -c tools/babel-preset/rollup.config.js",
