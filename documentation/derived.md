@@ -37,10 +37,8 @@ what `bind(value)` uses.
 
 ## How `Derived` works
 
-### Chain representation
-
-`derived(f0, f1, f2)` stores `this.fn = [f0, f1, f2]`. There is
-no explicit "chain" data structure — the chain is the array.
+`derived(f0, f1, f2)` stores `this.fn = [f0, f1, f2]` — the chain
+is just the array, no explicit data structure.
 
 ### Update path (`Derived.update`)
 
@@ -119,19 +117,15 @@ object reference onto `this.lastWrite`. The commit callback
 closes over its own `mine` and only proceeds when
 `Listener || this.lastWrite === mine`.
 
-This closes two races:
+This closes two races (in both, the late callback's `mine` no
+longer matches `lastWrite`, so the stale value is dropped):
 
-1. **Late-arriving promise clobbers a newer sync write.** A
-   promise was written first, a sync value was written second
-   (which committed and assigned a new token). When the promise
-   finally resolves (outside any tracking scope, so `Listener`
-   is undefined), its commit callback's `mine` no longer matches
-   `lastWrite`, so the stale value is dropped.
-
-2. **Two pending promises, older resolves last.** The second
-   promise's commit was legal (its token was current at its
-   resolution time). The first promise's token is now stale, so
-   its later resolution is rejected.
+1. **Late-arriving promise clobbers a newer sync write.** Promise
+   written first, sync value written second (which advanced the
+   token). The promise resolves outside any tracking scope.
+2. **Two pending promises, older resolves last.** Each was legal
+   at its resolution time, but the older promise's token is no
+   longer current.
 
 Covered by tests under `tests/api/reactivity/derived.jsx` —
 search for `stale-promise rejection` and the

@@ -31,20 +31,22 @@ tools/test-runner/
 
 ## Config
 
-All options live in `package.json` under the `"test"` key:
+All options live in `package.json` under the `"test"` key (read it
+for the current default values):
 
-| Key           | Default                   | Description                      |
-| ------------- | ------------------------- | -------------------------------- |
-| `dir`         | `"tests/api/"`            | test directory (relative to cwd) |
-| `port`        | `7357` (watch mode only)  | server port in watch mode; one-shot runs always use a random port |
-| `timeout`     | `8000`                    | per-file timeout (ms)            |
-| `concurrency` | `16`                      | parallel browser tabs            |
-| `extensions`  | `[".jsx", ".tsx", ".ts"]` | file extensions to test          |
-| `ignore`      | `[]`                      | path substrings to exclude       |
+| Key           | Description                                                    |
+| ------------- | -------------------------------------------------------------- |
+| `dirs`        | test directories (relative to cwd) — array, scanned in order   |
+| `port`        | server port in watch mode; one-shot runs always use a random port |
+| `timeout`     | per-file timeout (ms)                                          |
+| `concurrency` | parallel browser tabs                                          |
+| `extensions`  | file extensions to test                                        |
+| `ignore`      | path substrings to exclude                                     |
+| `watch`       | directories to watch in `--watch` mode for re-run triggers     |
 
-The runner falls back to built-in defaults (`5000`, `10`) if the keys
-are missing from `package.json`, but the shipped `package.json`
-overrides both.
+`timeout` and `concurrency` have built-in fallbacks if the keys are
+missing from `package.json`; the shipped `package.json` overrides
+both anyway.
 
 CLI flags:
 
@@ -111,6 +113,48 @@ Test files import from `#test`:
 - `run()` — flush and report all registered tests; the harness
   calls this automatically after the test module loads — test
   modules do not need to call it themselves
+
+## Per-test cleanup
+
+`tools/test-runner/test.js` clears `document.body`, `document.head`,
+and `document.adoptedStyleSheets` before each test and asserts the
+same cleanliness after. Renderer changes that leave nodes around
+will fail this check, so it doubles as a disposal-leak detector.
+
+## Cross-boundary serialization
+
+Test results, console output, and uncaught errors all originate in
+the browser and have to reach Node intact. The harness uses two
+helpers for this:
+
+- `pack()` (in `serve.js`'s injected harness) converts error-like
+  objects (anything with `.stack` or `.message`) into plain
+  serializable `{ __error, message, stack, cause }` markers, and
+  DOM events (`ErrorEvent`, `PromiseRejectionEvent`) into
+  `{ __event, ... }` markers. Everything else passes through
+  untouched.
+- `unpack()` (in `report.js`) reverses `__error` markers back to
+  stack strings on the Node side, and forwards everything else to
+  Node's native `console.log/warn/error`, so objects, arrays, and
+  primitives format using Node's built-in inspector.
+
+`test.js` writes results to a shared `window.__pota_results__`
+object — assertion failures are packed via `packError()` preserving
+`{ expected, value }` shapes. Uncaught errors and unhandled
+rejections caught by the harness's `error` / `unhandledrejection`
+listeners are written there too.
+
+On the Node side, assertion failures are displayed via the
+`console.error` output that `pota/use/test` emits (which already
+includes colored diffs); the raw `{ title, expected, value }`
+rejections in `results.errors` are skipped to avoid duplication.
+Uncaught errors and unhandled rejections are shown straight from
+`results.errors` since they have no matching console output.
+
+`tests/api/console-formatting.jsx` exercises the full pipeline:
+all console methods with mixed types, error objects with cause
+chains, assertion failure shapes, `ErrorEvent`, and
+`PromiseRejectionEvent`.
 
 ## Dependencies
 

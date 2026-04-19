@@ -37,7 +37,7 @@ of using this or SolidJS, you should use SolidJS.
 
 ### Links
 
-- [Documentation](https://pota.quack.uy/) with editable live examples
+- [Documentation](https://pota.quack.uy/) — editable live examples
   and a playground
 - For getting started, check out
   [templates](https://github.com/potahtml/templates)

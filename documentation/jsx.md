@@ -55,21 +55,20 @@ All under `JSX.*`:
   or object with options.
 - `EventHandlers<Event, Element>` — single handler or array
   (recursive).
-- `EventEvent<Event, Element>` — event with `currentTarget`.
-  Uses `Event & { currentTarget: Element }` intersection to
-  narrow `currentTarget` from `EventTarget | null` to the
+- `EventEvent<Event, Element>` — `Event & { currentTarget: Element }`,
+  narrowing `currentTarget` from `EventTarget | null` to the
   concrete element type.
-- `EventType` — map of event names to event objects.
+- `EventType` — event-name → event-object lookup.
 
 ### Callback types
 
 All under `JSX.*`:
 
-- `CallbackElement<Element>` — `(node: Element) => void` or array.
-  Used for `use:ref`, `use:connected`, `use:disconnected`.
-- `CallbackEvent<Event>` — event callback.
-- `CallbackEventElement<Event, Element>` — event + element callback.
-  Used for `use:clickoutside` etc.
+- `CallbackElement<Element>` — `(node: Element) => void` or array;
+  used for `use:ref`, `use:connected`, `use:disconnected`.
+- `CallbackEvent<Event>`, `CallbackEventElement<Event, Element>`
+  — event-only and event+element variants; the latter used for
+  `use:clickoutside` etc.
 
 ## Component Utility Types (jsx/components.d.ts)
 
@@ -176,15 +175,6 @@ because the widening only kicks in when `string extends V`. Other
 primitive types (number, boolean, null) stay exact too; a
 boolean-typed prop rejects `''`.
 
-### Why IsReadonlyKey is sufficient
-
-Previously the file had 8 types including `UnionToIntersection`,
-`IsUnion`, `IsWidePrimitive`, and `IsSingletonLiteral` — the
-latter filtered singleton literal properties (e.g. `tagName:
-"INPUT"`, `nodeType: 1`). These were redundant because every
-singleton-constant property in lib.dom.d.ts is also `readonly`,
-so `IsReadonlyKey` catches all of them. Simplified to 3 types.
-
 ### Hand-coded prop:\* in jsx/namespace.d.ts
 
 Only three `prop:*` are explicitly declared in the hand-maintained
@@ -197,6 +187,5 @@ attribute interfaces — all on base classes filtered by
 | `prop:textContent` | `ElementAttributes` | On Node (SkipPropsFrom) |
 | `prop:innerText` | `HTMLAttributes` | On HTMLElement (SkipPropsFrom) |
 
-Everything else (`prop:srcObject`, `prop:checked`, `prop:indeterminate`,
-`prop:value`, `prop:href`, `prop:volume`, `prop:colSpan`, etc.)
-comes from `Properties<T>` automatically.
+Everything else (`prop:srcObject`, `prop:checked`, `prop:value`,
+`prop:href`, etc.) comes from `Properties<T>` automatically.

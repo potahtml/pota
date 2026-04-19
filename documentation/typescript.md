@@ -10,7 +10,7 @@ new types, see `typescript/readme.md`.
 typescript/
   exports.d.ts              consumer entry (package.json "types")
   jsx/
-    namespace.d.ts          JSX namespace (~4k lines)
+    namespace.d.ts          JSX namespace (large hand-maintained)
     runtime.d.ts            jsxImportSource entry
     properties.d.ts         Properties<T> — auto-generates prop:*
     components.d.ts         Component, FlowComponent, ComponentProps, etc.
@@ -86,30 +86,26 @@ both string tags and function components.
 ## Generated Component Types
 
 Component types in `generated/types/components/` come from tsc
-processing JSDoc in `src/components/*.js`. These are the types
-that `pota/components` currently resolves to.
+processing JSDoc in `src/components/*.js`.
 
 Most built-in components use the utility types from
-`jsx/components.d.ts` in their JSDoc:
+`jsx/components.d.ts` in their JSDoc, declared as `@type` on a
+const arrow:
 
-| Component | Utility type | Style |
-| --- | --- | --- |
-| `Head` | `FlowComponent` | `@type` on const arrow |
-| `Normalize` | `FlowComponent` | `@type` on const arrow |
-| `Suspense` | `FlowComponent<{ fallback }>` | `@type` on const arrow |
-| `Collapse` | `FlowComponent<{ when, fallback }>` | `@type` on const arrow |
-| `Switch` | `FlowComponent<{ fallback }>` | `@type` on const arrow |
-| `Errored` | `FlowComponent<{ fallback }>` | `@type` on const arrow |
-| `Portal` | `ParentComponent<{ mount }>` | `@type` on const arrow |
-| `Navigate` | `ParentComponent<{ path, ... }>` | `@type` on const arrow |
-| `A` | `Component<{ href, ... } & Elements['a']>` | `@type` on const arrow |
-| `Range` | `FlowComponent<..., Children<...>>` | `@type` on const arrow |
-| `For` | generic with `Children<...>` | `@type` on const arrow |
-| `Dynamic` | generic with `Dynamic<T>` | `@template` on function |
-| `Show` | overloads with `Children<...>` | `@type` on const arrow |
-| `Match` | overloads with `Children<...>` | `@type` on const |
-| `Fragment` | `ParentComponent` | `@type` on const arrow |
-| `Route.Default` | `ParentComponent` | `@type` on const arrow |
+| Component | Utility type |
+| --- | --- |
+| `Head`, `Normalize`, `Fragment`, `Route.Default` | `FlowComponent` / `ParentComponent` (no extra props) |
+| `Suspense`, `Switch`, `Errored` | `FlowComponent<{ fallback }>` |
+| `Collapse` | `FlowComponent<{ when, fallback }>` |
+| `Portal` | `ParentComponent<{ mount }>` |
+| `Navigate` | `ParentComponent<{ path, ... }>` |
+| `A` | `Component<{ href, ... } & Elements['a']>` |
+| `Range` | `FlowComponent<..., Children<...>>` |
+| `For`, `Show` | generic with `Children<...>` |
+
+Two exceptions to the `@type`-on-const-arrow style: `Dynamic` uses
+`@template` on a function declaration (it's generic), and `Match`
+uses `@type` on a const (no arrow), with overloads.
 
 Components that don't use utility types (with reasons):
 
@@ -123,14 +119,13 @@ Components that don't use utility types (with reasons):
 
 ## Design Principles
 
-1. **Ambient types, no duplication.** The JSX namespace and
-   reactive types are global. Source JSDoc uses `JSX.Element`,
-   `DOMElement`, etc. directly — no alias layer.
+1. **Ambient types, no duplication.** Source JSDoc uses
+   `JSX.Element`, `DOMElement`, etc. directly with no alias layer
+   — see Global Types for the catalogue.
 
-2. **JSDoc is the primary source for component signatures.** The
-   JSDoc in `src/components/*.js` drives both in-editor hover and
-   generated types. Hand-maintained `.d.ts` only exists where tsc
-   can't infer correctly.
+2. **JSDoc is the primary source for component signatures.** Hand-
+   maintained `.d.ts` only exists where tsc can't infer correctly
+   — see Generated Component Types for the pipeline.
 
 3. **Keep it simple.** No `UnionToIntersection` or deep conditional
    types in component types. The only complex generics are in
@@ -144,10 +139,9 @@ Components that don't use utility types (with reasons):
 
 ## Verification Checklist
 
-Validated in `pota.docs/src/pages/tests/typescript/typescript.tsx`
-and `tests/typescript/*.tsx` (runs with `tsc -p tests/tsconfig.json --noEmit`):
-
-Test files under `tests/typescript/`:
+Tests run via `tsc -p tests/tsconfig.json --noEmit` over the
+files under `tests/typescript/` (and
+`pota.docs/src/pages/tests/typescript/typescript.tsx`):
 
 | File | Scope |
 | --- | --- |
@@ -200,7 +194,9 @@ Test files under `tests/typescript/`:
   works after Derived overload reorder (setter listed before
   getter)
 - [x] `memo(() => ...)` inline as `when`/`each` source —
-  works after adding a phantom property to memo's return type
+  works via the phantom-property technique (see
+  Type-system techniques → Phantom intersection on `memo`'s
+  return type)
 
 ## Known Type Issues
 
@@ -279,8 +275,6 @@ non-base-class key of `T` whose type is in the `PropValue` union.
 
 ### PropValue union
 
-The filter used to be `string | number | boolean | null`. It's now:
-
 ```ts
 type PropValue =
 	| string | number | boolean | null
@@ -352,29 +346,21 @@ Applied patterns in pota:
   key). `<Ctx.Provider value={fullT}>` matches overload 1;
   `<Ctx.Provider value={partial}>` falls through to overload 2;
   reactive overrides hit overload 3.
-- **`Component()`** — factory first, intrinsic-tag-strict second,
-  free-`P` last (see next bullet).
+- **`Component()`** — three-overload `@type` intersection:
+  1. **Factory form** (one arg) — returns a factory typed via
+     `ComponentProps<T>`.
+  2. **Intrinsic tag + props** (`T extends keyof JSX.IntrinsicElements`)
+     — props are checked strictly against `ComponentProps<T>`, so
+     `Component('div', { nonsense: true })` errors via excess-property
+     check.
+  3. **Function/class/element + props** (`T extends Function | Element
+     | object | symbol`, `P` is free) — preserves generic components'
+     (e.g. `For<T>`) inner `T`, which would otherwise collapse to
+     `unknown` via `ComponentProps<typeof For>`.
 
-### Generic-preserving overloads on `Component()`
-
-The runtime `Component(value, props?)` is typed with an `@type`
-intersection of three call signatures:
-
-1. **Factory form** (one arg) — returns a factory typed via
-   `ComponentProps<T>`.
-2. **Intrinsic tag + props** (two args, `T extends keyof
-   JSX.IntrinsicElements`) — props are checked strictly against
-   `ComponentProps<T>`, so `Component('div', { nonsense: true })`
-   errors via excess-property check.
-3. **Function/class/element + props** (two args, `T extends
-   Function | Element | object | symbol`, `P` is free) — this
-   free-`P` overload preserves generic components' (e.g. `For<T>`)
-   inner `T`, which would otherwise collapse to `unknown` via
-   `ComponentProps<typeof For>`.
-
-The ordering matters: string tags hit overload 2 first for strict
-checking; generic functions skip to overload 3 because their `T`
-isn't a string literal.
+  String tags match overload 2 first for strict checking; generic
+  functions skip to overload 3 because their `T` isn't a string
+  literal.
 
 ### Phantom intersection on `memo`'s return type
 

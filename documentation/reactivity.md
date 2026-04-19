@@ -287,8 +287,8 @@ re-run again when the parent updates — wasted work.
 
 ### upstream — the CHECK resolution
 
-When a memo is in `CHECK` state, `upstream` resolves it. The
-mechanism: `upstream` sets the node `CLEAN` first, then walks its
+When a memo is in `CHECK` state, `upstream` resolves it by
+setting the node `CLEAN` first, then walking its
 sources. If any source is `STALE`, it gets updated via `runTop`
 (which may change its value). If a source is `CHECK`, `upstream`
 recurses into it. If a source update causes the source's value to
@@ -327,8 +327,7 @@ stays in `CHECK` and may never need to re-execute.
 
 ## Effect vs SyncEffect
 
-Both extend `Computation`. The difference is in construction and
-scheduling:
+Both extend `Computation`.
 
 **Effect** (`user = true`):
 
@@ -361,11 +360,8 @@ that must complete synchronously before user code sees the scope.
 
 ## Memo
 
-A `Memo` is a computation that also acts as a signal — it has
-`observers` and `observerSlots`, so other computations can track
-it. This is the glue that makes the dependency graph work: a memo
-reads signals (tracking them as sources) and is itself readable
-(other computations track it as a source).
+A `Memo` is a computation that also acts as a signal — it reads
+signals as sources and is itself tracked by other computations.
 
 ```js
 read = () => {
@@ -424,10 +420,8 @@ automatically removed. No manual dependency management needed.
 
 ### Disposal order
 
-The order matters: owned children first, then cleanups. Children
-dispose in reverse creation order (LIFO). Cleanups also run in
-reverse registration order. This gives predictable tear-down
-semantics — things created last are destroyed first.
+Children first, then cleanups, both in reverse registration order
+(LIFO) — see Root for the rationale.
 
 ---
 
@@ -571,34 +565,3 @@ complete before the "all async done" signal fires.
 Used by `Suspense` and `derived`'s promise handling to know when
 all pending async operations have settled.
 
----
-
-## Summary: the lifecycle of a signal write
-
-1. **`signal.write(value)`** — compares with equality, stores
-   the new value, calls `doWrite`.
-
-2. **`doWrite`** — enters `runUpdates` (batch), iterates
-   observers. Clean observers are queued and have their transitive
-   dependents marked `CHECK` via `downstream`. All observers
-   (clean, check, or already stale) are set to `STALE`.
-
-3. **Phase 1: memo flush** — each queued memo is processed via
-   `runTop`, which walks up to the topmost stale ancestor and
-   updates top-down. Memos compare old and new values; if
-   unchanged, downstream nodes stay clean.
-
-4. **Phase 2: effect flush** — framework effects
-   (`SyncEffect`) run first, then user effects (`Effect`).
-   Each effect re-runs its function, establishing fresh
-   subscriptions.
-
-5. **Nested writes** — if an effect writes to a signal during
-   its execution, this triggers a nested `runUpdates` that
-   accumulates in the existing `Effects` queue. The outermost
-   batch flushes everything.
-
-The result is a synchronous, deterministic, glitch-free update:
-all memos are consistent before any effect sees the new state,
-and effects run at most once per batch regardless of how many
-of their dependencies changed.

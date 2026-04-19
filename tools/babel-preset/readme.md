@@ -56,7 +56,7 @@ Everything else is bundled inline: `@babel/helper-plugin-utils`,
 | `babel-preset/babel-preset-standalone.js` | Entry: composes pota + TS preset, registers |
 | `tools/babel-preset/rollup.config.js`     | Merged build config: preset CJS + standalone IIFE |
 | `tools/babel-preset/test/runner.js`       | Puppeteer runner                            |
-| `tools/babel-preset/test/checks.js`       | Test assertions (12 checks)                 |
+| `tools/babel-preset/test/checks.js`       | Test assertions                             |
 | `tools/babel-preset/test/index.html`      | Test page (loads the built IIFE)            |
 | `generated/babel-preset.cjs`              | CJS build output (gitignored)               |
 | `generated/babel-preset-standalone.js`    | IIFE bundle output (gitignored)             |
@@ -65,7 +65,7 @@ Everything else is bundled inline: `@babel/helper-plugin-utils`,
 
 ```
 npm run watch:babel-preset    # rollup watch → generated/babel-preset.cjs + generated/babel-preset-standalone.js
-npm run test:babel-preset    # puppeteer: 12 tests
+npm run test:babel-preset    # puppeteer assertions over the standalone bundle
 ```
 
 ## devDependencies added

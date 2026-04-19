@@ -3,9 +3,6 @@
 Track what has tests and what still needs them. Work one section at a
 time. Write 1 file at a time.
 
-IMPORTANT: Use JSX directly on all test files because these are
-transformed. No need for Component() functions calls.
-
 ---
 
 ## Notes
@@ -22,8 +19,8 @@ transformed. No need for Component() functions calls.
 - When using `render`, call the returned `dispose` function at the end
   of the test — the harness asserts the document is empty afterward to
   verify proper node cleanup.
-- Use JSX directly on all test files because these are transformed. No
-  need for Component() function calls.
+- Use JSX directly in test files (they are transformed) — no
+  `Component()` calls needed.
 - Make sure tests cover every situation possible.
 - Before writing each file, think if you would do something better
   and do it.
@@ -71,24 +68,13 @@ transformed. No need for Component() functions calls.
 
 ## Timing Considerations
 
-- **`microtask()`** — sufficient for deferred effects, `onProps`,
-  `onMount`, `ready`, and scheduler-batched callbacks.
-- **`macrotask()`** — needed for `Promise.resolve` chains that go
-  through multiple async steps (e.g. `readyAsync`, `action` with
-  promises, `CSSStyleSheet.replace()`).
-- **`sleep(ms)`** — only for truly time-dependent operations:
-  - `history.back()` needs **200ms** (browser-level async, cannot be
-    reduced).
-  - `navigate()` with `delay` option needs at least 2× the delay
-    value.
-  - `useTimeout` tests need sleep > timer delay.
+See `documentation/scheduler.md` § "Timing for tests" for the full
+rule of thumb. Quick reminders specific to writing tests:
+
 - Prefer `microtask` over `macrotask`, and `macrotask` over `sleep`.
 - Do not use double `await microtask()` — use a single `await
   macrotask()` instead.
-- Namespaced props (`use:*`) registered with `onMicrotask=true` need
-  `await microtask()` after `render()`. Built-in props like
-  `use:ref`, `use:connected`, `use:disconnected`, `disabled`,
-  `class`, `style`, `on:*`, `prop:*` are immediate and do not.
+- `useTimeout` tests need `sleep > timer delay`.
 
 ## Current Gaps
 
@@ -229,12 +215,8 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 
 ## `tests/api/use/` — `pota/use/*`
 
-One file per module under `src/use/`: `animate`, `bind`, `browser`,
-`clickoutside`, `clipboard`, `color`, `css`, `dom`, `emitter`,
-`event`, `focus`, `form`, `fullscreen`, `location`, `orientation`,
-`paginate`, `random`, `resize`, `scroll`, `selection`, `selector`,
-`stream`, `string`, `test`, `time`, `url`, `visibility`. Each file
-imports from `#test` and the matching `pota/use/<name>` subpath.
+One file per module under `src/use/`. Each imports from `#test`
+and the matching `pota/use/<name>` subpath.
 
 ## Top-level tests
 
@@ -247,24 +229,12 @@ imports from `#test` and the matching `pota/use/<name>` subpath.
 ## `tests/typescript/` — typecheck-only tests
 
 Run via `npm run test:ts-tests` (`tsc -p tests/tsconfig.json`).
-Catalog of scope in `documentation/typescript.md`.
-
-| File             | Scope                                                |
-| ---------------- | ---------------------------------------------------- |
-| `jsx.tsx`        | JSX intrinsics, `prop:*` / `on:*` / `use:*`, `Properties<T>`, component utility types |
-| `components.tsx` | Built-in components, `Dynamic`, generic user components |
-| `reactive.tsx`   | All reactive primitives, context patterns            |
-| `store.tsx`      | `pota/store` types                                   |
-| `utility.tsx`    | `Component` runtime, render / insert / toHTML, prop setters, `xml` |
-| `use.tsx`        | `pota/use/*` smoke assertions                        |
-| `types.tsx`      | Pure type assertions for ambient globals             |
+Per-file scope catalogued in `documentation/typescript.md` (Verification Checklist).
 
 ---
 
 ## Babel preset tests
 
-Not discovered by the main runner. Run via `npm run test:babel-preset`:
-
-- `tools/babel-preset/test/runner.js` — Puppeteer runner
-- `tools/babel-preset/test/checks.js` — 12 standalone-bundle checks
-- `tools/babel-preset/test/index.html` — loads the built IIFE
+Not discovered by the main runner. Run via `npm run test:babel-preset`.
+Sources under `tools/babel-preset/test/`; see
+`tools/babel-preset/readme.md`.

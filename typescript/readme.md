@@ -10,17 +10,12 @@ types, overloaded functions, complex generics).
 typescript/
   exports.d.ts              consumer entry (package.json "types")
   jsx/
-    namespace.d.ts          JSX namespace (~4k lines)
+    namespace.d.ts          JSX namespace (large hand-maintained)
     runtime.d.ts            jsxImportSource entry (package.json "types" for pota/jsx-runtime)
     properties.d.ts         Properties<T> — auto-generates prop:* attributes
     components.d.ts         Component, FlowComponent, ComponentProps, etc.
-  public/
-    pota.d.ts               Accessor, Signal*, When, Each, Merge
-    components.d.ts         Dynamic<T, P>
-  private/
-    action.d.ts             action() overloads
-    derived.d.ts            derived() overloads
-    Route.d.ts              Route context type
+  public/                   ambient global types (no `export`, available everywhere)
+  private/                  module types reached via `#type/*` from src/ JSDoc
 ```
 
 ## How types reach consumers
@@ -40,19 +35,10 @@ references the same chain plus `public/components.d.ts`.
 
 ## How types reach src/ during development
 
-The `files` array in `tsconfig.json` lists the ambient `.d.ts` files
-that src/ JSDoc needs. These are loaded for type-checking but never
-emitted to `generated/types/` (tsc skips `.d.ts` during emit).
-Currently:
-
-```json
-"files": [
-    "typescript/jsx/namespace.d.ts",
-    "typescript/jsx/components.d.ts",
-    "typescript/public/components.d.ts",
-    "typescript/public/pota.d.ts"
-]
-```
+The `files` array in `tsconfig.json` lists the ambient `.d.ts`
+files that src/ JSDoc needs (everything from `jsx/` and
+`public/`). These are loaded for type-checking but never emitted
+to `generated/types/` (tsc skips `.d.ts` during emit).
 
 ## How to reference private types from src/
 

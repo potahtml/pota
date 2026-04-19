@@ -1,46 +1,15 @@
 # Errored component — design & implementation notes
 
 Notes for `pota/components`' `Errored` export: a classic error
-boundary, pota-flavored. Tests at
+boundary, pota-flavored. The name avoids shadowing the global
+`Error` constructor in user code. Tests at
 `tests/api/components/errored.jsx`.
-
-## Why
-
-Two long-standing gaps in the codebase converged here:
-
-1. `src/lib/solid.js` had three commented-out `catch (err)` blocks —
-   in `Computation.update()`, `Memo.update()`, and `Derived.update()`.
-   They were placeholders for error propagation that never got wired
-   up.
-2. `src/components/route/load.js:23-27` explicitly waits for "pota
-   supports error handling" — the current `load()` does its own ad-hoc
-   promise wrapping because there is no boundary to escalate to.
-
-`Errored` is the user-facing surface. The reactive-layer plumbing
-(`catchError` + context-based error routing) is what those commented
-blocks wanted.
-
-## Name
-
-`Errored` (not `Error`, not `ErrorBoundary`).
-
-- Avoids shadowing the global `Error` constructor in user code — so
-  `throw new Error('boom')` keeps working inside files that
-  `import { Errored } from 'pota/components'`.
-- Shorter than `ErrorBoundary`, and reads as a state: "the subtree
-  errored, show the fallback".
 
 ## API
 
 ```jsx
 import { Errored } from 'pota/components'
 
-// Static JSX fallback
-<Errored fallback={<p>Oops</p>}>
-  <MayThrow />
-</Errored>
-
-// Function fallback — receives the error + a reset()
 <Errored fallback={(err, reset) => (
   <div>
     <p>{err.message}</p>
@@ -54,9 +23,8 @@ import { Errored } from 'pota/components'
 ### Props
 
 - `children` — the protected subtree.
-- `fallback?` — optional. JSX element, text, or
-  `(err, reset) => Children` callback. If omitted, an errored subtree
-  renders nothing.
+- `fallback?` — JSX element, text, or `(err, reset) => Children`
+  callback. If omitted, an errored subtree renders nothing.
 
 ### Behaviour contract
 
@@ -82,8 +50,8 @@ import { Errored } from 'pota/components'
   re-throw to the outer. Users wanting escalation should omit the
   inner boundary.
 - Disposal cleans up whichever state (children or fallback) is
-  currently rendered, including any effects that were created inside
-  the subtree before it threw.
+  rendered, including effects created inside the subtree before
+  it threw.
 - Errors thrown inside cleanup functions during disposal are caught
   and routed to the nearest boundary. Remaining cleanups still run.
 - Rejected promises are caught and routed to the nearest boundary,
@@ -105,8 +73,6 @@ import { Errored } from 'pota/components'
 
 ## Implementation
 
-Three layers landed together.
-
 ### 1. Reactive core — `src/lib/solid.js`
 
 #### Error routing via context
@@ -127,43 +93,25 @@ function routeError(node, err) {
 ```
 
 No `errorHandler` property on `Root`, no `handleError` method, no
-owner-chain walk. Context is inherited at construction time —
-children see the handler set by any ancestor. `routeError` just reads
-`node.context[errorHandlerId]`.
+owner-chain walk — context inheritance does the work.
 
 #### Catch blocks in update methods
 
-Wired up the three previously-commented `catch` placeholders in
-`Computation.update()`, `Memo.update()`, and `Derived.update()`.
-Each one:
-
-1. Marks `state = STALE`.
-2. Calls `this.disposeOwned()` to tear down any partially-built
-   children.
-3. Sets `this.updatedAt = time + 1` to prevent immediate re-run /
-   infinite loop.
-4. Calls `routeError(this, err)`.
-
-These catches handle errors during **reactive re-runs** — when a
-signal change triggers an effect/memo/derived and its fn throws. The
-error aborts the fn (code after the throw does NOT execute), which
-gives clean error semantics.
+The three previously-commented `catch` placeholders in
+`Computation.update()`, `Memo.update()`, and `Derived.update()` are
+now wired up. Each marks `state = STALE`, calls `disposeOwned()` to
+tear down partially-built children, bumps `updatedAt = time + 1`
+(prevents immediate re-run), then `routeError(this, err)`. These
+catch errors during **reactive re-runs** — the fn is aborted, code
+after the throw does not execute.
 
 #### Catch in `runWithOwner`
 
-`runWithOwner` wraps `runWith(() => runUpdates(fn, true), owner)` in a
-try/catch that calls `routeError(owner, err)`. This covers errors
-from **deferred execution** — code that runs outside the original
-reactive update cycle:
-
-- `owned()` callbacks (promise `.then`, event handlers)
-- `root()` scope setup
-- Direct `runWithOwner()` calls from user code
-
-The `owner` argument carries the right context because:
-- `root()` creates a new Root that inherits context from its parent
-- `owned()` captures the Owner at creation time
-- User code passes whatever owner they choose
+`runWithOwner` wraps its body in try/catch and routes via
+`routeError(owner, err)`. This covers errors from **deferred
+execution** outside the original reactive update cycle: `owned()`
+callbacks (promise `.then`, event handlers), `root()` scope setup,
+and direct `runWithOwner()` calls.
 
 #### Why `runWith` does NOT catch
 
@@ -213,19 +161,17 @@ function catchError(fn, handler) {
 }
 ```
 
-The `syncEffect` creates a sub-owner; setting context on _that_ owner
-scopes catching to its descendants only. `untrack(fn)` prevents the
-syncEffect from re-triggering on reactive reads inside fn. Wrapping
-`fn` in `try/catch` handles the synchronous-throw case during the
-first evaluation; reactive throws later route through the update()
+The `syncEffect` creates a sub-owner; setting context on _that_
+owner scopes catching to its descendants only. `untrack(fn)` keeps
+the syncEffect from re-triggering on reactive reads inside fn. The
+inline `try/catch` handles synchronous throws during the first
+evaluation; reactive throws later route through the `update()`
 catch blocks and find the handler via context.
 
-The handler is wrapped in `safeHandler` to prevent re-entry: if the
-handler itself throws, the error escalates to the parent handler
-rather than being routed back to the same handler. Without this, a
-throwing handler would be called with its own error by `routeError`
-(since the handler is stored on the syncEffect's context, and the
-syncEffect's `update()` catch calls `routeError(this, err)`).
+`safeHandler` prevents re-entry — if the handler itself throws, the
+error escalates to the parent handler instead of looping back
+through `routeError` (which would otherwise hit the same handler,
+since it's stored on the syncEffect's own context).
 
 #### Error-safe cleanup
 
@@ -312,140 +258,19 @@ Notes on the shape:
 
 ## Test coverage
 
-### `tests/api/components/errored.jsx`
+- `tests/api/components/errored.jsx` — `Errored` component
+  (children/fallback variants, reset, reactive throws, nesting,
+  sibling isolation, disposal, event handlers).
+- `tests/api/reactivity/catch-error.jsx` — `catchError` primitive
+  (sync + reactive throws, inner-first, handler escalation,
+  cleanup, `untrack` abort, `runWithOwner` paths).
+- `tests/api/reactivity/cleanup.jsx` — cleanup error routing
+  (disposal order, throwing cleanups, sibling preservation).
+- Rejected promise routing — split across the three files above
+  plus `tests/api/reactivity/derived.jsx` and
+  `tests/api/reactivity/action.jsx`. No standalone
+  `promise-rejection.jsx`; coverage lives alongside the primitive
+  that triggers it.
 
-| Test                                               | What it proves                |
-| -------------------------------------------------- | ----------------------------- |
-| renders children when no error                     | happy path                    |
-| renders text children when no error                | happy path, text              |
-| renders multiple children when no error            | happy path, several nodes     |
-| renders nothing when children is empty             | empty subtree                 |
-| catches sync throw and shows JSX fallback          | basic catching                |
-| catches sync throw and shows text fallback         | fallback can be a string      |
-| renders nothing on error when no fallback          | fallback is optional          |
-| function fallback is called and result rendered    | function form works           |
-| function fallback receives the thrown error        | `err` arg is the actual error |
-| non-Error thrown values are still passed           | `throw 'string'` still works  |
-| catches throw undefined and shows fallback         | noError sentinel works        |
-| reset with fixed cause re-renders children         | recovery path                 |
-| reset with persistent cause re-catches             | repeated failure is stable    |
-| catches error thrown inside an effect              | reactive throw                |
-| catches error thrown inside a memo                 | reactive throw                |
-| signal change triggering a thrown effect is caught | reactive retrigger            |
-| nested: inner catches, outer renders normally      | inner-first semantics         |
-| nested: inner without fallback renders nothing     | no escalation                 |
-| sibling boundaries catch independently             | boundary isolation            |
-| non-throwing sibling is replaced by fallback       | whole-subtree replacement     |
-| dispose from children state cleans up              | cleanup contract              |
-| dispose from fallback state cleans up              | cleanup contract              |
-| cleanups of errored children still run on dispose  | cleanup ordering              |
-| parent reactive content keeps updating             | parent state preservation     |
-| sibling components keep rendering                  | sibling state preservation    |
-| reactive child error does not break parent         | parent state preservation     |
-| catches error thrown by an event handler           | event handler routing         |
-| error in fallback not caught by same boundary      | fallback isolation            |
-| error in fallback caught by outer boundary         | fallback escalation           |
-| catches error thrown inside a derived              | reactive throw                |
-| catches error from deeply nested grandchild        | deep nesting sync             |
-| catches reactive error from deeply nested          | deep nesting reactive         |
-| two boundaries triggered by same signal            | shared signal isolation       |
-| dead effect stays dead after throw                 | effect lifecycle              |
-| memo error triggered by signal change              | reactive retrigger            |
-| derived chain error triggered by signal            | chain stage error             |
-| nested: inner catches reactive, outer unaffected   | reactive inner-first          |
-| error inside batch is caught                       | batch integration             |
-
-### `tests/api/reactivity/catch-error.jsx`
-
-| Test                                               | What it proves                |
-| -------------------------------------------------- | ----------------------------- |
-| fn runs and returns its value                      | happy path                    |
-| fn with no error, handler never called             | no false positives            |
-| catches sync throw                                 | basic catching                |
-| catches non-Error thrown values                    | `throw 'string'` works        |
-| returns undefined when fn throws                   | no partial result             |
-| catches error thrown inside an effect              | reactive throw                |
-| catches effect error triggered by signal           | reactive retrigger            |
-| after effect throws, it is dead                    | no re-trigger after death     |
-| catches error thrown inside a memo                 | reactive throw                |
-| catches memo error triggered by signal             | reactive retrigger            |
-| catches error thrown inside a derived              | reactive throw                |
-| catches derived chain error on signal              | chain stage error             |
-| nested: inner catches before outer                 | inner-first semantics         |
-| nested: inner catches reactive before outer        | reactive inner-first          |
-| deeply nested: error reaches innermost             | 3-level nesting               |
-| sibling scopes catch independently                 | scope isolation               |
-| sibling reactive errors stay isolated              | reactive scope isolation      |
-| unhandled effect error → console.error             | fallback behavior             |
-| unhandled memo error → console.error               | fallback behavior             |
-| error does not break sibling effects               | effect isolation              |
-| error does not break sibling signal tracking       | signal isolation              |
-| cleanups inside scope run on disposal              | cleanup contract              |
-| cleanup before sync throw runs on disposal         | cleanup ordering              |
-| handler can write to signals                       | handler is reactive           |
-| root() inside scope inherits handler               | context inheritance           |
-| error inside batch is caught                       | batch integration             |
-| throwing + non-throwing siblings                   | mixed children                |
-| owned callback error caught by handler             | runWithOwner catch            |
-| owned callback error without handler → console     | runWithOwner fallback         |
-| disposed owned callback is a no-op                 | owned lifecycle               |
-| root throw caught by outer catchError              | runWithOwner catch            |
-| root throw without handler → console.error         | runWithOwner fallback         |
-| untrack throw aborts the effect fn                 | abort semantics               |
-| untrack throw in memo aborts the memo fn           | abort semantics               |
-| thrown effect is marked dead                       | update() cleanup              |
-| partial children disposed on throw                 | update() cleanup              |
-| thrown memo does not write its value               | update() cleanup              |
-| parent effect keeps tracking after child error     | parent state preservation     |
-| parent memo keeps producing after child error      | parent state preservation     |
-| sibling catchError scopes preserve state           | sibling state preservation    |
-| parent derived keeps working after child error     | parent state preservation     |
-| catchError works nested inside an effect           | effect nesting                |
-| two boundaries triggered by same signal            | shared signal isolation       |
-| error triggered after async delay                  | async timing                  |
-| handler error is not caught by same handler        | no handler re-entry           |
-| handler error escalates to parent handler          | handler escalation            |
-| reactive handler error escalates to parent         | reactive handler escalation   |
-| unbatched reset causes extra memo evaluation       | batch proof (unbatched)       |
-| batched reset avoids extra memo evaluation         | batch proof (batched)         |
-
-### Rejected promise routing — split across `tests/api/components/errored.jsx` and `tests/api/reactivity/derived.jsx`
-
-Rejected promises route through `withValue` → `owned` → `routeError`.
-There is no separate `promise-rejection.jsx` file any more — the
-coverage lives alongside the primitive that triggers it:
-
-| Test                                               | What it proves                |
-| -------------------------------------------------- | ----------------------------- |
-| catches rejected promise in derived                | basic rejection routing       |
-| catches non-Error rejected value                   | `reject('string')` works      |
-| catches rejected promise via signal change         | reactive rejection            |
-| rejection does not break sibling effects           | sibling isolation             |
-| rejection without handler → console.error          | fallback behavior             |
-| Errored catches rejection and shows fallback       | DOM-level rejection           |
-| rejected promise does not break parent             | parent preservation           |
-| promise resolves then rejects on signal change     | reactive rejection            |
-| component returning rejected promise caught        | bare promise child routing    |
-| action rejected promise routes to handler          | resolve rejection routing     |
-| action rejected promise without handler → console  | resolve rejection fallback    |
-| action rejection in chain stage routes to handler  | resolve chain rejection       |
-
-### `tests/api/reactivity/cleanup.jsx`
-
-| Test                                               | What it proves                |
-| -------------------------------------------------- | ----------------------------- |
-| runs on disposal                                   | happy path                    |
-| multiple cleanups run in reverse order             | execution order               |
-| effect cleanup runs when effect re-runs            | effect lifecycle              |
-| returned by cleanup() for cancellation             | return value contract         |
-| error routes to catchError handler                 | error routing                 |
-| error without handler goes to console.error        | fallback behavior             |
-| remaining cleanups still run after one throws      | error isolation               |
-| all cleanups throw, all errors are routed          | exhaustive routing            |
-| error during effect re-run is caught               | reactive cleanup error        |
-| error during memo re-evaluation is caught          | memo cleanup error            |
-| error does not prevent sibling effects             | sibling preservation          |
-| error in nested owned child is caught              | nested error routing          |
-| parent reactive state preserved after error        | parent preservation           |
-| effect stays alive after its cleanup threw         | effect lifecycle              |
-| error when catchError disposes owned on throw      | disposeOwned + cleanup error  |
+Rejected promises route through `withValue` → `owned` →
+`routeError`.

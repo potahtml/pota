@@ -32,8 +32,6 @@
 
 ### reactivity
 
-- figure out if other things should be wrapped in
-  `createReactiveSystem`
 - figure out if possible to prevent writing to signals inside effects
 
 ### use

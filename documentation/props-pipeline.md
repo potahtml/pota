@@ -29,14 +29,12 @@ The Babel preset and the JSX runtime both call `assignProp` /
 
 Two maps, registered at module init:
 
-| Map              | Scope                     | Key type         | Example              |
-| ---------------- | ------------------------- | ---------------- | -------------------- |
-| `plugins`        | whole-name match          | full prop name   | `class`, `style`, `use:ref` |
-| `pluginsNS`      | namespace-prefix match    | namespace prefix | `prop`, `on`, `class`, `style`, `use` |
-
-`plugins` handles "plugin-as-attribute" (`use:ref={fn}` registers
-its own plugin, not a `use:*` namespace). `pluginsNS` handles any
-`ns:name` attribute where the `ns` is in the `namespaces` set.
+- **`plugins`** — keyed by full prop name (`class`, `style`,
+  `use:ref`, etc.). Handles "plugin-as-attribute" — `use:ref={fn}`
+  is registered as its own plugin, not via the `use:*` namespace.
+- **`pluginsNS`** — keyed by namespace prefix (`prop`, `on`,
+  `class`, `style`, `use`). Handles any `ns:name` attribute where
+  `ns` is in the `namespaces` set.
 
 The `namespaces` set starts with `on`, `prop`, `class`, `style`,
 `use` and grows when user code calls `propsPluginNS`. Every
@@ -64,18 +62,22 @@ these has its own reason to be immediate (see below).
 
 ### Built-in registrations (`@main.js`)
 
-| Attribute         | Map        | Microtask? | Handler          | Reason                                      |
-| ----------------- | ---------- | ---------- | ---------------- | ------------------------------------------- |
-| `prop:*`          | pluginsNS  | no         | `setPropertyNS`  | DOM properties written immediately          |
-| `on:*`            | pluginsNS  | no         | `setEventNS`     | event listeners attached immediately        |
-| `use:css`         | plugins    | **yes**    | `setCSS`         | scoped stylesheet can wait                  |
-| `use:connected`   | plugins    | no         | `setConnected`   | schedules via `onMount` itself              |
-| `use:disconnected`| plugins    | no         | `setDisconnected`| registers a cleanup — no deferral needed    |
-| `use:ref`         | plugins    | no         | `setRef`         | ref must resolve before mount               |
-| `style`           | plugins    | no         | `setStyle`       | inline style applied immediately            |
-| `style:*`         | pluginsNS  | no         | `setStyleNS`     | individual style property applied immediately |
-| `class`           | plugins    | no         | `setClass`       | class applied immediately                    |
-| `class:*`         | pluginsNS  | no         | `setClassNS`     | individual class applied immediately         |
+All built-ins register with `onMicrotask=false` (apply
+synchronously) **except `use:css`**, which uses the default
+microtask deferral so a scoped stylesheet can wait.
+
+| Attribute         | Map        | Handler          | Reason                                      |
+| ----------------- | ---------- | ---------------- | ------------------------------------------- |
+| `prop:*`          | pluginsNS  | `setPropertyNS`  | DOM properties written immediately          |
+| `on:*`            | pluginsNS  | `setEventNS`     | event listeners attached immediately        |
+| `use:css`         | plugins    | `setCSS`         | scoped stylesheet can wait                  |
+| `use:connected`   | plugins    | `setConnected`   | schedules via `onMount` itself              |
+| `use:disconnected`| plugins    | `setDisconnected`| registers a cleanup — no deferral needed    |
+| `use:ref`         | plugins    | `setRef`         | ref must resolve before mount               |
+| `style`           | plugins    | `setStyle`       | inline style applied immediately            |
+| `style:*`         | pluginsNS  | `setStyleNS`     | individual style property applied immediately |
+| `class`           | plugins    | `setClass`       | class applied immediately                    |
+| `class:*`         | pluginsNS  | `setClassNS`     | individual class applied immediately         |
 
 Anything not matched by either map falls through to
 `setAttribute(node, name, value)`.

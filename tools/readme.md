@@ -33,21 +33,20 @@ active development.
 
 Three scoped typecheck scripts, each with a watch variant:
 
-| One-shot                       | Watch                          | Config                        | Emits?         |
-| ------------------------------ | ------------------------------ | ----------------------------- | -------------- |
-| `npm run test:ts`              | `npm run watch:ts`             | `tsconfig.json` (`src/`)      | yes — `generated/types/` |
-| `npm run test:ts-tests`        | `npm run watch:ts-tests`       | `tests/tsconfig.json`         | no (`noEmit`)  |
-| `npm run test:ts-babel-preset` | `npm run watch:ts-babel-preset` | `babel-preset/tsconfig.json` | no (`noEmit`)  |
+| One-shot                       | Watch                          | Config                       |
+| ------------------------------ | ------------------------------ | ---------------------------- |
+| `npm run test:ts`              | `npm run watch:ts`             | `tsconfig.json` (`src/`)     |
+| `npm run test:ts-tests`        | `npm run watch:ts-tests`       | `tests/tsconfig.json`        |
+| `npm run test:ts-babel-preset` | `npm run watch:ts-babel-preset` | `babel-preset/tsconfig.json` |
 
-`test:ts` and `build:ts` are the same command (`tsc`); the alias
+Only `test:ts` emits — into `generated/types/`. The other two are
+typecheck-only (`noEmit`).
+
+`test:ts` and `build:ts` are the same `tsc` invocation; the alias
 exists so `test:types` can group the three typechecks under one
-name. `test:types` chains them sequentially and is itself the
-first stage of `npm test`.
-
-All three tsconfigs set `preserveWatchOutput: true` (root +
-`babel-preset/` directly; `tests/` inherits from root) so their
-diagnostics don't wipe the shared `npm run dev` console when
-another watcher reports.
+name. `test:types` chains them sequentially and is the first stage
+of `npm test`. All three tsconfigs set `preserveWatchOutput: true`
+so their diagnostics don't wipe the shared `npm run dev` console.
 
 ## Full verification
 
@@ -105,29 +104,12 @@ npm run release
 ## utils.js
 
 Shared helpers used by `generate.js`, `release.js`, `watch.js`, and
-the test runner. Not a public API. Exports:
+the test runner. Not a public API. Three groups:
 
-| Export          | Description                                      |
-| --------------- | ------------------------------------------------ |
-| `read`          | Read a UTF-8 file                                |
-| `write`         | Write a file only when content changed           |
-| `exists`        | Check whether a path exists                      |
-| `append`        | Append to a file                                 |
-| `isDirectory`   | Check whether a path is a directory              |
-| `remove`        | Remove a file or directory tree                  |
-| `move`          | Move a file or directory                         |
-| `copy`          | Copy a file                                      |
-| `mkdir`         | Ensure a directory exists; return the path       |
-| `files`         | Direct children of a directory (absolute paths) |
-| `readdir`       | Directory entry names                            |
-| `filesRecursive`| Recursive file list (absolute paths)             |
-| `watch`         | Watch a directory tree for changes               |
-| `$`             | `execSync` alias for shell commands              |
-| `spawn`         | `child_process.spawn`                            |
-| `red`           | ANSI red color                                   |
-| `green`         | ANSI green color                                 |
-| `dim`           | ANSI dim color                                   |
-| `white`         | ANSI white color                                 |
+- **Filesystem helpers** (read/write with change-detection,
+  recursive listing, copy/move/remove, directory watching).
+- **Process**: `$` (execSync alias) and `spawn`.
+- **ANSI color helpers** for terminal output.
 
 ## babel-preset/
 
