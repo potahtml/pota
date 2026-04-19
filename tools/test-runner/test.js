@@ -31,7 +31,7 @@ export {
  * @typedef {{
  * 	passed: number
  * 	failed: number
- * 	errors: { title: string; error: unknown }[]
+ * 	errors: { title: string; line?: number; error: unknown }[]
  * 	done?: boolean
  * }} TestResults
  */
@@ -39,6 +39,7 @@ export {
 /**
  * @type {Promise<{
  * 	title: string
+ * 	line?: number
  * 	ok: boolean
  * 	error?: unknown
  * }>[]}
@@ -53,9 +54,13 @@ const results = []
  */
 function packError(e) {
 	if (typeof e === 'object' && e !== null) {
-		const err = /** @type {{ message?: string; stack?: string; cause?: unknown }} */ (
-			e
-		)
+		const err = /**
+		 * @type {{
+		 * 	message?: string
+		 * 	stack?: string
+		 * 	cause?: unknown
+		 * }}
+		 */ (e)
 		if (err.stack || err.message) {
 			/** @type {PackedError} */
 			const o = {
@@ -73,11 +78,14 @@ function packError(e) {
 
 /**
  * Wraps a test: clears body and head before, asserts they are clean
- * after, delegates to pota/use/test, tracks the result.
+ * after, delegates to pota/use/test, tracks the result. The `line`
+ * argument is injected by the test-runner's Babel transform.
  *
- * @type {typeof testImpl}
+ * @param {string} title
+ * @param {Parameters<typeof testImpl>[1]} fn
+ * @param {number} [line]
  */
-export function test(title, fn) {
+export function test(title, fn, line) {
 	// clean slate before each test
 	document.body.innerHTML = ''
 	document.head.innerHTML = ''
@@ -91,6 +99,7 @@ export function test(title, fn) {
 				if (bodyLeftover) {
 					return {
 						title,
+						line,
 						ok: false,
 						error:
 							'body not empty after test: ' +
@@ -106,6 +115,7 @@ export function test(title, fn) {
 				) {
 					return {
 						title,
+						line,
 						ok: false,
 						error:
 							'head not clean after test: ' +
@@ -116,6 +126,7 @@ export function test(title, fn) {
 				if (document.adoptedStyleSheets.length > 0) {
 					return {
 						title,
+						line,
 						ok: false,
 						error:
 							'test left ' +
@@ -123,11 +134,11 @@ export function test(title, fn) {
 							' adopted stylesheet(s) on document',
 					}
 				}
-				return { title, ok: true }
+				return { title, line, ok: true }
 			},
-			e => ({ title, ok: false, error: packError(e) }),
+			e => ({ title, line, ok: false, error: packError(e) }),
 		)
-		.catch(e => ({ title, ok: false, error: packError(e) }))
+		.catch(e => ({ title, line, ok: false, error: packError(e) }))
 
 	results.push(tracked)
 	return tracked
@@ -149,7 +160,11 @@ export async function run() {
 			out.passed++
 		} else {
 			out.failed++
-			out.errors.push({ title: r.title, error: r.error })
+			out.errors.push({
+				title: r.title,
+				line: r.line,
+				error: r.error,
+			})
 		}
 	}
 

@@ -24,6 +24,7 @@ import { red, green, yellow, dim, white } from '../utils.js'
 /**
  * @typedef {{
  * 	title?: string
+ * 	line?: number
  * 	__event?: string
  * 	error?: unknown
  * 	reason?: unknown
@@ -48,11 +49,7 @@ import { red, green, yellow, dim, white } from '../utils.js'
  * @returns {unknown}
  */
 function unpack(arg) {
-	if (
-		typeof arg === 'object' &&
-		arg !== null &&
-		'__error' in arg
-	) {
+	if (typeof arg === 'object' && arg !== null && '__error' in arg) {
 		const e = /** @type {PackedError} */ (arg)
 		let s = e.stack || e.message || ''
 		if (e.cause) s += '\nCaused by: ' + unpack(e.cause)
@@ -90,9 +87,19 @@ export function report(file, results, ms, baseURL, opts) {
 				` ${green('PASS')}  ${file}  ${dim(`(${results.passed}) ${ms}ms`)}`,
 			)
 	} else {
-		console.log(` ${red('FAIL')}  ${file}  ${dim(`${ms}ms`)}`)
+		console.log(`\n ${red('FAIL')}  ${file}  ${dim(`${ms}ms`)}`)
 		console.log(`\n  ${white(`${baseURL}/${file}?test`)} (test)`)
-		console.log(`  ${white(`${baseURL}/${file}`)} (source)\n`)
+		console.log(`  ${white(`${baseURL}/${file}`)} (transformed)`)
+
+		// clickable file:line per failing test (editor-openable)
+		const failingWithLine = results.errors.filter(
+			e => e.title && e.line,
+		)
+		if (failingWithLine.length) {
+			for (const e of failingWithLine) {
+				console.log(`  ${white(`${file}:${e.line}`)} (source)\n`)
+			}
+		}
 
 		for (const err of results.errors) {
 			// assertion failures (with .title) are shown via their

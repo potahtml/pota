@@ -43,6 +43,30 @@ function rewriteImports() {
 	}
 }
 
+/**
+ * Babel plugin: injects the source line number as a third argument to
+ * `test('title', fn)` calls so the runner can print clickable
+ * file:line links for failing tests.
+ */
+function annotateTestLine() {
+	return {
+		visitor: {
+			CallExpression(path) {
+				const callee = path.node.callee
+				if (callee.type !== 'Identifier' || callee.name !== 'test')
+					return
+				if (path.node.arguments.length >= 3) return
+				const line = path.node.loc?.start.line
+				if (!line) return
+				path.node.arguments.push({
+					type: 'NumericLiteral',
+					value: line,
+				})
+			},
+		},
+	}
+}
+
 // mtime-based cache
 
 /** @type {Map<string, { mtime: number; code: string }>} */
@@ -73,7 +97,7 @@ export function transform(filePath) {
 	const code = transformSync(fs.readFileSync(filePath, 'utf8'), {
 		filename: filePath,
 		presets,
-		plugins: [rewriteImports],
+		plugins: [rewriteImports, annotateTestLine],
 		sourceMaps: 'inline',
 	}).code
 
