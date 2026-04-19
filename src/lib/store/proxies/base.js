@@ -7,6 +7,7 @@ import {
 	reflectOwnKeys,
 } from '../../std.js'
 
+import { isKeyBlacklisted } from '../blacklist.js'
 import { mutable } from '../mutable.js'
 import { tracker } from '../tracker.js'
 
@@ -21,9 +22,10 @@ export class ProxyHandlerBase {
 		this.track.keysRead()
 		return reflectOwnKeys(target)
 	}
+
 	has(target, key) {
 		const r = reflectHas(target, key)
-		this.track.keyRead(key, r)
+		if (this.shouldTrackKey(key)) this.track.keyRead(key, r)
 		return r
 	}
 	deleteProperty(target, key) {
@@ -31,6 +33,8 @@ export class ProxyHandlerBase {
 		if (!(key in target)) {
 			return true
 		}
+
+		if (!this.shouldTrackKey(key)) return delete target[key]
 
 		return batch(() => {
 			this.track.keysWrite()
@@ -66,6 +70,32 @@ export class ProxyHandlerBase {
 						: reflectApply(value, target, args),
 				),
 			)
+	}
+	/**
+	 * `true` when reactive tracking should run for `key`. Skips
+	 * engine-internal keys (well-known symbols, `constructor`,
+	 * `__proto__`) so they don't create spurious subscriptions.
+	 *
+	 * @param {PropertyKey} key
+	 * @returns {boolean}
+	 */
+	shouldTrackKey(key) {
+		return !isKeyBlacklisted(key)
+	}
+	/**
+	 * `true` when `key` is an identity-sensitive blacklisted key. The
+	 * get trap returns the raw value for these so `obj.constructor ===
+	 * Object` and `obj.__proto__ === Object.prototype` hold. Other
+	 * blacklisted keys (well-known symbols) still go through
+	 * `returnFunction` so internal-slot methods like
+	 * `Map.prototype[Symbol.iterator]` receive the raw target as
+	 * receiver.
+	 *
+	 * @param {PropertyKey} key
+	 * @returns {boolean}
+	 */
+	isIdentityKey(key) {
+		return key === 'constructor' || key === '__proto__'
 	}
 }
 

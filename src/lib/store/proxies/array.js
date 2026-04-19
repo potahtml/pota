@@ -22,21 +22,35 @@ export class ProxyHandlerArray extends ProxyHandlerBase {
 			return true
 		}
 
+		if (this.isIdentityKey(key)) {
+			return reflectGet(target, key, proxy)
+		}
+
+		const shouldTrack = this.shouldTrackKey(key)
+
 		/** To be able to track properties not yet set */
-		if (!(key in target)) {
+		if (shouldTrack && !(key in target)) {
 			this.track.isUndefinedRead(key, true)
 		}
 
 		const value = reflectGet(target, key, proxy)
 
-		return isFunction(value)
-			? this.returnFunction(target, key, value, proxy)
-			: this.track.valueRead(
+		if (isFunction(value)) {
+			return this.returnFunction(target, key, value, proxy)
+		}
+
+		return shouldTrack
+			? this.track.valueRead(
 					key,
 					this.returnValue(target, key, value),
 				)
+			: this.returnValue(target, key, value)
 	}
 	set(target, key, value, proxy) {
+		if (!this.shouldTrackKey(key)) {
+			return reflectSet(target, key, mutable(value), proxy)
+		}
+
 		return batch(() => {
 			/** Always work with mutables */
 			value = mutable(value)

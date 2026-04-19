@@ -29,8 +29,14 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 			return true
 		}
 
+		if (this.isIdentityKey(key)) {
+			return reflectGet(target, key, proxy)
+		}
+
+		const shouldTrack = this.shouldTrackKey(key)
+
 		/** To be able to track properties not yet set */
-		if (!(key in target)) {
+		if (shouldTrack && !(key in target)) {
 			this.track.isUndefinedRead(key, true)
 		}
 
@@ -40,7 +46,7 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 		 */
 
 		const value =
-			key === 'size'
+			shouldTrack && key === 'size'
 				? this.track.valueRead(key, reflectGet(target, key, target))
 				: reflectGet(target, key, proxy)
 

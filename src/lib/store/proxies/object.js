@@ -19,8 +19,12 @@ export class ProxyHandlerObject extends ProxyHandlerBase {
 			return true
 		}
 
+		if (this.isIdentityKey(key)) {
+			return reflectGet(target, key, proxy)
+		}
+
 		/** To be able to track properties not yet set */
-		if (!(key in target)) {
+		if (this.shouldTrackKey(key) && !(key in target)) {
 			this.track.isUndefinedRead(key, true)
 		}
 
@@ -31,6 +35,10 @@ export class ProxyHandlerObject extends ProxyHandlerBase {
 			: this.returnValue(target, key, value)
 	}
 	set(target, key, value, proxy) {
+		if (!this.shouldTrackKey(key)) {
+			return reflectSet(target, key, mutable(value), proxy)
+		}
+
 		return batch(() => {
 			/** Always work with mutables */
 			value = mutable(value)
