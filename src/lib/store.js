@@ -2,6 +2,7 @@
 
 export { signalify } from './store/signalify.js'
 export { mutable } from './store/mutable.js'
+export { store } from './store/store.js'
 
 // reconcile
 
