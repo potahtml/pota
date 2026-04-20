@@ -54,7 +54,7 @@ import { copy } from '../copy.js'
  * @template U
  * @param {T} target
  * @param {U} source
- * @param {import('#type/store.d.ts').KeysOption<U>} [keys] Keeps
+ * @param {import('#type/store.d.ts').ReconcileKeys<U>} [keys] Keeps
  *   references on objects with the same key. Shape mirrors `source`:
  *   reconcile iterates source, so only arrays present in source are
  *   relevant to this option.

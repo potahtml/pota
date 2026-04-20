@@ -151,3 +151,13 @@ export const dim = t => `\x1b[2m${t}\x1b[0m`
 export const yellow = t => `\x1b[33m${t}\x1b[0m`
 /** @param {string} t */
 export const white = t => `\x1b[37m${t}\x1b[0m`
+
+/**
+ * Escapes regex meta-characters in a string so it can be used
+ * literally inside a `new RegExp(...)` pattern.
+ *
+ * @param {string} s
+ * @returns {string}
+ */
+export const escapeRegex = s =>
+	s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

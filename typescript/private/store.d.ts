@@ -6,15 +6,15 @@
  * field of the array's element, optionally with nested options for
  * that element.
  */
-export type KeysOption<T> =
+export type ReconcileKeys<T> =
 	T extends ReadonlyArray<infer U>
 		? U extends object
 			? { key: Extract<keyof U, string> } & {
-					[K in keyof U]?: KeysOption<U[K]>
+					[K in keyof U]?: ReconcileKeys<U[K]>
 				}
 			: never
 		: T extends object
-			? { [K in keyof T]?: KeysOption<T[K]> }
+			? { [K in keyof T]?: ReconcileKeys<T[K]> }
 			: never
 
 /**
@@ -75,7 +75,7 @@ export type DeepMutable<T> = T extends (...args: any[]) => any
  * tuple. `setStore` receives a mutator that sees the writable draft
  * and runs inside `batch()`.
  */
-export type StoreTuple<T> = readonly [
+export type Store<T> = readonly [
 	DeepReadonly<T>,
 	(mutator: (draft: DeepMutable<T>) => void) => void,
 ]

@@ -61,7 +61,7 @@ import { copy } from '../copy.js'
  * @template U
  * @param {T} target
  * @param {U} source
- * @param {import('#type/store.d.ts').KeysOption<U>} [keys] Keep
+ * @param {import('#type/store.d.ts').ReconcileKeys<U>} [keys] Keep
  *   references on objects with the same key. Shape mirrors `source`.
  * @returns {T & U}
  */

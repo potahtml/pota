@@ -10,6 +10,7 @@
 
 export * from './private/derived.d.ts'
 export * from './private/action.d.ts'
+export * from './private/store.d.ts'
 
 export * from '../generated/types/exports.d.ts'
 // Re-exported so consumers can write `declare module 'pota'`

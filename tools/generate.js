@@ -1,6 +1,7 @@
 // this script creates importmap.json and types.json for use in docs/monaco
 
 import {
+	escapeRegex,
 	filesRecursive,
 	green,
 	isDirectory,
@@ -74,6 +75,49 @@ ${lib.join(',\n')}
 
 		const files = filesRecursive('./')
 
+		// Build alias rewrites from package.json `imports` so the
+		// playground resolves Node subpath imports (`#foo/*`) under
+		// Monaco's legacy NodeJs resolution (which doesn't understand
+		// `#` subpath imports). Each alias target is normalised to a
+		// bare specifier whose first segment matches a file or folder
+		// already registered under `node_modules/` in the virtual FS.
+		const pkg = JSON.parse(read('./package.json'))
+		const aliasRewrites = Object.entries(pkg.imports || {}).map(
+			([from, to]) => {
+				const target = String(to).replace(/^\.\//, '')
+				if (from.endsWith('/*') && target.endsWith('/*')) {
+					return {
+						from: from.slice(0, -1), // "#type/"
+						to: target.slice(0, -1), // "typescript/private/"
+						prefix: true,
+					}
+				}
+				return { from, to: target, prefix: false }
+			},
+		)
+
+		const rewriteAliases = content => {
+			for (const r of aliasRewrites) {
+				if (r.prefix) {
+					// Match `"#type/`, `'#type/`, `` `#type/ ``
+					content = content.replace(
+						new RegExp(`(['"\`])${escapeRegex(r.from)}`, 'g'),
+						`$1${r.to}`,
+					)
+				} else {
+					// Match the exact specifier as a quoted string
+					content = content.replace(
+						new RegExp(
+							`(['"\`])${escapeRegex(r.from)}(['"\`])`,
+							'g',
+						),
+						`$1${r.to}$2`,
+					)
+				}
+			}
+			return content
+		}
+
 		for (const file of files) {
 			if (
 				!isDirectory(file) &&
@@ -83,7 +127,7 @@ ${lib.join(',\n')}
 			) {
 				types.push({
 					f: file.replace(/\\/g, '/').replace(/^\.\//, 'pota/'),
-					c: read(file),
+					c: rewriteAliases(read(file)),
 				})
 			}
 		}

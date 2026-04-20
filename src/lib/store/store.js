@@ -27,7 +27,7 @@ import { mutable } from './mutable.js'
  * @param {boolean} [clone] - If `true`, `source` is deep-copied
  *   first so outside references to `source` cannot bypass
  *   `setStore`.
- * @returns {import('#type/store.d.ts').StoreTuple<T>}
+ * @returns {import('#type/store.d.ts').Store<T>}
  */
 export function store(source, clone) {
 	const draft = mutable(source, clone)
@@ -39,7 +39,7 @@ export function store(source, clone) {
 	const setStore = fn => {
 		batch(() => untrack(() => fn(draft)))
 	}
-	return /** @type {import('#type/store.d.ts').StoreTuple<T>} */ ([
+	return /** @type {import('#type/store.d.ts').Store<T>} */ ([
 		draft,
 		setStore,
 	])
