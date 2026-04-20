@@ -45,7 +45,7 @@ function createProxy(target, Handler) {
  * @template T
  * @param {T} value
  * @param {boolean} [clone] - If to `copy` the value first
- * @returns {T & Record<string, any>}
+ * @returns {import('#type/store.d.ts').Mutable<T>}
  */
 export function mutable(value, clone) {
 	/** Return value as is when is not an object */
@@ -58,7 +58,9 @@ export function mutable(value, clone) {
 
 	/** Avoid unwrapping external proxies */
 	if (value[$isMutable]) {
-		return value
+		return /** @type {import('#type/store.d.ts').Mutable<T>} */ (
+			value
+		)
 	}
 
 	/**
@@ -77,7 +79,9 @@ export function mutable(value, clone) {
 	 */
 	if (isMutationBlacklisted(value)) {
 		setProxy(value, value)
-		return value
+		return /** @type {import('#type/store.d.ts').Mutable<T>} */ (
+			value
+		)
 	}
 
 	/** Array methods are proxied by ProxyHandlerArray */

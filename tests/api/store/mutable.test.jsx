@@ -308,7 +308,8 @@ await test('mutation: object frozen', expect => {
 	expect(called).toBe(1)
 
 	expect(() => {
-		source.user = 'something else'
+		const anySource = /** @type {any} */ (source)
+		anySource.user = 'something else'
 	}).toThrow()
 	expect(source.user.name).toBe('John')
 	expect(source.user.last).toBe('Snow')
@@ -336,7 +337,8 @@ await test('mutation: object frozen nested', expect => {
 	expect(source.data.user.last).toBe('Snow')
 
 	expect(() => {
-		source.data.user = 'something else'
+		const anyData = /** @type {any} */ (source.data)
+		anyData.user = 'something else'
 	}).toThrow()
 	expect(source.data.user.name).toBe('John')
 	expect(source.data.user.last).toBe('Snow')
@@ -366,7 +368,8 @@ await test('mutation: object frozen within frozen nested', expect => {
 	expect(source.data.user.store.last).toBe('Snow')
 
 	expect(() => {
-		source.data.user = 'something else'
+		const anyData = /** @type {any} */ (source.data)
+		anyData.user = 'something else'
 	}).toThrow()
 	expect(source.data.user.store.name).toBe('John')
 	expect(source.data.user.store.last).toBe('Snow')
@@ -374,7 +377,7 @@ await test('mutation: object frozen within frozen nested', expect => {
 
 await test('mutation: function', expect => {
 	const result = mutable({
-		fn: () => 1,
+		fn: /** @type {() => number} */ (() => 1),
 	})
 	let calls = 0
 	const getValue = memo(() => {
@@ -436,6 +439,7 @@ await test('getters: object', expect => {
 await test('getters: returning object', expect => {
 	let value = 'quack'
 	const result = mutable({
+		/** @returns {any} */
 		get greeting() {
 			return { greet: `hi, ${value}` }
 		},
@@ -452,6 +456,7 @@ await test('getters: returning object', expect => {
 await test('getters: returning getter', expect => {
 	let value = 'quack'
 	const result = mutable({
+		/** @returns {any} */
 		get greeting() {
 			return {
 				get greet() {
@@ -472,6 +477,7 @@ await test('getters: returning getter', expect => {
 await test('getters: returning frozen object', expect => {
 	let value = 'quack'
 	const result = mutable({
+		/** @returns {any} */
 		get greeting() {
 			return Object.freeze({ greet: `hi, ${value}` })
 		},
@@ -488,6 +494,7 @@ await test('getters: returning frozen object', expect => {
 await test('getters: returning frozen object nested', expect => {
 	let value = 'quack'
 	const result = mutable({
+		/** @returns {any} */
 		get greeting() {
 			return Object.freeze({
 				greet: Object.freeze({ text: `hi, ${value}` }),
@@ -571,7 +578,7 @@ await test('getter/setters: class, should fail when trying to set in a getter', 
 
 	let fail = false
 	try {
-		result.name = 'mishu'
+		/** @type {any} */ result.name = 'mishu'
 		fail = true
 	} catch (e) {}
 
@@ -967,7 +974,9 @@ await test('misc native objects should work', expect => {
 await test('misc objects (effect)', expect => {
 	const sources = [new Date(), /[a-z]/, document.createElement('div')]
 	for (const source of sources) {
-		const result = mutable({ o: source })
+		const result = /** @type {{ o: Record<string, any> }} */ (
+			mutable({ o: source })
+		)
 
 		expect(result.o).toBe(source)
 		expect(isProxy(result.o)).toBe(false)
@@ -1068,7 +1077,7 @@ await test('in: getters to not be called 3', expect => {
 
 	let failed = false
 	try {
-		result.b = 0
+		/** @type {any} */ result.b = 0
 	} catch (e) {
 		failed = true
 	}
@@ -1126,7 +1135,7 @@ await test('in: getters to not be called 4', expect => {
 	expect('b' in result).toBe(true)
 	expect(access).toBe(0)
 
-	delete result.b
+	delete (/** @type {any} */ (result).b)
 
 	expect('a' in result).toBe(true)
 	expect('b' in result).toBe(false)
@@ -1137,7 +1146,7 @@ await test('in: getters to not be called 4', expect => {
 	expect('a' in result).toBe(true)
 	expect('b' in result).toBe(false)
 	expect(access).toBe(0)
-
+	/** @type {any} */
 	result.b = 3
 
 	expect('a' in result).toBe(true)
@@ -1335,6 +1344,7 @@ await test('track: state from signal', expect => {
 await test('track `in`', expect => {
 	let access = 0
 	const result = mutable({
+		/** @type {number | boolean} */
 		a: 1,
 		get b() {
 			access++
@@ -1351,7 +1361,7 @@ await test('track `in`', expect => {
 	execute()
 	expect(called).toBe(1)
 
-	delete result.a
+	delete (/** @type {any} */ (result).a)
 	execute()
 	expect(called).toBe(2)
 	expect('a' in result).toBe(false)
@@ -1509,6 +1519,8 @@ await test('read and set inside class', expect => {
 
 await test('read and set inside extended class', expect => {
 	class Tests2 {
+		/** @type {number} */
+		a
 		get b() {
 			return this.a * 4
 		}
@@ -1554,6 +1566,8 @@ await test('read and set inside extended class', expect => {
 
 await test('read and set inside extended x2 class', expect => {
 	class Test4 {
+		/** @type {number} */
+		a
 		get b() {
 			return this.a * 4
 		}
@@ -1722,7 +1736,9 @@ await test('deeper: is both a getter and a setter, for shallow primitive propert
 })
 
 await test('is both a getter and a setter, for shallow non-primitive properties', expect => {
+	/** @type {{ foo?: number }} */
 	const obj1 = { foo: 123 }
+	/** @type {{ foo?: number }} */
 	const obj2 = {}
 
 	const o = mutable({ value: obj1 })
@@ -1757,7 +1773,9 @@ await test('is both a getter and a setter, for deep primitive properties', expec
 })
 
 await test('is both a getter and a setter, for deep non-primitive properties', expect => {
+	/** @type {{ foo?: number }} */
 	const obj1 = { foo: 123 }
+	/** @type {{ foo?: number }} */
 	const obj2 = {}
 
 	const o = mutable({ deep: { value: obj1 } })
@@ -1779,7 +1797,9 @@ await test('is both a getter and a setter, for deep non-primitive properties', e
 })
 
 await test('is both a getter and a setter, for deep non-primitive properties (memo)', expect => {
+	/** @type {{ foo?: number }} */
 	const obj1 = { foo: 123 }
+	/** @type {{ foo?: number }} */
 	const obj2 = {}
 
 	const o = mutable({ deep: { value: obj1 } })
@@ -1969,12 +1989,13 @@ await test('creates a single dependency in an effect even if getting a deep prop
 })
 
 await test('does not create a dependency in a memo when creating', expect => {
+	/** @type {{ value: any } | undefined} */
 	let o
 	let calls = 0
 
 	const value = memo(() => {
 		calls += 1
-		o = mutable({ value: 1 })
+		o = mutable({ value: /** @type {any} */ (1) })
 	})
 
 	expect(value()).toBe(undefined)
@@ -1997,12 +2018,13 @@ await test('does not create a dependency in a memo when creating', expect => {
 })
 
 await test('does not create a dependency in an effect when creating', expect => {
+	/** @type {{ value: any } | undefined} */
 	let o
 	let calls = 0
 
 	const execute = memo(() => {
 		calls += 1
-		o = mutable({ value: 1 })
+		o = mutable({ value: /** @type {any} */ (1) })
 	})
 	execute()
 	expect(calls).toBe(1)
@@ -2159,8 +2181,9 @@ await test('does create a dependency (on the parent) in a memo when setting a de
 		},
 		() => o.deep.value,
 	)
-
-	o.deep = {}
+	/** @type {any} */
+	o.deep.value = undefined
+	o.deep = /** @type {any} */ ({})
 	expect(value()).toBe(undefined)
 	expect(calls).toBe(2)
 })
@@ -2191,12 +2214,13 @@ await test('does create a dependency (on the parent) in an effect when setting a
 		() => o.deep.value,
 	)
 
-	o.deep = {}
+	o.deep = /** @type {any} */ ({})
 	execute()
 	expect(calls).toBe(2)
 })
 
 await test('returns primitive values as is', expect => {
+	/** @type {any} */
 	let o = mutable(123)
 	expect(o).toBe(123)
 
@@ -2238,7 +2262,7 @@ await test('returns primitive values as is', expect => {
 })
 
 await test('returns unproxied "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "toLocaleString", "toSource", "toString", "valueOf", properties', expect => {
-	const o = mutable({})
+	const o = /** @type {any} */ (mutable({}))
 
 	let calls = 0
 
@@ -2269,7 +2293,9 @@ await test('returns unproxied "hasOwnProperty", "isPrototypeOf", "propertyIsEnum
 })
 
 await test('returns the value being set', expect => {
-	const o = mutable({ value: undefined })
+	const o = mutable(
+		/** @type {{ value: any }} */ ({ value: undefined }),
+	)
 
 	expect((o.value = 123)).toBe(123)
 	expect((o.value = undefined)).toBe(undefined)
@@ -2296,7 +2322,7 @@ await test('supports setting functions', expect => {
 })
 
 await test('supports wrapping a plain object', expect => {
-	const o = mutable({})
+	const o = /** @type {Record<string, any>} */ (mutable({}))
 
 	let calls = 0
 
@@ -2313,7 +2339,9 @@ await test('supports wrapping a plain object', expect => {
 })
 
 await test('supports wrapping a deep plain object inside a plain object', expect => {
-	const o = mutable({ value: {} })
+	const o = /** @type {{ value: Record<string, any> }} */ (
+		mutable({ value: {} })
+	)
 
 	let calls = 0
 
@@ -2339,7 +2367,7 @@ await test('supports wrapping a deep plain object inside a plain object', expect
 })
 
 await test('supports reacting to deleting a shallow property', expect => {
-	const o = mutable({ value: 123 })
+	const o = mutable(/** @type {{ value: any }} */ ({ value: 123 }))
 
 	let calls = 0
 
@@ -2445,7 +2473,11 @@ await test('supports reacting when deleting a shallow property that was null', e
 })
 
 await test('supports reacting to deleting a deep property', expect => {
-	const o = mutable({ deep: { value: 123 } })
+	const o = mutable(
+		/** @type {{ deep: { value: any } }} */ ({
+			deep: { value: 123 },
+		}),
+	)
 
 	let calls = 0
 
@@ -2610,7 +2642,9 @@ await test('supports not reacting when reading the length on a non-array, when r
 })
 
 await test('supports reacting to own keys', expect => {
-	const o = mutable({ foo: 1, bar: 2, baz: 3 })
+	const o = /** @type {Record<string, any>} */ (
+		mutable({ foo: 1, bar: 2, baz: 3 })
+	)
 
 	let calls = 0
 
@@ -2664,7 +2698,9 @@ await test('supports reacting to own keys', expect => {
 })
 
 await test('supports reacting to own keys deep', expect => {
-	const o = mutable({ value: { foo: 1, bar: 2, baz: 3 } })
+	const o = /** @type {{ value: Record<string, any> }} */ (
+		mutable({ value: { foo: 1, bar: 2, baz: 3 } })
+	)
 
 	let calls = 0
 
@@ -3172,7 +3208,7 @@ await test('survives reading a value inside a discarded root', expect => {
 })
 
 await test('does nothing for primitives', expect => {
-	const o = mutable({ foo: 123 })
+	const o = mutable(/** @type {{ foo: any }} */ ({ foo: 123 }))
 	expect(o.foo).toBe(123)
 
 	o.foo = 321
@@ -3369,7 +3405,21 @@ await test('mutation on objects using reactive as prototype should trigger', exp
 })
 
 await test('should not observe non-extensible objects', expect => {
+	/**
+	 * @type {{
+	 * 	foo: { a: number }
+	 * 	bar: { a: number }
+	 * 	baz: { a: number }
+	 * }}
+	 */
 	let mutableObj
+	/**
+	 * @type {{
+	 * 	foo: { a: number }
+	 * 	bar: { a: number }
+	 * 	baz: { a: number }
+	 * }}
+	 */
 	let testObj
 
 	function createObjects() {
@@ -3655,7 +3705,9 @@ await test('should observe delete operations', expect => {
 await test('should observe has operations', expect => {
 	let dummy
 	let calls = 0
-	const obj = mutable({ prop: 'value' })
+	const obj = mutable(
+		/** @type {{ prop: any }} */ ({ prop: 'value' }),
+	)
 	const execute = memo(() => {
 		calls++
 		dummy = 'prop' in obj
@@ -4417,6 +4469,13 @@ await test('array: mutation: array property', expect => {
 })
 
 await test('array: mutation: array todos', expect => {
+	/**
+	 * @type {{
+	 * 	id: number
+	 * 	title: string
+	 * 	done: boolean | number
+	 * }[]}
+	 */
 	const todos = mutable([
 		{ id: 1, title: 'quack', done: true },
 		{ id: 2, title: 'murci', done: false },
@@ -4800,7 +4859,8 @@ await test('array: should be triggered when set length with string', expect => {
 	expect(calls2).toBe(1)
 
 	arr1.length = 2
-	arr2.length = '2'
+	const anyArr2 = /** @type {any} */ (arr2)
+	anyArr2.length = '2'
 	execute1()
 	execute2()
 
@@ -4832,7 +4892,9 @@ await test('array: is both a getter and a setter, for shallow non-primitive prop
 })
 
 await test('array: deeper: is both a getter and a setter, for shallow non-primitive properties', expect => {
+	/** @type {any} */
 	const obj1 = { foo: 123 }
+	/** @type {any} */
 	const obj2 = []
 
 	const o = mutable({ value: { deeper: obj1 } })
@@ -4854,7 +4916,9 @@ await test('array: deeper: is both a getter and a setter, for shallow non-primit
 })
 
 await test('array: is both a getter and a setter, for deep non-primitive properties', expect => {
+	/** @type {any} */
 	const obj1 = { foo: 123 }
+	/** @type {any} */
 	const obj2 = []
 
 	const o = mutable({ deep: { value: obj1 } })
@@ -4876,7 +4940,9 @@ await test('array: is both a getter and a setter, for deep non-primitive propert
 })
 
 await test('array: is both a getter and a setter, for deep non-primitive properties (memo)', expect => {
+	/** @type {any} */
 	const obj1 = { foo: 123 }
+	/** @type {any} */
 	const obj2 = []
 
 	const o = mutable({ deep: { value: obj1 } })
@@ -4927,6 +4993,7 @@ await test('array: reading length and pusing doesnt loop', expect => {
 })
 
 await test('array: mutating array length', expect => {
+	/** @type {(number | boolean)[]} */
 	const result = mutable([69])
 
 	let calls = 0
@@ -5311,6 +5378,7 @@ await test('array: supports not reacting to no-changes in deep arrays', expect =
 })
 
 await test('array: supports reacting to changes in top-level arrays', expect => {
+	/** @type {(number | boolean)[]} */
 	const o = mutable([1, 2])
 
 	let calls = 0
@@ -5340,6 +5408,7 @@ await test('array: supports reacting to changes in top-level arrays', expect => 
 })
 
 await test('array: supports not reacting to changes in top-level arrays', expect => {
+	/** @type {(number | boolean)[]} */
 	const o = mutable([1, 2])
 
 	let calls = 0
@@ -5498,10 +5567,12 @@ await test('array: treats number and string properties the same way', expect => 
 })
 
 await test('array: observed value should proxy mutations to original', expect => {
+	/** @type {any[]} */
 	const original = [{ foo: 1 }, { bar: 2 }]
 	const observed = mutable(original)
 
 	// set
+	/** @type {any} */
 	const value = { baz: 3 }
 	const result = mutable(value)
 	observed[0] = value
@@ -5783,9 +5854,12 @@ await test('array: should observe sparse array mutations', expect => {
 })
 
 await test('array: should not observe well-known symbol keyed properties', expect => {
+	/** @type {symbol} */
 	const key = Symbol.isConcatSpreadable
 	let dummy
-	const array = mutable([])
+	const array = /** @type {any[] & Record<symbol, any>} */ (
+		mutable([])
+	)
 	let calls = 0
 	const execute = memo(() => {
 		calls++
@@ -5805,10 +5879,13 @@ await test('array: should not observe well-known symbol keyed properties', expec
 })
 
 await test('array: should support manipulating an array while observing symbol keyed properties', expect => {
+	/** @type {symbol} */
 	const key = Symbol()
 	let dummy
 	let calls = 0
-	const array = mutable([1, 2, 3])
+	const array = /** @type {any[] & Record<symbol, any>} */ (
+		mutable([1, 2, 3])
+	)
 	const execute = memo(() => {
 		calls++
 		dummy = array[key]
@@ -6286,6 +6363,7 @@ await test('array: vue array instrumentation: forEach', expect => {
 })
 
 await test('array: vue array instrumentation: join', expect => {
+	/** @this {{ val: number }} */
 	function toString() {
 		return this.val
 	}
@@ -6374,27 +6452,38 @@ await test('array: vue array instrumentation: map', expect => {
 })
 
 await test('array: vue array instrumentation: reduce left and right', expect => {
+	/** @this {{ val: number }} */
 	function toString() {
 		return this.val + '-'
 	}
+	/** @type {{ val: number; toString: typeof toString }[]} */
 	const reactive = mutable([
 		{ val: 1, toString },
 		{ val: 2, toString },
 	])
 
 	expect(
-		reactive.reduce((acc, x) => acc + '' + x.val, undefined),
+		reactive.reduce(
+			(/** @type {any} */ acc, x) => acc + '' + x.val,
+			undefined,
+		),
 	).toBe('undefined12')
 
 	let leftCalls = 0
 	let rightCalls = 0
+	/** @type {{ (): any; memo?: void }} */
 	let left = memo(() => {
 		leftCalls++
-		return reactive.reduce((acc, x) => acc + '' + x.val)
+		return /** @type {any[]} */ (reactive).reduce(
+			(acc, x) => acc + '' + x.val,
+		)
 	})
+	/** @type {{ (): any; memo?: void }} */
 	let right = memo(() => {
 		rightCalls++
-		return reactive.reduceRight((acc, x) => acc + '' + x.val)
+		return /** @type {any[]} */ (reactive).reduceRight(
+			(acc, x) => acc + '' + x.val,
+		)
 	})
 	expect(left()).toBe('1-2')
 	expect(right()).toBe('2-1')
@@ -7231,11 +7320,14 @@ if (supportsMap) {
 		const obj1 = {}
 		const obj2 = {}
 
+		/** @type {Map<any, any>} */
 		const map = mutable(
-			new Map([
-				[obj1, 123],
-				[1, 'foo'],
-			]),
+			new Map(
+				/** @type {[any, any][]} */ ([
+					[obj1, 123],
+					[1, 'foo'],
+				]),
+			),
 		)
 
 		expect(map.has(obj1)).toBe(true)
@@ -7444,6 +7536,7 @@ if (supportsMap) {
 
 if (supportsMap) {
 	await test('Map: .keys() is reactive', expect => {
+		/** @type {Map<number, any>} */
 		const map = mutable(
 			new Map([
 				[1, 'a'],
@@ -7468,10 +7561,10 @@ if (supportsMap) {
 		expect(captured.length).toBe(1)
 		expect(captured[0]).toEqual([1, 2, 3])
 
-		map.set(1)
+		map.set(1, undefined)
 		expect(captured.length).toBe(1)
 
-		map.set(5)
+		map.set(5, undefined)
 		expect(captured.length).toBe(1)
 
 		map.delete(1)
@@ -7825,7 +7918,8 @@ await test('misc 2: can mutate child of frozen object 1', expect => {
 	expect(source.user.last).toBe('murci')
 
 	expect(() => {
-		source.user = 'something else'
+		const anySource = /** @type {any} */ (source)
+		anySource.user = 'something else'
 	}).toThrow()
 	expect(source.user.name).toBe('quack')
 	expect(source.user.last).toBe('murci')
@@ -7864,7 +7958,8 @@ await test('misc 2: can mutate child of frozen object 2', expect => {
 	expect(source.data.user.last).toBe('murci')
 
 	expect(() => {
-		source.data.user = 'something else'
+		const anyData = /** @type {any} */ (source.data)
+		anyData.user = 'something else'
 	}).toThrow()
 	expect(source.data.user.name).toBe('quack')
 	expect(source.data.user.last).toBe('murci')
@@ -7905,7 +8000,8 @@ await test('misc 2: can mutate child of frozen object 3', expect => {
 	expect(source.data.user.store.last).toBe('murci')
 
 	expect(() => {
-		source.data.user = 'something else'
+		const anyData = /** @type {any} */ (source.data)
+		anyData.user = 'something else'
 	}).toThrow()
 	expect(source.data.user.store.name).toBe('quack')
 	expect(source.data.user.store.last).toBe('murci')
@@ -8014,7 +8110,7 @@ await test('blacklist key: __proto__ - Object.getPrototypeOf still reflects trut
 })
 
 await test('blacklist key: well-known Symbol - in does not subscribe', expect => {
-	const arr = mutable([])
+	const arr = /** @type {any[] & Record<symbol, any>} */ (mutable([]))
 	let calls = 0
 	const execute = memo(() => {
 		calls++
@@ -8030,7 +8126,7 @@ await test('blacklist key: well-known Symbol - in does not subscribe', expect =>
 })
 
 await test('blacklist key: well-known Symbol - set/delete do not fire ownKeys', expect => {
-	const arr = mutable([])
+	const arr = /** @type {any[] & Record<symbol, any>} */ (mutable([]))
 	let calls = 0
 	const execute = memo(() => {
 		calls++
@@ -8051,8 +8147,9 @@ await test('blacklist key: well-known Symbol - set/delete do not fire ownKeys', 
 /* inverse: user symbols and regular keys are observed */
 
 await test('inverse: user Symbol - read is observed', expect => {
+	/** @type {symbol} */
 	const key = Symbol('user')
-	const obj = mutable({})
+	const obj = /** @type {Record<symbol, any>} */ (mutable({}))
 	let calls = 0
 	let dummy
 	const execute = memo(() => {
@@ -8070,8 +8167,9 @@ await test('inverse: user Symbol - read is observed', expect => {
 })
 
 await test('inverse: user Symbol - in is observed', expect => {
+	/** @type {symbol} */
 	const key = Symbol('user')
-	const obj = mutable({})
+	const obj = /** @type {Record<symbol, any>} */ (mutable({}))
 	let calls = 0
 	let dummy
 	const execute = memo(() => {
@@ -8094,8 +8192,9 @@ await test('inverse: user Symbol - in is observed', expect => {
 })
 
 await test('inverse: user Symbol - set/delete fire ownKeys', expect => {
+	/** @type {symbol} */
 	const key = Symbol('user')
-	const obj = mutable({})
+	const obj = /** @type {Record<symbol, any>} */ (mutable({}))
 	let calls = 0
 	const execute = memo(() => {
 		calls++
@@ -8209,13 +8308,25 @@ await test('prototype walk in the right order', expect => {
 	expect(new c().value).toBe(3)
 	expect(mutable(new c()).value).toBe(3)
 
+	// d1 sets `value` as a data property on the instance (via
+	// Object.defineProperty at the parent level so TS doesn't see it
+	// as a class field being overridden by c1's accessor — that
+	// runtime layout is exactly what the test is pinning).
 	class d1 {
-		value = 4
+		constructor() {
+			Object.defineProperty(this, 'value', {
+				value: 4,
+				writable: true,
+				enumerable: true,
+				configurable: true,
+			})
+		}
 	}
 	class c1 extends d1 {
 		get value() {
 			return 3
 		}
+		set value(_v) {}
 	}
 
 	class b1 extends c1 {
@@ -8579,9 +8690,13 @@ for (const _mutable of [identity, mutable]) {
 			q: { u: { a: { c: { k: [{ d: [{ id: 2 }] }] } } } },
 		}
 
-		merge(target, source, {
-			q: { u: { a: { c: { k: { d: { key: 'id' } } } } } },
-		})
+		merge(
+			target,
+			source,
+			/** @type {any} */ ({
+				q: { u: { a: { c: { k: { d: { key: 'id' } } } } } },
+			}),
+		)
 
 		expect(target).toEqual({
 			q: {
@@ -8615,9 +8730,13 @@ for (const _mutable of [identity, mutable]) {
 			},
 		}
 
-		merge(target, source, {
-			q: { u: { a: { c: { k: { d: { key: 'id' } } } } } },
-		})
+		merge(
+			target,
+			source,
+			/** @type {any} */ ({
+				q: { u: { a: { c: { k: { d: { key: 'id' } } } } } },
+			}),
+		)
 
 		expect(target).toEqual({
 			q: {
@@ -8773,9 +8892,13 @@ for (const _mutable of [identity, mutable]) {
 			q: { u: { a: { c: { k: [{ d: [{ id: 2 }] }] } } } },
 		}
 
-		replace(target, source, {
-			q: { u: { a: { c: { k: { d: { key: 'id' } } } } } },
-		})
+		replace(
+			target,
+			source,
+			/** @type {any} */ ({
+				q: { u: { a: { c: { k: { d: { key: 'id' } } } } } },
+			}),
+		)
 
 		expect(target).toEqual({
 			q: { u: { a: { c: { k: [{ d: [{ id: 2 }] }] } } } },
@@ -8809,9 +8932,13 @@ for (const _mutable of [identity, mutable]) {
 			},
 		}
 
-		replace(target, source, {
-			q: { u: { a: { c: { k: { d: { key: 'id' } } } } } },
-		})
+		replace(
+			target,
+			source,
+			/** @type {any} */ ({
+				q: { u: { a: { c: { k: { d: { key: 'id' } } } } } },
+			}),
+		)
 
 		expect(target).toEqual({
 			q: {
@@ -8862,6 +8989,7 @@ for (const _mutable of [identity, mutable]) {
 			d: [{ idx: 2 }],
 		})
 
+		/** @type {{ c: { id: number }[]; d: { idx: number }[] }} */
 		const source = {
 			c: [],
 			d: [],

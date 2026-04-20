@@ -336,10 +336,12 @@ await test('error: getter that throws — memo error is caught/routed, not propa
 
 await test('error: setter that throws — tracker not updated with the bad value', expect => {
 	const obj = mutable({
+		/** @type {number | string} */
 		_v: 1,
 		get v() {
 			return this._v
 		},
+		/** @param {number | string} x */
 		set v(x) {
 			if (x === 'bad') throw new Error('no')
 			this._v = x
@@ -494,7 +496,7 @@ await test('cycle: mutual reference — JSON.stringify throws standard TypeError
 		JSON.stringify(a)
 	} catch (e) {
 		threw = true
-		msg = e.message
+		msg = /** @type {Error} */ (e).message
 	}
 	expect(threw).toBe(true)
 	// standard native message contains "circular"
@@ -643,6 +645,7 @@ await test('array: floating-point index is a string key, length unchanged', expe
 })
 
 await test('array: negative index is a string key, length unchanged', expect => {
+	/** @type {(number | string)[]} */
 	const arr = mutable([1, 2, 3])
 	arr[-1] = 'end'
 	expect(arr.length).toBe(3)
@@ -1335,6 +1338,8 @@ await test('defineProperty: setter override with new setter retains old getter (
 	const o = mutable({
 		foo: 1,
 		bar: 2,
+		/** @type {number | undefined} */
+		_fn: undefined,
 		set fn(value) {
 			this._fn = value
 		},
@@ -1361,6 +1366,8 @@ await test('defineProperty: does not re-trigger when overriding with the same se
 	const o = mutable({
 		foo: 1,
 		bar: 2,
+		/** @type {number | undefined} */
+		_fn: undefined,
 		set fn(value) {
 			this._fn = value
 		},
@@ -1958,7 +1965,7 @@ await test('proto: class static members not proxied via instance', expect => {
 	}
 	const c = mutable(new C())
 	// access via constructor — which is now the raw constructor thanks to isIdentityKey
-	expect(c.constructor.VERSION).toBe(1)
+	expect((/** @type {typeof C} */ (c.constructor)).VERSION).toBe(1)
 	expect(c.constructor).toBe(C)
 })
 
@@ -2018,9 +2025,10 @@ await test('symbol: Symbol.toStringTag is honored', expect => {
 })
 
 await test('symbol: same Symbol() reused across two mutables — subscriptions are independent', expect => {
+	/** @type {symbol} */
 	const key = Symbol('shared')
-	const a = mutable({})
-	const b = mutable({})
+	const a = /** @type {Record<symbol, any>} */ (mutable({}))
+	const b = /** @type {Record<symbol, any>} */ (mutable({}))
 
 	let calls = 0
 	effect(() => {
@@ -2080,7 +2088,7 @@ await test('json: stringify inside a memo tracks each deep read', expect => {
 
 await test('integration: readonly(mutable) — pota current behavior', expect => {
 	const m = mutable({ a: 1 })
-	const ro = readonly(m)
+	const ro = /** @type {{a: number}} */ (readonly(m))
 
 	expect(ro.a).toBe(1)
 
@@ -2252,6 +2260,7 @@ await test('stress: many keys in a single object', expect => {
 })
 
 await test('stress: deep nesting — 50 levels', expect => {
+	/** @type {{v?: string, nested?: any}} */
 	let plain = { v: 'leaf' }
 	for (let i = 0; i < 50; i++) plain = { nested: plain }
 	const m = mutable(plain)
@@ -2568,6 +2577,7 @@ await test('array method: copyWithin updates affected indexed subscribers', expe
 await test('array method: slice — range tracking, writes outside range do not invalidate', expect => {
 	const arr = mutable([1, 2, 3, 4, 5])
 	let calls = 0
+	/** @type {number[] | undefined} */
 	let snap
 	const m = memo(() => {
 		calls++
@@ -2590,8 +2600,8 @@ await test('array method: slice — range tracking, writes outside range do not 
 	arr[4] = 100
 	m()
 	// pin observed behavior
-	expect(snap[0]).toBe(2)
-	expect(snap[1]).toBe(99)
+	expect(snap?.[0]).toBe(2)
+	expect(snap?.[1]).toBe(99)
 })
 
 await test('array method: at(positive index) — tracks that index only', expect => {
@@ -2700,6 +2710,7 @@ await test('array method: toString / toLocaleString — valuesRead', expect => {
 await test('array method: flat() — valuesRead tracking', expect => {
 	const arr = mutable([1, [2, 3], [4, [5]]])
 	let calls = 0
+	/** @type {any[] | undefined} */
 	let flat
 	const m = memo(() => {
 		calls++
@@ -2711,7 +2722,7 @@ await test('array method: flat() — valuesRead tracking', expect => {
 
 	arr[0] = 99
 	m()
-	expect(flat[0]).toBe(99)
+	expect(flat?.[0]).toBe(99)
 	expect(calls).toBe(2)
 })
 
@@ -3393,6 +3404,8 @@ await test('upstream-adapted: setter override with new setter — getter retaine
 	const o = mutable({
 		foo: 1,
 		bar: 2,
+		/** @type {number | undefined} */
+		_fn: undefined,
 		set fn(value) {
 			this._fn = value
 		},

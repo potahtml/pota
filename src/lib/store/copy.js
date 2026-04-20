@@ -13,8 +13,8 @@ import { isMutationBlacklisted } from './blacklist.js'
  *   configurable).
  * - Accessor descriptors are snapshotted: the getter is invoked once
  *   (inside `untrack` so reactive reads don't leak) and the result is
- *   stored as data on the copy. The original accessor shape is lost
- *   — copy returns a value snapshot, not a live recomputing view.
+ *   stored as data on the copy. The original accessor shape is lost —
+ *   copy returns a value snapshot, not a live recomputing view.
  * - Cycles are handled via the `seen` map.
  * - Frozen / sealed / non-extensible state is re-applied.
  * - Built-ins listed in `isMutationBlacklisted` (Date, RegExp,
@@ -62,8 +62,11 @@ export function copy(o, seen = new Map()) {
 	}
 
 	// Own keys (string + symbol, enumerable + non-enumerable).
-	for (const k of Reflect.ownKeys(o)) {
-		const desc = Object.getOwnPropertyDescriptor(o, k)
+	// `isObject(o)` narrowed via type guard, but TS keeps the
+	// generic `T` view; cast to `object` for the Reflect API.
+	const obj = /** @type {object} */ (o)
+	for (const k of Reflect.ownKeys(obj)) {
+		const desc = Object.getOwnPropertyDescriptor(obj, k)
 		if (!desc) continue
 
 		let value

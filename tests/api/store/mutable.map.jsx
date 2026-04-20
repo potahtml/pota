@@ -227,12 +227,17 @@ await test('map precision: forEach memo re-runs on any set/delete', expect => {
 await test('map precision: forEach respects thisArg binding', expect => {
 	const m = mutable(new Map([['a', 1]]))
 	const thisArg = { tag: 'x' }
+	/** @type {{t: unknown, value: number, key: string, map: typeof m} | undefined} */
 	let seen
-	m.forEach(function (value, key, map) {
-		seen = { t: this, value, key, map }
-	}, thisArg)
-	expect(seen.t).toBe(thisArg)
-	expect(seen.value).toBe(1)
-	expect(seen.key).toBe('a')
-	expect(seen.map).toBe(m)
+	m.forEach(
+		/** @this {object} */
+		function (value, key, map) {
+			seen = { t: this, value, key, map }
+		},
+		thisArg,
+	)
+	expect(seen?.t).toBe(thisArg)
+	expect(seen?.value).toBe(1)
+	expect(seen?.key).toBe('a')
+	expect(seen?.map).toBe(m)
 })

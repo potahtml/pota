@@ -13,13 +13,6 @@
 - light theme
 - restructure the docs and switch to mdx
 
-### mutable
-
-- make mutable lazy
-- improve reconcile by only copying whats needs to be copied
-- need to make sure we do not track when adding our mutable stuff
-- ownKeys in defineProperty wth
-
 ### transform
 
 - inline style objects and maybe merge different style approaches

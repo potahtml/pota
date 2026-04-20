@@ -5,6 +5,6 @@ import { deepFreeze } from '../std.js'
  *
  * @template T
  * @param {T} value
- * @returns {Readonly<T>}
+ * @returns {import('#type/store.d.ts').DeepReadonly<T>}
  */
 export const readonly = value => deepFreeze(value)

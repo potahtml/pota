@@ -87,7 +87,8 @@ await test('console - error Error object', () => {
 await test('console - error Error with cause chain', () => {
 	const err = new Error('outer')
 	err.cause = new Error('middle')
-	;(/** @type {Error} */ (err.cause)).cause = new Error('root cause')
+	const middle = /** @type {Error} */ (err.cause)
+	middle.cause = new Error('root cause')
 	console.error(err)
 })
 

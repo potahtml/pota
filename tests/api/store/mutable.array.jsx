@@ -362,9 +362,13 @@ await test('array: forEach respects thisArg', expect => {
 	const arr = mutable([1, 2, 3])
 	const thisArg = { tag: 'x' }
 	const seen = []
-	arr.forEach(function (value, index) {
-		seen.push({ t: this, value, index })
-	}, thisArg)
+	arr.forEach(
+		/** @this {object} */
+		function (value, index) {
+			seen.push({ t: this, value, index })
+		},
+		thisArg,
+	)
 	expect(seen.length).toBe(3)
 	for (const s of seen) {
 		expect(s.t).toBe(thisArg)
@@ -374,9 +378,13 @@ await test('array: forEach respects thisArg', expect => {
 await test('array: map respects thisArg', expect => {
 	const arr = mutable([1, 2, 3])
 	const thisArg = { mul: 10 }
-	const out = arr.map(function (v) {
-		return v * this.mul
-	}, thisArg)
+	const out = arr.map(
+		/** @this {{mul: number}} */
+		function (v) {
+			return v * this.mul
+		},
+		thisArg,
+	)
 	expect(out).toEqual([10, 20, 30])
 })
 
@@ -384,26 +392,42 @@ await test('array: filter/find/some/every respect thisArg', expect => {
 	const arr = mutable([1, 2, 3, 4])
 	const thisArg = { threshold: 2 }
 
-	const filtered = arr.filter(function (v) {
-		return v > this.threshold
-	}, thisArg)
+	const filtered = arr.filter(
+		/** @this {{threshold: number}} */
+		function (v) {
+			return v > this.threshold
+		},
+		thisArg,
+	)
 	expect(filtered).toEqual([3, 4])
 
-	const found = arr.find(function (v) {
-		return v > this.threshold
-	}, thisArg)
+	const found = arr.find(
+		/** @this {{threshold: number}} */
+		function (v) {
+			return v > this.threshold
+		},
+		thisArg,
+	)
 	expect(found).toBe(3)
 
 	expect(
-		arr.some(function (v) {
-			return v > this.threshold
-		}, thisArg),
+		arr.some(
+			/** @this {{threshold: number}} */
+			function (v) {
+				return v > this.threshold
+			},
+			thisArg,
+		),
 	).toBe(true)
 
 	expect(
-		arr.every(function (v) {
-			return v > this.threshold
-		}, thisArg),
+		arr.every(
+			/** @this {{threshold: number}} */
+			function (v) {
+				return v > this.threshold
+			},
+			thisArg,
+		),
 	).toBe(false)
 })
 

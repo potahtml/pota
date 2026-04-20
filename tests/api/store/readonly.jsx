@@ -12,7 +12,8 @@ await test('readonly - prevents writes on root and nested objects', expect => {
 	})
 
 	expect(() => {
-		value.user.name = 'Grace'
+		const anyUser = /** @type {any} */ (value.user)
+		anyUser.name = 'Grace'
 	}).toThrow()
 
 	expect(() => {
@@ -28,7 +29,8 @@ await test('readonly - prevents mutation of nested arrays', expect => {
 	})
 
 	expect(() => {
-		value.items.push(4)
+		const anyItems = /** @type {any[]} */ (value.items)
+		anyItems.push(4)
 	}).toThrow()
 
 	expect(value.items).toEqual([1, 2, 3])
@@ -72,7 +74,8 @@ await test('readonly - prevents adding keys to nested objects', expect => {
 	})
 
 	expect(() => {
-		value.nested.b = 2
+		const anyNested = /** @type {any} */ (value.nested)
+		anyNested.b = 2
 	}).toThrow()
 
 	expect('b' in value.nested).toBe(false)
@@ -116,7 +119,8 @@ await test('readonly - prevents replacing items in a nested array by index', exp
 	})
 
 	expect(() => {
-		value.items[0] = { id: 99 }
+		const anyItems = /** @type {any[]} */ (value.items)
+		anyItems[0] = { id: 99 }
 	}).toThrow()
 
 	expect(value.items[0].id).toBe(1)

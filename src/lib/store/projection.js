@@ -27,7 +27,7 @@ const $isProjection = Symbol()
  *
  * @template T
  * @param {T} value
- * @returns {T & Record<string, any>}
+ * @returns {import('#type/store.d.ts').Mutable<T>}
  */
 export function project(value, proxies = new WeakMap()) {
 	if (!isObject(value)) {

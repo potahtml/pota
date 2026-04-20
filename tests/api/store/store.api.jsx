@@ -315,7 +315,7 @@ await test('store: setStore callback throwing propagates; partial writes visible
 	} catch (e) {
 		threw = e
 	}
-	expect(threw && threw.message).toBe('boom')
+	expect(threw && /** @type {Error} */ (threw).message).toBe('boom')
 	// The mutation before the throw is already applied.
 	expect(s.a).toBe(10)
 	expect(s.b).toBe(1)

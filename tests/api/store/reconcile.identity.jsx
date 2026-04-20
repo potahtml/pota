@@ -800,6 +800,7 @@ await test('identity: merge overwrites deep object with primitive', expect => {
  */
 
 await test('identity: merge — primitive target → object source (morph)', expect => {
+	/** @type {{x: number | { a: number }}} */
 	const target = { x: 1 }
 	const sourceInner = { a: 1 }
 	merge(target, { x: sourceInner })
@@ -808,7 +809,7 @@ await test('identity: merge — primitive target → object source (morph)', exp
 	expect(target.x).toEqual({ a: 1 })
 	// Detachment: mutating original source doesn't leak.
 	sourceInner.a = 999
-	expect(target.x.a).toBe(1)
+	expect(/** @type {{a: number}} */ (target.x).a).toBe(1)
 })
 
 await test('identity: merge — primitive target → array source (morph)', expect => {
@@ -996,7 +997,9 @@ await test('identity: replace keyed array with empty source removes all matched'
 	const refA = { id: 1 }
 	const refB = { id: 2 }
 	const target = { users: [refA, refB] }
-	replace(target, { users: [] }, { users: { key: 'id' } })
+	/** @type {{ users: Array<{ id: number }> }} */
+	const source = { users: [] }
+	replace(target, source, { users: { key: 'id' } })
 	expect(target.users.length).toBe(0)
 })
 

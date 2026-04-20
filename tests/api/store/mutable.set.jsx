@@ -231,7 +231,10 @@ await test('set: keys() === values() (Set.prototype.keys is an alias)', expect =
 await test('set: entries() yields [v, v] pairs', expect => {
 	const s = mutable(new Set([1, 2]))
 	const entries = [...s.entries()]
-	expect(entries).toEqual([[1, 1], [2, 2]])
+	expect(entries).toEqual([
+		[1, 1],
+		[2, 2],
+	])
 })
 
 await test('set: for-of iterates via [Symbol.iterator]', expect => {
@@ -837,12 +840,16 @@ await test('upstream-adapted: forEach respects thisArg (standard binding; `that`
 	const proxy = mutable(raw)
 	const thisArg = {}
 	let count = 0
-	proxy.forEach(function (value, _, set) {
-		++count
-		expect(this).toBe(thisArg)
-		expect(value).toBe('value')
-		expect(set).toBe(proxy)
-	}, thisArg)
+	proxy.forEach(
+		/** @this {object} */
+		function (value, _, set) {
+			++count
+			expect(this).toBe(thisArg)
+			expect(value).toBe('value')
+			expect(set).toBe(proxy)
+		},
+		thisArg,
+	)
 	expect(count).toBe(1)
 })
 

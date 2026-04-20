@@ -323,7 +323,9 @@ await test('tracking: accessing Symbol.toStringTag does not subscribe', expect =
 	let calls = 0
 	const m = memo(() => {
 		calls++
-		return obj[Symbol.toStringTag]
+		return (/** @type {Record<symbol, any>} */ (obj))[
+			Symbol.toStringTag
+		]
 	})
 	m()
 	expect(calls).toBe(1)

@@ -313,7 +313,7 @@ await test('array: defineProperty adds sparse index beyond length', expect => {
 
 await test('mutable(frozen object) — wrapping succeeds, non-configurable props stay raw', expect => {
 	const frozen = Object.freeze({ a: 1, b: 2 })
-	const m = mutable(frozen)
+	const m = mutable(/** @type {{a: number, b: number}} */ (frozen))
 	expect(m.a).toBe(1)
 	expect(m.b).toBe(2)
 
@@ -365,6 +365,7 @@ await test('array: arr[arr.length] = x extends by 1 and fires length', expect =>
 })
 
 await test('array: sparse assignment `arr[5] = x` auto-extends length', expect => {
+	/** @type {(number | string)[]} */
 	const arr = mutable([1])
 	arr[5] = 'end'
 	expect(arr.length).toBe(6)
@@ -390,6 +391,7 @@ await test('array: delete arr[i] creates a hole and wakes memo', expect => {
 })
 
 await test('array: arr[1.5] is a string key, not an index', expect => {
+	/** @type {(number | string)[]} */
 	const arr = mutable([1, 2, 3])
 	arr[1.5] = 'float'
 	expect(arr.length).toBe(3)
@@ -398,6 +400,7 @@ await test('array: arr[1.5] is a string key, not an index', expect => {
 })
 
 await test('array: arr[-1] is a string key, does not behave like Python negative index', expect => {
+	/** @type {(number | string)[]} */
 	const arr = mutable([1, 2, 3])
 	arr[-1] = 'tail'
 	expect(arr.length).toBe(3)
@@ -574,7 +577,9 @@ await test('class: static members unaffected by mutable wrapping', expect => {
 		static TAG = 'tag'
 	}
 	const h = mutable(new Holder())
-	expect(h.constructor.TAG).toBe('tag')
+	expect(
+		(/** @type {typeof Holder} */ (h.constructor)).TAG,
+	).toBe('tag')
 	expect(h.constructor).toBe(Holder)
 })
 

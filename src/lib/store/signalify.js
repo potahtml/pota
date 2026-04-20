@@ -23,9 +23,10 @@ import { tracker } from './tracker.js'
 const originalGetSet = new WeakMap()
 
 /**
- * @param {(() => any) | ((v) => any)} fn
- * @returns {() => any} The user's original if `fn` is one of our
- *   signalify wrappers, otherwise `fn` unchanged.
+ * @template {((...a: any[]) => any) | undefined} F
+ * @param {F} fn
+ * @returns {F} The user's original if `fn` is one of our signalify
+ *   wrappers, otherwise `fn` unchanged.
  */
 export const unwrapGetSet = fn =>
 	fn && originalGetSet.has(fn) ? originalGetSet.get(fn) : fn
@@ -39,15 +40,18 @@ export const unwrapGetSet = fn =>
  * @param {T} target
  * @param {PropertyKey[]} [keys] - To transform specific keys. It is
  *   possible to signalify keys that don't exists yet.
- * @returns {T & Record<string, any>}
+ * @returns {import('#type/store.d.ts').Mutable<T>}
  */
 export function signalify(target, keys) {
 	// Already a mutable proxy — its own keys are already signalified
 	// via signalifyObject at wrap time; re-running would double-wrap
 	// and create a phantom proxy-keyed tracker.
-	if (target && target[$isMutable]) return target
+	if (target && target[$isMutable])
+		return /** @type {import('#type/store.d.ts').Mutable<T>} */ (
+			target
+		)
 	keys ? signalifyKeys(target, keys) : signalifyObject(target)
-	return target
+	return /** @type {import('#type/store.d.ts').Mutable<T>} */ (target)
 }
 
 /**
