@@ -146,8 +146,10 @@ export function diff(a, b) {
 				done = true
 				char = '->'
 			}
-			aa[i] = char + toString(a[i])
-			bb[i] = char + toString(b[i])
+			const la = toString(aa[i])
+			const lb = toString(bb[i])
+			aa[i] = char + la
+			bb[i] = char + lb
 		}
 		return [aa.join('\n'), bb.join('\n')]
 	}
