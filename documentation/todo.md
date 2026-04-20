@@ -17,8 +17,8 @@
 
 - make mutable lazy
 - improve reconcile by only copying whats needs to be copied
-- support set, maybe weakmap and weakset
-- defineProperty proxy trap
+- need to make sure we do not track when adding our mutable stuff
+- ownKeys in defineProperty wth
 
 ### transform
 

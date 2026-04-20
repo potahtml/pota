@@ -10,6 +10,7 @@ const constructorsTracked = [
 	Object,
 	Array,
 	Map,
+	Set,
 	undefined /** Object.create(null) */,
 ]
 

@@ -9,9 +9,26 @@ import {
 
 import { batch, untrack } from '../reactive.js'
 
+import { $isMutable } from '../../constants.js'
 import { isKeyBlacklisted } from './blacklist.js'
 import { getPropertyDescriptors } from './descriptors.js'
 import { tracker } from './tracker.js'
+
+/**
+ * Per-wrapper pointer back to the user's original getter/setter.
+ * Proxy traps that expose descriptors (`getOwnPropertyDescriptor`)
+ * and compare getter identity (`defineProperty`) unwrap through this
+ * so callers never see our signalify wrappers.
+ */
+const originalGetSet = new WeakMap()
+
+/**
+ * @param {(() => any) | ((v) => any)} fn
+ * @returns {() => any} The user's original if `fn` is one of our
+ *   signalify wrappers, otherwise `fn` unchanged.
+ */
+export const unwrapGetSet = fn =>
+	fn && originalGetSet.has(fn) ? originalGetSet.get(fn) : fn
 
 /**
  * Transforms in place properties of an object into signals via
@@ -25,6 +42,10 @@ import { tracker } from './tracker.js'
  * @returns {T & Record<string, any>}
  */
 export function signalify(target, keys) {
+	// Already a mutable proxy — its own keys are already signalified
+	// via signalifyObject at wrap time; re-running would double-wrap
+	// and create a phantom proxy-keyed tracker.
+	if (target && target[$isMutable]) return target
 	keys ? signalifyKeys(target, keys) : signalifyObject(target)
 	return target
 }
@@ -79,7 +100,7 @@ function signalifyKeys(target, keys, wrapper) {
  * @param {Function} [wrapper] To wrap values
  * @param {import('./tracker.js').Track} [track] Tracker
  */
-function signalifyKey(
+export function signalifyKey(
 	target,
 	key,
 	descriptor,
@@ -119,6 +140,16 @@ function signalifyKey(
 		return
 	}
 
+	/**
+	 * If the caller handed us a descriptor that came back through one
+	 * of our proxy traps (e.g. a `defineProperty` that retained a
+	 * previously-installed wrapper via spec merge), unwrap to the
+	 * user's originals. Ensures we never re-wrap our own wrappers and
+	 * that `originalGetSet` always maps to true originals.
+	 */
+	if (descriptor.get) descriptor.get = unwrapGetSet(descriptor.get)
+	if (descriptor.set) descriptor.set = unwrapGetSet(descriptor.set)
+
 	const getter = descriptor.get?.bind(target)
 	const setter = descriptor.set?.bind(target)
 
@@ -127,46 +158,71 @@ function signalifyKey(
 		value = wrapper(value)
 	}
 
-	defineProperty(target, key, {
-		get:
-			/**
-			 * 1. We cannot know if the getter will return the same thing that
-			 *    has been set. For this reason we cant rely on the return
-			 *    value of the signal.
-			 * 2. We need to ensure the return value is always wrapped (for in
-			 *    case of being used as a mutable).
-			 */
-			getter
-				? () => {
-						value = wrapper(getter())
-						return track.valueRead(key, value)
-					}
-				: () => {
-						value = wrapper(value)
-						return track.valueRead(key, value)
-					},
+	/**
+	 * 1. We cannot know if the getter will return the same thing that has
+	 *    been set. For this reason we cant rely on the return value of
+	 *    the signal.
+	 * 2. We need to ensure the return value is always wrapped (for in case
+	 *    of being used as a mutable).
+	 * 3. For accessor descriptors we subscribe to a per-key `Getter`
+	 *    signal keyed to the user's original getter identity.
+	 *    `signalifyKey` writes the current getter identity below, so
+	 *    `defineProperty` swapping the getter for a different identity
+	 *    fires the signal; same-identity redefines are absorbed by the
+	 *    signal's equality check.
+	 */
+	const wrapperGet = getter
+		? () => {
+				value = wrapper(getter())
+				descriptor.get && track.getterRead(key, descriptor.get)
+				return track.valueRead(key, value)
+			}
+		: () => {
+				value = wrapper(value)
+				return track.valueRead(key, value)
+			}
 
-		set:
-			/** When it's only a getter it shouldn't have a setter */
-			getter && !setter
-				? undefined
-				: setter
-					? val => {
-							batch(() => {
-								value = wrapper(val)
-								setter(value)
-								track.valueWrite(key, value)
-							})
-						}
-					: val => {
-							batch(() => {
-								value = wrapper(val)
-								track.valueWrite(key, value)
-							})
-						},
+	/** When it's only a getter it shouldn't have a setter */
+	const wrapperSet =
+		getter && !setter
+			? undefined
+			: setter
+				? val => {
+						batch(() => {
+							value = wrapper(val)
+							setter(value)
+							track.valueWrite(key, value)
+						})
+					}
+				: val => {
+						batch(() => {
+							value = wrapper(val)
+							track.valueWrite(key, value)
+						})
+					}
+
+	/**
+	 * Record the user's original get/set on the wrapper so proxy traps
+	 * that expose descriptors can return the originals, and identity
+	 * comparisons stay meaningful.
+	 */
+	if (descriptor.get) originalGetSet.set(wrapperGet, descriptor.get)
+	if (descriptor.set) originalGetSet.set(wrapperSet, descriptor.set)
+
+	defineProperty(target, key, {
+		get: wrapperGet,
+		set: wrapperSet,
 		enumerable: descriptor.enumerable,
 		configurable: true,
 	})
+
+	/**
+	 * Publish the current getter identity so subscribers on the
+	 * `Getter` signal fire when the user swaps the getter via
+	 * `defineProperty`. Same-identity redefines are absorbed by the
+	 * signal's equality check (a no-op write).
+	 */
+	descriptor.get && track.getterWrite(key, descriptor.get)
 }
 
 /**

@@ -1,27 +1,30 @@
 import { $isMutable } from '../../../constants.js'
 import { batch } from '../../reactive.js'
 import {
-	empty,
 	isFunction,
 	iterator,
 	reflectApply,
 	reflectGet,
 } from '../../std.js'
 import { mutable } from '../mutable.js'
-import { tracker } from '../tracker.js'
+import { Track } from '../tracker.js'
 
 import { ProxyHandlerObject } from './object.js'
 
 /**
- * Proxy for objects. In objects, values are tracked by the
- * setter/getters in the properties.
+ * Proxy for Maps. Per-key `has` / `get` tracking goes through
+ * `trackSlot` (the shared `Track` keys the #props Map by identity,
+ * so object keys are tracked precisely). Iteration methods
+ * (`forEach`, `keys`, `values`, `entries`) subscribe to the coarse
+ * `valuesRead` / `keysRead` sentinels, plus per-key subscriptions at
+ * each yield so partial iteration via `break` remains reactive.
  */
 export class ProxyHandlerMap extends ProxyHandlerObject {
 	// type = 'Map'
 
 	constructor(value) {
 		super(value)
-		this.trackSlot = tracker(empty())
+		this.trackSlot = new Track(true)
 	}
 
 	get(target, key, proxy) {
@@ -40,11 +43,7 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 			this.track.isUndefinedRead(key, true)
 		}
 
-		/**
-		 * Tracking + value For whatever reason `size` is special for
-		 * `Map`
-		 */
-
+		/** `size` needs the receiver to be the raw Map */
 		const value =
 			shouldTrack && key === 'size'
 				? this.track.valueRead(key, reflectGet(target, key, target))
@@ -54,10 +53,11 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 			? this.returnFunction(target, key, value, proxy)
 			: this.returnValue(target, key, value)
 	}
+
 	returnFunction(target, key, value, proxy) {
 		/**
 		 * 1. `Reflect.apply` to correct `receiver`. `TypeError: Method
-		 *    Set.prototype.add called on incompatible receiver #<Set>`
+		 *    Map.prototype.set called on incompatible receiver #<Map>`
 		 * 2. Run in a batch to react to all changes at the same time.
 		 */
 		return (...args) =>
@@ -78,28 +78,18 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 	}
 }
 
-/**
- * Like Map but tracks.
- *
- * 1. Instances are supposed to be used Proxied, so theres no need for
- *    batching, because the proxy already batches the functions.
- * 2. This is an internal Class and is not meant to be used outside
- *    `mutable`.
- */
-
 const mapMethods = {
 	__proto__: null,
 
 	has(handler, trackSlot, target, value, args, proxy) {
 		const key = args[0]
-
 		const r = reflectApply(value, target, args)
 		trackSlot.keyRead(key, r)
 		return r
 	},
+
 	get(handler, trackSlot, target, value, args, proxy) {
 		const key = args[0]
-
 		const r = reflectApply(value, target, args)
 		trackSlot.valueRead(key, r)
 		return r
@@ -128,6 +118,7 @@ const mapMethods = {
 
 		return r
 	},
+
 	delete(handler, trackSlot, target, value, args, proxy) {
 		const key = args[0]
 
@@ -143,6 +134,7 @@ const mapMethods = {
 		}
 		return r
 	},
+
 	clear(handler, trackSlot, target, value, args, proxy) {
 		if (target.size) {
 			trackSlot.keysWrite()
@@ -161,44 +153,45 @@ const mapMethods = {
 
 	forEach(handler, trackSlot, target, value, args, proxy) {
 		const cb = args[0]
+		const thisArg = args[1]
 
 		trackSlot.valuesRead()
 		trackSlot.keysRead()
 
 		for (const [key, value] of target.entries()) {
 			trackSlot.valueRead(key, value)
-			cb(value, key, proxy)
+			cb.call(thisArg, value, key, proxy)
 		}
 	},
+
 	*keys(handler, trackSlot, target, value, args, proxy) {
 		for (const key of target.keys()) {
 			trackSlot.keyRead(key, true)
 			yield key
 		}
-
-		// for when empty and for when iterating all
+		// covers "iterated to completion" and "iterated empty"; partial
+		// iteration with `break` relies on per-key subscriptions above.
 		trackSlot.keysRead()
 	},
+
 	*values(handler, trackSlot, target, value, args, proxy) {
 		for (const [key, value] of target.entries()) {
 			trackSlot.valueRead(key, value)
 			yield value
 		}
-
-		// for when empty and for when iterating all
 		trackSlot.valuesRead()
 		trackSlot.keysRead()
 	},
+
 	*entries(handler, trackSlot, target, value, args, proxy) {
 		for (const entry of target.entries()) {
 			trackSlot.valueRead(entry[0], entry[1])
 			yield entry
 		}
-
-		// for when empty and for when iterating all
 		trackSlot.valuesRead()
 		trackSlot.keysRead()
 	},
+
 	[iterator](handler, trackSlot, target, value, args, proxy) {
 		return this.entries(
 			handler,

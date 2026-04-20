@@ -617,10 +617,12 @@ export const {
 	ownKeys: reflectOwnKeys,
 	has: reflectHas,
 	deleteProperty: reflectDeleteProperty,
+	defineProperty: reflectDefineProperty,
 	getOwnPropertyDescriptor: reflectGetOwnPropertyDescriptor,
 	get: reflectGet,
 	apply: reflectApply,
 	set: reflectSet,
+	setPrototypeOf: reflectSetPrototypeOf,
 	isExtensible: reflectIsExtensible,
 } = Reflect
 

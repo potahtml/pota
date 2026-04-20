@@ -5,6 +5,7 @@ import { untrack } from '../reactive.js'
 import { ProxyHandlerArray } from './proxies/array.js'
 import { ProxyHandlerObject } from './proxies/object.js'
 import { ProxyHandlerMap } from './proxies/map.js'
+import { ProxyHandlerSet } from './proxies/set.js'
 
 import { isMutationBlacklisted } from './blacklist.js'
 
@@ -53,7 +54,7 @@ export function mutable(value, clone) {
 	}
 
 	/** Make a copy to avoid modifying original data (optional) */
-	value = clone ? copy(value) : value
+	value = clone ? untrack(() => copy(value)) : value
 
 	/** Avoid unwrapping external proxies */
 	if (value[$isMutable]) {
@@ -103,6 +104,25 @@ export function mutable(value, clone) {
 				map.set(key, mutable(value))
 			}),
 		)
+
+		return proxy
+	}
+
+	/** Set methods are proxied by ProxyHandlerSet */
+	if (value instanceof Set) {
+		proxy = createProxy(value, ProxyHandlerSet)
+
+		/**
+		 * Replace each element with its mutable wrap so nested objects
+		 * are reactive. Preserves insertion order.
+		 */
+		untrack(() => {
+			const items = [...value]
+			value.clear()
+			for (const item of items) {
+				value.add(mutable(item))
+			}
+		})
 
 		return proxy
 	}

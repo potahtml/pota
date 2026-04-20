@@ -1472,12 +1472,13 @@ await test('mutable - empty array becomes reactive when items are pushed', expec
 	expect(seen).toEqual([0, 1])
 })
 
-// --- Set and WeakMap are blacklisted (not proxied) ----------------------
+// --- Set is now proxied; WeakMap/WeakSet stay blacklisted ----------------
 
-await test('mutable - Set instances are left untouched (blacklisted)', expect => {
+await test('mutable - Set instances are proxied', expect => {
 	const set = new Set([1, 2])
 	const state = mutable({ tags: set })
 
-	// the set is passed through as-is
-	expect(state.tags).toBe(set)
+	// the set is now proxied
+	expect(state.tags).not.toBe(set)
+	expect(state.tags instanceof Set).toBe(true)
 })

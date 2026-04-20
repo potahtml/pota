@@ -6,11 +6,17 @@ import { signal } from '../reactive.js'
 
 const [getTracker] = weakStore()
 
-const createTracker = () => new Track()
+const createTracker = () => new Track(false)
 
 /**
  * Returns a tracker for an object. A tracker is unique per object,
- * always the same tracker for the same object.
+ * always the same tracker for the same object. Uses null-proto
+ * object storage — number keys coerce to strings (matches array
+ * index semantics).
+ *
+ * For handler-private trackers that need identity-keyed storage
+ * (Map/Set per-key reactivity), instantiate directly via
+ * `new Track(true)`.
  *
  * @template T
  * @param {T} target
@@ -30,27 +36,62 @@ const Keys = Symbol('Keys')
 const Value = 'Value'
 const Key = 'Key'
 const isUndefined = 'isUndefined'
+const Getter = 'Getter'
 
 const kinds = {
 	__proto__: null,
 	[Value]: undefined,
 	[Key]: undefined,
 	[isUndefined]: undefined,
+	[Getter]: undefined,
 }
 
+/**
+ * Track class — per-key reactive signal store.
+ *
+ * Use the `tracker(target)` factory for trackers memoized per target
+ * (typical case: main proxy tracker). Instantiate directly via
+ * `new Track(identity)` when the tracker is handler-private and
+ * should NOT be memoized — e.g. Map/Set's `trackSlot`.
+ */
 export class Track {
 	// id = Date.now()
 
-	#props = empty()
+	/**
+	 * Per-key signal storage.
+	 *
+	 * - Default (`isIdentity=false`): null-proto object. Numbers
+	 *   auto-coerce to strings, matching array index semantics.
+	 * - Identity (`isIdentity=true`): `Map`. Keys preserved by
+	 *   identity — required for Map/Set where object keys,
+	 *   number-vs-string, and boolean-vs-string distinctions matter.
+	 */
+	#props
+	isIdentity
+
+	constructor(identity) {
+		this.isIdentity = !!identity
+		this.#props = identity ? new Map() : empty()
+	}
 
 	#prop(kind, key, value, equalsType) {
-		if (!(key in this.#props)) {
-			this.#props[key] = create(kinds)
+		let entry
+		if (this.isIdentity) {
+			entry = this.#props.get(key)
+			if (!entry) {
+				entry = create(kinds)
+				this.#props.set(key, entry)
+			}
+		} else {
+			if (!(key in this.#props)) {
+				this.#props[key] = create(kinds)
+			}
+			entry = this.#props[key]
 		}
-		if (this.#props[key][kind] === undefined) {
-			this.#props[key][kind] = signal(value, equalsType)
+		if (entry[kind] === undefined) {
+			entry[kind] = signal(value, equalsType)
 		}
-		return this.#props[key][kind]
+		return entry[kind]
 	}
 
 	/**
@@ -124,6 +165,30 @@ export class Track {
 			value === undefined,
 			equalsDefault,
 		).write(value === undefined)
+	}
+
+	/**
+	 * Keeps track of: the getter function identity for an accessor
+	 * `key`. Subscribers are effects reading through a signalified
+	 * accessor wrapper; the signal fires when `defineProperty` swaps in
+	 * a getter with a different identity.
+	 *
+	 * @param {PropertyKey} key
+	 * @param {any} value - The getter function
+	 */
+	getterRead(key, value) {
+		this.#prop(Getter, key, value, equalsDefault).read()
+	}
+	/**
+	 * Writes the getter function identity for `key`.
+	 *
+	 * @param {PropertyKey} key
+	 * @param {any} value - The getter function
+	 */
+	getterWrite(key, value) {
+		return this.#prop(Getter, key, undefined, equalsDefault).write(
+			value,
+		)
 	}
 
 	/**
