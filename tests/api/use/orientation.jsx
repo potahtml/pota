@@ -56,16 +56,18 @@ await test('orientation - emitter derives horizontal and vertical from document 
 				'clientWidth',
 				width,
 			)
-		: delete (/** @type {any} */ (document.documentElement))
-				.clientWidth
+		: delete (
+				/** @type {any} */ (document.documentElement).clientWidth
+			)
 	height
 		? Object.defineProperty(
 				document.documentElement,
 				'clientHeight',
 				height,
 			)
-		: delete (/** @type {any} */ (document.documentElement))
-				.clientHeight
+		: delete (
+				/** @type {any} */ (document.documentElement).clientHeight
+			)
 })
 
 await test('orientation - square viewport reports horizontal', async expect => {
@@ -104,16 +106,18 @@ await test('orientation - square viewport reports horizontal', async expect => {
 				'clientWidth',
 				width,
 			)
-		: delete (/** @type {any} */ (document.documentElement))
-				.clientWidth
+		: delete (
+				/** @type {any} */ (document.documentElement).clientWidth
+			)
 	height
 		? Object.defineProperty(
 				document.documentElement,
 				'clientHeight',
 				height,
 			)
-		: delete (/** @type {any} */ (document.documentElement))
-				.clientHeight
+		: delete (
+				/** @type {any} */ (document.documentElement).clientHeight
+			)
 })
 
 // --- useOrientation returns a signal function --------------------------
@@ -123,9 +127,7 @@ await test('orientation - useOrientation returns a signal accessor', expect => {
 		const o = useOrientation()
 		expect(typeof o).toBe('function')
 		const value = o()
-		expect(
-			value === 'horizontal' || value === 'vertical',
-		).toBe(true)
+		expect(value === 'horizontal' || value === 'vertical').toBe(true)
 		dispose()
 	})
 })
@@ -190,14 +192,16 @@ await test('orientation - transitions both ways horizontal ↔ vertical', async 
 				'clientWidth',
 				width,
 			)
-		: delete (/** @type {any} */ (document.documentElement))
-				.clientWidth
+		: delete (
+				/** @type {any} */ (document.documentElement).clientWidth
+			)
 	height
 		? Object.defineProperty(
 				document.documentElement,
 				'clientHeight',
 				height,
 			)
-		: delete (/** @type {any} */ (document.documentElement))
-				.clientHeight
+		: delete (
+				/** @type {any} */ (document.documentElement).clientHeight
+			)
 })

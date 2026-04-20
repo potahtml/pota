@@ -1,13 +1,6 @@
 /** @jsxImportSource pota */
 
-import {
-	Component,
-	Pota,
-	derived,
-	memo,
-	ref,
-	signal,
-} from 'pota'
+import { Component, Pota, derived, memo, ref, signal } from 'pota'
 
 // Reused local component for ComponentProps extraction tests
 const Card: ParentComponent<{ title: string }> = ({

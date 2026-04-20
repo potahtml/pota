@@ -34,12 +34,12 @@ export function useSelector(value) {
 		const val = value()
 
 		const selected = isFunction(
-			(/** @type {{ values?: Function }} */ (val))?.values,
+			/** @type {{ values?: Function }} */ (val)?.values,
 		)
 			? toArray(
 					/** @type {Iterable<unknown>} */ (
 						/** @type {unknown} */ (
-							(/** @type {{ values: Function }} */ (val)).values()
+							/** @type {{ values: Function }} */ (val).values()
 						)
 					),
 				)

@@ -75,9 +75,7 @@ await test('forms - number input off step reports stepMismatch', expect => {
 // --- setCustomValidity -> customError --------------------------------
 
 await test('forms - setCustomValidity makes the input customError and invalid', expect => {
-	const dispose = render(
-		<input type="text" prop:value="anything" />,
-	)
+	const dispose = render(<input type="text" prop:value="anything" />)
 
 	const input = $('input')
 	expect(input.validity.valid).toBe(true)

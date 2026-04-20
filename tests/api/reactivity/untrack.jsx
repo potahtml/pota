@@ -96,7 +96,9 @@ await test('untrack - inside memo, reads do not register as sources', expect => 
 	tracked.write(5) // should cause memo re-eval
 	// memo is lazy; read it to force the re-eval
 	root(() => {
-		const again = memo(() => tracked.read() + untrack(() => incidental.read()))
+		const again = memo(
+			() => tracked.read() + untrack(() => incidental.read()),
+		)
 		expect(again()).toBe(205)
 	})
 })

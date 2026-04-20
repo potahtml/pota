@@ -1600,9 +1600,7 @@ const propPopoverBad = (
 // ============================================
 
 // webkitdirectory on <input type=file> — directory picker
-const webkitDirInput = (
-	<input type="file" webkitdirectory multiple />
-)
+const webkitDirInput = <input type="file" webkitdirectory multiple />
 const webkitDirTrue = <input type="file" webkitdirectory="" />
 
 // capture widened: bare attribute + enum values + arbitrary string
@@ -1622,7 +1620,11 @@ const anchorGlobal = (
 
 // <link as="manifest">
 const linkManifest = (
-	<link rel="modulepreload" as="manifest" href="/manifest.webmanifest" />
+	<link
+		rel="modulepreload"
+		as="manifest"
+		href="/manifest.webmanifest"
+	/>
 )
 
 const inputTypes = (
@@ -1787,9 +1789,7 @@ const conditional = (
 )
 
 // promise as child
-const promiseChild = (
-	<div>{Promise.resolve(<span>async</span>)}</div>
-)
+const promiseChild = <div>{Promise.resolve(<span>async</span>)}</div>
 
 // signal as on:click handler
 const [handler] = signal((e: MouseEvent) => {})

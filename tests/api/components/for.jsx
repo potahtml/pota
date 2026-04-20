@@ -47,10 +47,7 @@ await test('For - renders an empty array as nothing', expect => {
 
 await test('For - renders fallback when array is empty', expect => {
 	const dispose = render(
-		<For
-			each={[]}
-			fallback={<p>empty</p>}
-		>
+		<For each={[]} fallback={<p>empty</p>}>
 			{item => <p>{item}</p>}
 		</For>,
 	)
@@ -61,10 +58,7 @@ await test('For - renders fallback when array is empty', expect => {
 
 await test('For - renders fallback when each is null', expect => {
 	const dispose = render(
-		<For
-			each={null}
-			fallback={<p>empty</p>}
-		>
+		<For each={null} fallback={<p>empty</p>}>
 			{item => <p>{item}</p>}
 		</For>,
 	)
@@ -75,10 +69,7 @@ await test('For - renders fallback when each is null', expect => {
 
 await test('For - renders fallback when each is undefined', expect => {
 	const dispose = render(
-		<For
-			each={undefined}
-			fallback={<p>empty</p>}
-		>
+		<For each={undefined} fallback={<p>empty</p>}>
 			{item => <p>{item}</p>}
 		</For>,
 	)
@@ -174,10 +165,7 @@ await test('For - updates when signal sets empty list', expect => {
 await test('For - shows fallback when signal becomes empty', expect => {
 	const [items, setItems] = signal(['a', 'b'])
 	const dispose = render(
-		<For
-			each={items}
-			fallback={<p>empty</p>}
-		>
+		<For each={items} fallback={<p>empty</p>}>
 			{item => <p>{item}</p>}
 		</For>,
 	)
@@ -191,10 +179,7 @@ await test('For - shows fallback when signal becomes empty', expect => {
 await test('For - hides fallback when signal becomes non-empty', expect => {
 	const [items, setItems] = signal([])
 	const dispose = render(
-		<For
-			each={items}
-			fallback={<p>empty</p>}
-		>
+		<For each={items} fallback={<p>empty</p>}>
 			{item => <p>{item}</p>}
 		</For>,
 	)
@@ -208,10 +193,7 @@ await test('For - hides fallback when signal becomes non-empty', expect => {
 await test('For - toggles between content and fallback multiple times', expect => {
 	const [items, setItems] = signal(['a'])
 	const dispose = render(
-		<For
-			each={items}
-			fallback={<p>empty</p>}
-		>
+		<For each={items} fallback={<p>empty</p>}>
 			{item => <p>{item}</p>}
 		</For>,
 	)
@@ -453,10 +435,7 @@ await test('For - accepts mixed static and callback children', expect => {
 await test('For - reactiveIndex: index is a signal accessor', expect => {
 	const [items, setItems] = signal(['a', 'b', 'c'])
 	const dispose = render(
-		<For
-			each={items}
-			reactiveIndex
-		>
+		<For each={items} reactiveIndex>
 			{(item, index) => (
 				<p>
 					{index}-{item}
@@ -472,10 +451,7 @@ await test('For - reactiveIndex: index is a signal accessor', expect => {
 await test('For - reactiveIndex: index updates when items are prepended', expect => {
 	const [items, setItems] = signal(['b', 'c'])
 	const dispose = render(
-		<For
-			each={items}
-			reactiveIndex
-		>
+		<For each={items} reactiveIndex>
 			{(item, index) => (
 				<p>
 					{index}-{item}
@@ -493,10 +469,7 @@ await test('For - reactiveIndex: index updates when items are prepended', expect
 await test('For - reactiveIndex: index updates when items are removed from start', expect => {
 	const [items, setItems] = signal(['a', 'b', 'c'])
 	const dispose = render(
-		<For
-			each={items}
-			reactiveIndex
-		>
+		<For each={items} reactiveIndex>
 			{(item, index) => (
 				<p>
 					{index}-{item}
@@ -641,10 +614,7 @@ await test('For - nested: outer signal update re-renders outer only', expect => 
 await test('For - inside Show: hides list when Show is false', expect => {
 	const [visible, setVisible] = signal(true)
 	const dispose = render(
-		<Show
-			when={visible}
-			fallback={<p>hidden</p>}
-		>
+		<Show when={visible} fallback={<p>hidden</p>}>
 			<For each={['a', 'b', 'c']}>{item => <p>{item}</p>}</For>
 		</Show>,
 	)
@@ -729,10 +699,7 @@ await test('For - restoreFocus preserves focus after reorder', async expect => {
 	const items = signal(['a', 'b', 'c'])
 
 	const dispose = render(
-		<For
-			each={items.read}
-			restoreFocus
-		>
+		<For each={items.read} restoreFocus>
 			{item => <input data-id={item} />}
 		</For>,
 	)
@@ -789,9 +756,7 @@ await test('For - renders items from a Map as each value with key as index', exp
 await test('For - single item list renders and updates', expect => {
 	const items = signal(['only'])
 	const dispose = render(
-		<For each={items.read}>
-			{item => <p>{item}</p>}
-		</For>,
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
 	)
 
 	expect(body()).toBe('<p>only</p>')
@@ -810,10 +775,7 @@ await test('For - single item list renders and updates', expect => {
 await test('For - toggling between empty and non-empty multiple times', expect => {
 	const items = signal([])
 	const dispose = render(
-		<For
-			each={items.read}
-			fallback={<p>none</p>}
-		>
+		<For each={items.read} fallback={<p>none</p>}>
 			{item => <span>{item}</span>}
 		</For>,
 	)
@@ -869,9 +831,7 @@ await test('For - duplicate object references are handled', expect => {
 	const shared = { id: 'dup' }
 	const items = signal([shared, shared, shared])
 	const dispose = render(
-		<For each={items.read}>
-			{item => <p>{item.id}</p>}
-		</For>,
+		<For each={items.read}>{item => <p>{item.id}</p>}</For>,
 	)
 
 	expect(body()).toBe('<p>dup</p><p>dup</p><p>dup</p>')
@@ -1006,7 +966,9 @@ await test('For - reactive signal going from empty to non-empty adds children', 
 
 await test('For - handles falsy scalar items (0, empty string)', expect => {
 	const dispose = render(
-		<For each={[0, '', false, null]}>{item => <p>{String(item)}</p>}</For>,
+		<For each={[0, '', false, null]}>
+			{item => <p>{String(item)}</p>}
+		</For>,
 	)
 
 	expect(body()).toBe('<p>0</p><p></p><p>false</p><p>null</p>')

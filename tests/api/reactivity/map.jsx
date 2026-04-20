@@ -80,16 +80,13 @@ await test('map - items that stay in the list reuse their cached result', expect
 	// callback returns a new object each run; if the row is
 	// cached, the returned reference is stable across mapper()
 	// calls.
-	const mapper = root(() =>
-		map(items.read, item => ({ item })),
-	)
+	const mapper = root(() => map(items.read, item => ({ item })))
 
 	// `mapper()` is typed `JSX.Element` but at runtime returns the
 	// array of row results. Cast narrows it for assertions.
-	const first =
-		/** @type {{ item: { id: string } }[]} */ (
-			/** @type {unknown} */ (mapper())
-		)
+	const first = /** @type {{ item: { id: string } }[]} */ (
+		/** @type {unknown} */ (mapper())
+	)
 	expect(first.length).toBe(2)
 	expect(first[0].item).toBe(a)
 	expect(first[1].item).toBe(b)
@@ -99,10 +96,9 @@ await test('map - items that stay in the list reuse their cached result', expect
 
 	// re-run with same references
 	items.write([a, b])
-	const second =
-		/** @type {{ item: { id: string } }[]} */ (
-			/** @type {unknown} */ (mapper())
-		)
+	const second = /** @type {{ item: { id: string } }[]} */ (
+		/** @type {unknown} */ (mapper())
+	)
 
 	expect(second[0]).toBe(firstA)
 	expect(second[1]).toBe(firstB)
@@ -116,22 +112,18 @@ await test('map - a new item gets a fresh row, existing items stay cached', expe
 	const c = { id: 'c' }
 	const items = signal([a, b])
 
-	const mapper = root(() =>
-		map(items.read, item => ({ item })),
-	)
+	const mapper = root(() => map(items.read, item => ({ item })))
 
-	const first =
-		/** @type {{ item: { id: string } }[]} */ (
-			/** @type {unknown} */ (mapper())
-		)
+	const first = /** @type {{ item: { id: string } }[]} */ (
+		/** @type {unknown} */ (mapper())
+	)
 	const firstA = first[0]
 	const firstB = first[1]
 
 	items.write([a, b, c])
-	const second =
-		/** @type {{ item: { id: string } }[]} */ (
-			/** @type {unknown} */ (mapper())
-		)
+	const second = /** @type {{ item: { id: string } }[]} */ (
+		/** @type {unknown} */ (mapper())
+	)
 
 	expect(second.length).toBe(3)
 	expect(second[0]).toBe(firstA)
@@ -173,9 +165,7 @@ await test('map - reordering preserves row identity', expect => {
 	const c = { id: 'c' }
 	const items = signal([a, b, c])
 
-	const mapper = root(() =>
-		map(items.read, item => ({ item })),
-	)
+	const mapper = root(() => map(items.read, item => ({ item })))
 
 	const first = mapper()
 	const firstA = first[0]
@@ -242,13 +232,10 @@ await test('map - replacing every item with fresh references rebuilds all rows',
 await test('map - empty list returns an empty result', expect => {
 	const items = signal([])
 
-	const mapper = root(() =>
-		map(items.read, item => item),
-	)
+	const mapper = root(() => map(items.read, item => item))
 
-	const result =
-		/** @type {unknown[]} */ (
-			/** @type {unknown} */ (mapper())
-		)
+	const result = /** @type {unknown[]} */ (
+		/** @type {unknown} */ (mapper())
+	)
 	expect(result.length).toBe(0)
 })

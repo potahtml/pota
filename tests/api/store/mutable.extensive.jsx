@@ -1301,9 +1301,21 @@ await test('defineProperty: does not re-trigger on provably equivalent descripto
 	expect(calls).toBe(1)
 	expect(args).toEqual([1])
 
-	Object.defineProperty(o, 'foo', Object.getOwnPropertyDescriptor(o, 'foo'))
-	Object.defineProperty(o, 'bar', Object.getOwnPropertyDescriptor(o, 'bar'))
-	Object.defineProperty(o, 'baz', Object.getOwnPropertyDescriptor(o, 'baz'))
+	Object.defineProperty(
+		o,
+		'foo',
+		Object.getOwnPropertyDescriptor(o, 'foo'),
+	)
+	Object.defineProperty(
+		o,
+		'bar',
+		Object.getOwnPropertyDescriptor(o, 'bar'),
+	)
+	Object.defineProperty(
+		o,
+		'baz',
+		Object.getOwnPropertyDescriptor(o, 'baz'),
+	)
 	expect(calls).toBe(1)
 	expect(args).toEqual([1])
 })
@@ -1812,7 +1824,12 @@ await test('iter: mutating an array mid-iteration (pushing) — engine semantics
 })
 
 await test('iter: Map iterator sees entries added after it was created', expect => {
-	const m = mutable(new Map([['a', 1], ['b', 2]]))
+	const m = mutable(
+		new Map([
+			['a', 1],
+			['b', 2],
+		]),
+	)
 	const it = m.entries()
 
 	const first = it.next()
@@ -1833,7 +1850,13 @@ await test('iter: Map iterator sees entries added after it was created', expect 
 })
 
 await test('iter: Map iterator skips entries deleted before they are visited', expect => {
-	const m = mutable(new Map([['a', 1], ['b', 2], ['c', 3]]))
+	const m = mutable(
+		new Map([
+			['a', 1],
+			['b', 2],
+			['c', 3],
+		]),
+	)
 	const it = m.keys()
 
 	expect(it.next().value).toBe('a')
@@ -1860,7 +1883,12 @@ await test('iter: Map iterator yields a key value overwritten after visit (stale
 })
 
 await test('iter: map.keys() held across clear() stops yielding', expect => {
-	const m = mutable(new Map([['a', 1], ['b', 2]]))
+	const m = mutable(
+		new Map([
+			['a', 1],
+			['b', 2],
+		]),
+	)
 	const it = m.keys()
 
 	expect(it.next().value).toBe('a')
@@ -1965,7 +1993,7 @@ await test('proto: class static members not proxied via instance', expect => {
 	}
 	const c = mutable(new C())
 	// access via constructor — which is now the raw constructor thanks to isIdentityKey
-	expect((/** @type {typeof C} */ (c.constructor)).VERSION).toBe(1)
+	expect(/** @type {typeof C} */ (c.constructor).VERSION).toBe(1)
 	expect(c.constructor).toBe(C)
 })
 
@@ -2450,7 +2478,8 @@ await test('array method: unshift() with 0 args returns current length', expect 
 
 await test('array method: unshift prepend updates indices correctly', expect => {
 	const arr = mutable([1, 2, 3])
-	let first, calls = 0
+	let first,
+		calls = 0
 	const m = memo(() => {
 		calls++
 		first = arr[0]

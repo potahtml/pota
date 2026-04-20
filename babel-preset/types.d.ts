@@ -42,9 +42,8 @@ declare global {
 		export type * from '@babel/types'
 
 		// Babel core re-exports
-		type NodePath<
-			T extends t.Node | null | undefined = t.Node,
-		> = BabelNodePath<T>
+		type NodePath<T extends t.Node | null | undefined = t.Node> =
+			BabelNodePath<T>
 		type PluginPass = BabelPluginPass
 	}
 }

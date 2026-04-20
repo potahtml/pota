@@ -1008,21 +1008,21 @@ await test('misc objects (effect)', expect => {
 			calls++
 			result.o.something
 		})
-		;(execute1(), execute2())
+		execute1(), execute2()
 		expect(calls).toBe(2)
 
 		result.o.something = true
 		result.o.something = false
-		;(execute1(), execute2())
+		execute1(), execute2()
 		expect(calls).toBe(2)
 
 		delete result.o.something
-		;(execute1(), execute2())
+		execute1(), execute2()
 		expect(calls).toBe(2)
 
 		result.o.something = true
 		result.o.something = false
-		;(execute1(), execute2())
+		execute1(), execute2()
 		expect(calls).toBe(2)
 	}
 })
@@ -1647,14 +1647,14 @@ await test('reacts to hasOwnProperty', expect => {
 		has = Object.hasOwn(m, 'z')
 	})
 
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 	expect(calls1).toBe(1)
 	expect(calls2).toBe(1)
 	expect(calls3).toBe(1)
 	expect(has).toBe(false)
 
 	m.b = 1
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 	expect(calls1).toBe(2)
 	expect(calls2).toBe(1)
 	expect(calls3).toBe(1)
@@ -1663,7 +1663,7 @@ await test('reacts to hasOwnProperty', expect => {
 	expect(has).toBe(false)
 
 	m.a.b = 1
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 	expect(calls1).toBe(2)
 	expect(calls2).toBe(2)
 	expect(calls3).toBe(1)
@@ -1672,7 +1672,7 @@ await test('reacts to hasOwnProperty', expect => {
 	expect(has).toBe(false)
 
 	m.z = 1
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 	expect(calls1).toBe(2)
 	expect(calls2).toBe(2)
 	expect(calls3).toBe(2)
@@ -3070,16 +3070,16 @@ await test('supports reacting to changes on custom classes', expect => {
 		bar.bar
 		calls += 'b'
 	})
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(calls).toBe('fb')
 
 	foo.foo += 1
-	;(execute1(), execute2())
+	execute1(), execute2()
 	expect(calls).toBe('fbf')
 
 	bar.bar += 1
-	;(execute1(), execute2())
+	execute1(), execute2()
 	expect(calls).toBe('fbfb')
 })
 
@@ -3650,14 +3650,14 @@ await test('should handle multiple effects', expect => {
 		calls2++
 		dummy2 = counter.num
 	})
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(dummy1).toBe(0)
 	expect(dummy2).toBe(0)
 	expect(calls1).toBe(1)
 	expect(calls2).toBe(1)
 	counter.num++
-	;(execute1(), execute2())
+	execute1(), execute2()
 	expect(dummy1).toBe(1)
 	expect(dummy2).toBe(1)
 	expect(calls1).toBe(2)
@@ -3813,7 +3813,7 @@ await test('prototype change', expect => {
 		calls2++
 		parentDummy = parent.prop
 	})
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(dummy).toBe(undefined)
 	expect(parentDummy).toBe(undefined)
@@ -3821,13 +3821,13 @@ await test('prototype change', expect => {
 	expect(calls2).toBe(1)
 
 	obj.prop = 4
-	;(execute1(), execute2())
+	execute1(), execute2()
 	expect(obj.prop).toBe(4)
 	expect(dummy).toBe(4)
 	expect(calls1).toBe(2)
 
 	parent.prop = 2
-	;(execute1(), execute2())
+	execute1(), execute2()
 	expect(obj.prop).toBe(2)
 	expect(dummy).toBe(2)
 	expect(parentDummy).toBe(2)
@@ -3929,7 +3929,7 @@ await test('should observe symbol keyed properties', expect => {
 		calls2++
 		hasDummy = key in obj
 	})
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(calls1).toBe(1)
 	expect(calls2).toBe(1)
@@ -3941,7 +3941,7 @@ await test('should observe symbol keyed properties', expect => {
 	expect(calls2).toBe(1)
 
 	obj[key] = 'newValue'
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(calls1).toBe(2)
 	expect(calls2).toBe(1)
@@ -3953,7 +3953,7 @@ await test('should observe symbol keyed properties', expect => {
 	expect(calls2).toBe(1)
 
 	delete obj[key]
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(calls1).toBe(3)
 	expect(calls2).toBe(2)
@@ -4053,7 +4053,7 @@ await test('should not observe set operations without a value change', expect =>
 	expect(hasDummy).toBe(true)
 
 	obj.prop = 'value'
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(calls1).toBe(1)
 	expect(calls2).toBe(1)
@@ -4342,7 +4342,7 @@ await test('should avoid infinite loops with other effects', expect => {
 			calls2++
 			nums.num2 = nums.num1
 		})
-		;(execute1(), execute2())
+		execute1(), execute2()
 
 		expect(nums.num1).toBe(1)
 		expect(nums.num2).toBe(1)
@@ -4350,7 +4350,7 @@ await test('should avoid infinite loops with other effects', expect => {
 		expect(calls2).toBe(1)
 
 		nums.num2 = 4
-		;(execute1(), execute2())
+		execute1(), execute2()
 
 		expect(nums.num1).toBe(4)
 		expect(nums.num2).toBe(4)
@@ -4358,7 +4358,7 @@ await test('should avoid infinite loops with other effects', expect => {
 		expect(calls2).toBe(2)
 
 		nums.num1 = 10
-		;(execute1(), execute2())
+		execute1(), execute2()
 
 		expect(nums.num1).toBe(10)
 		expect(nums.num2).toBe(10)
@@ -5008,14 +5008,14 @@ await test('array: mutating array length', expect => {
 		calls2++
 		result[2]
 	})
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	let calls3 = 0
 	const execute3 = memo(() => {
 		calls3++
 		result.length
 	})
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 
 	expect(result.length).toBe(1)
 	expect(result[40]).toBe(undefined)
@@ -5027,7 +5027,7 @@ await test('array: mutating array length', expect => {
 	expect(calls3).toBe(1)
 
 	result.length = 45
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 
 	expect(result.length).toBe(45)
 	expect(calls).toBe(1)
@@ -5035,7 +5035,7 @@ await test('array: mutating array length', expect => {
 	expect(calls3).toBe(2)
 
 	result[40] = true
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 
 	expect(result[40]).toBe(true)
 	expect(calls).toBe(2)
@@ -5043,7 +5043,7 @@ await test('array: mutating array length', expect => {
 	expect(calls3).toBe(2)
 
 	result[41] = true
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 
 	expect(result[41]).toBe(true)
 	expect(calls).toBe(2)
@@ -5051,7 +5051,7 @@ await test('array: mutating array length', expect => {
 	expect(calls3).toBe(2)
 
 	result[2] = true
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 
 	expect(result[2]).toBe(true)
 	expect(calls).toBe(2)
@@ -5059,21 +5059,21 @@ await test('array: mutating array length', expect => {
 	expect(calls3).toBe(2)
 
 	result.push()
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 
 	expect(calls).toBe(2)
 	expect(calls2).toBe(2)
 	expect(calls3).toBe(2)
 
 	result.unshift()
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 
 	expect(calls).toBe(2)
 	expect(calls2).toBe(2)
 	expect(calls3).toBe(2)
 
 	result.push(1)
-	;(execute1(), execute2(), execute3())
+	execute1(), execute2(), execute3()
 
 	expect(calls).toBe(2)
 	expect(calls2).toBe(2)
@@ -5095,7 +5095,7 @@ await test('array: pushing in two separated effects doesnt loop', expect => {
 		calls2++
 		result.push(2)
 	})
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(result).toEqual([0, 1, 2])
 	expect(calls1).toBe(1)
@@ -5550,18 +5550,18 @@ await test('array: treats number and string properties the same way', expect => 
 		callsString += 1
 		o['0']
 	})
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(callsNumber).toBe(1)
 	expect(callsString).toBe(1)
 
 	o[0] = 1
-	;(execute1(), execute2())
+	execute1(), execute2()
 	expect(callsNumber).toBe(2)
 	expect(callsString).toBe(2)
 
 	o['0'] = 2
-	;(execute1(), execute2())
+	execute1(), execute2()
 	expect(callsNumber).toBe(3)
 	expect(callsString).toBe(3)
 })
@@ -5943,7 +5943,7 @@ await test('array: should trigger all effects when array length is set to 0', ex
 	expect(calls2).toBe(1)
 
 	observed[1] = 2
-	;(execute1(), execute2())
+	execute1(), execute2()
 
 	expect(observed[1]).toBe(2)
 	expect(observed.length).toBe(2)
@@ -5951,12 +5951,12 @@ await test('array: should trigger all effects when array length is set to 0', ex
 	expect(calls1).toBe(2)
 
 	observed.unshift(3)
-	;(execute1(), execute2())
+	execute1(), execute2()
 	expect(length).toBe(3)
 	expect(a).toBe(3)
 
 	observed.length = 0
-	;(execute1(), execute2())
+	execute1(), execute2()
 	expect(length).toBe(0)
 	expect(a).toBe(undefined)
 })

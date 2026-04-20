@@ -145,9 +145,9 @@ export function startServer(port) {
 			} catch (e) {
 				// return syntax/transform errors as valid JS so the
 				// browser shows the real message instead of a parse error
-				const msg = (/** @type {Error} */ (e).message || String(e))
-					.replace(/\\/g, '\\\\')
-					.replace(/`/g, '\\`')
+				const msg =
+					/** @type {Error} */ (e).message ||
+					String(e).replace(/\\/g, '\\\\').replace(/`/g, '\\`')
 				if (!res.headersSent)
 					res.writeHead(500, {
 						'Content-Type': 'application/javascript',

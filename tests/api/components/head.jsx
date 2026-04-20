@@ -12,10 +12,7 @@ await test('Head - portals content into document.head instead of body', expect =
 	const dispose = render(
 		<Head>
 			<title>My Page</title>
-			<meta
-				name="description"
-				content="test desc"
-			/>
+			<meta name="description" content="test desc" />
 		</Head>,
 	)
 
@@ -35,10 +32,7 @@ await test('Head - portals content into document.head instead of body', expect =
 await test('Head - supports multiple tag types and cleans them up on dispose', expect => {
 	const dispose = render(
 		<Head>
-			<link
-				rel="stylesheet"
-				href="/style.css"
-			/>
+			<link rel="stylesheet" href="/style.css" />
 			<script src="/app.js" />
 		</Head>,
 	)
@@ -66,27 +60,15 @@ await test('Head - rendering the same singleton head elements twice leaves one l
 	const disposeA = render(
 		<Head>
 			<title>First</title>
-			<link
-				rel="canonical"
-				href="/page-a"
-			/>
-			<meta
-				name="description"
-				content="old"
-			/>
+			<link rel="canonical" href="/page-a" />
+			<meta name="description" content="old" />
 		</Head>,
 	)
 	const disposeB = render(
 		<Head>
 			<title>Second</title>
-			<link
-				rel="canonical"
-				href="/page-b"
-			/>
-			<meta
-				name="description"
-				content="new"
-			/>
+			<link rel="canonical" href="/page-b" />
+			<meta name="description" content="new" />
 		</Head>,
 	)
 
@@ -119,19 +101,13 @@ await test('Head - disposing the latest singleton render does NOT restore the pr
 	const disposeA = render(
 		<Head>
 			<title>First</title>
-			<meta
-				name="description"
-				content="old"
-			/>
+			<meta name="description" content="old" />
 		</Head>,
 	)
 	const disposeB = render(
 		<Head>
 			<title>Second</title>
-			<meta
-				name="description"
-				content="new"
-			/>
+			<meta name="description" content="new" />
 		</Head>,
 	)
 
@@ -157,18 +133,12 @@ await test('Head - disposing the latest singleton render does NOT restore the pr
 await test('Head - independent non-singleton nodes from separate renders coexist', expect => {
 	const disposeA = render(
 		<Head>
-			<meta
-				property="og:title"
-				content="Title A"
-			/>
+			<meta property="og:title" content="Title A" />
 		</Head>,
 	)
 	const disposeB = render(
 		<Head>
-			<meta
-				property="og:description"
-				content="Description B"
-			/>
+			<meta property="og:description" content="Description B" />
 		</Head>,
 	)
 
@@ -207,10 +177,7 @@ await test('Head - updates reactive text and attributes in place', expect => {
 	const dispose = render(
 		<Head>
 			<title>{title.read}</title>
-			<meta
-				name="description"
-				content={description.read}
-			/>
+			<meta name="description" content={description.read} />
 		</Head>,
 	)
 
@@ -245,12 +212,7 @@ await test('Head - conditional reactive child is removed from head when toggled 
 		<Head>
 			{() => {
 				return (
-					visible.read() && (
-						<meta
-							name="robots"
-							content="noindex"
-						/>
-					)
+					visible.read() && <meta name="robots" content="noindex" />
 				)
 			}}
 		</Head>,
@@ -286,30 +248,25 @@ await test('Head - array of link tags all end up in head', expect => {
 	const dispose = render(
 		<Head>
 			{[
-				<link
-					rel="icon"
-					href="/a.png"
-				/>,
-				<link
-					rel="alternate"
-					href="/feed.xml"
-				/>,
+				<link rel="icon" href="/a.png" />,
+				<link rel="alternate" href="/feed.xml" />,
 			]}
 		</Head>,
 	)
 
-	expect(
-		document.head.querySelector('link[href="/a.png"]'),
-	).not.toBe(null)
+	expect(document.head.querySelector('link[href="/a.png"]')).not.toBe(
+		null,
+	)
 	expect(
 		document.head.querySelector('link[href="/feed.xml"]'),
 	).not.toBe(null)
 
 	dispose()
 
-	expect(document.head.querySelector('link[href="/a.png"]')).toBe(null)
+	expect(document.head.querySelector('link[href="/a.png"]')).toBe(
+		null,
+	)
 	expect(document.head.querySelector('link[href="/feed.xml"]')).toBe(
 		null,
 	)
 })
-

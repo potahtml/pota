@@ -60,9 +60,7 @@ export const toEntries = value =>
 		? /** @type {{ entries(): IterableIterator<[unknown, unknown]> }} */ (
 				value
 			).entries()
-		: toArray(
-				/** @type {Iterable<[unknown, unknown]>} */ (value),
-			)
+		: toArray(/** @type {Iterable<[unknown, unknown]>} */ (value))
 
 export const iterator = Symbol.iterator
 export const Iterator = window.Iterator

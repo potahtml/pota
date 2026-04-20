@@ -61,9 +61,7 @@ export function paginate(fetch, options) {
 			0,
 			Math.ceil(
 				/** @type {number} */ (getValue(options.numItems)) /
-					/** @type {number} */ (
-						getValue(options.numPerPage)
-					),
+					/** @type {number} */ (getValue(options.numPerPage)),
 			),
 		),
 	)
@@ -84,10 +82,8 @@ export function paginate(fetch, options) {
 		currentPage: () => currentPage() + 1,
 		totalPages,
 		hasNext,
-		next: () =>
-			hasNext() && pageUpdate(value => value + 1),
+		next: () => hasNext() && pageUpdate(value => value + 1),
 		hasPrevious,
-		previous: () =>
-			hasPrevious() && pageUpdate(value => value - 1),
+		previous: () => hasPrevious() && pageUpdate(value => value - 1),
 	}
 }

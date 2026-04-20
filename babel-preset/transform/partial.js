@@ -269,9 +269,7 @@ export function buildPartial(path, state) {
 									t.identifier('children'),
 									t.arrayExpression(
 										buildChildrenPartial(path).map(x =>
-											t.isArrowFunctionExpression(x)
-												? x.body
-												: x,
+											t.isArrowFunctionExpression(x) ? x.body : x,
 										),
 									),
 								),

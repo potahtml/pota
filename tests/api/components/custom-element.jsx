@@ -173,10 +173,7 @@ await test('customElement - lifecycle callbacks and property setters do not caus
 		}
 	}
 
-	customElement(
-		'pota-test-custom-element-tracking',
-		TrackingElement,
-	)
+	customElement('pota-test-custom-element-tracking', TrackingElement)
 
 	const dispose = render(() => (
 		<pota-test-custom-element-tracking
@@ -184,7 +181,8 @@ await test('customElement - lifecycle callbacks and property setters do not caus
 			stringattribute="lala"
 			propcasetest="lala1"
 			propCASEtest="lala2"
-			boolean={true}>
+			boolean={true}
+		>
 			Test
 		</pota-test-custom-element-tracking>
 	))
@@ -245,7 +243,10 @@ await test('CustomElement - query returns null when no descendant matches', expe
 await test('CustomElement - setting hidden to the same value twice is stable', expect => {
 	class HiddenElement extends CustomElement {}
 
-	customElement('pota-test-custom-element-hidden-idempotent', HiddenElement)
+	customElement(
+		'pota-test-custom-element-hidden-idempotent',
+		HiddenElement,
+	)
 
 	const element = document.createElement(
 		'pota-test-custom-element-hidden-idempotent',
@@ -278,7 +279,9 @@ await test('CustomElement - emit with no second argument still dispatches the ev
 	document.body.append(element)
 
 	let fired = false
-	element.addEventListener('ping', () => (fired = true), { once: true })
+	element.addEventListener('ping', () => (fired = true), {
+		once: true,
+	})
 
 	element.emit('ping')
 

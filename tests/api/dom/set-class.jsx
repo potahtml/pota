@@ -182,9 +182,7 @@ await test('setClassList - reactive function tracks previous classes', expect =>
 // --- class as array ----------------------------------------------------------
 
 await test('JSX class prop - array form joins classes', expect => {
-	const dispose = render(
-		<p class={['alpha', 'beta']}>text</p>,
-	)
+	const dispose = render(<p class={['alpha', 'beta']}>text</p>)
 	const el = $('p')
 	expect(el.classList.contains('alpha')).toBe(true)
 	expect(el.classList.contains('beta')).toBe(true)
@@ -205,9 +203,7 @@ await test('JSX class prop - array with null/falsy items skips them', expect => 
 
 await test('JSX class prop - reactive switching from string to array', expect => {
 	const cls = signal(/** @type {string | string[]} */ ('initial'))
-	const dispose = render(
-		<p class={cls.read}>text</p>,
-	)
+	const dispose = render(<p class={cls.read}>text</p>)
 	const el = $('p')
 	expect(el.className).toBe('initial')
 
@@ -223,9 +219,7 @@ await test('JSX class prop - reactive switching from array to string', expect =>
 	const cls = signal(
 		/** @type {string | string[]} */ (['alpha', 'beta']),
 	)
-	const dispose = render(
-		<p class={cls.read}>text</p>,
-	)
+	const dispose = render(<p class={cls.read}>text</p>)
 	const el = $('p')
 	expect(el.classList.contains('alpha')).toBe(true)
 	expect(el.classList.contains('beta')).toBe(true)
@@ -245,9 +239,7 @@ await test('JSX class prop - reactive switching from object to array', expect =>
 			hidden: true,
 		}),
 	)
-	const dispose = render(
-		<p class={cls.read}>text</p>,
-	)
+	const dispose = render(<p class={cls.read}>text</p>)
 	const el = $('p')
 	expect(el.classList.contains('active')).toBe(true)
 	expect(el.classList.contains('hidden')).toBe(true)
@@ -269,9 +261,7 @@ await test('JSX class prop - reactive switching from array to object', expect =>
 			'beta',
 		]),
 	)
-	const dispose = render(
-		<p class={cls.read}>text</p>,
-	)
+	const dispose = render(<p class={cls.read}>text</p>)
 	const el = $('p')
 	expect(el.classList.contains('alpha')).toBe(true)
 	expect(el.classList.contains('beta')).toBe(true)

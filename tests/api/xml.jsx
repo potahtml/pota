@@ -229,7 +229,6 @@ await test('XML - define on one instance does not pollute another', expect => {
 	expect('Widget' in a.components).toBe(true)
 })
 
-
 // --- Built-in Show component -------------------------------------------
 
 await test('xml - built-in Show renders children when condition is truthy', expect => {
@@ -386,9 +385,7 @@ await test('xml - partial interpolation with three or more segments', expect => 
 await test('xml - partial interpolation in data-* attribute concatenates to a single string', expect => {
 	const id = 'card'
 	const n = 7
-	const dispose = render(
-		xml`<p data-key="${id}-${n}">text</p>`,
-	)
+	const dispose = render(xml`<p data-key="${id}-${n}">text</p>`)
 
 	expect($('p').getAttribute('data-key')).toBe('card-7')
 
@@ -416,9 +413,7 @@ await test('xml - reactive partial interpolation in id attribute updates on sign
 await test('xml - partial interpolation in href attribute concatenates to a single string', expect => {
 	const base = 'https://example.com'
 	const path = 'page'
-	const dispose = render(
-		xml`<a href="${base}/${path}">link</a>`,
-	)
+	const dispose = render(xml`<a href="${base}/${path}">link</a>`)
 
 	expect($('a').getAttribute('href')).toBe('https://example.com/page')
 
@@ -752,10 +747,7 @@ await test('xml/jsx parity - multi-line text inside an element collapses identic
 			hello
 			world
 		</p>`,
-		<p>
-			hello
-			world
-		</p>,
+		<p>hello world</p>,
 	)
 })
 
@@ -781,11 +773,7 @@ await test('xml/jsx parity - top-level fragment with surrounding whitespace', ex
 
 await test('xml/jsx parity - text + interpolation on the same line', expect => {
 	const name = 'world'
-	xmlJsxSame(
-		expect,
-		xml`<p>hello ${name}</p>`,
-		<p>hello {name}</p>,
-	)
+	xmlJsxSame(expect, xml`<p>hello ${name}</p>`, <p>hello {name}</p>)
 })
 
 await test('xml/jsx parity - text + interpolation across multiple lines', expect => {
@@ -795,9 +783,7 @@ await test('xml/jsx parity - text + interpolation across multiple lines', expect
 		xml`<p>
 			hello ${name}
 		</p>`,
-		<p>
-			hello {name}
-		</p>,
+		<p>hello {name}</p>,
 	)
 })
 
@@ -904,9 +890,7 @@ await test('xml - static style string sets inline styles', expect => {
 
 await test('xml - style:name sets a single style property reactively', expect => {
 	const color = signal('red')
-	const dispose = render(
-		xml`<p style:color="${color.read}">text</p>`,
-	)
+	const dispose = render(xml`<p style:color="${color.read}">text</p>`)
 
 	expect($('p').style.color).toBe('red')
 
@@ -966,9 +950,7 @@ await test('xml - static comment in a component used twice appears in both place
 
 	myXml.define({ Commented })
 
-	const dispose = render(
-		myXml`<div><Commented/><Commented/></div>`,
-	)
+	const dispose = render(myXml`<div><Commented/><Commented/></div>`)
 
 	const sections = document.body.querySelectorAll('section')
 	expect(sections.length).toBe(2)
@@ -996,9 +978,7 @@ await test('xml - interpolated comment in a component used twice appears in both
 
 	myXml.define({ Commented })
 
-	const dispose = render(
-		myXml`<div><Commented/><Commented/></div>`,
-	)
+	const dispose = render(myXml`<div><Commented/><Commented/></div>`)
 
 	const sections = document.body.querySelectorAll('section')
 	expect(sections.length).toBe(2)
@@ -1027,9 +1007,7 @@ await test('xml - interpolated comment in a component used twice appears in both
 await test('xml - mixes text, signals and elements as siblings', expect => {
 	const n = signal(1)
 	const el = xml`<b>bold</b>`
-	const dispose = render(
-		xml`<p>start ${n.read} mid ${el} end</p>`,
-	)
+	const dispose = render(xml`<p>start ${n.read} mid ${el} end</p>`)
 
 	expect(body()).toBe('<p>start 1 mid <b>bold</b> end</p>')
 
@@ -1240,9 +1218,7 @@ await test('xml - undefined interpolated as child renders as empty', expect => {
 
 await test('xml - boolean signal attribute toggles presence', expect => {
 	const on = signal(true)
-	const dispose = render(
-		xml`<input disabled="${on.read}" />`,
-	)
+	const dispose = render(xml`<input disabled="${on.read}" />`)
 
 	const el = $('input')
 	expect(el.hasAttribute('disabled')).toBe(true)
@@ -1333,9 +1309,7 @@ await test('xml - the same xml call renders independently into two mounts', expe
 
 await test('xml - plain function as a child is treated reactively', expect => {
 	const n = signal(0)
-	const dispose = render(
-		xml`<p>${() => `n=${n.read()}`}</p>`,
-	)
+	const dispose = render(xml`<p>${() => `n=${n.read()}`}</p>`)
 
 	expect(body()).toBe('<p>n=0</p>')
 

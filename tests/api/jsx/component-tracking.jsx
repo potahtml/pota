@@ -175,10 +175,7 @@ await test('tracking - For index wrapped in () => updates on reorder', expect =>
 	const items = signal(['a', 'b', 'c'])
 
 	const dispose = render(
-		<For
-			each={items.read}
-			reactiveIndex
-		>
+		<For each={items.read} reactiveIndex>
 			{(item, index) => (
 				<p>
 					{() => index()}:{item}
@@ -201,10 +198,7 @@ await test('tracking - For index without () => does not update on reorder', expe
 	const items = signal(['a', 'b', 'c'])
 
 	const dispose = render(
-		<For
-			each={items.read}
-			reactiveIndex
-		>
+		<For each={items.read} reactiveIndex>
 			{(item, index) => (
 				<p>
 					{index()}:{item}
@@ -287,10 +281,7 @@ await test('tracking - signal passed directly to Match children is reactive', ex
 
 await test('tracking - Range callback renders item values', expect => {
 	const dispose = render(
-		<Range
-			start={0}
-			stop={2}
-		>
+		<Range start={0} stop={2}>
 			{(item, index) => (
 				<p>
 					{index}:{item}
@@ -308,10 +299,7 @@ await test('tracking - Range with reactive start updates children', expect => {
 	const start = signal(0)
 
 	const dispose = render(
-		<Range
-			start={start.read}
-			stop={2}
-		>
+		<Range start={start.read} stop={2}>
 			{item => <p>{item}</p>}
 		</Range>,
 	)

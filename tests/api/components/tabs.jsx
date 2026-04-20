@@ -29,9 +29,9 @@ await test('Tabs - renders tablist, tab buttons and linked panels', expect => {
 			.querySelector('[role="tab"]')
 			.getAttribute('aria-controls'),
 	).toBe($('section').id)
-	expect(
-		$('section').getAttribute('aria-labelledby'),
-	).toBe($('[role="tab"]').id)
+	expect($('section').getAttribute('aria-labelledby')).toBe(
+		$('[role="tab"]').id,
+	)
 
 	dispose()
 })
@@ -157,10 +157,7 @@ await test('Tabs - Label forwards props and passes click metadata', expect => {
 	const dispose = render(
 		<Tabs>
 			<Tabs.Labels>
-				<Tabs.Label
-					class="first"
-					name="tab-one"
-				>
+				<Tabs.Label class="first" name="tab-one">
 					one
 				</Tabs.Label>
 				<Tabs.Label
@@ -204,10 +201,7 @@ await test('Tabs - collapse panels keep both sections mounted while only one is 
 			</Tabs.Labels>
 			<Tabs.Panels>
 				<Tabs.Panel collapse>panel one</Tabs.Panel>
-				<Tabs.Panel
-					collapse
-					class="second-panel"
-				>
+				<Tabs.Panel collapse class="second-panel">
 					panel two
 				</Tabs.Panel>
 			</Tabs.Panels>
@@ -215,18 +209,14 @@ await test('Tabs - collapse panels keep both sections mounted while only one is 
 	)
 
 	expect($$('section').length).toBe(2)
-	expect($('section').textContent).toBe(
-		'panel one',
-	)
+	expect($('section').textContent).toBe('panel one')
 
 	document
 		.querySelectorAll('[role="tab"]')[1]
 		.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
 	expect($$('section').length).toBe(2)
-	expect($('section.second-panel')).not.toBe(
-		null,
-	)
+	expect($('section.second-panel')).not.toBe(null)
 
 	dispose()
 })

@@ -16,7 +16,14 @@
 import { test as _test } from '#test'
 
 import { syncEffect as effect, memo, untrack } from 'pota'
-import { copy, merge, mutable, replace, reset, signalify } from 'pota/store'
+import {
+	copy,
+	merge,
+	mutable,
+	replace,
+	reset,
+	signalify,
+} from 'pota/store'
 
 const test = _test
 
@@ -63,7 +70,12 @@ await test('tracking: mutable() on Map inside a memo does not leak subscriptions
 	let calls = 0
 	const m = memo(() => {
 		calls++
-		const fresh = mutable(new Map([['a', 1], ['b', 2]]))
+		const fresh = mutable(
+			new Map([
+				['a', 1],
+				['b', 2],
+			]),
+		)
 		return fresh
 	})
 	m()
@@ -323,7 +335,7 @@ await test('tracking: accessing Symbol.toStringTag does not subscribe', expect =
 	let calls = 0
 	const m = memo(() => {
 		calls++
-		return (/** @type {Record<symbol, any>} */ (obj))[
+		return /** @type {Record<symbol, any>} */ (obj)[
 			Symbol.toStringTag
 		]
 	})
@@ -1070,7 +1082,13 @@ await test('writes: map.set new key does not subscribe', expect => {
 })
 
 await test('writes: map.delete does not subscribe', expect => {
-	const target = mutable(new Map([['a', 1], ['b', 2], ['c', 3]]))
+	const target = mutable(
+		new Map([
+			['a', 1],
+			['b', 2],
+			['c', 3],
+		]),
+	)
 	const sentinel = mutable({ x: 1 })
 	const keys = ['a', 'b', 'c']
 	let calls = 0
@@ -1088,7 +1106,12 @@ await test('writes: map.delete does not subscribe', expect => {
 })
 
 await test('writes: map.clear does not subscribe', expect => {
-	const target = mutable(new Map([['a', 1], ['b', 2]]))
+	const target = mutable(
+		new Map([
+			['a', 1],
+			['b', 2],
+		]),
+	)
 	const sentinel = mutable({ x: 1 })
 	let calls = 0
 	const m = memo(() => {

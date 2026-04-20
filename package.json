@@ -67,7 +67,7 @@
 		"test:ts-tests": "tsc -p tests/tsconfig.json",
 		"test:ts-babel-preset": "tsc -p babel-preset/tsconfig.json",
 		"release": "npm run test && node tools/release.js",
-		"format": "prettier . -w --config=./package.json --no-editorconfig --plugin=prettier-plugin-jsdoc"
+		"format": "biome format . --write"
 	},
 	"dependencies": {
 		"colorjs.io": "^0.6.1",
@@ -82,6 +82,7 @@
 	"devDependencies": {
 		"@babel/preset-typescript": "^7.28.5",
 		"@babel/standalone": "^7.29.2",
+		"@biomejs/biome": "2.4.12",
 		"@rollup/plugin-commonjs": "^29.0.2",
 		"@rollup/plugin-node-resolve": "^16.0.3",
 		"@rollup/plugin-terser": "^1.0.0",
@@ -89,7 +90,6 @@
 		"@types/babel__helper-module-imports": "^7.18.3",
 		"@types/babel__helper-plugin-utils": "^7.10.3",
 		"@types/node": "^25.5.0",
-		"prettier-plugin-jsdoc": "^1.8.0",
 		"puppeteer": "^24.40.0",
 		"rollup": "^4.60.0",
 		"typescript": "^6.0.2"
@@ -102,21 +102,6 @@
 		"port": 7357,
 		"timeout": 8000,
 		"concurrency": 16
-	},
-	"prettier": {
-		"printWidth": 70,
-		"useTabs": true,
-		"semi": false,
-		"singleQuote": true,
-		"quoteProps": "as-needed",
-		"jsxSingleQuote": false,
-		"trailingComma": "all",
-		"bracketSpacing": true,
-		"bracketSameLine": false,
-		"arrowParens": "avoid",
-		"proseWrap": "always",
-		"endOfLine": "lf",
-		"singleAttributePerLine": false
 	},
 	"repository": {
 		"type": "git",

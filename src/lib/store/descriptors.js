@@ -14,9 +14,9 @@ import {
 /**
  * It returns all property descriptors for `target`.
  *
- * It checks for getters/setters of the prototype chain. The idea is
- * that if the prototype provides some getters/setters, then, we
- * should be able to track them too.
+ * It checks for getters/setters of the prototype chain. The idea is that if the
+ * prototype provides some getters/setters, then, we should be able to track
+ * them too.
  */
 export function getPropertyDescriptors(target) {
 	// blacklisted by default

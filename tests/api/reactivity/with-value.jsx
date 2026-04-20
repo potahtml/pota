@@ -3,13 +3,7 @@
 // pending callback semantics.
 
 import { test, microtask, sleep } from '#test'
-import {
-	signal,
-	withValue,
-	getValue,
-	catchError,
-	root,
-} from 'pota'
+import { signal, withValue, getValue, catchError, root } from 'pota'
 
 await test('withValue and getValue - unwrap functions and promises', async expect => {
 	const count = signal(1)
@@ -54,10 +48,7 @@ await test('withValue - handles array of functions by unwrapping each', expect =
 	const seen = []
 
 	root(() => {
-		withValue(
-			[() => 'a', () => 'b'],
-			value => seen.push(value),
-		)
+		withValue([() => 'a', () => 'b'], value => seen.push(value))
 	})
 
 	expect(seen).toEqual([['a', 'b']])

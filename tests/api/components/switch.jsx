@@ -627,9 +627,7 @@ await test('Switch - callback receives the actual when value, not just true', ex
 
 	const dispose = render(
 		<Switch>
-			<Match when={user.read}>
-				{v => <p>{() => v().name}</p>}
-			</Match>
+			<Match when={user.read}>{v => <p>{() => v().name}</p>}</Match>
 		</Switch>,
 	)
 
@@ -644,9 +642,7 @@ await test('Switch - callback receives the actual when value, not just true', ex
 await test('Switch - callback receives numeric when value', expect => {
 	const dispose = render(
 		<Switch>
-			<Match when={42}>
-				{v => <p>{v()}</p>}
-			</Match>
+			<Match when={42}>{v => <p>{v()}</p>}</Match>
 		</Switch>,
 	)
 

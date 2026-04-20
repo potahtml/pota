@@ -114,9 +114,9 @@ await test('url - cleanLink leaves clean urls unchanged', expect => {
 // --- replaceParams with all params supplied -------------------------
 
 await test('url - replaceParams substitutes all params when every slot has a value', expect => {
-	expect(
-		replaceParams('/a/:x/b/:y', { x: '1', y: '2' }),
-	).toBe('/a/1/b/2')
+	expect(replaceParams('/a/:x/b/:y', { x: '1', y: '2' })).toBe(
+		'/a/1/b/2',
+	)
 })
 
 // --- replaceParams with null params returns unchanged ---------------

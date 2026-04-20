@@ -26,9 +26,7 @@ await test('setProperty - null and undefined set property to null', expect => {
 // --- prop: namespace ---------------------------------------------------------
 
 await test('JSX prop:name - sets DOM property instead of attribute', expect => {
-	const dispose = render(
-		<input prop:value="hello" />,
-	)
+	const dispose = render(<input prop:value="hello" />)
 	const el = $('input')
 	expect(el.value).toBe('hello')
 	expect(el.getAttribute('value')).toBe(null)
@@ -36,9 +34,7 @@ await test('JSX prop:name - sets DOM property instead of attribute', expect => {
 })
 
 await test('JSX prop:innerHTML - sets HTML content via property', expect => {
-	const dispose = render(
-		<div prop:innerHTML="<b>bold</b>" />,
-	)
+	const dispose = render(<div prop:innerHTML="<b>bold</b>" />)
 	expect(body()).toBe('<div><b>bold</b></div>')
 	dispose()
 })

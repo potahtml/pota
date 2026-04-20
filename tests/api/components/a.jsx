@@ -90,10 +90,13 @@ await test('A - does not navigate when metaKey is held', async expect => {
 	goto('/start')
 	await microtask()
 
-	const potaPrevented = dispatchAndCheck(document.querySelector('a'), {
-		bubbles: true,
-		metaKey: true,
-	})
+	const potaPrevented = dispatchAndCheck(
+		document.querySelector('a'),
+		{
+			bubbles: true,
+			metaKey: true,
+		},
+	)
 	expect(potaPrevented).toBe(false)
 
 	dispose()
@@ -112,10 +115,13 @@ await test('A - does not navigate when ctrlKey is held', async expect => {
 	goto('/start')
 	await microtask()
 
-	const potaPrevented = dispatchAndCheck(document.querySelector('a'), {
-		bubbles: true,
-		ctrlKey: true,
-	})
+	const potaPrevented = dispatchAndCheck(
+		document.querySelector('a'),
+		{
+			bubbles: true,
+			ctrlKey: true,
+		},
+	)
 	expect(potaPrevented).toBe(false)
 
 	dispose()
@@ -125,10 +131,7 @@ await test('A - does not pass params prop to rendered anchor', async expect => {
 	await reset()
 	const dispose = render(
 		<Route path="/page">
-			<A
-				href="/target"
-				params={{ id: '1' }}
-			>
+			<A href="/target" params={{ id: '1' }}>
 				link
 			</A>
 		</Route>,
@@ -143,10 +146,7 @@ await test('A - forwards extra props to anchor', async expect => {
 	await reset()
 	const dispose = render(
 		<Route path="/page">
-			<A
-				href="/target"
-				class="my-link"
-			>
+			<A href="/target" class="my-link">
 				link
 			</A>
 		</Route>,
@@ -161,10 +161,7 @@ await test('A - renders anchor with interpolated params', async expect => {
 	await reset()
 	const dispose = render(
 		<Route path="/users">
-			<A
-				href="/users/:id"
-				params={{ id: '5' }}
-			>
+			<A href="/users/:id" params={{ id: '5' }}>
 				link
 			</A>
 		</Route>,

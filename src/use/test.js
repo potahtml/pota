@@ -86,9 +86,7 @@ function expect(title, num, promises, value) {
 			untrack(() =>
 				pass(
 					true,
-					(/** @type {string | any[]} */ (value))?.includes(
-						expected,
-					),
+					/** @type {string | any[]} */ (value)?.includes(expected),
 					true,
 					title + ' (' + num.value++ + ')',
 					promises,
@@ -98,7 +96,8 @@ function expect(title, num, promises, value) {
 			untrack(() => {
 				let threw = true
 				try {
-					;(/** @type {Function} */ (value))()
+					const fn = /** @type {Function} */ (value)
+					fn()
 					threw = false
 				} catch {}
 				return pass(
@@ -112,7 +111,7 @@ function expect(title, num, promises, value) {
 		toMatch: expected =>
 			pass(
 				true,
-				(/** @type {RegExp} */ (expected)).test(
+				/** @type {RegExp} */ (expected).test(
 					/** @type {string} */ (value),
 				),
 				true,
@@ -142,9 +141,7 @@ function expect(title, num, promises, value) {
 				untrack(() =>
 					pass(
 						true,
-						(/** @type {string | any[]} */ (value))?.includes(
-							expected,
-						),
+						/** @type {string | any[]} */ (value)?.includes(expected),
 						false,
 						title + ' (' + num.value++ + ')',
 						promises,
@@ -154,7 +151,8 @@ function expect(title, num, promises, value) {
 				untrack(() => {
 					let threw = true
 					try {
-						;(/** @type {Function} */ (value))()
+						const fn = /** @type {Function} */ (value)
+						fn()
 						threw = false
 					} catch {}
 					return pass(
@@ -168,7 +166,7 @@ function expect(title, num, promises, value) {
 			toMatch: expected =>
 				pass(
 					true,
-					(/** @type {RegExp} */ (expected)).test(
+					/** @type {RegExp} */ (expected).test(
 						/** @type {string} */ (value),
 					),
 					false,

@@ -76,9 +76,7 @@ async function run() {
 		)
 
 		const data = await results.jsonValue()
-		console.log(
-			await page.$eval('#output', el => el.textContent),
-		)
+		console.log(await page.$eval('#output', el => el.textContent))
 
 		if (data.failed > 0) {
 			process.exitCode = 1

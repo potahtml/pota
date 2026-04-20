@@ -22,7 +22,12 @@ const test = _test
 /* ------------------------------------------------------------------ */
 
 await test('map precision: map.get(k1) does not re-fire on map.set(k2, ...)', expect => {
-	const m = mutable(new Map([['a', 1], ['b', 2]]))
+	const m = mutable(
+		new Map([
+			['a', 1],
+			['b', 2],
+		]),
+	)
 	let calls = 0
 	const mg = memo(() => {
 		calls++
@@ -75,7 +80,12 @@ await test('map precision: map.get(k) same-value write is a no-op', expect => {
 })
 
 await test('map precision: map.delete(k2) does not wake map.get(k1) memo', expect => {
-	const m = mutable(new Map([['a', 1], ['b', 2]]))
+	const m = mutable(
+		new Map([
+			['a', 1],
+			['b', 2],
+		]),
+	)
 	let calls = 0
 	const mg = memo(() => {
 		calls++
@@ -145,7 +155,13 @@ await test('map precision: object keys tracked by identity', expect => {
 })
 
 await test('map precision: clear wakes every per-key get and has memo currently in the map', expect => {
-	const m = mutable(new Map([['a', 1], ['b', 2], ['c', 3]]))
+	const m = mutable(
+		new Map([
+			['a', 1],
+			['b', 2],
+			['c', 3],
+		]),
+	)
 
 	let aGetCalls = 0
 	let aHasCalls = 0

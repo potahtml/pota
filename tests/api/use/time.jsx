@@ -113,10 +113,7 @@ await test('time - useTimeout stop prevents pending callback', async expect => {
 	const calls = []
 
 	await root(async () => {
-		const timer = useTimeout(
-			() => calls.push('fired'),
-			10,
-		)
+		const timer = useTimeout(() => calls.push('fired'), 10)
 
 		timer.start()
 		timer.stop()
@@ -195,4 +192,3 @@ await test('time - measure works when no timeReport callback is provided', expec
 
 	expect(result).toBe('computed')
 })
-

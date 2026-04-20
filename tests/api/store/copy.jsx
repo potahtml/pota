@@ -55,9 +55,7 @@ await test('copy - keeps blacklisted native instances by reference inside copied
 
 await test('copy - deep copies Maps', expect => {
 	const source = {
-		lookup: new Map([
-			['a', { value: 1 }],
-		]),
+		lookup: new Map([['a', { value: 1 }]]),
 	}
 
 	const cloned = copy(source)

@@ -20,10 +20,7 @@ await test('Show - renders children when `when` is true', expect => {
 
 await test('Show - renders fallback when `when` is false', expect => {
 	const dispose = render(
-		<Show
-			when={false}
-			fallback={<p>fallback</p>}
-		/>,
+		<Show when={false} fallback={<p>fallback</p>} />,
 	)
 	expect(body()).toBe('<p>fallback</p>')
 
@@ -111,10 +108,7 @@ await test('Show - signal: starts truthy', expect => {
 await test('Show - signal: starts falsy', expect => {
 	const [visible] = signal(false)
 	const dispose = render(
-		<Show
-			when={visible}
-			fallback={<p>fallback</p>}
-		>
+		<Show when={visible} fallback={<p>fallback</p>}>
 			<p>hello</p>
 		</Show>,
 	)
@@ -126,10 +120,7 @@ await test('Show - signal: starts falsy', expect => {
 await test('Show - signal: toggles from true to false', expect => {
 	const [visible, setVisible] = signal(true)
 	const dispose = render(
-		<Show
-			when={visible}
-			fallback={<p>fallback</p>}
-		>
+		<Show when={visible} fallback={<p>fallback</p>}>
 			<p>hello</p>
 		</Show>,
 	)
@@ -143,10 +134,7 @@ await test('Show - signal: toggles from true to false', expect => {
 await test('Show - signal: toggles from false to true', expect => {
 	const [visible, setVisible] = signal(false)
 	const dispose = render(
-		<Show
-			when={visible}
-			fallback={<p>fallback</p>}
-		>
+		<Show when={visible} fallback={<p>fallback</p>}>
 			<p>hello</p>
 		</Show>,
 	)
@@ -160,10 +148,7 @@ await test('Show - signal: toggles from false to true', expect => {
 await test('Show - signal: toggles multiple times', expect => {
 	const [visible, setVisible] = signal(true)
 	const dispose = render(
-		<Show
-			when={visible}
-			fallback={<p>fallback</p>}
-		>
+		<Show when={visible} fallback={<p>fallback</p>}>
 			<p>hello</p>
 		</Show>,
 	)
@@ -182,10 +167,7 @@ await test('Show - signal: reactive value updates inside callback when signal ch
 	// Note: use {v} not {v()} inside JSX - passing the function lets pota track it reactively
 	const [val, setVal] = signal(/** @type {string | boolean} */ ('a'))
 	const dispose = render(
-		<Show
-			when={val}
-			fallback={<p>gone</p>}
-		>
+		<Show when={val} fallback={<p>gone</p>}>
 			{v => <p>{v}</p>}
 		</Show>,
 	)
@@ -236,10 +218,7 @@ await test('Show - array of mixed elements and callbacks', expect => {
 await test('Show - array of callbacks reacts to signal toggle', expect => {
 	const [val, setVal] = signal(/** @type {string | boolean} */ ('a'))
 	const dispose = render(
-		<Show
-			when={val}
-			fallback={<p>gone</p>}
-		>
+		<Show when={val} fallback={<p>gone</p>}>
 			{v => <p>{v()}-1</p>}
 			{v => <p>{v()}-2</p>}
 		</Show>,
@@ -281,10 +260,7 @@ await test('Show - nested: both true renders inner children', expect => {
 
 await test('Show - nested: outer false hides everything', expect => {
 	const dispose = render(
-		<Show
-			when={false}
-			fallback={<p>outer fallback</p>}
-		>
+		<Show when={false} fallback={<p>outer fallback</p>}>
 			<Show when={true}>
 				<p>inner</p>
 			</Show>
@@ -298,10 +274,7 @@ await test('Show - nested: outer false hides everything', expect => {
 await test('Show - nested: outer true, inner false shows inner fallback', expect => {
 	const dispose = render(
 		<Show when={true}>
-			<Show
-				when={false}
-				fallback={<p>inner fallback</p>}
-			>
+			<Show when={false} fallback={<p>inner fallback</p>}>
 				<p>inner</p>
 			</Show>
 		</Show>,
@@ -315,14 +288,8 @@ await test('Show - nested: toggling outer signal also hides inner', expect => {
 	const [outer, setOuter] = signal(true)
 	const [inner, setInner] = signal(true)
 	const dispose = render(
-		<Show
-			when={outer}
-			fallback={<p>outer fallback</p>}
-		>
-			<Show
-				when={inner}
-				fallback={<p>inner fallback</p>}
-			>
+		<Show when={outer} fallback={<p>outer fallback</p>}>
+			<Show when={inner} fallback={<p>inner fallback</p>}>
 				<p>content</p>
 			</Show>
 		</Show>,
@@ -345,16 +312,10 @@ await test('Show - nested: independent signals toggle independently', expect => 
 	const [b, setB] = signal(true)
 	const dispose = render(
 		<Show when={true}>
-			<Show
-				when={a}
-				fallback={<p>no-a</p>}
-			>
+			<Show when={a} fallback={<p>no-a</p>}>
 				<p>a</p>
 			</Show>
-			<Show
-				when={b}
-				fallback={<p>no-b</p>}
-			>
+			<Show when={b} fallback={<p>no-b</p>}>
 				<p>b</p>
 			</Show>
 		</Show>,
@@ -467,9 +428,7 @@ await test('Show - async children: resolves and renders content', async expect =
 
 await test('Show - truthy non-boolean when value is passed to callback', expect => {
 	const dispose = render(
-		<Show when={'hello'}>
-			{v => <p>{v()}</p>}
-		</Show>,
+		<Show when={'hello'}>{v => <p>{v()}</p>}</Show>,
 	)
 
 	expect(body()).toBe('<p>hello</p>')
@@ -480,9 +439,7 @@ await test('Show - truthy non-boolean when value is passed to callback', expect 
 await test('Show - numeric truthy when value is accessible in callback', expect => {
 	const count = signal(42)
 	const dispose = render(
-		<Show when={count.read}>
-			{v => <p>{v()}</p>}
-		</Show>,
+		<Show when={count.read}>{v => <p>{v()}</p>}</Show>,
 	)
 
 	expect(body()).toBe('<p>42</p>')
@@ -517,10 +474,7 @@ await test('Show - fallback as a function that returns reactive content', expect
 	const label = signal('loading...')
 
 	const dispose = render(
-		<Show
-			when={flag.read}
-			fallback={() => <p>{label.read}</p>}
-		>
+		<Show when={flag.read} fallback={() => <p>{label.read}</p>}>
 			<p>ready</p>
 		</Show>,
 	)
@@ -539,9 +493,7 @@ await test('Show - fallback as a function that returns reactive content', expect
 // --- Show with children returning null callback -------------------
 
 await test('Show - children as callback returning null renders empty', expect => {
-	const dispose = render(
-		<Show when={true}>{() => null}</Show>,
-	)
+	const dispose = render(<Show when={true}>{() => null}</Show>)
 
 	expect(body()).toBe('')
 
@@ -553,10 +505,7 @@ await test('Show - children as callback returning null renders empty', expect =>
 await test('Show - signal starting at 0 is initially hidden', expect => {
 	const n = signal(0)
 	const dispose = render(
-		<Show
-			when={n.read}
-			fallback={<span>zero</span>}
-		>
+		<Show when={n.read} fallback={<span>zero</span>}>
 			<p>non-zero</p>
 		</Show>,
 	)
@@ -575,10 +524,7 @@ await test('Show - dispose removes both shown content and fallback', expect => {
 	const flag = signal(true)
 
 	const dispose = render(
-		<Show
-			when={flag.read}
-			fallback={<span>fallback</span>}
-		>
+		<Show when={flag.read} fallback={<span>fallback</span>}>
 			<p>content</p>
 		</Show>,
 	)

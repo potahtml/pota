@@ -43,14 +43,8 @@ await test('use:ref - reassigning the same signal ref during the same render', e
 
 	const dispose = render(
 		<>
-			<p
-				id="a"
-				use:ref={firstRef}
-			/>
-			<p
-				id="b"
-				use:ref={secondRef}
-			/>
+			<p id="a" use:ref={firstRef} />
+			<p id="b" use:ref={secondRef} />
 		</>,
 	)
 
@@ -100,7 +94,9 @@ await test('use:ref - callback receives the real DOM element on the same tick as
 	/** @type {any} */
 	let captured = null
 
-	const dispose = render(<p use:ref={node => (captured = node)}>hi</p>)
+	const dispose = render(
+		<p use:ref={node => (captured = node)}>hi</p>,
+	)
 
 	// the element exists and is the one in the document
 	expect(captured).toBe($('p'))

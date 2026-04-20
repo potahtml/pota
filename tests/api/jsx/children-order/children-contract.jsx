@@ -320,9 +320,7 @@ await test('children-contract - JSX array expression child is an array of marked
 	function B() {
 		return null
 	}
-	const dispose = render(
-		<Capture>{[<A />, <B />]}</Capture>,
-	)
+	const dispose = render(<Capture>{[<A />, <B />]}</Capture>)
 	// `{[<A/>, <B/>]}` — each `<X/>` inside the literal still
 	// compiles to a marked thunk; the array literal itself is the
 	// children value.
@@ -655,10 +653,7 @@ await test('children-contract - For callback receives (item, index)', expect => 
 await test('children-contract - For reactiveIndex callback receives (item, () => index)', expect => {
 	const calls = []
 	const dispose = render(
-		<For
-			each={['a', 'b']}
-			reactiveIndex
-		>
+		<For each={['a', 'b']} reactiveIndex>
 			{(item, i) => {
 				// with reactiveIndex, second arg is an accessor
 				calls.push([item, typeof i, i()])
@@ -676,10 +671,7 @@ await test('children-contract - For reactiveIndex callback receives (item, () =>
 await test('children-contract - Range callback receives (n, index)', expect => {
 	const calls = []
 	const dispose = render(
-		<Range
-			start={10}
-			stop={12}
-		>
+		<Range start={10} stop={12}>
 			{(n, i) => {
 				calls.push([n, i])
 				return <span>{n}</span>
@@ -767,7 +759,8 @@ await test('children-contract - Switch with no-when Match acts as fallback', exp
 await test('children-contract - Normalize concatenates scalar children to a single text node', expect => {
 	const dispose = render(
 		<Normalize>
-			a{'b'}{42}
+			a{'b'}
+			{42}
 		</Normalize>,
 	)
 	// Normalize calls `unwrap([props.children]).map(x => x?.toString()).join('')`
@@ -841,11 +834,15 @@ await test('children-contract - Head moves children to document.head', expect =>
 		</Head>,
 	)
 	expect(
-		document.head.querySelector('meta[name="children-contract-head"]'),
+		document.head.querySelector(
+			'meta[name="children-contract-head"]',
+		),
 	).not.toBe(null)
 	dispose()
 	expect(
-		document.head.querySelector('meta[name="children-contract-head"]'),
+		document.head.querySelector(
+			'meta[name="children-contract-head"]',
+		),
 	).toBe(null)
 })
 
@@ -1106,9 +1103,7 @@ await test('children-contract - conditional expression inside children: `cond &&
 	function X() {
 		return <p>x</p>
 	}
-	const dispose = render(
-		<div>{true && <X />}</div>,
-	)
+	const dispose = render(<div>{true && <X />}</div>)
 	expect(body()).toBe('<div><p>x</p></div>')
 	dispose()
 })
@@ -1119,9 +1114,7 @@ await test('children-contract - conditional expression inside children: `false &
 		ran++
 		return <p>x</p>
 	}
-	const dispose = render(
-		<div>{false && <X />}</div>,
-	)
+	const dispose = render(<div>{false && <X />}</div>)
 	expect(body()).toBe('<div></div>')
 	expect(ran).toBe(0)
 	dispose()
@@ -1143,9 +1136,7 @@ await test('children-contract - xml intermediate wrapper forwards children', exp
 		return x`<section>${props.children}</section>`
 	}
 	x.define({ Wrapper })
-	const dispose = render(
-		x`<Wrapper><p>a</p><p>b</p></Wrapper>`,
-	)
+	const dispose = render(x`<Wrapper><p>a</p><p>b</p></Wrapper>`)
 	expect(body()).toBe('<section><p>a</p><p>b</p></section>')
 	dispose()
 })
@@ -1355,7 +1346,7 @@ await test('children-contract - single component child WITH props: wrap runs Lea
 	dispose()
 })
 
-await test('children-contract - <Show when={x}><Child/></Show>: Child runs with its JSX-site props, NOT Show\'s accessor', expect => {
+await test("children-contract - <Show when={x}><Child/></Show>: Child runs with its JSX-site props, NOT Show's accessor", expect => {
 	/** @type {any} */
 	let received = 'unset'
 	function Child(props) {
@@ -1409,10 +1400,7 @@ await test('children-contract - <Range start stop><Tick/></Range>: Tick runs wit
 		return null
 	}
 	const dispose = render(
-		<Range
-			start={10}
-			stop={12}
-		>
+		<Range start={10} stop={12}>
 			{
 				/**
 				 * @type {(
@@ -1643,10 +1631,7 @@ await test('children-contract - Range + callback receives (n, index); the compon
 	}
 
 	const disposeCb = render(
-		<Range
-			start={0}
-			stop={2}
-		>
+		<Range start={0} stop={2}>
 			{(n, index) => {
 				callbackSeen.push([n, index])
 				return null
@@ -1656,10 +1641,7 @@ await test('children-contract - Range + callback receives (n, index); the compon
 	disposeCb()
 
 	const disposeComp = render(
-		<Range
-			start={0}
-			stop={2}
-		>
+		<Range start={0} stop={2}>
 			{
 				/**
 				 * @type {(
@@ -1686,9 +1668,7 @@ await test('children-contract - zero-arg arrow child is reactive in a basic Pare
 	function Parent(props) {
 		return <div>{props.children}</div>
 	}
-	const dispose = render(
-		<Parent>{() => count.read()}</Parent>,
-	)
+	const dispose = render(<Parent>{() => count.read()}</Parent>)
 	// A plain unmarked function child takes the renderer's
 	// `effect(...)` branch in `createChildren`, so signal reads
 	// inside track and re-render the node on change.
@@ -1810,9 +1790,7 @@ await test('children-contract - xml <For each="${arr}"><Item/></For>: Item runs 
 	// indexed keys (`{0: 'a'}`) — a quirk that diverges from the
 	// JSX path. Numbers spread to `{}`, so the observable matches
 	// JSX: Item runs with empty props.
-	const dispose = render(
-		x`<For each="${[10, 20, 30]}"><Item/></For>`,
-	)
+	const dispose = render(x`<For each="${[10, 20, 30]}"><Item/></For>`)
 	expect(calls).toEqual([[], [], []])
 	dispose()
 })
@@ -1916,9 +1894,7 @@ await test('children-contract - xml For: callback form forwards (item, index); c
 	// empty props (see the xml For test above for the rationale).
 	const x1 = XML()
 	x1.define({ Item })
-	const d1 = render(
-		x1`<For each="${[10, 20, 30]}"><Item/></For>`,
-	)
+	const d1 = render(x1`<For each="${[10, 20, 30]}"><Item/></For>`)
 	d1()
 
 	const x2 = XML()

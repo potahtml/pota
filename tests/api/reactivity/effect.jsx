@@ -2,7 +2,14 @@
 // dependencies, root disposal, multi-signal reads, cleanup ordering.
 
 import { test, microtask, macrotask } from '#test'
-import { signal, effect, cleanup, asyncEffect, root, memo } from 'pota'
+import {
+	signal,
+	effect,
+	cleanup,
+	asyncEffect,
+	root,
+	memo,
+} from 'pota'
 
 await test('effect and cleanup - reruns tracked work and cleans previous run', expect => {
 	const count = signal(1)

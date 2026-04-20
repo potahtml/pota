@@ -9,11 +9,7 @@ import { Dynamic } from 'pota/components'
 
 await test('Dynamic - renders string tags and forwards props without leaking component', expect => {
 	const dispose = render(
-		<Dynamic
-			component="button"
-			id="action"
-			class="cta"
-		>
+		<Dynamic component="button" id="action" class="cta">
 			click
 		</Dynamic>,
 	)
@@ -184,10 +180,7 @@ await test('Dynamic - function component returning undefined renders nothing', e
 
 await test('Dynamic - function component returning a string renders as text', expect => {
 	const dispose = render(
-		<Dynamic
-			component={props => props.message}
-			message="hello"
-		/>,
+		<Dynamic component={props => props.message} message="hello" />,
 	)
 
 	expect(body()).toBe('hello')
@@ -199,10 +192,7 @@ await test('Dynamic - function component returning a string renders as text', ex
 
 await test('Dynamic - function component returning a number renders the number as text', expect => {
 	const dispose = render(
-		<Dynamic
-			component={props => props.count}
-			count={42}
-		/>,
+		<Dynamic component={props => props.count} count={42} />,
 	)
 
 	expect(body()).toBe('42')
@@ -234,10 +224,7 @@ await test('Dynamic - on: event handlers attach to the element', expect => {
 	let clicked = 0
 
 	const dispose = render(
-		<Dynamic
-			component="button"
-			on:click={() => clicked++}
-		>
+		<Dynamic component="button" on:click={() => clicked++}>
 			click
 		</Dynamic>,
 	)
@@ -250,4 +237,3 @@ await test('Dynamic - on: event handlers attach to the element', expect => {
 
 	dispose()
 })
-

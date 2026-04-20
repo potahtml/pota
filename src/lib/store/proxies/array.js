@@ -141,9 +141,7 @@ export class ProxyHandlerArray extends ProxyHandlerBase {
 				if ('value' in newDesc) {
 					const newValue = mutable(newDesc.value)
 					const oldValue =
-						oldDesc && 'value' in oldDesc
-							? oldDesc.value
-							: undefined
+						oldDesc && 'value' in oldDesc ? oldDesc.value : undefined
 					this.track.isUndefinedWrite(key, newValue)
 					if (!is(oldValue, newValue)) {
 						this.track.valueWrite(key, newValue)

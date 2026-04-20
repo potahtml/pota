@@ -389,5 +389,7 @@ await test('std - nothing is a non-null object', expect => {
 await test('std - entriesIncludingSymbols yields entries for symbol-only objects', expect => {
 	const key = Symbol('x')
 	const obj = { [key]: 42 }
-	expect(Array.from(entriesIncludingSymbols(obj))).toEqual([[key, 42]])
+	expect(Array.from(entriesIncludingSymbols(obj))).toEqual([
+		[key, 42],
+	])
 })

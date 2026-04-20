@@ -182,9 +182,7 @@ await test('console - assertion failure toEqual object mismatch', async expect =
 })
 
 await test('console - assertion failure toEqual array mismatch', async expect => {
-	const r = await expectFailure(e =>
-		e([1, 2, 3]).toEqual([1, 2, 4]),
-	)
+	const r = await expectFailure(e => e([1, 2, 3]).toEqual([1, 2, 4]))
 	expect(typeof r.expected).toBe('string')
 	expect(typeof r.value).toBe('string')
 })
@@ -198,9 +196,7 @@ await test('console - assertion failure toInclude missing substring', async expe
 })
 
 await test('console - assertion failure toMatch regex mismatch', async expect => {
-	const r = await expectFailure(e =>
-		e('abc').toMatch(/\d+/),
-	)
+	const r = await expectFailure(e => e('abc').toMatch(/\d+/))
 	expect(r.expected).toBe(true)
 	expect(r.value).toBe(false)
 })

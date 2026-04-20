@@ -16,7 +16,9 @@ type VoidComponent<P = {}> = Component<P>
 /** A function or class component that accepts props `P` */
 type ComponentType<P = {}> =
 	| Component<P>
-	| (new (props: P) => JSX.ElementClass)
+	| (new (
+			props: P,
+	  ) => JSX.ElementClass)
 
 /**
  * A flow-control component (like Show, For). `C` is the children type

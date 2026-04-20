@@ -403,4 +403,3 @@ await test('Suspense - sync children skip the fallback; promise children show it
 
 	disposeAsync()
 })
-

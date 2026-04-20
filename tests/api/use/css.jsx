@@ -195,7 +195,7 @@ await test('css - getAdoptedStyleSheets returns an array-like', expect => {
 	const root = host.attachShadow({ mode: 'open' })
 
 	const result = /** @type {any} */ (getAdoptedStyleSheets(root))
-	expect(Array.isArray(result) || typeof result.length === 'number').toBe(
-		true,
-	)
+	expect(
+		Array.isArray(result) || typeof result.length === 'number',
+	).toBe(true)
 })

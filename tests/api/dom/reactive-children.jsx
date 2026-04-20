@@ -88,12 +88,7 @@ await test('rendering - keyed list reordering preserves DOM node identity and un
 	const items = signal([first, second])
 	const dispose = render(
 		<For each={items.read}>
-			{item => (
-				<input
-					data-id={item.id}
-					value={item.label}
-				/>
-			)}
+			{item => <input data-id={item.id} value={item.label} />}
 		</For>,
 	)
 
@@ -112,10 +107,10 @@ await test('rendering - keyed list reordering preserves DOM node identity and un
 	expect($$('input')[0]).toBe(secondNode)
 	expect($$('input')[1]).toBe(firstNode)
 	expect(
-		(/** @type {HTMLInputElement} */ ($('[data-id="a"]'))).value,
+		/** @type {HTMLInputElement} */ ($('[data-id="a"]')).value,
 	).toBe('typed A')
 	expect(
-		(/** @type {HTMLInputElement} */ ($('[data-id="b"]'))).value,
+		/** @type {HTMLInputElement} */ ($('[data-id="b"]')).value,
 	).toBe('typed B')
 
 	dispose()
@@ -150,9 +145,7 @@ await test('rendering - Portal content is mounted outside the local tree and sti
 
 await test('rendering - reactive text updates reuse the same text node', expect => {
 	const text = signal('hello')
-	const dispose = render(
-		<div>{text.read}</div>,
-	)
+	const dispose = render(<div>{text.read}</div>)
 
 	const textNode = $('div').firstChild
 	expect(textNode.nodeType).toBe(3) // TEXT_NODE
@@ -171,9 +164,7 @@ await test('rendering - reactive text updates reuse the same text node', expect 
 await test('rendering - reactive child switching between element and null cleans up', expect => {
 	const show = signal(true)
 	const dispose = render(
-		<div>
-			{() => (show.read() ? <p>yes</p> : null)}
-		</div>,
+		<div>{() => (show.read() ? <p>yes</p> : null)}</div>,
 	)
 
 	expect($('p')).not.toBe(null)
@@ -292,8 +283,7 @@ await test('rendering - child switching from single element to array to null', e
 			{() => {
 				const m = mode.read()
 				if (m === 'single') return <p>one</p>
-				if (m === 'array')
-					return [<p>a</p>, <p>b</p>]
+				if (m === 'array') return [<p>a</p>, <p>b</p>]
 				if (m === 'text') return 'hello'
 				return null
 			}}
@@ -426,9 +416,7 @@ await test('rendering - reactive child returning an array of elements updates co
 	const items = signal(['a', 'b'])
 
 	const dispose = render(
-		<div>
-			{() => items.read().map(item => <span>{item}</span>)}
-		</div>,
+		<div>{() => items.read().map(item => <span>{item}</span>)}</div>,
 	)
 
 	expect($('div').innerHTML).toBe('<span>a</span><span>b</span>')

@@ -222,5 +222,5 @@ await test('replace - replaces array with object when type morphs', expect => {
 	replace(target, { data: { key: 'val' } })
 
 	expect(Array.isArray(target.data)).toBe(false)
-	expect((/** @type {any} */ (target.data)).key).toBe('val')
+	expect(/** @type {any} */ (target.data).key).toBe('val')
 })

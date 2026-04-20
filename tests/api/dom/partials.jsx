@@ -16,9 +16,7 @@ await test('createPartial - createPartial creates SVG elements with correct name
 		x: svgNs,
 	})
 
-	const dispose = render(
-		<svg>{partial()}</svg>,
-	)
+	const dispose = render(<svg>{partial()}</svg>)
 
 	const circle = $('circle')
 	expect(circle).not.toBe(null)
@@ -33,9 +31,7 @@ await test('createPartial - createPartial creates MathML elements with correct n
 		x: mathNs,
 	})
 
-	const dispose = render(
-		<math>{partial()}</math>,
-	)
+	const dispose = render(<math>{partial()}</math>)
 
 	const mi = $('mi')
 	expect(mi).not.toBe(null)

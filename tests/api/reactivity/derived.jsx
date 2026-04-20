@@ -121,9 +121,7 @@ await test('derived - array with function items resolves them', expect => {
 
 await test('derived - deeply nested array preserves shape', async expect => {
 	const d = derived(() => [
-		Promise.resolve([
-			Promise.resolve('deep'),
-		]),
+		Promise.resolve([Promise.resolve('deep')]),
 	])
 	const resolved = await d
 	expect(resolved()).toEqual([['deep']])

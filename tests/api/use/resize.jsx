@@ -68,16 +68,18 @@ await test('resize - emitter publishes updated document sizes on resize', async 
 				'clientWidth',
 				width,
 			)
-		: delete (/** @type {any} */ (document.documentElement))
-				.clientWidth
+		: delete (
+				/** @type {any} */ (document.documentElement).clientWidth
+			)
 	height
 		? Object.defineProperty(
 				document.documentElement,
 				'clientHeight',
 				height,
 			)
-		: delete (/** @type {any} */ (document.documentElement))
-				.clientHeight
+		: delete (
+				/** @type {any} */ (document.documentElement).clientHeight
+			)
 })
 
 await test('resize - useDocumentSize returns a signal function', expect => {

@@ -128,11 +128,7 @@ await test('selector - useSelector with Map values', expect => {
 
 	expect(seen).toEqual([[true, true, false]])
 
-	current.write(
-		new Map([
-			['x', 'c'],
-		]),
-	)
+	current.write(new Map([['x', 'c']]))
 
 	expect(seen).toEqual([
 		[true, true, false],

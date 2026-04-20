@@ -73,10 +73,12 @@ await test('owned - does not run callback after owner is disposed', expect => {
 await test('owned - returned function can be called multiple times while owner is alive', expect => {
 	const seen = []
 
-	const fn = root(() => owned(v => {
-		seen.push(v)
-		return v
-	}))
+	const fn = root(() =>
+		owned(v => {
+			seen.push(v)
+			return v
+		}),
+	)
 
 	fn('a')
 	fn('b')

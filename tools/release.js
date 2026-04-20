@@ -7,7 +7,7 @@ $('npm version patch --git-tag-version false')
 const { version } = JSON.parse(read('./package.json'))
 
 // write version number to ./src/version.js
-write('./src/version.js', `export const version = '${version}'`)
+write('./src/version.js', `export const version = '${version}'\n`)
 
 // git add, commit with version number — explicit paths only so
 // stray dirty files never end up in the release commit

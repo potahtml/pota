@@ -153,9 +153,17 @@ await test('transform - boolean children are filtered out', expect => {
 })
 
 await test('transform - array children are flattened and rendered in order', expect => {
-	const dispose = render(<p>{[1, 2, 3].map(x => <span>{x}</span>)}</p>)
+	const dispose = render(
+		<p>
+			{[1, 2, 3].map(x => (
+				<span>{x}</span>
+			))}
+		</p>,
+	)
 
-	expect(body()).toBe('<p><span>1</span><span>2</span><span>3</span></p>')
+	expect(body()).toBe(
+		'<p><span>1</span><span>2</span><span>3</span></p>',
+	)
 
 	dispose()
 })
@@ -283,11 +291,7 @@ await test('transform - self-closing void element renders without children', exp
 await test('transform - svg element is created in the correct namespace', expect => {
 	const dispose = render(
 		<svg>
-			<circle
-				cx="10"
-				cy="10"
-				r="5"
-			/>
+			<circle cx="10" cy="10" r="5" />
 		</svg>,
 	)
 
@@ -396,7 +400,9 @@ await test('transform - components receive camelCase event handlers as props', e
 		return <button on:click={props.onClick}>{props.children}</button>
 	}
 
-	const dispose = render(<Button onClick={() => clicked++}>go</Button>)
+	const dispose = render(
+		<Button onClick={() => clicked++}>go</Button>,
+	)
 
 	$('button').click()
 	expect(clicked).toBe(1)
@@ -427,11 +433,7 @@ await test('transform - empty string child renders as empty', expect => {
 // --- JSX comments inside children --------------------------------------
 
 await test('transform - JSX expression comments do not appear in output', expect => {
-	const dispose = render(
-		<p>
-			a{/* this is a comment */}b
-		</p>,
-	)
+	const dispose = render(<p>a{/* this is a comment */}b</p>)
 
 	expect(body()).toBe('<p>ab</p>')
 
@@ -494,11 +496,7 @@ await test('transform - nested fragments flatten into the parent', expect => {
 
 await test('transform - prop: and regular attribute can coexist on same element', expect => {
 	const dispose = render(
-		<input
-			type="text"
-			prop:value="via-prop"
-			data-extra="via-attr"
-		/>,
+		<input type="text" prop:value="via-prop" data-extra="via-attr" />,
 	)
 
 	const input = $('input')

@@ -833,13 +833,15 @@ export function createReactiveSystem() {
 
 	function runTop(node) {
 		switch (node.state) {
-			case 0 /* CLEAN */: {
-				break
-			}
-			case 2 /* CHECK */: {
-				upstream(node)
-				break
-			}
+			case 0 /* CLEAN */:
+				{
+					break
+				}
+			case 2 /* CHECK */:
+				{
+					upstream(node)
+					break
+				}
 
 			default: {
 				const ancestors = []
@@ -854,17 +856,19 @@ export function createReactiveSystem() {
 					node = ancestors[i]
 
 					switch (node.state) {
-						case 1 /* STALE */: {
-							node.update()
-							break
-						}
-						case 2 /* CHECK */: {
-							updates = Updates
-							Updates = undefined
-							runUpdates(() => upstream(node, ancestors[0]))
-							Updates = updates
-							break
-						}
+						case 1 /* STALE */:
+							{
+								node.update()
+								break
+							}
+						case 2 /* CHECK */:
+							{
+								updates = Updates
+								Updates = undefined
+								runUpdates(() => upstream(node, ancestors[0]))
+								Updates = updates
+								break
+							}
 					}
 				}
 			}
@@ -944,16 +948,18 @@ export function createReactiveSystem() {
 		for (const source of node.sources) {
 			if (source.sources) {
 				switch (source.state) {
-					case 1 /* STALE */: {
-						if (source !== ignore && source.updatedAt < Time) {
-							runTop(source)
+					case 1 /* STALE */:
+						{
+							if (source !== ignore && source.updatedAt < Time) {
+								runTop(source)
+							}
+							break
 						}
-						break
-					}
-					case 2 /* CHECK */: {
-						upstream(source, ignore)
-						break
-					}
+					case 2 /* CHECK */:
+						{
+							upstream(source, ignore)
+							break
+						}
 				}
 			}
 		}

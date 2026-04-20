@@ -78,9 +78,7 @@ await test('JSX on:event - listeners are cleaned up when scope disposes', expect
 // --- on:event with null does not throw ---------------------------------------
 
 await test('JSX on:event - null handler is safely ignored', expect => {
-	const dispose = render(
-		<button on:click={null}>click</button>,
-	)
+	const dispose = render(<button on:click={null}>click</button>)
 
 	// baseline: button rendered correctly
 	expect($('button')).not.toBe(null)

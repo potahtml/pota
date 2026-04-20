@@ -302,10 +302,7 @@ toggleFullscreen(document.createElement('div'))
 
 // --- pota/use/orientation ---
 
-import {
-	onOrientation,
-	useOrientation,
-} from 'pota/use/orientation'
+import { onOrientation, useOrientation } from 'pota/use/orientation'
 
 onOrientation(v => {})
 const orientState = useOrientation()
@@ -322,10 +319,10 @@ const pagi1Next: () => void = pagi1.next
 const pagi1HasNext: boolean = pagi1.hasNext()
 const pagi1Total: number = pagi1.totalPages()
 
-const pagi2 = paginate(
-	(start, end) => [start, end],
-	{ numPerPage: () => 10, numItems: () => 100 },
-)
+const pagi2 = paginate((start, end) => [start, end], {
+	numPerPage: () => 10,
+	numItems: () => 100,
+})
 const pagi2Prev: () => void = pagi2.previous
 
 // --- pota/use/random ---

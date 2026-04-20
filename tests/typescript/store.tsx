@@ -91,17 +91,29 @@ const rowsTarget = mutable<Nested>({
 })
 
 // valid: key option at the array path
-storeMerge(rowsTarget, { rows: [{ id: 2, name: 'b' }] }, {
-	rows: { key: 'id' },
-})
-replace(rowsTarget, { rows: [{ id: 2, name: 'b' }] }, {
-	rows: { key: 'name' },
-})
+storeMerge(
+	rowsTarget,
+	{ rows: [{ id: 2, name: 'b' }] },
+	{
+		rows: { key: 'id' },
+	},
+)
+replace(
+	rowsTarget,
+	{ rows: [{ id: 2, name: 'b' }] },
+	{
+		rows: { key: 'name' },
+	},
+)
 
-storeMerge(rowsTarget, { rows: [{ id: 2, name: 'b' }] }, {
-	// @ts-expect-error — 'notAField' is not a key of Row
-	rows: { key: 'notAField' },
-})
+storeMerge(
+	rowsTarget,
+	{ rows: [{ id: 2, name: 'b' }] },
+	{
+		// @ts-expect-error — 'notAField' is not a key of Row
+		rows: { key: 'notAField' },
+	},
+)
 
 // @ts-expect-error — 'notARow' is not a property of target
 storeMerge(rowsTarget, { rows: [] }, { notARow: { key: 'id' } })
@@ -111,9 +123,13 @@ const deepTarget = mutable<Deep>({
 	group: { users: [{ id: 1, name: 'a' }] },
 })
 
-storeMerge(deepTarget, { group: { users: [{ id: 2, name: 'b' }] } }, {
-	group: { users: { key: 'id' } },
-})
+storeMerge(
+	deepTarget,
+	{ group: { users: [{ id: 2, name: 'b' }] } },
+	{
+		group: { users: { key: 'id' } },
+	},
+)
 
 // @ts-expect-error — primitive leaf has no keys option
 storeMerge({ a: 1 } as { a: number }, { a: 2 }, { a: { key: 'x' } })

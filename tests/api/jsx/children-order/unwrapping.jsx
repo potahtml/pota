@@ -235,9 +235,7 @@ await test('unwrapping - three-level nesting runs outermost to innermost (xml)',
 		Child: trace(log, 'child'),
 	})
 
-	const dispose = render(
-		x`<Grand><Parent><Child/></Parent></Grand>`,
-	)
+	const dispose = render(x`<Grand><Parent><Child/></Parent></Grand>`)
 
 	expect(log).toEqual(['grand', 'parent', 'child'])
 
@@ -349,9 +347,7 @@ await test('unwrapping - children deep inside a dropped subtree also never run (
 		Leaf: trace(log, 'leaf'),
 	})
 
-	const dispose = render(
-		x`<Drop><Middle><Leaf/></Middle></Drop>`,
-	)
+	const dispose = render(x`<Drop><Middle><Leaf/></Middle></Drop>`)
 
 	expect(log).toEqual(['drop'])
 
@@ -417,9 +413,7 @@ await test('unwrapping - Show with when=false never runs the child (xml)', expec
 	const x = XML()
 	x.define({ Child: trace(log, 'child') })
 
-	const dispose = render(
-		x`<Show when="${false}"><Child/></Show>`,
-	)
+	const dispose = render(x`<Show when="${false}"><Child/></Show>`)
 
 	expect(log).toEqual([])
 
@@ -866,10 +860,7 @@ await test('unwrapping - Range runs the item callback once per index, after the 
 
 	const dispose = render(
 		<Outer>
-			<Range
-				start={0}
-				stop={2}
-			>
+			<Range start={0} stop={2}>
 				{n => {
 					log.push('item:' + n)
 					return <span>{n}</span>
@@ -1042,9 +1033,7 @@ await test('unwrapping - compiled JSX and buildless xml produce the same order l
 		Leaf: trace(xmlLog, 'leaf'),
 	})
 
-	const disposeXml = render(
-		x`<Parent><A><Leaf/></A><B/></Parent>`,
-	)
+	const disposeXml = render(x`<Parent><A><Leaf/></A><B/></Parent>`)
 	disposeXml()
 
 	expect(jsxLog).toEqual(['parent', 'a', 'leaf', 'b'])

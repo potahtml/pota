@@ -153,8 +153,12 @@ await test('stream - stop helpers stop tracks and support MediaRecorder-like obj
 	const OriginalMediaStream = globalThis.MediaStream
 	const OriginalMediaRecorder = globalThis.MediaRecorder
 
-	globalThis.MediaStream = /** @type {any} */ (function MediaStream() {})
-	globalThis.MediaRecorder = /** @type {any} */ (function MediaRecorder() {})
+	globalThis.MediaStream = /** @type {any} */ (
+		function MediaStream() {}
+	)
+	globalThis.MediaRecorder = /** @type {any} */ (
+		function MediaRecorder() {}
+	)
 	Object.setPrototypeOf(media, globalThis.MediaStream.prototype)
 	Object.setPrototypeOf(recorder, globalThis.MediaRecorder.prototype)
 

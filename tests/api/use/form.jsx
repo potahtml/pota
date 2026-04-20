@@ -20,10 +20,7 @@ import 'pota/use/form'
 await test('form - isDisabled returns true for directly disabled element', expect => {
 	const dispose = render(
 		<form>
-			<input
-				name="off"
-				disabled
-			/>
+			<input name="off" disabled />
 			<input name="on" />
 		</form>,
 	)
@@ -180,16 +177,24 @@ await test('form - object2form restores text, checkbox, radio, and select values
 	})
 
 	expect(
-		(/** @type {HTMLInputElement} */ (form.querySelector('[name=title]'))).value,
+		/** @type {HTMLInputElement} */ (
+			form.querySelector('[name=title]')
+		).value,
 	).toBe('updated')
 	expect(
-		(/** @type {HTMLInputElement} */ (form.querySelector('[name=published]'))).checked,
+		/** @type {HTMLInputElement} */ (
+			form.querySelector('[name=published]')
+		).checked,
 	).toBe(false)
 	expect(
-		(/** @type {HTMLInputElement} */ (form.querySelector('[name=kind][value=a]'))).checked,
+		/** @type {HTMLInputElement} */ (
+			form.querySelector('[name=kind][value=a]')
+		).checked,
 	).toBe(true)
 	expect(
-		(/** @type {HTMLInputElement} */ (form.querySelector('[name=kind][value=b]'))).checked,
+		/** @type {HTMLInputElement} */ (
+			form.querySelector('[name=kind][value=b]')
+		).checked,
 	).toBe(false)
 })
 
@@ -210,7 +215,9 @@ await test('form - object2form adds to multi-select (never clears existing selec
 
 	expect(
 		Array.from(
-			(/** @type {HTMLSelectElement} */ (form.querySelector('[name=tags]'))).selectedOptions,
+			/** @type {HTMLSelectElement} */ (
+				form.querySelector('[name=tags]')
+			).selectedOptions,
 		).map(option => option.value),
 	).toEqual(['x', 'y', 'z'])
 })
@@ -235,10 +242,7 @@ await test('form - use:click-focus-children-input focuses first focusable child 
 await test('form - use:enter-focus-next advances focus when Enter is pressed', async expect => {
 	const dispose = render(
 		<form>
-			<input
-				id="first-input"
-				use:enter-focus-next={true}
-			/>
+			<input id="first-input" use:enter-focus-next={true} />
 			<input id="second-input" />
 		</form>,
 	)
@@ -257,10 +261,7 @@ await test('form - use:enter-focus-next advances focus when Enter is pressed', a
 
 await test('form - use:prevent-enter calls preventDefault on Enter', async expect => {
 	const dispose = render(
-		<input
-			id="prevent-enter"
-			use:prevent-enter={true}
-		/>,
+		<input id="prevent-enter" use:prevent-enter={true} />,
 	)
 
 	await microtask()
@@ -310,10 +311,7 @@ await test('form - use:size-to-input sets initial height from scrollHeight and u
 
 	const dispose = render(
 		<div id="textarea-parent">
-			<textarea
-				id="size-to-input"
-				use:size-to-input={true}
-			/>
+			<textarea id="size-to-input" use:size-to-input={true} />
 		</div>,
 	)
 
@@ -392,13 +390,17 @@ await test('form - object2form sets checkbox checked state', expect => {
 	object2form(form, { agree: true })
 
 	expect(
-		(/** @type {HTMLInputElement} */ (form.querySelector('[name=agree]'))).checked,
+		/** @type {HTMLInputElement} */ (
+			form.querySelector('[name=agree]')
+		).checked,
 	).toBe(true)
 
 	object2form(form, { agree: false })
 
 	expect(
-		(/** @type {HTMLInputElement} */ (form.querySelector('[name=agree]'))).checked,
+		/** @type {HTMLInputElement} */ (
+			form.querySelector('[name=agree]')
+		).checked,
 	).toBe(false)
 
 	form.remove()
@@ -442,7 +444,9 @@ await test('form - object2form ignores keys that have no matching input', expect
 	form.innerHTML = '<input name="existing" />'
 	document.body.append(form)
 
-	expect(() => object2form(form, { nonExistent: 'value' })).not.toThrow()
+	expect(() =>
+		object2form(form, { nonExistent: 'value' }),
+	).not.toThrow()
 
 	form.remove()
 })
@@ -471,8 +475,10 @@ await test('form - form2object unchecked checkbox is not in the result or is fal
 
 	const result = form2object(form)
 	// Unchecked checkbox is typically omitted or falsy
-	expect(result.notifications === undefined || result.notifications === false)
-		.toBe(true)
+	expect(
+		result.notifications === undefined ||
+			result.notifications === false,
+	).toBe(true)
 
 	form.remove()
 })
@@ -502,10 +508,7 @@ await test('form - isDisabled returns true for input inside deeply nested disabl
 await test('form - use:enter-focus-next does nothing when another key is pressed', async expect => {
 	const dispose = render(
 		<form>
-			<input
-				id="first-noenter"
-				use:enter-focus-next={true}
-			/>
+			<input id="first-noenter" use:enter-focus-next={true} />
 			<input id="second-noenter" />
 		</form>,
 	)
@@ -528,10 +531,7 @@ await test('form - use:enter-focus-next does nothing when another key is pressed
 
 await test('form - use:prevent-enter only prevents default on Enter', async expect => {
 	const dispose = render(
-		<input
-			id="prevent-specific"
-			use:prevent-enter={true}
-		/>,
+		<input id="prevent-specific" use:prevent-enter={true} />,
 	)
 
 	await microtask()
@@ -580,7 +580,9 @@ await test('form - object2form updates number input value as string', expect => 
 	object2form(form, { count: 42 })
 
 	expect(
-		(/** @type {HTMLInputElement} */ (form.querySelector('[name=count]'))).value,
+		/** @type {HTMLInputElement} */ (
+			form.querySelector('[name=count]')
+		).value,
 	).toBe('42')
 
 	form.remove()

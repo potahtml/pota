@@ -24,14 +24,9 @@ await test('externalSignal - preserves equal items by id', expect => {
 // --- externalSignal update ---------------------------------------------------
 
 await test('externalSignal - update method patches based on updater', expect => {
-	const items = externalSignal([
-		{ id: '1', label: 'one' },
-	])
+	const items = externalSignal([{ id: '1', label: 'one' }])
 
-	items.update(prev => [
-		...prev,
-		{ id: '2', label: 'two' },
-	])
+	items.update(prev => [...prev, { id: '2', label: 'two' }])
 
 	expect(items.read().length).toBe(2)
 	expect(items.read()[1].label).toBe('two')
@@ -64,10 +59,7 @@ await test('externalSignal - mixed items with and without id', expect => {
 	expect(items.read()[0]).toBe(withId)
 	expect(items.read()[1]).toBe(noId)
 
-	items.write([
-		{ id: '1', v: 'a' },
-		{ v: 'b' },
-	])
+	items.write([{ id: '1', v: 'a' }, { v: 'b' }])
 
 	// item with id preserved by reference (deep equal)
 	expect(items.read()[0]).toBe(withId)

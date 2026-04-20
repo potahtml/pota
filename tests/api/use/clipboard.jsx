@@ -95,9 +95,7 @@ await test('clipboard - multiple clicks queue multiple copy operations', async e
 		},
 	})
 
-	const dispose = render(
-		<button use:clipboard="multi">Copy</button>,
-	)
+	const dispose = render(<button use:clipboard="multi">Copy</button>)
 
 	await microtask()
 
@@ -131,7 +129,7 @@ await test('clipboard - use:clipboard={true} trims surrounding whitespace', asyn
 	})
 
 	const dispose = render(
-		<button use:clipboard={true}>   padded   </button>,
+		<button use:clipboard={true}> padded </button>,
 	)
 
 	await microtask()
@@ -162,9 +160,7 @@ await test('clipboard - click handler is cleaned up on dispose', async expect =>
 		},
 	})
 
-	const dispose = render(
-		<button use:clipboard="value">Copy</button>,
-	)
+	const dispose = render(<button use:clipboard="value">Copy</button>)
 
 	await microtask()
 	const button = $('button')

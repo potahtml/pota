@@ -2,7 +2,12 @@
 // component identity helpers.
 
 import { test } from '#test'
-import { isComponent, makeCallback, markComponent, signal } from 'pota'
+import {
+	isComponent,
+	makeCallback,
+	markComponent,
+	signal,
+} from 'pota'
 
 await test('isComponent, markComponent and makeCallback - normalize public component helpers', expect => {
 	const plain = () => 'x'

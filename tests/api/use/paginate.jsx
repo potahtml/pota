@@ -213,13 +213,10 @@ await test('paginate - next at last page does not change page', expect => {
 // --- previous at first page is a no-op ----------------------------------
 
 await test('paginate - previous at first page does not change page', expect => {
-	const page = paginate(
-		(start, end) => [1, 2, 3].slice(start, end),
-		{
-			numItems: () => 3,
-			numPerPage: () => 2,
-		},
-	)
+	const page = paginate((start, end) => [1, 2, 3].slice(start, end), {
+		numItems: () => 3,
+		numPerPage: () => 2,
+	})
 
 	expect(page.currentPage()).toBe(1)
 	expect(page.hasPrevious()).toBe(false)
@@ -306,13 +303,10 @@ await test('paginate - one item over full page creates extra page', expect => {
 // --- off-by-one: single item -------------------------------------------
 
 await test('paginate - single item is one page', expect => {
-	const page = paginate(
-		(start, end) => ['only'].slice(start, end),
-		{
-			numItems: () => 1,
-			numPerPage: () => 5,
-		},
-	)
+	const page = paginate((start, end) => ['only'].slice(start, end), {
+		numItems: () => 1,
+		numPerPage: () => 5,
+	})
 
 	expect(page.totalPages()).toBe(1)
 	expect(page.currentPage()).toBe(1)

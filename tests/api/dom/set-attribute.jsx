@@ -104,11 +104,7 @@ await test('setAttribute - object value falls back to its string form', expect =
 
 	// Passing an object is outside the declared type — we cast to
 	// exercise the default `toString()` coercion path at runtime.
-	setAttribute(
-		node,
-		'data-object',
-		/** @type {any} */ ({ a: 1 }),
-	)
+	setAttribute(node, 'data-object', /** @type {any} */ ({ a: 1 }))
 	expect(node.getAttribute('data-object')).toBe('[object Object]')
 
 	node.remove()
@@ -145,9 +141,7 @@ await test('setAttribute - numeric 0 stringifies and sets "0"', expect => {
 
 await test('JSX boolean attributes - true sets empty string, false removes', expect => {
 	const disabled = signal(true)
-	const dispose = render(
-		<input disabled={disabled.read} />,
-	)
+	const dispose = render(<input disabled={disabled.read} />)
 	const el = $('input')
 
 	expect(el.hasAttribute('disabled')).toBe(true)

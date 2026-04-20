@@ -139,11 +139,7 @@ await test('readyAsync - waits for async work added during promise resolution', 
 
 	await macrotask()
 
-	expect(seen).toEqual([
-		'outer-pending',
-		'inner-done',
-		'readyAsync',
-	])
+	expect(seen).toEqual(['outer-pending', 'inner-done', 'readyAsync'])
 
 	dispose()
 })

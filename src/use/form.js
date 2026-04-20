@@ -84,11 +84,12 @@ export function object2form(form, object) {
 
 propsPlugin('use:click-focus-children-input', (node, propValue) => {
 	addEvent(node, 'click', e => {
-		/** @type {HTMLElement | null} */ (
+		const focusable = /** @type {HTMLElement | null} */ (
 			node.querySelector(
 				'input:not([type=hidden]), button, select, textarea, [contenteditable]',
 			)
-		)?.focus()
+		)
+		focusable?.focus()
 	})
 })
 

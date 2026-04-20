@@ -161,7 +161,13 @@ await test('set: forEach callback adding a new value (native sees it)', expect =
 })
 
 await test('map: iteration reflects concurrent delete', expect => {
-	const m = mutable(new Map([['a', 1], ['b', 2], ['c', 3]]))
+	const m = mutable(
+		new Map([
+			['a', 1],
+			['b', 2],
+			['c', 3],
+		]),
+	)
 	const keysSeen = []
 	let deleted = false
 	for (const k of m.keys()) {
@@ -272,7 +278,10 @@ await test('copy: non-enumerable property is preserved', expect => {
 })
 
 await test('copy: frozen source produces a frozen copy', expect => {
-	const orig = Object.freeze({ a: 1, nested: Object.freeze({ b: 2 }) })
+	const orig = Object.freeze({
+		a: 1,
+		nested: Object.freeze({ b: 2 }),
+	})
 	const c = copy(orig)
 	expect(Object.isFrozen(c)).toBe(true)
 	expect(Object.isFrozen(c.nested)).toBe(true)
@@ -577,9 +586,7 @@ await test('class: static members unaffected by mutable wrapping', expect => {
 		static TAG = 'tag'
 	}
 	const h = mutable(new Holder())
-	expect(
-		(/** @type {typeof Holder} */ (h.constructor)).TAG,
-	).toBe('tag')
+	expect(/** @type {typeof Holder} */ (h.constructor).TAG).toBe('tag')
 	expect(h.constructor).toBe(Holder)
 })
 

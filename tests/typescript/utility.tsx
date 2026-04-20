@@ -97,7 +97,10 @@ const htmlArr: JSX.Element = toHTML([<div />, <span />])
 
 // factory for a user function component
 const cardFactory = Component(Card)
-const cardFromFactory = cardFactory({ title: 'hi', children: <div /> })
+const cardFromFactory = cardFactory({
+	title: 'hi',
+	children: <div />,
+})
 // factory can be invoked repeatedly with different props
 const cardAgain = cardFactory({ title: 'second', children: <span /> })
 
@@ -190,7 +193,9 @@ const fragEmpty = Component(Fragment, { children: undefined })
 // Native DOM element passed as component — pota uses it as a template
 const divEl = document.createElement('div')
 const elementFactory = Component(divEl)
-const elementFromFactory: JSX.Element = elementFactory({ class: 'cloned' })
+const elementFromFactory: JSX.Element = elementFactory({
+	class: 'cloned',
+})
 
 // SVG element
 const svgEl = document.createElementNS(

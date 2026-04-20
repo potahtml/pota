@@ -39,12 +39,7 @@ await test('bind - use:bind syncs text input both ways', async expect => {
 
 await test('bind - use:bind syncs checkbox checked state', async expect => {
 	const checked = bind(true)
-	const dispose = render(
-		<input
-			type="checkbox"
-			use:bind={checked}
-		/>,
-	)
+	const dispose = render(<input type="checkbox" use:bind={checked} />)
 	const input = $('input')
 
 	await microtask()
@@ -110,10 +105,7 @@ await test('bind - bind can wrap a computed accessor', expect => {
 await test('bind - use:bind syncs contenteditable nodes through innerText', async expect => {
 	const value = bind('hello')
 	const dispose = render(
-		<div
-			contenteditable="true"
-			use:bind={value}
-		/>,
+		<div contenteditable="true" use:bind={value} />,
 	)
 	const node = $('div')
 
@@ -184,12 +176,7 @@ await test('bind - bind with initial undefined starts with empty value', expect 
 
 await test('bind - use:bind on number input syncs numeric string', async expect => {
 	const val = bind('5')
-	const dispose = render(
-		<input
-			type="number"
-			use:bind={val}
-		/>,
-	)
+	const dispose = render(<input type="number" use:bind={val} />)
 
 	await microtask()
 
@@ -208,9 +195,7 @@ await test('bind - use:bind on number input syncs numeric string', async expect 
 
 await test('bind - use:bind on textarea syncs value', async expect => {
 	const val = bind('initial')
-	const dispose = render(
-		<textarea use:bind={val} />,
-	)
+	const dispose = render(<textarea use:bind={val} />)
 
 	await microtask()
 
@@ -280,4 +265,3 @@ await test('bind - multiple independent bind signals do not interfere', expect =
 	expect(a()).toBe('changed')
 	expect(b()).toBe('b')
 })
-

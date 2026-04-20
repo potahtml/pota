@@ -65,10 +65,7 @@ await test('Navigate - replace option uses replaceState', async expect => {
 	expect(before > 0).toBe(true)
 
 	const dispose = render(
-		<Navigate
-			path="/nav-replace"
-			replace
-		>
+		<Navigate path="/nav-replace" replace>
 			redirected
 		</Navigate>,
 	)

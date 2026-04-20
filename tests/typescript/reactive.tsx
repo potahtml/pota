@@ -285,7 +285,9 @@ const dNumResolved: boolean = dNum.resolved()
 
 // isResolved() — top-level helper
 const dNumIsResolved: boolean = isResolved(dNum)
-const dUntypedIsResolved: boolean = isResolved(derived(() => 42 as any))
+const dUntypedIsResolved: boolean = isResolved(
+	derived(() => 42 as any),
+)
 
 // derived with signal dependency
 const dDouble = derived(() => val() * 2)
@@ -486,9 +488,7 @@ const mUnion = memo(() =>
 )
 const mUnionV: string | number = mUnion()
 
-const mNullable = memo(() =>
-	Math.random() > 0.5 ? 'value' : null,
-)
+const mNullable = memo(() => (Math.random() > 0.5 ? 'value' : null))
 const mNullableV: string | null = mNullable()
 
 // --- memo over signals (the common case) ---

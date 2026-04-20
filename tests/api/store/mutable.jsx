@@ -255,12 +255,21 @@ await test('mutable - tracks Map forEach iteration', expect => {
 		})
 	})
 
-	expect(seen).toEqual([[['a', 1], ['b', 2]]])
+	expect(seen).toEqual([
+		[
+			['a', 1],
+			['b', 2],
+		],
+	])
 
 	state.lookup.set('c', 3)
 
 	expect(seen.length).toBe(2)
-	expect(seen[1]).toEqual([['a', 1], ['b', 2], ['c', 3]])
+	expect(seen[1]).toEqual([
+		['a', 1],
+		['b', 2],
+		['c', 3],
+	])
 })
 
 await test('mutable - tracks Map keys, values, and entries iterators', expect => {
@@ -338,7 +347,10 @@ await test('mutable - tracks array forEach iteration', expect => {
 
 	state.items.push('c')
 
-	expect(seen).toEqual([['a', 'b'], ['a', 'b', 'c']])
+	expect(seen).toEqual([
+		['a', 'b'],
+		['a', 'b', 'c'],
+	])
 })
 
 await test('mutable - tracks array map reads', expect => {
@@ -355,7 +367,10 @@ await test('mutable - tracks array map reads', expect => {
 
 	state.items[0] = 10
 
-	expect(seen).toEqual([[2, 4, 6], [20, 4, 6]])
+	expect(seen).toEqual([
+		[2, 4, 6],
+		[20, 4, 6],
+	])
 })
 
 await test('mutable - tracks array filter reads', expect => {
@@ -372,7 +387,10 @@ await test('mutable - tracks array filter reads', expect => {
 
 	state.items.push(5)
 
-	expect(seen).toEqual([[3, 4], [3, 4, 5]])
+	expect(seen).toEqual([
+		[3, 4],
+		[3, 4, 5],
+	])
 })
 
 await test('mutable - tracks array includes reads', expect => {
@@ -448,7 +466,10 @@ await test('mutable - tracks array fill mutation', expect => {
 
 	state.items.fill(0)
 
-	expect(seen).toEqual([[1, 2, 3], [0, 0, 0]])
+	expect(seen).toEqual([
+		[1, 2, 3],
+		[0, 0, 0],
+	])
 })
 
 // --- mutable in operator -----------------------------------------------------
@@ -486,7 +507,10 @@ await test('mutable - Object.keys tracks keys reads', expect => {
 
 	state.c = 3
 
-	expect(seen).toEqual([['a', 'b'], ['a', 'b', 'c']])
+	expect(seen).toEqual([
+		['a', 'b'],
+		['a', 'b', 'c'],
+	])
 })
 
 // --- mutable same value no-op ------------------------------------------------
@@ -530,7 +554,13 @@ await test('mutable - tracks Map for..of iteration', expect => {
 
 	state.lookup.set('b', 2)
 
-	expect(seen).toEqual([[['a', 1]], [['a', 1], ['b', 2]]])
+	expect(seen).toEqual([
+		[['a', 1]],
+		[
+			['a', 1],
+			['b', 2],
+		],
+	])
 })
 
 // --- mutable Map set same value no-op ----------------------------------------
@@ -717,7 +747,10 @@ await test('mutable - tracks array slice reads', expect => {
 
 	state.items[1] = 20
 
-	expect(seen).toEqual([[2, 3], [20, 3]])
+	expect(seen).toEqual([
+		[2, 3],
+		[20, 3],
+	])
 })
 
 // --- mutable array length assignment -----------------------------------------
@@ -758,7 +791,8 @@ await test('mutable - frozen nested objects are not proxied', expect => {
 	// frozen object should not be wrapped in a proxy
 	expect(state.data.inner).toBe('frozen')
 	expect(() => {
-		/** @type {any} */ (state.data).inner = 'changed'
+		const anyData = /** @type {any} */ (state.data)
+		anyData.inner = 'changed'
 	}).toThrow()
 })
 
@@ -1248,7 +1282,12 @@ await test('mutable - tracks Array.prototype.findLastIndex', expect => {
 })
 
 await test('mutable - tracks Array.prototype.flat', expect => {
-	const state = mutable({ items: [[1, 2], [3, 4]] })
+	const state = mutable({
+		items: [
+			[1, 2],
+			[3, 4],
+		],
+	})
 	const seen = []
 
 	root(() => {

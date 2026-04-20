@@ -122,7 +122,9 @@ declare namespace JSX {
 
 	type ElementType =
 		| keyof IntrinsicElements
-		| (new (props?: Record<string, unknown>) => ElementClass)
+		| (new (
+				props?: Record<string, unknown>,
+		  ) => ElementClass)
 		| ((props?: Record<string, unknown>) => Element)
 		| { toString(): Element }
 
@@ -227,8 +229,7 @@ declare namespace JSX {
 	// all elements
 
 	interface IntrinsicElements
-		extends
-			HTMLDeprecatedElements,
+		extends HTMLDeprecatedElements,
 			MathMLDeprecatedElements,
 			MathMLElements,
 			SVGElements,
@@ -240,8 +241,7 @@ declare namespace JSX {
 	/* Attributes */
 
 	interface ElementAttributes<Element>
-		extends
-			PotaAttributes<Element>,
+		extends PotaAttributes<Element>,
 			CSSAttributes,
 			AriaAttributes,
 			EventHandlersElement<Element> {
@@ -264,9 +264,8 @@ declare namespace JSX {
 		tabindex?: Attribute<number | string>
 	}
 
-	interface HTMLAttributes<
-		Element,
-	> extends ElementAttributes<Element> {
+	interface HTMLAttributes<Element>
+		extends ElementAttributes<Element> {
 		// properties
 		'prop:innerText'?: Attribute<number | string>
 
@@ -336,14 +335,12 @@ declare namespace JSX {
 		/** @deprecated */
 		contextmenu?: Attribute<string>
 	}
-	interface SVGAttributes<
-		Element,
-	> extends ElementAttributes<Element> {
+	interface SVGAttributes<Element>
+		extends ElementAttributes<Element> {
 		[attr: `${string}`]: Attribute<any> // catch all TODO
 	}
-	interface MathMLAttributes<
-		Element,
-	> extends ElementAttributes<Element> {
+	interface MathMLAttributes<Element>
+		extends ElementAttributes<Element> {
 		dir?: Attribute<'ltr' | 'rtl' | 'auto'>
 		displaystyle?: Attribute<BooleanAttribute>
 		scriptlevel?: Attribute<string>
@@ -387,9 +384,8 @@ declare namespace JSX {
 
 	/* SPECIAL ELEMENTS */
 
-	interface HTMLWebViewElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLWebViewElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		allowpopups?: Attribute<BooleanAttribute>
 		disableblinkfeatures?: Attribute<string>
 		disablewebsecurity?: Attribute<BooleanAttribute>
@@ -418,9 +414,8 @@ declare namespace JSX {
 
 	/* HTMLElements */
 
-	interface HTMLAnchorElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLAnchorElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		download?: Attribute<string | BooleanAttribute>
 		href?: Attribute<string>
 		hreflang?: Attribute<string>
@@ -455,9 +450,8 @@ declare namespace JSX {
 		/** @deprecated */
 		shape?: Attribute<'rect' | 'circle' | 'poly' | 'default'>
 	}
-	interface HTMLAreaElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLAreaElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		alt?: Attribute<string>
 		coords?: Attribute<string>
 		download?: Attribute<string | BooleanAttribute>
@@ -486,28 +480,25 @@ declare namespace JSX {
 		nohref?: Attribute<BooleanAttribute>
 	}
 	interface HTMLAudioElementAttributes<Element>
-		extends
-			HTMLAttributes<Element>,
+		extends HTMLAttributes<Element>,
 			HTMLMediaHTMLAttributes<Element> {}
-	interface HTMLBRElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLBRElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		clear?: Attribute<string>
 	}
-	interface HTMLBaseElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLBaseElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		href?: Attribute<string>
 		target?: Attribute<
 			'_self' | '_blank' | '_parent' | '_top' | (string & {})
 		>
 	}
-	interface HTMLBdoElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {}
+	interface HTMLBdoElementAttributes<Element>
+		extends HTMLAttributes<Element> {}
 	interface HTMLBodyElementAttributes<Element>
-		extends HTMLAttributes<Element>, EventHandlersWindow<Element> {
+		extends HTMLAttributes<Element>,
+			EventHandlersWindow<Element> {
 		/** @deprecated */
 		alink?: Attribute<string>
 		/** @deprecated */
@@ -529,9 +520,8 @@ declare namespace JSX {
 		/** @deprecated */
 		vlink?: Attribute<string>
 	}
-	interface HTMLButtonElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLButtonElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		command?: Attribute<
 			| 'show-modal'
 			| 'close'
@@ -560,38 +550,32 @@ declare namespace JSX {
 		type?: Attribute<'submit' | 'reset' | 'button' | 'menu'>
 		value?: Attribute<number | string>
 	}
-	interface HTMLCanvasElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLCanvasElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		height?: Attribute<number | string>
 		width?: Attribute<number | string>
 
 		/** @deprecated */
 		'moz-opaque'?: Attribute<BooleanAttribute>
 	}
-	interface HTMLDListElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLDListElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		compact?: Attribute<BooleanAttribute>
 	}
-	interface HTMLDataElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLDataElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		value?: Attribute<number | string>
 	}
-	interface HTMLDataListElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {}
-	interface HTMLDetailsElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLDataListElementAttributes<Element>
+		extends HTMLAttributes<Element> {}
+	interface HTMLDetailsElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		name?: Attribute<string>
 		open?: Attribute<BooleanAttribute>
 	}
-	interface HTMLDialogElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLDialogElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		open?: Attribute<BooleanAttribute>
 		tabindex?: never
 		'prop:tabindex'?: never
@@ -599,18 +583,15 @@ declare namespace JSX {
 		/** @experimental */
 		closedby?: Attribute<'any' | 'closerequest' | 'none'>
 	}
-	interface HTMLDivElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLDivElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<'left' | 'right' | 'justify' | 'center'>
 	}
-	interface HTMLElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {}
-	interface HTMLEmbedElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLElementAttributes<Element>
+		extends HTMLAttributes<Element> {}
+	interface HTMLEmbedElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		height?: Attribute<number | string>
 		src?: Attribute<string>
 		type?: Attribute<string>
@@ -621,16 +602,14 @@ declare namespace JSX {
 		/** @deprecated */
 		name?: Attribute<string>
 	}
-	interface HTMLFieldSetElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLFieldSetElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		disabled?: Attribute<BooleanAttribute>
 		form?: Attribute<string>
 		name?: Attribute<string>
 	}
-	interface HTMLFormElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLFormElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		'accept-charset'?: Attribute<string>
 		action?: Attribute<string>
 		autocomplete?: Attribute<'on' | 'off'>
@@ -655,9 +634,8 @@ declare namespace JSX {
 		/** @deprecated */
 		accept?: Attribute<string>
 	}
-	interface HTMLHRElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLHRElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<string>
 		/** @deprecated */
@@ -669,27 +647,23 @@ declare namespace JSX {
 		/** @deprecated */
 		width?: Attribute<string>
 	}
-	interface HTMLHeadElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLHeadElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		profile?: Attribute<string>
 	}
-	interface HTMLHeadingElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLHeadingElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<'left' | 'right' | 'justify' | 'center'>
 	}
-	interface HTMLHtmlElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLHtmlElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		version?: Attribute<string>
 	}
-	interface HTMLIFrameElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLIFrameElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		allow?: Attribute<string>
 		allowfullscreen?: Attribute<BooleanAttribute>
 		height?: Attribute<number | string>
@@ -760,9 +734,8 @@ declare namespace JSX {
 		/** @deprecated */
 		seamless?: Attribute<BooleanAttribute>
 	}
-	interface HTMLImageElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLImageElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		alt?: Attribute<string>
 		attributionsrc?: Attribute<string>
 		browsingtopics?: Attribute<string>
@@ -808,9 +781,8 @@ declare namespace JSX {
 		/** @deprecated */
 		vspace?: Attribute<number | string>
 	}
-	interface HTMLInputElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLInputElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		// attributes
 		accept?: Attribute<string>
 		alt?: Attribute<string>
@@ -949,29 +921,25 @@ declare namespace JSX {
 		/** @deprecated */
 		usemap?: Attribute<string>
 	}
-	interface HTMLLIElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLLIElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		value?: Attribute<number | string>
 
 		/** @deprecated */
 		type?: Attribute<'1' | 'a' | 'A' | 'i' | 'I'>
 	}
-	interface HTMLLabelElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLLabelElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		for?: Attribute<string>
 		form?: Attribute<string>
 	}
-	interface HTMLLegendElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLLegendElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<string>
 	}
-	interface HTMLLinkElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLLinkElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		as?: Attribute<
 			| 'audio'
 			| 'document'
@@ -1021,14 +989,12 @@ declare namespace JSX {
 		/** @deprecated */
 		target?: Attribute<string>
 	}
-	interface HTMLMapElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLMapElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		name?: Attribute<string>
 	}
-	interface HTMLMenuElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLMenuElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		compact?: Attribute<BooleanAttribute>
 		/** @deprecated */
@@ -1036,9 +1002,8 @@ declare namespace JSX {
 		/** @deprecated */
 		type?: Attribute<'context' | 'toolbar'>
 	}
-	interface HTMLMetaElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLMetaElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		charset?: Attribute<string>
 		content?: Attribute<string>
 		'http-equiv'?: Attribute<
@@ -1054,9 +1019,8 @@ declare namespace JSX {
 		/** @deprecated */
 		scheme?: Attribute<string>
 	}
-	interface HTMLMeterElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLMeterElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		form?: Attribute<string>
 		high?: Attribute<number | string>
 		low?: Attribute<number | string>
@@ -1065,15 +1029,13 @@ declare namespace JSX {
 		optimum?: Attribute<number | string>
 		value?: Attribute<number | string>
 	}
-	interface HTMLModElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLModElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		cite?: Attribute<string>
 		datetime?: Attribute<string>
 	}
-	interface HTMLOListElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLOListElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		reversed?: Attribute<BooleanAttribute>
 		start?: Attribute<number | string>
 		type?: Attribute<'1' | 'a' | 'A' | 'i' | 'I'>
@@ -1081,9 +1043,8 @@ declare namespace JSX {
 		/** @deprecated */
 		compact?: Attribute<BooleanAttribute>
 	}
-	interface HTMLObjectElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLObjectElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		data?: Attribute<string>
 		form?: Attribute<string>
 		height?: Attribute<number | string>
@@ -1119,70 +1080,59 @@ declare namespace JSX {
 		/** @deprecated */
 		vspace?: Attribute<number | string>
 	}
-	interface HTMLOptGroupElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLOptGroupElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		disabled?: Attribute<BooleanAttribute>
 		label?: Attribute<string>
 	}
-	interface HTMLOptionElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLOptionElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		disabled?: Attribute<BooleanAttribute>
 		label?: Attribute<string>
 		selected?: Attribute<BooleanAttribute>
 		value?: Attribute<number | string>
 	}
-	interface HTMLOutputElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLOutputElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		for?: Attribute<string>
 		form?: Attribute<string>
 		name?: Attribute<string>
 	}
-	interface HTMLParagraphElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLParagraphElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<'left' | 'right' | 'justify' | 'center'>
 	}
-	interface HTMLPictureElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {}
-	interface HTMLPreElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLPictureElementAttributes<Element>
+		extends HTMLAttributes<Element> {}
+	interface HTMLPreElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		width?: Attribute<number | string>
 		/** @deprecated */
 		wrap?: Attribute<string>
 	}
-	interface HTMLPreElementListingAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLPreElementListingAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		width?: Attribute<number | string>
 	}
-	interface HTMLPreElementXmpAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLPreElementXmpAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		width?: Attribute<number | string>
 	}
-	interface HTMLProgressElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLProgressElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		max?: Attribute<number | string>
 		value?: Attribute<number | string>
 	}
-	interface HTMLQuoteElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLQuoteElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		cite?: Attribute<string>
 	}
-	interface HTMLScriptElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLScriptElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		async?: Attribute<BooleanAttribute>
 		crossorigin?: Attribute<'anonymous' | 'use-credentials' | ''>
 		defer?: Attribute<BooleanAttribute>
@@ -1217,9 +1167,8 @@ declare namespace JSX {
 		/** @deprecated */
 		language?: Attribute<string>
 	}
-	interface HTMLSelectElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLSelectElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		autocomplete?: Attribute<
 			| 'additional-name'
 			| 'address-level1'
@@ -1293,14 +1242,12 @@ declare namespace JSX {
 		size?: Attribute<number | string>
 		value?: Attribute<number | string>
 	}
-	interface HTMLSlotElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLSlotElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		name?: Attribute<string>
 	}
-	interface HTMLSourceElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLSourceElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		height?: Attribute<number | string>
 		media?: Attribute<string>
 		sizes?: Attribute<string>
@@ -1309,12 +1256,10 @@ declare namespace JSX {
 		type?: Attribute<string>
 		width?: Attribute<number | string>
 	}
-	interface HTMLSpanElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {}
-	interface HTMLStyleElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLSpanElementAttributes<Element>
+		extends HTMLAttributes<Element> {}
+	interface HTMLStyleElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		media?: Attribute<string>
 
 		/** @experimental */
@@ -1325,15 +1270,13 @@ declare namespace JSX {
 		/** @deprecated */
 		type?: Attribute<string>
 	}
-	interface HTMLTableCaptionElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTableCaptionElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<'left' | 'center' | 'right'>
 	}
-	interface HTMLTableCellTdElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTableCellTdElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		colspan?: Attribute<number | string>
 		headers?: Attribute<string>
 		rowspan?: Attribute<number | string>
@@ -1363,9 +1306,8 @@ declare namespace JSX {
 		/** @deprecated */
 		width?: Attribute<number | string>
 	}
-	interface HTMLTableCellThElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTableCellThElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		abbr?: Attribute<string>
 		colspan?: Attribute<number | string>
 		headers?: Attribute<string>
@@ -1393,9 +1335,8 @@ declare namespace JSX {
 		/** @deprecated */
 		width?: Attribute<number | string>
 	}
-	interface HTMLTableColElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTableColElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		span?: Attribute<number | string>
 
 		/** @deprecated */
@@ -1413,9 +1354,8 @@ declare namespace JSX {
 		/** @deprecated */
 		width?: Attribute<number | string>
 	}
-	interface HTMLTableElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTableElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<'left' | 'center' | 'right'>
 		/** @deprecated */
@@ -1445,9 +1385,8 @@ declare namespace JSX {
 		/** @deprecated */
 		width?: Attribute<number | string>
 	}
-	interface HTMLTableRowElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTableRowElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<
 			'left' | 'center' | 'right' | 'justify' | 'char'
@@ -1461,12 +1400,10 @@ declare namespace JSX {
 		/** @deprecated */
 		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 	}
-	interface HTMLTableSectionElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {}
-	interface HTMLTableSectionBodyElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTableSectionElementAttributes<Element>
+		extends HTMLAttributes<Element> {}
+	interface HTMLTableSectionBodyElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<
 			'left' | 'center' | 'right' | 'justify' | 'char'
@@ -1480,9 +1417,8 @@ declare namespace JSX {
 		/** @deprecated */
 		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 	}
-	interface HTMLTableSectionFootElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTableSectionFootElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<
 			'left' | 'center' | 'right' | 'justify' | 'char'
@@ -1496,9 +1432,8 @@ declare namespace JSX {
 		/** @deprecated */
 		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 	}
-	interface HTMLTableSectionHeadElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTableSectionHeadElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		align?: Attribute<
 			'left' | 'center' | 'right' | 'justify' | 'char'
@@ -1512,18 +1447,16 @@ declare namespace JSX {
 		/** @deprecated */
 		valign?: Attribute<'baseline' | 'bottom' | 'middle' | 'top'>
 	}
-	interface HTMLTemplateElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTemplateElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		shadowrootclonable?: Attribute<BooleanAttribute>
 		shadowrootcustomelementregistry?: Attribute<BooleanAttribute>
 		shadowrootdelegatesfocus?: Attribute<BooleanAttribute>
 		shadowrootmode?: Attribute<'open' | 'closed'>
 		shadowrootserializable?: Attribute<BooleanAttribute>
 	}
-	interface HTMLTextAreaElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTextAreaElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		autocomplete?: Attribute<
 			| 'additional-name'
 			| 'address-level1'
@@ -1602,17 +1535,14 @@ declare namespace JSX {
 		rows?: Attribute<number | string>
 		wrap?: Attribute<'hard' | 'soft' | 'off'>
 	}
-	interface HTMLTimeElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTimeElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		datetime?: Attribute<string>
 	}
-	interface HTMLTitleElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {}
-	interface HTMLTrackElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLTitleElementAttributes<Element>
+		extends HTMLAttributes<Element> {}
+	interface HTMLTrackElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		default?: Attribute<BooleanAttribute>
 		kind?: Attribute<
 			| 'alternative'
@@ -1631,17 +1561,15 @@ declare namespace JSX {
 		src?: Attribute<string>
 		srclang?: Attribute<string>
 	}
-	interface HTMLUListElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLUListElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		compact?: Attribute<BooleanAttribute>
 		/** @deprecated */
 		type?: Attribute<'circle' | 'disc' | 'square'>
 	}
 	interface HTMLVideoElementAttributes<Element>
-		extends
-			HTMLAttributes<Element>,
+		extends HTMLAttributes<Element>,
 			HTMLMediaHTMLAttributes<Element> {
 		disablepictureinpicture?: Attribute<BooleanAttribute>
 		height?: Attribute<number | string>
@@ -1661,16 +1589,14 @@ declare namespace JSX {
 
 	/* HTMLDeprecatedElements */
 
-	interface HTMLDirectoryElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLDirectoryElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		compact?: Attribute<BooleanAttribute>
 	}
 
-	interface HTMLFontElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLFontElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		color?: Attribute<string>
 		/** @deprecated */
@@ -1678,9 +1604,8 @@ declare namespace JSX {
 		/** @deprecated */
 		size?: Attribute<string>
 	}
-	interface HTMLFrameElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLFrameElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		frameborder?: Attribute<string>
 		/** @deprecated */
@@ -1699,15 +1624,15 @@ declare namespace JSX {
 		src?: Attribute<string>
 	}
 	interface HTMLFrameSetElementAttributes<Element>
-		extends HTMLAttributes<Element>, EventHandlersWindow<Element> {
+		extends HTMLAttributes<Element>,
+			EventHandlersWindow<Element> {
 		/** @deprecated */
 		cols?: Attribute<number | string>
 		/** @deprecated */
 		rows?: Attribute<number | string>
 	}
-	interface HTMLMarqueeElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLMarqueeElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		behavior?: Attribute<'scroll' | 'slide' | 'alternate'>
 		/** @deprecated */
@@ -1731,9 +1656,8 @@ declare namespace JSX {
 		/** @deprecated */
 		width?: Attribute<number | string>
 	}
-	interface HTMLParamElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLParamElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		name?: Attribute<string>
 		/** @deprecated */
@@ -1744,12 +1668,10 @@ declare namespace JSX {
 		valuetype?: Attribute<'data' | 'ref' | 'object'>
 	}
 
-	interface HTMLUnknownElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {}
-	interface HTMLKeygenElementAttributes<
-		Element,
-	> extends HTMLAttributes<Element> {
+	interface HTMLUnknownElementAttributes<Element>
+		extends HTMLAttributes<Element> {}
+	interface HTMLKeygenElementAttributes<Element>
+		extends HTMLAttributes<Element> {
 		/** @deprecated */
 		challenge?: Attribute<string>
 		/** @deprecated */
@@ -1766,34 +1688,29 @@ declare namespace JSX {
 
 	/* MathMLElements */
 
-	interface MathMLAnnotationElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLAnnotationElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		encoding?: Attribute<string>
 
 		/** @deprecated */
 		src?: Attribute<string>
 	}
-	interface MathMLAnnotationXmlElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLAnnotationXmlElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		encoding?: Attribute<string>
 
 		/** @deprecated */
 		src?: Attribute<string>
 	}
 
-	interface MathMLMathElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMathElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		display?: Attribute<'block' | 'inline'>
 	}
-	interface MathMLMerrorElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {}
-	interface MathMLMfracElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMerrorElementAttributes<Element>
+		extends MathMLAttributes<Element> {}
+	interface MathMLMfracElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		linethickness?: Attribute<string>
 
 		/** @deprecated */
@@ -1801,26 +1718,22 @@ declare namespace JSX {
 		/** @deprecated */
 		numalign?: Attribute<'center' | 'left' | 'right'>
 	}
-	interface MathMLMiElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMiElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		mathvariant?: Attribute<'normal'>
 	}
 
-	interface MathMLMmultiscriptsElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMmultiscriptsElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @deprecated */
 		subscriptshift?: Attribute<string>
 		/** @deprecated */
 		superscriptshift?: Attribute<string>
 	}
-	interface MathMLMnElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {}
-	interface MathMLMoElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMnElementAttributes<Element>
+		extends MathMLAttributes<Element> {}
+	interface MathMLMoElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		fence?: Attribute<BooleanAttribute>
 		form?: Attribute<'prefix' | 'infix' | 'postfix'>
 		largeop?: Attribute<BooleanAttribute>
@@ -1836,53 +1749,43 @@ declare namespace JSX {
 		/** @non-standard */
 		accent?: Attribute<BooleanAttribute>
 	}
-	interface MathMLMoverElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMoverElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		accent?: Attribute<BooleanAttribute>
 	}
-	interface MathMLMpaddedElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMpaddedElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		depth?: Attribute<string>
 		height?: Attribute<string>
 		lspace?: Attribute<string>
 		voffset?: Attribute<string>
 		width?: Attribute<string>
 	}
-	interface MathMLMphantomElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {}
-	interface MathMLMprescriptsElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {}
-	interface MathMLMrootElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {}
-	interface MathMLMrowElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {}
-	interface MathMLMsElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMphantomElementAttributes<Element>
+		extends MathMLAttributes<Element> {}
+	interface MathMLMprescriptsElementAttributes<Element>
+		extends MathMLAttributes<Element> {}
+	interface MathMLMrootElementAttributes<Element>
+		extends MathMLAttributes<Element> {}
+	interface MathMLMrowElementAttributes<Element>
+		extends MathMLAttributes<Element> {}
+	interface MathMLMsElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @deprecated */
 		lquote?: Attribute<string>
 		/** @deprecated */
 		rquote?: Attribute<string>
 	}
-	interface MathMLMspaceElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMspaceElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		depth?: Attribute<string>
 		height?: Attribute<string>
 		width?: Attribute<string>
 	}
-	interface MathMLMsqrtElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {}
-	interface MathMLMstyleElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMsqrtElementAttributes<Element>
+		extends MathMLAttributes<Element> {}
+	interface MathMLMstyleElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @deprecated */
 		background?: Attribute<string>
 		/** @deprecated */
@@ -1898,29 +1801,25 @@ declare namespace JSX {
 		/** @deprecated */
 		scriptsizemultiplier?: Attribute<string>
 	}
-	interface MathMLMsubElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMsubElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @deprecated */
 		subscriptshift?: Attribute<string>
 	}
-	interface MathMLMsubsupElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMsubsupElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @deprecated */
 		subscriptshift?: Attribute<string>
 		/** @deprecated */
 		superscriptshift?: Attribute<string>
 	}
-	interface MathMLMsupElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMsupElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @deprecated */
 		superscriptshift?: Attribute<string>
 	}
-	interface MathMLMtableElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMtableElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @non-standard */
 		align?: Attribute<
 			'axis' | 'baseline' | 'bottom' | 'center' | 'top'
@@ -1946,9 +1845,8 @@ declare namespace JSX {
 		/** @non-standard */
 		width?: Attribute<string>
 	}
-	interface MathMLMtdElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMtdElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		columnspan?: Attribute<number | string>
 		rowspan?: Attribute<number | string>
 		/** @non-standard */
@@ -1958,12 +1856,10 @@ declare namespace JSX {
 			'axis' | 'baseline' | 'bottom' | 'center' | 'top'
 		>
 	}
-	interface MathMLMtextElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {}
-	interface MathMLMtrElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMtextElementAttributes<Element>
+		extends MathMLAttributes<Element> {}
+	interface MathMLMtrElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @non-standard */
 		columnalign?: Attribute<'center' | 'left' | 'right'>
 		/** @non-standard */
@@ -1971,41 +1867,35 @@ declare namespace JSX {
 			'axis' | 'baseline' | 'bottom' | 'center' | 'top'
 		>
 	}
-	interface MathMLMunderElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMunderElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		accentunder?: Attribute<BooleanAttribute>
 	}
-	interface MathMLMunderoverElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMunderoverElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		accent?: Attribute<BooleanAttribute>
 		accentunder?: Attribute<BooleanAttribute>
 	}
-	interface MathMLSemanticsElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {}
+	interface MathMLSemanticsElementAttributes<Element>
+		extends MathMLAttributes<Element> {}
 
 	/* MathMLDeprecatedElements */
 
-	interface MathMLMactionElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMactionElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @deprecated */
 		actiontype?: Attribute<'statusline' | 'toggle'>
 		/** @deprecated */
 		selection?: Attribute<string>
 	}
 
-	interface MathMLMencloseElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMencloseElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		/** @non-standard */
 		notation?: Attribute<string>
 	}
-	interface MathMLMfencedElementAttributes<
-		Element,
-	> extends MathMLAttributes<Element> {
+	interface MathMLMfencedElementAttributes<Element>
+		extends MathMLAttributes<Element> {
 		close?: Attribute<string>
 		open?: Attribute<string>
 		separators?: Attribute<string>
@@ -2013,194 +1903,133 @@ declare namespace JSX {
 
 	/* SVGElements */
 
-	interface SVGAElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGAnimateElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGAnimateMotionElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGAnimateTransformElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGCircleElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGClipPathElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGDefsElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGDescElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGEllipseElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEBlendElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEColorMatrixElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEComponentTransferElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFECompositeElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEConvolveMatrixElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEDiffuseLightingElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEDisplacementMapElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEDistantLightElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEDropShadowElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEFloodElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEFuncAElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEFuncBElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEFuncGElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEFuncRElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEGaussianBlurElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEImageElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEMergeElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEMergeNodeElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEMorphologyElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEOffsetElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFEPointLightElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFESpecularLightingElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFESpotLightElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFETileElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFETurbulenceElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGFilterElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGForeignObjectElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGGElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGImageElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGLineElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGLinearGradientElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGMPathElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGMarkerElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGMaskElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGMetadataElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGPathElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGPatternElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGPolygonElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGPolylineElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGRadialGradientElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGRectElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
+	interface SVGAElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGAnimateElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGAnimateMotionElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGAnimateTransformElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGCircleElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGClipPathElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGDefsElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGDescElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGEllipseElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEBlendElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEColorMatrixElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEComponentTransferElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFECompositeElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEConvolveMatrixElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEDiffuseLightingElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEDisplacementMapElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEDistantLightElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEDropShadowElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEFloodElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEFuncAElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEFuncBElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEFuncGElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEFuncRElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEGaussianBlurElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEImageElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEMergeElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEMergeNodeElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEMorphologyElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEOffsetElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFEPointLightElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFESpecularLightingElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFESpotLightElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFETileElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFETurbulenceElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGFilterElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGForeignObjectElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGGElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGImageElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGLineElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGLinearGradientElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGMPathElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGMarkerElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGMaskElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGMetadataElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGPathElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGPatternElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGPolygonElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGPolylineElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGRadialGradientElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGRectElementAttributes<Element>
+		extends SVGAttributes<Element> {}
 	interface SVGSVGElementAttributes<Element>
-		extends SVGAttributes<Element>, EventHandlersWindow<Element> {}
-	interface SVGScriptElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGSetElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGStopElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGStyleElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGSwitchElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGSymbolElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGTSpanElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGTextElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGTextPathElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGTitleElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGUseElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
-	interface SVGViewElementAttributes<
-		Element,
-	> extends SVGAttributes<Element> {}
+		extends SVGAttributes<Element>,
+			EventHandlersWindow<Element> {}
+	interface SVGScriptElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGSetElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGStopElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGStyleElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGSwitchElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGSymbolElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGTSpanElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGTextElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGTextPathElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGTitleElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGUseElementAttributes<Element>
+		extends SVGAttributes<Element> {}
+	interface SVGViewElementAttributes<Element>
+		extends SVGAttributes<Element> {}
 
 	// HTMLElements
 
@@ -3847,8 +3676,9 @@ declare namespace JSX {
 
 	// EventTypeFor<"click"> = MouseEvent
 	// EventTypeFor<"my-custom"> = CustomEvent
-	type EventTypeFor<K> =
-		K extends keyof EventType ? EventType[K] : CustomEvent
+	type EventTypeFor<K> = K extends keyof EventType
+		? EventType[K]
+		: CustomEvent
 
 	/** ARIA */
 

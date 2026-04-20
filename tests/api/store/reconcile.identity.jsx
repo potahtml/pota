@@ -966,11 +966,7 @@ await test('identity: replace keyed array removes missing matches at depth 2', e
 await test('identity: merge keyed array — pushed new items are detached from source', expect => {
 	const target = { users: [{ id: 1 }] }
 	const newItem = { id: 2, name: 'bob', nested: { deep: 1 } }
-	merge(
-		target,
-		{ users: [newItem] },
-		{ users: { key: 'id' } },
-	)
+	merge(target, { users: [newItem] }, { users: { key: 'id' } })
 	// id=2 is new → pushed. Must be a detached copy.
 	expect(target.users.length).toBe(2)
 	expect(target.users[1]).not.toBe(newItem)
@@ -983,11 +979,7 @@ await test('identity: merge keyed array — pushed new items are detached from s
 await test('identity: replace keyed array — pushed new items are detached from source', expect => {
 	const target = { users: [{ id: 1 }] }
 	const newItem = { id: 2, nested: { v: 1 } }
-	replace(
-		target,
-		{ users: [newItem] },
-		{ users: { key: 'id' } },
-	)
+	replace(target, { users: [newItem] }, { users: { key: 'id' } })
 	expect(target.users[0]).not.toBe(newItem)
 	newItem.nested.v = 999
 	expect(target.users[0].nested.v).toBe(1)

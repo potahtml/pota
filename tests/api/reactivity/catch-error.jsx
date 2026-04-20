@@ -184,8 +184,7 @@ await test('catchError — catches memo error triggered by signal change', expec
 		catchError(
 			() => {
 				m = memo(() => {
-					if (read() === 1)
-						throw new Error('memo triggered')
+					if (read() === 1) throw new Error('memo triggered')
 					return read()
 				})
 				m() // initial read, no error
@@ -233,8 +232,7 @@ await test('catchError — catches derived chain error on signal change', expect
 				const d = derived(
 					() => read(),
 					v => {
-						if (v === 2)
-							throw new Error('chain stage boom')
+						if (v === 2) throw new Error('chain stage boom')
 						return v * 10
 					},
 				)
@@ -288,8 +286,7 @@ await test('catchError — nested: inner catches reactive error before outer', e
 				catchError(
 					() => {
 						effect(() => {
-							if (read() === 1)
-								throw new Error('inner reactive')
+							if (read() === 1) throw new Error('inner reactive')
 						})
 					},
 					err => {
@@ -595,8 +592,7 @@ await test('catchError — only throwing child triggers handler, sibling effects
 		catchError(
 			() => {
 				effect(() => {
-					if (read() === 1)
-						throw new Error('one throws')
+					if (read() === 1) throw new Error('one throws')
 				})
 				effect(() => {
 					siblingValue = read()
@@ -754,8 +750,7 @@ await test('catchError — reactive handler error escalates to parent', expect =
 				catchError(
 					() => {
 						effect(() => {
-							if (read() === 1)
-								throw new Error('child reactive')
+							if (read() === 1) throw new Error('child reactive')
 						})
 					},
 					err => {
@@ -775,9 +770,7 @@ await test('catchError — reactive handler error escalates to parent', expect =
 
 	write(1)
 	expect(outerCaught instanceof Error).toBe(true)
-	expect(outerCaught.message).toBe(
-		'handler broke on: child reactive',
-	)
+	expect(outerCaught.message).toBe('handler broke on: child reactive')
 })
 
 // --- abort semantics: untrack ----------------------------------------
@@ -883,8 +876,7 @@ await test('effect — partial children created before throw are disposed', expe
 							childDisposed = true
 						})
 					})
-					if (read() === 1)
-						throw new Error('parent throws')
+					if (read() === 1) throw new Error('parent throws')
 				})
 			},
 			() => {},
@@ -1167,9 +1159,7 @@ await test('catchError — catches rejected promise in derived', async expect =>
 	root(() => {
 		catchError(
 			() => {
-				const d = derived(
-					() => Promise.reject(new Error('rejected')),
-				)
+				const d = derived(() => Promise.reject(new Error('rejected')))
 				d()
 			},
 			err => {
@@ -1210,9 +1200,7 @@ await test('catchError — catches rejected promise via signal change', async ex
 		catchError(
 			() => {
 				const d = derived(() =>
-					read()
-						? Promise.reject(new Error('later'))
-						: 'ok',
+					read() ? Promise.reject(new Error('later')) : 'ok',
 				)
 				d()
 			},
@@ -1240,9 +1228,7 @@ await test('catchError — rejection does not break sibling effects', async expe
 	root(() => {
 		catchError(
 			() => {
-				const d = derived(
-					() => Promise.reject(new Error('boom')),
-				)
+				const d = derived(() => Promise.reject(new Error('boom')))
 				d()
 			},
 			err => {
@@ -1272,9 +1258,7 @@ await test('catchError — rejection without handler goes to console.error', asy
 	}
 
 	root(() => {
-		const d = derived(
-			() => Promise.reject(new Error('no handler')),
-		)
+		const d = derived(() => Promise.reject(new Error('no handler')))
 		d()
 	})
 
@@ -1311,4 +1295,3 @@ await test('catchError — thrown error in one effect does not break other effec
 	console.error = originalError
 	dispose()
 })
-

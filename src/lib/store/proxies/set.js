@@ -164,13 +164,6 @@ const setMethods = {
 	},
 
 	[iterator](handler, trackSlot, target, value, args, proxy) {
-		return this.values(
-			handler,
-			trackSlot,
-			target,
-			value,
-			args,
-			proxy,
-		)
+		return this.values(handler, trackSlot, target, value, args, proxy)
 	},
 }

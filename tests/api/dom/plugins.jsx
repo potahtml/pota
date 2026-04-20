@@ -59,17 +59,13 @@ await test('propsPluginNS - reactive signal value updates the element', expect =
 	propsPluginNS(
 		'test-ns',
 		(node, localName, value) => {
-			withValue(value, v =>
-				node.setAttribute(`data-${localName}`, v),
-			)
+			withValue(value, v => node.setAttribute(`data-${localName}`, v))
 		},
 		false,
 	)
 
 	const val = signal('initial')
-	const dispose = render(
-		<div test-ns:custom={val.read}>content</div>,
-	)
+	const dispose = render(<div test-ns:custom={val.read}>content</div>)
 
 	expect($('div').getAttribute('data-custom')).toBe('initial')
 

@@ -9,9 +9,7 @@ import { render } from 'pota'
 // --- promise children --------------------------------------------------------
 
 await test('children - promise as child renders when resolved', async expect => {
-	const dispose = render(
-		<div>{Promise.resolve('async text')}</div>,
-	)
+	const dispose = render(<div>{Promise.resolve('async text')}</div>)
 
 	await macrotask()
 
@@ -24,9 +22,7 @@ await test('children - promise as child renders when resolved', async expect => 
 
 await test('children - Set as child renders all values', expect => {
 	const items = new Set(['a', 'b', 'c'])
-	const dispose = render(
-		<div>{items}</div>,
-	)
+	const dispose = render(<div>{items}</div>)
 
 	expect($('div').textContent).toBe('abc')
 
