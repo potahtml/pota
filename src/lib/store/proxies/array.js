@@ -208,6 +208,9 @@ const arrayMethods = {
 	// lib.es5.d.ts
 
 	push(handler, target, value, args, proxy) {
+		// 0-arg push is a no-op; don't fire blanket notifications
+		if (args.length === 0) return reflectApply(value, target, args)
+
 		args = args.map(value => mutable(value))
 
 		// "something" changed
@@ -244,6 +247,9 @@ const arrayMethods = {
 	 * new length of the array.
 	 */
 	unshift(handler, target, value, args, proxy) {
+		// 0-arg unshift is a no-op; don't fire blanket notifications
+		if (args.length === 0) return reflectApply(value, target, args)
+
 		args = args.map(value => mutable(value))
 
 		const r = reflectApply(value, target, args)
