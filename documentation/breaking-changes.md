@@ -42,9 +42,9 @@
   re-ran the original derivation function and clobbered the value.
   This was most visible via `bind(...)`:
   ```js
-  const v = bind('a')
-  v('changed')
-  v() // used to return 'a', now returns 'changed'
+  const v = bind("a");
+  v("changed");
+  v(); // used to return 'a', now returns 'changed'
   ```
   Reading first and then writing was already fine; this fix makes the
   two orderings consistent.
@@ -56,11 +56,11 @@
   overwritten by a newer sync write or a newer promise would clobber
   the newer value:
   ```js
-  const d = derived(() => pendingPromise)
-  d() // registers the promise
-  d('manual') // sync override visible immediately
+  const d = derived(() => pendingPromise);
+  d(); // registers the promise
+  d("manual"); // sync override visible immediately
   // …pendingPromise resolves later…
-  d() // used to return the resolved value,
+  d(); // used to return the resolved value,
   // now correctly returns 'manual'
   ```
   Same fix applies when two promises are in flight and the older one

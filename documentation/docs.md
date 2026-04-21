@@ -12,8 +12,8 @@ Starter project templates for getting up and running quickly:
 
 ## Tests as examples
 
-The `tests/api/` directory contains browser tests that double as
-usage examples. Every exported API, component, and composable has a
+The `tests/api/` directory contains browser tests that double as usage
+examples. Every exported API, component, and composable has a
 corresponding test file showing real usage patterns.
 
 See `tests/readme.md` for the full index.

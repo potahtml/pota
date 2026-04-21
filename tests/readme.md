@@ -12,18 +12,18 @@ time. Write 1 file at a time.
 - Tests run in a real Chromium browser (Puppeteer, headed by default).
   DOM APIs are available; `body()` from `pota/use/test` returns
   `document.body.innerHTML`.
-- The test harness (`tools/test-runner/test.js`) clears `document.body`,
-  `document.head`, and `document.adoptedStyleSheets` before each test,
-  and verifies all three are clean after each test. A test that leaves
-  DOM behind will fail.
+- The test harness (`tools/test-runner/test.js`) clears
+  `document.body`, `document.head`, and `document.adoptedStyleSheets`
+  before each test, and verifies all three are clean after each test.
+  A test that leaves DOM behind will fail.
 - When using `render`, call the returned `dispose` function at the end
   of the test — the harness asserts the document is empty afterward to
   verify proper node cleanup.
 - Use JSX directly in test files (they are transformed) — no
   `Component()` calls needed.
 - Make sure tests cover every situation possible.
-- Before writing each file, think if you would do something better
-  and do it.
+- Before writing each file, think if you would do something better and
+  do it.
 
 ## Agent Notes
 
@@ -72,16 +72,16 @@ See `documentation/scheduler.md` § "Timing for tests" for the full
 rule of thumb. Quick reminders specific to writing tests:
 
 - Prefer `microtask` over `macrotask`, and `macrotask` over `sleep`.
-- Do not use double `await microtask()` — use a single `await
-  macrotask()` instead.
+- Do not use double `await microtask()` — use a single
+  `await macrotask()` instead.
 - `useTimeout` tests need `sleep > timer delay`.
 
 ## Current Gaps
 
 - Main remaining behavioral gap is `babel-preset` tooling coverage
   beyond the 12-check smoke test in `tools/babel-preset/test/`.
-- `map()` direct fallback usage (without `For`) is commented out —
-  the fallback cleanup mechanism doesn't work outside `For`.
+- `map()` direct fallback usage (without `For`) is commented out — the
+  fallback cleanup mechanism doesn't work outside `For`.
 
 All test file paths below are relative to `tests/api/` unless noted.
 
@@ -112,129 +112,130 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 
 ## `tests/api/components/` — built-in components
 
-| File                    | Covers                              |
-| ----------------------- | ----------------------------------- |
-| `a.jsx`                 | `A` anchor component from route     |
-| `collapse.jsx`          | `Collapse`                          |
-| `custom-element.jsx`    | `CustomElement`, `customElement`    |
-| `dynamic.jsx`            | `Dynamic`                           |
-| `errored.jsx`            | `Errored` — see `documentation/errored.md` |
-| `for.jsx`                | `For`                               |
-| `head.jsx`               | `Head`                              |
-| `load.jsx`               | `load()` from route                 |
-| `navigate.jsx`           | `Navigate`                          |
-| `normalize.jsx`          | `Normalize`                         |
-| `portal.jsx`             | `Portal`                            |
-| `range.jsx`              | `Range`                             |
-| `route.jsx`              | `Route`                             |
-| `show.jsx`               | `Show`                              |
-| `suspense.jsx`           | `Suspense`                          |
-| `switch.jsx`             | `Match`, `Switch`                   |
-| `tabs.jsx`               | `Tabs` and sub-components           |
+| File                 | Covers                                     |
+| -------------------- | ------------------------------------------ |
+| `a.jsx`              | `A` anchor component from route            |
+| `collapse.jsx`       | `Collapse`                                 |
+| `custom-element.jsx` | `CustomElement`, `customElement`           |
+| `dynamic.jsx`        | `Dynamic`                                  |
+| `errored.jsx`        | `Errored` — see `documentation/errored.md` |
+| `for.jsx`            | `For`                                      |
+| `head.jsx`           | `Head`                                     |
+| `load.jsx`           | `load()` from route                        |
+| `navigate.jsx`       | `Navigate`                                 |
+| `normalize.jsx`      | `Normalize`                                |
+| `portal.jsx`         | `Portal`                                   |
+| `range.jsx`          | `Range`                                    |
+| `route.jsx`          | `Route`                                    |
+| `show.jsx`           | `Show`                                     |
+| `suspense.jsx`       | `Suspense`                                 |
+| `switch.jsx`         | `Match`, `Switch`                          |
+| `tabs.jsx`           | `Tabs` and sub-components                  |
 
 ## `tests/api/reactivity/` — reactive primitives
 
-| File                            | Covers                                          |
-| ------------------------------- | ----------------------------------------------- |
-| `action.jsx`                    | `action`                                        |
-| `batch.jsx`                     | `batch`                                         |
-| `catch-error.jsx`               | `catchError` (also exercises cleanup-error routing) |
-| `cleanup.jsx`                   | `cleanup` + throwing-cleanup routing            |
-| `context.jsx`                   | `context` / Provider / `walk`                   |
-| `derived.jsx`                   | `derived` — primitive semantics, promise / array handling, `lastWrite` token |
-| `derived-chain-current.jsx`     | multi-stage chain baselines                     |
-| `derived-chain-expected.jsx`    | per-stage re-run + user-write override (run explicitly: `npm run test:api -- derived-chain-expected`) |
-| `effect.jsx`                    | `effect`                                        |
-| `external-signal.jsx`           | `externalSignal`                                |
-| `map.jsx`                       | `map`                                           |
-| `memo.jsx`                      | `memo` (incl. the phantom-property inference fix) |
-| `on.jsx`                        | `on`                                            |
-| `owned.jsx`                     | `owned` + `runWithOwner` error routing          |
-| `resolve.jsx`                   | `resolve`                                       |
-| `root.jsx`                      | `root`                                          |
-| `signal.jsx`                    | `signal` tuple / object shape, `equals` options |
-| `sync-effect.jsx`               | `syncEffect`                                    |
-| `untrack.jsx`                   | `untrack`                                       |
-| `unwrap.jsx`                    | `unwrap`                                        |
-| `with-value.jsx`                | `withValue`                                     |
+| File                         | Covers                                                                                                |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `action.jsx`                 | `action`                                                                                              |
+| `batch.jsx`                  | `batch`                                                                                               |
+| `catch-error.jsx`            | `catchError` (also exercises cleanup-error routing)                                                   |
+| `cleanup.jsx`                | `cleanup` + throwing-cleanup routing                                                                  |
+| `context.jsx`                | `context` / Provider / `walk`                                                                         |
+| `derived.jsx`                | `derived` — primitive semantics, promise / array handling, `lastWrite` token                          |
+| `derived-chain-current.jsx`  | multi-stage chain baselines                                                                           |
+| `derived-chain-expected.jsx` | per-stage re-run + user-write override (run explicitly: `npm run test:api -- derived-chain-expected`) |
+| `effect.jsx`                 | `effect`                                                                                              |
+| `external-signal.jsx`        | `externalSignal`                                                                                      |
+| `map.jsx`                    | `map`                                                                                                 |
+| `memo.jsx`                   | `memo` (incl. the phantom-property inference fix)                                                     |
+| `on.jsx`                     | `on`                                                                                                  |
+| `owned.jsx`                  | `owned` + `runWithOwner` error routing                                                                |
+| `resolve.jsx`                | `resolve`                                                                                             |
+| `root.jsx`                   | `root`                                                                                                |
+| `signal.jsx`                 | `signal` tuple / object shape, `equals` options                                                       |
+| `sync-effect.jsx`            | `syncEffect`                                                                                          |
+| `untrack.jsx`                | `untrack`                                                                                             |
+| `unwrap.jsx`                 | `unwrap`                                                                                              |
+| `with-value.jsx`             | `withValue`                                                                                           |
 
 ## `tests/api/dom/` — renderer, props, events, plugins
 
-| File                     | Covers                                                 |
-| ------------------------ | ------------------------------------------------------ |
-| `component.jsx`          | `Component`, `isComponent`, `makeCallback`, `markComponent`, `Pota` |
-| `events.jsx`             | `addEvent` / `removeEvent`, event delegation           |
-| `helpers.jsx`             | DOM test helpers themselves                           |
-| `namespaces.jsx`         | SVG / MathML / foreignObject                           |
-| `partials.jsx`            | `createPartial` runtime                               |
-| `plugins.jsx`             | `propsPlugin`, `propsPluginNS`                        |
-| `reactive-children.jsx`   | reactive text/children semantics                      |
-| `ready.jsx`               | `ready`, `readyAsync`, scheduler priorities            |
-| `refs.jsx`                | `use:ref`, `ref()`                                    |
-| `render.jsx`              | `render`, `insert`, `toHTML`                          |
-| `set-attribute.jsx`       | `setAttribute`                                        |
-| `set-class.jsx`           | `setClass`, `setClassList`, `class:*`                 |
-| `set-property.jsx`        | `setProperty`, `prop:*`                              |
-| `set-style.jsx`           | `setStyle`, `style:*`                                 |
-| `special-children.jsx`    | empty fragments, boolean / null children              |
-| `use-css.jsx`             | `use:css`                                             |
+| File                    | Covers                                                              |
+| ----------------------- | ------------------------------------------------------------------- |
+| `component.jsx`         | `Component`, `isComponent`, `makeCallback`, `markComponent`, `Pota` |
+| `events.jsx`            | `addEvent` / `removeEvent`, event delegation                        |
+| `helpers.jsx`           | DOM test helpers themselves                                         |
+| `namespaces.jsx`        | SVG / MathML / foreignObject                                        |
+| `partials.jsx`          | `createPartial` runtime                                             |
+| `plugins.jsx`           | `propsPlugin`, `propsPluginNS`                                      |
+| `reactive-children.jsx` | reactive text/children semantics                                    |
+| `ready.jsx`             | `ready`, `readyAsync`, scheduler priorities                         |
+| `refs.jsx`              | `use:ref`, `ref()`                                                  |
+| `render.jsx`            | `render`, `insert`, `toHTML`                                        |
+| `set-attribute.jsx`     | `setAttribute`                                                      |
+| `set-class.jsx`         | `setClass`, `setClassList`, `class:*`                               |
+| `set-property.jsx`      | `setProperty`, `prop:*`                                             |
+| `set-style.jsx`         | `setStyle`, `style:*`                                               |
+| `special-children.jsx`  | empty fragments, boolean / null children                            |
+| `use-css.jsx`           | `use:css`                                                           |
 
 ## `tests/api/forms/` — native HTML form behavior
 
-| File                      | Covers                                               |
-| ------------------------- | ---------------------------------------------------- |
-| `attributes.jsx`          | form / field attribute defaults                      |
-| `elements.jsx`            | `form.elements`, fieldset, label association         |
-| `events.jsx`              | focus / blur / input / change flows                  |
+| File                      | Covers                                                    |
+| ------------------------- | --------------------------------------------------------- |
+| `attributes.jsx`          | form / field attribute defaults                           |
+| `elements.jsx`            | `form.elements`, fieldset, label association              |
+| `events.jsx`              | focus / blur / input / change flows                       |
 | `reactive-attributes.jsx` | signals driving disabled / required / pattern / min / max |
-| `reactive-fields.jsx`     | reactive value / checked / selected                  |
-| `reset.jsx`               | form reset semantics across input types              |
-| `validity.jsx`            | validity API, `setCustomValidity`                    |
+| `reactive-fields.jsx`     | reactive value / checked / selected                       |
+| `reset.jsx`               | form reset semantics across input types                   |
+| `validity.jsx`            | validity API, `setCustomValidity`                         |
 
 ## `tests/api/jsx/` — JSX transform and tracking
 
-| File                    | Covers                                                 |
-| ----------------------- | ------------------------------------------------------ |
-| `children.jsx`          | children shapes, fragments, arrays                     |
-| `component-tracking.jsx` | `() =>` wrapped vs unwrapped in Show / Switch / For    |
+| File                     | Covers                                                  |
+| ------------------------ | ------------------------------------------------------- |
+| `children.jsx`           | children shapes, fragments, arrays                      |
+| `component-tracking.jsx` | `() =>` wrapped vs unwrapped in Show / Switch / For     |
 | `transform.jsx`          | Babel preset output — partials, event hoisting, spreads |
 
 ## `tests/api/store/` — reactive store
 
-| File            | Covers                           |
-| --------------- | -------------------------------- |
-| `copy.jsx`      | `copy`, `readonly`               |
-| `merge.jsx`     | `merge` reconcile                |
-| `mutable.jsx`   | `mutable`                        |
-| `project.jsx`   | `project`, `firewall`            |
-| `readonly.jsx`  | `readonly`                       |
-| `replace.jsx`   | `replace` reconcile              |
-| `reset.jsx`     | `reset` reconcile                |
-| `signalify.jsx` | `signalify`                      |
+| File            | Covers                                              |
+| --------------- | --------------------------------------------------- |
+| `copy.jsx`      | `copy`, `readonly`                                  |
+| `merge.jsx`     | `merge` reconcile                                   |
+| `mutable.jsx`   | `mutable`                                           |
+| `project.jsx`   | `project`, `firewall`                               |
+| `readonly.jsx`  | `readonly`                                          |
+| `replace.jsx`   | `replace` reconcile                                 |
+| `reset.jsx`     | `reset` reconcile                                   |
+| `signalify.jsx` | `signalify`                                         |
 | `store.jsx`     | cross-cutting store integration + `updateBlacklist` |
 
 ## `tests/api/use/` — `pota/use/*`
 
-One file per module under `src/use/`. Each imports from `#test`
-and the matching `pota/use/<name>` subpath.
+One file per module under `src/use/`. Each imports from `#test` and
+the matching `pota/use/<name>` subpath.
 
 ## Top-level tests
 
-| File                      | Covers                                                         |
-| ------------------------- | -------------------------------------------------------------- |
-| `console-formatting.jsx`  | test-runner pack/unpack pipeline across console methods        |
-| `std.jsx`                  | selected `src/lib/std.js` utilities                           |
-| `xml.jsx`                  | `pota/xml` tagged-template renderer + `XML()` factory         |
+| File                     | Covers                                                  |
+| ------------------------ | ------------------------------------------------------- |
+| `console-formatting.jsx` | test-runner pack/unpack pipeline across console methods |
+| `std.jsx`                | selected `src/lib/std.js` utilities                     |
+| `xml.jsx`                | `pota/xml` tagged-template renderer + `XML()` factory   |
 
 ## `tests/typescript/` — typecheck-only tests
 
 Run via `npm run test:ts-tests` (`tsc -p tests/tsconfig.json`).
-Per-file scope catalogued in `documentation/typescript.md` (Verification Checklist).
+Per-file scope catalogued in `documentation/typescript.md`
+(Verification Checklist).
 
 ---
 
 ## Babel preset tests
 
-Not discovered by the main runner. Run via `npm run test:babel-preset`.
-Sources under `tools/babel-preset/test/`; see
-`tools/babel-preset/readme.md`.
+Not discovered by the main runner. Run via
+`npm run test:babel-preset`. Sources under `tools/babel-preset/test/`;
+see `tools/babel-preset/readme.md`.

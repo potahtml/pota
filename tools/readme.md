@@ -5,14 +5,14 @@ published package.
 
 ## Files
 
-| Path                  | Role                                                  |
-| --------------------- | ----------------------------------------------------- |
-| `watch.js`            | Dev watcher — spawns all `watch:*` npm scripts        |
-| `generate.js`         | Generates `generated/docs/importmap.json` and `types.json` for the docs site |
-| `release.js`          | Version bump, git tag, and npm publish script         |
-| `utils.js`            | Shared file system helpers used by other tools        |
-| `babel-preset/`       | Rollup configs and Puppeteer tests for the Babel preset builds |
-| `test-runner/`        | Custom Puppeteer browser test runner                  |
+| Path            | Role                                                                         |
+| --------------- | ---------------------------------------------------------------------------- |
+| `watch.js`      | Dev watcher — spawns all `watch:*` npm scripts                               |
+| `generate.js`   | Generates `generated/docs/importmap.json` and `types.json` for the docs site |
+| `release.js`    | Version bump, git tag, and npm publish script                                |
+| `utils.js`      | Shared file system helpers used by other tools                               |
+| `babel-preset/` | Rollup configs and Puppeteer tests for the Babel preset builds               |
+| `test-runner/`  | Custom Puppeteer browser test runner                                         |
 
 ## One-shot vs watch
 
@@ -26,33 +26,33 @@ Each build task and the browser test runner have two script variants:
 | `npm run test:api`           | `npm run watch:test`                     |
 
 Use `build:*` to regenerate artifacts once (e.g. verify a change
-compiled correctly). Use `watch:*` (via `npm run dev`) during
-active development.
+compiled correctly). Use `watch:*` (via `npm run dev`) during active
+development.
 
 ## Typecheck scripts
 
 Three scoped typecheck scripts, each with a watch variant:
 
-| One-shot                       | Watch                          | Config                       |
-| ------------------------------ | ------------------------------ | ---------------------------- |
-| `npm run test:ts`              | `npm run watch:ts`             | `tsconfig.json` (`src/`)     |
-| `npm run test:ts-tests`        | `npm run watch:ts-tests`       | `tests/tsconfig.json`        |
+| One-shot                       | Watch                           | Config                       |
+| ------------------------------ | ------------------------------- | ---------------------------- |
+| `npm run test:ts`              | `npm run watch:ts`              | `tsconfig.json` (`src/`)     |
+| `npm run test:ts-tests`        | `npm run watch:ts-tests`        | `tests/tsconfig.json`        |
 | `npm run test:ts-babel-preset` | `npm run watch:ts-babel-preset` | `babel-preset/tsconfig.json` |
 
 Only `test:ts` emits — into `generated/types/`. The other two are
 typecheck-only (`noEmit`).
 
 `test:ts` and `build:ts` are the same `tsc` invocation; the alias
-exists so `test:types` can group the three typechecks under one
-name. `test:types` chains them sequentially and is the first stage
-of `npm test`. All three tsconfigs set `preserveWatchOutput: true`
-so their diagnostics don't wipe the shared `npm run dev` console.
+exists so `test:types` can group the three typechecks under one name.
+`test:types` chains them sequentially and is the first stage of
+`npm test`. All three tsconfigs set `preserveWatchOutput: true` so
+their diagnostics don't wipe the shared `npm run dev` console.
 
 ## Full verification
 
 `npm test` runs the whole suite: `test:types` → `test:api` →
-`test:babel-preset`. That's what `npm run release` chains in front
-of `tools/release.js`.
+`test:babel-preset`. That's what `npm run release` chains in front of
+`tools/release.js`.
 
 ## watch.js
 
@@ -88,9 +88,9 @@ Bumps the patch version, writes `src/version.js`, commits, tags, and
 publishes to npm. Run from the repo root.
 
 **Before running:** update `documentation/breaking-changes.md` — its
-contents become the signed git tag message (`-F
-./documentation/breaking-changes.md`). The tag is signed (`-s -a`),
-so a GPG key must be configured.
+contents become the signed git tag message
+(`-F ./documentation/breaking-changes.md`). The tag is signed
+(`-s -a`), so a GPG key must be configured.
 
 `npm run release` chains `npm test` in front of `release.js` (which
 covers types, browser tests, and the babel-preset smoke suite), so a
@@ -106,8 +106,8 @@ npm run release
 Shared helpers used by `generate.js`, `release.js`, `watch.js`, and
 the test runner. Not a public API. Three groups:
 
-- **Filesystem helpers** (read/write with change-detection,
-  recursive listing, copy/move/remove, directory watching).
+- **Filesystem helpers** (read/write with change-detection, recursive
+  listing, copy/move/remove, directory watching).
 - **Process**: `$` (execSync alias) and `spawn`.
 - **ANSI color helpers** for terminal output.
 
@@ -115,15 +115,17 @@ the test runner. Not a public API. Three groups:
 
 Rollup build configs for:
 
-- `generated/babel-preset.cjs` — CJS build of the Babel preset for Node consumers
-- `generated/babel-preset-standalone.js` — IIFE bundle of `@babel/standalone` + pota preset for browser use
+- `generated/babel-preset.cjs` — CJS build of the Babel preset for
+  Node consumers
+- `generated/babel-preset-standalone.js` — IIFE bundle of
+  `@babel/standalone` + pota preset for browser use
 
 Also contains Puppeteer tests for the standalone bundle. See
 `tools/babel-preset/readme.md` for details.
 
 ## test-runner/
 
-Custom Puppeteer test runner that transforms `.jsx`/`.tsx` files
-on the fly via the local Babel preset, serves them over HTTP, and runs
+Custom Puppeteer test runner that transforms `.jsx`/`.tsx` files on
+the fly via the local Babel preset, serves them over HTTP, and runs
 them in a real Chromium browser. See `tools/test-runner/readme.md` for
 details.

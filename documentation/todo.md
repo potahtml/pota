@@ -25,7 +25,7 @@
 
 ### reactivity
 
-- figure out if possible to prevent writing to signals inside effects
+- prevent writing to signals inside tracked scopes
 
 ### use
 

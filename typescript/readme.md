@@ -35,10 +35,10 @@ references the same chain plus `public/components.d.ts`.
 
 ## How types reach src/ during development
 
-The `files` array in `tsconfig.json` lists the ambient `.d.ts`
-files that src/ JSDoc needs (everything from `jsx/` and
-`public/`). These are loaded for type-checking but never emitted
-to `generated/types/` (tsc skips `.d.ts` during emit).
+The `files` array in `tsconfig.json` lists the ambient `.d.ts` files
+that src/ JSDoc needs (everything from `jsx/` and `public/`). These
+are loaded for type-checking but never emitted to `generated/types/`
+(tsc skips `.d.ts` during emit).
 
 ## How to reference private types from src/
 

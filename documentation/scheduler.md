@@ -22,14 +22,14 @@ queue = [ [], [], [], [], [], [] ]
          0    1    2    3    4    5
 ```
 
-| Priority | Public name    | Purpose                                            |
-| -------- | -------------- | -------------------------------------------------- |
-| 0        | `onFixes`      | Runs before everything else (e.g. focus restoration) |
-| 1        | `onProps`      | Prop plugins registered with `onMicrotask=true`    |
-| 2        | `onMount`      | After props have been applied                      |
-| 3        | `ready`        | Public `ready(fn)` — after mount                   |
-| 4        | `onDone`       | Runs after user-defined processes                  |
-| 5        | *(unused)*     | Reserved slot                                      |
+| Priority | Public name | Purpose                                              |
+| -------- | ----------- | ---------------------------------------------------- |
+| 0        | `onFixes`   | Runs before everything else (e.g. focus restoration) |
+| 1        | `onProps`   | Prop plugins registered with `onMicrotask=true`      |
+| 2        | `onMount`   | After props have been applied                        |
+| 3        | `ready`     | Public `ready(fn)` — after mount                     |
+| 4        | `onDone`    | Runs after user-defined processes                    |
+| 5        | _(unused)_  | Reserved slot                                        |
 
 Only `ready` (and the async-tracking counterpart `readyAsync`) are
 exported from `pota`. The other four are internal — they exist to let
@@ -52,29 +52,28 @@ details into user code.
 `run()`:
 
 1. Swaps the live buckets for fresh empty ones (`reset()`), clearing
-   the `added` flag so new calls during flush schedule a new
-   microtask instead of piggy-backing on the current one.
+   the `added` flag so new calls during flush schedule a new microtask
+   instead of piggy-backing on the current one.
 2. Iterates buckets in priority order, calling each bucket in
    sequence.
 
-The double-swap pattern means every `run()` starts with the buckets
-it owned when the microtask fired — callbacks scheduled during `run`
-wait for the next flush, avoiding re-entrant mutation of the array
-being iterated.
+The double-swap pattern means every `run()` starts with the buckets it
+owned when the microtask fired — callbacks scheduled during `run` wait
+for the next flush, avoiding re-entrant mutation of the array being
+iterated.
 
 ---
 
 ## `readyAsync`
 
-Separate from the priority queue. It re-exports
-`asyncTracking.ready` from `src/lib/solid.js`:
+Separate from the priority queue. It re-exports `asyncTracking.ready`
+from `src/lib/solid.js`:
 
 - Increments/decrements a counter each time `withValue` wraps a
   pending promise.
-- When the counter hits zero, runs registered callbacks via a
-  double `queueMicrotask` (two microtask ticks) to let any
-  synchronous follow-up work queue before the "all async done"
-  signal fires.
+- When the counter hits zero, runs registered callbacks via a double
+  `queueMicrotask` (two microtask ticks) to let any synchronous
+  follow-up work queue before the "all async done" signal fires.
 
 `ready` fires after every synchronous render; `readyAsync` waits for
 every in-flight `derived`/`withValue` promise to settle first. Use
@@ -91,8 +90,8 @@ The rule of thumb (full list in `tests/readme.md`):
   for `onProps`, `onMount`, `ready`, lifecycle plugins, and any
   callback that was routed through `add(...)`.
 - **`await macrotask()`** — needed when promises chain through more
-  than one microtask tick (e.g. `readyAsync`, `action` promise
-  chains, `CSSStyleSheet.replace()`).
+  than one microtask tick (e.g. `readyAsync`, `action` promise chains,
+  `CSSStyleSheet.replace()`).
 - **`sleep(ms)`** — only for truly time-dependent browser APIs
   (`history.back()` needs ~200ms, `navigate({delay})` needs ≥2×
   delay).
