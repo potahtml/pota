@@ -34,10 +34,13 @@ function _setAttribute(node, name, value) {
  * @param {string} name
  * @param {Accessor<string | number | boolean>} value
  * @param {string} ns
+ * @param {string} localName
  * @url https://pota.quack.uy/props/setAttribute
  */
-export const setAttributeNS = (node, name, value, ns) => {
-	withValue(value, value => _setAttributeNS(node, name, value, ns))
+export const setAttributeNS = (node, name, value, ns, localName) => {
+	withValue(value, value =>
+		_setAttributeNS(node, name, value, ns, localName),
+	)
 }
 
 /**
@@ -45,12 +48,14 @@ export const setAttributeNS = (node, name, value, ns) => {
  * @param {string} name
  * @param {string | number | boolean} value
  * @param {string} ns
+ * @param {string} localName
  */
-function _setAttributeNS(node, name, value, ns) {
+function _setAttributeNS(node, name, value, ns, localName) {
 	// if the value is false/null/undefined it will be removed
 	value === false || value == null
 		? NS[ns]
-			? node.removeAttributeNS(NS[ns], name)
+			? // removeAttributeNS takes the local name, not the qualified
+				node.removeAttributeNS(NS[ns], localName)
 			: node.removeAttribute(name)
 		: NS[ns]
 			? node.setAttributeNS(

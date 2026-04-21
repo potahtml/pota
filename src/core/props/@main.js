@@ -95,7 +95,13 @@ export function assignProp(node, name, value) {
 		plugin = pluginsNS.get(propNS[name][0])
 		plugin
 			? plugin(node, propNS[name][1], value)
-			: setAttributeNS(node, name, value, propNS[name][0])
+			: setAttributeNS(
+					node,
+					name,
+					value,
+					propNS[name][0],
+					propNS[name][1],
+				)
 	} else {
 		// catch all
 		setAttribute(node, name, value)
@@ -121,6 +127,6 @@ export function assignPropNS(node, name, value, localName, ns) {
 		plugin = pluginsNS.get(ns)
 		plugin
 			? plugin(node, localName, value)
-			: setAttributeNS(node, name, value, ns)
+			: setAttributeNS(node, name, value, ns, localName)
 	}
 }
