@@ -345,6 +345,70 @@ await test('form - use:size-to-input sets initial height from scrollHeight and u
 	}
 })
 
+// Inverse case: scrollHeight > parent.clientHeight — resizeToContainer
+// picks scrollHeight. Covers the `? scrollHeight` arm of the ternary
+// in use:size-to-input (src/use/form.js).
+
+await test('form - use:size-to-input uses scrollHeight when it exceeds parent clientHeight', async expect => {
+	const originalScrollHeight = Object.getOwnPropertyDescriptor(
+		HTMLTextAreaElement.prototype,
+		'scrollHeight',
+	)
+	const originalClientHeight = Object.getOwnPropertyDescriptor(
+		HTMLDivElement.prototype,
+		'clientHeight',
+	)
+	Object.defineProperty(
+		HTMLTextAreaElement.prototype,
+		'scrollHeight',
+		{
+			configurable: true,
+			get() {
+				return 200
+			},
+		},
+	)
+	Object.defineProperty(HTMLDivElement.prototype, 'clientHeight', {
+		configurable: true,
+		get() {
+			return 50
+		},
+	})
+
+	const dispose = render(
+		<div id="textarea-parent-tall">
+			<textarea id="size-to-input-tall" use:size-to-input={true} />
+		</div>,
+	)
+
+	await microtask()
+	expect($('#size-to-input-tall').style.height).toBe('200px')
+
+	// focus triggers resizeToContainer — scrollHeight (200) >
+	// clientHeight (50), so height is kept at scrollHeight
+	document
+		.querySelector('#size-to-input-tall')
+		.dispatchEvent(new FocusEvent('focus', { bubbles: true }))
+	expect($('#size-to-input-tall').style.height).toBe('200px')
+
+	dispose()
+
+	if (originalScrollHeight) {
+		Object.defineProperty(
+			HTMLTextAreaElement.prototype,
+			'scrollHeight',
+			originalScrollHeight,
+		)
+	}
+	if (originalClientHeight) {
+		Object.defineProperty(
+			HTMLDivElement.prototype,
+			'clientHeight',
+			originalClientHeight,
+		)
+	}
+})
+
 await test('form - form2object includes submitter button name in result', expect => {
 	const form = document.createElement('form')
 	form.innerHTML = `

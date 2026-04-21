@@ -158,6 +158,18 @@ await test('test - expect.toEqual passes for deep-equal objects', async expect =
 	await result
 })
 
+// --- expect.toMatch passes for a matching regex ---------------------
+
+await test('test - expect.toMatch passes for matching regex', async expect => {
+	useTest.reset()
+
+	const result = useTest('match-test', expect => {
+		expect('hello world').toMatch(/world/)
+		expect('abc123').toMatch(/\d+/)
+	})
+	await result
+})
+
 // --- expect.not.toInclude rejects substring -------------------------
 
 await test('test - expect.not.toInclude rejects substrings that are present', async expect => {

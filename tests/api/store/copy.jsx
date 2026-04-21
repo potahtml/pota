@@ -219,3 +219,28 @@ await test('copy - preserves cycles between sibling nodes', expect => {
 	expect(cloned.right.parent).toBe(cloned)
 	expect(cloned.left).not.toBe(source.left)
 })
+
+// --- extensibility state preservation --------------------------------------
+
+await test('copy - preserves frozen state', expect => {
+	const source = Object.freeze({ a: 1 })
+	const cloned = copy(source)
+	expect(cloned).not.toBe(source)
+	expect(Object.isFrozen(cloned)).toBe(true)
+})
+
+await test('copy - preserves sealed state', expect => {
+	const source = Object.seal({ a: 1 })
+	const cloned = copy(source)
+	expect(cloned).not.toBe(source)
+	expect(Object.isSealed(cloned)).toBe(true)
+	expect(Object.isFrozen(cloned)).toBe(false)
+})
+
+await test('copy - preserves non-extensible state', expect => {
+	const source = Object.preventExtensions({ a: 1 })
+	const cloned = copy(source)
+	expect(cloned).not.toBe(source)
+	expect(Object.isExtensible(cloned)).toBe(false)
+	expect(Object.isSealed(cloned)).toBe(false)
+})

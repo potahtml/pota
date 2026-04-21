@@ -118,6 +118,28 @@ await test('color - textColorWhenBackgroundIsBlack and White return different re
 	expect(validateColor(onWhite)).toBe(onWhite)
 })
 
+// --- eyeDropper supported path with mock ------------------------------------
+
+await test('color - eyeDropper calls cb with sRGBHex when EyeDropper is available', async expect => {
+	const win = /** @type {any} */ (window)
+	const original = win.EyeDropper
+
+	class FakeEyeDropper {
+		open() {
+			return Promise.resolve({ sRGBHex: '#abcdef' })
+		}
+	}
+	win.EyeDropper = FakeEyeDropper
+
+	let picked
+	await eyeDropper(hex => {
+		picked = hex
+	})
+
+	win.EyeDropper = original
+	expect(picked).toBe('#abcdef')
+})
+
 // --- eyeDropper unsupported browser ------------------------------------------
 
 await test('color - eyeDropper returns undefined when unsupported', expect => {

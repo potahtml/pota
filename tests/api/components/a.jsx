@@ -4,7 +4,7 @@
 // resolution, modifier-key click suppression (meta/ctrl), prop
 // forwarding, params interpolation.
 
-import { $, test, body, microtask } from '#test'
+import { $, test, body, microtask, sleepLong } from '#test'
 
 import { render } from 'pota'
 import { A, Route } from 'pota/components'
@@ -172,6 +172,52 @@ await test('A - renders anchor with interpolated params', async expect => {
 	const anchor = $('a')
 	expect(anchor).not.toBe(null)
 	expect(anchor.getAttribute('href')).toInclude('5')
+
+	dispose()
+})
+
+// onLinkClick rejects anchors with target (would open a new tab).
+// Exercises the validation early-return branch in
+// src/use/location.js onLinkClick.
+
+await test('A - click is ignored when anchor has target attribute', async expect => {
+	await reset()
+	const a = document.createElement('a')
+	a.href = '/target-ignored'
+	a.target = '_blank'
+	a.textContent = 'external'
+	document.body.appendChild(a)
+
+	const potaPrevented = dispatchAndCheck(a, { bubbles: true })
+	expect(potaPrevented).toBe(false)
+	a.remove()
+})
+
+// Click without modifier keys: pota's onLinkClick must call
+// preventDefault and navigate. Exercises the happy-path tail of
+// `onLinkClick` in src/use/location.js (composedPath, validation,
+// preventDefault, navigate).
+
+await test('A - click without modifiers triggers pota navigation', async expect => {
+	await reset()
+	const dispose = render(
+		<>
+			<Route path="/start$">
+				<A href="/end">go</A>
+			</Route>
+			<Route path="/end$">end</Route>
+		</>,
+	)
+	goto('/start')
+	await microtask()
+
+	const potaPrevented = dispatchAndCheck(document.querySelector('a'), {
+		bubbles: true,
+	})
+	expect(potaPrevented).toBe(true)
+
+	await sleepLong()
+	expect(body()).toInclude('end')
 
 	dispose()
 })

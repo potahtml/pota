@@ -149,6 +149,13 @@ await test('time - date formats January 1st correctly', expect => {
 	expect(date(ts)).toBe('2020-01-01')
 })
 
+// double-digit month and day skip the zero-padding ternary arms.
+
+await test('time - date formats double-digit month and day without padding', expect => {
+	const ts = new Date(2020, 10, 15, 12, 0, 0).getTime()
+	expect(date(ts)).toBe('2020-11-15')
+})
+
 // --- time formatter pads single-digit values ------------------------
 
 await test('time - time formatter pads single-digit hours and minutes with zero', expect => {

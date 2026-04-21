@@ -5,6 +5,16 @@
 import { test } from '#test'
 import { addEvent, owned, root } from 'pota'
 
+// owned(undefined) / owned(null) short-circuits and returns noop.
+// The returned function is safe to call and returns undefined.
+
+await test('owned - falsy callback returns a noop', expect => {
+	const fn = root(() => owned(undefined))
+	expect(typeof fn).toBe('function')
+	expect(fn()).toBe(undefined)
+	expect(fn('anything')).toBe(undefined)
+})
+
 await test('owned - runs callback when owner is still alive', expect => {
 	const seen = []
 

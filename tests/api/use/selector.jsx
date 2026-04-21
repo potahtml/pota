@@ -170,6 +170,29 @@ await test('selector - useSelector with empty Set reports nothing selected', exp
 	expect(seen).toEqual([[false, false]])
 })
 
+// Calling isSelected(item) twice for the SAME item reuses the
+// map entry and bumps its reference counter — covers the
+// `selected.counter++` branch in isSelected. Disposing each
+// subscriber decrements the counter; the map entry only goes away
+// when the counter hits 0.
+
+await test('selector - same item queried twice shares one signal entry', expect => {
+	const current = signal('a')
+	const isSelected = root(() => useSelector(current.read))
+
+	// first call creates the entry (counter = 1), second call
+	// increments (counter++)
+	const first = isSelected('a')
+	const second = isSelected('a')
+
+	expect(first).toBe(second)
+	expect(first()).toBe(true)
+
+	current.write('b')
+	expect(first()).toBe(false)
+	expect(second()).toBe(false)
+})
+
 // --- useSelector does not re-run for items whose selection didnt change -
 
 await test('selector - only items whose selection flipped re-run their effect', expect => {

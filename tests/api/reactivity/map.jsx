@@ -5,6 +5,7 @@
 
 import { test, body } from '#test'
 import { cleanup, map, render, root, signal } from 'pota'
+import { For } from 'pota/components'
 
 // --- map fallback ------------------------------------------------------------
 
@@ -228,6 +229,71 @@ await test('map - replacing every item with fresh references rebuilds all rows',
 })
 
 // --- empty list returns no rows ------------------------------------
+
+// Multi-node rows (fn returns a fragment-like result with multiple
+// top-level DOM nodes) force Row.nodesForRow() to walk siblings
+// from begin to end. This exercises the while-loop body that is
+// otherwise skipped when every row is a single node.
+
+await test('map - row with multiple sibling nodes disposes cleanly (nodesForRow walks siblings)', expect => {
+	const items = signal(['a', 'b'])
+	const dispose = render(
+		<div>
+			<For each={items.read}>
+				{item => (
+					<>
+						<span class={`x-${item}-1`}>{item}a</span>
+						<span class={`x-${item}-2`}>{item}b</span>
+					</>
+				)}
+			</For>
+		</div>,
+	)
+	expect(document.querySelectorAll('span').length).toBe(4)
+
+	// remove one item (not all) so the 'b' row goes through the
+	// per-row dispose path that calls row.remove() -> nodesForRow()
+	items.write(['a'])
+	expect(document.querySelectorAll('span').length).toBe(2)
+
+	dispose()
+})
+
+// Duplicates only get tracked on the SECOND run when prev is
+// non-empty. Via <For> so rows carry real DOM nodes and disposal
+// paths run cleanly. Transitions [1] → [1, 1, 1] → [1] → [1, 1]
+// exercise:
+//   - duplicates branch creating dupe rows (line 388-402)
+//   - dispose isDupe else branch with both `arr.length > 1`
+//     (removeFromArray) and `arr.length === 1` (duplicates.delete)
+//     cases.
+
+await test('For - primitive duplicates create and dispose dupe rows cleanly', expect => {
+	const items = signal([1])
+	const dispose = render(
+		<For each={items.read}>{item => <span>{item}</span>}</For>,
+	)
+	expect(document.querySelectorAll('span').length).toBe(1)
+
+	// grow to 3 — creates two dupe rows
+	items.write([1, 1, 1])
+	expect(document.querySelectorAll('span').length).toBe(3)
+
+	// shrink to 2 — disposes one dupe (arr.length > 1 branch)
+	items.write([1, 1])
+	expect(document.querySelectorAll('span').length).toBe(2)
+
+	// grow to 3 — reuses the remaining dupe (for-of dupes loop hits
+	// `row = dupe; break`) and creates one new dupe
+	items.write([1, 1, 1])
+	expect(document.querySelectorAll('span').length).toBe(3)
+
+	// shrink to 1 — disposes both dupes (arr.length > 1 then === 1)
+	items.write([1])
+	expect(document.querySelectorAll('span').length).toBe(1)
+
+	dispose()
+})
 
 await test('map - empty list returns an empty result', expect => {
 	const items = signal([])

@@ -691,6 +691,34 @@ await test('Route - scroll prop triggers scroll on match', async expect => {
 	target.remove()
 })
 
+// scroll={[...array]} — exercises the isArray branch in
+// components/route/scroll.js (context.scroll iterated directly).
+
+await test('Route - scroll accepts an array of selectors', async expect => {
+	await reset()
+	const target = document.createElement('div')
+	target.id = 'scroll-target-array'
+	target.scrollIntoView = () => {}
+	document.body.append(target)
+
+	const dispose = render(
+		<Route
+			path="/scroll-array$"
+			scroll={['#missing-sel', '#scroll-target-array']}
+		>
+			content
+		</Route>,
+	)
+
+	goto('/scroll-array')
+	await macrotask()
+
+	expect(body()).toInclude('content')
+
+	dispose()
+	target.remove()
+})
+
 // --- useBeforeLeave ----------------------------------------------------------
 
 await test('Route - useBeforeLeave callback can block navigation', async expect => {

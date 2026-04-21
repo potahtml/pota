@@ -198,3 +198,21 @@ await test('project - mixed scalar and nested keys write independently', expect 
 	expect(view.scalar).toBe(99)
 	expect(view.nested.value).toBe('y')
 })
+
+// Passing a projected value back through project() with the same
+// proxies cache is a no-op: the $isProjection get returns the root
+// proxies map and project() short-circuits. This test exercises
+// both by writing a nested object into the view, which runs the
+// Projection set (project(value, this.root)), then reading it
+// back.
+
+await test('project - writing an object value into a view projects it with the same proxies cache', expect => {
+	const source = {}
+	const view = project(source)
+	const obj = { k: 1 }
+	view.nested = obj
+	// the value read back is a projection proxy (not the raw obj)
+	expect(view.nested).not.toBe(obj)
+	// and the second read returns the cached projection
+	expect(view.nested).toBe(view.nested)
+})

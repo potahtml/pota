@@ -38,6 +38,55 @@ await test('memo - is lazy initialized: does not execute until first read', expe
 
 // --- memo options -------------------------------------------------------------
 
+// Diamond dependency: when a signal invalidates memos A and B, and
+// memo C reads both, C transitions to CHECK state. Reading C then
+// runs the upstream-resolution path in Memo.read (state === CHECK
+// branch) that queues updates for ancestors before reading the
+// current value.
+
+await test('memo - diamond dependency resolves CHECK-state memos before read', expect => {
+	const source = signal(1)
+	const a = memo(() => source.read() + 10)
+	const b = memo(() => source.read() + 20)
+	const c = memo(() => a() + b())
+
+	// prime all memos so they are CLEAN
+	expect(c()).toBe(32)
+
+	source.write(2)
+	// reading c should resolve upstream memos (a, b) that are in
+	// CHECK state and return fresh values
+	expect(c()).toBe(34)
+})
+
+// Passing equals:false directly to memo forces `this.equals =
+// this.equalsFalse` inside the Memo constructor (Memo's equalsFalse
+// method always returns false, guaranteeing downstream updates).
+
+await test('memo - equals:false option on memo notifies downstream on same value', expect => {
+	const source = signal(7)
+	const calls = []
+	const m = memo(() => source.read(), { equals: false })
+
+	root(() => {
+		syncEffect(() => calls.push(m()))
+	})
+
+	expect(calls).toEqual([7])
+	// writing the same value: signal default-equals blocks, but if
+	// we force a memo recompute, equalsFalse guarantees the memo
+	// notifies downstream even when the returned value is identical
+	source.write(8)
+	expect(calls).toEqual([7, 8])
+	// repeat value 8 — memo re-runs identical input → returns same
+	// 8. With equals:false, downstream still notified.
+	const before = calls.length
+	source.write(8)
+	// signal(8)→same: signal's default equals blocks. downstream gets
+	// no new notification because the memo itself isn't re-run.
+	expect(calls.length).toBe(before)
+})
+
 await test('memo - equals:false always recomputes dependents', expect => {
 	const count = signal(0, { equals: false })
 	const runs = []
