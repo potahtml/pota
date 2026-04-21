@@ -2,7 +2,7 @@
 // Tests for pota/use/location: location accessors, addListeners,
 // navigate (relative, params, replace, delay), and navigateSync.
 
-import { test, macrotask, sleepLong } from '#test'
+import { test, macrotask, sleep, sleepLong } from '#test'
 
 import {
 	addListeners,
@@ -70,16 +70,19 @@ await test('location - navigate resolves relative links, params and replace mode
 await test('location - navigate supports delayed navigation', async expect => {
 	addListeners()
 
-	navigate('/delayed-test#hash', {
-		delay: 100,
-	})
+	const before = location.pathname()
 
-	// before the delay elapses the navigation has not fired yet
-	expect(location.pathname()).not.toBe('/delayed-test')
+	navigate('/delayed-test#hash', { delay: 100 })
 
-	await sleepLong()
+	// Navigation must not fire synchronously — the delay timer hasn't
+	// elapsed yet, so the pathname is still what it was before.
+	expect(location.pathname()).toBe(before)
 
-	// after the delay it has
+	// Bespoke longer sleep: the 100ms `delay` eats most of the default
+	// `sleepLong` budget before the navigate chain (canNavigate,
+	// view transition, navigateInternal) even starts running.
+	await sleep(1000)
+
 	expect(location.pathname()).toBe('/delayed-test')
 	expect(location.hash()).toBe('#hash')
 
