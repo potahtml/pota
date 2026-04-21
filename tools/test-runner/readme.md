@@ -1,8 +1,8 @@
 # tools/test-runner — minimal browser test runner
 
 A tiny, purpose-built test runner using Puppeteer. No framework, no
-HMR, no coverage — just "transform, serve, run in a real browser,
-report pass/fail."
+HMR — just "transform, serve, run in a real browser, report
+pass/fail." Coverage is opt-in via `--coverage` (see below).
 
 ## Architecture
 
@@ -12,6 +12,7 @@ tools/test-runner/
   serve.js      — HTTP server: serves transformed files + test harness
   transform.js  — Babel transform + import rewriting + mtime cache
   test.js       — browser-side test harness (wraps pota/use/test)
+  coverage.js   — optional V8 coverage collection → c8 report
 ```
 
 ## Flow
@@ -59,6 +60,7 @@ CLI flags:
 | `--log`          | show captured `console.log` from passing tests           |
 | `--warn`         | show captured `console.warn` from passing tests          |
 | `--error`        | show captured `console.error` from passing tests         |
+| `--coverage`     | collect V8 coverage for `src/` and render a c8 report    |
 | _positional_     | filter — only run files whose path contains it           |
 
 On failure, `console.error` and `console.warn` auto-show even without
@@ -71,6 +73,7 @@ npm run test:api                    # run once, all files
 npm run watch:test                  # watch mode
 npm run test:api -- --bail          # stop on first failure
 npm run test:api -- route           # filter by name
+npm run test:coverage               # run once with coverage
 ```
 
 `npm test` also runs this suite, but chains `test:types` and
@@ -155,9 +158,25 @@ Uncaught errors and unhandled rejections are shown straight from
 console methods with mixed types, error objects with cause chains,
 assertion failure shapes, `ErrorEvent`, and `PromiseRejectionEvent`.
 
+## Coverage
+
+`--coverage` (one-shot only — ignored with `--watch`) hooks Puppeteer's
+V8 `startJSCoverage({ includeRawScriptCoverage: true })` around each
+page. Per-page raw coverage is rewritten to `file://` URLs and written
+as `NODE_V8_COVERAGE`-shaped JSON under `generated/coverage/tmp/`,
+including the served transformed source and its inline source map in
+`source-map-cache` so c8 maps back to the original `src/` lines. Only
+URLs under the served `/src/` prefix are recorded (tests and node
+modules are skipped).
+
+After the run, `c8 report` renders both a text summary on stdout and
+an HTML report at `generated/coverage/index.html`. Everything under
+`generated/` is gitignored.
+
 ## Dependencies
 
 - `puppeteer` — browser automation
 - `@babel/core` — transforms (peer dep of pota)
 - `@babel/preset-typescript` — TypeScript strip (dev dep)
+- `c8` — coverage report rendering (dev dep; only needed for `--coverage`)
 - `pota/babel-preset` — JSX transform (local)

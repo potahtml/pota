@@ -128,7 +128,8 @@ listed below.
 | `npm run build:generate`     | `tools/generate.js` once — regenerate importmap / types JSON                                                                                                                                                  |
 | `npm run format`             | Prettier write (config in `package.json`)                                                                                                                                                                     |
 | `npm test`                   | Run everything — `test:types` + `test:api` + `test:babel-preset`                                                                                                                                              |
-| `npm run test:api`           | Browser tests once via Puppeteer; config in `package.json` `"test"` key. Flags: `--bail`, `--log`, `--warn`, `--error`. Positional arg filters by path substring (`-- for`). `watch:test` runs in watch mode. |
+| `npm run test:api`           | Browser tests once via Puppeteer; config in `package.json` `"test"` key. Flags: `--bail`, `--log`, `--warn`, `--error`, `--coverage`. Positional arg filters by path substring (`-- for`). `watch:test` runs in watch mode. |
+| `npm run test:coverage`      | Same as `test:api` but with V8 coverage → c8 HTML + text report in `generated/coverage/`                                                                                                                      |
 | `npm run test:babel-preset`  | Puppeteer tests for the standalone Babel preset bundle                                                                                                                                                        |
 | `npm run test:types`         | Typecheck `src/` + `tests/` + `babel-preset/` in one sequential run                                                                                                                                           |
 

@@ -9,6 +9,7 @@ import { startServer } from './serve.js'
 import { clearCache } from './transform.js'
 import { filesRecursive, watch, dim, white } from '../utils.js'
 import { report, summary } from './report.js'
+import * as coverage from './coverage.js'
 
 // --- config (package.json "test" + cli flags) ---
 
@@ -34,6 +35,7 @@ const doWatch = args.includes('--watch') || args.includes('-w')
 const bail = args.includes('--bail')
 const quiet = args.includes('--quiet') || args.includes('-q')
 const noClear = quiet || args.includes('--no-clear')
+const doCoverage = args.includes('--coverage') && !doWatch
 const reportOpts = {
 	quiet,
 	log: args.includes('--log'),
@@ -112,6 +114,7 @@ async function runFile(browser, baseURL, file) {
 	await page.emulateFocusedPage(true)
 
 	try {
+		if (doCoverage) await coverage.startPage(page)
 		await page.goto(`${baseURL}/${file}?test`, {
 			waitUntil: 'load',
 		})
@@ -135,6 +138,8 @@ async function runFile(browser, baseURL, file) {
 			console: [],
 		}
 	} finally {
+		if (doCoverage)
+			await coverage.stopPage(page, baseURL).catch(() => {})
 		await page.close().catch(() => {})
 	}
 }
@@ -335,8 +340,10 @@ process.on('SIGTERM', () => process.exit())
 if (doWatch) {
 	startWatching(baseURL)
 } else {
+	if (doCoverage && !coverage.prepare()) process.exit(1)
 	const browser = await launchBrowser()
 	const { failed } = await runSuite(browser, baseURL, scanTests())
 	await browser.close()
+	if (doCoverage) coverage.report()
 	process.exit(failed > 0 ? 1 : 0)
 }

@@ -20,12 +20,15 @@
 
 ### for terminator
 
-- maybe ask for coverage reporting
 - get rid of colorsio dependency (I only use 1 function I think)
 
 ### reactivity
 
 - prevent writing to signals inside tracked scopes
+
+### tools
+
+- rethink the dev tools
 
 ### use
 
@@ -55,10 +58,6 @@
 - splitter
 - maybe make a `<WithDocument document={document}/>` so stuff stops
   breaking with popups
-
-### tools
-
-- rethink the dev tools
 
 ### bench
 
