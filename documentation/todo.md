@@ -18,10 +18,6 @@
 - inline style objects and maybe merge different style approaches
 - refactor transform again !
 
-### for terminator
-
-- get rid of colorsio dependency (I only use 1 function I think)
-
 ### reactivity
 
 - prevent writing to signals inside tracked scopes

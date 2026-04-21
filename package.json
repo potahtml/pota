@@ -71,7 +71,7 @@
 		"format": "biome format . --write"
 	},
 	"dependencies": {
-		"colorjs.io": "^0.6.1",
+		"color-bits": "^1.1.1",
 		"csstype": "^3.2.3",
 		"parse5": "^8.0.0"
 	},

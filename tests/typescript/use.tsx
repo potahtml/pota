@@ -172,9 +172,13 @@ import 'pota/use/clickoutside'
 // --- pota/use/color ---
 
 import {
+	alpha,
+	blend,
+	darken,
 	eyeDropper,
+	getLuminance,
+	lighten,
 	scale,
-	setAlpha,
 	textColor,
 	textColorWhenBackgroundIs,
 	textColorWhenBackgroundIsBlack,
@@ -186,7 +190,11 @@ eyeDropper(hex => {
 	const h: string = hex
 })
 const gradient = scale(['red', 'blue'], 5)
-const alpha = setAlpha('#ff0000', 0.5)
+const faded: string = alpha('#ff0000', 0.5)
+const darker: string = darken('#808080', 0.2)
+const lighter: string = lighten('#808080', 0.2)
+const mixed: string = blend('#000', '#fff', 0.5, 2.2)
+const lum: number = getLuminance('#ff0000')
 const tc = textColor('#ff0000')
 const tcb = textColorWhenBackgroundIsBlack('#fff')
 const tcw = textColorWhenBackgroundIsWhite('#000')
