@@ -1,10 +1,14 @@
 // Coverage collection for the test-runner.
 //
-// Collects raw V8 coverage from each Puppeteer page, rewrites served
-// URLs (http://localhost:PORT/src/foo.js) to file:// URLs with the
-// inline source map attached, and writes one JSON per page into
-// generated/coverage/tmp/ in the NODE_V8_COVERAGE shape. c8 renders
-// the final report from that directory.
+// Each test is served as a single bundle with an inline sourcemap
+// (sourcesContent included). V8 reports coverage against the bundle
+// URL; the sourcemap encodes which lines came from which original
+// source file. We capture raw V8 coverage from each Puppeteer page,
+// rewrite served URLs (http://localhost:PORT/tests/foo.jsx) to
+// file:// URLs with the inline sourcemap attached, and write one
+// JSON per page into generated/coverage/tmp/ in the NODE_V8_COVERAGE
+// shape. c8 walks the sourcemaps to attribute coverage back to
+// originals under src/ and filters via `--include=src/**`.
 
 import fs from 'fs'
 import path from 'path'
@@ -56,18 +60,30 @@ export function startPage(page) {
 export async function stopPage(page, baseURL) {
 	const entries = await page.coverage.stopJSCoverage()
 
-	const srcPrefix = baseURL + '/src/'
+	const testPrefix = baseURL + '/tests/'
+	const jsExts = ['.js', '.jsx', '.ts', '.tsx']
 	const result = []
 	/** @type {Record<string, { lineLengths: number[]; data: unknown; url: null }>} */
 	const sourceMapCache = {}
 
 	for (const entry of entries) {
-		if (!entry.url.startsWith(srcPrefix)) continue
+		// keep only test bundle scripts; skip the harness HTML
+		// (URL has a `?test` query) and inline script blocks.
+		if (!entry.url.startsWith(testPrefix)) continue
+		if (entry.url.includes('?')) continue
+		if (!jsExts.some(ext => entry.url.endsWith(ext))) continue
 		const raw = entry.rawScriptCoverage
 		if (!raw) continue
 
 		const relative = entry.url.slice(baseURL.length + 1)
-		const fileURL = pathToFileURL(path.join(root, relative)).href
+		// The sourcemap's `sources` entries are relative (e.g.
+		// `src/lib/std.js`). v8-to-istanbul resolves them against the
+		// bundle URL's directory, so we report the bundle at the
+		// project root — `dir(fileURL) + "src/lib/std.js"` then
+		// correctly points at the real source file.
+		const bundleName =
+			'__bundle__' + relative.replace(/[^a-z0-9]/gi, '_')
+		const fileURL = pathToFileURL(path.join(root, bundleName)).href
 
 		result.push({
 			scriptId: raw.scriptId,
@@ -132,6 +148,11 @@ export function report() {
 			'--reporter=text',
 			'--reporter=html',
 			'--include=src/**',
+			// applies --include after sourcemap remap; without this,
+			// c8 filters on the bundle URL (which is under /tests/)
+			// instead of the original `src/**` files the bundle
+			// resolves to, dropping every entry.
+			'--exclude-after-remap',
 		],
 		{ stdio: 'inherit', cwd: root },
 	)

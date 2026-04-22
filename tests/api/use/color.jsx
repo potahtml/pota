@@ -1,6 +1,6 @@
 /** @jsxImportSource pota */
 // Tests for pota/use/color: scale, alpha, textColor, validateColor,
-// textColorWhenBackgroundIs variants, eyeDropper fallback, and the
+// textColorWhenBackgroundIsBlack/White, eyeDropper fallback, and the
 // color-bits/string re-exports (blend, darken, lighten, getLuminance).
 
 import { test } from '#test'
@@ -14,7 +14,6 @@ import {
 	lighten,
 	scale,
 	textColor,
-	textColorWhenBackgroundIs,
 	textColorWhenBackgroundIsBlack,
 	textColorWhenBackgroundIsWhite,
 	validateColor,
@@ -33,12 +32,10 @@ await test('color - alpha and contrast helpers return valid colors', expect => {
 	const faded = alpha('#ff0000', 0.5)
 	const onBlack = textColorWhenBackgroundIsBlack('#333')
 	const onWhite = textColorWhenBackgroundIsWhite('#ddd')
-	const adjusted = textColorWhenBackgroundIs('#777', true)
 
 	expect(validateColor(faded)).toBe(faded)
 	expect(validateColor(onBlack)).toBe(onBlack)
 	expect(validateColor(onWhite)).toBe(onWhite)
-	expect(validateColor(adjusted)).toBe(adjusted)
 })
 
 await test('color - textColor picks contrasting foregrounds and validateColor rejects invalid strings', expect => {
@@ -121,7 +118,7 @@ await test('color - validateColor rejects empty and garbage strings', expect => 
 	expect(validateColor('xyz123')).toBe(undefined)
 })
 
-// --- textColorWhenBackgroundIs ------------------------------------------------
+// --- textColorWhenBackgroundIsBlack / White ---------------------------------
 
 await test('color - textColorWhenBackgroundIsBlack and White return different results for same input', expect => {
 	const onBlack = textColorWhenBackgroundIsBlack('#808080')

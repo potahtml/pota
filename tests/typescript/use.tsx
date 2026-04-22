@@ -180,7 +180,6 @@ import {
 	lighten,
 	scale,
 	textColor,
-	textColorWhenBackgroundIs,
 	textColorWhenBackgroundIsBlack,
 	textColorWhenBackgroundIsWhite,
 	validateColor,
@@ -198,7 +197,6 @@ const lum: number = getLuminance('#ff0000')
 const tc = textColor('#ff0000')
 const tcb = textColorWhenBackgroundIsBlack('#fff')
 const tcw = textColorWhenBackgroundIsWhite('#000')
-const tcBg = textColorWhenBackgroundIs('#ff0000', true)
 validateColor('#ff0000')
 
 // --- pota/use/dom ---

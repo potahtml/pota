@@ -1,9 +1,9 @@
-// HTTP server that serves transformed JS and the test harness
+// HTTP server that serves the test harness and bundled test files
 
 import http from 'http'
 import fs from 'fs'
 import path from 'path'
-import { transform } from './transform.js'
+import { bundle } from './bundle.js'
 
 const root = process.cwd()
 
@@ -19,10 +19,12 @@ const mimeTypes = {
 	'.json': 'application/json',
 }
 
-// HTML page that imports a test file, runs it, and exposes results
+// HTML page that loads a test bundle and exposes results
 
 /**
- * Returns an HTML page that imports, runs, and exposes test results.
+ * Returns an HTML page that loads the bundled test and exposes
+ * results. The bundle self-drives — imports the test file for
+ * side effects, then awaits `run()` from `#test` to mark done.
  *
  * @param {string} file
  */
@@ -79,46 +81,39 @@ window.addEventListener('unhandledrejection', e => {
   window.__pota_results__.done = true
 })
 </script>
-<script type="module">
-  await import('/${file}')
-  const { run } = await import('/tools/test-runner/test.js')
-  await run()
-  window.__pota_results__.done = true
-</script>
+<script type="module" src="/${file}"></script>
 <body></body>
 </html>`
 }
 
-// serve a file, transforming JS through Babel
-
 /**
- * Serves a file, running JS/JSX/TS/TSX through Babel first.
+ * Serves a JS file as a bundle. Non-JS files are served as-is.
  *
  * @param {import('http').ServerResponse} res
  * @param {string} filePath
  */
-function serveFile(res, filePath) {
+async function serveFile(res, filePath) {
 	const ext = path.extname(filePath)
 	const mime = mimeTypes[ext] || 'application/octet-stream'
 	res.writeHead(200, { 'Content-Type': mime })
 
 	if (jsExts.has(ext)) {
-		res.end(transform(filePath))
+		res.end(await bundle(filePath))
 	} else {
 		res.end(fs.readFileSync(filePath))
 	}
 }
 
 /**
- * Starts an HTTP server that serves the test harness and transformed
- * files.
+ * Starts an HTTP server that serves the test harness and bundled
+ * test files.
  *
  * @param {number} port
  * @returns {Promise<{ server: import('http').Server; port: number }>}
  */
 export function startServer(port) {
 	return new Promise(resolve => {
-		const server = http.createServer((req, res) => {
+		const server = http.createServer(async (req, res) => {
 			const url = new URL(req.url, 'http://localhost')
 
 			// test harness page
@@ -128,7 +123,14 @@ export function startServer(port) {
 				return
 			}
 
-			// static / transformed files
+			// browsers auto-request favicon; serve empty to avoid 404 noise
+			if (url.pathname === '/favicon.ico') {
+				res.writeHead(200, { 'Content-Type': 'image/x-icon' })
+				res.end()
+				return
+			}
+
+			// static / bundled files
 			const filePath = path.join(
 				root,
 				url.pathname.replace(/^\//, ''),
@@ -141,10 +143,10 @@ export function startServer(port) {
 			}
 
 			try {
-				serveFile(res, filePath)
+				await serveFile(res, filePath)
 			} catch (e) {
-				// return syntax/transform errors as valid JS so the
-				// browser shows the real message instead of a parse error
+				// return bundling errors as valid JS so the browser shows
+				// the real message instead of a parse error
 				const msg =
 					/** @type {Error} */ (e).message ||
 					String(e).replace(/\\/g, '\\\\').replace(/`/g, '\\`')

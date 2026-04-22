@@ -162,7 +162,7 @@ export const textColorWhenBackgroundIsWhite = color =>
  * @param {boolean} black - When `true`, assumes a black background.
  * @returns {string}
  */
-export function textColorWhenBackgroundIs(color, black) {
+function textColorWhenBackgroundIs(color, black) {
 	let c = parse(color)
 	const Ybg = black ? APCA_Y_BLACK : APCA_Y_WHITE
 	let iterations = 0

@@ -61,12 +61,12 @@
 		"watch:test": "node tools/test-runner/runner.js -w -q",
 		"test": "npm run test:types && npm run test:api -- --no-clear -q && npm run test:babel-preset",
 		"test:api": "node tools/test-runner/runner.js",
-		"test:coverage": "node tools/test-runner/runner.js --coverage",
 		"test:babel-preset": "node tools/babel-preset/test/runner.js",
 		"test:types": "npm run test:ts && npm run test:ts-tests && npm run test:ts-babel-preset",
 		"test:ts": "tsc",
 		"test:ts-tests": "tsc -p tests/tsconfig.json",
 		"test:ts-babel-preset": "tsc -p babel-preset/tsconfig.json",
+		"coverage": "node tools/test-runner/runner.js --coverage",
 		"release": "npm run test && node tools/release.js",
 		"format": "biome format . --write"
 	},
@@ -92,6 +92,7 @@
 		"@types/babel__helper-plugin-utils": "^7.10.3",
 		"@types/node": "^25.6.0",
 		"c8": "^11.0.0",
+		"esbuild": "^0.28.0",
 		"puppeteer": "^24.42.0",
 		"rollup": "^4.60.2",
 		"typescript": "^6.0.3"
