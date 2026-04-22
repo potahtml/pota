@@ -23,7 +23,7 @@
  * or adjust the assertion. See CLAUDE.md "Failing test you just wrote".
  */
 
-import { test as _test } from '#test'
+import { test } from '#test'
 import { isProxy } from 'pota/use/test'
 
 import {
@@ -45,11 +45,10 @@ import {
 	signalify,
 } from 'pota/store'
 
-// Bare pass-through — tests that need a reactive root wrap syncEffect
-// in an explicit root(() => ...) per-test, matching the mutable.jsx
-// pattern. Wrapping everything in an outer root prevents syncEffect
-// re-runs from firing after mutations.
-const test = _test
+// Tests that need a reactive root wrap syncEffect in an explicit
+// root(() => ...) per-test, matching the mutable.jsx pattern.
+// Wrapping everything in an outer root prevents syncEffect re-runs
+// from firing after mutations.
 
 /* ------------------------------------------------------------------ */
 /*  A. effect() paired with mutable                                     */

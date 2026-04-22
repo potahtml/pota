@@ -13,7 +13,7 @@
  * not re-run when an unrelated piece of state changes.
  */
 
-import { test as _test } from '#test'
+import { test } from '#test'
 
 import { syncEffect as effect, memo, untrack } from 'pota'
 import {
@@ -24,8 +24,6 @@ import {
 	reset,
 	signalify,
 } from 'pota/store'
-
-const test = _test
 
 /* ------------------------------------------------------------------ */
 /*  A. Initial assumptions — mutable() setup does not leak            */

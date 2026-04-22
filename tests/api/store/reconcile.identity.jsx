@@ -21,11 +21,9 @@
  * the same pins — at every nesting depth reconcile reaches.
  */
 
-import { test as _test } from '#test'
+import { test } from '#test'
 
 import { merge, mutable, replace, reset } from 'pota/store'
-
-const test = _test
 
 /* ================================================================= */
 /*  A. Return value === target                                         */

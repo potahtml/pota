@@ -10,12 +10,10 @@
  * keys collide. Primitive keys (strings, numbers, symbols) work.
  */
 
-import { test as _test } from '#test'
+import { test } from '#test'
 
 import { syncEffect as effect, memo } from 'pota'
 import { mutable } from 'pota/store'
-
-const test = _test
 
 /* ------------------------------------------------------------------ */
 /*  A. Fine-grained tracking with primitive keys                       */

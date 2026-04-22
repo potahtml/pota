@@ -265,3 +265,27 @@ await test('bind - multiple independent bind signals do not interfere', expect =
 	expect(a()).toBe('changed')
 	expect(b()).toBe('b')
 })
+
+// --- non-HTMLElement target is a no-op ----------------------------
+// bindValue early-returns when the node isn't an HTMLElement, so
+// use:bind on an SVG element must not throw and must not wire any
+// input listener.
+
+await test('bind - use:bind on non-HTMLElement (SVG) is a no-op', async expect => {
+	const value = bind('x')
+	const dispose = render(
+		<svg>
+			<circle use:bind={value} />
+		</svg>,
+	)
+	await microtask()
+
+	const circle = $('circle')
+
+	// Dispatch an input event: since the guard skipped listener
+	// wiring, the signal must not change in response.
+	circle.dispatchEvent(new Event('input', { bubbles: true }))
+	expect(value()).toBe('x')
+
+	dispose()
+})

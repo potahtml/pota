@@ -719,6 +719,34 @@ await test('Route - scroll accepts an array of selectors', async expect => {
 	target.remove()
 })
 
+// scroll selector that does not match anything — exercises the
+// fall-through branch of components/route/scroll.js where the for
+// loop completes without `return true`, the walk callback returns
+// undefined, and the outer `scroll()` falls back to scrollToTop().
+
+await test('Route - scroll falls back to scrollToTop when selector does not match', async expect => {
+	await reset()
+	let scrolledToTop = false
+	const originalScrollTo = window.scrollTo
+	window.scrollTo = () => {
+		scrolledToTop = true
+	}
+
+	const dispose = render(
+		<Route path="/scroll-miss$" scroll="#does-not-exist">
+			content
+		</Route>,
+	)
+
+	goto('/scroll-miss')
+	await macrotask()
+
+	expect(scrolledToTop).toBe(true)
+
+	window.scrollTo = originalScrollTo
+	dispose()
+})
+
 // --- useBeforeLeave ----------------------------------------------------------
 
 await test('Route - useBeforeLeave callback can block navigation', async expect => {

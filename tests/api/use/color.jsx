@@ -259,3 +259,16 @@ await test('color - getLuminance is monotonic across grays', expect => {
 	expect(dark < mid).toBe(true)
 	expect(mid < light).toBe(true)
 })
+
+// --- APCA low-contrast (light bg, dark text) branch -------------------------
+
+// Near-white input exercises the `sapc < 0.1 ? 0 : sapc - 0.027`
+// branch of apcaContrast on the light-bg/dark-text side: the first
+// few iterations of textColorWhenBackgroundIsWhite have a polynomial
+// difference small enough to clamp the raw SAPC to 0, forcing the
+// loop to keep darkening until the contrast crosses the 60 threshold.
+
+await test('color - textColorWhenBackgroundIsWhite darkens a near-white input to a legible color', expect => {
+	const result = textColorWhenBackgroundIsWhite('#fafafa')
+	expect(validateColor(result)).toBe(result)
+})

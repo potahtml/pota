@@ -13,7 +13,7 @@
  * ^ https://discord.com/invite/solidjs
  */
 
-import { test as _test } from '#test'
+import { test } from '#test'
 import { isProxy } from 'pota/use/test'
 
 import { batch, memo, root, signal } from 'pota'
@@ -162,16 +162,6 @@ function testValues(expect, set, get) {
 	expect(value()).toBe(1)
 	expect(callsMemo).toBe(22)
 }
-
-// each test runs inside its own root() so cleanups happen on dispose
-const test = (title, fn) =>
-	_test(title, expect => {
-		const dispose = root(dispose => {
-			fn(expect)
-			return dispose
-		})
-		dispose()
-	})
 
 // detect support for map/set
 let supportsMap = false

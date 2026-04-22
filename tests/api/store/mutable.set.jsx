@@ -10,13 +10,11 @@
  * values with the current tracker layout.
  */
 
-import { test as _test } from '#test'
+import { test } from '#test'
 import { isProxy } from 'pota/use/test'
 
 import { syncEffect as effect, memo } from 'pota'
 import { mutable } from 'pota/store'
-
-const test = _test
 
 /* ------------------------------------------------------------------ */
 /*  A. Identity / basic reactivity                                     */

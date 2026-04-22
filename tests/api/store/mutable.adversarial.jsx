@@ -8,13 +8,11 @@
  * whether to fix pota, adjust the assertion, or document.
  */
 
-import { test as _test } from '#test'
+import { test } from '#test'
 import { isProxy } from 'pota/use/test'
 
 import { syncEffect as effect, memo } from 'pota'
 import { copy, mutable } from 'pota/store'
-
-const test = _test
 
 /* ------------------------------------------------------------------ */
 /*  A. Tracker split edge cases                                        */
