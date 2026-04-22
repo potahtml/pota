@@ -169,3 +169,78 @@ await test('JSX style prop - object form accepts multiple properties (static)', 
 
 	dispose()
 })
+
+// --- JSX style inlining (compile-time folding by the babel preset) ------
+//
+// Each test exercises a case the inliner handles specially; the
+// assertion is on runtime DOM state, which must be identical whether
+// or not the inliner folded the value.
+
+await test('JSX style prop - null-valued properties are dropped from the object', expect => {
+	const dispose = render(
+		<p
+			style={{
+				color: 'red',
+				margin: null,
+				padding: undefined,
+			}}
+		>
+			text
+		</p>,
+	)
+	const el = $('p')
+	expect(el.style.color).toBe('red')
+	expect(el.style.margin).toBe('')
+	expect(el.style.padding).toBe('')
+	dispose()
+})
+
+await test('JSX style prop - style={null} yields no style attribute', expect => {
+	const dispose = render(<p style={null}>text</p>)
+	const el = $('p')
+	expect(el.hasAttribute('style')).toBe(false)
+	dispose()
+})
+
+await test('JSX style prop - style={{}} yields no style attribute', expect => {
+	const dispose = render(<p style={{}}>text</p>)
+	const el = $('p')
+	expect(el.hasAttribute('style')).toBe(false)
+	dispose()
+})
+
+await test('JSX style prop - template literal value applies', expect => {
+	const dispose = render(<p style={{ color: `red` }}>text</p>)
+	const el = $('p')
+	expect(el.style.color).toBe('red')
+	dispose()
+})
+
+await test('JSX style prop - negative number value applies', expect => {
+	const dispose = render(<p style={{ order: -1 }}>text</p>)
+	const el = $('p')
+	expect(el.style.order).toBe('-1')
+	dispose()
+})
+
+await test('JSX style prop - computed key with confident value applies', expect => {
+	const dispose = render(
+		<p style={{ ['fo' + 'nt-size']: '14px' }}>text</p>,
+	)
+	const el = $('p')
+	expect(el.style.fontSize).toBe('14px')
+	dispose()
+})
+
+await test('JSX style prop - duplicate style attributes: last wins (no spread)', expect => {
+	const dispose = render(
+		// @ts-expect-error duplicate `style` is intentional — pins the
+		// "last-wins" dedup semantics.
+		<p style="color: red" style={{ color: 'blue' }}>
+			text
+		</p>,
+	)
+	const el = $('p')
+	expect(el.style.color).toBe('blue')
+	dispose()
+})

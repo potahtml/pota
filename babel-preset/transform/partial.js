@@ -25,6 +25,7 @@ import { getTagName } from './tag.js'
 import { validatePartial } from './validate.js'
 import { buildChildrenPartial } from './children.js'
 import { evaluateAndInline, isNativeLiteral } from './literal.js'
+import { inlineStyles } from './style.js'
 
 /** Builds partial from jsx */
 export function buildPartial(path, state) {
@@ -105,12 +106,50 @@ export function buildPartial(path, state) {
 
 	// spreads do deopts
 
-	if (
+	const hasSpread = path
+		.get('openingElement')
+		.get('attributes')
+		.some(attr => t.isJSXSpreadAttribute(attr.node))
+
+	/**
+	 * De-duplicate attributes when there is no spread.
+	 *
+	 * Spreads already de-duplicate via JS object-literal semantics in
+	 * the `assignProps` call (last key wins), so we only do this in
+	 * the absence of a spread: `<div style="duplicate1"
+	 * style="duplicate2" />` keeps the last.
+	 *
+	 * Done before `inlineStyles` so the folder sees at most one
+	 * `style=` per element and does not have to reason about merging
+	 * across duplicates.
+	 */
+
+	if (!hasSpread) {
+		const seenAttributes = {}
+		const duplicates = []
 		path
 			.get('openingElement')
 			.get('attributes')
-			.some(attr => t.isJSXSpreadAttribute(attr.node))
-	) {
+			.forEach(attr => {
+				const name = t.isJSXNamespacedName(attr.node.name)
+					? `${attr.node.name.namespace.name}:${attr.node.name.name.name}`
+					: attr.node.name.name
+
+				if (seenAttributes[name]) {
+					duplicates.push(seenAttributes[name])
+				}
+				seenAttributes[name] = attr
+			})
+		for (const duplicate of duplicates) {
+			duplicate.remove()
+		}
+	}
+
+	// fold literal `style=` pieces into a single static attribute
+
+	inlineStyles(path)
+
+	if (hasSpread) {
 		const objectSpread = []
 
 		for (const attr of path.get('openingElement').get('attributes')) {
@@ -155,32 +194,6 @@ export function buildPartial(path, state) {
 				: t.objectExpression(objectSpread),
 		)
 	} else {
-		/**
-		 * Spreads already de-duplicate attributes.
-		 *
-		 * This handles the case when attributes are duplicated without
-		 * the presence of a spread. Such: `<div style="duplicate1"
-		 * style="duplicate2" />;`
-		 */
-		const seenAttributes = {}
-		const duplicates = []
-		path
-			.get('openingElement')
-			.get('attributes')
-			.forEach(attr => {
-				const name = t.isJSXNamespacedName(attr.node.name)
-					? `${attr.node.name.namespace.name}:${attr.node.name.name.name}`
-					: attr.node.name.name
-
-				if (seenAttributes[name]) {
-					duplicates.push(seenAttributes[name])
-				}
-				seenAttributes[name] = attr
-			})
-		for (const duplicate of duplicates) {
-			duplicate.remove()
-		}
-
 		// inline
 
 		for (const attr of path.get('openingElement').get('attributes')) {

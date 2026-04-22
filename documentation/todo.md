@@ -15,7 +15,6 @@
 
 ### transform
 
-- inline style objects and maybe merge different style approaches
 - refactor transform again !
 
 ### reactivity

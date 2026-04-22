@@ -241,6 +241,160 @@ test('no pragma is transformed', () => {
 	)
 })
 
+// --- style inlining -----------------------------------------------------
+// The next tests verify the compile-time folding of `style=` into the
+// partial HTML, not runtime behavior. Runtime assertions live in
+// `tests/api/dom/set-style.jsx` — they pass whether the fold happened
+// or not, so we also inspect the emitted code here.
+
+// 13. Fully literal style object is folded into the partial HTML and
+//     does not emit a setStyle call.
+test('style inlining: literal object folded into partial HTML', () => {
+	const code = `
+		/** @jsxImportSource pota */
+		const el = <div style={{color: 'red', 'background-color': 'blue'}} />
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		!result.code.includes('setStyle'),
+		'setStyle should not be emitted for a fully literal style object',
+	)
+	assert(
+		result.code.includes('color:red') &&
+			result.code.includes('background-color:blue'),
+		'folded CSS pieces should appear in the partial HTML',
+	)
+})
+
+// 14. Mixed literal + dynamic object is left untouched and reaches
+//     setStyle at runtime.
+test('style inlining: mixed literal + dynamic is not folded', () => {
+	const code = `
+		/** @jsxImportSource pota */
+		const el = <div style={{color: 'red', background: dyn()}} />
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		result.code.includes('setStyle'),
+		'mixed style object must still go through setStyle at runtime',
+	)
+})
+
+// 15. null / undefined-valued properties are dropped; if that leaves
+//     an all-literal object, the remainder folds.
+test('style inlining: null-valued properties dropped', () => {
+	const code = `
+		/** @jsxImportSource pota */
+		const el = <div style={{color: 'red', margin: null, padding: undefined}} />
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		!result.code.includes('margin') &&
+			!result.code.includes('padding'),
+		'null / undefined-valued properties should not appear in output',
+	)
+	assert(
+		!result.code.includes('setStyle'),
+		'after dropping null/undefined the remaining literal should be folded',
+	)
+})
+
+// 16. style={null} removes the attribute entirely.
+test('style inlining: style={null} removes the attribute', () => {
+	const code = `
+		/** @jsxImportSource pota */
+		const el = <div style={null} />
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		!result.code.includes('style'),
+		'style attribute should not appear in output for style={null}',
+	)
+})
+
+// 17. Empty object style={{}} removes the attribute.
+test('style inlining: style={{}} removes the attribute', () => {
+	const code = `
+		/** @jsxImportSource pota */
+		const el = <div style={{}} />
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		!result.code.includes('style'),
+		'style attribute should not appear in output for style={{}}',
+	)
+})
+
+// 18. Computed key whose expression evaluates confident is folded.
+test('style inlining: computed key with confident value is folded', () => {
+	const code = `
+		/** @jsxImportSource pota */
+		const el = <div style={{['fo' + 'nt-size']: '14px'}} />
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		!result.code.includes('setStyle'),
+		'confident computed key should be folded, not routed to setStyle',
+	)
+	assert(
+		result.code.includes('font-size:14px'),
+		'folded computed key should appear in the partial HTML',
+	)
+})
+
+// 19. Duplicate `style=` attrs with no spread: dedup keeps the last,
+//     then the inliner folds.
+test('style inlining: duplicate style attrs, last wins (no spread)', () => {
+	const code = `
+		/** @jsxImportSource pota */
+		const el = <div style="a:b" style={{c: 'd'}} />
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		!result.code.includes('a:b'),
+		'earlier duplicate style should be dropped (last wins)',
+	)
+	assert(
+		result.code.includes('c:d'),
+		'later duplicate style should survive and fold',
+	)
+})
+
+// 20. Duplicate `style=` attrs with a spread: dedup is skipped (JS
+//     object-literal semantics in assignProps resolve last-wins);
+//     both attrs go into the spread object literal.
+test('style inlining: duplicate style attrs with spread keeps both keys', () => {
+	const code = `
+		/** @jsxImportSource pota */
+		const el = <div style="a:b" {...x} style={{c: 'd'}} />
+	`
+	const result = globalThis.Babel.transform(code, {
+		presets: ['pota'],
+	})
+	assert(
+		result.code.includes('assignProps'),
+		'spread path should route through assignProps',
+	)
+	assert(
+		result.code.includes('a:b') && result.code.includes('c:d'),
+		'both style attrs should reach the assignProps object; JS last-key-wins handles resolution at runtime',
+	)
+})
+
 // done
 const summary =
 	results.failed === 0
