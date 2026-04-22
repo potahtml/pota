@@ -7,7 +7,7 @@
 // reactiveIndex, and Map/Set iterables.
 import { microtask, test, body } from '#test'
 
-import { cleanup, map, render, signal } from 'pota'
+import { cleanup, map, ref, render, signal } from 'pota'
 import { Show, For } from 'pota/components'
 
 await test('For - renders a list of strings', expect => {
@@ -722,6 +722,43 @@ await test('For - restoreFocus preserves focus after reorder', async expect => {
 	// b should still be focused after reorder
 	const newB = document.querySelector('[data-id="b"]')
 	expect(newB).toBe(inputB)
+
+	dispose()
+})
+
+await test('For - restoreFocus keeps focus on a ref-focused input after sort', async expect => {
+	const items = signal(['a', 'b', 'c'])
+	const focused = ref()
+
+	const dispose = render(
+		<For each={items.read} restoreFocus>
+			{item => (
+				<input
+					data-id={item}
+					use:ref={node => item === 'c' && focused(node)}
+				/>
+			)}
+		</For>,
+	)
+
+	const inputC = focused()
+	expect(inputC instanceof HTMLInputElement).toBe(true)
+
+	inputC.focus()
+	expect(document.activeElement).toBe(inputC)
+
+	// sort: reorders the DOM nodes; restoreFocus should re-focus inputC
+	items.write(items.read().toReversed())
+	await microtask()
+
+	expect(body()).toBe(
+		'<input data-id="c"><input data-id="b"><input data-id="a">',
+	)
+
+	// same DOM node for 'b' survived the reorder
+	expect(document.querySelector('[data-id="c"]')).toBe(inputC)
+	// focus was restored to inputC
+	expect(document.activeElement).toBe(inputC)
 
 	dispose()
 })

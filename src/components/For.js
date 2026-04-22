@@ -50,16 +50,18 @@ let queued
 // because re-ordering the elements trashes focus
 function queue() {
 	if (!queued) {
-		queued = true
-
 		const active = activeElement()
+		// nothing focused, nothing to restore — skip so the stale
+		// capture doesn't block the next meaningful queue() call
+		if (!active || active === document.body) return
+
+		queued = true
 		const scroll = documentElement.scrollTop
 
 		onFixes(() => {
 			queued = false
 			// re-ordering the elements trashes focus
-			active &&
-				active !== activeElement() &&
+			active !== activeElement() &&
 				isConnected(active) &&
 				// @ts-expect-error
 				active.focus()
