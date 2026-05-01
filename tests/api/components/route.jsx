@@ -11,6 +11,7 @@ import { render, root } from 'pota'
 import { Route } from 'pota/components'
 import {
 	addListeners,
+	location,
 	navigate,
 	navigateSync,
 	useBeforeLeave,
@@ -661,6 +662,108 @@ await test('Route - nested routes render correctly', async expect => {
 	expect(body()).toInclude('<p>app</p>')
 	expect(body()).not.toInclude('settings')
 
+	dispose()
+})
+
+// --- location.params (read from a Route's tracking scope) ------------------
+
+await test('location.params - reflects matched route :param', async expect => {
+	await reset()
+	const Page = () => {
+		const p = location.params
+		return <span>{() => p.id}</span>
+	}
+	const dispose = render(
+		<Route path="/users/:id$">
+			<Page />
+		</Route>,
+	)
+	goto('/users/42')
+	await microtask()
+	expect(body()).toBe('<span>42</span>')
+	goto('/')
+	await microtask()
+	dispose()
+})
+
+await test('location.params - updates when :param changes within the same route', async expect => {
+	await reset()
+	const Page = () => {
+		const p = location.params
+		return <span>{() => p.id}</span>
+	}
+	const dispose = render(
+		<Route path="/users/:id$">
+			<Page />
+		</Route>,
+	)
+	goto('/users/1')
+	await microtask()
+	expect(body()).toBe('<span>1</span>')
+	goto('/users/2')
+	await microtask()
+	expect(body()).toBe('<span>2</span>')
+	goto('/')
+	await microtask()
+	dispose()
+})
+
+await test('location.params - decodes percent-encoded values', async expect => {
+	await reset()
+	const Page = () => {
+		const p = location.params
+		return <span>{() => p.name}</span>
+	}
+	const dispose = render(
+		<Route path="/users/:name$">
+			<Page />
+		</Route>,
+	)
+	goto('/users/A%20B')
+	await microtask()
+	expect(body()).toBe('<span>A B</span>')
+	goto('/')
+	await microtask()
+	dispose()
+})
+
+await test('location.params - merges params across nested routes', async expect => {
+	await reset()
+	const Page = () => {
+		const p = location.params
+		return <span>{() => `${p.userId}/${p.postId}`}</span>
+	}
+	const dispose = render(
+		<Route path="/users/:userId">
+			<Route path="/posts/:postId$">
+				<Page />
+			</Route>
+		</Route>,
+	)
+	goto('/users/7/posts/99')
+	await microtask()
+	expect(body()).toBe('<span>7/99</span>')
+	goto('/')
+	await microtask()
+	dispose()
+})
+
+await test('location.params - missing keys read as undefined', async expect => {
+	await reset()
+	const Page = () => {
+		const p = location.params
+		return <span>missing={() => String(p.missing)}</span>
+	}
+	const dispose = render(
+		<Route path="/users/:id$">
+			<Page />
+		</Route>,
+	)
+	goto('/users/5')
+	await microtask()
+	expect(body()).toBe('<span>missing=undefined</span>')
+	goto('/')
+	await microtask()
 	dispose()
 })
 

@@ -1,4 +1,4 @@
-import { memo, signal } from '../lib/reactive.js'
+import { effect, memo, signal } from '../lib/reactive.js'
 import { mutable, replace } from '../lib/store.js'
 import {
 	empty,
@@ -53,27 +53,6 @@ const searchParamsMemo = memo(() => {
 })
 searchParamsMemo()
 
-const params = mutable(
-	/** @type {Record<PropertyKey, string>} */ ({}),
-)
-const paramsMemo = memo(() => {
-	const values = empty()
-
-	useRoute.walk(context => {
-		for (const [key, value] of entries(context.params()())) {
-			values[key] =
-				value !== undefined
-					? decodeURIComponent(/** @type {string} */ (value))
-					: value
-		}
-	})
-
-	replace(params, values)
-
-	return values
-})
-paramsMemo()
-
 export const location = freeze({
 	protocol: locationObject().protocol,
 	origin: locationObject().origin,
@@ -84,9 +63,36 @@ export const location = freeze({
 	hash,
 	search,
 	searchParams,
-	// searchParamsMemo,
-	params,
-	// paramsMemo,
+	/**
+	 * Reactive params for the caller's enclosing route chain. The
+	 * effect/mutable created here are owned by the caller's scope and
+	 * disposed automatically when that scope ends.
+	 *
+	 * Capture once at component setup (`const p = location.params`)
+	 * and read keys reactively from `p`. Do not call `location.params`
+	 * inline inside a reactive expression — every access creates a
+	 * fresh effect+mutable. Must be called inside an owner scope, or
+	 * the inner effect is orphaned.
+	 */
+	get params() {
+		const params = mutable(
+			/** @type {Record<PropertyKey, string>} */ ({}),
+		)
+		effect(() => {
+			path() // track URL changes explicitly, not via Route.params
+			const values = empty()
+			useRoute.walk(context => {
+				for (const [key, value] of entries(context.params()())) {
+					values[key] =
+						value !== undefined
+							? decodeURIComponent(/** @type {string} */ (value))
+							: value
+				}
+			})
+			replace(params, values)
+		})
+		return params
+	},
 })
 
 let BeforeLeave = []
