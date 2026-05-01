@@ -2,9 +2,9 @@
 // Tests for pota/use/paginate: page boundaries, next/previous,
 // paginateValues, boundary clamping, and single-page edge case.
 
-import { test } from '#test'
+import { test, sleep } from '#test'
 
-import { signal } from 'pota'
+import { signal, render, isResolved } from 'pota'
 import { paginate, paginateValues } from 'pota/use/paginate'
 
 await test('paginate - paginate tracks page boundaries and slices through fetch', expect => {
@@ -395,6 +395,186 @@ await test('paginate - currentPage increments and decrements across navigation',
 	expect(page.currentPage()).toBe(1)
 })
 
+// --- paginateValues: page arg sets initial page ------------------------
+
+await test('paginateValues - page arg as number sets initial page', expect => {
+	const page = paginateValues(
+		() => [1, 2, 3, 4, 5, 6],
+		() => 2,
+		2,
+	)
+
+	expect(page.currentPage()).toBe(2)
+	expect(page.items()).toEqual([3, 4])
+})
+
+// --- paginateValues: page accessor tracks an external signal -----------
+
+await test('paginateValues - page accessor tracks an external signal', expect => {
+	const source = signal(1)
+	const page = paginateValues(
+		() => [1, 2, 3, 4, 5, 6],
+		() => 2,
+		source.read,
+	)
+
+	expect(page.currentPage()).toBe(1)
+	expect(page.items()).toEqual([1, 2])
+
+	source.write(3)
+	expect(page.currentPage()).toBe(3)
+	expect(page.items()).toEqual([5, 6])
+})
+
+// --- options.page: synchronous unwrap during component setup ----------
+//
+// Regression: the page accessor must resolve synchronously inside
+// `derived`, so that `page()` returns a number (not the `nothing`
+// sentinel) when read during component setup, before the effect
+// queue has flushed. Reading `currentPage()` inside `Comp` would
+// otherwise throw "Cannot convert object to primitive value" via
+// `Math.min(nothing, totalPages())`.
+
+await test('paginate - options.page resolves synchronously during component setup', expect => {
+	const source = signal(2)
+	let duringSetup
+
+	function Comp() {
+		const p = paginate(
+			(start, end) => [1, 2, 3, 4, 5, 6].slice(start, end),
+			{
+				numItems: () => 6,
+				numPerPage: () => 2,
+				page: source.read,
+			},
+		)
+		duringSetup = p.currentPage()
+		return <div />
+	}
+
+	const dispose = render(Comp, document.body)
+	expect(duringSetup).toBe(2)
+	dispose()
+})
+
+// --- options.page: number literal sets initial page --------------------
+
+await test('paginate - options.page as a number sets initial page', expect => {
+	const page = paginate(
+		(start, end) => [1, 2, 3, 4, 5, 6].slice(start, end),
+		{
+			numItems: () => 6,
+			numPerPage: () => 2,
+			page: 2,
+		},
+	)
+
+	expect(page.currentPage()).toBe(2)
+	expect(page.items()).toEqual([3, 4])
+})
+
+// --- options.page: accessor drives the page reactively -----------------
+
+await test('paginate - options.page accessor tracks an external signal', expect => {
+	const source = signal(1)
+	const page = paginate(
+		(start, end) => [1, 2, 3, 4, 5, 6].slice(start, end),
+		{
+			numItems: () => 6,
+			numPerPage: () => 2,
+			page: source.read,
+		},
+	)
+
+	expect(page.currentPage()).toBe(1)
+	expect(page.items()).toEqual([1, 2])
+
+	source.write(3)
+	expect(page.currentPage()).toBe(3)
+	expect(page.items()).toEqual([5, 6])
+})
+
+// --- options.page: source clobbers prior next() write ------------------
+
+await test('paginate - options.page source overrides earlier next() writes', expect => {
+	const source = signal(2)
+	const page = paginate(
+		(start, end) => [1, 2, 3, 4, 5, 6].slice(start, end),
+		{
+			numItems: () => 6,
+			numPerPage: () => 2,
+			page: source.read,
+		},
+	)
+
+	expect(page.currentPage()).toBe(2)
+
+	page.next()
+	expect(page.currentPage()).toBe(3)
+
+	// source fires: derived re-runs and clobbers the next() write
+	source.write(1)
+	expect(page.currentPage()).toBe(1)
+})
+
+// --- writable page: external write jumps the cursor --------------------
+
+await test('paginate - writing page jumps to that page', expect => {
+	const page = paginate(
+		(start, end) => [1, 2, 3, 4, 5, 6].slice(start, end),
+		{
+			numItems: () => 6,
+			numPerPage: () => 2,
+		},
+	)
+
+	page.page(3)
+	expect(page.currentPage()).toBe(3)
+	expect(page.items()).toEqual([5, 6])
+
+	page.page(1)
+	expect(page.currentPage()).toBe(1)
+	expect(page.items()).toEqual([1, 2])
+})
+
+// --- writable page: read returns raw (unclamped) intent -----------------
+
+await test('paginate - page() reads raw cursor, currentPage clamps', expect => {
+	const page = paginate(
+		(start, end) => [1, 2, 3, 4].slice(start, end),
+		{
+			numItems: () => 4,
+			numPerPage: () => 2,
+		},
+	)
+
+	page.page(99)
+	expect(page.page()).toBe(99)
+	expect(page.currentPage()).toBe(2)
+	expect(page.items()).toEqual([3, 4])
+})
+
+// --- writable page: last write wins between external and next() --------
+
+await test('paginate - external write and next() both update the same cursor', expect => {
+	const page = paginate(
+		(start, end) => [1, 2, 3, 4, 5, 6].slice(start, end),
+		{
+			numItems: () => 6,
+			numPerPage: () => 2,
+		},
+	)
+
+	page.next()
+	expect(page.currentPage()).toBe(2)
+
+	page.page(3)
+	expect(page.currentPage()).toBe(3)
+
+	page.previous()
+	expect(page.currentPage()).toBe(2)
+})
+
 // --- numPerPage of 1: each item is its own page ------------------------
 
 await test('paginate - numPerPage of 1 produces one page per item', expect => {
@@ -414,4 +594,32 @@ await test('paginate - numPerPage of 1 produces one page per item', expect => {
 
 	page.next()
 	expect(page.items()).toEqual(['c'])
+})
+
+// --- async fetch: items resolves through the derived's promise arm -----
+
+await test('paginate - async fetch resolves items through derived', async expect => {
+	const data = ['a', 'b', 'c', 'd', 'e', 'f']
+
+	const page = paginate(
+		(start, end) =>
+			new Promise(r => setTimeout(() => r(data.slice(start, end)), 10)),
+		{
+			numItems: () => 6,
+			numPerPage: () => 2,
+		},
+	)
+
+	// pending: items() is the `nothing` sentinel until the promise
+	// settles. isResolved is false.
+	expect(isResolved(page.items)).toBe(false)
+
+	await page.items
+	expect(page.items()).toEqual(['a', 'b'])
+	expect(isResolved(page.items)).toBe(true)
+
+	page.next()
+	// next page kicks off another fetch; await it before asserting.
+	await sleep(20)
+	expect(page.items()).toEqual(['c', 'd'])
 })
