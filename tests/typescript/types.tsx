@@ -242,6 +242,18 @@ type SSetter = SignalSetter<number>
 const ss_setter: SSetter = (v?: number) => true
 const ss_changed: boolean = ss_setter(10)
 
+// SignalSetter<T> accepts T values, including function-typed T
+// (component signals, handler signals).
+const ss_fn_setter: SignalSetter<() => number> = () => true
+ss_fn_setter(() => 1)
+type ComponentLike = (props: { x: number }) => string
+const ss_comp_setter: SignalSetter<ComponentLike> = () => true
+ss_comp_setter(props => `${props.x}`)
+// Array signal — ordinary values pass through
+const ss_arr_setter: SignalSetter<number[]> = () => true
+ss_arr_setter([])
+ss_arr_setter([1, 2, 3])
+
 // SignalUpdate<T> receives prev and returns SignalChanged
 type SUpd = SignalUpdate<number>
 const su_upd: SUpd = fn => {

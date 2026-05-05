@@ -45,7 +45,6 @@ export class Emitter {
 	#add() {
 		if (++this.#counter === 1) {
 			this.#signal = this.#signal || signal()
-			// value updates with initialValue
 			this.#signal.write(untrack(() => getValue(this.#initialValue)))
 
 			this.#off = untrack(() => this.#on(this.#signal.write))

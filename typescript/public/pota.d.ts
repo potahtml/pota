@@ -56,6 +56,10 @@ type DOMElement = HTMLElement | SVGElement | MathMLElement
 
 type SignalAccessor<T> = () => T
 
+/**
+ * Replaces the signal value as-is — does **not** receive the previous
+ * value. To compute from the previous value, use `SignalUpdate<T>`.
+ */
 type SignalSetter<T> = (newValue?: T) => SignalChanged
 
 type SignalUpdate<T> = (
