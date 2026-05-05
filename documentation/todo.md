@@ -13,19 +13,15 @@
 - light theme
 - restructure the docs and switch to mdx
 
-### transform
+### stuff
 
-- refactor transform again !
+- transform: refactor transform again !
+- reactivity: prevent writing to signals inside tracked scopes
+- dev tools: rethink the dev tools
+- formalise the api
+- formalise the plugins ns:bla-bla vs ns:blabla
 
-### reactivity
-
-- prevent writing to signals inside tracked scopes
-
-### tools
-
-- rethink the dev tools
-
-### use
+### use / components
 
 - drag element
 - ensure resize on bounds
@@ -43,16 +39,11 @@
 - socket webrtc
 - handle/listen postMessage/MessageChannel
 - orientation is creating a root, figure out if this can be abstracted
-
-### components
-
 - color picker
 - linkify
 - uploads
 - record audio, video
 - splitter
-- maybe make a `<WithDocument document={document}/>` so stuff stops
-  breaking with popups
 
 ### bench
 
