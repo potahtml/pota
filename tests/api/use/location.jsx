@@ -122,3 +122,33 @@ await test('location - searchParams reflects query string as mutable object', as
 
 	await restoreURL()
 })
+
+await test('location - searchParams updates across sequential navigations', async expect => {
+	addListeners()
+
+	navigateSync('/search-seq?a=1')
+	expect(location.searchParams.a).toBe('1')
+
+	navigateSync('/search-seq?a=2&b=x')
+	expect(location.searchParams.a).toBe('2')
+	expect(location.searchParams.b).toBe('x')
+
+	await restoreURL()
+})
+
+await test('location - searchParams drops keys removed from the URL', async expect => {
+	addListeners()
+
+	navigateSync('/search-drop?a=1&b=x')
+	expect(location.searchParams.a).toBe('1')
+	expect(location.searchParams.b).toBe('x')
+
+	navigateSync('/search-drop?b=y')
+	expect(location.searchParams.b).toBe('y')
+	expect(location.searchParams.a).toBe(undefined)
+
+	navigateSync('/search-drop')
+	expect(location.searchParams.b).toBe(undefined)
+
+	await restoreURL()
+})

@@ -153,6 +153,7 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 | `resolve.jsx`                | `resolve`                                                                                             |
 | `root.jsx`                   | `root`                                                                                                |
 | `signal.jsx`                 | `signal` tuple / object shape, `equals` options                                                       |
+| `signal-write-during-mount.jsx` | regression: signal write inside a child mounted via reactive update reaches long-lived subscribers (incl. popstate-driven `<Head>` + `<Route>` case) |
 | `sync-effect.jsx`            | `syncEffect`                                                                                          |
 | `untrack.jsx`                | `untrack`                                                                                             |
 | `unwrap.jsx`                 | `unwrap`                                                                                              |

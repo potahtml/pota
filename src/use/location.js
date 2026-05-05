@@ -252,14 +252,6 @@ export function addListeners() {
  * @returns {Promise<void>}
  */
 async function onLocationChange() {
-	// chrome has a bug on which if you use the back/forward button
-	// it will change the title of the tab to whatever it was before
-	// if the navigation is prevented (therefore the title/page wont change)
-	// it will still use the old title even if the title tag didn't change at all
-	const title = document.title
-	document.title = title + ' '
-	document.title = title
-
 	if (await canNavigate(wLocation.href)) {
 		setLocation(wLocation.href)
 	} else {
