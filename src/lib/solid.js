@@ -13,6 +13,8 @@ import {
 	walkParents,
 } from './std.js'
 
+import { $isDerived } from '../constants.js'
+
 /**
  * This is so far the core of Solid JS 1.x Reactivity, but ported to
  * classes and adapted to my taste.
@@ -411,6 +413,8 @@ export function createReactiveSystem() {
 
 		isResolved
 
+		[$isDerived] = true
+
 		/**
 		 * @param {Computation} owner
 		 * @param {unknown[]} fn
@@ -484,14 +488,11 @@ export function createReactiveSystem() {
 							// so this is a no-op there.
 							this.state = 0 /* CLEAN */
 
-							this.resolve && this.resolve(this)
+							this._fireThens()
 						}
 					}
 				},
 				() => {
-					// is a promise so restore `then`
-					this.thenRestore()
-
 					// remove the old value while the promise is resolving
 					// to avoid the "Florida - New York City" problem
 					this.writeNextValue(nothing)
@@ -507,27 +508,46 @@ export function createReactiveSystem() {
 		}
 
 		/**
-		 * Thenable stuff. It has to be a property so assign works
-		 * properly
+		 * Thenable surface. Stays defined across commits so consumers
+		 * can register more than once: each call to `then` either
+		 * fires synchronously (if already resolved) or queues onto
+		 * `thenCallbacks`, drained by `_fireThens` on commit. Has to
+		 * be an instance arrow so `assign(self(), this)` carries it
+		 * onto the callable wrapper.
+		 *
+		 * We resolve with `_unwrap()` rather than `self()`: `self()`
+		 * carries `then` onto every fresh wrapper, which makes the
+		 * resolved value itself thenable — JS's `await` would
+		 * recursively `then` it forever. `_unwrap()` returns the
+		 * same callable shape but with `then` stripped, terminating
+		 * the recursion.
 		 */
 		then = (resolve, reject) => {
-			this._then(resolve, reject)
-		}
-		_then(resolve, reject) {
-			this.resolve = () => {
-				this.then = undefined
-				this.resolve = undefined
-				resolve(this.self())
-			}
+			// `resolved()` reads through `this.read()` which triggers
+			// `update()` on a STALE derived. Without it, awaiting a
+			// freshly-constructed derived would queue forever because
+			// the source fn never runs.
 			if (this.resolved()) {
-				this.resolve()
+				resolve(this._unwrap())
+				return
+			}
+			if (!this.thenCallbacks) this.thenCallbacks = []
+			this.thenCallbacks.push(resolve)
+		}
+		_fireThens() {
+			if (this.thenCallbacks) {
+				const cbs = this.thenCallbacks
+				this.thenCallbacks = undefined
+				const wrap = this._unwrap()
+				cbs.forEach(cb => cb(wrap))
 			}
 		}
-		thenRestore() {
-			if (!this.then) {
-				// TODO: unsure if has to be restored
-				this.then = this._then
-			}
+		_unwrap() {
+			// Bare read/write callable — no `assign(this)`, so no
+			// `then` is carried onto it. JS's await thenability
+			// check terminates here.
+			return (...args) =>
+				args.length ? this.write(args[0]) : this.read()
 		}
 	}
 
@@ -1107,7 +1127,7 @@ export function createReactiveSystem() {
 		if (isFunction(value)) {
 			// TODO maybe change this to be a memo
 
-			effect(() =>
+			syncEffect(() =>
 				withValue(
 					value(),
 					fn,

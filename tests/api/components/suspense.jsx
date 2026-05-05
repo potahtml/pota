@@ -5,7 +5,7 @@
 // nested suspense, and cleanup.
 import { test, body, macrotask, microtask, sleep } from '#test'
 
-import { render } from 'pota'
+import { derived, render } from 'pota'
 import { Suspense, Errored } from 'pota/components'
 // --- No promises ---------------------------------------------------------------
 
@@ -402,4 +402,63 @@ await test('Suspense - sync children skip the fallback; promise children show it
 	expect(body()).toBe('<p>async child</p>')
 
 	disposeAsync()
+})
+
+// --- Derived as suspense child ---------------------------------------
+//
+// Regression: a `Derived` is `typeof === 'function'` (an
+// `assign(accessor, instance)`), so the renderer's `case 'function'`
+// path — not `case 'object'` — sees it. That branch must register
+// thenable derives with the active Suspense or the fallback never
+// shows.
+
+await test('Suspense - shows fallback while pending derived resolves', async expect => {
+	const d = derived(
+		() => new Promise(r => setTimeout(() => r('hello'), 30)),
+	)
+
+	const dispose = render(
+		<Suspense fallback={<p>loading</p>}>{d}</Suspense>,
+	)
+
+	expect(body()).toBe('<p>loading</p>')
+
+	await d
+	await macrotask()
+
+	expect(body()).toInclude('hello')
+
+	dispose()
+})
+
+await test('Suspense - already-resolved derived renders without fallback', expect => {
+	const d = derived(() => 'sync value')
+
+	const dispose = render(
+		<Suspense fallback={<p>loading</p>}>{d}</Suspense>,
+	)
+
+	// derived resolved synchronously — Suspense.isEmpty() is true
+	// after children walk, no fallback path engaged.
+	expect(body()).toBe('sync value')
+
+	dispose()
+})
+
+await test('Suspense - dispose during pending derived clears the fallback', async expect => {
+	const d = derived(
+		() => new Promise(r => setTimeout(() => r('value'), 100)),
+	)
+
+	const dispose = render(
+		<Suspense fallback={<p>loading</p>}>{d}</Suspense>,
+	)
+
+	expect(body()).toBe('<p>loading</p>')
+
+	// dispose while still pending — cleanup(remove) must drop the
+	// suspense counter even though the derived's resolve effect
+	// never fired.
+	dispose()
+	expect(body()).toBe('')
 })

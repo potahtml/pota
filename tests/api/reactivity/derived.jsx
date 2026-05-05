@@ -3,7 +3,15 @@
 // rejection.
 
 import { test, sleep } from '#test'
-import { signal, derived, isResolved, root, syncEffect } from 'pota'
+import {
+	signal,
+	derived,
+	effect,
+	isResolved,
+	render,
+	root,
+	syncEffect,
+} from 'pota'
 
 await test('derived and isResolved - resolve chained values and stay reactive', expect => {
 	const count = signal(2)
@@ -483,4 +491,96 @@ await test('derived - a promise override after sync write still commits when it 
 	d(new Promise(r => setTimeout(() => r('final'), 20)))
 	await sleep(40)
 	expect(d()).toBe('final')
+})
+
+// --- function-arm sync commit -------------------------------------------
+//
+// `derived(() => accessor)` returns a function value from its source
+// fn. `withValue` unwraps that function via a syncEffect, so the
+// derived's value commits during `update()` rather than being deferred
+// until the next batch flush. These tests lock in the sync contract:
+// reading the derived right after creation — even from inside a render
+// pass where Effects is already non-null and a regular `effect` would
+// queue — must return the unwrapped primitive, not the `nothing`
+// sentinel.
+
+await test('derived - function-returning-accessor commits synchronously at creation', expect => {
+	const source = signal(7)
+	const d = derived(() => source.read)
+
+	expect(d()).toBe(7)
+})
+
+await test('derived - function-returning-accessor commits synchronously inside render', expect => {
+	const source = signal(11)
+	let read
+
+	function Comp() {
+		const d = derived(() => source.read)
+		read = d()
+		return <div />
+	}
+
+	const dispose = render(Comp, document.body)
+	expect(read).toBe(11)
+	dispose()
+})
+
+await test('derived - function-arm tracks source updates after initial commit', expect => {
+	const source = signal(1)
+	const d = derived(() => source.read)
+	const seen = []
+
+	const stop = root(dispose => {
+		effect(() => seen.push(d()))
+		return dispose
+	})
+
+	source.write(2)
+	source.write(3)
+
+	expect(seen).toEqual([1, 2, 3])
+	stop()
+})
+
+// --- multi-consumer `then` ----------------------------------------------
+//
+// `Derived.then` is multi-consumer: each call queues its own resolve.
+// The previous design stored a single `this.resolve` and overwrote it
+// on each call, so a second `await d` would clobber the first
+// consumer (e.g. the renderer's Suspense registration) and leak.
+
+await test('derived - two pending consumers both resolve from one commit', async expect => {
+	const d = derived(
+		() => new Promise(r => setTimeout(() => r('value'), 20)),
+	)
+	let aFired = 0
+	let bFired = 0
+	const aPromise = new Promise(resolve => {
+		d.then(v => {
+			aFired++
+			resolve(v())
+		})
+	})
+	const bPromise = new Promise(resolve => {
+		d.then(v => {
+			bFired++
+			resolve(v())
+		})
+	})
+	const [a, b] = await Promise.all([aPromise, bPromise])
+	expect(a).toBe('value')
+	expect(b).toBe('value')
+	expect(aFired).toBe(1)
+	expect(bFired).toBe(1)
+})
+
+await test('derived - then after resolution fires synchronously', async expect => {
+	const d = derived(() => Promise.resolve('done'))
+	await d
+	let fired
+	d.then(v => {
+		fired = v()
+	})
+	expect(fired).toBe('done')
 })

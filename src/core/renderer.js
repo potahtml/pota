@@ -1,6 +1,12 @@
 // CONSTANTS
 
-import { $isClass, $isComponent, $isMap, NS } from '../constants.js'
+import {
+	$isClass,
+	$isComponent,
+	$isDerived,
+	$isMap,
+	NS,
+} from '../constants.js'
 
 // LIB
 
@@ -439,6 +445,21 @@ export function createChildren(
 				// map has own dom removal
 			} else {
 				let node = []
+
+				// `Derived` while pending. The renderer's other thenable
+				// branch lives under `case 'object'` and never sees
+				// these because `typeof derived === 'function'`. Register
+				// with the active Suspense so the fallback shows until
+				// the derived first resolves. `d.then` is multi-consumer,
+				// so a user `await d` later won't clobber our
+				// registration. `cleanup(remove)` covers dispose; `remove`
+				// is idempotent so the two paths are safe to converge.
+				if ($isDerived in child) {
+					const d = /** @type {Derived<unknown>} */ (child)
+					const remove = useSuspense().add()
+					cleanup(remove)
+					d.then(remove)
+				}
 
 				effect(() => {
 					// maybe a signal (at least a function) so needs an effect
