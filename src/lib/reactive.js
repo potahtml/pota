@@ -36,6 +36,7 @@ const {
 	owned,
 	owner,
 	root,
+	Root,
 	runWithOwner,
 	signal,
 	syncEffect,
@@ -60,6 +61,7 @@ export {
 	owned,
 	owner,
 	root,
+	Root,
 	runWithOwner,
 	signal,
 	syncEffect,
@@ -187,39 +189,54 @@ export const microtask = fn => queueMicrotask(owned(fn))
 
 // MAP
 
-class Row {
-	runId
+class Row extends Root {
+	runId = 0
 	item
 	index
 	isDupe
-	disposer
 	nodes
-	indexSignal
-	_begin
-	_end
+	indexSignal = null
+	_begin = null
+	_end = null
+	_fn
+	reactiveIndex
 	constructor(item, index, fn, isDupe, reactiveIndex) {
+		// Row IS its own Root — no separate root() / Root allocation.
+		super(owner())
+
 		this.item = item
 		this.index = index
 		this.isDupe = isDupe
+		this._fn = fn
+		this.reactiveIndex = reactiveIndex
 
-		root(disposer => {
-			this.disposer = clearing => {
-				if (!clearing) {
-					// console.log('removing row from Row')
-					// if the row has a wrapper, remove it first to skip children removal
-					this.remove()
-				}
-				disposer()
-			}
-			if (reactiveIndex) {
-				this.indexSignal = signal(index)
-				/** @type JSX.Element[] */
-				this.nodes = fn(item, this.indexSignal.read)
-			} else {
-				/** @type JSX.Element[] */
-				this.nodes = fn(item, index)
-			}
-		})
+		// Run init with `this` as the active owner so any
+		// effects/cleanups created inside attach to this Row.
+		runWithOwner(this, () => this.rowInit())
+	}
+	rowInit() {
+		if (this.reactiveIndex) {
+			this.indexSignal = signal(this.index)
+			/** @type JSX.Element[] */
+			this.nodes = this._fn(this.item, this.indexSignal.read)
+		} else {
+			/** @type JSX.Element[] */
+			this.nodes = this._fn(this.item, this.index)
+		}
+	}
+
+	// Default disposal path — also remove DOM nodes. Used by
+	// mapper.dispose(row) and by parent owner cascades.
+	dispose() {
+		this.remove()
+		super.dispose()
+	}
+
+	// mapper.clear() path — the parent has already detached all rows
+	// in one batch (toDiff fast-clear), so skip per-row remove() and
+	// just clean up reactivity.
+	disposeKeepingNodes() {
+		super.dispose()
 	}
 
 	updateIndex(index) {
@@ -231,7 +248,7 @@ class Row {
 		}
 	}
 	begin() {
-		if (!this._begin) {
+		if (this._begin === null) {
 			this.getBegin(this.nodes)
 		}
 		return this._begin
@@ -243,7 +260,7 @@ class Row {
 		this._begin = nodes
 	}
 	end() {
-		if (!this._end) {
+		if (this._end === null) {
 			this.getEnd(this.nodes)
 		}
 		return this._end
@@ -315,7 +332,7 @@ export const map = (
 		toDiff(flatToArray(prev.map(item => item.nodes)), [], true)
 
 		for (const row of prev) {
-			row.disposer(true)
+			row.disposeKeepingNodes()
 		}
 		cache.clear()
 		duplicates.clear()
@@ -338,7 +355,7 @@ export const map = (
 				: removeFromArray(arr, row)
 		}
 
-		row.disposer()
+		row.dispose()
 	}
 
 	/**

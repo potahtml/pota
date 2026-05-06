@@ -1326,6 +1326,7 @@ export function createReactiveSystem() {
 		owned,
 		owner,
 		root,
+		Root,
 		runWithOwner,
 		signal,
 		syncEffect,
