@@ -44,6 +44,13 @@ export function createReactiveSystem() {
 	const STALE = 1
 	const CHECK = 2
 
+	// Shared empty-array sentinel for `owned` / `cleanups` slots.
+	// Never mutated; addOwned/addCleanups replace it with a fresh
+	// array on first write. Stable JSArray slot type lets V8 skip
+	// the undefined/single/array polymorphism on the hot Root
+	// lifecycle methods.
+	const EMPTY = []
+
 	/** @type {undefined | Computation} */
 	let Owner
 
@@ -68,7 +75,8 @@ export function createReactiveSystem() {
 
 	function doRead(o) {
 		if (Listener) {
-			const sourceSlot = o.observers ? o.observers.length : 0
+			const observers = o.observers
+			const sourceSlot = observers.length
 
 			if (Listener.sources) {
 				Listener.sources.push(o)
@@ -80,12 +88,12 @@ export function createReactiveSystem() {
 
 			const observerSlot = Listener.sources.length - 1
 
-			if (sourceSlot) {
-				o.observers.push(Listener)
-				o.observerSlots.push(observerSlot)
-			} else {
+			if (observers === EMPTY) {
 				o.observers = [Listener]
 				o.observerSlots = [observerSlot]
+			} else {
+				observers.push(Listener)
+				o.observerSlots.push(observerSlot)
 			}
 		}
 	}
@@ -104,7 +112,7 @@ export function createReactiveSystem() {
 	}
 
 	function doWrite(o) {
-		if (o.observers && o.observers.length) {
+		if (o.observers.length) {
 			_writeTarget = o.observers
 			runUpdates(_markObservers)
 		}
@@ -116,11 +124,11 @@ export function createReactiveSystem() {
 		/** @type {undefined | Root} */
 		owner
 
-		/** @type {Computation | Computation[]} */
-		owned
+		/** @type {Computation[]} */
+		owned = EMPTY
 
-		/** @type {undefined | Function | Function[]} */
-		cleanups
+		/** @type {Function[]} */
+		cleanups = EMPTY
 
 		/** @type {Record<symbol, unknown>} */
 		context
@@ -142,32 +150,17 @@ export function createReactiveSystem() {
 		}
 		/** @param {() => void} fn */
 		addCleanups(fn) {
-			if (!this.cleanups) {
-				this.cleanups = fn
-			} else if (isArray(this.cleanups)) {
-				this.cleanups.push(fn)
-			} else {
-				this.cleanups = [this.cleanups, fn]
-			}
+			if (this.cleanups === EMPTY) this.cleanups = [fn]
+			else this.cleanups.push(fn)
 		}
 		/** @param {() => void} fn */
 		cleanupCancel(fn) {
-			if (!this.cleanups) {
-			} else if (this.cleanups === fn) {
-				this.cleanups = undefined
-			} else if (isArray(this.cleanups)) {
-				removeFromArray(this.cleanups, fn)
-			}
+			if (this.cleanups !== EMPTY) removeFromArray(this.cleanups, fn)
 		}
 		/** @param {Computation} value */
 		addOwned(value) {
-			if (!this.owned) {
-				this.owned = value
-			} else if (isArray(this.owned)) {
-				this.owned.push(value)
-			} else {
-				this.owned = [this.owned, value]
-			}
+			if (this.owned === EMPTY) this.owned = [value]
+			else this.owned.push(value)
 		}
 
 		dispose() {
@@ -176,36 +169,26 @@ export function createReactiveSystem() {
 		}
 
 		disposeOwned() {
-			if (!this.owned) {
-			} else if (isArray(this.owned)) {
-				for (let i = this.owned.length - 1; i >= 0; i--) {
-					this.owned[i].dispose()
+			const owned = this.owned
+			if (owned.length) {
+				for (let i = owned.length - 1; i >= 0; i--) {
+					owned[i].dispose()
 				}
-				this.owned = undefined
-			} else {
-				this.owned.dispose()
-				this.owned = undefined
+				owned.length = 0
 			}
 		}
 
 		doCleanups() {
-			if (!this.cleanups) {
-			} else if (isArray(this.cleanups)) {
-				for (let i = this.cleanups.length - 1; i >= 0; i--) {
+			const cleanups = this.cleanups
+			if (cleanups.length) {
+				for (let i = cleanups.length - 1; i >= 0; i--) {
 					try {
-						this.cleanups[i]()
+						cleanups[i]()
 					} catch (err) {
 						routeError(this, err)
 					}
 				}
-				this.cleanups = undefined
-			} else {
-				try {
-					this.cleanups()
-				} catch (err) {
-					routeError(this, err)
-				}
-				this.cleanups = undefined
+				cleanups.length = 0
 			}
 		}
 	}
@@ -325,8 +308,11 @@ export function createReactiveSystem() {
 	class Memo extends Computation {
 		value
 
-		observers
-		observerSlots
+		/** @type {Computation[]} */
+		observers = EMPTY
+
+		/** @type {number[]} */
+		observerSlots = EMPTY
 
 		/**
 		 * @param {Computation} owner
@@ -585,6 +571,29 @@ export function createReactiveSystem() {
 	}
 
 	/**
+	 * Plain leaf observable shared with Memo/Derived for the
+	 * `o.observers` access in doRead/doWrite. observers / observerSlots
+	 * start as the EMPTY sentinel so the slot type is always JSArray —
+	 * eliminates the undefined→array transition that was making doRead
+	 * megamorphic across signal-literal vs Memo vs Derived shapes.
+	 */
+	class Signal {
+		/** @type {Computation[]} */
+		observers = EMPTY
+
+		/** @type {number[]} */
+		observerSlots = EMPTY
+
+		/** @type {any} */
+		value
+
+		/** @param {any} value */
+		constructor(value) {
+			this.value = value
+		}
+	}
+
+	/**
 	 * Creates a signal
 	 *
 	 * @template T
@@ -593,23 +602,24 @@ export function createReactiveSystem() {
 	 * @returns {SignalObject<T>}
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function signal(value, options) {
-		const o = {
-			observers: undefined,
-			observerSlots: undefined,
+		let _equals = equals
+		if (options) {
+			if (options.equals === false) _equals = equalsFalse
+			else if (options.equals) _equals = options.equals
 		}
 
-		let _equals = equals
+		const o = new Signal(value)
 
 		function read() {
 			if (Listener) {
 				doRead(o)
 			}
 
-			return value
+			return o.value
 		}
 		function write(val) {
-			if (!_equals(value, val)) {
-				value = val
+			if (!_equals(o.value, val)) {
+				o.value = val
 
 				doWrite(o)
 
@@ -618,7 +628,7 @@ export function createReactiveSystem() {
 			return false
 		}
 		function update(val) {
-			return write(untrack(() => val(value)))
+			return write(untrack(() => val(o.value)))
 		}
 
 		const s = /** @type {any} */ ([read, write, update])
@@ -629,8 +639,6 @@ export function createReactiveSystem() {
 
 		if (options) {
 			assign(s, options)
-			if (s.equals === false) _equals = equalsFalse
-			else if (s.equals) _equals = s.equals
 		}
 
 		return s
