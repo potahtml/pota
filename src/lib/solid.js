@@ -620,9 +620,7 @@ export function createReactiveSystem() {
 		function write(val) {
 			if (!_equals(o.value, val)) {
 				o.value = val
-
 				doWrite(o)
-
 				return true
 			}
 			return false

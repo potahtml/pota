@@ -6,6 +6,10 @@
 //   - results.md       — full block for the latest run (overwritten)
 //   - results-short.md — multi-line history, newest entry prepended
 //
+// Pass `--no-write` (or `-n`) to measure-only — prints the report to
+// the console and skips both files. Useful for A/B comparisons where
+// the history file would only churn.
+//
 // Requires the bench page to be reachable. Defaults to pota.docs's
 // kompiler dev server (http://localhost:37808/pages/benchmark/dev/).
 //
@@ -20,6 +24,9 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const REPO = path.resolve(__dirname, '../..')
+
+const NO_WRITE =
+	process.argv.includes('--no-write') || process.argv.includes('-n')
 
 const URL = 'http://localhost:37808/pages/benchmark/dev/index.html'
 
@@ -402,38 +409,43 @@ ${
 }
 `
 
-await writeFormatted(RESULTS, block)
-
-const benchShortLines = benchPairLines
-	.map(({ label, body }) => `- ${label} ${body}\n`)
-	.join('')
-
-const shortEntry =
-	`## ${versionTag} — ${browserVersion}\n\n` +
-	benchShortLines +
-	`- per-row \`${heap.perRow.toFixed(0)}B\` full \`${(heap.full / 1024).toFixed(0)}KB\` leak \`${(heap.retainedLeak / 1024).toFixed(0)}KB\`\n` +
-	`- deopts \`${uniqueDeopts}/${totalDeopts}\`\n\n`
-
-const SHORT_HEADER =
-	'# pota bench — short history\n\n' +
-	'Compact log of `npm run bench` runs. Newest entry at the top.\n\n'
-
-let existingEntries = ''
-if (fs.existsSync(RESULTS_SHORT)) {
-	const content = fs.readFileSync(RESULTS_SHORT, 'utf8')
-	if (content.startsWith(SHORT_HEADER)) {
-		existingEntries = content.slice(SHORT_HEADER.length)
-	}
-}
-await writeFormatted(
-	RESULTS_SHORT,
-	SHORT_HEADER + shortEntry + existingEntries,
-)
-
 console.log()
 console.log(block.trim())
 console.log()
-console.log(`[bench] wrote ${path.relative(REPO, RESULTS)}`)
-console.log(
-	`[bench] prepended to ${path.relative(REPO, RESULTS_SHORT)}`,
-)
+
+if (NO_WRITE) {
+	console.log(`[bench] --no-write: skipping results.md / results-short.md`)
+} else {
+	await writeFormatted(RESULTS, block)
+
+	const benchShortLines = benchPairLines
+		.map(({ label, body }) => `- ${label} ${body}\n`)
+		.join('')
+
+	const shortEntry =
+		`## ${versionTag} — ${browserVersion}\n\n` +
+		benchShortLines +
+		`- per-row \`${heap.perRow.toFixed(0)}B\` full \`${(heap.full / 1024).toFixed(0)}KB\` leak \`${(heap.retainedLeak / 1024).toFixed(0)}KB\`\n` +
+		`- deopts \`${uniqueDeopts}/${totalDeopts}\`\n\n`
+
+	const SHORT_HEADER =
+		'# pota bench — short history\n\n' +
+		'Compact log of `npm run bench` runs. Newest entry at the top.\n\n'
+
+	let existingEntries = ''
+	if (fs.existsSync(RESULTS_SHORT)) {
+		const content = fs.readFileSync(RESULTS_SHORT, 'utf8')
+		if (content.startsWith(SHORT_HEADER)) {
+			existingEntries = content.slice(SHORT_HEADER.length)
+		}
+	}
+	await writeFormatted(
+		RESULTS_SHORT,
+		SHORT_HEADER + shortEntry + existingEntries,
+	)
+
+	console.log(`[bench] wrote ${path.relative(REPO, RESULTS)}`)
+	console.log(
+		`[bench] prepended to ${path.relative(REPO, RESULTS_SHORT)}`,
+	)
+}
