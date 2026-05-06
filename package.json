@@ -67,6 +67,7 @@
 		"test:ts-tests": "tsc -p tests/tsconfig.json",
 		"test:ts-babel-preset": "tsc -p babel-preset/tsconfig.json",
 		"coverage": "node tools/test-runner/runner.js --coverage",
+		"bench": "node tools/bench/runner.mjs",
 		"release": "npm run test && node tools/release.js",
 		"format": "biome format . --write"
 	},
@@ -94,6 +95,7 @@
 		"@types/node": "^25.6.0",
 		"c8": "^11.0.0",
 		"esbuild": "^0.28.0",
+		"prettier": "^3.8.3",
 		"puppeteer": "^24.42.0",
 		"rollup": "^4.60.2",
 		"typescript": "^6.0.3"
