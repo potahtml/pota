@@ -901,6 +901,21 @@ export function createReactiveSystem() {
 		}
 	}
 
+	// Pools for Updates and Effects. Reused across calls so the array
+	// literal sites don't deopt with "Insufficient type feedback for
+	// array literal" and V8 keeps a stable JSArray elements kind.
+	//
+	// Both must be pools, not single scratch arrays. Updates can have
+	// multiple arrays alive at once because the save/restore pattern
+	// at solid.js:340-343 and solid.js:892-895 deliberately bypasses
+	// the `if (Updates) return fn()` early-exit by setting Updates to
+	// undefined before re-entering — so the inner runUpdates needs an
+	// array independent of the outer's. Effects can also have multiple
+	// arrays alive when runEffects iterates the captured queue while
+	// nested work queues into a fresh one.
+	const _updatesPool = [[]]
+	const _effectsPool = [[]]
+
 	/**
 	 * @template T
 	 * @param {() => T} fn
@@ -914,14 +929,16 @@ export function createReactiveSystem() {
 
 		let wait = false
 
+		let myUpdates
 		if (!init) {
-			Updates = []
+			myUpdates = Updates = _updatesPool.pop() || []
 		}
 
+		let myEffects
 		if (Effects) {
 			wait = true
 		} else {
-			Effects = []
+			myEffects = Effects = _effectsPool.pop() || []
 		}
 
 		Time++
@@ -950,6 +967,15 @@ export function createReactiveSystem() {
 			Updates = undefined
 
 			throw err
+		} finally {
+			if (myUpdates) {
+				myUpdates.length = 0
+				_updatesPool.push(myUpdates)
+			}
+			if (myEffects) {
+				myEffects.length = 0
+				_effectsPool.push(myEffects)
+			}
 		}
 	}
 
