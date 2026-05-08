@@ -447,9 +447,6 @@ export function createReactiveSystem() {
 			this.read() // tracking
 			return this.isResolved === null
 		}
-		run = () => {
-			this.update()
-		}
 		_runFn = () => {
 			// @ts-expect-error
 			this.write(this.fn[0](), this.fn.slice(1))

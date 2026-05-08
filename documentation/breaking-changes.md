@@ -1,3 +1,14 @@
+# pota v0.20.233
+
+- **`Derived.run` removed.** The `run()` method on the value returned
+  by `derived(...)` is gone, along with its entry in
+  `DerivedSignal.run` on the public type surface. It only force-
+  re-evaluated the source function — useful only when the source had
+  side effects or non-tracked dependencies, which is an anti-pattern
+  in a reactive system. There were no callers in pota itself, in
+  pota.docs, or in the test suite. If you relied on `.run`, store the
+  thing it depended on as a signal and write to that signal instead.
+
 # pota v0.20.230
 
 - **`Collapse` no longer renders a `<pota-collapse>` custom element.**

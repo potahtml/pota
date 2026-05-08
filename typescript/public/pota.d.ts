@@ -122,7 +122,6 @@ type EffectOptions = undefined | Record<string, never>
 type DerivedSignal<R> = {
 	(value: R | (() => R) | PromiseLike<R>): SignalChanged
 	(): R
-	run: Function
 	resolved: SignalAccessor<boolean>
 }
 
