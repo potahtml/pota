@@ -78,7 +78,7 @@ export function createReactiveSystem() {
 			const observers = o.observers
 			const sourceSlot = observers.length
 
-			if (Listener.sources) {
+			if (Listener.sources !== EMPTY) {
 				Listener.sources.push(o)
 				Listener.sourceSlots.push(sourceSlot)
 			} else {
@@ -203,8 +203,17 @@ export function createReactiveSystem() {
 		/** @type {Function | undefined} */
 		fn
 
-		sources
-		sourceSlots
+		// Initialized to the shared `EMPTY` sentinel so V8 sees a
+		// stable JSArray slot type from the first read. Without it,
+		// each fresh Computation transitions `sources` / `sourceSlots`
+		// from undefined to array on its first tracked read, which
+		// matches the pattern documented for `observers` /
+		// `observerSlots` on `Memo` / `Signal`.
+		/** @type {any[]} */
+		sources = EMPTY
+
+		/** @type {number[]} */
+		sourceSlots = EMPTY
 
 		/**
 		 * @param {Computation} owner
@@ -402,6 +411,17 @@ export function createReactiveSystem() {
 		[$isDerived] = true
 
 		/**
+		 * Monotonic write token. Bumped on every direct write or fresh
+		 * `update()`; recursive resolve steps capture and compare the
+		 * current value to detect stale promise resolutions. Was a fresh
+		 * `{}` per write — counter avoids the per-update allocation while
+		 * preserving identity-via-`===` semantics for the staleness check.
+		 *
+		 * @type {number}
+		 */
+		lastWrite = 0
+
+		/**
 		 * @param {Computation} owner
 		 * @param {unknown[]} fn
 		 */
@@ -440,7 +460,7 @@ export function createReactiveSystem() {
 			const time = Time
 
 			try {
-				this.lastWrite = {}
+				this.lastWrite++
 
 				runWith(this._runFn, this, this)
 			} catch (err) {
@@ -453,8 +473,7 @@ export function createReactiveSystem() {
 		write(nextValue, fns) {
 			this.isResolved = undefined
 
-			const mine =
-				fns === undefined ? (this.lastWrite = {}) : this.lastWrite
+			const mine = fns === undefined ? ++this.lastWrite : this.lastWrite
 
 			withValue(
 				nextValue,
@@ -916,6 +935,22 @@ export function createReactiveSystem() {
 	const _updatesPool = [[]]
 	const _effectsPool = [[]]
 
+	// Static helper used by `runUpdates` to drain `Effects` in a fresh
+	// nested batch. Replaces the `() => runEffects(effects)` closure
+	// that was previously allocated on every top-level batch — heap
+	// profile flagged it as a hot small-object allocation. The slot
+	// is module-scoped (created once) and is only set immediately
+	// before the recursive `runUpdates` call, so there is no risk of
+	// re-entrant overwrite: nested `runUpdates` calls hit the
+	// `if (Updates) return fn()` early-exit before reaching this
+	// path.
+	let _pendingEffects
+	function _drainEffects() {
+		const effects = _pendingEffects
+		_pendingEffects = undefined
+		runEffects(effects)
+	}
+
 	/**
 	 * @template T
 	 * @param {() => T} fn
@@ -956,7 +991,10 @@ export function createReactiveSystem() {
 			if (!wait) {
 				const effects = Effects
 				Effects = undefined
-				effects.length && runUpdates(() => runEffects(effects))
+				if (effects.length) {
+					_pendingEffects = effects
+					runUpdates(_drainEffects)
+				}
 			}
 
 			return res
@@ -1153,11 +1191,21 @@ export function createReactiveSystem() {
 		value,
 		fn,
 		writeDefaultValue = noop,
-		wroteValue = { value: false },
-		resolved = [],
+		wroteValue = undefined,
+		resolved = undefined,
 	) {
+		// `wroteValue` and `resolved` are lazily allocated INSIDE the
+		// branches that need them. The terminal `fn(value)` path is
+		// the common case (every reactive prop assignment for a
+		// primitive/element value goes through it) — making the
+		// defaults eager allocated `{ value: false }` + `[]` per
+		// call, even for the terminal path that never reads them.
+		// Lazy init keeps that hot path allocation-free.
 		if (isFunction(value)) {
 			// TODO maybe change this to be a memo
+
+			if (wroteValue === undefined) wroteValue = { value: false }
+			if (resolved === undefined) resolved = []
 
 			syncEffect(() =>
 				withValue(
@@ -1168,9 +1216,14 @@ export function createReactiveSystem() {
 					resolved,
 				),
 			)
-		} else if (isArray(value) && !resolved.includes(value)) {
+		} else if (
+			isArray(value) &&
+			(resolved === undefined || !resolved.includes(value))
+		) {
 			// TODO maybe do same for objects ...
 
+			if (wroteValue === undefined) wroteValue = { value: false }
+			if (resolved === undefined) resolved = []
 			resolved.push(value)
 
 			// when empty it should update too
@@ -1201,6 +1254,9 @@ export function createReactiveSystem() {
 				)
 			})
 		} else if (isPromise(value)) {
+			if (wroteValue === undefined) wroteValue = { value: false }
+			if (resolved === undefined) resolved = []
+
 			const remove = asyncTracking.add()
 			/**
 			 * WriteDefaultValue is used to avoid a double write. If the

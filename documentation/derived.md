@@ -47,7 +47,7 @@ update() {
     this.dispose()
     const time = Time
     try {
-        this.lastWrite = {}
+        this.lastWrite++
         runWith(this._runFn, this, this)
     } catch (err) {
         this.state = 1 /* STALE */
@@ -69,8 +69,11 @@ without rebinding on every run. It calls
 `this.write(result, [f1, f2])` — the remaining functions are passed as
 the `fns` tail, which starts the recursive chain dispatch.
 
-`this.lastWrite = {}` stamps a fresh token once for the entire chain
-run. All stages share this token.
+`this.lastWrite++` advances the per-Derived token once for the entire
+chain run. All stages share this token. The field is declared as
+`lastWrite = 0` on the class so the slot is a number from
+construction; previous incarnations stamped a fresh `{}` and used
+object identity.
 
 ### Write path (`Derived.write`)
 
@@ -79,9 +82,7 @@ write(nextValue, fns) {
     this.isResolved = undefined
 
     const mine =
-        fns === undefined
-            ? (this.lastWrite = {})
-            : this.lastWrite
+        fns === undefined ? ++this.lastWrite : this.lastWrite
 
     withValue(
         nextValue,
@@ -111,10 +112,12 @@ write(nextValue, fns) {
 
 ### Token: `lastWrite`
 
-Each top-level user write (`fns === undefined`) stamps a fresh object
-reference onto `this.lastWrite`. The commit callback closes over its
-own `mine` and only proceeds when
-`Listener || this.lastWrite === mine`.
+Each top-level user write (`fns === undefined`) advances
+`this.lastWrite` by one and captures the new value as `mine`. The
+commit callback closes over its own `mine` and only proceeds when
+`Listener || this.lastWrite === mine`. The token is a monotonic
+counter (initial value `0`), so the strict-equality check is a
+single-word integer compare.
 
 This closes two races (in both, the late callback's `mine` no longer
 matches `lastWrite`, so the stale value is dropped):

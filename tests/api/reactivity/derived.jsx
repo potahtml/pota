@@ -391,6 +391,33 @@ await test('derived - writing a promise after initial sync value updates when it
 	expect(d()).toBe('async')
 })
 
+await test('derived - sync value cleared while pending promise resolves (Florida → NYC)', async expect => {
+	// The "Florida → New York City" problem: if the user types a
+	// search and the previous result was for "Florida", we must not
+	// keep showing "Florida" while the new "NYC" search resolves.
+	// `Derived.write` clears the value to the `nothing` placeholder
+	// during the pending window via `withValue`'s `writeDefaultValue`
+	// callback, so reads never observe a stale resolved value
+	// belonging to the previous query. The companion test above
+	// only asserts the post-resolution value; this one locks down
+	// the intermediate cleared state so a regression that leaves
+	// the stale value in place during pending fails here.
+	const d = derived(() => 'sync')
+	expect(d()).toBe('sync')
+	expect(isResolved(d)).toBe(true)
+
+	d(new Promise(r => setTimeout(() => r('async'), 30)))
+
+	// During pending: stale 'sync' must NOT be observable.
+	expect(isResolved(d)).toBe(false)
+	expect(d()).not.toBe('sync')
+
+	await sleep(50)
+
+	expect(isResolved(d)).toBe(true)
+	expect(d()).toBe('async')
+})
+
 // --- stale-promise rejection via lastWrite token -------------------
 
 // Each call to `write()` stamps a fresh token onto `lastWrite`.

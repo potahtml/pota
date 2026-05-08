@@ -132,6 +132,11 @@ listed below.
 | `npm run test:coverage`      | Same as `test:api` but with V8 coverage → c8 HTML + text report in `generated/coverage/`                                                                                                                      |
 | `npm run test:babel-preset`  | Puppeteer tests for the standalone Babel preset bundle                                                                                                                                                        |
 | `npm run test:types`         | Typecheck `src/` + `tests/` + `babel-preset/` in one sequential run                                                                                                                                           |
+| `npm run bench`              | Run `tools/bench/runner.mjs` against the `pota.docs` dev benchmark page — heap snapshot, per-action timings, V8 deopts. Writes `tools/bench/results.md` + prepends to `results-short.md`. Pass `-- --no-write` to skip the writes. |
+| `npm run bench:profile`      | CPU sampling profile via `tools/bench/prof.mjs` — top hot frames by self + inclusive time.                                                                                                                    |
+| `npm run bench:profile-trace`| Chrome `devtools.timeline` trace — decomposes the cycle into JS / Layout / Paint / Style / GC. Use when sampling shows `(program)` dominating.                                                              |
+| `npm run bench:profile-heap` | V8 `HeapProfiler` allocation sampling — top allocation sites for finding GC-pressure sources.                                                                                                                |
+| `npm run bench:profile-no-inline` | `bench:profile` with V8 inlining disabled. Use to confirm sample attributions aren't inflated by inlining.                                                                                              |
 
 ## Repository Layout
 

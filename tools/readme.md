@@ -12,6 +12,7 @@ published package.
 | `release.js`    | Version bump, git tag, and npm publish script                                |
 | `utils.js`      | Shared file system helpers used by other tools                               |
 | `babel-preset/` | Rollup configs and Puppeteer tests for the Babel preset builds               |
+| `bench/`        | `runner.mjs` (`npm run bench`) + `prof.mjs` (CPU sampling / tracing / heap)  |
 | `test-runner/`  | Custom Puppeteer browser test runner                                         |
 
 ## One-shot vs watch
@@ -129,3 +130,17 @@ Custom Puppeteer test runner that transforms `.jsx`/`.tsx` files on
 the fly via the local Babel preset, serves them over HTTP, and runs
 them in a real Chromium browser. See `tools/test-runner/readme.md` for
 details.
+
+## bench/
+
+`runner.mjs` and `prof.mjs` exercise the dev benchmark page in
+`pota.docs` (start it via `npm run dev` in that repo so the page is
+reachable on `http://localhost:37808/pages/benchmark/dev/`).
+
+| Script                          | Mode                                                                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `npm run bench`                 | `runner.mjs` — heap snapshot + page bench timings + V8 deopt log; writes `results.md` and prepends to `results-short.md`. Pass `--no-write` / `-n` to print only. |
+| `npm run bench:profile`         | CPU sampling profile — top hot self-time + inclusive-time frames, plus a user-JS-only view (`main.js`).                |
+| `npm run bench:profile-trace`   | Chrome `devtools.timeline` tracing — decomposes the cycle into JS / Layout / Paint / Style / GC. Use this when CPU sampling shows `(program)` dominating and you need to know what's inside it. |
+| `npm run bench:profile-heap`    | V8 `HeapProfiler` allocation sampling — top allocation sites by self / inclusive size. Use this to find GC-pressure sources. |
+| `npm run bench:profile-no-inline` | Same as `bench:profile` but launches Chrome with `--no-turbo-inlining --no-maglev-inlining`. Use to confirm sample attributions aren't inflated by V8 inlining helpers into a calling function. |

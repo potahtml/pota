@@ -215,7 +215,10 @@ Updates = undefined;
 if (!wait) {
   const effects = Effects;
   Effects = undefined;
-  effects.length && runUpdates(() => runEffects(effects));
+  if (effects.length) {
+    _pendingEffects = effects;
+    runUpdates(_drainEffects);
+  }
 }
 ```
 
@@ -227,7 +230,10 @@ consistent before any side effects run.
 boundary. Effects are flushed via a recursive `runUpdates` call, which
 means memo notifications triggered by effects get their own flush
 cycle. This ensures the system is always consistent: memos before
-effects, always.
+effects, always. The recursion target is a module-scoped
+`_drainEffects` helper that reads from a `_pendingEffects` slot;
+re-entrant `runUpdates` calls hit the early-exit `if (Updates)` so
+the slot is only ever set immediately before its single use.
 
 ### runEffects — two-pass execution
 
@@ -551,7 +557,13 @@ handle functions, promises, and arrays transparently:
 The `wroteValue` flag prevents double-writing: if the value resolves
 synchronously (no promises), no intermediate default is written. The
 `resolved` array prevents infinite recursion on arrays that have
-already been visited.
+already been visited. Both `wroteValue` and `resolved` are
+lazy-allocated: the function / array / promise branches that need
+them initialize on first use, while the terminal `fn(value)` path
+(reached for any non-function / non-array / non-promise value) stays
+allocation-free. Most prop-handler calls (`attribute.js`,
+`style.js`, `property.js`) eventually hit the terminal path, so this
+matters on the hot path.
 
 ---
 

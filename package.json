@@ -68,6 +68,10 @@
 		"test:ts-babel-preset": "tsc -p babel-preset/tsconfig.json",
 		"coverage": "node tools/test-runner/runner.js --coverage",
 		"bench": "node tools/bench/runner.mjs",
+		"bench:profile": "node tools/bench/prof.mjs",
+		"bench:profile-trace": "node tools/bench/prof.mjs --trace",
+		"bench:profile-heap": "node tools/bench/prof.mjs --heap",
+		"bench:profile-no-inline": "node tools/bench/prof.mjs --prof-no-inlining",
 		"release": "npm run test && node tools/release.js",
 		"format": "biome format . --write"
 	},
