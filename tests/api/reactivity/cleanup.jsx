@@ -8,6 +8,7 @@ import { test, body, microtask } from '#test'
 import {
 	cleanup,
 	catchError,
+	listener,
 	signal,
 	effect,
 	memo,
@@ -557,4 +558,30 @@ await test('cleanup - nested effects clean up in reverse creation order', async 
 
 	// inner cleanup fires before outer
 	expect(order).toEqual(['inner', 'outer'])
+})
+
+await test('cleanup - owner.cleanupCancel unregisters a callback before disposal', expect => {
+	// `listener()` returns the active Computation/Root inside a
+	// tracking scope; both extend `Root` so they expose
+	// `cleanupCancel(fn)`. It removes a previously registered
+	// cleanup by reference, so subsequent disposal skips it. Useful
+	// for "subscribe and let me opt out later" patterns.
+	let canceledFired = 0
+	let keptFired = 0
+	const canceled = () => canceledFired++
+	const kept = () => keptFired++
+
+	const dispose = root(d => {
+		syncEffect(() => {
+			cleanup(canceled)
+			cleanup(kept)
+			listener().cleanupCancel(canceled)
+		})
+		return d
+	})
+
+	dispose()
+
+	expect(canceledFired).toBe(0)
+	expect(keptFired).toBe(1)
 })

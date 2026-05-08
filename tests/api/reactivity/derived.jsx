@@ -611,3 +611,20 @@ await test('derived - then after resolution fires synchronously', async expect =
 	})
 	expect(fired).toBe('done')
 })
+
+await test('derived - .run forces a fresh update of the source fn', expect => {
+	// `.run` is part of the public Derived surface (typed on
+	// `DerivedSignal.run` in `typescript/public/pota.d.ts`). It
+	// re-invokes the source function, so a Derived built around an
+	// external counter that bumps each call observes the new value.
+	let counter = 0
+	const d = derived(() => ++counter)
+	expect(d()).toBe(1)
+	expect(d()).toBe(1) // cached, fn does not re-run on plain reads
+
+	d.run()
+	expect(d()).toBe(2)
+
+	d.run()
+	expect(d()).toBe(3)
+})
