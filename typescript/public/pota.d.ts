@@ -1,20 +1,34 @@
+// recursion budget
+//
+// Self-referential type helpers (`Accessed`, `Resolved`, `ResolvedDeep`)
+// would instantiate forever when given a broad union like `JSX.Element`
+// (which contains `(() => Element)` and `Element[]`). They carry a
+// depth budget `D` and stop expanding once it reaches the limit; the
+// remaining type is left as-is. Centralising these three aliases means
+// the tuple shape, the increment, and the limit live in one place.
+
+type Budget = 0[]
+type Bump<D extends Budget> = [0, ...D]
+type AtLimit<D extends Budget> = D['length'] extends 50 ? true : false
+
 // accessor
 
 type Accessor<T> = (() => Accessor<T>) | SignalAccessor<T> | T
 
-type Accessed<T> =
-	T extends PromiseLike<infer R>
-		? Accessed<R>
+type Accessed<T, D extends Budget = []> = AtLimit<D> extends true
+	? T
+	: T extends PromiseLike<infer R>
+		? Accessed<R, Bump<D>>
 		: T extends Derived<infer R>
-			? Accessed<R>
+			? Accessed<R, Bump<D>>
 			: T extends DerivedSignal<infer R>
-				? Accessed<R>
+				? Accessed<R, Bump<D>>
 				: T extends SignalAccessor<infer R>
-					? Accessed<R>
+					? Accessed<R, Bump<D>>
 					: T extends SignalFunction<infer R>
-						? Accessed<R>
+						? Accessed<R, Bump<D>>
 						: T extends { (): infer R }
-							? Accessed<R>
+							? Accessed<R, Bump<D>>
 							: T
 
 type Attribute<T> =
@@ -26,26 +40,21 @@ type Attribute<T> =
 /**
  * Result of recursively invoking functions and flattening nested
  * arrays — mirrors the runtime behavior of `unwrap`/`resolve`.
- *
- * `D` is a depth budget used to prevent infinite instantiation when a
- * broad union like `JSX.Element` (which includes `(() => Element)`
- * and `Element[]`) is passed in. Budget is generous enough for
- * realistic nesting; past it, the remaining type is left as-is.
  */
-type Resolved<T, D extends 0[] = []> = D['length'] extends 5
+type Resolved<T, D extends Budget = []> = AtLimit<D> extends true
 	? T
 	: T extends readonly (infer U)[]
-		? Array<ResolvedDeep<U, [0, ...D]>>
+		? Array<ResolvedDeep<U, Bump<D>>>
 		: T extends () => infer R
-			? Resolved<R, [0, ...D]>
+			? Resolved<R, Bump<D>>
 			: T
 
-type ResolvedDeep<T, D extends 0[] = []> = D['length'] extends 5
+type ResolvedDeep<T, D extends Budget = []> = AtLimit<D> extends true
 	? T
 	: T extends readonly (infer U)[]
-		? ResolvedDeep<U, [0, ...D]>
+		? ResolvedDeep<U, Bump<D>>
 		: T extends () => infer R
-			? ResolvedDeep<R, [0, ...D]>
+			? ResolvedDeep<R, Bump<D>>
 			: T
 
 // dom
