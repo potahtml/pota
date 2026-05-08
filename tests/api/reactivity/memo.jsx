@@ -213,3 +213,38 @@ await test('memo - does not recompute when an untracked signal changes', expect 
 	expect(doubled()).toBe(10)
 	expect(computations).toBe(2)
 })
+
+await test('memo - reading a CHECK-state memo from another memo update settles via upstream walk', expect => {
+	// Triggers the `state === CHECK` branch in `Memo.read`. Rare path:
+	// requires reading a transitively-dependent memo *during* another
+	// memo's update inside the same phase-1 batch, before the
+	// scheduler reaches the dependent memo's runTop.
+	//
+	// Setup:
+	//   `mid` reads `s` and returns `s % 2` (always 1 here — stays
+	//     the same value, so its write does not propagate further).
+	//   `m2` reads `mid` (so it goes CHECK on s.write via the mid
+	//     observer chain).
+	//   `m1` reads `s` directly AND reads `m2`. Reading `m1` *first*
+	//     places m1 ahead of `mid` in `s.observers` so phase-1
+	//     processes m1 before m2.
+	//
+	// On s.write: queue = [m1 STALE, mid STALE, m2 CHECK]. When
+	// runTop(m1) calls m1.update and m1.fn reads m2, m2 is still
+	// CHECK at that moment. `Memo.read` takes the CHECK branch and
+	// runs `runUpdates(() => upstream(m2))`, marking m2 CLEAN and
+	// ensuring its sources are up-to-date. mid's value is unchanged
+	// (1), so m2's value stays accurate without re-running its fn.
+	const s = signal(1)
+	const mid = memo(() => s.read() % 2)
+	const m2 = memo(() => mid() * 10)
+	const m1 = memo(() => s.read() + m2())
+
+	// Order matters: read m1 first so `s.observers === [m1, mid]`.
+	expect(m1()).toBe(1 + 10) // 11
+
+	s.write(3) // s % 2 still 1 → mid unchanged → no propagation past mid
+
+	// m1 must have re-derived correctly: s=3, m2=10, m1=13.
+	expect(m1()).toBe(13)
+})
