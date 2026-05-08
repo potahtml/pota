@@ -52,8 +52,6 @@ of using this or SolidJS, you should use SolidJS.
 
 Thanks to: Joe, Fabio, Ryan, Erika, kilo, Javier, Paty, bigmistqke
 
-_Bug-free till proven otherwise._
-
  <img src="https://pota.quack.uy/assets/logo-small.png"/>
 
 In loving memory of Quack 🐈‍⬛ 🩵 - 2018.03.01 - 2025.07.18
