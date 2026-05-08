@@ -6,7 +6,7 @@
 // wrapper the value is read once and never updates.
 import { test, body } from '#test'
 
-import { render, signal } from 'pota'
+import { listener, render, signal } from 'pota'
 import {
 	Collapse,
 	Dynamic,
@@ -16,10 +16,13 @@ import {
 	Normalize,
 	Portal,
 	Range,
+	Route,
 	Show,
 	Suspense,
 	Switch,
+	Tabs,
 } from 'pota/components'
+import { addListeners } from 'pota/use/location'
 
 // --- Show: wrapped in arrow function → updates ------------------------------
 
@@ -564,6 +567,245 @@ await test('tracking - component with non-function child uses snapshot', expect 
 	name.write('Grace')
 	// still shows Ada because it was snapshot at mount time
 	expect(body()).toBe('<p>hello Ada</p>')
+
+	dispose()
+})
+
+// --- LEAK GUARD: a component body must NOT run inside a tracking listener.
+// If it does, any synchronous signal/mutable read in the body subscribes the
+// wrapping flow component's memo, causing remounts on every write — and an
+// infinite loop when the read also triggers a deferred write back (e.g. the
+// `location.params` mutable populated by its own effect).
+// `listener()` returns the current tracking owner, or undefined if untracked.
+
+await test('tracking - component body inside Show is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(
+		<Show when={() => true}>
+			<Inner />
+		</Show>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - component body inside Switch/Match is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(
+		<Switch>
+			<Match when={() => true}>
+				<Inner />
+			</Match>
+		</Switch>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - top-level component body is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(<Inner />)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - component body inside Collapse is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(
+		<Collapse when={() => true}>
+			<Inner />
+		</Collapse>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - component body inside Dynamic is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(
+		<Dynamic component="div">
+			<Inner />
+		</Dynamic>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - component body inside For child callback is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(
+		<For each={() => [1]}>{() => <Inner />}</For>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - component body inside Head is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <meta name="x" content="y" />
+	}
+
+	const dispose = render(
+		<Head>
+			<Inner />
+		</Head>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - component body inside Portal is not in a tracking scope', expect => {
+	const mount = document.createElement('div')
+	document.body.append(mount)
+
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(
+		<Portal mount={mount}>
+			<Inner />
+		</Portal>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+	mount.remove()
+})
+
+await test('tracking - component body inside Range child callback is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(
+		<Range start={0} stop={0}>
+			{() => <Inner />}
+		</Range>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - component body inside Route is not in a tracking scope', expect => {
+	addListeners()
+
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	// `path` (no `$`) just matches anything starting with `/`, so this
+	// renders regardless of the current URL.
+	const dispose = render(
+		<Route path="/">
+			<Inner />
+		</Route>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - component body inside Suspense is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(
+		<Suspense>
+			<Inner />
+		</Suspense>,
+	)
+
+	expect(observed).toBe(undefined)
+
+	dispose()
+})
+
+await test('tracking - component body inside Tabs is not in a tracking scope', expect => {
+	let observed = 'not-run'
+
+	function Inner() {
+		observed = listener()
+		return <p>inner</p>
+	}
+
+	const dispose = render(
+		<Tabs>
+			<Inner />
+		</Tabs>,
+	)
+
+	expect(observed).toBe(undefined)
 
 	dispose()
 })

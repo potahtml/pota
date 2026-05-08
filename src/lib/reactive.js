@@ -619,6 +619,18 @@ export const isComponent = value =>
 export function makeCallback(children) {
 	/** Shortcut the most used case */
 	if (isFunction(children)) {
+		// JSX-component children (`<Inner />`) carry `$isComponent`. The
+		// renderer untracks marked functions when it inserts them as
+		// children, but flow components like `Show`/`Switch` invoke the
+		// callback themselves inside a memo, bypassing that path. Mirror
+		// the renderer's behavior here so the marked component runs
+		// untracked regardless of the call site.
+		// User callbacks (`{v => ...}`) are not marked and stay tracked.
+		if ($isComponent in children) {
+			return markComponent((...args) =>
+				untrack(() => children(...args)),
+			)
+		}
 		return markComponent(children)
 	}
 
@@ -631,12 +643,18 @@ export function makeCallback(children) {
 	return isArray(childrenMaybeArray)
 		? markComponent((...args) =>
 				childrenMaybeArray.map(child =>
-					isFunction(child) ? child(...args) : child,
+					isFunction(child)
+						? $isComponent in child
+							? untrack(() => child(...args))
+							: child(...args)
+						: child,
 				),
 			)
 		: markComponent((...args) =>
 				isFunction(childrenMaybeArray)
-					? childrenMaybeArray(...args)
+					? $isComponent in childrenMaybeArray
+						? untrack(() => childrenMaybeArray(...args))
+						: childrenMaybeArray(...args)
 					: childrenMaybeArray,
 			)
 }
