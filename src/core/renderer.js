@@ -439,7 +439,7 @@ export function createChildren(
 			// For - TODO move this to the `For` component
 			if ($isMap in child) {
 				effect(() => {
-					/** @ts-ignore-error @type {(cb: (c: JSX.Element) => void) => void} */
+					// @ts-expect-error freaking typescript
 					child(child => createChildren(parent, child, true))
 				})
 				// map has own dom removal
@@ -483,8 +483,8 @@ export function createChildren(
 					// console.log('clearing parent and node', parent, node)
 					if (parent.isConnected || node[0]?.isConnected) {
 						toDiff(node)
-						// @ts-expect-error
-						parent.remove()
+						// @ts-expect-error freaking typescript
+						/** @type {Element} */ parent.remove()
 					}
 				})
 			}
@@ -764,7 +764,8 @@ export function toHTML(children) {
 	return unwrapArray(toHTMLFragment(children).childNodes)
 }
 
-/** @ts-expect-error freaking typescript */
+/* @type {typeof context & { toHTML: typeof toHTML }} */
+// @ts-expect-error freaking typescript
 context.toHTML = toHTML
 
 /**

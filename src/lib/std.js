@@ -86,7 +86,8 @@ export const stringifySorted = o => {
 			.map(k => (tmp[k] = sort(o[k])))
 
 		if (asArray) {
-			// @ts-expect-error
+			/** @type {unknown[]} */
+			// @ts-expect-error freaking typescript
 			tmp.sort((a, b) => stringify(a).localeCompare(stringify(b)))
 		}
 		return tmp
@@ -243,9 +244,11 @@ export function equals(a, b) {
 		}
 
 		let length, i, k
-		if (isArray(a)) {
+		// `a.constructor !== b.constructor` was checked above, so when
+		// `a` is an array `b` necessarily is too. The redundant
+		// `isArray(b)` lets TS narrow `b` without a cast.
+		if (isArray(a) && isArray(b)) {
 			length = a.length
-			// @ts-expect-error
 			if (length !== b.length) {
 				return false
 			}
@@ -257,9 +260,11 @@ export function equals(a, b) {
 			return true
 		}
 
-		if (a.constructor === RegExp)
-			// @ts-expect-error
-			return a.source === b.source && a.flags === b.flags
+		if (a.constructor === RegExp) {
+			const ra = /** @type {RegExp} */ (/** @type {unknown} */ (a))
+			const rb = /** @type {RegExp} */ (/** @type {unknown} */ (b))
+			return ra.source === rb.source && ra.flags === rb.flags
+		}
 		if (a.valueOf !== Object.prototype.valueOf)
 			return a.valueOf() === b.valueOf()
 		if (a.toString !== Object.prototype.toString)

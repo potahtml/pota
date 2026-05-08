@@ -579,6 +579,7 @@ await test('tracking - component with non-function child uses snapshot', expect 
 // `listener()` returns the current tracking owner, or undefined if untracked.
 
 await test('tracking - component body inside Show is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -598,6 +599,7 @@ await test('tracking - component body inside Show is not in a tracking scope', e
 })
 
 await test('tracking - component body inside Switch/Match is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -619,6 +621,7 @@ await test('tracking - component body inside Switch/Match is not in a tracking s
 })
 
 await test('tracking - top-level component body is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -634,6 +637,7 @@ await test('tracking - top-level component body is not in a tracking scope', exp
 })
 
 await test('tracking - component body inside Collapse is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -653,6 +657,7 @@ await test('tracking - component body inside Collapse is not in a tracking scope
 })
 
 await test('tracking - component body inside Dynamic is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -672,6 +677,7 @@ await test('tracking - component body inside Dynamic is not in a tracking scope'
 })
 
 await test('tracking - component body inside For child callback is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -689,6 +695,7 @@ await test('tracking - component body inside For child callback is not in a trac
 })
 
 await test('tracking - component body inside Head is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -711,6 +718,7 @@ await test('tracking - component body inside Portal is not in a tracking scope',
 	const mount = document.createElement('div')
 	document.body.append(mount)
 
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -731,6 +739,7 @@ await test('tracking - component body inside Portal is not in a tracking scope',
 })
 
 await test('tracking - component body inside Range child callback is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -752,6 +761,7 @@ await test('tracking - component body inside Range child callback is not in a tr
 await test('tracking - component body inside Route is not in a tracking scope', expect => {
 	addListeners()
 
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -773,6 +783,7 @@ await test('tracking - component body inside Route is not in a tracking scope', 
 })
 
 await test('tracking - component body inside Suspense is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
@@ -792,6 +803,7 @@ await test('tracking - component body inside Suspense is not in a tracking scope
 })
 
 await test('tracking - component body inside Tabs is not in a tracking scope', expect => {
+	/** @type {unknown} */
 	let observed = 'not-run'
 
 	function Inner() {
