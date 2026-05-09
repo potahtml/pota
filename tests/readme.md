@@ -212,7 +212,7 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 | `replace.jsx`   | `replace` reconcile                                 |
 | `reset.jsx`     | `reset` reconcile                                   |
 | `signalify.jsx` | `signalify`                                         |
-| `store.jsx`     | cross-cutting store integration + `updateBlacklist` |
+| `updateBlacklist.jsx` | `updateBlacklist`                             |
 
 ## `tests/api/use/` — `pota/use/*`
 

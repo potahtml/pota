@@ -154,6 +154,22 @@ await test('selector - usePrevious returns the first call return as previous on 
 	expect(second.prev).toBe(first)
 })
 
+// --- usePrevious rolls forward across many calls -----------------------
+
+await test('selector - usePrevious rolls forward — each call sees the immediately-prior return', expect => {
+	const previous = usePrevious((next, prev) => ({ next, prev }))
+
+	const r1 = previous(1)
+	const r2 = previous(2)
+	const r3 = previous(3)
+	const r4 = previous(4)
+
+	expect(r1.prev).toBe(undefined)
+	expect(r2.prev).toBe(r1)
+	expect(r3.prev).toBe(r2)
+	expect(r4.prev).toBe(r3)
+})
+
 // --- useSelector with an empty Set has no selected items ---------------
 
 await test('selector - useSelector with empty Set reports nothing selected', expect => {
