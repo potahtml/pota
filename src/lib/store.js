@@ -14,9 +14,9 @@ export { reset } from './store/reconcile/reset.js'
 
 export { updateBlacklist } from './store/blacklist.js'
 
-// firewall/projections
+// projections
 
-export { firewall, project } from './store/projection.js'
+export { project } from './store/projection.js'
 
 // utilities
 

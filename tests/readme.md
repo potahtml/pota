@@ -207,7 +207,7 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 | `copy.jsx`      | `copy`, `readonly`                                  |
 | `merge.jsx`     | `merge` reconcile                                   |
 | `mutable.jsx`   | `mutable`                                           |
-| `project.jsx`   | `project`, `firewall`                               |
+| `project.jsx`   | `project`                                           |
 | `readonly.jsx`  | `readonly`                                          |
 | `replace.jsx`   | `replace` reconcile                                 |
 | `reset.jsx`     | `reset` reconcile                                   |

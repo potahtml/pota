@@ -1,5 +1,4 @@
-import { usePrevious } from '../../use/selector.js'
-import { memo, untrack } from '../reactive.js'
+import { untrack } from '../reactive.js'
 
 import {
 	isArray,
@@ -13,11 +12,6 @@ import {
 	reflectSet,
 } from '../std.js'
 import { mutable } from './mutable.js'
-
-// TODO: replace with a proper `createFirewall`
-export function firewall(fn) {
-	memo(usePrevious(fn))()
-}
 
 const $isProjection = Symbol()
 

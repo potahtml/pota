@@ -96,7 +96,7 @@ for:
   `src/components/`.
 - **`pota/store`** — reactive store helpers in `src/lib/store.js`
   (`signalify`, `mutable`, `merge`, `replace`, `reset`, `project`,
-  `copy`, `readonly`, `firewall`, `updateBlacklist`).
+  `copy`, `readonly`, `updateBlacklist`).
 - **`pota/xml`** — compiler-less XML API in `src/core/xml.js`: default
   `xml` tagged template plus `XML()` factory for isolated instances
   with their own component registries. Templates are parsed as

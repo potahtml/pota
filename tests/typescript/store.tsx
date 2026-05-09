@@ -2,7 +2,6 @@
 
 import {
 	copy,
-	firewall,
 	merge as storeMerge,
 	mutable,
 	project,
@@ -189,19 +188,6 @@ const pbc: number = projected.b.c
 const projectedNumObj = project({ x: 1, y: 'a' })
 const px: number = projectedNumObj.x
 const py: string = projectedNumObj.y
-
-// ============================================
-// firewall — wrap a function to block mutations
-// ============================================
-// firewall(fn) — runs fn in a mutation-blocked scope.
-
-firewall(() => {
-	// any store mutations inside are blocked
-	const x = projectSource.a
-})
-
-// return values are ignored by typing (firewall returns void)
-firewall(() => 42)
 
 // ============================================
 // updateBlacklist — extend blacklist from a target window
