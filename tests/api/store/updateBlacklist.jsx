@@ -1,12 +1,11 @@
 /** @jsxImportSource pota */
 
-// Tests for small pota/store helpers that don't warrant their own
-// file: `updateBlacklist`.
+// Tests for `updateBlacklist` — extends pota/store's mutation
+// blacklist with constructors and symbols from another realm
+// (e.g. an iframe's `contentWindow`).
 import { test } from '#test'
 
 import { mutable, updateBlacklist } from 'pota/store'
-
-// --- updateBlacklist ------------------------------------------------------
 
 // updateBlacklist's contract is `Window & typeof globalThis`, so the
 // only meaningful check is that calling it against the real window
