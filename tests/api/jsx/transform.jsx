@@ -19,7 +19,7 @@ const spread1 = (
 		// later explicit prop wins after a spread.
 		// @ts-expect-error
 		style="border: red;"
-		prop:not-identifier={/* @static */ ' '.trim()}
+		prop:not-identifier={' '.trim()}
 	/>
 )
 const spread2 = <div {...style} />

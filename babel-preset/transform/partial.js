@@ -6,7 +6,6 @@ import {
 	callFunctionImport,
 	error,
 	generateUidIdentifier,
-	hasStaticMarker,
 	keys,
 	objectProperty,
 	removeFromArray,
@@ -233,28 +232,7 @@ export function buildPartial(path, state) {
 					callInlinedFromJSXRuntime('setStyle', inlinedNode, value)
 				} else {
 					// default to attributes
-
-					if (hasStaticMarker(value)) {
-						inlinedCalls.push(
-							t.callExpression(
-								objectProperty(inlinedNode, 'setAttribute'),
-								[
-									t.stringLiteral(name),
-									isNativeLiteral(value)
-										? value
-										: callFunctionImport(
-												path,
-												state,
-												'pota',
-												'getValue',
-												value,
-											),
-								],
-							),
-						)
-					} else {
-						callInlined('setAttribute', inlinedNode, name, value)
-					}
+					callInlined('setAttribute', inlinedNode, name, value)
 				}
 			} else if (t.isJSXNamespacedName(attr.node.name)) {
 				// inlined namespaced
@@ -308,25 +286,7 @@ export function buildPartial(path, state) {
 						value,
 					)
 				} else if (namespace === 'prop') {
-					if (hasStaticMarker(value)) {
-						inlinedCalls.push(
-							t.assignmentExpression(
-								'=',
-								objectProperty(inlinedNode, localName),
-								isNativeLiteral(value)
-									? value
-									: callFunctionImport(
-											path,
-											state,
-											'pota',
-											'getValue',
-											value,
-										),
-							),
-						)
-					} else {
-						callInlined('setProperty', inlinedNode, localName, value)
-					}
+					callInlined('setProperty', inlinedNode, localName, value)
 				} else if (name === 'use:ref') {
 					if (t.isArrayExpression(value)) {
 						callInlinedFromJSXRuntime('setRef', inlinedNode, value)
