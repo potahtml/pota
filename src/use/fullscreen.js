@@ -1,7 +1,6 @@
 import { addEvent } from '../lib/reactive.js'
 import { Emitter } from './emitter.js'
 
-import { propsPlugin } from '../core/props/plugin.js'
 import {
 	addEventNative,
 	passiveEvent,
@@ -10,18 +9,23 @@ import {
 import { document, documentElement, getValueElement } from './dom.js'
 
 /**
- * @param {DOMElement} node
- * @param {Function} value
+ * Returns a ref function that toggles fullscreen on click. If
+ * `target` is omitted, the element itself is fullscreened; pass an
+ * element, or a function returning an element, to fullscreen
+ * something else (e.g. a sibling or ancestor).
+ *
+ * @param {DOMElement
+ * 	| ((e: PointerEvent, node: DOMElement) => DOMElement)} [target]
  * @url https://pota.quack.uy/use/fullscreen
  */
-const fullscreen = (node, value) =>
+export const fullscreen = target => node =>
 	addEvent(node, 'click', e => {
 		toggleFullscreen(
-			/** @type {DOMElement} */ (getValueElement(value, e, node)),
+			/** @type {DOMElement} */ (
+				getValueElement(target ?? node, e, node)
+			),
 		)
 	})
-
-propsPlugin('use:fullscreen', fullscreen)
 
 // this fails on startup for some reason
 /**

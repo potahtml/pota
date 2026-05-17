@@ -179,15 +179,6 @@ declare namespace JSX {
 		| ((node: Element) => void)
 		| CallbackElement<Element>[] // recursive type
 
-	type CallbackEvent<Event> = (
-		event: EventEvent<Event, unknown>,
-	) => void
-
-	type CallbackEventElement<Event, Element> = (
-		event: EventEvent<Event, Element>,
-		node: Element,
-	) => void
-
 	type CallbackBind = SignalFunction<any> | CallbackBind[] // recursive type
 
 	// CORE
@@ -206,24 +197,6 @@ declare namespace JSX {
 		// PLUGINS
 
 		'use:bind'?: CallbackBind // no `<Element>` !
-
-		'use:clickoutside'?: CallbackEventElement<PointerEvent, Element>
-		'use:clickoutsideonce'?: CallbackEventElement<
-			PointerEvent,
-			Element
-		>
-
-		'use:fullscreen'?:
-			| true
-			| CallbackEventElement<PointerEvent, Element>
-
-		'use:clipboard'?:
-			| true
-			| string
-			| number
-			| ((
-					e: EventEvent<PointerEvent, Element>,
-			  ) => string | number | null)
 	}
 
 	// all elements

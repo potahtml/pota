@@ -5,7 +5,7 @@
 import { microtask, test } from '#test'
 
 import { render } from 'pota'
-import 'pota/use/clickoutside'
+import { clickOutside } from 'pota/use/clickoutside'
 
 await test('clickoutside - handler runs only for clicks outside the node', async expect => {
 	let calls = 0
@@ -13,11 +13,11 @@ await test('clickoutside - handler runs only for clicks outside the node', async
 	const dispose = render(
 		<div
 			id="outside-box"
-			use:clickoutside={(event, node) => {
+			use:ref={clickOutside((event, node) => {
 				calls++
 				lastTarget = event.target
 				expect(node.id).toBe('outside-box')
-			}}
+			})}
 		>
 			<span id="inside-child">inside</span>
 		</div>,
@@ -47,9 +47,12 @@ await test('clickoutside - once variant runs a single time', async expect => {
 	const dispose = render(
 		<div
 			id="once-box"
-			use:clickoutsideonce={() => {
-				calls++
-			}}
+			use:ref={clickOutside(
+				() => {
+					calls++
+				},
+				{ once: true },
+			)}
 		>
 			inside
 		</div>,
@@ -74,9 +77,9 @@ await test('clickoutside - handler is cleaned up on dispose', async expect => {
 	const dispose = render(
 		<div
 			id="cleanup-box"
-			use:clickoutside={() => {
+			use:ref={clickOutside(() => {
 				calls++
-			}}
+			})}
 		>
 			inside
 		</div>,
@@ -106,9 +109,9 @@ await test('clickoutside - deeply nested descendants are treated as inside', asy
 	const dispose = render(
 		<div
 			id="deep-outer"
-			use:clickoutside={() => {
+			use:ref={clickOutside(() => {
 				calls++
-			}}
+			})}
 		>
 			<section>
 				<article>
@@ -139,17 +142,17 @@ await test('clickoutside - two independent handlers fire independently', async e
 		<>
 			<div
 				id="panel-a"
-				use:clickoutside={() => {
+				use:ref={clickOutside(() => {
 					aCount++
-				}}
+				})}
 			>
 				a
 			</div>
 			<div
 				id="panel-b"
-				use:clickoutside={() => {
+				use:ref={clickOutside(() => {
 					bCount++
-				}}
+				})}
 			>
 				b
 			</div>
@@ -179,15 +182,18 @@ await test('clickoutside - two independent handlers fire independently', async e
 
 // --- once variant: is also cleaned up on dispose ------------------------
 
-await test('clickoutside - clickoutsideonce is also cleaned up on dispose', async expect => {
+await test('clickoutside - once variant is also cleaned up on dispose', async expect => {
 	let calls = 0
 
 	const dispose = render(
 		<div
 			id="once-dispose"
-			use:clickoutsideonce={() => {
-				calls++
-			}}
+			use:ref={clickOutside(
+				() => {
+					calls++
+				},
+				{ once: true },
+			)}
 		>
 			inside
 		</div>,

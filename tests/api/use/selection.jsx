@@ -1,12 +1,15 @@
 /** @jsxImportSource pota */
 // Tests for pota/use/selection: getSelection/restoreSelection
-// round-trip, use:click-selects-all, and null/undefined edge cases.
+// round-trip, the `clickSelectsAll` ref, and null/undefined edge cases.
 
 import { microtask, test, $ } from '#test'
 
 import { render } from 'pota'
-import { getSelection, restoreSelection } from 'pota/use/selection'
-import 'pota/use/selection'
+import {
+	clickSelectsAll,
+	getSelection,
+	restoreSelection,
+} from 'pota/use/selection'
 
 await test('selection - getSelection and restoreSelection round-trip a range', expect => {
 	const node = document.createElement('div')
@@ -29,9 +32,9 @@ await test('selection - getSelection and restoreSelection round-trip a range', e
 	window.getSelection().removeAllRanges()
 })
 
-await test('selection - use:click-selects-all selects the node contents', async expect => {
+await test('selection - clickSelectsAll selects the node contents', async expect => {
 	const dispose = render(
-		<div use:click-selects-all={true}>selected text</div>,
+		<div use:ref={clickSelectsAll}>selected text</div>,
 	)
 
 	await microtask()
@@ -82,12 +85,10 @@ await test('selection - restoreSelection handles a previously saved range twice 
 	window.getSelection().removeAllRanges()
 })
 
-// --- use:click-selects-all on a disposed element does not throw --------
+// --- clickSelectsAll on a disposed element does not throw --------
 
-await test('selection - use:click-selects-all is cleaned up on dispose', async expect => {
-	const dispose = render(
-		<div use:click-selects-all={true}>selected</div>,
-	)
+await test('selection - clickSelectsAll is cleaned up on dispose', async expect => {
+	const dispose = render(<div use:ref={clickSelectsAll}>selected</div>)
 
 	await microtask()
 

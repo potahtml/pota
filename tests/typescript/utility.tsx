@@ -6,8 +6,6 @@ import {
 	Pota,
 	getValue,
 	insert,
-	propsPlugin,
-	propsPluginNS,
 	ready,
 	readyAsync,
 	render,
@@ -374,27 +372,6 @@ setClassList(node, {})
 
 // setClassList with prev arg used
 setClassList(node, { a: true }, { b: false })
-
-// ============================================
-// propsPlugin / propsPluginNS
-// ============================================
-// Registers a prop-handler plugin so that `use:name` / `on:name`
-// (etc.) props get dispatched to it.
-
-// propsPlugin(name, plugin, onMicrotask?)
-propsPlugin<boolean>('use:my-flag', (node, value) => {
-	// node is DOMElement, value is typed from the generic
-	const v: boolean = value
-})
-
-propsPlugin<string>('use:my-string', (node, value) => {
-	const v: string = value
-})
-
-// propsPluginNS(ns, plugin, onMicrotask?)
-propsPluginNS('my', (node, localName, value, ns) => {
-	// plugin for `my:*` namespace — localName is e.g. "foo" for my:foo
-})
 
 // ============================================
 // xml API (pota/xml)

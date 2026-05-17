@@ -22,6 +22,16 @@ import {
 } from 'pota/components'
 import { Component, context, Pota, derived, memo, signal } from 'pota'
 import { bind } from 'pota/use/bind'
+import { clickOutside } from 'pota/use/clickoutside'
+import { clipboard } from 'pota/use/clipboard'
+import { fullscreen } from 'pota/use/fullscreen'
+import { clickSelectsAll } from 'pota/use/selection'
+import {
+	clickFocusChildrenInput,
+	enterFocusNext,
+	preventEnter,
+	sizeToInput,
+} from 'pota/use/form'
 
 declare module 'pota' {
 	namespace JSX {
@@ -228,7 +238,7 @@ function typescript(props) {
 				{/* @ts-expect-error tabindex for dialog is set to never*/}
 				<dialog tabindex="should error" />
 				<div tabindex="-1" />
-				<div use:clickoutside={(e, node) => {}} />
+				<div use:ref={node => {}} />
 				<Dynamic component="h2" />
 				{/* @ts-expect-error hola not on h2 */}
 				<Dynamic component="h2" hola="" />
@@ -666,18 +676,76 @@ const useNormalize = <span use:normalize={true}>{'hello'}</span>
 const useCss = <div use:css="div { color: red }" />
 const useCssFn = <div use:css={() => 'div { color: blue }'} />
 
-// use:clipboard — copy to clipboard
-const useClipboard = <button use:clipboard="copy this" />
-const useClipboardFn = <button use:clipboard={e => 'dynamic copy'} />
-const useClipboardTrue = <button use:clipboard={true} />
+// use:ref accepts a function, an array, or nested arrays of functions
+const useRefFn = <div use:ref={node => {}} />
+const useRefArray = <div use:ref={[node => {}, [node => {}]]} />
 
-// use:fullscreen — fullscreen API
-const useFullscreen = <div use:fullscreen={true} />
-const useFullscreenFn = <div use:fullscreen={(e, node) => {}} />
+// ============================================
+// pota/use/* ref factories — type-level coverage
+// ============================================
 
-// use:clickoutsideonce — fires once
-const useClickoutsideonce = (
-	<div use:clickoutsideonce={(e, node) => {}} />
+// each factory's return value plugs into use:ref
+const useClickOutside = (
+	<div use:ref={clickOutside((e, node) => {})} />
+)
+const useClickOutsideOptions = (
+	<div use:ref={clickOutside(() => {}, { once: true })} />
+)
+const useClipboardString = <button use:ref={clipboard('copy')} />
+const useClipboardNumber = <button use:ref={clipboard(42)} />
+const useClipboardBoolean = <button use:ref={clipboard(true)} />
+const useClipboardFn = (
+	<button use:ref={clipboard(e => e.type + '-value')} />
+)
+const useFullscreenNoArg = <div use:ref={fullscreen()} />
+const useFullscreenFn = (
+	<div use:ref={fullscreen((e, node) => document.body)} />
+)
+
+// bare ref functions are assignable to use:ref directly
+const useClickSelectsAll = <div use:ref={clickSelectsAll} />
+const usePreventEnter = <input use:ref={preventEnter} />
+const useEnterFocusNext = <input use:ref={enterFocusNext} />
+const useSizeToInput = <textarea use:ref={sizeToInput} />
+const useClickFocusChildrenInput = (
+	<div use:ref={clickFocusChildrenInput} />
+)
+
+// factories and bare ref fns compose in nested arrays
+const useRefComposed = (
+	<div
+		use:ref={[
+			clickOutside(() => {}),
+			clickSelectsAll,
+			[preventEnter, [clickFocusChildrenInput]],
+		]}
+	/>
+)
+
+// negative cases — argument types must reject obviously wrong values
+const badClickOutside = (
+	// @ts-expect-error — handler must be a function
+	<div use:ref={clickOutside(123)} />
+)
+const badClickOutsideOptions = (
+	// @ts-expect-error — `wrongKey` is not part of the options shape
+	<div use:ref={clickOutside(() => {}, { wrongKey: true })} />
+)
+const badClipboardObject = (
+	// @ts-expect-error — clipboard rejects plain objects
+	<button use:ref={clipboard({})} />
+)
+const badClipboardArray = (
+	// @ts-expect-error — clipboard rejects arrays
+	<button use:ref={clipboard([1, 2])} />
+)
+const badFullscreenNumber = (
+	// @ts-expect-error — fullscreen rejects numbers
+	<div use:ref={fullscreen(123)} />
+)
+const badFullscreenString = (
+	// @ts-expect-error — fullscreen rejects strings
+	<div use:ref={fullscreen('full')} />
 )
 
 // ============================================

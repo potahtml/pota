@@ -3,18 +3,23 @@ import { isFunction } from '../lib/std.js'
 import { copyToClipboard } from '../use/string.js'
 
 import { addEvent } from '../lib/reactive.js'
-import { propsPlugin } from '../core/props/plugin.js'
 
 /**
- * @param {DOMElement} node
- * @param {((
- * 			e: JSX.EventEvent<JSX.EventType['click'], DOMElement>,
- * 	  ) => string)
+ * Returns a ref function that copies text to the clipboard on click.
+ *
+ * - When `value` is a string or number, that value is copied.
+ * - When `value` is a function, it is called with the click event
+ *   and its return value is copied.
+ * - When `value` is `true`, the element's trimmed `innerText` is
+ *   copied.
+ *
+ * @param {((e: PointerEvent) => string | number)
  * 	| boolean
- * 	| string} value
+ * 	| string
+ * 	| number} value
  * @url https://pota.quack.uy/use/clipboard
  */
-const clipboard = (node, value) =>
+export const clipboard = value => node =>
 	addEvent(node, 'click', e => {
 		copyToClipboard(
 			/** @type {string} */ (
@@ -26,5 +31,3 @@ const clipboard = (node, value) =>
 			),
 		)
 	})
-
-propsPlugin('use:clipboard', clipboard)

@@ -1,5 +1,44 @@
 # pota v0.20.233
 
+- **Behavior `use:*` plugins replaced with `use:ref` factories.** The
+  built-in plugins `use:clickoutside`, `use:clickoutsideonce`,
+  `use:clipboard`, `use:fullscreen`, `use:click-selects-all`,
+  `use:click-focus-children-input`, `use:enter-focus-next`,
+  `use:prevent-enter`, and `use:size-to-input` are gone. Use the
+  corresponding `pota/use/*` factory through `use:ref` instead:
+
+  ```jsx
+  // before
+  <div use:clickoutside={handler}/>
+  <button use:clipboard="copy"/>
+  <input use:prevent-enter={true}/>
+
+  // after
+  import { clickOutside } from 'pota/use/clickoutside'
+  import { clipboard } from 'pota/use/clipboard'
+  import { preventEnter } from 'pota/use/form'
+
+  <div use:ref={clickOutside(handler)}/>
+  <button use:ref={clipboard('copy')}/>
+  <input use:ref={preventEnter}/>
+  ```
+
+  `use:clickoutsideonce` is now `clickOutside(handler, { once: true })`.
+  Parameterized helpers (`clickOutside`, `clipboard`, `fullscreen`)
+  are factories that return a ref function. Parameterless helpers
+  (`clickSelectsAll`, `clickFocusChildrenInput`, `enterFocusNext`,
+  `preventEnter`, `sizeToInput`) are ref functions directly and
+  compose with arrays: `use:ref={[clickOutside(h), preventEnter]}`.
+
+  `use:ref`, `use:connected`, `use:disconnected`, `use:css`, and
+  `use:bind` are unchanged.
+
+- **`propsPlugin` and `propsPluginNS` are no longer exported.** They
+  remain as internal dispatcher primitives but are not part of the
+  public surface. The five built-in namespaces (`on`, `prop`, `class`,
+  `style`, `use`) are now fixed. For per-element behavior, use
+  `use:ref={fn}` with a factory from `pota/use/*` or your own.
+
 - **`Derived.run` removed.** The `run()` method on the value returned
   by `derived(...)` is gone, along with its entry in
   `DerivedSignal.run` on the public type surface. It only force-

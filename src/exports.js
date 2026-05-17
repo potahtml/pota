@@ -63,6 +63,4 @@ export {
 	setClassList,
 } from './core/props/class.js'
 
-export { propsPlugin, propsPluginNS } from './core/props/plugin.js'
-
 export { getValue } from './lib/std.js'

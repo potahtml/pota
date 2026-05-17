@@ -36,11 +36,9 @@ Two maps, registered at module init:
   `style`, `use`). Handles any `ns:name` attribute where `ns` is in
   the `namespaces` set.
 
-The `namespaces` set starts with `on`, `prop`, `class`, `style`, `use`
-and grows when user code calls `propsPluginNS`. Every addition also
-rewrites `namespaces.xmlns` (a cached `xmlns:ns="/" ...` string
-consumed by the `xml` tagged template so colon-prefixed attributes are
-legal XML).
+The `namespaces` set is fixed: `on`, `prop`, `class`, `style`, `use`.
+`namespaces.xmlns` is a cached `xmlns:ns="/" ...` string consumed by
+the `xml` tagged template so colon-prefixed attributes are legal XML.
 
 ### Registration
 
@@ -168,25 +166,25 @@ route to the nearest `Errored` / `catchError` boundary).
 
 ---
 
-## Extension points for user plugins
+## Extension points for user code
+
+`propsPlugin` and `propsPluginNS` are **internal** — not exported from
+`pota`. The five built-in namespaces (`on`, `prop`, `class`, `style`,
+`use`) are fixed.
+
+For per-element behavior (focus traps, click-outside, fullscreen,
+etc.), use the `use:ref` callback with a factory from `pota/use/*` or
+your own:
 
 ```js
-import { propsPlugin, propsPluginNS } from "pota";
+import { clickOutside } from "pota/use/clickoutside";
 
-propsPlugin("use:focus", (node, value) => {
-  if (value) node.focus();
-});
+const myFocus = node => node.focus();
 
-propsPluginNS("data", (node, localName, value) => {
-  // runs for every data:* attribute
-  node.dataset[localName] = value;
-});
+<input use:ref={[myFocus, clickOutside(() => close())]} />;
 ```
 
-Both register on the microtask tick by default. Pass `false` as the
-third argument if the handler must run synchronously.
-
-New NS names automatically become part of the `xml` template namespace
-list — the `xml` factory re-reads `namespaces.xmlns` per template, so
-adding a plugin before calling `xml` makes the prefix legal in XML
-markup.
+`use:ref` accepts a function or any nested array of functions; each
+receives the element. Cleanup belongs to the surrounding reactive
+scope, so `addEvent` / `cleanup` / `onMount` inside a ref function
+dispose with the element.

@@ -1,19 +1,22 @@
 // Tests for pota/use/form: isDisabled, focusNextInput, form2object
 // (submitter, multiple values), object2form (checkbox, radio), and
-// the JSX prop-plugins use:click-focus-children-input,
-// use:enter-focus-next, use:prevent-enter, and use:size-to-input.
+// the ref-function helpers clickFocusChildrenInput, enterFocusNext,
+// preventEnter, sizeToInput.
 /** @jsxImportSource pota */
 
 import { microtask, test, $ } from '#test'
 
 import { render } from 'pota'
 import {
+	clickFocusChildrenInput,
+	enterFocusNext,
 	focusNextInput,
 	form2object,
 	isDisabled,
 	object2form,
+	preventEnter,
+	sizeToInput,
 } from 'pota/use/form'
-import 'pota/use/form'
 
 // --- isDisabled -------------------------------------------------------------
 
@@ -224,9 +227,9 @@ await test('form - object2form adds to multi-select (never clears existing selec
 
 // --- JSX prop-plugins -------------------------------------------------------
 
-await test('form - use:click-focus-children-input focuses first focusable child on click', async expect => {
+await test('form - clickFocusChildrenInput focuses first focusable child on click', async expect => {
 	const dispose = render(
-		<div use:click-focus-children-input={true}>
+		<div use:ref={clickFocusChildrenInput}>
 			<input id="child-input" />
 		</div>,
 	)
@@ -239,10 +242,10 @@ await test('form - use:click-focus-children-input focuses first focusable child 
 	dispose()
 })
 
-await test('form - use:enter-focus-next advances focus when Enter is pressed', async expect => {
+await test('form - enterFocusNext advances focus when Enter is pressed', async expect => {
 	const dispose = render(
 		<form>
-			<input id="first-input" use:enter-focus-next={true} />
+			<input id="first-input" use:ref={enterFocusNext} />
 			<input id="second-input" />
 		</form>,
 	)
@@ -259,9 +262,9 @@ await test('form - use:enter-focus-next advances focus when Enter is pressed', a
 	dispose()
 })
 
-await test('form - use:prevent-enter calls preventDefault on Enter', async expect => {
+await test('form - preventEnter calls preventDefault on Enter', async expect => {
 	const dispose = render(
-		<input id="prevent-enter" use:prevent-enter={true} />,
+		<input id="prevent-enter" use:ref={preventEnter} />,
 	)
 
 	await microtask()
@@ -283,7 +286,7 @@ await test('form - use:prevent-enter calls preventDefault on Enter', async expec
 	dispose()
 })
 
-await test('form - use:size-to-input sets initial height from scrollHeight and updates on focus', async expect => {
+await test('form - sizeToInput sets initial height from scrollHeight and updates on focus', async expect => {
 	const originalScrollHeight = Object.getOwnPropertyDescriptor(
 		HTMLTextAreaElement.prototype,
 		'scrollHeight',
@@ -311,7 +314,7 @@ await test('form - use:size-to-input sets initial height from scrollHeight and u
 
 	const dispose = render(
 		<div id="textarea-parent">
-			<textarea id="size-to-input" use:size-to-input={true} />
+			<textarea id="size-to-input" use:ref={sizeToInput} />
 		</div>,
 	)
 
@@ -347,9 +350,9 @@ await test('form - use:size-to-input sets initial height from scrollHeight and u
 
 // Inverse case: scrollHeight > parent.clientHeight — resizeToContainer
 // picks scrollHeight. Covers the `? scrollHeight` arm of the ternary
-// in use:size-to-input (src/use/form.js).
+// in sizeToInput (src/use/form.js).
 
-await test('form - use:size-to-input uses scrollHeight when it exceeds parent clientHeight', async expect => {
+await test('form - sizeToInput uses scrollHeight when it exceeds parent clientHeight', async expect => {
 	const originalScrollHeight = Object.getOwnPropertyDescriptor(
 		HTMLTextAreaElement.prototype,
 		'scrollHeight',
@@ -377,7 +380,7 @@ await test('form - use:size-to-input uses scrollHeight when it exceeds parent cl
 
 	const dispose = render(
 		<div id="textarea-parent-tall">
-			<textarea id="size-to-input-tall" use:size-to-input={true} />
+			<textarea id="size-to-input-tall" use:ref={sizeToInput} />
 		</div>,
 	)
 
@@ -567,12 +570,12 @@ await test('form - isDisabled returns true for input inside deeply nested disabl
 	dispose()
 })
 
-// --- use:enter-focus-next does nothing on non-Enter key --------------
+// --- enterFocusNext does nothing on non-Enter key --------------
 
-await test('form - use:enter-focus-next does nothing when another key is pressed', async expect => {
+await test('form - enterFocusNext does nothing when another key is pressed', async expect => {
 	const dispose = render(
 		<form>
-			<input id="first-noenter" use:enter-focus-next={true} />
+			<input id="first-noenter" use:ref={enterFocusNext} />
 			<input id="second-noenter" />
 		</form>,
 	)
@@ -591,11 +594,11 @@ await test('form - use:enter-focus-next does nothing when another key is pressed
 	dispose()
 })
 
-// --- use:prevent-enter does not prevent non-Enter keys --------------
+// --- preventEnter does not prevent non-Enter keys --------------
 
-await test('form - use:prevent-enter only prevents default on Enter', async expect => {
+await test('form - preventEnter only prevents default on Enter', async expect => {
 	const dispose = render(
-		<input id="prevent-specific" use:prevent-enter={true} />,
+		<input id="prevent-specific" use:ref={preventEnter} />,
 	)
 
 	await microtask()
@@ -652,11 +655,11 @@ await test('form - object2form updates number input value as string', expect => 
 	form.remove()
 })
 
-// --- use:click-focus-children-input with no inputs is a no-op ------
+// --- clickFocusChildrenInput with no inputs is a no-op ------
 
-await test('form - use:click-focus-children-input does nothing with no focusable children', async expect => {
+await test('form - clickFocusChildrenInput does nothing with no focusable children', async expect => {
 	const dispose = render(
-		<div use:click-focus-children-input={true}>
+		<div use:ref={clickFocusChildrenInput}>
 			<span>nothing here</span>
 		</div>,
 	)

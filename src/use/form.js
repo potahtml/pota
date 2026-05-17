@@ -1,6 +1,5 @@
 // WIP
 
-import { propsPlugin } from '../core/props/plugin.js'
 import { setElementStyle } from '../core/props/style.js'
 import { addEvent } from '../lib/reactive.js'
 import { empty, entries, hasOwn, isArray } from '../lib/std.js'
@@ -82,7 +81,13 @@ export function object2form(form, object) {
 	}
 }
 
-propsPlugin('use:click-focus-children-input', (node, propValue) => {
+/**
+ * Ref function: clicking the element focuses the first focusable
+ * descendant input/button/select/textarea/contenteditable.
+ *
+ * @param {DOMElement} node
+ */
+export const clickFocusChildrenInput = node => {
 	addEvent(node, 'click', e => {
 		const focusable = /** @type {HTMLElement | null} */ (
 			node.querySelector(
@@ -91,25 +96,44 @@ propsPlugin('use:click-focus-children-input', (node, propValue) => {
 		)
 		focusable?.focus()
 	})
-})
+}
 
-propsPlugin('use:enter-focus-next', (node, propValue) => {
+/**
+ * Ref function: pressing Enter moves focus to the next form
+ * element.
+ *
+ * @param {HTMLInputElement} node
+ */
+export const enterFocusNext = node => {
 	addEvent(node, 'keydown', e => {
 		if (e.code === 'Enter' || e.code === 'NumpadEnter') {
 			focusNextInput(node, e)
 		}
 	})
-})
-propsPlugin('use:prevent-enter', (node, propValue) => {
+}
+
+/**
+ * Ref function: blocks Enter key from submitting / inserting a
+ * newline by calling `preventDefault` and `stopPropagation`.
+ *
+ * @param {DOMElement} node
+ */
+export const preventEnter = node => {
 	addEvent(node, 'keydown', e => {
 		if (e.code === 'Enter' || e.code === 'NumpadEnter') {
 			e.preventDefault()
 			e.stopPropagation()
 		}
 	})
-})
+}
 
-propsPlugin('use:size-to-input', (node, propValue) => {
+/**
+ * Ref function: makes a textarea grow/shrink to fit its content
+ * (and parent) on `input`, `focus`, and `blur`.
+ *
+ * @param {HTMLTextAreaElement} node
+ */
+export const sizeToInput = node => {
 	// initial size
 	setElementStyle(node, 'height', node.scrollHeight + 'px')
 	setElementStyle(node, 'overflow', 'hidden')
@@ -139,4 +163,4 @@ propsPlugin('use:size-to-input', (node, propValue) => {
 
 	// this allows to _ungrow_ siblings
 	addEvent(node, 'blur', resizeToContent)
-})
+}

@@ -65,10 +65,9 @@ All under `JSX.*`:
 All under `JSX.*`:
 
 - `CallbackElement<Element>` — `(node: Element) => void` or array;
-  used for `use:ref`, `use:connected`, `use:disconnected`.
-- `CallbackEvent<Event>`, `CallbackEventElement<Event, Element>` —
-  event-only and event+element variants; the latter used for
-  `use:clickoutside` etc.
+  used for `use:ref`, `use:connected`, `use:disconnected`. `use:ref`
+  is the way to attach behavior helpers from `pota/use/*` (e.g.
+  `<div use:ref={clickOutside(handler)}/>`).
 
 ## Component Utility Types (jsx/components.d.ts)
 

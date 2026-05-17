@@ -1,20 +1,20 @@
 /** @jsxImportSource pota */
 // Tests for pota/use/fullscreen: requestFullscreen, exitFullscreen,
 // toggleFullscreen, isFullscreen, useFullscreen/onFullscreen emitter,
-// and use:fullscreen JSX directive.
+// and the `fullscreen` ref factory.
 
 import { $, microtask, test } from '#test'
 
 import { render, root } from 'pota'
 import {
 	exitFullscreen,
+	fullscreen,
 	isFullscreen,
 	onFullscreen,
 	requestFullscreen,
 	toggleFullscreen,
 	useFullscreen,
 } from 'pota/use/fullscreen'
-import 'pota/use/fullscreen'
 
 await test('fullscreen - request, exit and toggle delegate to the platform methods', async expect => {
 	const element = document.createElement('div')
@@ -189,9 +189,9 @@ await test('fullscreen - toggleFullscreen without argument uses the document ele
 	}
 })
 
-// --- use:fullscreen JSX directive attaches a click handler ---------------
+// --- fullscreen ref factory attaches a click handler ---------------------
 
-await test('fullscreen - use:fullscreen directive triggers fullscreen on click', async expect => {
+await test('fullscreen - fullscreen ref factory triggers fullscreen on click', async expect => {
 	const original = document.documentElement.requestFullscreen
 	const originalValue = Object.getOwnPropertyDescriptor(
 		Document.prototype,
@@ -215,7 +215,7 @@ await test('fullscreen - use:fullscreen directive triggers fullscreen on click',
 	document.body.appendChild(target)
 
 	const dispose = render(
-		<button use:fullscreen={() => target}>Open</button>,
+		<button use:ref={fullscreen(() => target)}>Open</button>,
 	)
 
 	await microtask()
@@ -241,7 +241,7 @@ await test('fullscreen - use:fullscreen directive triggers fullscreen on click',
 // fires; emitter and signal don't reflect the new fullscreenElement.
 // Kept here for reference until the underlying issue is fixed.
 /*
-await test('fullscreen - emitter and jsx plugin react to fullscreen changes', async expect => {
+await test('fullscreen - emitter and ref factory react to fullscreen changes', async expect => {
 	const target = document.createElement('div')
 	target.textContent = 'click me to fullscreen'
 	document.body.append(target)
@@ -255,7 +255,7 @@ await test('fullscreen - emitter and jsx plugin react to fullscreen changes', as
 		})
 
 		const disposeNode = render(
-			<button use:fullscreen={() => target}>Open</button>,
+			<button use:ref={fullscreen(() => target)}>Open</button>,
 		)
 
 		await microtask()

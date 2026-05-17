@@ -159,7 +159,7 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 | `unwrap.jsx`                 | `unwrap`                                                                                              |
 | `with-value.jsx`             | `withValue`                                                                                           |
 
-## `tests/api/dom/` — renderer, props, events, plugins
+## `tests/api/dom/` — renderer, props, events
 
 | File                    | Covers                                                              |
 | ----------------------- | ------------------------------------------------------------------- |
@@ -168,7 +168,6 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 | `helpers.jsx`           | DOM test helpers themselves                                         |
 | `namespaces.jsx`        | SVG / MathML / foreignObject                                        |
 | `partials.jsx`          | `createPartial` runtime                                             |
-| `plugins.jsx`           | `propsPlugin`, `propsPluginNS`                                      |
 | `reactive-children.jsx` | reactive text/children semantics                                    |
 | `ready.jsx`             | `ready`, `readyAsync`, scheduler priorities                         |
 | `refs.jsx`              | `use:ref`, `ref()`                                                  |

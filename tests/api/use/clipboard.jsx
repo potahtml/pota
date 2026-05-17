@@ -1,13 +1,13 @@
 /** @jsxImportSource pota */
-// Tests for pota/use/clipboard: use:clipboard copies string values,
-// reads from node text, and supports callback handlers.
+// Tests for pota/use/clipboard: the `clipboard` ref factory copies
+// string values, reads from node text, and supports callback handlers.
 
 import { test, $, $$, microtask } from '#test'
 
 import { render } from 'pota'
-import 'pota/use/clipboard'
+import { clipboard } from 'pota/use/clipboard'
 
-await test('clipboard - use:clipboard copies explicit string values', async expect => {
+await test('clipboard - copies explicit string values', async expect => {
 	const writes = []
 	const original = navigator.clipboard
 
@@ -22,7 +22,7 @@ await test('clipboard - use:clipboard copies explicit string values', async expe
 	})
 
 	const dispose = render(
-		<button use:clipboard="copied value">Copy</button>,
+		<button use:ref={clipboard('copied value')}>Copy</button>,
 	)
 
 	await microtask()
@@ -38,7 +38,7 @@ await test('clipboard - use:clipboard copies explicit string values', async expe
 	})
 })
 
-await test('clipboard - use:clipboard can read text from the node or a callback', async expect => {
+await test('clipboard - can read text from the node or a callback', async expect => {
 	const writes = []
 	const original = navigator.clipboard
 
@@ -54,10 +54,10 @@ await test('clipboard - use:clipboard can read text from the node or a callback'
 
 	const dispose = render(
 		<>
-			<button use:clipboard={true}> Inner Value </button>
+			<button use:ref={clipboard(true)}> Inner Value </button>
 			<button
 				id="callback-copy"
-				use:clipboard={event => event.type + '-value'}
+				use:ref={clipboard(event => event.type + '-value')}
 			>
 				ignored
 			</button>
@@ -95,7 +95,7 @@ await test('clipboard - multiple clicks queue multiple copy operations', async e
 		},
 	})
 
-	const dispose = render(<button use:clipboard="multi">Copy</button>)
+	const dispose = render(<button use:ref={clipboard('multi')}>Copy</button>)
 
 	await microtask()
 
@@ -114,7 +114,7 @@ await test('clipboard - multiple clicks queue multiple copy operations', async e
 
 // --- clipboard copies only trimmed innerText when value is true -------
 
-await test('clipboard - use:clipboard={true} trims surrounding whitespace', async expect => {
+await test('clipboard - clipboard(true) trims surrounding whitespace', async expect => {
 	const writes = []
 	const original = navigator.clipboard
 
@@ -129,7 +129,7 @@ await test('clipboard - use:clipboard={true} trims surrounding whitespace', asyn
 	})
 
 	const dispose = render(
-		<button use:clipboard={true}> padded </button>,
+		<button use:ref={clipboard(true)}> padded </button>,
 	)
 
 	await microtask()
@@ -160,7 +160,7 @@ await test('clipboard - click handler is cleaned up on dispose', async expect =>
 		},
 	})
 
-	const dispose = render(<button use:clipboard="value">Copy</button>)
+	const dispose = render(<button use:ref={clipboard('value')}>Copy</button>)
 
 	await microtask()
 	const button = $('button')
