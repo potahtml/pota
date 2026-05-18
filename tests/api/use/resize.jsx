@@ -1,14 +1,18 @@
 /** @jsxImportSource pota */
-// Tests for pota/use/resize: documentSize, useDocumentSize emitter,
-// and onDocumentSize callback.
+// Tests for pota/use/resize: documentSize/useDocumentSize/onDocumentSize,
+// the element-level useElementSize/onElementSize Emitter pair, and the
+// `resize` ref factory.
 
 import { microtask, test } from '#test'
 
-import { root } from 'pota'
+import { render, root } from 'pota'
 import {
 	documentSize,
 	onDocumentSize,
+	onElementSize,
+	resize,
 	useDocumentSize,
+	useElementSize,
 } from 'pota/use/resize'
 
 await test('resize - documentSize reads viewport dimensions', expect => {
@@ -141,4 +145,67 @@ await test('resize - resize dispatches do not throw outside an owner', expect =>
 	expect(() =>
 		window.dispatchEvent(new Event('resize')),
 	).not.toThrow()
+})
+
+// --- element-level resize (ResizeObserver) ---------------------------
+
+const waitForObserver = () =>
+	new Promise(r =>
+		requestAnimationFrame(() => requestAnimationFrame(r)),
+	)
+
+await test('resize - useElementSize returns a signal accessor', async expect => {
+	const node = document.createElement('div')
+	document.body.appendChild(node)
+
+	await root(async dispose => {
+		const size = useElementSize(node)
+		expect(typeof size).toBe('function')
+
+		await waitForObserver()
+
+		const value = size()
+		expect(value === undefined || 'contentRect' in value).toBe(true)
+
+		dispose()
+	})
+
+	node.remove()
+})
+
+await test('resize - onElementSize fires for element resize', async expect => {
+	const node = document.createElement('div')
+	document.body.appendChild(node)
+
+	const seen = []
+	await root(async dispose => {
+		onElementSize(node, entry => seen.push(entry))
+
+		await waitForObserver()
+		await microtask()
+
+		expect(seen.length >= 1).toBe(true)
+		expect('contentRect' in seen[seen.length - 1]).toBe(true)
+
+		dispose()
+	})
+
+	node.remove()
+})
+
+await test('resize - resize ref factory wires onElementSize', async expect => {
+	const seen = []
+
+	const dispose = render(
+		<div use:ref={resize(entry => seen.push(entry))} />,
+		document.body,
+	)
+
+	await microtask()
+	await waitForObserver()
+	await microtask()
+
+	expect(seen.length >= 1).toBe(true)
+
+	dispose()
 })

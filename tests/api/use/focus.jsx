@@ -1,14 +1,18 @@
 /** @jsxImportSource pota */
 // Tests for pota/use/focus: focusNext/focusPrevious wrap-around,
-// and useDocumentFocus emitter.
+// useDocumentFocus emitter, and the autoFocus/selectOnFocus/trapFocus
+// ref functions.
 
-import { microtask, test } from '#test'
+import { microtask, test, $ } from '#test'
 
-import { root } from 'pota'
+import { render, root } from 'pota'
 import {
+	autoFocus,
 	focusNext,
 	focusPrevious,
 	onDocumentFocus,
+	selectOnFocus,
+	trapFocus,
 	useDocumentFocus,
 } from 'pota/use/focus'
 
@@ -183,4 +187,78 @@ await test('focus - focusPrevious with scoped elements only cycles within scope'
 	outside.remove()
 	one.remove()
 	two.remove()
+})
+
+// --- autoFocus -------------------------------------------------------
+
+await test('focus - autoFocus focuses the element on mount', async expect => {
+	const dispose = render(
+		<input id="auto-focus" use:ref={autoFocus} />,
+		document.body,
+	)
+
+	await microtask()
+
+	expect(document.activeElement.id).toBe('auto-focus')
+
+	dispose()
+})
+
+// --- selectOnFocus ---------------------------------------------------
+
+await test('focus - selectOnFocus selects input contents when focused', async expect => {
+	const dispose = render(
+		<input id="select-on-focus" value="hello world" use:ref={selectOnFocus} />,
+		document.body,
+	)
+
+	await microtask()
+
+	const input = /** @type {HTMLInputElement} */ ($('#select-on-focus'))
+	input.focus()
+	input.dispatchEvent(new FocusEvent('focus', { bubbles: true }))
+
+	expect(input.selectionStart).toBe(0)
+	expect(input.selectionEnd).toBe('hello world'.length)
+
+	dispose()
+})
+
+// --- trapFocus -------------------------------------------------------
+
+await test('focus - trapFocus cycles Tab inside the element', async expect => {
+	const dispose = render(
+		<div id="trap" use:ref={trapFocus}>
+			<input id="first" />
+			<input id="middle" />
+			<input id="last" />
+		</div>,
+		document.body,
+	)
+
+	await microtask()
+
+	const trap = $('#trap')
+	const last = $('#last')
+	const first = $('#first')
+
+	// Tab from last → first
+	last.focus()
+	trap.dispatchEvent(
+		new KeyboardEvent('keydown', { bubbles: true, key: 'Tab' }),
+	)
+	expect(document.activeElement.id).toBe('first')
+
+	// Shift+Tab from first → last
+	first.focus()
+	trap.dispatchEvent(
+		new KeyboardEvent('keydown', {
+			bubbles: true,
+			key: 'Tab',
+			shiftKey: true,
+		}),
+	)
+	expect(document.activeElement.id).toBe('last')
+
+	dispose()
 })

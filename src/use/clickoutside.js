@@ -18,3 +18,16 @@ export const clickOutside = (handler, options) => node =>
 		},
 		once: options?.once,
 	})
+
+/**
+ * Returns a ref function that fires `handler` when the `Escape` key
+ * is pressed anywhere in the document. The element itself is passed
+ * to the handler so a single closure can handle several elements.
+ *
+ * @param {(e: KeyboardEvent, node: Element) => void} handler
+ * @url https://pota.quack.uy/use/clickoutside
+ */
+export const escape = handler => node =>
+	addEvent(document, 'keydown', e => {
+		if (e.key === 'Escape') handler(e, node)
+	})

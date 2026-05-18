@@ -1,10 +1,13 @@
 /** @jsxImportSource pota */
 // Tests for pota/use/scroll: scrollToElement, scrollToSelector,
-// scrollToSelectorWithFallback, scrollToLocationHash, scrollToTop.
+// scrollToSelectorWithFallback, scrollToLocationHash, scrollToTop,
+// and the scrollIntoView ref factory.
 
-import { test } from '#test'
+import { microtask, test, $ } from '#test'
 
+import { render } from 'pota'
 import {
+	scrollIntoView,
 	scrollToElement,
 	scrollToLocationHash,
 	scrollToSelector,
@@ -127,4 +130,52 @@ await test('scroll - scrollToTop passes top=0 and auto behavior', expect => {
 	expect(received.behavior).toBe('auto')
 
 	window.scrollTo = originalScroll
+})
+
+// --- scrollIntoView ref factory --------------------------------------
+
+await test('scroll - scrollIntoView ref invokes node.scrollIntoView on mount', async expect => {
+	let received
+
+	const dispose = render(
+		<div
+			id="scroll-target"
+			use:ref={node => {
+				node.scrollIntoView = arg => {
+					received = arg
+				}
+				return scrollIntoView({ block: 'center' })(node)
+			}}
+		/>,
+		document.body,
+	)
+
+	await microtask()
+
+	expect(received).toEqual({ block: 'center' })
+
+	dispose()
+})
+
+await test('scroll - scrollIntoView with no args defaults to undefined', async expect => {
+	/** @type {any} */
+	let received = 'untouched'
+
+	const dispose = render(
+		<div
+			use:ref={node => {
+				node.scrollIntoView = arg => {
+					received = arg
+				}
+				return scrollIntoView()(node)
+			}}
+		/>,
+		document.body,
+	)
+
+	await microtask()
+
+	expect(received).toBe(undefined)
+
+	dispose()
 })

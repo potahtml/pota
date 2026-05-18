@@ -5,7 +5,7 @@
 import { microtask, test } from '#test'
 
 import { render } from 'pota'
-import { clickOutside } from 'pota/use/clickoutside'
+import { clickOutside, escape } from 'pota/use/clickoutside'
 
 await test('clickoutside - handler runs only for clicks outside the node', async expect => {
 	let calls = 0
@@ -208,4 +208,45 @@ await test('clickoutside - once variant is also cleaned up on dispose', async ex
 	)
 
 	expect(calls).toBe(0)
+})
+
+// --- escape ---------------------------------------------------------
+
+await test('clickoutside - escape fires on document Escape keydown', async expect => {
+	let calls = 0
+	let lastId = null
+	const dispose = render(
+		<div
+			id="esc-box"
+			use:ref={escape((e, node) => {
+				calls++
+				lastId = node.id
+			})}
+		>
+			contents
+		</div>,
+	)
+
+	await microtask()
+
+	// Escape outside the element still fires (it's document-scoped)
+	document.body.dispatchEvent(
+		new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }),
+	)
+	expect(calls).toBe(1)
+	expect(lastId).toBe('esc-box')
+
+	// non-Escape keys don't fire
+	document.body.dispatchEvent(
+		new KeyboardEvent('keydown', { bubbles: true, key: 'Enter' }),
+	)
+	expect(calls).toBe(1)
+
+	dispose()
+
+	// after dispose, listener is gone
+	document.body.dispatchEvent(
+		new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }),
+	)
+	expect(calls).toBe(1)
 })

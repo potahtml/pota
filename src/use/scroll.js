@@ -1,3 +1,4 @@
+import { onMount } from '../core/scheduler.js'
 import { location, window } from '../lib/std.js'
 import { document, querySelector } from './dom.js'
 
@@ -50,3 +51,13 @@ export function scrollToSelectorWithFallback(selector) {
 /** Scrolls to the top of the window */
 export const scrollToTop = () =>
 	window.scrollTo({ top: 0, behavior: 'auto' })
+
+/**
+ * Ref factory: scrolls the element into view once it is mounted.
+ *
+ * @param {boolean | ScrollIntoViewOptions} [opts]
+ * @url https://pota.quack.uy/use/scroll
+ */
+export const scrollIntoView = opts => node => {
+	onMount(() => node.scrollIntoView(opts))
+}
