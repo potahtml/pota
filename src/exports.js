@@ -14,7 +14,6 @@ export {
 	derived,
 	effect,
 	externalSignal,
-	listener,
 	isResolved,
 	map,
 	memo,
@@ -36,6 +35,9 @@ export {
 	// events
 	addEvent,
 	removeEvent,
+	// debug
+	owner,
+	listener,
 } from './lib/reactive.js'
 
 // RENDERER
