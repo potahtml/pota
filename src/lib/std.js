@@ -1,6 +1,7 @@
 export const window = globalThis
 
 export const requestAnimationFrame = window.requestAnimationFrame
+export const cancelAnimationFrame = window.cancelAnimationFrame
 export const queueMicrotask = window.queueMicrotask
 
 export const history = window.history

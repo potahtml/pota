@@ -1,10 +1,23 @@
 /** @jsxImportSource pota */
 // Tests for pota/use/animate: animateClassTo and animatePartTo,
-// class/part swapping with and without active animations.
+// class/part swapping with and without active animations; plus
+// stopAnimations, documentKeyframes, and useAnimationFrame.
 
 import { test } from '#test'
 
-import { animateClassTo, animatePartTo } from 'pota/use/animate'
+import { root } from 'pota'
+import {
+	animateClassTo,
+	animatePartTo,
+	documentKeyframes,
+	stopAnimations,
+	useAnimationFrame,
+} from 'pota/use/animate'
+
+const twoFrames = () =>
+	new Promise(r =>
+		requestAnimationFrame(() => requestAnimationFrame(r)),
+	)
 
 await test('animate - animateClassTo swaps classes without waiting when there are no animations', async expect => {
 	const node = document.createElement('div')
@@ -108,4 +121,115 @@ await test('animate - animateClassTo adds the new class even if old was absent',
 
 	expect(node.classList.contains('added')).toBe(true)
 	expect(node.classList.contains('other')).toBe(true)
+})
+
+// --- stopAnimations -------------------------------------------------
+
+await test('animate - stopAnimations cancels every animation on the element', expect => {
+	const canceled = []
+	const node = document.createElement('div')
+	const fakes = [
+		{ cancel: () => canceled.push('a') },
+		{ cancel: () => canceled.push('b') },
+	]
+	node.getAnimations = /** @type {any} */ (() => fakes)
+
+	const returned = stopAnimations(node)
+
+	expect(canceled).toEqual(['a', 'b'])
+	expect(returned).toBe(fakes)
+})
+
+await test('animate - stopAnimations returns empty list when nothing is running', expect => {
+	const node = document.createElement('div')
+	node.getAnimations = () => []
+
+	expect(stopAnimations(node)).toEqual([])
+})
+
+// --- documentKeyframes ---------------------------------------------
+
+await test('animate - documentKeyframes surfaces @keyframes from adoptedStyleSheets', expect => {
+	const sheet = new CSSStyleSheet()
+	sheet.replaceSync(
+		'@keyframes pota_spin { from { opacity: 0 } to { opacity: 1 } }',
+	)
+	document.adoptedStyleSheets = [sheet]
+
+	try {
+		const kf = documentKeyframes()
+		expect('pota_spin' in kf).toBe(true)
+		expect(kf.pota_spin.length > 0).toBe(true)
+	} finally {
+		// harness asserts adoptedStyleSheets is empty after each test
+		document.adoptedStyleSheets = []
+	}
+})
+
+// --- useAnimationFrame ---------------------------------------------
+
+await test('animate - useAnimationFrame does not start automatically', async expect => {
+	const ticks = []
+
+	await root(async dispose => {
+		useAnimationFrame(t => ticks.push(t))
+		await twoFrames()
+		expect(ticks).toEqual([])
+		dispose()
+	})
+})
+
+await test('animate - useAnimationFrame loops while running and auto-stops on dispose', async expect => {
+	const ticks = []
+	/** @type {() => void} */
+	let dispose = () => {}
+
+	await root(d => {
+		dispose = d
+		useAnimationFrame(t => ticks.push(t)).start()
+	})
+
+	await twoFrames()
+	const after = ticks.length
+	expect(after >= 2).toBe(true)
+
+	dispose()
+	await twoFrames()
+	expect(ticks.length).toBe(after)
+})
+
+await test('animate - useAnimationFrame stop halts and start can resume', async expect => {
+	const ticks = []
+
+	await root(async dispose => {
+		const ctrl = useAnimationFrame(() => ticks.push(1))
+		ctrl.start()
+		await twoFrames()
+
+		ctrl.stop()
+		const paused = ticks.length
+		await twoFrames()
+		expect(ticks.length).toBe(paused)
+
+		ctrl.start()
+		await twoFrames()
+		expect(ticks.length > paused).toBe(true)
+
+		dispose()
+	})
+})
+
+await test('animate - useAnimationFrame stop() inside the callback breaks the loop', async expect => {
+	let count = 0
+
+	await root(async dispose => {
+		const ctrl = useAnimationFrame(() => {
+			count++
+			if (count === 1) ctrl.stop()
+		})
+		ctrl.start()
+		await twoFrames()
+		expect(count).toBe(1)
+		dispose()
+	})
 })
