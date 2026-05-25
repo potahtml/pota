@@ -106,7 +106,7 @@ export class CustomElement extends HTMLElement {
 
 	/** @param {string} name */
 	hasSlot(name) {
-		return this.query(`:scope [slot="${name}"]`)
+		return this.query(`:scope [slot="${CSS.escape(name)}"]`)
 	}
 
 	/**
@@ -119,12 +119,10 @@ export class CustomElement extends HTMLElement {
 	hasDefaultSlot() {
 		for (const node of this.childNodes) {
 			if (node.nodeType === Node.TEXT_NODE) {
-				if (
-					/** @type {Text} */ (node).textContent?.trim() !== ''
-				)
+				if (/** @type {Text} */ (node).textContent?.trim() !== '')
 					return true
 			} else if (node.nodeType === Node.ELEMENT_NODE) {
-				if (!/** @type {Element} */ (node).hasAttribute('slot'))
+				if (!(/** @type {Element} */ (node).hasAttribute('slot')))
 					return true
 			}
 		}
