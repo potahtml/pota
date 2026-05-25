@@ -83,6 +83,33 @@ last resort**, not the default tool.
   `(/* @type {TheType} */ (value))`. Not a bare
   `/* @type {TheType} */` comment on its own line.
 
+### Plugins under `pota/use/*`
+
+Element-attached plugins ship as **ref factories** consumed via the
+single registered `use:ref` lifecycle attribute. Do not register a new
+custom `use:<name>` directive via `propsPlugin`; do not add new
+`'use:<name>'?` slots to the JSX namespace.
+
+```js
+// in src/use/example.js
+export const example = options => node => {
+	// wire side effects to `node`; cleanup runs via the
+	// surrounding reactive scope.
+}
+```
+
+```jsx
+// at the call site
+<input use:ref={example(opts)} />
+<input use:ref={[example(opts), clickOutside(handler)]} /> // compose
+```
+
+When a plugin also needs a non-DOM form (a callable signal that
+consumers can read elsewhere), expose it as a separate value — the
+ref factory takes only what it needs for the DOM side. See `bind`,
+`visible`, `clickOutside`, `scrollIntoView`, `lazyImage` as
+references.
+
 ## Subpath Exports
 
 The public surface is defined by `package.json` `"exports"` and
