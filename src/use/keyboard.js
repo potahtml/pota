@@ -1,5 +1,7 @@
-import { addEvent } from '../lib/reactive.js'
+import { addEvent, signal } from '../lib/reactive.js'
+import { window } from '../lib/std.js'
 import { document } from './dom.js'
+import { isEditable } from './form.js'
 
 /**
  * Parses a chord like `"ctrl+shift+k"` into a comparator that accepts
@@ -84,3 +86,91 @@ export const globalShortcut = (combo, handler) => {
  */
 export const submitOnCtrlEnter = handler =>
 	shortcut('mod+enter', handler)
+
+// ---- held-key tracking -------------------------------------------
+
+/** @type {Map<string, [() => boolean, (v: boolean) => void]>} */
+const heldSignals = new Map()
+/** @type {Set<string>} */
+const heldSet = new Set()
+let heldInitialized = false
+
+const ensureHeldSignal = key => {
+	let entry = heldSignals.get(key)
+	if (!entry) {
+		const [read, write] = signal(false)
+		entry = [read, write]
+		heldSignals.set(key, entry)
+	}
+	return entry
+}
+
+const clearAllHeld = () => {
+	heldSet.clear()
+	for (const [, [, write]] of heldSignals) write(false)
+}
+
+const initHeld = () => {
+	if (heldInitialized) return
+	heldInitialized = true
+	// page-lifetime tracking; never torn down once any consumer
+	// asks for held state. Listening on `window` (not via the
+	// scope-bound `addEvent`) keeps the tracker independent of
+	// any one reactive owner.
+	window.addEventListener('keydown', e => {
+		if (isEditable(document.activeElement)) return
+		const k = e.key.toLowerCase()
+		// skip OS key-repeat events so the signal flips only on
+		// the actual press transition.
+		if (heldSet.has(k)) return
+		heldSet.add(k)
+		ensureHeldSignal(k)[1](true)
+	})
+	window.addEventListener('keyup', e => {
+		const k = e.key.toLowerCase()
+		if (!heldSet.has(k)) return
+		heldSet.delete(k)
+		ensureHeldSignal(k)[1](false)
+	})
+	// clear everything on window blur so keys can't stay "stuck"
+	// when the user alt-tabs while holding one.
+	window.addEventListener('blur', clearAllHeld)
+}
+
+/**
+ * Reactive accessor for whether `key` is currently held down,
+ * tracked globally (modifier-agnostic). Useful for game-style input,
+ * canvas controls, or any UI driven by key-held state rather than
+ * key-press events.
+ *
+ * Keydown is ignored while focus is inside an editable element
+ * (`<input>`, `<textarea>`, `<select>`, or `contenteditable`) so
+ * typing doesn't trip held state. Keyup is always honored so keys
+ * can't get stuck. OS key-repeat events don't flip the signal — only
+ * the actual press/release transitions do.
+ *
+ * `key` follows `KeyboardEvent.key` lowercased: `'a'`, `' '` for
+ * space, `'arrowup'`, `'shift'`, etc.
+ *
+ * @param {string} key
+ * @returns {() => boolean}
+ * @url https://pota.quack.uy/use/keyboard
+ */
+export const useKeyHeld = key => {
+	initHeld()
+	return ensureHeldSignal(key.toLowerCase())[0]
+}
+
+/**
+ * Non-reactive live `Set` of currently-held keys (lowercased). Reads
+ * don't subscribe — intended for `requestAnimationFrame` loops where
+ * reactive tracking would be wasted overhead. The set is mutated in
+ * place by the tracker; treat it as read-only.
+ *
+ * @returns {Set<string>}
+ * @url https://pota.quack.uy/use/keyboard
+ */
+export const keysHeld = () => {
+	initHeld()
+	return heldSet
+}

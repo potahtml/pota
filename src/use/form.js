@@ -13,6 +13,26 @@ import { empty, entries, hasOwn, isArray } from '../lib/std.js'
  */
 export const isDisabled = node => node.matches(':disabled')
 
+/**
+ * Returns `true` when `node` is a user-editable element — `<input>`,
+ * `<textarea>`, `<select>`, or anything inside a `contenteditable`
+ * tree. Useful for global key handlers that should stand down when
+ * the user is typing.
+ *
+ * @param {Element | null | undefined} node
+ * @returns {boolean}
+ */
+export const isEditable = node => {
+	if (!node) return false
+	const tag = node.tagName
+	return (
+		tag === 'INPUT' ||
+		tag === 'TEXTAREA' ||
+		tag === 'SELECT' ||
+		/** @type {HTMLElement} */ (node).isContentEditable === true
+	)
+}
+
 export function focusNextInput(node, e) {
 	const { form } = node
 	if (form) {
