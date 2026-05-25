@@ -73,7 +73,10 @@
 		"bench:profile-heap": "node tools/bench/prof.mjs --heap",
 		"bench:profile-no-inline": "node tools/bench/prof.mjs --prof-no-inlining",
 		"release": "npm run test && node tools/release.js",
-		"format": "biome format . --write"
+		"format": "npm run format:md && npm run format:jsdoc && npm run format:biome",
+		"format:md": "prettier --write --ignore-pattern 'generated/**' --ignore-pattern 'projects/**' '**/*.md'",
+		"format:jsdoc": "node tools/format-jsdoc.js",
+		"format:biome": "biome format . --write"
 	},
 	"dependencies": {
 		"color-bits": "^1.1.1",
@@ -100,6 +103,7 @@
 		"c8": "^11.0.0",
 		"esbuild": "^0.28.0",
 		"prettier": "^3.8.3",
+		"prettier-plugin-jsdoc": "^1.3.0",
 		"puppeteer": "^24.42.0",
 		"rollup": "^4.60.2",
 		"typescript": "^6.0.3"
@@ -121,6 +125,27 @@
 		"port": 7357,
 		"timeout": 8000,
 		"concurrency": 16
+	},
+	"formatter": {
+		"pattern": "**/*.{js,jsx,ts,tsx,mjs,cjs}",
+		"exclude": [
+			"node_modules/",
+			"generated/",
+			"projects/"
+		]
+	},
+	"prettier": {
+		"printWidth": 70,
+		"useTabs": true,
+		"tabWidth": 2,
+		"semi": false,
+		"singleQuote": true,
+		"jsxSingleQuote": false,
+		"trailingComma": "all",
+		"arrowParens": "avoid",
+		"bracketSameLine": false,
+		"bracketSpacing": true,
+		"quoteProps": "as-needed"
 	},
 	"repository": {
 		"type": "git",
