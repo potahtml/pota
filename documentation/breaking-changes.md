@@ -33,6 +33,16 @@
   `use:ref`, `use:connected`, `use:disconnected`, `use:css`, and
   `use:bind` are unchanged.
 
+- **New plugins.** `pota/use/storage` ships a `storage(key, initial,
+  store?)` signal whose value is mirrored to a Web Storage area
+  (default `localStorage`) on every write, with try/catch around
+  storage errors. `pota/use/cached` ships `cached(url, opts?)` — a
+  fetch helper with in-flight dedup, Cache API persistence stamped
+  with `x-cached-at`, and per-entry TTL. `pota/use/time` gains
+  `useElapsed(timestamp)` — a reactive accessor of seconds elapsed
+  since a Unix-second timestamp that re-schedules on the unit
+  boundary (1s under a minute, 60s under an hour, etc.).
+
 - **`propsPlugin` and `propsPluginNS` are no longer exported.** They
   remain as internal dispatcher primitives but are not part of the
   public surface. The five built-in namespaces (`on`, `prop`, `class`,

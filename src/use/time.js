@@ -1,4 +1,11 @@
-import { cleanup, owned, withValue } from '../lib/reactive.js'
+import {
+	cleanup,
+	owned,
+	signal,
+	syncEffect,
+	withValue,
+} from '../lib/reactive.js'
+import { getValue } from '../lib/std.js'
 
 /**
  * Native `Date.now()`.
@@ -147,4 +154,67 @@ export function useTimeout(callback, delay, ...args) {
 	cleanup(fn.stop)
 
 	return fn
+}
+
+/**
+ * Thresholds (in seconds) keyed to the divisor (in seconds) of the
+ * unit they belong to. A diff < 60s ticks every 1s; < 1h ticks every
+ * 60s; < 1d ticks every 3600s; and so on.
+ *
+ * @type {ReadonlyArray<readonly [number, number]>}
+ */
+const TICK_BOUNDARIES = [
+	[60, 1],
+	[3600, 60],
+	[86400, 3600],
+	[86400 * 30, 86400],
+	[86400 * 365, 86400 * 30],
+]
+const YEAR_DIV = 86400 * 365
+
+/**
+ * @param {number} diffSec
+ * @returns {number} Divisor (seconds) of the unit that diff currently lives in.
+ */
+const divisorFor = diffSec => {
+	for (const [t, d] of TICK_BOUNDARIES) if (diffSec < t) return d
+	return YEAR_DIV
+}
+
+/**
+ * Reactive accessor of seconds elapsed since `timestamp` (Unix
+ * seconds). Re-evaluates on the next unit boundary — once per second
+ * under a minute, once per minute under an hour, once per hour under
+ * a day, etc. — so subscribers re-render only when the displayed
+ * value would change, not every second. Returns `0` when `timestamp`
+ * is falsy, and stops ticking in that case. Auto-cleans on scope
+ * dispose via the underlying `useTimeout`.
+ *
+ * @param {number | (() => number | undefined | null)} timestamp -
+ *   Unix seconds. May be a value or an accessor.
+ * @returns {() => number} Elapsed seconds since `timestamp`.
+ * @url https://pota.quack.uy/use/time
+ */
+export function useElapsed(timestamp) {
+	const [read, write] = signal(0)
+	const compute = () => {
+		const ts = getValue(timestamp)
+		if (!ts) return 0
+		return Math.max(0, now() / 1000 - ts)
+	}
+	// Track the timestamp accessor so reads reflect it immediately,
+	// not just at the next tick. `now()` itself is non-reactive, so
+	// this only re-runs when `timestamp` actually changes.
+	syncEffect(() => write(compute()))
+	useTimeout(
+		() => write(compute()),
+		() => {
+			const ts = getValue(timestamp)
+			if (!ts) return Infinity
+			const diff = Math.max(0, now() / 1000 - ts)
+			const divMs = divisorFor(diff) * 1000
+			return Math.max(1000, divMs - ((diff * 1000) % divMs))
+		},
+	).start()
+	return read
 }

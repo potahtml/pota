@@ -2,7 +2,7 @@
 // Tests for pota/use/time: date/time/datetime formatters, measure,
 // timing, and useTimeout (start, stop, reactive delay).
 
-import { test, sleep } from '#test'
+import { microtask, test, sleep } from '#test'
 
 import { root, signal } from 'pota'
 import {
@@ -14,6 +14,7 @@ import {
 	time,
 	timeWithSeconds,
 	timing,
+	useElapsed,
 	useTimeout,
 } from 'pota/use/time'
 
@@ -199,3 +200,67 @@ await test('time - measure works when no timeReport callback is provided', expec
 
 	expect(result).toBe('computed')
 })
+
+// --- useElapsed ----------------------------------------------------
+
+await test('time - useElapsed reports seconds elapsed since timestamp', async expect => {
+	await root(async dispose => {
+		// 5 seconds in the past
+		const past = (Date.now() - 5000) / 1000
+		const elapsed = useElapsed(past)
+		// allow ±1s slop for scheduler timing
+		const v = elapsed()
+		expect(v >= 4 && v <= 7).toBe(true)
+		dispose()
+	})
+})
+
+await test('time - useElapsed returns 0 for falsy timestamp', async expect => {
+	await root(async dispose => {
+		expect(useElapsed(0)()).toBe(0)
+		expect(useElapsed(null)()).toBe(0)
+		expect(useElapsed(undefined)()).toBe(0)
+		dispose()
+	})
+})
+
+await test('time - useElapsed accepts an accessor and reacts to it', async expect => {
+	await root(async dispose => {
+		const t = signal(0)
+		const elapsed = useElapsed(t.read)
+		expect(elapsed()).toBe(0)
+
+		// Drain the root's initial batch so subsequent writes flush
+		// their own runUpdates synchronously.
+		await microtask()
+
+		// switch from falsy to a past timestamp
+		t.write((Date.now() - 3000) / 1000)
+		const v = elapsed()
+		expect(v >= 2 && v <= 5).toBe(true)
+
+		// back to falsy → ticks should idle, accessor reads 0 again
+		t.write(0)
+		expect(elapsed()).toBe(0)
+
+		dispose()
+	})
+})
+
+await test('time - useElapsed ticks at the second boundary while diff < 1m', async expect => {
+	await root(async dispose => {
+		// 10 seconds ago — well within the per-second tick band
+		const past = (Date.now() - 10_000) / 1000
+		const elapsed = useElapsed(past)
+		const start = elapsed()
+
+		await sleep(1100)
+		const later = elapsed()
+
+		// after 1.1s the per-second ticker should have advanced the value
+		expect(later >= start + 1).toBe(true)
+
+		dispose()
+	})
+})
+
