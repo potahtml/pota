@@ -1,13 +1,14 @@
 /** @jsxImportSource pota */
 // Tests for pota/use/resize: documentSize/useDocumentSize/onDocumentSize,
-// the element-level useElementSize/onElementSize Emitter pair, and the
-// `resize` ref factory.
+// the element-level useElementSize/onElementSize Emitter pair, the
+// `resize` ref factory, and the `ensureInBounds` viewport clamp.
 
-import { microtask, test } from '#test'
+import { $, microtask, test } from '#test'
 
 import { render, root } from 'pota'
 import {
 	documentSize,
+	ensureInBounds,
 	onDocumentSize,
 	onElementSize,
 	resize,
@@ -208,4 +209,88 @@ await test('resize - resize ref factory wires onElementSize', async expect => {
 	expect(seen.length >= 1).toBe(true)
 
 	dispose()
+})
+
+// --- ensureInBounds -------------------------------------------------
+
+await test('resize - ensureInBounds clamps max-width / max-height to viewport', async expect => {
+	const widthDesc = Object.getOwnPropertyDescriptor(
+		document.documentElement,
+		'clientWidth',
+	)
+	const heightDesc = Object.getOwnPropertyDescriptor(
+		document.documentElement,
+		'clientHeight',
+	)
+	let nextW = 1000
+	let nextH = 800
+	Object.defineProperty(document.documentElement, 'clientWidth', {
+		configurable: true,
+		get() {
+			return nextW
+		},
+	})
+	Object.defineProperty(document.documentElement, 'clientHeight', {
+		configurable: true,
+		get() {
+			return nextH
+		},
+	})
+
+	try {
+		const dispose = render(
+			<div
+				id="panel"
+				style="position: fixed; left: 100px; top: 200px; width: 300px; height: 150px;"
+				use:ref={ensureInBounds}
+			/>,
+			document.body,
+		)
+		// onMount runs after the next microtask flush; yield twice so
+		// the rect snapshot + clamp effect have run.
+		await microtask()
+		await microtask()
+
+		const panel = $('#panel')
+		// element rect: 100,200 → 400,350. viewport: 1000x800 → no clamp.
+		expect(panel.style.maxWidth).toBe('')
+		expect(panel.style.maxHeight).toBe('')
+
+		// shrink width so the element overflows horizontally
+		nextW = 350
+		window.dispatchEvent(new Event('resize'))
+		await microtask()
+		expect(panel.style.maxWidth).toBe('250px') // 350 - rect.left(100)
+
+		// shrink height so the element overflows vertically
+		nextH = 300
+		window.dispatchEvent(new Event('resize'))
+		await microtask()
+		expect(panel.style.maxHeight).toBe('100px') // 300 - rect.top(200)
+
+		// expand back: the clamps lift
+		nextW = 1000
+		nextH = 800
+		window.dispatchEvent(new Event('resize'))
+		await microtask()
+		expect(panel.style.maxWidth).toBe('')
+		expect(panel.style.maxHeight).toBe('')
+
+		dispose()
+	} finally {
+		if (widthDesc) {
+			Object.defineProperty(
+				document.documentElement,
+				'clientWidth',
+				widthDesc,
+			)
+		}
+		if (heightDesc) {
+			Object.defineProperty(
+				document.documentElement,
+				'clientHeight',
+				heightDesc,
+			)
+		}
+	}
 })

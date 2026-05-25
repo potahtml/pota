@@ -1,3 +1,6 @@
+import { setElementStyle } from '../core/props/style.js'
+import { onMount } from '../core/scheduler.js'
+import { syncEffect } from '../lib/reactive.js'
 import { weakStore, window } from '../lib/std.js'
 import { documentElement } from './dom.js'
 import { Emitter } from './emitter.js'
@@ -86,3 +89,39 @@ export const onElementSize = (node, fn) =>
  * @url https://pota.quack.uy/use/resize
  */
 export const resize = handler => node => onElementSize(node, handler)
+
+/**
+ * Ref factory: keeps the element's right and bottom edges inside the
+ * viewport by clamping `max-width` / `max-height` whenever the
+ * viewport shrinks past the element's natural bounds. The element's
+ * top-left anchor is sampled **once** at ref attach via
+ * `getBoundingClientRect`, so this fits floating panels — popovers,
+ * dropdowns, color pickers — whose anchor doesn't move during their
+ * lifetime. If the anchor moves, drop and re-attach the ref.
+ *
+ * @param {HTMLElement} node
+ * @url https://pota.quack.uy/use/resize
+ */
+export const ensureInBounds = node => {
+	const size = useDocumentSize()
+	// `getBoundingClientRect` only returns meaningful values once the
+	// element is connected, so the rect snapshot and the clamp effect
+	// are deferred to `onMount` (priority 2, after `onProps` where
+	// refs fire).
+	onMount(() => {
+		const rect = node.getBoundingClientRect()
+		syncEffect(() => {
+			const { width, height } = size()
+			setElementStyle(
+				node,
+				'max-width',
+				rect.right > width ? width - rect.left + 'px' : null,
+			)
+			setElementStyle(
+				node,
+				'max-height',
+				rect.bottom > height ? height - rect.top + 'px' : null,
+			)
+		})
+	})
+}
