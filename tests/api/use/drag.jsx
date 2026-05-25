@@ -116,3 +116,56 @@ await test('drag - cleans up listeners on dispose', async expect => {
 	pointer('pointermove', document, 100, 100)
 	expect(moves).toEqual([])
 })
+
+await test('drag - reports element-relative coords and percent clamped to rect', async expect => {
+	const moves = []
+	const starts = []
+
+	const dispose = render(
+		<div
+			id="handle4"
+			style="position: fixed; left: 100px; top: 200px; width: 200px; height: 100px;"
+			use:ref={draggable({
+				onStart: info => starts.push(info),
+				onMove: info => moves.push(info),
+			})}
+		/>,
+		document.body,
+	)
+
+	await microtask()
+
+	const handle = $('#handle4')
+
+	pointer('pointerdown', handle, 150, 250) // inside: 50,50 → 25%,50%
+	pointer('pointermove', document, 200, 220) // 100,20 → 50%,20%
+	pointer('pointermove', document, 500, 220) // past right → clamped 200,20 → 100%,20%
+	pointer('pointermove', document, 50, 220) // past left → clamped 0,20 → 0%,20%
+	pointer('pointerup', document, 50, 220)
+
+	expect({
+		elementX: starts[0].elementX,
+		elementY: starts[0].elementY,
+		percentX: starts[0].percentX,
+		percentY: starts[0].percentY,
+	}).toEqual({ elementX: 50, elementY: 50, percentX: 25, percentY: 50 })
+
+	expect({
+		elementX: moves[0].elementX,
+		percentX: moves[0].percentX,
+		percentY: moves[0].percentY,
+	}).toEqual({ elementX: 100, percentX: 50, percentY: 20 })
+
+	expect({ elementX: moves[1].elementX, percentX: moves[1].percentX }).toEqual({
+		elementX: 200,
+		percentX: 100,
+	})
+
+	expect({ elementX: moves[2].elementX, percentX: moves[2].percentX }).toEqual({
+		elementX: 0,
+		percentX: 0,
+	})
+
+	dispose()
+})
+
