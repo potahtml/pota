@@ -6,6 +6,7 @@ generated/babel-preset-standalone.js
 
 typescript/readme.md
 
+projects/**
 tests/**
 tools/**
 

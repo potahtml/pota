@@ -1,10 +1,16 @@
 # generated
 
 generated
+node_modules
+projects/**
 
-# ai stuff
+# ai
 
+.claude/settings.json
+.claude/settings.local.json
 settings.local.json
+
+.codex/*
 
 # Logs
 logs
@@ -15,14 +21,6 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-
-# ai
-
-.claude/settings.json
-.claude/settings.local.json
-
-.codex/*
 
 # Editor directories and files
 .vscode/*

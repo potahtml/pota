@@ -107,10 +107,7 @@ ${lib.join(',\n')}
 				} else {
 					// Match the exact specifier as a quoted string
 					content = content.replace(
-						new RegExp(
-							`(['"\`])${escapeRegex(r.from)}(['"\`])`,
-							'g',
-						),
+						new RegExp(`(['"\`])${escapeRegex(r.from)}(['"\`])`, 'g'),
 						`$1${r.to}$2`,
 					)
 				}
@@ -120,8 +117,8 @@ ${lib.join(',\n')}
 
 		for (const file of files) {
 			if (
+				!file.includes('projects/') &&
 				!isDirectory(file) &&
-				!file.includes('node_modules') &&
 				file.includes('.d.ts') &&
 				!file.includes('.d.ts.map')
 			) {
