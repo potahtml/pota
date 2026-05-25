@@ -3,10 +3,10 @@
 /**
  * Array-specific coverage for the mutable store.
  *
- * Arrays are tracked differently than plain objects: `ProxyHandlerArray`
- * fires `valueRead`/`valueWrite` on every key via its own `get`/`set`
- * traps, so per-key tracking is proxy-centric rather than
- * accessor-centric. These tests pin down the behavior of
+ * Arrays are tracked differently than plain objects:
+ * `ProxyHandlerArray` fires `valueRead`/`valueWrite` on every key via
+ * its own `get`/`set` traps, so per-key tracking is proxy-centric
+ * rather than accessor-centric. These tests pin down the behavior of
  * `Object.defineProperty` on arrays now that the array trap skips the
  * `signalifyKey` wrapping step (which would otherwise double-track
  * numeric indices).

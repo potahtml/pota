@@ -7,21 +7,23 @@ import { test, sleep } from '#test'
 import { cached } from 'pota/use/cached'
 
 /**
- * Per-test URL prefix so the in-flight Map and Cache API entries
- * stay hermetic across tests (the module-level inflight Map is
- * shared, and Cache API entries survive page lifetimes).
+ * Per-test URL prefix so the in-flight Map and Cache API entries stay
+ * hermetic across tests (the module-level inflight Map is shared, and
+ * Cache API entries survive page lifetimes).
  */
 const uniqueUrl = name =>
 	`https://pota-test.invalid/cached/${name}-${Math.random().toString(36).slice(2)}`
 
-/** Use a per-test cacheName so a stray entry from one test cannot
- *  satisfy another. */
+/**
+ * Use a per-test cacheName so a stray entry from one test cannot
+ * satisfy another.
+ */
 const uniqueCacheName = () =>
 	`pota-test-cache-${Math.random().toString(36).slice(2)}`
 
 /**
- * Replace `globalThis.fetch` with a counting mock for the duration
- * of `fn`. Returns the call count after the fn finishes.
+ * Replace `globalThis.fetch` with a counting mock for the duration of
+ * `fn`. Returns the call count after the fn finishes.
  */
 async function withFetch(handler, fn) {
 	const original = globalThis.fetch

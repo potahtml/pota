@@ -16,7 +16,9 @@ import {
 // observing starts — these tests rely on that initial dispatch.
 
 const waitForObserver = () =>
-	new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
+	new Promise(r =>
+		requestAnimationFrame(() => requestAnimationFrame(r)),
+	)
 
 await test('intersection - useVisible returns a signal accessor', async expect => {
 	const node = document.createElement('div')
@@ -29,7 +31,9 @@ await test('intersection - useVisible returns a signal accessor', async expect =
 		await waitForObserver()
 
 		const value = entry()
-		expect(value === undefined || 'isIntersecting' in value).toBe(true)
+		expect(value === undefined || 'isIntersecting' in value).toBe(
+			true,
+		)
 
 		dispose()
 	})

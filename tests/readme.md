@@ -134,30 +134,30 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 
 ## `tests/api/reactivity/` — reactive primitives
 
-| File                         | Covers                                                                                                |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `action.jsx`                 | `action`                                                                                              |
-| `batch.jsx`                  | `batch`                                                                                               |
-| `catch-error.jsx`            | `catchError` (also exercises cleanup-error routing)                                                   |
-| `cleanup.jsx`                | `cleanup` + throwing-cleanup routing                                                                  |
-| `context.jsx`                | `context` / Provider / `walk`                                                                         |
-| `derived.jsx`                | `derived` — primitive semantics, promise / array handling, `lastWrite` token                          |
-| `derived-chain-current.jsx`  | multi-stage chain baselines                                                                           |
-| `derived-chain-expected.jsx` | per-stage re-run + user-write override (run explicitly: `npm run test:api -- derived-chain-expected`) |
-| `effect.jsx`                 | `effect`                                                                                              |
-| `external-signal.jsx`        | `externalSignal`                                                                                      |
-| `map.jsx`                    | `map`                                                                                                 |
-| `memo.jsx`                   | `memo` (incl. the phantom-property inference fix)                                                     |
-| `on.jsx`                     | `on`                                                                                                  |
-| `owned.jsx`                  | `owned` + `runWithOwner` error routing                                                                |
-| `resolve.jsx`                | `resolve`                                                                                             |
-| `root.jsx`                   | `root`                                                                                                |
-| `signal.jsx`                 | `signal` tuple / object shape, `equals` options                                                       |
+| File                            | Covers                                                                                                                                               |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `action.jsx`                    | `action`                                                                                                                                             |
+| `batch.jsx`                     | `batch`                                                                                                                                              |
+| `catch-error.jsx`               | `catchError` (also exercises cleanup-error routing)                                                                                                  |
+| `cleanup.jsx`                   | `cleanup` + throwing-cleanup routing                                                                                                                 |
+| `context.jsx`                   | `context` / Provider / `walk`                                                                                                                        |
+| `derived.jsx`                   | `derived` — primitive semantics, promise / array handling, `lastWrite` token                                                                         |
+| `derived-chain-current.jsx`     | multi-stage chain baselines                                                                                                                          |
+| `derived-chain-expected.jsx`    | per-stage re-run + user-write override (run explicitly: `npm run test:api -- derived-chain-expected`)                                                |
+| `effect.jsx`                    | `effect`                                                                                                                                             |
+| `external-signal.jsx`           | `externalSignal`                                                                                                                                     |
+| `map.jsx`                       | `map`                                                                                                                                                |
+| `memo.jsx`                      | `memo` (incl. the phantom-property inference fix)                                                                                                    |
+| `on.jsx`                        | `on`                                                                                                                                                 |
+| `owned.jsx`                     | `owned` + `runWithOwner` error routing                                                                                                               |
+| `resolve.jsx`                   | `resolve`                                                                                                                                            |
+| `root.jsx`                      | `root`                                                                                                                                               |
+| `signal.jsx`                    | `signal` tuple / object shape, `equals` options                                                                                                      |
 | `signal-write-during-mount.jsx` | regression: signal write inside a child mounted via reactive update reaches long-lived subscribers (incl. popstate-driven `<Head>` + `<Route>` case) |
-| `sync-effect.jsx`            | `syncEffect`                                                                                          |
-| `untrack.jsx`                | `untrack`                                                                                             |
-| `unwrap.jsx`                 | `unwrap`                                                                                              |
-| `with-value.jsx`             | `withValue`                                                                                           |
+| `sync-effect.jsx`               | `syncEffect`                                                                                                                                         |
+| `untrack.jsx`                   | `untrack`                                                                                                                                            |
+| `unwrap.jsx`                    | `unwrap`                                                                                                                                             |
+| `with-value.jsx`                | `withValue`                                                                                                                                          |
 
 ## `tests/api/dom/` — renderer, props, events
 
@@ -201,17 +201,17 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 
 ## `tests/api/store/` — reactive store
 
-| File            | Covers                                              |
-| --------------- | --------------------------------------------------- |
-| `copy.jsx`      | `copy`, `readonly`                                  |
-| `merge.jsx`     | `merge` reconcile                                   |
-| `mutable.jsx`   | `mutable`                                           |
-| `project.jsx`   | `project`                                           |
-| `readonly.jsx`  | `readonly`                                          |
-| `replace.jsx`   | `replace` reconcile                                 |
-| `reset.jsx`     | `reset` reconcile                                   |
-| `signalify.jsx` | `signalify`                                         |
-| `updateBlacklist.jsx` | `updateBlacklist`                             |
+| File                  | Covers              |
+| --------------------- | ------------------- |
+| `copy.jsx`            | `copy`, `readonly`  |
+| `merge.jsx`           | `merge` reconcile   |
+| `mutable.jsx`         | `mutable`           |
+| `project.jsx`         | `project`           |
+| `readonly.jsx`        | `readonly`          |
+| `replace.jsx`         | `replace` reconcile |
+| `reset.jsx`           | `reset` reconcile   |
+| `signalify.jsx`       | `signalify`         |
+| `updateBlacklist.jsx` | `updateBlacklist`   |
 
 ## `tests/api/use/` — `pota/use/*`
 

@@ -472,8 +472,8 @@ await test('tracking: pre-wrapping Array initial content does not leak', expect 
  * accessor bodies don't leak), but structural enumeration isn't.
  *
  * Callers who want a subscription-free snapshot must wrap
- * `copy(source)` in `untrack(() => ...)` themselves. These tests
- * pin both halves of that contract.
+ * `copy(source)` in `untrack(() => ...)` themselves. These tests pin
+ * both halves of that contract.
  */
 
 await test('copy policy: copy(plain) does not subscribe', expect => {
@@ -616,10 +616,10 @@ await test('copy policy: copy(mutable Set) subscribes; untrack suppresses', expe
 /**
  * `mutable(value, true)` calls `copy(value)` internally before
  * wrapping. When `value` is itself a mutable, the internal copy
- * traversal would subscribe the caller to the source's signals
- * unless wrapped in `untrack`. That `untrack` belongs to us (the
- * library), not the caller — the caller asked for a cloned
- * mutable, not for reactivity on the source.
+ * traversal would subscribe the caller to the source's signals unless
+ * wrapped in `untrack`. That `untrack` belongs to us (the library),
+ * not the caller — the caller asked for a cloned mutable, not for
+ * reactivity on the source.
  */
 
 await test('tracking: mutable(mutable object, clone=true) does not leak', expect => {
@@ -704,9 +704,9 @@ await test('tracking: mutable(mutable Set, clone=true) does not leak', expect =>
 
 /**
  * Deliberately duplicates assurances from sections A–G, but targets
- * places where the caller passes a MUTABLE as input — the most
- * likely setting for a missed untrack. Each test exercises an
- * internal traversal over a mutable source and asserts no leak.
+ * places where the caller passes a MUTABLE as input — the most likely
+ * setting for a missed untrack. Each test exercises an internal
+ * traversal over a mutable source and asserts no leak.
  */
 
 await test('tracking: merge(target, mutable source) does not leak to source', expect => {
@@ -798,13 +798,13 @@ await test('tracking: signalify on already-mutable short-circuits without leak',
 /**
  * Every WRITE operation on a mutable — `set`, `delete`,
  * `defineProperty`, Array/Map/Set write methods — should fire
- * track.*Write internally but never a track.*Read. A memo whose
- * body only writes should subscribe to nothing, so an unrelated
- * mutable changing elsewhere must not wake it.
+ * track.*Write internally but never a track.*Read. A memo whose body
+ * only writes should subscribe to nothing, so an unrelated mutable
+ * changing elsewhere must not wake it.
  *
  * Pattern: memo body performs WRITE on `target`, then we mutate an
- * unrelated `sentinel`. If the write path accidentally read a
- * tracked signal, the sentinel change would wake the memo.
+ * unrelated `sentinel`. If the write path accidentally read a tracked
+ * signal, the sentinel change would wake the memo.
  */
 
 /* ----- Plain object writes ----- */

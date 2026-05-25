@@ -166,10 +166,10 @@ algorithm. Every signal write goes through it.
 
 ```js
 function runUpdates(fn, init = false) {
-  if (Updates) {
-    return fn(); // already inside a batch — just run
-  }
-  // ...
+	if (Updates) {
+		return fn() // already inside a batch — just run
+	}
+	// ...
 }
 ```
 
@@ -181,13 +181,13 @@ existing queues. This is how batching works — the outermost
 ### Setup
 
 ```js
-if (!init) Updates = [];
+if (!init) Updates = []
 if (Effects) {
-  wait = true;
+	wait = true
 } else {
-  Effects = [];
+	Effects = []
 }
-Time++;
+Time++
 ```
 
 - `Updates` is created (unless `init` — used by `runWithOwner`). When
@@ -203,22 +203,22 @@ Time++;
 ### Flush
 
 ```js
-const res = fn();
+const res = fn()
 
 // Phase 1: flush memos
 for (const update of Updates) {
-  runTop(update);
+	runTop(update)
 }
-Updates = undefined;
+Updates = undefined
 
 // Phase 2: flush effects (only if outermost batch)
 if (!wait) {
-  const effects = Effects;
-  Effects = undefined;
-  if (effects.length) {
-    _pendingEffects = effects;
-    runUpdates(_drainEffects);
-  }
+	const effects = Effects
+	Effects = undefined
+	if (effects.length) {
+		_pendingEffects = effects
+		runUpdates(_drainEffects)
+	}
 }
 ```
 
@@ -232,24 +232,24 @@ means memo notifications triggered by effects get their own flush
 cycle. This ensures the system is always consistent: memos before
 effects, always. The recursion target is a module-scoped
 `_drainEffects` helper that reads from a `_pendingEffects` slot;
-re-entrant `runUpdates` calls hit the early-exit `if (Updates)` so
-the slot is only ever set immediately before its single use.
+re-entrant `runUpdates` calls hit the early-exit `if (Updates)` so the
+slot is only ever set immediately before its single use.
 
 ### runEffects — two-pass execution
 
 ```js
 function runEffects(queue) {
-  let userLength = 0;
-  for (const effect of queue) {
-    if (effect.user) {
-      queue[userLength++] = effect;
-    } else {
-      runTop(effect);
-    }
-  }
-  for (let i = 0; i < userLength; i++) {
-    runTop(queue[i]);
-  }
+	let userLength = 0
+	for (const effect of queue) {
+		if (effect.user) {
+			queue[userLength++] = effect
+		} else {
+			runTop(effect)
+		}
+	}
+	for (let i = 0; i < userLength; i++) {
+		runTop(queue[i])
+	}
 }
 ```
 
@@ -273,24 +273,24 @@ them top-down:
 
 ```js
 function runTop(node) {
-  // ...
-  const ancestors = [];
-  do {
-    node.state && ancestors.push(node);
-    node = node.owner;
-  } while (node && node.updatedAt < Time);
+	// ...
+	const ancestors = []
+	do {
+		node.state && ancestors.push(node)
+		node = node.owner
+	} while (node && node.updatedAt < Time)
 
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    node = ancestors[i];
-    switch (node.state) {
-      case STALE:
-        node.update();
-        break;
-      case CHECK:
-        upstream(node);
-        break;
-    }
-  }
+	for (let i = ancestors.length - 1; i >= 0; i--) {
+		node = ancestors[i]
+		switch (node.state) {
+			case STALE:
+				node.update()
+				break
+			case CHECK:
+				upstream(node)
+				break
+		}
+	}
 }
 ```
 
@@ -319,13 +319,13 @@ actually required.
 
 ```js
 function downstream(node) {
-  for (const observer of node.observers) {
-    if (observer.state === CLEAN) {
-      observer.state = CHECK;
-      observer.queue();
-      observer.observers && downstream(observer);
-    }
-  }
+	for (const observer of node.observers) {
+		if (observer.state === CLEAN) {
+			observer.state = CHECK
+			observer.queue()
+			observer.observers && downstream(observer)
+		}
+	}
 }
 ```
 
@@ -377,17 +377,17 @@ signals as sources and is itself tracked by other computations.
 
 ```js
 read = () => {
-  if (this.state === STALE) this.update();
-  else if (this.state === CHECK) {
-    // resolve upstream without running full batch
-    const updates = Updates;
-    Updates = undefined;
-    runUpdates(() => upstream(this));
-    Updates = updates;
-  }
-  doRead(this);
-  return this.value;
-};
+	if (this.state === STALE) this.update()
+	else if (this.state === CHECK) {
+		// resolve upstream without running full batch
+		const updates = Updates
+		Updates = undefined
+		runUpdates(() => upstream(this))
+		Updates = updates
+	}
+	doRead(this)
+	return this.value
+}
 ```
 
 On read:
@@ -463,7 +463,7 @@ copying the parent's record (with spread) when a new context value is
 set:
 
 ```js
-Owner.context = { ...Owner.context, [id]: newValue };
+Owner.context = { ...Owner.context, [id]: newValue }
 ```
 
 Context lookup walks up `Owner.context` — since each node either
@@ -513,14 +513,14 @@ may fire after the computation that created it has been disposed.
 
 ```js
 function catchError(fn, handler) {
-  syncEffect(() => {
-    Owner.context = {
-      ...Owner.context,
-      [errorHandlerId]: safeHandler,
-    };
-    result = untrack(fn);
-  });
-  return result;
+	syncEffect(() => {
+		Owner.context = {
+			...Owner.context,
+			[errorHandlerId]: safeHandler,
+		}
+		result = untrack(fn)
+	})
+	return result
 }
 ```
 
@@ -558,12 +558,12 @@ The `wroteValue` flag prevents double-writing: if the value resolves
 synchronously (no promises), no intermediate default is written. The
 `resolved` array prevents infinite recursion on arrays that have
 already been visited. Both `wroteValue` and `resolved` are
-lazy-allocated: the function / array / promise branches that need
-them initialize on first use, while the terminal `fn(value)` path
-(reached for any non-function / non-array / non-promise value) stays
-allocation-free. Most prop-handler calls (`attribute.js`,
-`style.js`, `property.js`) eventually hit the terminal path, so this
-matters on the hot path.
+lazy-allocated: the function / array / promise branches that need them
+initialize on first use, while the terminal `fn(value)` path (reached
+for any non-function / non-array / non-promise value) stays
+allocation-free. Most prop-handler calls (`attribute.js`, `style.js`,
+`property.js`) eventually hit the terminal path, so this matters on
+the hot path.
 
 ---
 

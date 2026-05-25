@@ -29,10 +29,7 @@ import { format } from 'prettier'
 //   prettier            standard Prettier config, shared with any
 //                       other prettier-based script (e.g. format:md)
 const pkg = JSON.parse(
-	await readFile(
-		new URL('../package.json', import.meta.url),
-		'utf8',
-	),
+	await readFile(new URL('../package.json', import.meta.url), 'utf8'),
 )
 const formatter = pkg.formatter ?? {}
 
@@ -99,13 +96,14 @@ async function processFile(file) {
 	for (let i = origComments.length - 1; i >= 0; i--) {
 		const c = origComments[i]
 		const raw = original.slice(c.start, c.end)
-		// Skip single-line blocks (`/** ... */` with no newline).
+		// Skip single-line blocks that contain a JSDoc tag (any `@`).
 		// Avoids re-wrapping inline casts like
 		// `const x = /** @type {Foo} */ (y)` into multi-line.
-		if (!raw.includes('\n')) continue
+		// Single-line prose blocks (no `@`) are still formatted.
+		if (!raw.includes('\n') && raw.includes('@')) continue
 		const indent = leadingIndent(original, c.start)
 		const dedented = dedent(raw, indent)
-		const formatted = await formatBlock(dedented)
+		const formatted = await formatBlock(dedented, indent)
 		const reindented = reindent(formatted, indent)
 		next = next.slice(0, c.start) + reindented + next.slice(c.end)
 	}
@@ -180,14 +178,23 @@ function reindent(block, indent) {
 	if (!indent) return block
 	return block
 		.split('\n')
-		.map((line, i) =>
-			i === 0 || line === '' ? line : indent + line,
-		)
+		.map((line, i) => (i === 0 || line === '' ? line : indent + line))
 		.join('\n')
 }
 
-async function formatBlock(comment) {
-	const out = await format(`${comment}\n${STUB}\n`, PRETTIER_OPTS)
+async function formatBlock(comment, indent) {
+	// Prettier wraps to printWidth as if the comment started at
+	// column 0. The comment will be re-indented before splicing,
+	// so subtract the indent's visual width from the budget so the
+	// final line ends at the project printWidth, not past it.
+	const tabWidth = PRETTIER_OPTS.tabWidth ?? 2
+	const baseWidth = PRETTIER_OPTS.printWidth ?? 80
+	const indentCols = indentWidth(indent, tabWidth)
+	const opts = {
+		...PRETTIER_OPTS,
+		printWidth: Math.max(20, baseWidth - indentCols),
+	}
+	const out = await format(`${comment}\n${STUB}\n`, opts)
 	// Prettier emits `<comment>\n<stub>\n`. Strip the stub and the
 	// single newline before it, tolerating a trailing newline.
 	const idx = out.lastIndexOf(STUB)
@@ -197,4 +204,10 @@ async function formatBlock(comment) {
 	let formatted = out.slice(0, idx)
 	if (formatted.endsWith('\n')) formatted = formatted.slice(0, -1)
 	return formatted
+}
+
+function indentWidth(indent, tabWidth) {
+	let cols = 0
+	for (const ch of indent) cols += ch === '\t' ? tabWidth : 1
+	return cols
 }

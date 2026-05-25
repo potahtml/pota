@@ -58,10 +58,9 @@ export const waitEvent =
 			(state, element, eventName) =>
 				promise((resolve, reject) => {
 					/**
-					 * To prevent firing `transitionend` twice it needs to
-					 * stop listening the old one because maybe wasn't
-					 * dispatched and running a new transition will make it
-					 * dispatch twice
+					 * To prevent firing `transitionend` twice it needs to stop
+					 * listening the old one because maybe wasn't dispatched and
+					 * running a new transition will make it dispatch twice
 					 */
 					const previous = state.get(element, empty)
 					previous.reject && previous.reject()

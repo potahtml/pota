@@ -105,8 +105,8 @@ export const example = options => node => {
 ```
 
 When a plugin also needs a non-DOM form (a callable signal that
-consumers can read elsewhere), expose it as a separate value — the
-ref factory takes only what it needs for the DOM side. See `bind`,
+consumers can read elsewhere), expose it as a separate value — the ref
+factory takes only what it needs for the DOM side. See `bind`,
 `visible`, `clickOutside`, `scrollIntoView`, `lazyImage` as
 references.
 
@@ -146,24 +146,24 @@ Run from the repository root after `npm install`. Every `build:*` has
 a matching `watch:*` that rebuilds on changes; only the build form is
 listed below.
 
-| Command                      | Purpose                                                                                                                                                                                                       |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                | Wipes `generated/*`, then spawns all `watch:*` scripts via `tools/watch.js`                                                                                                                                   |
-| `npm run clean`              | Wipe `generated/*`                                                                                                                                                                                            |
-| `npm run build:ts`           | `tsc` once — typecheck `src/` and emit declarations into `generated/types/`                                                                                                                                   |
-| `npm run build:babel-preset` | Rollup once — outputs `generated/babel-preset.cjs` + `generated/babel-preset-standalone.js`                                                                                                                   |
-| `npm run build:generate`     | `tools/generate.js` once — regenerate importmap / types JSON                                                                                                                                                  |
-| `npm run format`             | Prettier write (config in `package.json`)                                                                                                                                                                     |
-| `npm test`                   | Run everything — `test:types` + `test:api` + `test:babel-preset`                                                                                                                                              |
-| `npm run test:api`           | Browser tests once via Puppeteer; config in `package.json` `"test"` key. Flags: `--bail`, `--log`, `--warn`, `--error`, `--coverage`. Positional arg filters by path substring (`-- for`). `watch:test` runs in watch mode. |
-| `npm run test:coverage`      | Same as `test:api` but with V8 coverage → c8 HTML + text report in `generated/coverage/`                                                                                                                      |
-| `npm run test:babel-preset`  | Puppeteer tests for the standalone Babel preset bundle                                                                                                                                                        |
-| `npm run test:types`         | Typecheck `src/` + `tests/` + `babel-preset/` in one sequential run                                                                                                                                           |
-| `npm run bench`              | Run `tools/bench/runner.mjs` against the `pota.docs` dev benchmark page — heap snapshot, per-action timings, V8 deopts. Writes `tools/bench/results.md` + prepends to `results-short.md`. Pass `-- --no-write` to skip the writes. |
-| `npm run bench:profile`      | CPU sampling profile via `tools/bench/prof.mjs` — top hot frames by self + inclusive time.                                                                                                                    |
-| `npm run bench:profile-trace`| Chrome `devtools.timeline` trace — decomposes the cycle into JS / Layout / Paint / Style / GC. Use when sampling shows `(program)` dominating.                                                              |
-| `npm run bench:profile-heap` | V8 `HeapProfiler` allocation sampling — top allocation sites for finding GC-pressure sources.                                                                                                                |
-| `npm run bench:profile-no-inline` | `bench:profile` with V8 inlining disabled. Use to confirm sample attributions aren't inflated by inlining.                                                                                              |
+| Command                           | Purpose                                                                                                                                                                                                                            |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                     | Wipes `generated/*`, then spawns all `watch:*` scripts via `tools/watch.js`                                                                                                                                                        |
+| `npm run clean`                   | Wipe `generated/*`                                                                                                                                                                                                                 |
+| `npm run build:ts`                | `tsc` once — typecheck `src/` and emit declarations into `generated/types/`                                                                                                                                                        |
+| `npm run build:babel-preset`      | Rollup once — outputs `generated/babel-preset.cjs` + `generated/babel-preset-standalone.js`                                                                                                                                        |
+| `npm run build:generate`          | `tools/generate.js` once — regenerate importmap / types JSON                                                                                                                                                                       |
+| `npm run format`                  | Prettier write (config in `package.json`)                                                                                                                                                                                          |
+| `npm test`                        | Run everything — `test:types` + `test:api` + `test:babel-preset`                                                                                                                                                                   |
+| `npm run test:api`                | Browser tests once via Puppeteer; config in `package.json` `"test"` key. Flags: `--bail`, `--log`, `--warn`, `--error`, `--coverage`. Positional arg filters by path substring (`-- for`). `watch:test` runs in watch mode.        |
+| `npm run test:coverage`           | Same as `test:api` but with V8 coverage → c8 HTML + text report in `generated/coverage/`                                                                                                                                           |
+| `npm run test:babel-preset`       | Puppeteer tests for the standalone Babel preset bundle                                                                                                                                                                             |
+| `npm run test:types`              | Typecheck `src/` + `tests/` + `babel-preset/` in one sequential run                                                                                                                                                                |
+| `npm run bench`                   | Run `tools/bench/runner.mjs` against the `pota.docs` dev benchmark page — heap snapshot, per-action timings, V8 deopts. Writes `tools/bench/results.md` + prepends to `results-short.md`. Pass `-- --no-write` to skip the writes. |
+| `npm run bench:profile`           | CPU sampling profile via `tools/bench/prof.mjs` — top hot frames by self + inclusive time.                                                                                                                                         |
+| `npm run bench:profile-trace`     | Chrome `devtools.timeline` trace — decomposes the cycle into JS / Layout / Paint / Style / GC. Use when sampling shows `(program)` dominating.                                                                                     |
+| `npm run bench:profile-heap`      | V8 `HeapProfiler` allocation sampling — top allocation sites for finding GC-pressure sources.                                                                                                                                      |
+| `npm run bench:profile-no-inline` | `bench:profile` with V8 inlining disabled. Use to confirm sample attributions aren't inflated by inlining.                                                                                                                         |
 
 ## Repository Layout
 

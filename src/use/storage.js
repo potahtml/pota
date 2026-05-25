@@ -42,17 +42,18 @@ const safeParse = raw => {
 }
 
 /**
- * Signal whose value is persisted to a Web Storage area under `key`. The initial value is read from
- * storage when present, falling back to `initial`.
+ * Signal whose value is persisted to a Web Storage area under `key`.
+ * The initial value is read from storage when present, falling back
+ * to `initial`.
  *
  * Every write to the signal is mirrored into storage via
- * JSON-serialization. Storage writes are wrapped in try/catch —
- * quota errors and private-mode failures are silently ignored so
- * the signal still behaves correctly in-memory.
+ * JSON-serialization. Storage writes are wrapped in try/catch — quota
+ * errors and private-mode failures are silently ignored so the signal
+ * still behaves correctly in-memory.
  *
- * The returned object has the same shape as a `signal()`: an
- * iterable `[read, write, update]` tuple that also exposes
- * `.read`, `.write`, `.update` as properties.
+ * The returned object has the same shape as a `signal()`: an iterable
+ * `[read, write, update]` tuple that also exposes `.read`, `.write`,
+ * `.update` as properties.
  *
  * @template T
  * @param {string} key

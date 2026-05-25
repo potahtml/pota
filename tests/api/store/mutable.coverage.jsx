@@ -40,18 +40,16 @@ await test('mutable array - keys() yields numeric indices', expect => {
 // arm of the method-dispatch ternary in array's returnFunction.
 
 await test('mutable array - custom method falls back to reflectApply', expect => {
-	const src = /** @type {number[] & { customSum?: () => number }} */ (
-		[1, 2, 3]
-	)
+	const src =
+		/** @type {number[] & { customSum?: () => number }} */ ([1, 2, 3])
 	src.customSum = function () {
 		let s = 0
 		for (let i = 0; i < this.length; i++) s += this[i]
 		return s
 	}
-	const arr =
-		/** @type {number[] & { customSum: () => number }} */ (
-			mutable(src)
-		)
+	const arr = /** @type {number[] & { customSum: () => number }} */ (
+		mutable(src)
+	)
 	expect(arr.customSum()).toBe(6)
 })
 

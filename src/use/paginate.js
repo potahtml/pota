@@ -59,7 +59,12 @@ export function paginateValues(items, numPerPage, page) {
  * Paginates items and provides "prev" and "next" functions to use on
  * pagination buttons
  *
- * @param {(start: number, end: number) => unknown[] | Promise<unknown[]>} fetch -
+ * @param {(
+ * 	start: number,
+ * 	end: number,
+ * ) => unknown[] | Promise<unknown[]>} fetch
+ *   ## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?
+ *
  *   Function to get items from. May return synchronously or as a
  *   Promise; the `items` derived resolves accordingly.
  * @param {object} options

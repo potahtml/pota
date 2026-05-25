@@ -83,12 +83,7 @@ import { XML } from 'pota/xml'
 // Capture what a parent observes as `props.children` without touching
 // the DOM. Returns [sink, Component]. `sink.value` = last observed
 // children, `sink.touched` = whether the component ran.
-/**
- * @returns {[
- * 	{ value: any; touched: boolean; calls: number },
- * 	(props: any) => any,
- * ]}
- */
+/** @returns {[{ value: any; touched: boolean; calls: number }, (props: any) => any]} */
 function captureChildren() {
 	/** @type {{ value: any; touched: boolean; calls: number }} */
 	const sink = { value: undefined, touched: false, calls: 0 }
@@ -103,12 +98,7 @@ function captureChildren() {
 
 // Like captureChildren but also renders children out so we can check
 // DOM output alongside the shape observation.
-/**
- * @returns {[
- * 	{ value: any; touched: boolean },
- * 	(props: any) => any,
- * ]}
- */
+/** @returns {[{ value: any; touched: boolean }, (props: any) => any]} */
 function captureAndRender() {
 	/** @type {{ value: any; touched: boolean }} */
 	const sink = { value: undefined, touched: false }
@@ -1376,12 +1366,7 @@ await test('children-contract - <For each={arr}><Item/></For>: Item runs with em
 	const dispose = render(
 		<For each={['a', 'b', 'c']}>
 			{
-				/**
-				 * @type {(
-				 * 	item: string,
-				 * 	index: number,
-				 * ) => JSX.Element}
-				 */
+				/** @type {(item: string, index: number) => JSX.Element} */
 				(/** @type {unknown} */ (<Item />))
 			}
 		</For>,
@@ -1402,12 +1387,7 @@ await test('children-contract - <Range start stop><Tick/></Range>: Tick runs wit
 	const dispose = render(
 		<Range start={10} stop={12}>
 			{
-				/**
-				 * @type {(
-				 * 	n: number,
-				 * 	index: number,
-				 * ) => JSX.Element}
-				 */
+				/** @type {(n: number, index: number) => JSX.Element} */
 				(/** @type {unknown} */ (<Tick />))
 			}
 		</Range>,
@@ -1602,12 +1582,7 @@ await test('children-contract - For + callback receives (item, index); the compo
 	const disposeComp = render(
 		<For each={['a', 'b', 'c']}>
 			{
-				/**
-				 * @type {(
-				 * 	item: string,
-				 * 	i: number,
-				 * ) => JSX.Element}
-				 */
+				/** @type {(item: string, i: number) => JSX.Element} */
 				(/** @type {unknown} */ (<Item />))
 			}
 		</For>,
@@ -1643,12 +1618,7 @@ await test('children-contract - Range + callback receives (n, index); the compon
 	const disposeComp = render(
 		<Range start={0} stop={2}>
 			{
-				/**
-				 * @type {(
-				 * 	n: number,
-				 * 	i: number,
-				 * ) => JSX.Element}
-				 */
+				/** @type {(n: number, i: number) => JSX.Element} */
 				(/** @type {unknown} */ (<Tick />))
 			}
 		</Range>,

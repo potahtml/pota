@@ -6,12 +6,12 @@ import { mutable } from './mutable.js'
  *
  * Returns a `[store, setStore]` tuple:
  *
- * - `store` is a mutable proxy, typed as `DeepReadonly<T>` so the
- *   only sanctioned way to mutate it is through `setStore`.
- *   Runtime does not enforce the readonly tag — direct writes
- *   would succeed but TypeScript rejects them.
- * - `setStore(fn)` runs `fn(draft)` inside `batch()`, so any
- *   number of writes in one call flush to effects once.
+ * - `store` is a mutable proxy, typed as `DeepReadonly<T>` so the only
+ *   sanctioned way to mutate it is through `setStore`. Runtime does
+ *   not enforce the readonly tag — direct writes would succeed but
+ *   TypeScript rejects them.
+ * - `setStore(fn)` runs `fn(draft)` inside `batch()`, so any number of
+ *   writes in one call flush to effects once.
  *
  * ```js
  * const [user, setUser] = store({ name: 'ada', age: 0 })
@@ -24,9 +24,8 @@ import { mutable } from './mutable.js'
  *
  * @template {object} T
  * @param {T} source
- * @param {boolean} [clone] - If `true`, `source` is deep-copied
- *   first so outside references to `source` cannot bypass
- *   `setStore`.
+ * @param {boolean} [clone] - If `true`, `source` is deep-copied first
+ *   so outside references to `source` cannot bypass `setStore`.
  * @returns {import('#type/store.d.ts').Store<T>}
  */
 export function store(source, clone) {

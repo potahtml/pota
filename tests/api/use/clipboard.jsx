@@ -95,7 +95,9 @@ await test('clipboard - multiple clicks queue multiple copy operations', async e
 		},
 	})
 
-	const dispose = render(<button use:ref={clipboard('multi')}>Copy</button>)
+	const dispose = render(
+		<button use:ref={clipboard('multi')}>Copy</button>,
+	)
 
 	await microtask()
 
@@ -160,7 +162,9 @@ await test('clipboard - click handler is cleaned up on dispose', async expect =>
 		},
 	})
 
-	const dispose = render(<button use:ref={clipboard('value')}>Copy</button>)
+	const dispose = render(
+		<button use:ref={clipboard('value')}>Copy</button>,
+	)
 
 	await microtask()
 	const button = $('button')

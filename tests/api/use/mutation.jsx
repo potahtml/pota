@@ -5,11 +5,7 @@
 import { microtask, test } from '#test'
 
 import { render, root } from 'pota'
-import {
-	mutated,
-	onMutations,
-	useMutations,
-} from 'pota/use/mutation'
+import { mutated, onMutations, useMutations } from 'pota/use/mutation'
 
 await test('mutation - useMutations returns a signal accessor', expect => {
 	const node = document.createElement('div')
@@ -56,9 +52,7 @@ await test('mutation - mutated ref factory wires onMutations', async expect => {
 	const seen = []
 
 	const dispose = render(
-		<div
-			use:ref={mutated(records => seen.push(...records))}
-		>
+		<div use:ref={mutated(records => seen.push(...records))}>
 			<span />
 		</div>,
 		document.body,

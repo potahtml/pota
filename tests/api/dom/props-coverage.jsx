@@ -136,4 +136,3 @@ await test('class NS - object value via spread bypasses localName and applies ob
 
 	dispose()
 })
-

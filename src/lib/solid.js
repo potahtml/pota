@@ -406,7 +406,7 @@ export function createReactiveSystem() {
 	class Derived extends Memo {
 		value = nothing
 
-		isResolved
+		isResolved;
 
 		[$isDerived] = true
 
@@ -415,7 +415,8 @@ export function createReactiveSystem() {
 		 * `update()`; recursive resolve steps capture and compare the
 		 * current value to detect stale promise resolutions. Was a fresh
 		 * `{}` per write — counter avoids the per-update allocation while
-		 * preserving identity-via-`===` semantics for the staleness check.
+		 * preserving identity-via-`===` semantics for the staleness
+		 * check.
 		 *
 		 * @type {number}
 		 */
@@ -470,7 +471,8 @@ export function createReactiveSystem() {
 		write(nextValue, fns) {
 			this.isResolved = undefined
 
-			const mine = fns === undefined ? ++this.lastWrite : this.lastWrite
+			const mine =
+				fns === undefined ? ++this.lastWrite : this.lastWrite
 
 			withValue(
 				nextValue,
@@ -510,19 +512,18 @@ export function createReactiveSystem() {
 		}
 
 		/**
-		 * Thenable surface. Stays defined across commits so consumers
-		 * can register more than once: each call to `then` either
-		 * fires synchronously (if already resolved) or queues onto
-		 * `thenCallbacks`, drained by `_fireThens` on commit. Has to
-		 * be an instance arrow so `assign(self(), this)` carries it
-		 * onto the callable wrapper.
+		 * Thenable surface. Stays defined across commits so consumers can
+		 * register more than once: each call to `then` either fires
+		 * synchronously (if already resolved) or queues onto
+		 * `thenCallbacks`, drained by `_fireThens` on commit. Has to be
+		 * an instance arrow so `assign(self(), this)` carries it onto the
+		 * callable wrapper.
 		 *
 		 * We resolve with `_unwrap()` rather than `self()`: `self()`
 		 * carries `then` onto every fresh wrapper, which makes the
-		 * resolved value itself thenable — JS's `await` would
-		 * recursively `then` it forever. `_unwrap()` returns the
-		 * same callable shape but with `then` stripped, terminating
-		 * the recursion.
+		 * resolved value itself thenable — JS's `await` would recursively
+		 * `then` it forever. `_unwrap()` returns the same callable shape
+		 * but with `then` stripped, terminating the recursion.
 		 */
 		then = (resolve, reject) => {
 			// `resolved()` reads through `this.read()` which triggers

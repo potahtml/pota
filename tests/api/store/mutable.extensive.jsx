@@ -5,22 +5,24 @@
  *
  * Companion to mutable.test.jsx. The core behavior is covered there;
  * this file pins down:
- *   - effect() paired with mutable (not just memo())
- *   - error paths (throwing getters/setters/bodies)
- *   - circular references
- *   - collections that aren't reactive (Set/WeakMap/WeakSet, TypedArray)
- *   - proxy-trap edge cases (defineProperty, preventExtensions, etc.)
- *   - iteration-while-mutating
- *   - prototype tricks
- *   - symbol-based coercion (toPrimitive, toStringTag)
- *   - JSON and serialization
- *   - integration with readonly / signalify / copy / merge / replace
- *   - disposal and `this` binding
- *   - quantity / stress
+ *
+ * - Effect() paired with mutable (not just memo())
+ * - Error paths (throwing getters/setters/bodies)
+ * - Circular references
+ * - Collections that aren't reactive (Set/WeakMap/WeakSet, TypedArray)
+ * - Proxy-trap edge cases (defineProperty, preventExtensions, etc.)
+ * - Iteration-while-mutating
+ * - Prototype tricks
+ * - Symbol-based coercion (toPrimitive, toStringTag)
+ * - JSON and serialization
+ * - Integration with readonly / signalify / copy / merge / replace
+ * - Disposal and `this` binding
+ * - Quantity / stress
  *
  * Tests that fail are left failing — they document a real gap or a
  * surprise worth flagging; the maintainer decides whether to fix pota
- * or adjust the assertion. See CLAUDE.md "Failing test you just wrote".
+ * or adjust the assertion. See CLAUDE.md "Failing test you just
+ * wrote".
  */
 
 import { test } from '#test'

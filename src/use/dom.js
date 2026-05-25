@@ -20,10 +20,7 @@ export const isConnected = node => node.isConnected
 /** @returns {Element | null} The currently focused element. */
 export const activeElement = () => document.activeElement
 
-/**
- * @returns {Element | undefined} The root `<html>` element if
- *   available.
- */
+/** @returns {Element | undefined} The root `<html>` element if available. */
 export const documentElement = document?.documentElement
 
 /** DocumentFragment constructor exposed for convenience. */
@@ -271,8 +268,8 @@ export function getValueElement(value, ...args) {
  *
  * @param {DOMElement[]} [prev=[]] - Array with previous elements.
  *   Default is `[]`
- * @param {DOMElement[]} [next=[]] - Array with next elements.
- *   Default is `[]`
+ * @param {DOMElement[]} [next=[]] - Array with next elements. Default
+ *   is `[]`
  * @param {boolean} [short=false] - Whether to use fast clear. Default
  *   is `false`
  * @returns {DOMElement[]} The next array of elements

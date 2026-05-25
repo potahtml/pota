@@ -38,4 +38,3 @@ await test('isComponent - primitive values return false', expect => {
 	expect(isComponent(null)).toBe(false)
 	expect(isComponent(undefined)).toBe(false)
 })
-

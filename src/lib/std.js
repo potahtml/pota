@@ -95,12 +95,7 @@ export const stringifySorted = o => {
 	return stringifyReadable(sort(o))
 }
 
-/**
- * @param {(
- * 	resolve: (value: unknown) => void,
- * 	reject: (reason?: any) => void,
- * ) => void} fn
- */
+/** @param {(resolve: (value: unknown) => void, reject: (reason?: any) => void) => void} fn */
 export const promise = fn => new Promise(fn)
 
 /**

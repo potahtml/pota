@@ -14,8 +14,8 @@ import { ProxyHandlerObject } from './object.js'
 /**
  * Proxy for Sets. Per-value `has` tracking goes through `trackSlot`
  * (the shared `Track` keys the #props Map by identity). Iteration
- * (`forEach`, `values`, etc.) subscribes to the coarse
- * `valuesRead()` sentinel.
+ * (`forEach`, `values`, etc.) subscribes to the coarse `valuesRead()`
+ * sentinel.
  */
 export class ProxyHandlerSet extends ProxyHandlerObject {
 	// type = 'Set'

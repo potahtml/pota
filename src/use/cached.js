@@ -1,4 +1,7 @@
-/** In-flight dedup: concurrent callers for the same URL share one Promise. */
+/**
+ * In-flight dedup: concurrent callers for the same URL share one
+ * Promise.
+ */
 /** @type {Map<string, Promise<unknown>>} */
 const inflight = new Map()
 
@@ -6,13 +9,14 @@ const STAMP = 'x-cached-at'
 
 /**
  * @typedef {object} CachedOptions
- * @property {number} [ttl=Infinity] Default is `Infinity`. Milliseconds a Cache-API
- *   entry is considered fresh. After expiry the next call re-fetches.
- * @property {string} [cacheName='pota-cache-v1'] Default is
- *   `'pota-cache-v1'`. The Cache API bucket to read/write.
- * @property {(r: Response) => unknown} [parse] Default is `r => r.json()`.
- *   Applied to the cached or freshly-fetched `Response` to produce
- *   the resolved value.
+ * @property {number} [ttl=Infinity] Milliseconds a Cache-API entry is
+ *   considered fresh. After expiry the next call re-fetches. Default
+ *   is `Infinity`
+ * @property {string} [cacheName='pota-cache-v1'] The Cache API bucket
+ *   to read/write. Default is `'pota-cache-v1'`
+ * @property {(r: Response) => unknown} [parse] Default is `r =>
+ *   r.json()`. Applied to the cached or freshly-fetched `Response` to
+ *   produce the resolved value.
  */
 
 /**

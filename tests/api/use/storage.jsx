@@ -9,9 +9,9 @@ import { root } from 'pota'
 import { storage } from 'pota/use/storage'
 
 /**
- * Build a synchronous in-memory `Storage`-shaped object so tests
- * stay hermetic — no shared state with `localStorage`, no leaks
- * across tests.
+ * Build a synchronous in-memory `Storage`-shaped object so tests stay
+ * hermetic — no shared state with `localStorage`, no leaks across
+ * tests.
  */
 function memoryStore() {
 	const map = new Map()

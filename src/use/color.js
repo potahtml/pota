@@ -26,9 +26,7 @@ const BLACK = /*#__PURE__*/ parse('#000000')
 const APCA_Y_WHITE = /*#__PURE__*/ apcaLuminance(WHITE)
 const APCA_Y_BLACK = /*#__PURE__*/ apcaLuminance(BLACK)
 
-/**
- * @typedef {new () => { open: () => Promise<{ sRGBHex: string }> }} EyeDropperCtor
- */
+/** @typedef {new () => { open: () => Promise<{ sRGBHex: string }> }} EyeDropperCtor */
 
 /**
  * Opens the browser EyeDropper API (when supported) and invokes the
@@ -51,10 +49,10 @@ export const eyeDropper = cb => {
 }
 
 /**
- * Returns a gradient array of length `count` that passes through all of
- * the given stop colors, interpolated in OkLab space for perceptually
- * uniform transitions. Output is `oklab(L a b / alpha)` CSS strings —
- * the browser handles gamut mapping natively.
+ * Returns a gradient array of length `count` that passes through all
+ * of the given stop colors, interpolated in OkLab space for
+ * perceptually uniform transitions. Output is `oklab(L a b / alpha)`
+ * CSS strings — the browser handles gamut mapping natively.
  *
  * @param {string[]} colors
  * @param {number} [count]
@@ -83,11 +81,12 @@ export function scale(colors, count = 10) {
 
 /**
  * Direct sRGB → OkLab conversion (Björn Ottosson's original formula).
- * Matrix constants are public-domain; published in the OkLab paper and
- * used verbatim by the CSS Color 4 spec.
+ * Matrix constants are public-domain; published in the OkLab paper
+ * and used verbatim by the CSS Color 4 spec.
  *
  * @param {Color} c
- * @returns {[number, number, number, number]} [L, a, b, alpha byte]
+ * @returns {[number, number, number, number] | undefined} L, a, b,
+ *   alpha byte
  */
 function toOklab(c) {
 	const r = sRGBtoLinear(getRed(c) / 255)
@@ -113,9 +112,9 @@ function toOklab(c) {
 }
 
 /**
- * sRGB gamma decode (CSS Color 4 piecewise formula).
+ * SRGB gamma decode (CSS Color 4 piecewise formula).
  *
- * @param {number} v - channel in [0, 1]
+ * @param {number} v - Channel in [0, 1]
  * @returns {number}
  */
 function sRGBtoLinear(v) {
@@ -189,13 +188,13 @@ export function validateColor(string) {
 }
 
 /**
- * APCA (Accessible Perceptual Contrast Algorithm) — simplified polynomial,
- * W3-variant constants. Callers pass pre-clamped luminances from
- * `apcaLuminance` to avoid redundant work on constant backgrounds.
- * Reference: https://github.com/Myndex/apca-w3
+ * APCA (Accessible Perceptual Contrast Algorithm) — simplified
+ * polynomial, W3-variant constants. Callers pass pre-clamped
+ * luminances from `apcaLuminance` to avoid redundant work on constant
+ * backgrounds. Reference: https://github.com/Myndex/apca-w3
  *
- * @param {number} Ytxt - text luminance from `apcaLuminance`
- * @param {number} Ybg  - background luminance from `apcaLuminance`
+ * @param {number} Ytxt - Text luminance from `apcaLuminance`
+ * @param {number} Ybg - Background luminance from `apcaLuminance`
  * @returns {number} Lc in the [-108, 106] range
  */
 function apcaContrast(Ytxt, Ybg) {
@@ -215,7 +214,8 @@ function apcaContrast(Ytxt, Ybg) {
 }
 
 /**
- * APCA-ready luminance (with soft-clamp applied to near-black values).
+ * APCA-ready luminance (with soft-clamp applied to near-black
+ * values).
  *
  * @param {Color} c
  * @returns {number}

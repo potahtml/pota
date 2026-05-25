@@ -29,10 +29,7 @@ export const css = (template, ...values) =>
  */
 export const sheet = withCache(css => {
 	const sheet = new CSSStyleSheet()
-	/**
-	 * Replace is asynchronous and can accept `@import` statements
-	 * referencing external resources.
-	 */
+	/** Replace is asynchronous and can accept `@import` statements referencing external resources. */
 	sheet.replace(css)
 
 	return sheet

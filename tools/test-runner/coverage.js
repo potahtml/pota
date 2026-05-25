@@ -126,7 +126,8 @@ function extractInlineSourceMap(code) {
 
 /**
  * Invokes `c8 report` over the accumulated tmp files. Produces both a
- * text summary on stdout and an HTML report under generated/coverage/.
+ * text summary on stdout and an HTML report under
+ * generated/coverage/.
  */
 export function report() {
 	const entries = fs

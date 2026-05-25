@@ -211,9 +211,12 @@ await test('A - click without modifiers triggers pota navigation', async expect 
 	goto('/start')
 	await microtask()
 
-	const potaPrevented = dispatchAndCheck(document.querySelector('a'), {
-		bubbles: true,
-	})
+	const potaPrevented = dispatchAndCheck(
+		document.querySelector('a'),
+		{
+			bubbles: true,
+		},
+	)
 	expect(potaPrevented).toBe(true)
 
 	await sleepLong()

@@ -10,13 +10,13 @@ const createTracker = () => new Track(false)
 
 /**
  * Returns a tracker for an object. A tracker is unique per object,
- * always the same tracker for the same object. Uses null-proto
- * object storage — number keys coerce to strings (matches array
- * index semantics).
+ * always the same tracker for the same object. Uses null-proto object
+ * storage — number keys coerce to strings (matches array index
+ * semantics).
  *
  * For handler-private trackers that need identity-keyed storage
- * (Map/Set per-key reactivity), instantiate directly via
- * `new Track(true)`.
+ * (Map/Set per-key reactivity), instantiate directly via `new
+ * Track(true)`.
  *
  * @template T
  * @param {T} target
@@ -50,9 +50,9 @@ const kinds = {
  * Track class — per-key reactive signal store.
  *
  * Use the `tracker(target)` factory for trackers memoized per target
- * (typical case: main proxy tracker). Instantiate directly via
- * `new Track(identity)` when the tracker is handler-private and
- * should NOT be memoized — e.g. Map/Set's `trackSlot`.
+ * (typical case: main proxy tracker). Instantiate directly via `new
+ * Track(identity)` when the tracker is handler-private and should NOT
+ * be memoized — e.g. Map/Set's `trackSlot`.
  */
 export class Track {
 	// id = Date.now()
@@ -62,9 +62,9 @@ export class Track {
 	 *
 	 * - Default (`isIdentity=false`): null-proto object. Numbers
 	 *   auto-coerce to strings, matching array index semantics.
-	 * - Identity (`isIdentity=true`): `Map`. Keys preserved by
-	 *   identity — required for Map/Set where object keys,
-	 *   number-vs-string, and boolean-vs-string distinctions matter.
+	 * - Identity (`isIdentity=true`): `Map`. Keys preserved by identity —
+	 *   required for Map/Set where object keys, number-vs-string, and
+	 *   boolean-vs-string distinctions matter.
 	 */
 	#props
 	isIdentity

@@ -7,18 +7,18 @@
  * source from target before walking. That defensive copy is the
  * contract these tests pin down:
  *
- *   1. Return value is the same reference as `target`.
- *   2. Nested target references survive recursive walks (non-morph,
- *      non-wholesale-replace paths).
- *   3. Source mutations after reconcile never leak into target.
- *   4. Target mutations after reconcile never leak into source.
- *   5. Self-reference (`merge(obj, obj)`) doesn't corrupt.
- *   6. Mutable sources are detached just like plain ones.
+ * 1. Return value is the same reference as `target`.
+ * 2. Nested target references survive recursive walks (non-morph,
+ *    non-wholesale-replace paths).
+ * 3. Source mutations after reconcile never leak into target.
+ * 4. Target mutations after reconcile never leak into source.
+ * 5. Self-reference (`merge(obj, obj)`) doesn't corrupt.
+ * 6. Mutable sources are detached just like plain ones.
  *
  * Each invariant is exercised at both shallow and deep paths so a
  * future "lazy copy" refactor that drops the upfront `copy(source)`
- * and inlines copies at assignment sites can be validated against
- * the same pins — at every nesting depth reconcile reaches.
+ * and inlines copies at assignment sites can be validated against the
+ * same pins — at every nesting depth reconcile reaches.
  */
 
 import { test } from '#test'

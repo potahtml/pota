@@ -13,11 +13,11 @@ import { ProxyHandlerObject } from './object.js'
 
 /**
  * Proxy for Maps. Per-key `has` / `get` tracking goes through
- * `trackSlot` (the shared `Track` keys the #props Map by identity,
- * so object keys are tracked precisely). Iteration methods
- * (`forEach`, `keys`, `values`, `entries`) subscribe to the coarse
- * `valuesRead` / `keysRead` sentinels, plus per-key subscriptions at
- * each yield so partial iteration via `break` remains reactive.
+ * `trackSlot` (the shared `Track` keys the #props Map by identity, so
+ * object keys are tracked precisely). Iteration methods (`forEach`,
+ * `keys`, `values`, `entries`) subscribe to the coarse `valuesRead` /
+ * `keysRead` sentinels, plus per-key subscriptions at each yield so
+ * partial iteration via `break` remains reactive.
  */
 export class ProxyHandlerMap extends ProxyHandlerObject {
 	// type = 'Map'

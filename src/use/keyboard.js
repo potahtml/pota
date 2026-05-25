@@ -10,7 +10,10 @@ import { document } from './dom.js'
  * @param {string} combo
  */
 const parse = combo => {
-	const parts = combo.toLowerCase().split('+').map(s => s.trim())
+	const parts = combo
+		.toLowerCase()
+		.split('+')
+		.map(s => s.trim())
 	const key = parts[parts.length - 1]
 	const mods = new Set(parts.slice(0, -1))
 	const isMac =

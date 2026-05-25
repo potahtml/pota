@@ -611,4 +611,3 @@ await test('derived - then after resolution fires synchronously', async expect =
 	})
 	expect(fired).toBe('done')
 })
-

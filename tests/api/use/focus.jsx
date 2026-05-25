@@ -208,13 +208,19 @@ await test('focus - autoFocus focuses the element on mount', async expect => {
 
 await test('focus - selectOnFocus selects input contents when focused', async expect => {
 	const dispose = render(
-		<input id="select-on-focus" value="hello world" use:ref={selectOnFocus} />,
+		<input
+			id="select-on-focus"
+			value="hello world"
+			use:ref={selectOnFocus}
+		/>,
 		document.body,
 	)
 
 	await microtask()
 
-	const input = /** @type {HTMLInputElement} */ ($('#select-on-focus'))
+	const input = /** @type {HTMLInputElement} */ (
+		$('#select-on-focus')
+	)
 	input.focus()
 	input.dispatchEvent(new FocusEvent('focus', { bubbles: true }))
 

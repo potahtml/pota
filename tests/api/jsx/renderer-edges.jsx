@@ -40,9 +40,7 @@ await test('withXMLNS resets to HTML inside a dynamic foreignObject', expect => 
 			children: Component('div', { children: 'html-inside-svg' }),
 		})
 
-	const dispose = render(
-		<svg>{foreignObjectElement}</svg>,
-	)
+	const dispose = render(<svg>{foreignObjectElement}</svg>)
 	const div = $('div')
 	expect(div instanceof HTMLDivElement).toBe(true)
 	expect(div.textContent).toBe('html-inside-svg')

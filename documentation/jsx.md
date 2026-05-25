@@ -77,12 +77,12 @@ needed.
 ### Defining components
 
 ```ts
-Component<P>; // (props: P) => JSX.Element
-ParentComponent<P>; // (props: P & { children?: JSX.Element }) => JSX.Element
-VoidComponent<P>; // (props: P) => JSX.Element  (semantic: no children)
-ComponentType<P>; // Component<P> | class component with props P
-FlowComponent<P, C>; // (props: P & { children?: C }) => JSX.Element
-Children<C>; // C | (C | JSX.Element)[]
+Component<P> // (props: P) => JSX.Element
+ParentComponent<P> // (props: P & { children?: JSX.Element }) => JSX.Element
+VoidComponent<P> // (props: P) => JSX.Element  (semantic: no children)
+ComponentType<P> // Component<P> | class component with props P
+FlowComponent<P, C> // (props: P & { children?: C }) => JSX.Element
+Children<C> // C | (C | JSX.Element)[]
 ```
 
 `Children<C>` is for components whose children can be a single
@@ -92,24 +92,24 @@ Range).
 Usage:
 
 ```tsx
-const MyCard: ParentComponent<{ title: string }> = (props) => {
-  return (
-    <div>
-      <h2>{props.title}</h2>
-      {props.children}
-    </div>
-  );
-};
+const MyCard: ParentComponent<{ title: string }> = props => {
+	return (
+		<div>
+			<h2>{props.title}</h2>
+			{props.children}
+		</div>
+	)
+}
 
-const MyInput: VoidComponent<{ value: string }> = (props) => {
-  return <input value={props.value} />;
-};
+const MyInput: VoidComponent<{ value: string }> = props => {
+	return <input value={props.value} />
+}
 ```
 
 ### Context
 
 ```ts
-Context<T>; // return type of context()
+Context<T> // return type of context()
 ```
 
 Describes the overloaded function returned by `context()`:

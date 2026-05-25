@@ -23,8 +23,8 @@ const mimeTypes = {
 
 /**
  * Returns an HTML page that loads the bundled test and exposes
- * results. The bundle self-drives — imports the test file for
- * side effects, then awaits `run()` from `#test` to mark done.
+ * results. The bundle self-drives — imports the test file for side
+ * effects, then awaits `run()` from `#test` to mark done.
  *
  * @param {string} file
  */
@@ -105,11 +105,14 @@ async function serveFile(res, filePath) {
 }
 
 /**
- * Starts an HTTP server that serves the test harness and bundled
- * test files.
+ * Starts an HTTP server that serves the test harness and bundled test
+ * files.
  *
  * @param {number} port
- * @returns {Promise<{ server: import('http').Server; port: number }>}
+ * @returns {Promise<{
+ * 	server: import('http').Server
+ * 	port: number
+ * }>}
  */
 export function startServer(port) {
 	return new Promise(resolve => {

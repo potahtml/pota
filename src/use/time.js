@@ -174,7 +174,8 @@ const YEAR_DIV = 86400 * 365
 
 /**
  * @param {number} diffSec
- * @returns {number} Divisor (seconds) of the unit that diff currently lives in.
+ * @returns {number} Divisor (seconds) of the unit that diff currently
+ *   lives in.
  */
 const divisorFor = diffSec => {
 	for (const [t, d] of TICK_BOUNDARIES) if (diffSec < t) return d

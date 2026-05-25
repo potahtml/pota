@@ -1,9 +1,9 @@
 /** @jsxImportSource pota */
 
 /**
- * Map-specific coverage for the mutable store — focusing on precision:
- * memos reading `map.get(k)` or `map.has(k)` should only re-run when
- * THAT key's state changes, not on any map mutation.
+ * Map-specific coverage for the mutable store — focusing on
+ * precision: memos reading `map.get(k)` or `map.has(k)` should only
+ * re-run when THAT key's state changes, not on any map mutation.
  *
  * Known limitation: per-key tracking coerces non-primitive keys via
  * `#props[key]` to string (`"[object Object]"`), so different object

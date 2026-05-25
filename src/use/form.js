@@ -5,8 +5,8 @@ import { addEvent } from '../lib/reactive.js'
 import { empty, entries, hasOwn, isArray } from '../lib/std.js'
 
 /**
- * Returns `true` when the element is disabled, either directly or
- * via an ancestor `<fieldset disabled>`.
+ * Returns `true` when the element is disabled, either directly or via
+ * an ancestor `<fieldset disabled>`.
  *
  * @param {Element} node
  * @returns {boolean}
@@ -99,8 +99,7 @@ export const clickFocusChildrenInput = node => {
 }
 
 /**
- * Ref function: pressing Enter moves focus to the next form
- * element.
+ * Ref function: pressing Enter moves focus to the next form element.
  *
  * @param {HTMLInputElement} node
  */
@@ -128,8 +127,8 @@ export const preventEnter = node => {
 }
 
 /**
- * Ref function: makes a textarea grow/shrink to fit its content
- * (and parent) on `input`, `focus`, and `blur`.
+ * Ref function: makes a textarea grow/shrink to fit its content (and
+ * parent) on `input`, `focus`, and `blur`.
  *
  * @param {HTMLTextAreaElement} node
  */

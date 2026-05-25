@@ -40,12 +40,7 @@ const preset = {
  * can destructure properties without us listing all 1355 exports.
  */
 
-/**
- * @type {Record<
- * 	string,
- * 	string | { code: string; syntheticNamedExports: boolean }
- * >}
- */
+/** @type {Record<string, string | { code: string; syntheticNamedExports: boolean }>} */
 const shims = {
 	'@babel/core': `
 		const p = globalThis.Babel.packages

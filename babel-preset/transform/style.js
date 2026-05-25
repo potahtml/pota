@@ -14,34 +14,28 @@ import { isNullUndefined, isPlainTemplateLiteral } from './literal.js'
  *
  * Handles each `style=` attribute independently — no cross-attribute
  * merging. Merging multiple `style=` attrs would silently flip
- * "last-wins" (current pota semantics, enforced by the dedup pass
- * and by JS object-literal semantics in the spread path) into
- * "merged", so we don't.
+ * "last-wins" (current pota semantics, enforced by the dedup pass and
+ * by JS object-literal semantics in the spread path) into "merged",
+ * so we don't.
  *
  * Per attr:
  *
- * 1. `style={null|undefined|void 0}`       → drop the attribute.
- * 2. `style="..."`                         → leave alone (already
- *                                            literal; downstream bakes it).
- * 3. `` style={`...`} `` (no expressions)  → collapse whitespace
- *                                            following `;`, drop trailing
- *                                            `;`, trim, then bake.
- * 4. `` style={`...${x}...`} ``            → collapse whitespace following
- *                                            `;` in each quasi; expressions
- *                                            and boundary whitespace
- *                                            untouched. (Still dynamic —
- *                                            applied at runtime via
- *                                            `setStyle`.)
- * 5. `style={{}}`                          → drop the attribute.
- * 6. Object property whose value is
- *    `null|undefined|void 0`               → drop that property.
- * 7. Object with every property foldable   → replace the object with
- *    (static key + literal string/number    a literal `style="..."`
- *    value, or computed key where both      string.
- *    key and value evaluate confident)
- * 8. Otherwise                             → leave the object alone;
- *                                            the props pipeline will
- *                                            apply it via `setStyle`.
+ * 1. `style={null|undefined|void 0}` → drop the attribute.
+ * 2. `style="..."` → leave alone (already literal; downstream bakes it).
+ * 3. `style={`...`}` (no expressions) → collapse whitespace following
+ *    `;`, drop trailing `;`, trim, then bake.
+ * 4. `style={`...${x}...`}` → collapse whitespace following `;` in each
+ *    quasi; expressions and boundary whitespace untouched. (Still
+ *    dynamic — applied at runtime via `setStyle`.)
+ * 5. `style={{}}` → drop the attribute.
+ * 6. Object property whose value is `null|undefined|void 0` → drop that
+ *    property.
+ * 7. Object with every property foldable → replace the object with
+ *    (static key + literal string/number a literal `style="..."`
+ *    value, or computed key where both string. key and value evaluate
+ *    confident)
+ * 8. Otherwise → leave the object alone; the props pipeline will apply
+ *    it via `setStyle`.
  */
 export function inlineStyles(path) {
 	const attrs = path
@@ -101,10 +95,7 @@ function foldStyleAttribute(attr) {
 	// drop null/undefined-valued properties
 
 	for (const prop of value.get('properties').slice().reverse()) {
-		if (
-			prop.isObjectProperty() &&
-			isNullUndefined(prop.node.value)
-		) {
+		if (prop.isObjectProperty() && isNullUndefined(prop.node.value)) {
 			prop.remove()
 		}
 	}

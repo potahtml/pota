@@ -13,10 +13,10 @@ import { getValue } from '../../lib/std.js'
  * 		children: JSX.Element
  * 	}
  * >} props
- *   - `children` is expected to be `Tabs.Label` elements. Not
- *       enforced by TypeScript: JSX expressions always resolve to
- *       `JSX.Element`, so the specific component identity cannot be
- *       constrained at the type level.
+ *   - `children` is expected to be `Tabs.Label` elements. Not enforced by
+ *       TypeScript: JSX expressions always resolve to `JSX.Element`,
+ *       so the specific component identity cannot be constrained at
+ *       the type level.
  *
  * @url https://pota.quack.uy/Components/Tabs
  */

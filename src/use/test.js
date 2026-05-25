@@ -320,8 +320,8 @@ export const sleep = (ms = 0) =>
 export const sleepLong = () => sleep(300)
 
 /**
- * Walks past descendant/combinator boundaries (` `, `>`, `+`, `~`, `,`)
- * to the final compound selector — e.g. `'div input[name="x"]'`
+ * Walks past descendant/combinator boundaries (` `, `>`, `+`, `~`,
+ * `,`) to the final compound selector — e.g. `'div input[name="x"]'`
  * → `'input[name="x"]'`, `'a, b > c'` → `'c'`.
  *
  * @template {string} S
@@ -356,9 +356,9 @@ export const sleepLong = () => sleep(300)
  */
 
 /**
- * Walks the selector to its last compound, then extracts the tag.
- * For `'div input[name="x"]'` this resolves to `'input'`; for
- * `'.foo'` it resolves to `'.foo'` (no tag).
+ * Walks the selector to its last compound, then extracts the tag. For
+ * `'div input[name="x"]'` this resolves to `'input'`; for `'.foo'` it
+ * resolves to `'.foo'` (no tag).
  *
  * @template {string} S
  * @typedef {CompoundTag<LastCompound<S>>} SelectorTag
@@ -371,20 +371,20 @@ export const sleepLong = () => sleep(300)
  *
  * @template {string} S
  * @typedef {SelectorTag<S> extends keyof HTMLElementTagNameMap
- * 	? HTMLElementTagNameMap[SelectorTag<S>]
- * 	: SelectorTag<S> extends keyof SVGElementTagNameMap
- * 		? SVGElementTagNameMap[SelectorTag<S>]
- * 		: SelectorTag<S> extends keyof MathMLElementTagNameMap
- * 			? MathMLElementTagNameMap[SelectorTag<S>]
- * 			: HTMLElement} SelectorElement
+ * 		? HTMLElementTagNameMap[SelectorTag<S>]
+ * 		: SelectorTag<S> extends keyof SVGElementTagNameMap
+ * 			? SVGElementTagNameMap[SelectorTag<S>]
+ * 			: SelectorTag<S> extends keyof MathMLElementTagNameMap
+ * 				? MathMLElementTagNameMap[SelectorTag<S>]
+ * 				: HTMLElement} SelectorElement
  */
 
 /**
- * Shorthand for `document.querySelector`. Infers the element type from
- * the selector's leading tag, so `$('input')`, `$('input[name="x"]')`,
- * and `$('input.foo')` all return `HTMLInputElement | null`. Pass an
- * explicit element type as a type parameter to override:
- * `$<HTMLDivElement>('.my-class')`.
+ * Shorthand for `document.querySelector`. Infers the element type
+ * from the selector's leading tag, so `$('input')`,
+ * `$('input[name="x"]')`, and `$('input.foo')` all return
+ * `HTMLInputElement | null`. Pass an explicit element type as a type
+ * parameter to override: `$<HTMLDivElement>('.my-class')`.
  *
  * @type {{
  * 	<S extends string>(

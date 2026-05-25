@@ -68,8 +68,8 @@ export const location = freeze({
 	 * effect/mutable created here are owned by the caller's scope and
 	 * disposed automatically when that scope ends.
 	 *
-	 * Capture once at component setup (`const p = location.params`)
-	 * and read keys reactively from `p`. Do not call `location.params`
+	 * Capture once at component setup (`const p = location.params`) and
+	 * read keys reactively from `p`. Do not call `location.params`
 	 * inline inside a reactive expression — every access creates a
 	 * fresh effect+mutable. Must be called inside an owner scope, or
 	 * the inner effect is orphaned.

@@ -603,7 +603,9 @@ await test('paginate - async fetch resolves items through derived', async expect
 
 	const page = paginate(
 		(start, end) =>
-			new Promise(r => setTimeout(() => r(data.slice(start, end)), 10)),
+			new Promise(r =>
+				setTimeout(() => r(data.slice(start, end)), 10),
+			),
 		{
 			numItems: () => 6,
 			numPerPage: () => 2,

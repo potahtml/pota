@@ -414,7 +414,9 @@ console.log(block.trim())
 console.log()
 
 if (NO_WRITE) {
-	console.log(`[bench] --no-write: skipping results.md / results-short.md`)
+	console.log(
+		`[bench] --no-write: skipping results.md / results-short.md`,
+	)
 } else {
 	await writeFormatted(RESULTS, block)
 

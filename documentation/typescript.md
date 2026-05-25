@@ -147,8 +147,8 @@ under `tests/typescript/` (and
 | `jsx.tsx`        | Intrinsic elements, attributes, events, `prop:*`, `on:*`, `use:*`, Properties<T>, component utility types (Component, ParentComponent, VoidComponent, FlowComponent, ComponentType, Children, Context, Dynamic)                           |
 | `components.tsx` | Built-in components, user component patterns, Dynamic, HOC, generic user components                                                                                                                                                       |
 | `reactive.tsx`   | signal/memo/derived and all reactive primitives (effect, on, batch, untrack, cleanup, owned, action, withValue, etc.), context patterns                                                                                                   |
-| `store.tsx`      | signalify, mutable, merge/replace/reset, copy, readonly, project, updateBlacklist                                                                                                                                                          |
-| `utility.tsx`    | Component() runtime, render/insert/toHTML, getValue, setAttribute/setProperty/setStyle/setClass/setClassList, ready/readyAsync, xml                                                                                                         |
+| `store.tsx`      | signalify, mutable, merge/replace/reset, copy, readonly, project, updateBlacklist                                                                                                                                                         |
+| `utility.tsx`    | Component() runtime, render/insert/toHTML, getValue, setAttribute/setProperty/setStyle/setClass/setClassList, ready/readyAsync, xml                                                                                                       |
 | `use.tsx`        | Smoke tests for `pota/use/*` subpath exports                                                                                                                                                                                              |
 | `types.tsx`      | Pure type assertions: Accessor/When/Each/Accessed, Merge, ComponentProps, Signal primitive types, JSX.Element/ElementType/ElementClass/DOMElement/Props/Elements/BooleanAttribute/StyleAttribute/EventType/EventHandler/IntrinsicElements |
 
@@ -274,16 +274,16 @@ is the DOM property type with an ergonomic widening:
 
 ```ts
 type PropValue =
-  | string
-  | number
-  | boolean
-  | null
-  | MediaStream
-  | MediaSource
-  | Blob
-  | File
-  | Element
-  | Date;
+	| string
+	| number
+	| boolean
+	| null
+	| MediaStream
+	| MediaSource
+	| Blob
+	| File
+	| Element
+	| Date
 ```
 
 This auto-generates through `Properties<T>`:
@@ -384,8 +384,8 @@ TypeScript's inference path.
 
 ```ts
 type Dynamic<T, P = ComponentProps<T>> = {
-  [K in keyof P]: Accessor<P[K]>;
-} & { component: T };
+	[K in keyof P]: Accessor<P[K]>
+} & { component: T }
 ```
 
 This lets users pass signals, memos, deriveds, or plain functions to

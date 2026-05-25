@@ -8,8 +8,8 @@ import { addEvent } from '../lib/reactive.js'
  * Returns a ref function that copies text to the clipboard on click.
  *
  * - When `value` is a string or number, that value is copied.
- * - When `value` is a function, it is called with the click event
- *   and its return value is copied.
+ * - When `value` is a function, it is called with the click event and
+ *   its return value is copied.
  * - When `value` is `true`, the element's trimmed `innerText` is
  *   copied.
  *

@@ -169,11 +169,7 @@ if (HEAP_MODE) {
 	const totalSize = flat[0].inclusiveSize
 
 	// Show top by self size and top by inclusive size.
-	const SYNTHETIC_HEAP = new Set([
-		'(root)',
-		'(program)',
-		'',
-	])
+	const SYNTHETIC_HEAP = new Set(['(root)', '(program)', ''])
 	const sortedSelf = flat
 		.filter(
 			n =>
@@ -201,13 +197,13 @@ if (HEAP_MODE) {
 		const name = fn.functionName || '(anonymous)'
 		const url = (fn.url || '').replace(/^https?:\/\/[^/]+/, '')
 		const loc = fn.lineNumber >= 0 ? `:${fn.lineNumber + 1}` : ''
-		const sz = (n.selfSize > 0
-			? fmtSize(n.selfSize)
-			: fmtSize(n.inclusiveSize)
+		const sz = (
+			n.selfSize > 0 ? fmtSize(n.selfSize) : fmtSize(n.inclusiveSize)
 		).padStart(10)
-		const pct = ((n.selfSize > 0 ? n.selfSize : n.inclusiveSize) /
-			denom *
-			100)
+		const pct = (
+			((n.selfSize > 0 ? n.selfSize : n.inclusiveSize) / denom) *
+			100
+		)
 			.toFixed(1)
 			.padStart(5)
 		return `  ${sz}  ${pct}%  ${name}  ${url}${loc}`
@@ -264,7 +260,8 @@ if (TRACE_MODE) {
 
 	console.log('[prof] capturing trace...')
 	await client.send('Tracing.start', {
-		categories: 'devtools.timeline,disabled-by-default-devtools.timeline',
+		categories:
+			'devtools.timeline,disabled-by-default-devtools.timeline',
 		options: 'record-as-much-as-possible',
 		transferMode: 'SendEvents',
 	})
@@ -438,8 +435,7 @@ for (let i = 0; i < samples.length; i++) {
 // Find roots (nodes nobody references as a child).
 const childIds = new Set()
 for (const node of byId.values()) {
-	if (node.children)
-		for (const c of node.children) childIds.add(c)
+	if (node.children) for (const c of node.children) childIds.add(c)
 }
 const roots = [...byId.values()].filter(n => !childIds.has(n.id))
 
@@ -484,7 +480,9 @@ function row(n, denomSelf, denomIncl) {
 	const sm = (n.selfTime / 1000).toFixed(2).padStart(7)
 	const sp = ((n.selfTime / denomSelf) * 100).toFixed(1).padStart(5)
 	const im = (n.inclusiveTime / 1000).toFixed(2).padStart(7)
-	const ip = ((n.inclusiveTime / denomIncl) * 100).toFixed(1).padStart(5)
+	const ip = ((n.inclusiveTime / denomIncl) * 100)
+		.toFixed(1)
+		.padStart(5)
 	return `  ${sm}ms  ${sp}%   ${im}ms  ${ip}%   ${name}  ${url}${loc}`
 }
 
@@ -522,8 +520,7 @@ for (let i = 0; i < Math.min(20, realFrames.length); i++) {
 const byInclusive = [...byId.values()]
 	.filter(
 		n =>
-			n.inclusiveTime > 0 &&
-			!SYNTHETIC.has(n.callFrame.functionName),
+			n.inclusiveTime > 0 && !SYNTHETIC.has(n.callFrame.functionName),
 	)
 	.sort((a, b) => b.inclusiveTime - a.inclusiveTime)
 

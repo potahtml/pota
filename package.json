@@ -145,7 +145,10 @@
 		"arrowParens": "avoid",
 		"bracketSameLine": false,
 		"bracketSpacing": true,
-		"quoteProps": "as-needed"
+		"quoteProps": "as-needed",
+		"proseWrap": "always",
+		"endOfLine": "lf",
+		"singleAttributePerLine": true
 	},
 	"repository": {
 		"type": "git",

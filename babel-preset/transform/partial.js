@@ -114,9 +114,9 @@ export function buildPartial(path, state) {
 	 * De-duplicate attributes when there is no spread.
 	 *
 	 * Spreads already de-duplicate via JS object-literal semantics in
-	 * the `assignProps` call (last key wins), so we only do this in
-	 * the absence of a spread: `<div style="duplicate1"
-	 * style="duplicate2" />` keeps the last.
+	 * the `assignProps` call (last key wins), so we only do this in the
+	 * absence of a spread: `<div style="duplicate1" style="duplicate2"
+	 * />` keeps the last.
 	 *
 	 * Done before `inlineStyles` so the folder sees at most one
 	 * `style=` per element and does not have to reason about merging

@@ -77,8 +77,9 @@ export const visible = (handler, opts) => node =>
 	onVisible(node, handler, opts)
 
 /**
- * Ref factory for `<img>`: swaps `src` from `data-src` (or `opts.src`)
- * the first time the element enters view, then disconnects.
+ * Ref factory for `<img>`: swaps `src` from `data-src` (or
+ * `opts.src`) the first time the element enters view, then
+ * disconnects.
  *
  * @param {{ src?: string; rootMargin?: string }} [opts]
  * @url https://pota.quack.uy/use/intersection

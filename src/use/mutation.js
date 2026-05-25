@@ -14,7 +14,9 @@ const getEmitter = (node, init) =>
 		() =>
 			new Emitter({
 				on: dispatch => {
-					const mo = new MutationObserver(records => dispatch(records))
+					const mo = new MutationObserver(records =>
+						dispatch(records),
+					)
 					mo.observe(node, init ?? { childList: true, subtree: true })
 					return () => mo.disconnect()
 				},
@@ -23,14 +25,15 @@ const getEmitter = (node, init) =>
 
 /**
  * Returns a signal accessor that reflects the latest batch of
- * `MutationRecord`s for `node`. Multiple subscribers on the same
- * node share one observer; `init` from later calls is ignored.
+ * `MutationRecord`s for `node`. Multiple subscribers on the same node
+ * share one observer; `init` from later calls is ignored.
  *
  * @param {Node} node
  * @param {MutationObserverInit} [init]
  * @url https://pota.quack.uy/use/mutation
  */
-export const useMutations = (node, init) => getEmitter(node, init).use()
+export const useMutations = (node, init) =>
+	getEmitter(node, init).use()
 
 /**
  * Registers a callback fired on each batch of mutations for `node`.
@@ -49,8 +52,8 @@ export const onMutations = (node, fn, init) =>
 
 /**
  * Ref factory: invokes `handler` with each batch of `MutationRecord`s
- * observed on the element. Default `init` is
- * `{ childList: true, subtree: true }`.
+ * observed on the element. Default `init` is `{ childList: true,
+ * subtree: true }`.
  *
  * @param {(records: MutationRecord[]) => void} handler
  * @param {MutationObserverInit} [init]

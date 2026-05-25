@@ -88,7 +88,9 @@ await test('selection - restoreSelection handles a previously saved range twice 
 // --- clickSelectsAll on a disposed element does not throw --------
 
 await test('selection - clickSelectsAll is cleaned up on dispose', async expect => {
-	const dispose = render(<div use:ref={clickSelectsAll}>selected</div>)
+	const dispose = render(
+		<div use:ref={clickSelectsAll}>selected</div>,
+	)
 
 	await microtask()
 

@@ -13,8 +13,8 @@ const root = process.cwd()
 const potaPreset = path.join(root, 'babel-preset/babel-preset.js')
 
 /**
- * Babel plugin: injects the source line number as a third argument
- * to `test('title', fn)` calls so the runner can print clickable
+ * Babel plugin: injects the source line number as a third argument to
+ * `test('title', fn)` calls so the runner can print clickable
  * file:line links for failing tests. Only annotates calls whose
  * `test` identifier resolves to a direct import of pota's test
  * function (`pota/use/test` or the `#test` alias). Local wrappers
@@ -25,10 +25,7 @@ function annotateTestLine() {
 		visitor: {
 			CallExpression(p) {
 				const callee = p.node.callee
-				if (
-					callee.type !== 'Identifier' ||
-					callee.name !== 'test'
-				)
+				if (callee.type !== 'Identifier' || callee.name !== 'test')
 					return
 				if (p.node.arguments.length >= 3) return
 				const binding = p.scope.getBinding('test')
@@ -49,7 +46,7 @@ function annotateTestLine() {
 }
 
 /**
- * esbuild onLoad plugin: runs pota's Babel preset on .jsx/.tsx and
+ * Esbuild onLoad plugin: runs pota's Babel preset on .jsx/.tsx and
  * preset-typescript on .ts/.tsx. Plain .js files go straight through
  * esbuild's own parser (faster).
  */
@@ -87,11 +84,11 @@ const babelPlugin = {
 const cache = new Map()
 
 /**
- * Bundles a test entry into a single self-contained module. Wraps
- * the user's test file in a synthetic entry that imports it for
- * side effects (tests register on import), then calls `run()` from
- * `#test` to flush results. The inline sourcemap points at original
- * sources so DevTools and c8 see real file paths.
+ * Bundles a test entry into a single self-contained module. Wraps the
+ * user's test file in a synthetic entry that imports it for side
+ * effects (tests register on import), then calls `run()` from `#test`
+ * to flush results. The inline sourcemap points at original sources
+ * so DevTools and c8 see real file paths.
  *
  * @param {string} entryPath Absolute path to a test file.
  * @returns {Promise<string>}

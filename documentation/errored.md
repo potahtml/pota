@@ -7,18 +7,17 @@ constructor in user code. Tests at `tests/api/components/errored.jsx`.
 ## API
 
 ```jsx
-import { Errored } from "pota/components";
-
-<Errored
-  fallback={(err, reset) => (
-    <div>
-      <p>{err.message}</p>
-      <button on:click={reset}>retry</button>
-    </div>
-  )}
+import { Errored } from 'pota/components'
+;<Errored
+	fallback={(err, reset) => (
+		<div>
+			<p>{err.message}</p>
+			<button on:click={reset}>retry</button>
+		</div>
+	)}
 >
-  <MayThrow />
-</Errored>;
+	<MayThrow />
+</Errored>
 ```
 
 ### Props
@@ -83,12 +82,12 @@ private `Symbol` (`errorHandlerId`) is created inside
 single O(1) context lookup:
 
 ```js
-const errorHandlerId = Symbol();
+const errorHandlerId = Symbol()
 
 function routeError(node, err) {
-  const handler = node.context && node.context[errorHandlerId];
-  if (handler) handler(err);
-  else console.error(err);
+	const handler = node.context && node.context[errorHandlerId]
+	if (handler) handler(err)
+	else console.error(err)
 }
 ```
 
@@ -133,32 +132,32 @@ The two catch levels handle different phases:
 
 ```js
 function catchError(fn, handler) {
-  let result;
-  syncEffect(() => {
-    const parentHandler =
-      Owner.context && Owner.context[errorHandlerId];
+	let result
+	syncEffect(() => {
+		const parentHandler =
+			Owner.context && Owner.context[errorHandlerId]
 
-    const safeHandler = (err) => {
-      try {
-        handler(err);
-      } catch (handlerErr) {
-        if (parentHandler) parentHandler(handlerErr);
-        else console.error(handlerErr);
-      }
-    };
+		const safeHandler = err => {
+			try {
+				handler(err)
+			} catch (handlerErr) {
+				if (parentHandler) parentHandler(handlerErr)
+				else console.error(handlerErr)
+			}
+		}
 
-    Owner.context = {
-      ...Owner.context,
-      [errorHandlerId]: safeHandler,
-    };
-    try {
-      result = untrack(fn);
-    } catch (err) {
-      Owner.disposeOwned();
-      safeHandler(err);
-    }
-  });
-  return result;
+		Owner.context = {
+			...Owner.context,
+			[errorHandlerId]: safeHandler,
+		}
+		try {
+			result = untrack(fn)
+		} catch (err) {
+			Owner.disposeOwned()
+			safeHandler(err)
+		}
+	})
+	return result
 }
 ```
 
@@ -187,33 +186,33 @@ try/catch and routes errors via `routeError(this, err)`. This ensures:
 ### 2. Component — `src/components/Errored.js`
 
 ```js
-const noError = Symbol();
+const noError = Symbol()
 
 /** @type {FlowComponent<{ fallback?: ... }>} */
-export const Errored = (props) => {
-  const [err, writeErr] = signal(noError);
-  const [attempt, , updateAttempt] = signal(0);
+export const Errored = props => {
+	const [err, writeErr] = signal(noError)
+	const [attempt, , updateAttempt] = signal(0)
 
-  const fallback = makeCallback(props.fallback);
+	const fallback = makeCallback(props.fallback)
 
-  const reset = () => {
-    batch(() => {
-      writeErr(noError);
-      updateAttempt((n) => n + 1);
-    });
-  };
+	const reset = () => {
+		batch(() => {
+			writeErr(noError)
+			updateAttempt(n => n + 1)
+		})
+	}
 
-  const children = memo(() => {
-    attempt();
-    return catchError(() => toHTMLFragment(props.children), writeErr);
-  });
+	const children = memo(() => {
+		attempt()
+		return catchError(() => toHTMLFragment(props.children), writeErr)
+	})
 
-  return memo(() => {
-    const e = err();
-    if (e !== noError) return fallback(e, reset);
-    return children();
-  });
-};
+	return memo(() => {
+		const e = err()
+		if (e !== noError) return fallback(e, reset)
+		return children()
+	})
+}
 ```
 
 Notes on the shape:

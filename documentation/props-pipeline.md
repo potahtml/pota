@@ -43,8 +43,8 @@ the `xml` tagged template so colon-prefixed attributes are legal XML.
 ### Registration
 
 ```js
-propsPlugin(name, fn, (onMicrotask = true));
-propsPluginNS(nsName, fn, (onMicrotask = true));
+propsPlugin(name, fn, (onMicrotask = true))
+propsPluginNS(nsName, fn, (onMicrotask = true))
 ```
 
 `onMicrotask=true` is the **default** — the handler runs via
@@ -177,11 +177,11 @@ etc.), use the `use:ref` callback with a factory from `pota/use/*` or
 your own:
 
 ```js
-import { clickOutside } from "pota/use/clickoutside";
+import { clickOutside } from 'pota/use/clickoutside'
 
-const myFocus = node => node.focus();
+const myFocus = node => node.focus()
 
-<input use:ref={[myFocus, clickOutside(() => close())]} />;
+;<input use:ref={[myFocus, clickOutside(() => close())]} />
 ```
 
 `use:ref` accepts a function or any nested array of functions; each

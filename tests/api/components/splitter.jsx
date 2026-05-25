@@ -53,9 +53,7 @@ await test('Splitter - renders a separator with vertical defaults', async expect
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	expect(handle.tagName).toBe('DIV')
 	expect(handle.getAttribute('role')).toBe('separator')
 	expect(handle.getAttribute('data-orientation')).toBe('vertical')
@@ -80,9 +78,7 @@ await test('Splitter - horizontal orientation reflects on attributes', async exp
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	expect(handle.getAttribute('data-orientation')).toBe('horizontal')
 	expect(handle.getAttribute('aria-orientation')).toBe('horizontal')
 
@@ -100,9 +96,7 @@ await test('Splitter - applies the class prop', async expect => {
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	expect(handle.classList.contains('custom')).toBe(true)
 
 	dispose()
@@ -203,9 +197,7 @@ await test('Splitter - data-dragging toggles on pointerdown / pointerup', async 
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	stubCapture(handle)
 
 	expect(handle.hasAttribute('data-dragging')).toBe(false)
@@ -230,9 +222,7 @@ await test('Splitter - pointermove resizes prev sibling by delta (sign=+1)', asy
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	const left = /** @type {HTMLDivElement} */ ($('#left'))
 	stubCapture(handle)
 
@@ -259,9 +249,7 @@ await test('Splitter - target="next" inverts the drag sign', async expect => {
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	const right = /** @type {HTMLDivElement} */ ($('#right'))
 	stubCapture(handle)
 
@@ -286,9 +274,7 @@ await test('Splitter - horizontal drag uses clientY and resizes height', async e
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	const top = /** @type {HTMLDivElement} */ ($('#top'))
 	stubCapture(handle)
 
@@ -314,9 +300,7 @@ await test('Splitter - drag delta is measured from the pointerdown origin', asyn
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	const left = /** @type {HTMLDivElement} */ ($('#left'))
 	stubCapture(handle)
 
@@ -346,9 +330,7 @@ await test('Splitter - min clamps the resized width', async expect => {
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	const left = /** @type {HTMLDivElement} */ ($('#left'))
 	stubCapture(handle)
 
@@ -371,9 +353,7 @@ await test('Splitter - max clamps the resized width', async expect => {
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	const left = /** @type {HTMLDivElement} */ ($('#left'))
 	stubCapture(handle)
 
@@ -483,9 +463,7 @@ await test('Splitter - drag sets and pointerup clears body user-select + cursor'
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	stubCapture(handle)
 
 	pointer('pointerdown', handle, 100, 0)
@@ -510,9 +488,7 @@ await test('Splitter - horizontal drag sets row-resize cursor', async expect => 
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	stubCapture(handle)
 
 	pointer('pointerdown', handle, 0, 0)
@@ -535,9 +511,7 @@ await test('Splitter - dispose mid-drag still clears body inline styles', async 
 
 	await microtask()
 
-	const handle = /** @type {HTMLDivElement} */ (
-		$('[role=separator]')
-	)
+	const handle = /** @type {HTMLDivElement} */ ($('[role=separator]'))
 	stubCapture(handle)
 
 	pointer('pointerdown', handle, 100, 0)

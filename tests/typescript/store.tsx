@@ -30,7 +30,9 @@ import type {
 } from 'pota'
 
 // Identity checks — the public aliases resolve to the same types.
-const _pubMutable: PubMutable<{ a: number }> = {} as Mutable<{ a: number }>
+const _pubMutable: PubMutable<{ a: number }> = {} as Mutable<{
+	a: number
+}>
 const _pubRO: PubDeepReadonly<{ a: number }> = {} as DeepReadonly<{
 	a: number
 }>

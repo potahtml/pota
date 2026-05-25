@@ -74,7 +74,8 @@ declare namespace JSX {
 
 	/**
 	 * Called by TS with the component type `C` and the inferred props
-	 * shape `P` — the return type is what JSX actually validates against.
+	 * shape `P` — the return type is what JSX actually validates
+	 * against.
 	 *
 	 * For class components (extending `Pota` / any `ElementClass`), the
 	 * runtime `createClass` merges JSX props on top of the class's

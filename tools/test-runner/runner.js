@@ -72,10 +72,7 @@ if (!noClear) console.clear()
  * }} TestResults
  */
 
-/**
- * @typedef {Window &
- * 	typeof globalThis & { __pota_results__: TestResults }} TestWindow
- */
+/** @typedef {Window & typeof globalThis & { __pota_results__: TestResults }} TestWindow */
 
 // --- scan test files ---
 

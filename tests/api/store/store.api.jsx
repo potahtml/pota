@@ -1,8 +1,8 @@
 /** @jsxImportSource pota */
 
 /**
- * Tests for the `store` API — a `[DeepReadonly<T>, setStore]`
- * tuple over a mutable, with batched writes.
+ * Tests for the `store` API — a `[DeepReadonly<T>, setStore]` tuple
+ * over a mutable, with batched writes.
  */
 
 import { test } from '#test'

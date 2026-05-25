@@ -15,21 +15,22 @@ type AtLimit<D extends Budget> = D['length'] extends 50 ? true : false
 
 type Accessor<T> = (() => Accessor<T>) | SignalAccessor<T> | T
 
-type Accessed<T, D extends Budget = []> = AtLimit<D> extends true
-	? T
-	: T extends PromiseLike<infer R>
-		? Accessed<R, Bump<D>>
-		: T extends Derived<infer R>
+type Accessed<T, D extends Budget = []> =
+	AtLimit<D> extends true
+		? T
+		: T extends PromiseLike<infer R>
 			? Accessed<R, Bump<D>>
-			: T extends DerivedSignal<infer R>
+			: T extends Derived<infer R>
 				? Accessed<R, Bump<D>>
-				: T extends SignalAccessor<infer R>
+				: T extends DerivedSignal<infer R>
 					? Accessed<R, Bump<D>>
-					: T extends SignalFunction<infer R>
+					: T extends SignalAccessor<infer R>
 						? Accessed<R, Bump<D>>
-						: T extends { (): infer R }
+						: T extends SignalFunction<infer R>
 							? Accessed<R, Bump<D>>
-							: T
+							: T extends { (): infer R }
+								? Accessed<R, Bump<D>>
+								: T
 
 type Attribute<T> =
 	| (() => Attribute<T>)
@@ -41,21 +42,23 @@ type Attribute<T> =
  * Result of recursively invoking functions and flattening nested
  * arrays — mirrors the runtime behavior of `unwrap`/`resolve`.
  */
-type Resolved<T, D extends Budget = []> = AtLimit<D> extends true
-	? T
-	: T extends readonly (infer U)[]
-		? Array<ResolvedDeep<U, Bump<D>>>
-		: T extends () => infer R
-			? Resolved<R, Bump<D>>
-			: T
+type Resolved<T, D extends Budget = []> =
+	AtLimit<D> extends true
+		? T
+		: T extends readonly (infer U)[]
+			? Array<ResolvedDeep<U, Bump<D>>>
+			: T extends () => infer R
+				? Resolved<R, Bump<D>>
+				: T
 
-type ResolvedDeep<T, D extends Budget = []> = AtLimit<D> extends true
-	? T
-	: T extends readonly (infer U)[]
-		? ResolvedDeep<U, Bump<D>>
-		: T extends () => infer R
-			? ResolvedDeep<R, Bump<D>>
-			: T
+type ResolvedDeep<T, D extends Budget = []> =
+	AtLimit<D> extends true
+		? T
+		: T extends readonly (infer U)[]
+			? ResolvedDeep<U, Bump<D>>
+			: T extends () => infer R
+				? ResolvedDeep<R, Bump<D>>
+				: T
 
 // dom
 
