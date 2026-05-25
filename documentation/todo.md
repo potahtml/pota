@@ -25,9 +25,6 @@
 
 ### use / components
 
-- input, keyboard + mouse + controller
-- favicon
-- audio/media
 - tooltip
 - handle/listen postMessage/MessageChannel
 - color picker
