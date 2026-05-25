@@ -289,3 +289,103 @@ await test('CustomElement - emit with no second argument still dispatches the ev
 
 	element.remove()
 })
+
+// --- hasDefaultSlot ----------------------------------------------------
+
+await test('CustomElement - hasDefaultSlot is true when a child lacks the slot attribute', expect => {
+	class El extends CustomElement {}
+	customElement('pota-test-ce-default-slot', El)
+
+	const dispose = render(
+		<pota-test-ce-default-slot>
+			<span slot="header">Header</span>
+			<p>Body</p>
+		</pota-test-ce-default-slot>,
+	)
+	const element = /** @type {El} */ (
+		$('pota-test-ce-default-slot')
+	)
+	expect(element.hasDefaultSlot()).toBe(true)
+
+	dispose()
+})
+
+await test('CustomElement - hasDefaultSlot is false when every child has slot=""', expect => {
+	class El extends CustomElement {}
+	customElement('pota-test-ce-named-only', El)
+
+	const dispose = render(
+		<pota-test-ce-named-only>
+			<span slot="header">Header</span>
+			<span slot="footer">Footer</span>
+		</pota-test-ce-named-only>,
+	)
+	const element = /** @type {El} */ ($('pota-test-ce-named-only'))
+	expect(element.hasDefaultSlot()).toBe(false)
+
+	dispose()
+})
+
+await test('CustomElement - hasDefaultSlot ignores whitespace-only text nodes', expect => {
+	class El extends CustomElement {}
+	customElement('pota-test-ce-text-slot', El)
+
+	const element = /** @type {El} */ (
+		document.createElement('pota-test-ce-text-slot')
+	)
+	document.body.appendChild(element)
+
+	element.appendChild(document.createTextNode('   '))
+	expect(element.hasDefaultSlot()).toBe(false)
+
+	element.appendChild(document.createTextNode('hello'))
+	expect(element.hasDefaultSlot()).toBe(true)
+
+	element.remove()
+})
+
+// --- onSlotChange ------------------------------------------------------
+
+await test('CustomElement - onSlotChange fires for matching slot and returns a disposer', async expect => {
+	class El extends CustomElement {
+		constructor() {
+			super()
+			this.html = '<slot name="title"></slot><slot></slot>'
+		}
+	}
+	customElement('pota-test-ce-onslot', El)
+
+	const element = /** @type {El} */ (
+		document.createElement('pota-test-ce-onslot')
+	)
+	document.body.appendChild(element)
+
+	const titleCalls = []
+	const defaultCalls = []
+	const offTitle = element.onSlotChange('title', s =>
+		titleCalls.push(s.name),
+	)
+	const offDefault = element.onSlotChange(undefined, s =>
+		defaultCalls.push(s.name),
+	)
+
+	// populating the host triggers slot assignment in the shadow DOM,
+	// which fires `slotchange` on each matched <slot>.
+	element.innerHTML =
+		'<span slot="title">T</span><b>B</b>'
+	await microtask()
+
+	expect(titleCalls).toEqual(['title'])
+	expect(defaultCalls).toEqual([''])
+
+	// disposer removes the listener — further slot churn is ignored.
+	offTitle()
+	offDefault()
+	element.innerHTML = ''
+	await microtask()
+
+	expect(titleCalls).toEqual(['title'])
+	expect(defaultCalls).toEqual([''])
+
+	element.remove()
+})

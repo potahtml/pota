@@ -108,4 +108,47 @@ export class CustomElement extends HTMLElement {
 	hasSlot(name) {
 		return this.query(`:scope [slot="${name}"]`)
 	}
+
+	/**
+	 * Returns `true` when the host has at least one default-slotted
+	 * child — either a non-whitespace text node, or an element without
+	 * a `slot=""` attribute.
+	 *
+	 * @returns {boolean}
+	 */
+	hasDefaultSlot() {
+		for (const node of this.childNodes) {
+			if (node.nodeType === Node.TEXT_NODE) {
+				if (
+					/** @type {Text} */ (node).textContent?.trim() !== ''
+				)
+					return true
+			} else if (node.nodeType === Node.ELEMENT_NODE) {
+				if (!/** @type {Element} */ (node).hasAttribute('slot'))
+					return true
+			}
+		}
+		return false
+	}
+
+	/**
+	 * Subscribes to `slotchange` events in the shadow root. When
+	 * `name` is provided, only fires for that named `<slot>`; when
+	 * `name` is `undefined` it matches the default (unnamed) slot.
+	 * Returns a disposer that removes the listener.
+	 *
+	 * @param {string | undefined} name
+	 * @param {(slot: HTMLSlotElement) => void} fn
+	 * @returns {() => void}
+	 */
+	onSlotChange(name, fn) {
+		const target = name ?? ''
+		const handler = (/** @type {Event} */ e) => {
+			const slot = /** @type {HTMLSlotElement} */ (e.target)
+			if (slot.name === target) fn(slot)
+		}
+		this.shadowRoot.addEventListener('slotchange', handler)
+		return () =>
+			this.shadowRoot.removeEventListener('slotchange', handler)
+	}
 }

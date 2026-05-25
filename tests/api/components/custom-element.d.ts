@@ -22,5 +22,11 @@ declare namespace JSX {
 
 		'pota-test-custom-element-query-null': HTMLElementAttributes<HTMLElement> &
 			Properties<HTMLElement>
+
+		'pota-test-ce-default-slot': HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
+
+		'pota-test-ce-named-only': HTMLElementAttributes<HTMLElement> &
+			Properties<HTMLElement>
 	}
 }
