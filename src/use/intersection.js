@@ -41,23 +41,36 @@ export const useVisible = (node, opts) => getEmitter(node, opts).use()
  * The callback is **not** invoked with the pre-observer placeholder —
  * only with real `IntersectionObserverEntry`s.
  *
+ * With `opts.once`, the subscription auto-unsubscribes after the
+ * first entry where `isIntersecting` is `true` (entries that fire on
+ * exit are ignored). Useful for lazy-load / reveal-on-scroll where
+ * you only care about the first arrival into view.
+ *
  * @param {Element} node
  * @param {(entry: IntersectionObserverEntry) => void} fn
- * @param {IntersectionObserverInit} [opts]
+ * @param {IntersectionObserverInit & { once?: boolean }} [opts]
  * @url https://pota.quack.uy/use/intersection
  */
-export const onVisible = (node, fn, opts) =>
+export const onVisible = (node, fn, opts) => {
+	let fired = false
 	getEmitter(node, opts).on(entry => {
-		if (entry !== undefined) fn(entry)
+		if (entry === undefined) return
+		if (opts?.once) {
+			if (fired || !entry.isIntersecting) return
+			fired = true
+		}
+		fn(entry)
 	})
+}
 
 /**
  * Ref factory: invokes `handler` with the latest
  * `IntersectionObserverEntry` whenever the element's intersection
- * with the viewport (or `opts.root`) changes.
+ * with the viewport (or `opts.root`) changes. Pass `opts.once` to
+ * fire only on first intersection and then auto-unsubscribe.
  *
  * @param {(entry: IntersectionObserverEntry) => void} handler
- * @param {IntersectionObserverInit} [opts]
+ * @param {IntersectionObserverInit & { once?: boolean }} [opts]
  * @url https://pota.quack.uy/use/intersection
  */
 export const visible = (handler, opts) => node =>
