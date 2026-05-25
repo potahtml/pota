@@ -219,3 +219,68 @@ export function useElapsed(timestamp) {
 	).start()
 	return read
 }
+
+/**
+ * Reactive stopwatch. Counts elapsed milliseconds while running;
+ * `stop()` pauses (preserving the accumulated total), `start()`
+ * resumes, `reset()` zeros it. The `elapsed` accessor updates on a
+ * fixed interval — default `1000`ms, one tick per second. For finer
+ * resolution either lower `interval` or drive it from
+ * `useAnimationFrame` reading `now()` directly.
+ *
+ * Auto-cleans on scope dispose via the underlying `useTimeout`.
+ *
+ * @param {{ autoStart?: boolean; interval?: number }} [opts]
+ * @returns {{
+ * 	elapsed: () => number
+ * 	running: () => boolean
+ * 	start: () => any
+ * 	stop: () => any
+ * 	reset: () => any
+ * }}
+ * @url https://pota.quack.uy/use/time
+ */
+export function useStopwatch(opts) {
+	const interval = opts?.interval ?? 1000
+	const [elapsed, write] = signal(0)
+	const [running, setRunning] = signal(false)
+	let startedAt = 0
+	let accumulated = 0
+
+	const ticker = useTimeout(function tick() {
+		// `running` is read without subscribing — we're inside the
+		// setTimeout callback, not a reactive scope.
+		write(accumulated + (now() - startedAt))
+		ticker.start()
+	}, interval)
+
+	const ctrl = {
+		elapsed,
+		running,
+		start: () => {
+			if (running()) return ctrl
+			startedAt = now()
+			setRunning(true)
+			ticker.start()
+			return ctrl
+		},
+		stop: () => {
+			if (!running()) return ctrl
+			accumulated += now() - startedAt
+			setRunning(false)
+			ticker.stop()
+			write(accumulated)
+			return ctrl
+		},
+		reset: () => {
+			accumulated = 0
+			startedAt = running() ? now() : 0
+			write(0)
+			return ctrl
+		},
+	}
+
+	if (opts?.autoStart) ctrl.start()
+
+	return ctrl
+}

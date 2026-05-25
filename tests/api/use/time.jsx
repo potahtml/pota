@@ -15,6 +15,7 @@ import {
 	timeWithSeconds,
 	timing,
 	useElapsed,
+	useStopwatch,
 	useTimeout,
 } from 'pota/use/time'
 
@@ -155,6 +156,95 @@ await test('time - date formats January 1st correctly', expect => {
 await test('time - date formats double-digit month and day without padding', expect => {
 	const ts = new Date(2020, 10, 15, 12, 0, 0).getTime()
 	expect(date(ts)).toBe('2020-11-15')
+})
+
+// --- useStopwatch ---------------------------------------------------
+
+await test('time - useStopwatch starts at zero and counts while running', async expect => {
+	await root(async dispose => {
+		const sw = useStopwatch({ interval: 10 })
+
+		expect(sw.elapsed()).toBe(0)
+		expect(sw.running()).toBe(false)
+
+		sw.start()
+		expect(sw.running()).toBe(true)
+
+		await sleep(40)
+		expect(sw.elapsed() > 0).toBe(true)
+
+		dispose()
+	})
+})
+
+await test('time - useStopwatch stop pauses the counter at its current value', async expect => {
+	await root(async dispose => {
+		const sw = useStopwatch({ interval: 10 })
+		sw.start()
+		await sleep(30)
+		sw.stop()
+
+		expect(sw.running()).toBe(false)
+		const paused = sw.elapsed()
+		expect(paused > 0).toBe(true)
+
+		await sleep(40)
+		expect(sw.elapsed()).toBe(paused)
+
+		dispose()
+	})
+})
+
+await test('time - useStopwatch start resumes from the accumulated total', async expect => {
+	await root(async dispose => {
+		const sw = useStopwatch({ interval: 10 })
+		sw.start()
+		await sleep(30)
+		sw.stop()
+		const first = sw.elapsed()
+
+		sw.start()
+		await sleep(30)
+		expect(sw.elapsed() > first).toBe(true)
+
+		dispose()
+	})
+})
+
+await test('time - useStopwatch reset zeros the counter', async expect => {
+	await root(async dispose => {
+		const sw = useStopwatch({ interval: 10, autoStart: true })
+		await sleep(30)
+		expect(sw.elapsed() > 0).toBe(true)
+
+		sw.reset()
+		expect(sw.elapsed()).toBe(0)
+
+		dispose()
+	})
+})
+
+await test('time - useStopwatch autoStart begins running immediately', async expect => {
+	await root(dispose => {
+		const sw = useStopwatch({ autoStart: true })
+		expect(sw.running()).toBe(true)
+		dispose()
+	})
+})
+
+await test('time - useStopwatch stops ticking on scope dispose', async expect => {
+	/** @type {ReturnType<typeof useStopwatch>} */
+	let sw
+	await root(d => {
+		sw = useStopwatch({ interval: 10, autoStart: true })
+		d()
+	})
+
+	const after = sw.elapsed()
+	await sleep(40)
+	// after dispose the underlying useTimeout is cleaned up; elapsed
+	// is frozen.
+	expect(sw.elapsed()).toBe(after)
 })
 
 // --- time formatter pads single-digit values ------------------------
