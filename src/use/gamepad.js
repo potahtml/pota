@@ -1,9 +1,10 @@
-import { cleanup, signal } from '../lib/reactive.js'
+import { signal } from '../lib/reactive.js'
 import {
 	cancelAnimationFrame,
 	requestAnimationFrame,
 	window,
 } from '../lib/std.js'
+import { Emitter } from './emitter.js'
 
 // The Gamepad API has no per-button events: state is sampled via
 // `navigator.getGamepads()` each frame. So this module runs a
@@ -23,7 +24,6 @@ const buttonValue = new Map()
 const axisValue = new Map()
 
 let rafId = 0
-let consumers = 0
 
 const ensureConnected = index => {
 	let entry = connectedSignals.get(index)
@@ -86,15 +86,20 @@ const poll = () => {
 	}
 }
 
-const subscribe = () => {
-	if (++consumers === 1) rafId = requestAnimationFrame(poll)
-	cleanup(() => {
-		if (--consumers === 0 && rafId) {
-			cancelAnimationFrame(rafId)
-			rafId = 0
+// Emitter refcounts the rAF poll loop: the first `use()` starts it,
+// the last consumer's cleanup stops it. `rafId` is reassigned inside
+// `poll` itself, so the teardown reads the live module-level binding.
+const rafLifecycle = new Emitter({
+	on: () => {
+		rafId = requestAnimationFrame(poll)
+		return () => {
+			if (rafId) {
+				cancelAnimationFrame(rafId)
+				rafId = 0
+			}
 		}
-	})
-}
+	},
+})
 
 /**
  * Reactive accessor for whether the gamepad at `index` is currently
@@ -106,7 +111,7 @@ const subscribe = () => {
  * @url https://pota.quack.uy/use/gamepad
  */
 export const useGamepadConnected = (index = 0) => {
-	subscribe()
+	rafLifecycle.use()
 	return ensureConnected(index)[0]
 }
 
@@ -121,7 +126,7 @@ export const useGamepadConnected = (index = 0) => {
  * @url https://pota.quack.uy/use/gamepad
  */
 export const useGamepadButton = (buttonIndex, gamepadIndex = 0) => {
-	subscribe()
+	rafLifecycle.use()
 	return ensureBoolSignal(
 		buttonPressed,
 		key2(gamepadIndex, buttonIndex),
@@ -141,7 +146,7 @@ export const useGamepadButton = (buttonIndex, gamepadIndex = 0) => {
  * @url https://pota.quack.uy/use/gamepad
  */
 export const useGamepadTrigger = (buttonIndex, gamepadIndex = 0) => {
-	subscribe()
+	rafLifecycle.use()
 	return ensureNumberSignal(
 		buttonValue,
 		key2(gamepadIndex, buttonIndex),
@@ -158,7 +163,7 @@ export const useGamepadTrigger = (buttonIndex, gamepadIndex = 0) => {
  * @url https://pota.quack.uy/use/gamepad
  */
 export const useGamepadAxis = (axisIndex, gamepadIndex = 0) => {
-	subscribe()
+	rafLifecycle.use()
 	return ensureNumberSignal(
 		axisValue,
 		key2(gamepadIndex, axisIndex),
