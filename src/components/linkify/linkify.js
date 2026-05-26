@@ -42,7 +42,7 @@ const wraps = {
 	'`': s =>
 		Component('code', {
 			'on:click': () => copyToClipboard(s),
-			children: ['`', s, '`'],
+			children: `\`${s}\``,
 		}),
 }
 
