@@ -25,6 +25,4 @@
 
 ### use / components
 
-- handle/listen postMessage/MessageChannel
 - color picker
-- uploads
