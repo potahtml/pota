@@ -493,12 +493,12 @@ const mNullableV: string | null = mNullable()
 
 // --- memo over signals (the common case) ---
 
-const [count2] = signal(10)
-const mFromSignal = memo(() => count2() * 2)
+const count2 = signal(10)
+const mFromSignal = memo(() => count2.read() * 2)
 const mfsV: number = mFromSignal()
 
-const [name2] = signal('Tito')
-const mFromSignalStr = memo(() => `Hello, ${name2()}!`)
+const name2 = signal('Tito')
+const mFromSignalStr = memo(() => `Hello, ${name2.read()}!`)
 const mfssV: string = mFromSignalStr()
 
 // --- memo over a memo (nesting) ---
@@ -577,7 +577,7 @@ const mMatchWorkaround = memo(() => 'matched')
 // memo + signal interop in plain code (not JSX)
 // ============================================
 
-const mForArith = memo(() => count2() + 5)
+const mForArith = memo(() => count2.read() + 5)
 const mfaV: number = mForArith()
 
 // ============================================
@@ -753,10 +753,10 @@ const refInJsxSvg = <svg use:ref={svgRef} />
 // would require a wrapper like `on(() => [sig1(), sig2()], fn)`.
 
 // wrapper pattern for multiple deps
-const [depA, setDepA] = signal(0)
-const [depB, setDepB] = signal('x')
+const depA = signal(0)
+const depB = signal('x')
 on(
-	() => [depA(), depB()],
+	() => [depA.read(), depB.read()],
 	() => {
 		// fires whenever either signal changes
 	},
@@ -764,7 +764,7 @@ on(
 
 // with options
 on(
-	() => depA(),
+	() => depA.read(),
 	() => {
 		// fires only when depA changes
 	},

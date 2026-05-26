@@ -94,9 +94,9 @@ await test('Show - renders when `when` is a non-zero number', expect => {
 })
 
 await test('Show - signal: starts truthy', expect => {
-	const [visible] = signal(true)
+	const visible = signal(true)
 	const dispose = render(
-		<Show when={visible}>
+		<Show when={visible.read}>
 			<p>hello</p>
 		</Show>,
 	)
@@ -106,9 +106,9 @@ await test('Show - signal: starts truthy', expect => {
 })
 
 await test('Show - signal: starts falsy', expect => {
-	const [visible] = signal(false)
+	const visible = signal(false)
 	const dispose = render(
-		<Show when={visible} fallback={<p>fallback</p>}>
+		<Show when={visible.read} fallback={<p>fallback</p>}>
 			<p>hello</p>
 		</Show>,
 	)
@@ -118,46 +118,46 @@ await test('Show - signal: starts falsy', expect => {
 })
 
 await test('Show - signal: toggles from true to false', expect => {
-	const [visible, setVisible] = signal(true)
+	const visible = signal(true)
 	const dispose = render(
-		<Show when={visible} fallback={<p>fallback</p>}>
+		<Show when={visible.read} fallback={<p>fallback</p>}>
 			<p>hello</p>
 		</Show>,
 	)
 	expect(body()).toBe('<p>hello</p>')
-	setVisible(false)
+	visible.write(false)
 	expect(body()).toBe('<p>fallback</p>')
 
 	dispose()
 })
 
 await test('Show - signal: toggles from false to true', expect => {
-	const [visible, setVisible] = signal(false)
+	const visible = signal(false)
 	const dispose = render(
-		<Show when={visible} fallback={<p>fallback</p>}>
+		<Show when={visible.read} fallback={<p>fallback</p>}>
 			<p>hello</p>
 		</Show>,
 	)
 	expect(body()).toBe('<p>fallback</p>')
-	setVisible(true)
+	visible.write(true)
 	expect(body()).toBe('<p>hello</p>')
 
 	dispose()
 })
 
 await test('Show - signal: toggles multiple times', expect => {
-	const [visible, setVisible] = signal(true)
+	const visible = signal(true)
 	const dispose = render(
-		<Show when={visible} fallback={<p>fallback</p>}>
+		<Show when={visible.read} fallback={<p>fallback</p>}>
 			<p>hello</p>
 		</Show>,
 	)
 	expect(body()).toBe('<p>hello</p>')
-	setVisible(false)
+	visible.write(false)
 	expect(body()).toBe('<p>fallback</p>')
-	setVisible(true)
+	visible.write(true)
 	expect(body()).toBe('<p>hello</p>')
-	setVisible(false)
+	visible.write(false)
 	expect(body()).toBe('<p>fallback</p>')
 
 	dispose()
@@ -165,18 +165,18 @@ await test('Show - signal: toggles multiple times', expect => {
 
 await test('Show - signal: reactive value updates inside callback when signal changes', expect => {
 	// Note: use {v} not {v()} inside JSX - passing the function lets pota track it reactively
-	const [val, setVal] = signal(/** @type {string | boolean} */ ('a'))
+	const val = signal(/** @type {string | boolean} */ ('a'))
 	const dispose = render(
-		<Show when={val} fallback={<p>gone</p>}>
+		<Show when={val.read} fallback={<p>gone</p>}>
 			{v => <p>{v}</p>}
 		</Show>,
 	)
 	expect(body()).toBe('<p>a</p>')
-	setVal('b')
+	val.write('b')
 	expect(body()).toBe('<p>b</p>')
-	setVal(false)
+	val.write(false)
 	expect(body()).toBe('<p>gone</p>')
-	setVal('c')
+	val.write('c')
 	expect(body()).toBe('<p>c</p>')
 
 	dispose()
@@ -216,17 +216,17 @@ await test('Show - array of mixed elements and callbacks', expect => {
 })
 
 await test('Show - array of callbacks reacts to signal toggle', expect => {
-	const [val, setVal] = signal(/** @type {string | boolean} */ ('a'))
+	const val = signal(/** @type {string | boolean} */ ('a'))
 	const dispose = render(
-		<Show when={val} fallback={<p>gone</p>}>
+		<Show when={val.read} fallback={<p>gone</p>}>
 			{v => <p>{v()}-1</p>}
 			{v => <p>{v()}-2</p>}
 		</Show>,
 	)
 	expect(body()).toBe('<p>a-1</p><p>a-2</p>')
-	setVal(false)
+	val.write(false)
 	expect(body()).toBe('<p>gone</p>')
-	setVal('b')
+	val.write('b')
 	expect(body()).toBe('<p>b-1</p><p>b-2</p>')
 
 	dispose()
@@ -285,57 +285,57 @@ await test('Show - nested: outer true, inner false shows inner fallback', expect
 })
 
 await test('Show - nested: toggling outer signal also hides inner', expect => {
-	const [outer, setOuter] = signal(true)
-	const [inner, setInner] = signal(true)
+	const outer = signal(true)
+	const inner = signal(true)
 	const dispose = render(
-		<Show when={outer} fallback={<p>outer fallback</p>}>
-			<Show when={inner} fallback={<p>inner fallback</p>}>
+		<Show when={outer.read} fallback={<p>outer fallback</p>}>
+			<Show when={inner.read} fallback={<p>inner fallback</p>}>
 				<p>content</p>
 			</Show>
 		</Show>,
 	)
 	expect(body()).toBe('<p>content</p>')
-	setInner(false)
+	inner.write(false)
 	expect(body()).toBe('<p>inner fallback</p>')
-	setOuter(false)
+	outer.write(false)
 	expect(body()).toBe('<p>outer fallback</p>')
-	setOuter(true)
+	outer.write(true)
 	expect(body()).toBe('<p>inner fallback</p>')
-	setInner(true)
+	inner.write(true)
 	expect(body()).toBe('<p>content</p>')
 
 	dispose()
 })
 
 await test('Show - nested: independent signals toggle independently', expect => {
-	const [a, setA] = signal(true)
-	const [b, setB] = signal(true)
+	const a = signal(true)
+	const b = signal(true)
 	const dispose = render(
 		<Show when={true}>
-			<Show when={a} fallback={<p>no-a</p>}>
+			<Show when={a.read} fallback={<p>no-a</p>}>
 				<p>a</p>
 			</Show>
-			<Show when={b} fallback={<p>no-b</p>}>
+			<Show when={b.read} fallback={<p>no-b</p>}>
 				<p>b</p>
 			</Show>
 		</Show>,
 	)
 	expect(body()).toBe('<p>a</p><p>b</p>')
-	setA(false)
+	a.write(false)
 	expect(body()).toBe('<p>no-a</p><p>b</p>')
-	setB(false)
+	b.write(false)
 	expect(body()).toBe('<p>no-a</p><p>no-b</p>')
-	setA(true)
+	a.write(true)
 	expect(body()).toBe('<p>a</p><p>no-b</p>')
 
 	dispose()
 })
 
 await test('Show - nested: deeply nested three levels', expect => {
-	const [a, setA] = signal(true)
+	const a = signal(true)
 	const dispose = render(
 		<Show when={true}>
-			<Show when={a}>
+			<Show when={a.read}>
 				<Show when={true}>
 					<p>deep</p>
 				</Show>
@@ -343,9 +343,9 @@ await test('Show - nested: deeply nested three levels', expect => {
 		</Show>,
 	)
 	expect(body()).toBe('<p>deep</p>')
-	setA(false)
+	a.write(false)
 	expect(body()).toBe('')
-	setA(true)
+	a.write(true)
 	expect(body()).toBe('<p>deep</p>')
 
 	dispose()
@@ -365,12 +365,12 @@ await test('Show - async children: renders empty until promise resolves', async 
 })
 
 await test('Show - async children: does not render if when toggles false before resolve', async expect => {
-	const [visible, setVisible] = signal(true)
+	const visible = signal(true)
 	const content = new Promise(resolve =>
 		setTimeout(() => resolve(<p>async content</p>), 50),
 	)
-	const dispose = render(<Show when={visible}>{content}</Show>)
-	setVisible(false)
+	const dispose = render(<Show when={visible.read}>{content}</Show>)
+	visible.write(false)
 	await content
 	await microtask()
 	expect(body()).toBe('')
@@ -379,9 +379,9 @@ await test('Show - async children: does not render if when toggles false before 
 })
 
 await test('Show - callback v is an accessor; v() reads without tracking, only v reflects current value', expect => {
-	const [val, setVal] = signal(42)
+	const val = signal(42)
 	const dispose = render(
-		<Show when={val}>
+		<Show when={val.read}>
 			{v => (
 				<p>
 					{v()}-{v}
@@ -390,23 +390,23 @@ await test('Show - callback v is an accessor; v() reads without tracking, only v
 		</Show>,
 	)
 	expect(body()).toBe('<p>42-42</p>')
-	setVal(99)
+	val.write(99)
 	// Show's outer memo tracks value via v, so the callback re-runs on every change
 	expect(body()).toBe('<p>42-99</p>')
 	dispose()
 })
 
 await test('Show - callback returning derived function stays reactive without re-rendering Show', expect => {
-	const [val, setVal] = signal(0.6)
+	const val = signal(0.6)
 	const dispose = render(
 		// booleans render as nothing, so the derived function
 		// stringifies the comparison result to observe the value
-		<Show when={val}>{v => () => String(v() > 0.5)}</Show>,
+		<Show when={val.read}>{v => () => String(v() > 0.5)}</Show>,
 	)
 	expect(body()).toBe('true')
-	setVal(0.3)
+	val.write(0.3)
 	expect(body()).toBe('false')
-	setVal(0.8)
+	val.write(0.8)
 	expect(body()).toBe('true')
 	dispose()
 })

@@ -197,7 +197,7 @@ const divisorFor = diffSec => {
  * @url https://pota.quack.uy/use/time
  */
 export function useElapsed(timestamp) {
-	const [read, write] = signal(0)
+	const s = signal(0)
 	const compute = () => {
 		const ts = getValue(timestamp)
 		if (!ts) return 0
@@ -206,9 +206,9 @@ export function useElapsed(timestamp) {
 	// Track the timestamp accessor so reads reflect it immediately,
 	// not just at the next tick. `now()` itself is non-reactive, so
 	// this only re-runs when `timestamp` actually changes.
-	syncEffect(() => write(compute()))
+	syncEffect(() => s.write(compute()))
 	useTimeout(
-		() => write(compute()),
+		() => s.write(compute()),
 		() => {
 			const ts = getValue(timestamp)
 			if (!ts) return Infinity
@@ -217,7 +217,7 @@ export function useElapsed(timestamp) {
 			return Math.max(1000, divMs - ((diff * 1000) % divMs))
 		},
 	).start()
-	return read
+	return s.read
 }
 
 /**
@@ -242,40 +242,40 @@ export function useElapsed(timestamp) {
  */
 export function useStopwatch(opts) {
 	const interval = opts?.interval ?? 1000
-	const [elapsed, write] = signal(0)
-	const [running, setRunning] = signal(false)
+	const elapsed = signal(0)
+	const running = signal(false)
 	let startedAt = 0
 	let accumulated = 0
 
 	const ticker = useTimeout(function tick() {
 		// `running` is read without subscribing — we're inside the
 		// setTimeout callback, not a reactive scope.
-		write(accumulated + (now() - startedAt))
+		elapsed.write(accumulated + (now() - startedAt))
 		ticker.start()
 	}, interval)
 
 	const ctrl = {
-		elapsed,
-		running,
+		elapsed: elapsed.read,
+		running: running.read,
 		start: () => {
-			if (running()) return ctrl
+			if (running.read()) return ctrl
 			startedAt = now()
-			setRunning(true)
+			running.write(true)
 			ticker.start()
 			return ctrl
 		},
 		stop: () => {
-			if (!running()) return ctrl
+			if (!running.read()) return ctrl
 			accumulated += now() - startedAt
-			setRunning(false)
+			running.write(false)
 			ticker.stop()
-			write(accumulated)
+			elapsed.write(accumulated)
 			return ctrl
 		},
 		reset: () => {
 			accumulated = 0
-			startedAt = running() ? now() : 0
-			write(0)
+			startedAt = running.read() ? now() : 0
+			elapsed.write(0)
 			return ctrl
 		},
 	}

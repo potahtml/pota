@@ -7,17 +7,16 @@ import { Emitter } from './emitter.js'
 // some browsers) and the API works for pen/touch too. Module name
 // stays `mouse` because that's what callers reach for.
 
-/** @type {Map<number, [() => boolean, (v: boolean) => void]>} */
+/** @type {Map<number, SignalObject<boolean>>} */
 const buttonSignals = new Map()
 /** @type {Set<number>} */
 const heldButtons = new Set()
-const [posRead, posWrite] = signal({ x: 0, y: 0 })
+const posSignal = signal({ x: 0, y: 0 })
 
 const ensureButtonSignal = button => {
 	let entry = buttonSignals.get(button)
 	if (!entry) {
-		const [read, write] = signal(false)
-		entry = [read, write]
+		entry = signal(false)
 		buttonSignals.set(button, entry)
 	}
 	return entry
@@ -25,23 +24,23 @@ const ensureButtonSignal = button => {
 
 const clearAllButtons = () => {
 	heldButtons.clear()
-	for (const [, [, write]] of buttonSignals) write(false)
+	for (const [, sig] of buttonSignals) sig.write(false)
 }
 
 const onPointerDown = e => {
 	if (heldButtons.has(e.button)) return
 	heldButtons.add(e.button)
-	ensureButtonSignal(e.button)[1](true)
+	ensureButtonSignal(e.button).write(true)
 }
 // pointerup and pointercancel do the same thing — release the button
 // if it was held.
 const onPointerRelease = e => {
 	if (!heldButtons.has(e.button)) return
 	heldButtons.delete(e.button)
-	ensureButtonSignal(e.button)[1](false)
+	ensureButtonSignal(e.button).write(false)
 }
 const onPointerMove = e =>
-	posWrite({ x: e.clientX, y: e.clientY })
+	posSignal.write({ x: e.clientX, y: e.clientY })
 
 // Emitter refcounts the pointer listeners: the first `use()`
 // attaches them on `window`; the last consumer's cleanup detaches
@@ -91,7 +90,7 @@ const lifecycle = new Emitter({
  */
 export const useMouseButton = button => {
 	lifecycle.use()
-	return ensureButtonSignal(button)[0]
+	return ensureButtonSignal(button).read
 }
 
 /**
@@ -119,7 +118,7 @@ export const mouseButtons = () => {
  */
 export const useMousePosition = () => {
 	lifecycle.use()
-	return posRead
+	return posSignal.read
 }
 
 /**
@@ -132,5 +131,5 @@ export const useMousePosition = () => {
  */
 export const mousePosition = () => {
 	lifecycle.use()
-	return posRead()
+	return posSignal.read()
 }

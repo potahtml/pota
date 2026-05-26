@@ -133,40 +133,40 @@ await test('Range - accepts multiple children callbacks', expect => {
 // signal reactivity
 
 await test('Range - updates when stop signal changes', expect => {
-	const [stop, setStop] = signal(2)
+	const stop = signal(2)
 	const dispose = render(
-		<Range start={0} stop={stop} step={1}>
+		<Range start={0} stop={stop.read} step={1}>
 			{item => <p>{item}</p>}
 		</Range>,
 	)
 	expect(body()).toBe('<p>0</p><p>1</p><p>2</p>')
-	setStop(3)
+	stop.write(3)
 	expect(body()).toBe('<p>0</p><p>1</p><p>2</p><p>3</p>')
 	dispose()
 })
 
 await test('Range - updates when start signal changes', expect => {
-	const [start, setStart] = signal(0)
+	const start = signal(0)
 	const dispose = render(
-		<Range start={start} stop={3} step={1}>
+		<Range start={start.read} stop={3} step={1}>
 			{item => <p>{item}</p>}
 		</Range>,
 	)
 	expect(body()).toBe('<p>0</p><p>1</p><p>2</p><p>3</p>')
-	setStart(2)
+	start.write(2)
 	expect(body()).toBe('<p>2</p><p>3</p>')
 	dispose()
 })
 
 await test('Range - updates when step signal changes', expect => {
-	const [step, setStep] = signal(1)
+	const step = signal(1)
 	const dispose = render(
-		<Range start={0} stop={4} step={step}>
+		<Range start={0} stop={4} step={step.read}>
 			{item => <p>{item}</p>}
 		</Range>,
 	)
 	expect(body()).toBe('<p>0</p><p>1</p><p>2</p><p>3</p><p>4</p>')
-	setStep(2)
+	step.write(2)
 	expect(body()).toBe('<p>0</p><p>2</p><p>4</p>')
 	dispose()
 })

@@ -111,12 +111,12 @@ await test('catchError — catches error thrown inside an effect', expect => {
 
 await test('catchError — catches effect error triggered by signal change', expect => {
 	/** @type {any} */ let caught
-	const [read, write] = signal(0)
+	const s = signal(0)
 	root(() => {
 		catchError(
 			() => {
 				effect(() => {
-					if (read() === 1) throw new Error('triggered')
+					if (s.read() === 1) throw new Error('triggered')
 				})
 			},
 			err => {
@@ -126,19 +126,19 @@ await test('catchError — catches effect error triggered by signal change', exp
 	})
 	expect(caught).toBe(undefined)
 
-	write(1)
+	s.write(1)
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('triggered')
 })
 
 await test('catchError — after an effect throws, it is dead and does not re-trigger', expect => {
 	const errors = []
-	const [read, write] = signal(0)
+	const s = signal(0)
 	root(() => {
 		catchError(
 			() => {
 				effect(() => {
-					const v = read()
+					const v = s.read()
 					if (v > 0) throw new Error('err-' + v)
 				})
 			},
@@ -147,11 +147,11 @@ await test('catchError — after an effect throws, it is dead and does not re-tr
 	})
 	expect(errors.length).toBe(0)
 
-	write(1)
+	s.write(1)
 	expect(errors).toEqual(['err-1'])
 
 	// effect is dead after first throw — no new error
-	write(2)
+	s.write(2)
 	expect(errors).toEqual(['err-1'])
 })
 
@@ -178,14 +178,14 @@ await test('catchError — catches error thrown inside a memo', expect => {
 
 await test('catchError — catches memo error triggered by signal change', expect => {
 	/** @type {any} */ let caught
-	const [read, write] = signal(0)
+	const s = signal(0)
 	/** @type {any} */ let m
 	root(() => {
 		catchError(
 			() => {
 				m = memo(() => {
-					if (read() === 1) throw new Error('memo triggered')
-					return read()
+					if (s.read() === 1) throw new Error('memo triggered')
+					return s.read()
 				})
 				m() // initial read, no error
 			},
@@ -197,7 +197,7 @@ await test('catchError — catches memo error triggered by signal change', expec
 	expect(caught).toBe(undefined)
 	expect(m()).toBe(0)
 
-	write(1)
+	s.write(1)
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('memo triggered')
 })
@@ -225,12 +225,12 @@ await test('catchError — catches error thrown inside a derived', expect => {
 
 await test('catchError — catches derived chain error on signal change', expect => {
 	/** @type {any} */ let caught
-	const [read, write] = signal(1)
+	const s = signal(1)
 	root(() => {
 		catchError(
 			() => {
 				const d = derived(
-					() => read(),
+					() => s.read(),
 					v => {
 						if (v === 2) throw new Error('chain stage boom')
 						return v * 10
@@ -245,7 +245,7 @@ await test('catchError — catches derived chain error on signal change', expect
 	})
 	expect(caught).toBe(undefined)
 
-	write(2)
+	s.write(2)
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('chain stage boom')
 })
@@ -278,7 +278,7 @@ await test('catchError — nested: inner catches before outer', expect => {
 
 await test('catchError — nested: inner catches reactive error before outer', expect => {
 	/** @type {any} */ let outerCaught, /** @type {any} */ innerCaught
-	const [read, write] = signal(0)
+	const s = signal(0)
 
 	root(() => {
 		catchError(
@@ -286,7 +286,7 @@ await test('catchError — nested: inner catches reactive error before outer', e
 				catchError(
 					() => {
 						effect(() => {
-							if (read() === 1) throw new Error('inner reactive')
+							if (s.read() === 1) throw new Error('inner reactive')
 						})
 					},
 					err => {
@@ -300,7 +300,7 @@ await test('catchError — nested: inner catches reactive error before outer', e
 		)
 	})
 
-	write(1)
+	s.write(1)
 	expect(innerCaught instanceof Error).toBe(true)
 	expect(innerCaught.message).toBe('inner reactive')
 	expect(outerCaught).toBe(undefined)
@@ -361,14 +361,14 @@ await test('catchError — sibling scopes catch independently', expect => {
 
 await test('catchError — sibling reactive errors stay isolated', expect => {
 	/** @type {any} */ let caughtA, /** @type {any} */ caughtB
-	const [readA, writeA] = signal(0)
-	const [readB, writeB] = signal(0)
+	const a = signal(0)
+	const b = signal(0)
 
 	root(() => {
 		catchError(
 			() => {
 				effect(() => {
-					if (readA() === 1) throw new Error('A')
+					if (a.read() === 1) throw new Error('A')
 				})
 			},
 			err => {
@@ -378,7 +378,7 @@ await test('catchError — sibling reactive errors stay isolated', expect => {
 		catchError(
 			() => {
 				effect(() => {
-					if (readB() === 1) throw new Error('B')
+					if (b.read() === 1) throw new Error('B')
 				})
 			},
 			err => {
@@ -387,11 +387,11 @@ await test('catchError — sibling reactive errors stay isolated', expect => {
 		)
 	})
 
-	writeA(1)
+	a.write(1)
 	expect(caughtA).toBe('A')
 	expect(caughtB).toBe(undefined)
 
-	writeB(1)
+	b.write(1)
 	expect(caughtB).toBe('B')
 })
 
@@ -455,7 +455,7 @@ await test('catchError — error does not break sibling effects outside scope', 
 })
 
 await test('catchError — error does not break sibling signal tracking', expect => {
-	const [read, write] = signal(0)
+	const s = signal(0)
 	let seen = []
 
 	root(() => {
@@ -468,13 +468,13 @@ await test('catchError — error does not break sibling signal tracking', expect
 			() => {},
 		)
 		effect(() => {
-			seen.push(read())
+			seen.push(s.read())
 		})
 	})
 	expect(seen).toEqual([0])
 
-	write(1)
-	write(2)
+	s.write(1)
+	s.write(2)
 	expect(seen).toEqual([0, 1, 2])
 })
 
@@ -519,18 +519,18 @@ await test('catchError — cleanup registered before sync throw runs on disposal
 // --- handler can write to signals ------------------------------------
 
 await test('catchError — handler can write to signals', expect => {
-	const [read, write] = signal('initial')
+	const s = signal('initial')
 	root(() => {
 		catchError(
 			() => {
 				throw new Error('boom')
 			},
 			() => {
-				write('caught')
+				s.write('caught')
 			},
 		)
 	})
-	expect(read()).toBe('caught')
+	expect(s.read()).toBe('caught')
 })
 
 // --- root() inside catchError inherits handler -----------------------
@@ -559,12 +559,12 @@ await test('catchError — root() inside scope inherits error handler', expect =
 
 await test('catchError — error inside batch is caught', expect => {
 	/** @type {any} */ let caught
-	const [read, write] = signal(0)
+	const s = signal(0)
 	root(() => {
 		catchError(
 			() => {
 				effect(() => {
-					if (read() > 0) throw new Error('batched')
+					if (s.read() > 0) throw new Error('batched')
 				})
 			},
 			err => {
@@ -575,7 +575,7 @@ await test('catchError — error inside batch is caught', expect => {
 	expect(caught).toBe(undefined)
 
 	batch(() => {
-		write(1)
+		s.write(1)
 	})
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('batched')
@@ -586,16 +586,16 @@ await test('catchError — error inside batch is caught', expect => {
 await test('catchError — only throwing child triggers handler, sibling effects survive', expect => {
 	/** @type {any} */ let caught
 	let siblingValue = 0
-	const [read, write] = signal(0)
+	const s = signal(0)
 
 	root(() => {
 		catchError(
 			() => {
 				effect(() => {
-					if (read() === 1) throw new Error('one throws')
+					if (s.read() === 1) throw new Error('one throws')
 				})
 				effect(() => {
-					siblingValue = read()
+					siblingValue = s.read()
 				})
 			},
 			err => {
@@ -606,7 +606,7 @@ await test('catchError — only throwing child triggers handler, sibling effects
 	expect(siblingValue).toBe(0)
 	expect(caught).toBe(undefined)
 
-	write(1)
+	s.write(1)
 	expect(caught.message).toBe('one throws')
 	expect(siblingValue).toBe(1)
 })
@@ -743,14 +743,14 @@ await test('catchError — handler error escalates to parent handler', expect =>
 
 await test('catchError — reactive handler error escalates to parent', expect => {
 	/** @type {any} */ let outerCaught
-	const [read, write] = signal(0)
+	const s = signal(0)
 	root(() => {
 		catchError(
 			() => {
 				catchError(
 					() => {
 						effect(() => {
-							if (read() === 1) throw new Error('child reactive')
+							if (s.read() === 1) throw new Error('child reactive')
 						})
 					},
 					err => {
@@ -768,7 +768,7 @@ await test('catchError — reactive handler error escalates to parent', expect =
 	})
 	expect(outerCaught).toBe(undefined)
 
-	write(1)
+	s.write(1)
 	expect(outerCaught instanceof Error).toBe(true)
 	expect(outerCaught.message).toBe('handler broke on: child reactive')
 })
@@ -842,13 +842,13 @@ await test('untrack — throw inside untrack in a memo aborts the memo fn', expe
 
 await test('effect — thrown effect is marked dead and does not re-run', expect => {
 	let runs = 0
-	const [read, write] = signal(0)
+	const s = signal(0)
 	root(() => {
 		catchError(
 			() => {
 				effect(() => {
 					runs++
-					if (read() === 1) throw new Error('die')
+					if (s.read() === 1) throw new Error('die')
 				})
 			},
 			() => {},
@@ -856,16 +856,16 @@ await test('effect — thrown effect is marked dead and does not re-run', expect
 	})
 	expect(runs).toBe(1)
 
-	write(1) // effect throws and dies
+	s.write(1) // effect throws and dies
 	expect(runs).toBe(2)
 
-	write(2) // effect is dead, should NOT re-run
+	s.write(2) // effect is dead, should NOT re-run
 	expect(runs).toBe(2)
 })
 
 await test('effect — partial children created before throw are disposed', expect => {
 	let childDisposed = false
-	const [read, write] = signal(0)
+	const s = signal(0)
 	root(() => {
 		catchError(
 			() => {
@@ -876,7 +876,7 @@ await test('effect — partial children created before throw are disposed', expe
 							childDisposed = true
 						})
 					})
-					if (read() === 1) throw new Error('parent throws')
+					if (s.read() === 1) throw new Error('parent throws')
 				})
 			},
 			() => {},
@@ -884,18 +884,18 @@ await test('effect — partial children created before throw are disposed', expe
 	})
 	expect(childDisposed).toBe(false)
 
-	write(1) // parent effect throws — disposeOwned cleans up child
+	s.write(1) // parent effect throws — disposeOwned cleans up child
 	expect(childDisposed).toBe(true)
 })
 
 await test('memo — thrown memo does not write its value', expect => {
-	const [read, write] = signal(0)
+	const s = signal(0)
 	/** @type {any} */ let m
 	root(() => {
 		catchError(
 			() => {
 				m = memo(() => {
-					const v = read()
+					const v = s.read()
 					if (v === 1) throw new Error('bad')
 					return v * 10
 				})
@@ -906,7 +906,7 @@ await test('memo — thrown memo does not write its value', expect => {
 	})
 	expect(m()).toBe(0)
 
-	write(1) // memo throws — value stays at 0, not updated
+	s.write(1) // memo throws — value stays at 0, not updated
 	expect(m()).toBe(0)
 })
 
@@ -918,20 +918,20 @@ await test('memo — thrown memo does not write its value', expect => {
 // for anything outside the errored computation.
 
 await test('parent effect keeps tracking after child error', expect => {
-	const [read, write] = signal(0)
+	const s = signal(0)
 	const parentSeen = []
 	/** @type {any} */ let caught
 
 	root(() => {
 		// parent's own effect — tracks `read`
 		effect(() => {
-			parentSeen.push(read())
+			parentSeen.push(s.read())
 		})
 
 		catchError(
 			() => {
 				effect(() => {
-					if (read() === 2) throw new Error('child')
+					if (s.read() === 2) throw new Error('child')
 				})
 			},
 			err => {
@@ -941,29 +941,29 @@ await test('parent effect keeps tracking after child error', expect => {
 	})
 	expect(parentSeen).toEqual([0])
 
-	write(1) // both effects run, no error
+	s.write(1) // both effects run, no error
 	expect(parentSeen).toEqual([0, 1])
 
-	write(2) // child throws, parent should still track
+	s.write(2) // child throws, parent should still track
 	expect(caught.message).toBe('child')
 	expect(parentSeen).toEqual([0, 1, 2])
 
-	write(3) // child is dead, parent still alive
+	s.write(3) // child is dead, parent still alive
 	expect(parentSeen).toEqual([0, 1, 2, 3])
 })
 
 await test('parent memo keeps producing values after child error', expect => {
-	const [read, write] = signal(1)
+	const s = signal(1)
 	/** @type {any} */ let caught
 	/** @type {any} */ let parentMemo
 
 	root(() => {
-		parentMemo = memo(() => read() * 100)
+		parentMemo = memo(() => s.read() * 100)
 
 		catchError(
 			() => {
 				effect(() => {
-					if (read() === 2) throw new Error('child')
+					if (s.read() === 2) throw new Error('child')
 				})
 			},
 			err => {
@@ -973,17 +973,17 @@ await test('parent memo keeps producing values after child error', expect => {
 	})
 	expect(parentMemo()).toBe(100)
 
-	write(2) // child throws
+	s.write(2) // child throws
 	expect(caught.message).toBe('child')
 	expect(parentMemo()).toBe(200) // parent memo still works
 
-	write(3) // child dead, parent still live
+	s.write(3) // child dead, parent still live
 	expect(parentMemo()).toBe(300)
 })
 
 await test('sibling catchError scopes preserve independent reactive state', expect => {
-	const [readA, writeA] = signal(0)
-	const [readB, writeB] = signal(0)
+	const a = signal(0)
+	const b = signal(0)
 	/** @type {any} */ let caughtA
 	const seenB = []
 
@@ -991,7 +991,7 @@ await test('sibling catchError scopes preserve independent reactive state', expe
 		catchError(
 			() => {
 				effect(() => {
-					if (readA() === 1) throw new Error('A dies')
+					if (a.read() === 1) throw new Error('A dies')
 				})
 			},
 			err => {
@@ -1001,7 +1001,7 @@ await test('sibling catchError scopes preserve independent reactive state', expe
 		catchError(
 			() => {
 				effect(() => {
-					seenB.push(readB())
+					seenB.push(b.read())
 				})
 			},
 			() => {},
@@ -1009,25 +1009,25 @@ await test('sibling catchError scopes preserve independent reactive state', expe
 	})
 	expect(seenB).toEqual([0])
 
-	writeA(1) // scope A errors
+	a.write(1) // scope A errors
 	expect(caughtA.message).toBe('A dies')
 
-	writeB(1) // scope B must still track
-	writeB(2)
+	b.write(1) // scope B must still track
+	b.write(2)
 	expect(seenB).toEqual([0, 1, 2])
 })
 
 await test('parent derived keeps working after child error', expect => {
-	const [read, write] = signal(1)
+	const s = signal(1)
 	/** @type {any} */ let caught
 
 	const d = root(() => {
-		const d = derived(() => read() * 10)
+		const d = derived(() => s.read() * 10)
 
 		catchError(
 			() => {
 				effect(() => {
-					if (read() === 3) throw new Error('child')
+					if (s.read() === 3) throw new Error('child')
 				})
 			},
 			err => {
@@ -1039,14 +1039,14 @@ await test('parent derived keeps working after child error', expect => {
 	})
 	expect(d()).toBe(10)
 
-	write(2)
+	s.write(2)
 	expect(d()).toBe(20)
 
-	write(3) // child throws
+	s.write(3) // child throws
 	expect(caught.message).toBe('child')
 	expect(d()).toBe(30) // parent derived still works
 
-	write(4)
+	s.write(4)
 	expect(d()).toBe(40)
 })
 
@@ -1059,13 +1059,13 @@ await test('parent derived keeps working after child error', expect => {
 
 await test('catchError — works when nested inside an effect', expect => {
 	/** @type {any} */ let caught
-	const [read, write] = signal(0)
+	const s = signal(0)
 	root(() => {
 		effect(() => {
 			// read the signal HERE so the effect tracks it;
 			// catchError's fn uses untrack, so reads inside
 			// fn won't cause the effect to re-run
-			const v = read()
+			const v = s.read()
 			catchError(
 				() => {
 					if (v === 1) throw new Error('inner')
@@ -1078,7 +1078,7 @@ await test('catchError — works when nested inside an effect', expect => {
 	})
 	expect(caught).toBe(undefined)
 
-	write(1)
+	s.write(1)
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('inner')
 })
@@ -1087,13 +1087,13 @@ await test('catchError — works when nested inside an effect', expect => {
 
 await test('catchError — two boundaries triggered by same signal catch independently', expect => {
 	/** @type {any} */ let caughtA, /** @type {any} */ caughtB
-	const [read, write] = signal(0)
+	const s = signal(0)
 
 	root(() => {
 		catchError(
 			() => {
 				effect(() => {
-					if (read() === 1) throw new Error('A')
+					if (s.read() === 1) throw new Error('A')
 				})
 			},
 			err => {
@@ -1103,7 +1103,7 @@ await test('catchError — two boundaries triggered by same signal catch indepen
 		catchError(
 			() => {
 				effect(() => {
-					if (read() === 1) throw new Error('B')
+					if (s.read() === 1) throw new Error('B')
 				})
 			},
 			err => {
@@ -1114,7 +1114,7 @@ await test('catchError — two boundaries triggered by same signal catch indepen
 	expect(caughtA).toBe(undefined)
 	expect(caughtB).toBe(undefined)
 
-	write(1) // both effects throw on same signal change
+	s.write(1) // both effects throw on same signal change
 	expect(caughtA.message).toBe('A')
 	expect(caughtB.message).toBe('B')
 })
@@ -1123,14 +1123,14 @@ await test('catchError — two boundaries triggered by same signal catch indepen
 
 await test('catchError — error triggered after promise resolution is caught', async expect => {
 	/** @type {any} */ let caught
-	const [read, write] = signal(0)
+	const s = signal(0)
 	root(() => {
 		catchError(
 			() => {
 				// effect that reads a signal — will throw when
 				// signal changes AFTER the promise resolved
 				effect(() => {
-					if (read() === 1) throw new Error('post-async')
+					if (s.read() === 1) throw new Error('post-async')
 				})
 			},
 			err => {
@@ -1142,7 +1142,7 @@ await test('catchError — error triggered after promise resolution is caught', 
 
 	// simulate async work completing, then signal change triggers error
 	await new Promise(r => setTimeout(r, 10))
-	write(1)
+	s.write(1)
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('post-async')
 })
@@ -1195,12 +1195,12 @@ await test('catchError — catches non-Error rejected value', async expect => {
 await test('catchError — catches rejected promise via signal change', async expect => {
 	/** @type {any} */
 	let caught
-	const [read, write] = signal(false)
+	const s = signal(false)
 	root(() => {
 		catchError(
 			() => {
 				const d = derived(() =>
-					read() ? Promise.reject(new Error('later')) : 'ok',
+					s.read() ? Promise.reject(new Error('later')) : 'ok',
 				)
 				d()
 			},
@@ -1213,7 +1213,7 @@ await test('catchError — catches rejected promise via signal change', async ex
 	await sleep(50)
 	expect(caught).toBe(undefined) // no rejection yet
 
-	write(true) // now derived returns a rejecting promise
+	s.write(true) // now derived returns a rejecting promise
 	await sleep(50)
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('later')
@@ -1223,7 +1223,7 @@ await test('catchError — rejection does not break sibling effects', async expe
 	/** @type {any} */
 	let caught
 	const seen = []
-	const [read, write] = signal(0)
+	const s = signal(0)
 
 	root(() => {
 		catchError(
@@ -1237,7 +1237,7 @@ await test('catchError — rejection does not break sibling effects', async expe
 		)
 		// sibling effect
 		effect(() => {
-			seen.push(read())
+			seen.push(s.read())
 		})
 	})
 
@@ -1245,7 +1245,7 @@ await test('catchError — rejection does not break sibling effects', async expe
 	expect(caught.message).toBe('boom')
 	expect(seen).toEqual([0])
 
-	write(1)
+	s.write(1)
 	expect(seen).toEqual([0, 1])
 })
 

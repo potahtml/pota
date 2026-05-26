@@ -42,15 +42,17 @@ last resort**, not the default tool.
 
 ### Signals
 
-- Tuple API: `const [read, write, update] = signal()`. Always use this
-  order; avoid two-element destructuring like `[read, set]`, which
-  confuses `write` with `update`.
+- Object API (preferred): `const s = signal()`, then `s.read()`,
+  `s.write(value)`, `s.update(prev => next)`. Use this in all new
+  code.
 - `write(value)` sets or replaces the value directly — it does **not**
   receive the previous value.
 - `update(prev => next)` receives the previous value.
-- When a signal is already in hand (passed as an argument, pulled from
-  context), use object style: `signal.read()`, `signal.write()`,
-  `signal.update()`. Destructure only when creating a signal locally.
+- Tuple form `const [read, write, update] = signal()` still works and
+  the renderer still treats the return value as an array (see _JSX and
+  DOM_ below for the `{count}` foot-gun) — but it is being phased out.
+  Migrate to the object form when you touch the surrounding code; do
+  not add new tuple destructures.
 
 ### JSX and DOM
 

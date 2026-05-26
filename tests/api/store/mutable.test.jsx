@@ -1313,19 +1313,19 @@ await test('track: undefined value nested', expect => {
 })
 
 await test('track: state from signal', expect => {
-	const [read, write] = signal('init')
+	const s = signal('init')
 	const result = mutable({ data: '' })
 
 	let called = 0
 	const execute = memo(() => {
 		called++
-		result.data = read()
+		result.data = s.read()
 	})
 	execute()
 	expect(called).toBe(1)
 	expect(result.data).toBe('init')
 
-	write('signal')
+	s.write('signal')
 	execute()
 	expect(called).toBe(2)
 	expect(result.data).toBe('signal')
@@ -7793,15 +7793,15 @@ await test('misc 2: doesnt change keys', expect => {
 })
 
 await test('misc 2: reacts when getter/setter using external signal', expect => {
-	const [read, write] = signal(1)
+	const s = signal(1)
 	// object
 	const result = mutable({
 		get lala() {
-			read()
+			s.read()
 			return 1
 		},
 		set lala(value) {
-			write(value)
+			s.write(value)
 		},
 	})
 
@@ -7813,7 +7813,7 @@ await test('misc 2: reacts when getter/setter using external signal', expect => 
 	execute()
 	expect(calls).toBe(1)
 
-	write(1)
+	s.write(1)
 	execute()
 	expect(calls).toBe(1)
 
@@ -7825,17 +7825,17 @@ await test('misc 2: reacts when getter/setter using external signal', expect => 
 	execute()
 	expect(calls).toBe(2)
 
-	write(2)
+	s.write(2)
 	execute()
 	expect(calls).toBe(2)
 })
 
 await test('misc 2: reacts when its only a getter with an external write', expect => {
-	const [read, write] = signal(1)
+	const s = signal(1)
 	// object
 	const result = mutable({
 		get lala() {
-			read()
+			s.read()
 			return 1
 		},
 	})
@@ -7848,11 +7848,11 @@ await test('misc 2: reacts when its only a getter with an external write', expec
 	execute()
 	expect(calls).toBe(1)
 
-	write(1)
+	s.write(1)
 	execute()
 	expect(calls).toBe(1)
 
-	write(2)
+	s.write(2)
 	execute()
 	expect(calls).toBe(2)
 })

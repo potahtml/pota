@@ -90,7 +90,7 @@ export const submitOnCtrlEnter = handler =>
 
 // ---- held-key tracking -------------------------------------------
 
-/** @type {Map<string, [() => boolean, (v: boolean) => void]>} */
+/** @type {Map<string, SignalObject<boolean>>} */
 const heldSignals = new Map()
 /** @type {Set<string>} */
 const heldSet = new Set()
@@ -98,8 +98,7 @@ const heldSet = new Set()
 const ensureHeldSignal = key => {
 	let entry = heldSignals.get(key)
 	if (!entry) {
-		const [read, write] = signal(false)
-		entry = [read, write]
+		entry = signal(false)
 		heldSignals.set(key, entry)
 	}
 	return entry
@@ -107,7 +106,7 @@ const ensureHeldSignal = key => {
 
 const clearAllHeld = () => {
 	heldSet.clear()
-	for (const [, [, write]] of heldSignals) write(false)
+	for (const [, sig] of heldSignals) sig.write(false)
 }
 
 const onKeyDown = e => {
@@ -117,13 +116,13 @@ const onKeyDown = e => {
 	// the actual press transition.
 	if (heldSet.has(k)) return
 	heldSet.add(k)
-	ensureHeldSignal(k)[1](true)
+	ensureHeldSignal(k).write(true)
 }
 const onKeyUp = e => {
 	const k = e.key.toLowerCase()
 	if (!heldSet.has(k)) return
 	heldSet.delete(k)
-	ensureHeldSignal(k)[1](false)
+	ensureHeldSignal(k).write(false)
 }
 
 // Emitter refcounts the held-key listeners: the first `use()`
@@ -169,7 +168,7 @@ const heldLifecycle = new Emitter({
  */
 export const useKeyHeld = key => {
 	heldLifecycle.use()
-	return ensureHeldSignal(key.toLowerCase())[0]
+	return ensureHeldSignal(key.toLowerCase()).read
 }
 
 /**

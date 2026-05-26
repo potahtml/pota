@@ -81,13 +81,13 @@ class MyComponent extends Pota {
 
 // -- flow component inference tests --
 
-const [count, setCount] = signal(42)
+const count = signal(42)
 const items = signal(['a', 'b', 'c'])
-const [userName] = signal('Tito')
+const userName = signal('Tito')
 
 // Show: callback children infer T from when
 const showCallback = (
-	<Show when={count}>
+	<Show when={count.read}>
 		{value => {
 			const n: number = value()
 			// @ts-expect-error value() is number, not string
@@ -99,14 +99,14 @@ const showCallback = (
 
 // Show: plain JSX children (no callback)
 const showPlain = (
-	<Show when={count}>
+	<Show when={count.read}>
 		<div>plain children</div>
 	</Show>
 )
 
 // Show: fallback
 const showFallback = (
-	<Show when={count} fallback={<p>nothing</p>}>
+	<Show when={count.read} fallback={<p>nothing</p>}>
 		{value => <span>{value()}</span>}
 	</Show>
 )
@@ -114,7 +114,7 @@ const showFallback = (
 // Match: callback children infer T from when
 const switchMatch = (
 	<Switch>
-		<Match when={count}>
+		<Match when={count.read}>
 			{value => {
 				const n: number = value()
 				// @ts-expect-error value() is number, not string
@@ -122,7 +122,7 @@ const switchMatch = (
 				return <span>{n}</span>
 			}}
 		</Match>
-		<Match when={count}>
+		<Match when={count.read}>
 			<div>plain match</div>
 		</Match>
 	</Switch>
@@ -198,7 +198,7 @@ const fnOrClass2: ComponentType<{ x: number }> = (props: {
 
 // Collapse: show/hide without removing from DOM
 const collapseTest = (
-	<Collapse when={count} fallback={<p>hidden</p>}>
+	<Collapse when={count.read} fallback={<p>hidden</p>}>
 		<div>visible</div>
 	</Collapse>
 )
@@ -268,7 +268,7 @@ const tabsTest = (
 // Switch with fallback
 const switchFallback = (
 	<Switch fallback={<p>no match</p>}>
-		<Match when={count}>
+		<Match when={count.read}>
 			<div>matched</div>
 		</Match>
 	</Switch>
@@ -352,15 +352,15 @@ const navigateMissingPath = <Navigate />
 // derived / memo as reactive sources in components
 // ============================================
 
-const [age] = signal(30)
+const age = signal(30)
 
 // derived: should infer return type
-const greeting = derived(() => `Hello, ${userName()}`)
-const isAdult = derived(() => age() >= 18)
+const greeting = derived(() => `Hello, ${userName.read()}`)
+const isAdult = derived(() => age.read() >= 18)
 
 // memo: should infer return type
 const expensiveList = memo(() =>
-	Array.from({ length: age() }, (_, i) => `item-${i}`),
+	Array.from({ length: age.read() }, (_, i) => `item-${i}`),
 )
 
 // derived as Show when — should infer T from derived return
@@ -417,7 +417,7 @@ const collapseDerived = (
 const dynamicDerived = (
 	<Dynamic
 		component={Card}
-		title={derived(() => `Card: ${userName()}`)}
+		title={derived(() => `Card: ${userName.read()}`)}
 	/>
 )
 
@@ -429,22 +429,22 @@ const dynamicDerived = (
 const showChildrenVariety = (
 	<>
 		{/* callback child */}
-		<Show when={count}>{value => <span>{value()}</span>}</Show>
+		<Show when={count.read}>{value => <span>{value()}</span>}</Show>
 		{/* plain JSX */}
-		<Show when={count}>
+		<Show when={count.read}>
 			<div>plain</div>
 		</Show>
 		{/* string child */}
-		<Show when={count}>hello</Show>
+		<Show when={count.read}>hello</Show>
 		{/* multiple children */}
-		<Show when={count}>
+		<Show when={count.read}>
 			<div>one</div>
 			<div>two</div>
 		</Show>
 		{/* signal as child */}
-		<Show when={count}>{count}</Show>
+		<Show when={count.read}>{count.read}</Show>
 		{/* function child */}
-		<Show when={count}>{() => <div>lazy</div>}</Show>
+		<Show when={count.read}>{() => <div>lazy</div>}</Show>
 	</>
 )
 
@@ -452,13 +452,13 @@ const showChildrenVariety = (
 const matchChildrenVariety = (
 	<Switch>
 		{/* callback */}
-		<Match when={count}>{value => <span>{value()}</span>}</Match>
+		<Match when={count.read}>{value => <span>{value()}</span>}</Match>
 		{/* plain */}
-		<Match when={userName}>
+		<Match when={userName.read}>
 			<div>name exists</div>
 		</Match>
 		{/* string */}
-		<Match when={count}>text</Match>
+		<Match when={count.read}>text</Match>
 	</Switch>
 )
 
@@ -500,7 +500,7 @@ const collapseChildren = (
 		<Collapse when={true}>
 			<div>single child</div>
 		</Collapse>
-		<Collapse when={count} fallback={<p>hidden</p>}>
+		<Collapse when={count.read} fallback={<p>hidden</p>}>
 			<div>one</div>
 			<div>two</div>
 		</Collapse>
@@ -572,7 +572,7 @@ const normalizeChildren = (
 		<Normalize>
 			{'hello'} {'world'}
 		</Normalize>
-		<Normalize>{count}</Normalize>
+		<Normalize>{count.read}</Normalize>
 	</>
 )
 
@@ -595,16 +595,16 @@ const switchChildren = (
 	<>
 		{/* with fallback */}
 		<Switch fallback={<p>none</p>}>
-			<Match when={count}>
+			<Match when={count.read}>
 				<div>match</div>
 			</Match>
 		</Switch>
 		{/* multiple matches */}
 		<Switch>
-			<Match when={count}>
+			<Match when={count.read}>
 				<div>first</div>
 			</Match>
-			<Match when={userName}>
+			<Match when={userName.read}>
 				<div>second</div>
 			</Match>
 		</Switch>
@@ -789,9 +789,9 @@ const forDerivedArray = (
 )
 
 // Dynamic: with derived component
-const [isHeading] = signal(true)
+const isHeading = signal(true)
 const dynamicDerivedComponent = (
-	<Dynamic component={isHeading() ? 'h1' : 'p'}>text</Dynamic>
+	<Dynamic component={isHeading.read() ? 'h1' : 'p'}>text</Dynamic>
 )
 
 // ============================================
@@ -824,7 +824,7 @@ const forWrongEach = (
 // TODO: should error — value is SignalAccessor<number>, not
 // string, but callback matches JSX.Element union branch
 const showWrongCallback = (
-	<Show when={count}>{(value: string) => <span>{value}</span>}</Show>
+	<Show when={count.read}>{(value: string) => <span>{value}</span>}</Show>
 )
 
 // @ts-expect-error Button2: type was omitted
@@ -878,7 +878,7 @@ const wrapperTest = (
 // ============================================
 
 const nestedFlowTest = (
-	<Show when={count}>
+	<Show when={count.read}>
 		{value => (
 			<Switch>
 				<Match when={() => value() > 10}>

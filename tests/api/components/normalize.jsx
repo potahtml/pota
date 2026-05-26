@@ -102,19 +102,19 @@ await test('Normalize - undefined becomes empty string in join', expect => {
 // reactive - still always 1 node
 
 await test('Normalize - resolves signal children as 1 text node', expect => {
-	const [val] = signal('reactive')
-	const dispose = render(<Normalize>{val}</Normalize>)
+	const val = signal('reactive')
+	const dispose = render(<Normalize>{val.read}</Normalize>)
 	expect(body()).toBe('reactive')
 	expect(childNodes()).toBe(2)
 	dispose()
 })
 
 await test('Normalize - updates when signal changes, stays 1 node', expect => {
-	const [val, setVal] = signal('first')
-	const dispose = render(<Normalize>{val}</Normalize>)
+	const val = signal('first')
+	const dispose = render(<Normalize>{val.read}</Normalize>)
 	expect(body()).toBe('first')
 	expect(childNodes()).toBe(2)
-	setVal('second')
+	val.write('second')
 	expect(body()).toBe('second')
 	expect(childNodes()).toBe(2)
 	dispose()
@@ -130,12 +130,12 @@ await test('Normalize - resolves function children as 1 text node', expect => {
 })
 
 await test('Normalize - joins multiple signals into 1 node', expect => {
-	const [a] = signal('hello')
-	const [b] = signal(' world')
+	const a = signal('hello')
+	const b = signal(' world')
 	const dispose = render(
 		<Normalize>
-			{a}
-			{b}
+			{a.read}
+			{b.read}
 		</Normalize>,
 	)
 	expect(body()).toBe('hello world')
@@ -144,29 +144,29 @@ await test('Normalize - joins multiple signals into 1 node', expect => {
 })
 
 await test('Normalize - updating one of multiple signals stays 1 node', expect => {
-	const [a, setA] = signal('hello')
-	const [b] = signal(' world')
+	const a = signal('hello')
+	const b = signal(' world')
 	const dispose = render(
 		<Normalize>
-			{a}
-			{b}
+			{a.read}
+			{b.read}
 		</Normalize>,
 	)
 	expect(body()).toBe('hello world')
 	expect(childNodes()).toBe(2)
-	setA('hi')
+	a.write('hi')
 	expect(body()).toBe('hi world')
 	expect(childNodes()).toBe(2)
 	dispose()
 })
 
 await test('Normalize - toggling signal value stays 1 node', expect => {
-	const [val, setVal] = signal('a')
-	const dispose = render(<Normalize>{val}</Normalize>)
+	const val = signal('a')
+	const dispose = render(<Normalize>{val.read}</Normalize>)
 	expect(childNodes()).toBe(2)
-	setVal('b')
+	val.write('b')
 	expect(childNodes()).toBe(2)
-	setVal('c')
+	val.write('c')
 	expect(childNodes()).toBe(2)
 	dispose()
 })
@@ -244,17 +244,17 @@ await test('Normalize - nested array is flattened then joined', expect => {
 // --- Signal children (must be wrapped in array) -------------------------------
 
 await test('Normalize - resolves signal in array as text', expect => {
-	const [val] = signal('reactive')
-	const dispose = render(<Normalize>{[val]}</Normalize>)
+	const val = signal('reactive')
+	const dispose = render(<Normalize>{[val.read]}</Normalize>)
 	expect(body()).toBe('reactive')
 	dispose()
 })
 
 await test('Normalize - updates when signal in array changes', expect => {
-	const [val, setVal] = signal('first')
-	const dispose = render(<Normalize>{[val]}</Normalize>)
+	const val = signal('first')
+	const dispose = render(<Normalize>{[val.read]}</Normalize>)
 	expect(body()).toBe('first')
-	setVal('second')
+	val.write('second')
 	expect(body()).toBe('second')
 	dispose()
 })
@@ -266,38 +266,38 @@ await test('Normalize - function in array is resolved and joined', expect => {
 })
 
 await test('Normalize - joins multiple signals in array', expect => {
-	const [a] = signal('hello')
-	const [b] = signal(' world')
-	const dispose = render(<Normalize>{[a, b]}</Normalize>)
+	const a = signal('hello')
+	const b = signal(' world')
+	const dispose = render(<Normalize>{[a.read, b.read]}</Normalize>)
 	expect(body()).toBe('hello world')
 	dispose()
 })
 
 await test('Normalize - updates when one of multiple signals changes', expect => {
-	const [a, setA] = signal('hello')
-	const [b] = signal(' world')
-	const dispose = render(<Normalize>{[a, b]}</Normalize>)
+	const a = signal('hello')
+	const b = signal(' world')
+	const dispose = render(<Normalize>{[a.read, b.read]}</Normalize>)
 	expect(body()).toBe('hello world')
-	setA('hi')
+	a.write('hi')
 	expect(body()).toBe('hi world')
 	dispose()
 })
 
 await test('Normalize - signal toggling updates body', expect => {
-	const [val, setVal] = signal('a')
-	const dispose = render(<Normalize>{[val]}</Normalize>)
+	const val = signal('a')
+	const dispose = render(<Normalize>{[val.read]}</Normalize>)
 	expect(body()).toBe('a')
-	setVal('b')
+	val.write('b')
 	expect(body()).toBe('b')
-	setVal('c')
+	val.write('c')
 	expect(body()).toBe('c')
 	dispose()
 })
 
 await test('Normalize - two signals: body reflects joined value', expect => {
-	const [a] = signal('X')
-	const [b] = signal('Y')
-	const dispose = render(<Normalize>{[a, b]}</Normalize>)
+	const a = signal('X')
+	const b = signal('Y')
+	const dispose = render(<Normalize>{[a.read, b.read]}</Normalize>)
 	expect(body()).toBe('XY')
 	dispose()
 })
@@ -305,8 +305,8 @@ await test('Normalize - two signals: body reflects joined value', expect => {
 // --- Renders content -----------------------------------------------------------
 
 await test('Normalize - content is visible before dispose', expect => {
-	const [val] = signal('content')
-	const dispose = render(<Normalize>{[val]}</Normalize>)
+	const val = signal('content')
+	const dispose = render(<Normalize>{[val.read]}</Normalize>)
 	expect(body()).toBe('content')
 	dispose()
 })
@@ -389,10 +389,10 @@ await test('use:normalize - joins mixed children as text', expect => {
 })
 
 await test('use:normalize - resolves signal children as text', expect => {
-	const [val, setVal] = signal('first')
-	const dispose = render(<div use:normalize>{val}</div>)
+	const val = signal('first')
+	const dispose = render(<div use:normalize>{val.read}</div>)
 	expect(body()).toBe('<div>first</div>')
-	setVal('second')
+	val.write('second')
 	expect(body()).toBe('<div>second</div>')
 	dispose()
 })

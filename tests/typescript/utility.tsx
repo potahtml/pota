@@ -42,7 +42,7 @@ class MyComponent extends Pota {
 	}
 }
 
-const [val] = signal(0)
+const val = signal(0)
 
 // ============================================
 // Render / insert / toHTML
@@ -50,7 +50,7 @@ const [val] = signal(0)
 
 // render to DOM — children is typed as JSX.Element (wide union)
 const disposer: () => void = render(<div>hello</div>, document.body)
-render(() => <div>{val()}</div>, document.body)
+render(() => <div>{val.read()}</div>, document.body)
 
 // render accepts various JSX.Element shapes
 render('plain text', document.body)
@@ -154,15 +154,15 @@ const fixedFor = Component(For, {
 })
 
 // fixed-props with generic Show — T preservation
-const [sig] = signal(42)
+const sig = signal(42)
 const fixedShow = Component(Show, {
-	when: sig,
+	when: sig.read,
 	children: (value: SignalAccessor<number>) => <span>{value()}</span>,
 })
 
 // fixed-props with generic Match
 const fixedMatch = Component(Match, {
-	when: sig,
+	when: sig.read,
 	children: (value: SignalAccessor<number>) => <span>{value()}</span>,
 })
 
@@ -321,8 +321,8 @@ const gvPrim: number = getValue(42)
 const gvFn: number = getValue(() => 42)
 
 // with a signal accessor
-const [sigVal] = signal('hello')
-const gvSig: string = getValue(sigVal)
+const sigVal = signal('hello')
+const gvSig: string = getValue(sigVal.read)
 
 // with a nested function (getValue unwraps recursively at runtime)
 const gvNested = getValue(() => () => 42)
@@ -394,7 +394,7 @@ const xmlWithComp = myXml`<Card title="t">child</Card>`
 
 const xmlStringInterp = xml`<div>${'hello'}</div>`
 const xmlNumInterp = xml`<div>${42}</div>`
-const xmlSignalInterp = xml`<div>${val}</div>`
+const xmlSignalInterp = xml`<div>${val.read}</div>`
 const xmlElementInterp = xml`<div>${<span>inner</span>}</div>`
 const xmlMultipleInterp = xml`<div>${'a'} and ${'b'}</div>`
 

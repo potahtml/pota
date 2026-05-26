@@ -70,16 +70,16 @@ await test('favicon - setFaviconBadge(null) redraws the icon without a badge', a
 
 await test('favicon - useFaviconBadge reapplies when the badge signal changes', async expect => {
 	const link = installLink()
-	const [read, write] = signal('1')
+	const s = signal('1')
 
 	try {
 		await root(async dispose => {
-			useFaviconBadge(read)
+			useFaviconBadge(s.read)
 			await settle()
 			const first = link.href
 			expect(first.startsWith('data:image/png')).toBe(true)
 
-			write('99')
+			s.write('99')
 			await microtask()
 			await settle()
 			const second = link.href

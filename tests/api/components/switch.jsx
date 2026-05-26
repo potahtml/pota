@@ -193,85 +193,85 @@ await test('Switch - truthy Match takes priority over no-when Match', expect => 
 // --- signal reactivity -------------------------------------------------------
 
 await test('Switch - updates when signal changes Match condition', expect => {
-	const [val, setVal] = signal(false)
+	const val = signal(false)
 	const dispose = render(
 		<Switch fallback={<p>fallback</p>}>
-			<Match when={val}>
+			<Match when={val.read}>
 				<p>matched</p>
 			</Match>
 		</Switch>,
 	)
 	expect(body()).toBe('<p>fallback</p>')
-	setVal(true)
+	val.write(true)
 	expect(body()).toBe('<p>matched</p>')
 	dispose()
 })
 
 await test('Switch - reverts to fallback when signal becomes false', expect => {
-	const [val, setVal] = signal(true)
+	const val = signal(true)
 	const dispose = render(
 		<Switch fallback={<p>fallback</p>}>
-			<Match when={val}>
+			<Match when={val.read}>
 				<p>matched</p>
 			</Match>
 		</Switch>,
 	)
 	expect(body()).toBe('<p>matched</p>')
-	setVal(false)
+	val.write(false)
 	expect(body()).toBe('<p>fallback</p>')
 	dispose()
 })
 
 await test('Switch - switches between Matches via derived signals', expect => {
-	const [val, setVal] = signal(0)
+	const val = signal(0)
 	const dispose = render(
 		<Switch fallback={<p>none</p>}>
-			<Match when={() => val() === 1}>
+			<Match when={() => val.read() === 1}>
 				<p>one</p>
 			</Match>
-			<Match when={() => val() === 2}>
+			<Match when={() => val.read() === 2}>
 				<p>two</p>
 			</Match>
 		</Switch>,
 	)
 	expect(body()).toBe('<p>none</p>')
-	setVal(1)
+	val.write(1)
 	expect(body()).toBe('<p>one</p>')
-	setVal(2)
+	val.write(2)
 	expect(body()).toBe('<p>two</p>')
-	setVal(0)
+	val.write(0)
 	expect(body()).toBe('<p>none</p>')
 	dispose()
 })
 
 await test('Switch - accessor value passed to callback updates reactively', expect => {
-	const [val, setVal] = signal(10)
+	const val = signal(10)
 	const dispose = render(
 		<Switch>
-			<Match when={val}>{v => <p>{v}</p>}</Match>
+			<Match when={val.read}>{v => <p>{v}</p>}</Match>
 		</Switch>,
 	)
 	expect(body()).toBe('<p>10</p>')
-	setVal(20)
+	val.write(20)
 	expect(body()).toBe('<p>20</p>')
 	dispose()
 })
 
 await test('Switch - toggles multiple times', expect => {
-	const [val, setVal] = signal(true)
+	const val = signal(true)
 	const dispose = render(
 		<Switch fallback={<p>off</p>}>
-			<Match when={val}>
+			<Match when={val.read}>
 				<p>on</p>
 			</Match>
 		</Switch>,
 	)
 	expect(body()).toBe('<p>on</p>')
-	setVal(false)
+	val.write(false)
 	expect(body()).toBe('<p>off</p>')
-	setVal(true)
+	val.write(true)
 	expect(body()).toBe('<p>on</p>')
-	setVal(false)
+	val.write(false)
 	expect(body()).toBe('<p>off</p>')
 	dispose()
 })
@@ -312,16 +312,16 @@ await test('Switch - nested Switch renders independently', expect => {
 })
 
 await test('Switch - nested Switch reacts to signal changes in inner and outer', expect => {
-	const [outer, setOuter] = signal(1)
-	const [inner, setInner] = signal('x')
+	const outer = signal(1)
+	const inner = signal('x')
 	const dispose = render(
 		<Switch fallback={<p>outer-fb</p>}>
-			<Match when={() => outer() === 1}>
+			<Match when={() => outer.read() === 1}>
 				<Switch fallback={<p>inner-fb</p>}>
-					<Match when={() => inner() === 'x'}>
+					<Match when={() => inner.read() === 'x'}>
 						<p>x</p>
 					</Match>
-					<Match when={() => inner() === 'y'}>
+					<Match when={() => inner.read() === 'y'}>
 						<p>y</p>
 					</Match>
 				</Switch>
@@ -329,13 +329,13 @@ await test('Switch - nested Switch reacts to signal changes in inner and outer',
 		</Switch>,
 	)
 	expect(body()).toBe('<p>x</p>')
-	setInner('y')
+	inner.write('y')
 	expect(body()).toBe('<p>y</p>')
-	setInner('z')
+	inner.write('z')
 	expect(body()).toBe('<p>inner-fb</p>')
-	setOuter(0)
+	outer.write(0)
 	expect(body()).toBe('<p>outer-fb</p>')
-	setOuter(1)
+	outer.write(1)
 	expect(body()).toBe('<p>inner-fb</p>')
 	dispose()
 })
@@ -343,16 +343,16 @@ await test('Switch - nested Switch reacts to signal changes in inner and outer',
 // --- reactive fallback ---------------------------------------------------------
 
 await test('Switch - fallback can be a reactive function', expect => {
-	const [fb, setFb] = signal('loading')
+	const fb = signal('loading')
 	const dispose = render(
-		<Switch fallback={<p>{fb}</p>}>
+		<Switch fallback={<p>{fb.read}</p>}>
 			<Match when={false}>
 				<p>a</p>
 			</Match>
 		</Switch>,
 	)
 	expect(body()).toBe('<p>loading</p>')
-	setFb('timeout')
+	fb.write('timeout')
 	expect(body()).toBe('<p>timeout</p>')
 	dispose()
 })

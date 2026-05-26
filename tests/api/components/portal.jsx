@@ -108,14 +108,14 @@ await test('Portal - reactive children update in mount', expect => {
 	const mount = document.createElement('div')
 	document.body.appendChild(mount)
 
-	const [text, setText] = signal('initial')
+	const text = signal('initial')
 	const dispose = render(
 		<Portal mount={mount}>
-			<p>{text}</p>
+			<p>{text.read}</p>
 		</Portal>,
 	)
 	expect(mount.innerHTML).toBe('<p>initial</p>')
-	setText('updated')
+	text.write('updated')
 	expect(mount.innerHTML).toBe('<p>updated</p>')
 	dispose()
 	mount.remove()
@@ -125,14 +125,14 @@ await test('Portal - signal-driven children appear in mount', expect => {
 	const mount = document.createElement('div')
 	document.body.appendChild(mount)
 
-	const [show, setShow] = signal(true)
+	const show = signal(true)
 	const dispose = render(
 		<Portal mount={mount}>
-			{() => (show() ? <p>visible</p> : null)}
+			{() => (show.read() ? <p>visible</p> : null)}
 		</Portal>,
 	)
 	expect(mount.querySelector('p')).not.toBe(null)
-	setShow(false)
+	show.write(false)
 	expect(mount.querySelector('p')).toBe(null)
 	dispose()
 	mount.remove()

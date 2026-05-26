@@ -93,17 +93,17 @@ await test('batch - returns the callback return value', expect => {
 // --- batch prevents extra evaluation during reset -------------------
 
 await test('batch - unbatched reset pattern causes extra memo evaluation', expect => {
-	const [flag, setFlag] = signal(true)
-	const [counter, , updateCounter] = signal(0)
+	const flag = signal(true)
+	const counter = signal(0)
 
 	let outerRuns = 0
 
 	root(dispose => {
-		const inner = memo(() => 'content-' + counter())
+		const inner = memo(() => 'content-' + counter.read())
 
 		const outer = memo(() => {
 			outerRuns++
-			if (flag()) return 'fallback'
+			if (flag.read()) return 'fallback'
 			return inner()
 		})
 
@@ -111,8 +111,8 @@ await test('batch - unbatched reset pattern causes extra memo evaluation', expec
 		expect(outerRuns).toBe(1)
 
 		// two writes WITHOUT batch: outer evaluates twice
-		setFlag(false)
-		updateCounter(n => n + 1)
+		flag.write(false)
+		counter.update(n => n + 1)
 		expect(outer()).toBe('content-1')
 		expect(outerRuns).toBe(3)
 
@@ -121,17 +121,17 @@ await test('batch - unbatched reset pattern causes extra memo evaluation', expec
 })
 
 await test('batch - batched reset pattern avoids extra memo evaluation', expect => {
-	const [flag, setFlag] = signal(true)
-	const [counter, , updateCounter] = signal(0)
+	const flag = signal(true)
+	const counter = signal(0)
 
 	let outerRuns = 0
 
 	root(dispose => {
-		const inner = memo(() => 'content-' + counter())
+		const inner = memo(() => 'content-' + counter.read())
 
 		const outer = memo(() => {
 			outerRuns++
-			if (flag()) return 'fallback'
+			if (flag.read()) return 'fallback'
 			return inner()
 		})
 
@@ -140,8 +140,8 @@ await test('batch - batched reset pattern avoids extra memo evaluation', expect 
 
 		// same two writes WITH batch: outer evaluates once
 		batch(() => {
-			setFlag(false)
-			updateCounter(n => n + 1)
+			flag.write(false)
+			counter.update(n => n + 1)
 		})
 		expect(outer()).toBe('content-1')
 		expect(outerRuns).toBe(1)

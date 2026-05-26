@@ -14,13 +14,13 @@ import { Emitter } from './emitter.js'
 // `gamepaddisconnected` events — one source of truth, and polling
 // observes everything those events do within one frame.
 
-/** @type {Map<number, [() => boolean, (v: boolean) => void]>} */
+/** @type {Map<number, SignalObject<boolean>>} */
 const connectedSignals = new Map()
-/** @type {Map<string, [() => boolean, (v: boolean) => void]>} */
+/** @type {Map<string, SignalObject<boolean>>} */
 const buttonPressed = new Map()
-/** @type {Map<string, [() => number, (v: number) => void]>} */
+/** @type {Map<string, SignalObject<number>>} */
 const buttonValue = new Map()
-/** @type {Map<string, [() => number, (v: number) => void]>} */
+/** @type {Map<string, SignalObject<number>>} */
 const axisValue = new Map()
 
 let rafId = 0
@@ -28,8 +28,7 @@ let rafId = 0
 const ensureConnected = index => {
 	let entry = connectedSignals.get(index)
 	if (!entry) {
-		const [read, write] = signal(false)
-		entry = [read, write]
+		entry = signal(false)
 		connectedSignals.set(index, entry)
 	}
 	return entry
@@ -38,8 +37,7 @@ const ensureConnected = index => {
 const ensureBoolSignal = (map, key) => {
 	let entry = map.get(key)
 	if (!entry) {
-		const [read, write] = signal(false)
-		entry = [read, write]
+		entry = signal(false)
 		map.set(key, entry)
 	}
 	return entry
@@ -48,8 +46,7 @@ const ensureBoolSignal = (map, key) => {
 const ensureNumberSignal = (map, key) => {
 	let entry = map.get(key)
 	if (!entry) {
-		const [read, write] = signal(0)
-		entry = [read, write]
+		entry = signal(0)
 		map.set(key, entry)
 	}
 	return entry
@@ -63,8 +60,8 @@ const poll = () => {
 	// only update signals that already have subscribers — avoids
 	// creating entries for buttons / axes / gamepads nobody asked
 	// about, keeping the per-frame work bounded.
-	for (const [index, [, write]] of connectedSignals) {
-		write(!!pads[index])
+	for (const [index, sig] of connectedSignals) {
+		sig.write(!!pads[index])
 	}
 	for (let i = 0; i < pads.length; i++) {
 		const pad = pads[i]
@@ -74,14 +71,14 @@ const poll = () => {
 			const btn = buttons[b]
 			const k = key2(i, b)
 			const p = buttonPressed.get(k)
-			if (p) p[1](btn.pressed)
+			if (p) p.write(btn.pressed)
 			const v = buttonValue.get(k)
-			if (v) v[1](btn.value)
+			if (v) v.write(btn.value)
 		}
 		const axes = pad.axes
 		for (let a = 0; a < axes.length; a++) {
 			const v = axisValue.get(key2(i, a))
-			if (v) v[1](axes[a])
+			if (v) v.write(axes[a])
 		}
 	}
 }
@@ -112,7 +109,7 @@ const rafLifecycle = new Emitter({
  */
 export const useGamepadConnected = (index = 0) => {
 	rafLifecycle.use()
-	return ensureConnected(index)[0]
+	return ensureConnected(index).read
 }
 
 /**
@@ -130,7 +127,7 @@ export const useGamepadButton = (buttonIndex, gamepadIndex = 0) => {
 	return ensureBoolSignal(
 		buttonPressed,
 		key2(gamepadIndex, buttonIndex),
-	)[0]
+	).read
 }
 
 /**
@@ -150,7 +147,7 @@ export const useGamepadTrigger = (buttonIndex, gamepadIndex = 0) => {
 	return ensureNumberSignal(
 		buttonValue,
 		key2(gamepadIndex, buttonIndex),
-	)[0]
+	).read
 }
 
 /**
@@ -167,7 +164,7 @@ export const useGamepadAxis = (axisIndex, gamepadIndex = 0) => {
 	return ensureNumberSignal(
 		axisValue,
 		key2(gamepadIndex, axisIndex),
-	)[0]
+	).read
 }
 
 /**

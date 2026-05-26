@@ -83,12 +83,13 @@ export function recorder(options = {}) {
 		maxDuration,
 	} = options
 
-	const [recording, setRecording] = signal(false)
-	const [paused, setPaused] = signal(false)
-	const [duration, setDuration] = signal(0)
-	const [amplitude, setAmplitude] = signal(0)
-	const [permission, setPermission] =
-		signal(/** @type {RecorderPermission} */ ('prompt'))
+	const recording = signal(false)
+	const paused = signal(false)
+	const duration = signal(0)
+	const amplitude = signal(0)
+	const permission = signal(
+		/** @type {RecorderPermission} */ ('prompt'),
+	)
 
 	/** @type {MediaStream | null} */
 	let stream = null
@@ -115,7 +116,7 @@ export function recorder(options = {}) {
 
 	function startDurationTimer() {
 		durationId = setInterval(() => {
-			setDuration(elapsed + performance.now() - resumedAt)
+			duration.write(elapsed + performance.now() - resumedAt)
 		}, 100)
 	}
 
@@ -136,9 +137,9 @@ export function recorder(options = {}) {
 		}
 		rec = null
 		elapsed = 0
-		setRecording(false)
-		setPaused(false)
-		setAmplitude(0)
+		recording.write(false)
+		paused.write(false)
+		amplitude.write(0)
 	}
 
 	/**
@@ -175,9 +176,9 @@ export function recorder(options = {}) {
 
 		elapsed = 0
 		resumedAt = performance.now()
-		setDuration(0)
-		setRecording(true)
-		setPaused(false)
+		duration.write(0)
+		recording.write(true)
+		paused.write(false)
 		startDurationTimer()
 		if (audio) attachAmplitude(stream)
 		if (maxDuration) {
@@ -200,7 +201,7 @@ export function recorder(options = {}) {
 				const v = (data[i] - 128) / 128
 				sum += v * v
 			}
-			setAmplitude(Math.sqrt(sum / data.length))
+			amplitude.write(Math.sqrt(sum / data.length))
 			amplitudeId = requestAnimationFrame(tick)
 		}
 		amplitudeId = requestAnimationFrame(tick)
@@ -218,14 +219,14 @@ export function recorder(options = {}) {
 		if (!r || r.state !== 'recording') return
 		r.pause()
 		elapsed += performance.now() - resumedAt
-		setDuration(elapsed)
+		duration.write(elapsed)
 		clearInterval(durationId)
 		durationId = 0
 		if (maxId) {
 			clearTimeout(maxId)
 			maxId = 0
 		}
-		setPaused(true)
+		paused.write(true)
 	}
 
 	/** Resumes a paused recording. No-op unless paused. */
@@ -238,7 +239,7 @@ export function recorder(options = {}) {
 		if (maxDuration) {
 			maxId = setTimeout(stop, Math.max(0, maxDuration - elapsed))
 		}
-		setPaused(false)
+		paused.write(false)
 	}
 
 	/**
@@ -287,7 +288,7 @@ export function recorder(options = {}) {
 	// else 'granted'.
 	async function watchPermission() {
 		if (!navigator.permissions) {
-			setPermission('unsupported')
+			permission.write('unsupported')
 			return
 		}
 		try {
@@ -304,9 +305,10 @@ export function recorder(options = {}) {
 			if (disposed) return
 			const update = () => {
 				const states = statuses.map(s => s.state)
-				if (states.includes('denied')) setPermission('denied')
-				else if (states.includes('prompt')) setPermission('prompt')
-				else setPermission('granted')
+				if (states.includes('denied')) permission.write('denied')
+				else if (states.includes('prompt'))
+					permission.write('prompt')
+				else permission.write('granted')
 			}
 			update()
 			for (const s of statuses) s.addEventListener('change', update)
@@ -316,7 +318,7 @@ export function recorder(options = {}) {
 				}
 			}
 		} catch {
-			setPermission('unsupported')
+			permission.write('unsupported')
 		}
 	}
 	watchPermission()
@@ -336,10 +338,10 @@ export function recorder(options = {}) {
 		cancel,
 		pause,
 		resume,
-		recording,
-		paused,
-		duration,
-		amplitude,
-		permission,
+		recording: recording.read,
+		paused: paused.read,
+		duration: duration.read,
+		amplitude: amplitude.read,
+		permission: permission.read,
 	}
 }

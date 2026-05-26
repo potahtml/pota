@@ -27,11 +27,11 @@ import { preventDefault } from './event.js'
 
 // window.location signal
 
-const [getLocation, setLocation] = signal(wLocation.href)
+const locationSignal = signal(wLocation.href)
 
 // only trigger on what changed
 const locationObject = memo(
-	() => new URL(removeNestedProtocol(getLocation())),
+	() => new URL(removeNestedProtocol(locationSignal.read())),
 )
 const href = memo(() => locationObject().href)
 const pathname = memo(() => locationObject().pathname)
@@ -175,7 +175,7 @@ function navigateInternal(href, options) {
 		? history.replaceState(null, '', href)
 		: history.pushState(null, '', href)
 
-	setLocation(wLocation.href)
+	locationSignal.write(wLocation.href)
 
 	if (optional(options.scroll)) {
 		scrollToSelectorWithFallback(wLocation.hash)
@@ -223,7 +223,7 @@ export function navigateSync(href, options) {
 	options?.replace
 		? history.replaceState(null, '', href)
 		: history.pushState(null, '', href)
-	setLocation(wLocation.href)
+	locationSignal.write(wLocation.href)
 }
 
 // listeners
@@ -253,7 +253,7 @@ export function addListeners() {
  */
 async function onLocationChange() {
 	if (await canNavigate(wLocation.href)) {
-		setLocation(wLocation.href)
+		locationSignal.write(wLocation.href)
 	} else {
 		history.pushState(null, '', location.href())
 	}

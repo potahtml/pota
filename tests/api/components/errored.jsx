@@ -198,10 +198,10 @@ await test('Errored - reset re-renders children when cause is fixed', expect => 
 	const originalError = console.error
 	console.error = () => {}
 
-	const [broken, setBroken] = signal(true)
+	const broken = signal(true)
 
 	const Maybe = () => {
-		if (broken()) throw new Error('boom')
+		if (broken.read()) throw new Error('boom')
 		return <p>ok</p>
 	}
 
@@ -220,7 +220,7 @@ await test('Errored - reset re-renders children when cause is fixed', expect => 
 	expect(body()).toBe('<p>caught</p>')
 
 	// fix the underlying cause, then reset
-	setBroken(false)
+	broken.write(false)
 	resetFn()
 	expect(body()).toBe('<p>ok</p>')
 
@@ -315,11 +315,11 @@ await test('Errored - signal update that triggers a throwing effect is caught', 
 	const originalError = console.error
 	console.error = () => {}
 
-	const [trigger, setTrigger] = signal(0)
+	const trigger = signal(0)
 
 	const Maybe = () => {
 		effect(() => {
-			if (trigger() === 1) throw new Error('triggered')
+			if (trigger.read() === 1) throw new Error('triggered')
 		})
 		return <p>alive</p>
 	}
@@ -331,7 +331,7 @@ await test('Errored - signal update that triggers a throwing effect is caught', 
 	)
 	expect(body()).toBe('<p>alive</p>')
 
-	setTrigger(1)
+	trigger.write(1)
 	expect(body()).toBe('<p>triggered</p>')
 
 	console.error = originalError
@@ -499,7 +499,7 @@ await test('Errored - parent reactive content keeps updating after child error',
 	const originalError = console.error
 	console.error = () => {}
 
-	const [count, setCount] = signal(0)
+	const count = signal(0)
 
 	const Boom = () => {
 		throw new Error('child boom')
@@ -507,7 +507,7 @@ await test('Errored - parent reactive content keeps updating after child error',
 
 	const dispose = render(
 		<div>
-			<p id="parent">{count}</p>
+			<p id="parent">{count.read}</p>
 			<Errored fallback={<p>caught</p>}>
 				<Boom />
 			</Errored>
@@ -515,10 +515,10 @@ await test('Errored - parent reactive content keeps updating after child error',
 	)
 	expect(body()).toBe('<div><p id="parent">0</p><p>caught</p></div>')
 
-	setCount(1)
+	count.write(1)
 	expect($('#parent').textContent).toBe('1')
 
-	setCount(2)
+	count.write(2)
 	expect($('#parent').textContent).toBe('2')
 
 	console.error = originalError
@@ -529,7 +529,7 @@ await test('Errored - sibling components keep rendering after a boundary catches
 	const originalError = console.error
 	console.error = () => {}
 
-	const [count, setCount] = signal(0)
+	const count = signal(0)
 
 	const Boom = () => {
 		throw new Error('boom')
@@ -540,15 +540,15 @@ await test('Errored - sibling components keep rendering after a boundary catches
 			<Errored fallback={<p>caught</p>}>
 				<Boom />
 			</Errored>
-			<p id="sibling">{count}</p>
+			<p id="sibling">{count.read}</p>
 		</div>,
 	)
 	expect(body()).toBe('<div><p>caught</p><p id="sibling">0</p></div>')
 
-	setCount(1)
+	count.write(1)
 	expect($('#sibling').textContent).toBe('1')
 
-	setCount(2)
+	count.write(2)
 	expect($('#sibling').textContent).toBe('2')
 
 	console.error = originalError
@@ -559,19 +559,19 @@ await test('Errored - reactive child error does not break parent updates', expec
 	const originalError = console.error
 	console.error = () => {}
 
-	const [trigger, setTrigger] = signal(0)
-	const [count, setCount] = signal(0)
+	const trigger = signal(0)
+	const count = signal(0)
 
 	const Maybe = () => {
 		effect(() => {
-			if (trigger() === 1) throw new Error('child reactive')
+			if (trigger.read() === 1) throw new Error('child reactive')
 		})
 		return <p>alive</p>
 	}
 
 	const dispose = render(
 		<div>
-			<p id="parent">{count}</p>
+			<p id="parent">{count.read}</p>
 			<Errored fallback={err => <p>{err.message}</p>}>
 				<Maybe />
 			</Errored>
@@ -580,13 +580,13 @@ await test('Errored - reactive child error does not break parent updates', expec
 	expect(body()).toBe('<div><p id="parent">0</p><p>alive</p></div>')
 
 	// trigger child error
-	setTrigger(1)
+	trigger.write(1)
 	expect(body()).toBe(
 		'<div><p id="parent">0</p><p>child reactive</p></div>',
 	)
 
 	// parent still updates
-	setCount(5)
+	count.write(5)
 	expect($('#parent').textContent).toBe('5')
 
 	console.error = originalError
@@ -739,11 +739,11 @@ await test('Errored - catches reactive error from deeply nested grandchild', exp
 	const originalError = console.error
 	console.error = () => {}
 
-	const [trigger, setTrigger] = signal(0)
+	const trigger = signal(0)
 
 	const Boom = () => {
 		effect(() => {
-			if (trigger() === 1) throw new Error('deep reactive')
+			if (trigger.read() === 1) throw new Error('deep reactive')
 		})
 		return <p>ok</p>
 	}
@@ -760,7 +760,7 @@ await test('Errored - catches reactive error from deeply nested grandchild', exp
 	)
 	expect(body()).toBe('<div><p>ok</p></div>')
 
-	setTrigger(1)
+	trigger.write(1)
 	expect(body()).toBe('<p>deep reactive</p>')
 
 	console.error = originalError
@@ -773,17 +773,17 @@ await test('Errored - two boundaries triggered by same signal catch independentl
 	const originalError = console.error
 	console.error = () => {}
 
-	const [trigger, setTrigger] = signal(0)
+	const trigger = signal(0)
 
 	const BoomA = () => {
 		effect(() => {
-			if (trigger() === 1) throw new Error('A')
+			if (trigger.read() === 1) throw new Error('A')
 		})
 		return <p>a-ok</p>
 	}
 	const BoomB = () => {
 		effect(() => {
-			if (trigger() === 1) throw new Error('B')
+			if (trigger.read() === 1) throw new Error('B')
 		})
 		return <p>b-ok</p>
 	}
@@ -801,7 +801,7 @@ await test('Errored - two boundaries triggered by same signal catch independentl
 	expect(body()).toBe('<div><p>a-ok</p><p>b-ok</p></div>')
 
 	// single signal change triggers both boundaries
-	setTrigger(1)
+	trigger.write(1)
 	expect(body()).toBe('<div><p>A:A</p><p>B:B</p></div>')
 
 	console.error = originalError
@@ -814,12 +814,12 @@ await test('Errored - after effect throws, further signal changes do not produce
 	const originalError = console.error
 	console.error = () => {}
 
-	const [trigger, setTrigger] = signal(0)
+	const trigger = signal(0)
 	let errorCount = 0
 
 	const Maybe = () => {
 		effect(() => {
-			if (trigger() > 0) throw new Error('err-' + trigger())
+			if (trigger.read() > 0) throw new Error('err-' + trigger.read())
 		})
 		return <p>alive</p>
 	}
@@ -837,12 +837,12 @@ await test('Errored - after effect throws, further signal changes do not produce
 	expect(body()).toBe('<p>alive</p>')
 	expect(errorCount).toBe(0)
 
-	setTrigger(1) // effect throws and dies
+	trigger.write(1) // effect throws and dies
 	expect(body()).toBe('<p>err-1</p>')
 	expect(errorCount).toBe(1)
 
 	// effect is dead — further writes don't produce new errors
-	setTrigger(2)
+	trigger.write(2)
 	expect(body()).toBe('<p>err-1</p>')
 	expect(errorCount).toBe(1)
 
@@ -856,12 +856,12 @@ await test('Errored - catches memo error triggered by signal change', expect => 
 	const originalError = console.error
 	console.error = () => {}
 
-	const [read, write] = signal(0)
+	const s = signal(0)
 
 	const Maybe = () => {
 		const m = memo(() => {
-			if (read() === 1) throw new Error('memo triggered')
-			return read() * 10
+			if (s.read() === 1) throw new Error('memo triggered')
+			return s.read() * 10
 		})
 		return <p>{m}</p>
 	}
@@ -873,7 +873,7 @@ await test('Errored - catches memo error triggered by signal change', expect => 
 	)
 	expect(body()).toBe('<p>0</p>')
 
-	write(1)
+	s.write(1)
 	expect(body()).toBe('<p>memo triggered</p>')
 
 	console.error = originalError
@@ -886,11 +886,11 @@ await test('Errored - catches derived chain error triggered by signal change', e
 	const originalError = console.error
 	console.error = () => {}
 
-	const [read, write] = signal(1)
+	const s = signal(1)
 
 	const Maybe = () => {
 		const d = derived(
-			() => read(),
+			() => s.read(),
 			v => {
 				if (v === 2) throw new Error('chain boom')
 				return v * 10
@@ -906,7 +906,7 @@ await test('Errored - catches derived chain error triggered by signal change', e
 	)
 	expect(body()).toBe('<p>10</p>')
 
-	write(2)
+	s.write(2)
 	expect(body()).toBe('<p>chain boom</p>')
 
 	console.error = originalError
@@ -919,11 +919,11 @@ await test('Errored - nested: inner catches reactive error, outer unaffected', e
 	const originalError = console.error
 	console.error = () => {}
 
-	const [trigger, setTrigger] = signal(0)
+	const trigger = signal(0)
 
 	const Maybe = () => {
 		effect(() => {
-			if (trigger() === 1) throw new Error('inner reactive')
+			if (trigger.read() === 1) throw new Error('inner reactive')
 		})
 		return <p>ok</p>
 	}
@@ -939,7 +939,7 @@ await test('Errored - nested: inner catches reactive error, outer unaffected', e
 	)
 	expect(body()).toBe('<p>before</p><p>ok</p><p>after</p>')
 
-	setTrigger(1)
+	trigger.write(1)
 	expect(body()).toBe(
 		'<p>before</p><p>inner reactive</p><p>after</p>',
 	)
@@ -954,19 +954,19 @@ await test('Errored - error inside batch is caught', expect => {
 	const originalError = console.error
 	console.error = () => {}
 
-	const [read, write] = signal(0)
-	const [count, setCount] = signal(0)
+	const s = signal(0)
+	const count = signal(0)
 
 	const Maybe = () => {
 		effect(() => {
-			if (read() > 0) throw new Error('batched')
+			if (s.read() > 0) throw new Error('batched')
 		})
 		return <p>alive</p>
 	}
 
 	const dispose = render(
 		<div>
-			<p id="counter">{count}</p>
+			<p id="counter">{count.read}</p>
 			<Errored fallback={err => <p>{err.message}</p>}>
 				<Maybe />
 			</Errored>
@@ -975,8 +975,8 @@ await test('Errored - error inside batch is caught', expect => {
 	expect(body()).toBe('<div><p id="counter">0</p><p>alive</p></div>')
 
 	batch(() => {
-		write(1)
-		setCount(1)
+		s.write(1)
+		count.write(1)
 	})
 	expect(body()).toBe(
 		'<div><p id="counter">1</p><p>batched</p></div>',
@@ -1018,7 +1018,7 @@ await test('Errored — rejected promise does not break parent', async expect =>
 	const originalError = console.error
 	console.error = () => {}
 
-	const [count, setCount] = signal(0)
+	const count = signal(0)
 
 	const Async = () => {
 		const d = derived(() => Promise.reject(new Error('fail')))
@@ -1027,7 +1027,7 @@ await test('Errored — rejected promise does not break parent', async expect =>
 
 	const dispose = render(
 		<div>
-			<p id="parent">{count}</p>
+			<p id="parent">{count.read}</p>
 			<Errored fallback={<p>caught</p>}>
 				<Async />
 			</Errored>
@@ -1038,7 +1038,7 @@ await test('Errored — rejected promise does not break parent', async expect =>
 	expect(body()).toBe('<div><p id="parent">0</p><p>caught</p></div>')
 
 	// parent still updates
-	setCount(1)
+	count.write(1)
 	expect($('#parent').textContent).toBe('1')
 
 	console.error = originalError
@@ -1049,7 +1049,7 @@ await test('Errored — component returning rejected promise is caught by fallba
 	const originalError = console.error
 	console.error = () => {}
 
-	const [attempt, , updateAttempt] = signal(0)
+	const attempt = signal(0)
 
 	function AsyncBoom() {
 		return new Promise((_, reject) => {
@@ -1068,7 +1068,7 @@ await test('Errored — component returning rejected promise is caught by fallba
 						<p>Something broke: {String(err)}</p>
 						<button
 							on:click={() => {
-								updateAttempt(n => n + 1)
+								attempt.update(n => n + 1)
 								reset()
 							}}
 						>
@@ -1099,11 +1099,11 @@ await test('Errored — promise that resolves then rejects on signal change', as
 	const originalError = console.error
 	console.error = () => {}
 
-	const [shouldFail, setShouldFail] = signal(false)
+	const shouldFail = signal(false)
 
 	const Async = () => {
 		const d = derived(() =>
-			shouldFail()
+			shouldFail.read()
 				? Promise.reject(new Error('failed'))
 				: Promise.resolve('ok'),
 		)
@@ -1119,7 +1119,7 @@ await test('Errored — promise that resolves then rejects on signal change', as
 	await sleep(50)
 	expect(body()).toBe('<p>ok</p>')
 
-	setShouldFail(true)
+	shouldFail.write(true)
 	await sleep(50)
 	expect(body()).toBe('<p>failed</p>')
 

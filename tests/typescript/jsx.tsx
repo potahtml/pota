@@ -71,7 +71,7 @@ const StringObject = {
 	},
 }
 
-const [read, write] = signal('lefta' as const)
+const s = signal('lefta' as const)
 
 // default props test
 
@@ -159,7 +159,7 @@ function typescript(props) {
 	const myspan = bind('')
 	return (
 		<span
-			on:click={read}
+			on:click={s.read}
 			aria-busy={'true'}
 			aria-readonly={'true'}
 			what-what="aer"
@@ -254,7 +254,7 @@ typescript({})
 
 // -- signals used in JSX --
 
-const [count, setCount] = signal(42)
+const count = signal(42)
 
 // event handler inference
 const eventTest = (
@@ -324,8 +324,8 @@ const styleObjTest = (
 )
 
 // style as signal
-const [styleSignal] = signal('color: blue')
-const styleSignalTest = <div style={styleSignal} />
+const styleSignal = signal('color: blue')
+const styleSignalTest = <div style={styleSignal.read} />
 
 // style:* individual props
 const styleIndividualTest = (
@@ -345,8 +345,8 @@ const classStringTest = <div class="foo bar" />
 const classObjTest = <div class={{ active: true, hidden: false }} />
 
 // class as signal
-const [classSignal] = signal('dynamic-class')
-const classSignalTest = <div class={classSignal} />
+const classSignal = signal('dynamic-class')
+const classSignalTest = <div class={classSignal.read} />
 
 // class:* individual toggles
 const classBoolTest = (
@@ -615,7 +615,7 @@ const childrenTypes = (
 			<span>{n}</span>
 		))}
 		{/* signal accessor */}
-		{count}
+		{count.read}
 		{/* function */}
 		{() => <span>lazy</span>}
 	</div>
@@ -623,9 +623,9 @@ const childrenTypes = (
 
 // -- Accessor in props (reactive values) --
 
-const [reactiveTitle] = signal('hello')
+const reactiveTitle = signal('hello')
 const reactivePropsTest = (
-	<div title={reactiveTitle} tabindex={() => '-1'} />
+	<div title={reactiveTitle.read} tabindex={() => '-1'} />
 )
 
 // -- template/slot elements --
@@ -1355,11 +1355,11 @@ const propData = <data prop:value="42" />
 // Properties<T> wraps values as Accessor<T[K]>, so signals,
 // functions, and plain values should all be accepted.
 
-const [propSig] = signal('hello')
+const propSig = signal('hello')
 
 const propAccessorInput = (
 	<input
-		prop:value={propSig}
+		prop:value={propSig.read}
 		prop:checked={() => true}
 		prop:disabled={false}
 		prop:placeholder={memo(() => 'search...')}
@@ -1367,14 +1367,14 @@ const propAccessorInput = (
 )
 
 const propAccessorAnchor = (
-	<a prop:href={propSig} prop:target={() => '_blank'} />
+	<a prop:href={propSig.read} prop:target={() => '_blank'} />
 )
 
-const [propNumSig] = signal(10)
+const propNumSig = signal(10)
 const propAccessorVideo = (
 	<video
 		prop:volume={() => 0.5}
-		prop:currentTime={propNumSig}
+		prop:currentTime={propNumSig.read}
 		prop:muted={() => false}
 	/>
 )
@@ -1767,12 +1767,12 @@ const enumeratedAttrs = (
 // HTML attributes with Accessor wrapping
 // ============================================
 
-const [strSignalForAttr] = signal('search')
+const strSignalForAttr = signal('search')
 // all attribute values can be reactive (Accessor<T>)
 const reactiveAttrs = (
 	<input
 		type={() => 'text'}
-		placeholder={strSignalForAttr}
+		placeholder={strSignalForAttr.read}
 		disabled={() => false}
 		maxlength={derived(() => 100)}
 	/>
@@ -1853,15 +1853,15 @@ const deepFrag = (
 
 // conditional JSX
 const conditional = (
-	<div>{count() > 0 ? <span>yes</span> : <span>no</span>}</div>
+	<div>{count.read() > 0 ? <span>yes</span> : <span>no</span>}</div>
 )
 
 // promise as child
 const promiseChild = <div>{Promise.resolve(<span>async</span>)}</div>
 
 // signal as on:click handler
-const [handler] = signal((e: MouseEvent) => {})
-const signalHandler = <div on:click={handler} />
+const handler = signal((e: MouseEvent) => {})
+const signalHandler = <div on:click={handler.read} />
 
 // deeply nested reactive children
 const deepReactive = (
@@ -1869,12 +1869,12 @@ const deepReactive = (
 )
 
 // array of signals as children
-const [signalA] = signal('a')
-const [signalB] = signal('b')
+const signalA = signal('a')
+const signalB = signal('b')
 const signalChildren = (
 	<div>
-		{signalA}
-		{signalB}
+		{signalA.read}
+		{signalB.read}
 	</div>
 )
 

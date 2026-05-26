@@ -170,10 +170,10 @@ await test('cleanup — multiple cleanups run in reverse order', expect => {
 
 await test('cleanup — effect cleanup runs when effect re-runs', expect => {
 	let cleanupCount = 0
-	const [read, write] = signal(0)
+	const s = signal(0)
 	const dispose = root(dispose => {
 		effect(() => {
-			read()
+			s.read()
 			cleanup(() => cleanupCount++)
 		})
 		return dispose
@@ -181,10 +181,10 @@ await test('cleanup — effect cleanup runs when effect re-runs', expect => {
 	// effect has run after root returns, cleanup registered but not called
 	expect(cleanupCount).toBe(0)
 
-	write(1) // effect re-runs, previous cleanup fires
+	s.write(1) // effect re-runs, previous cleanup fires
 	expect(cleanupCount).toBe(1)
 
-	write(2)
+	s.write(2)
 	expect(cleanupCount).toBe(2)
 
 	dispose() // final cleanup
@@ -274,14 +274,14 @@ await test('cleanup — remaining cleanups still run after one throws', expect =
 await test('cleanup — error during effect re-run is caught', expect => {
 	/** @type {any} */
 	let caught
-	const [read, write] = signal(0)
+	const s = signal(0)
 	root(dispose => {
 		catchError(
 			() => {
 				effect(() => {
-					read()
+					s.read()
 					cleanup(() => {
-						if (read() === 1) throw new Error('cleanup on rerun')
+						if (s.read() === 1) throw new Error('cleanup on rerun')
 					})
 				})
 			},
@@ -293,7 +293,7 @@ await test('cleanup — error during effect re-run is caught', expect => {
 	})
 	expect(caught).toBe(undefined)
 
-	write(1) // effect re-runs, old cleanup fires and throws
+	s.write(1) // effect re-runs, old cleanup fires and throws
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('cleanup on rerun')
 })
@@ -302,12 +302,12 @@ await test('cleanup — error does not prevent sibling effects from running', ex
 	const original = console.error
 	console.error = () => {}
 
-	const [read, write] = signal(0)
+	const s = signal(0)
 	const seen = []
 
 	root(dispose => {
 		effect(() => {
-			read()
+			s.read()
 			cleanup(() => {
 				throw new Error('bad cleanup')
 			})
@@ -315,16 +315,16 @@ await test('cleanup — error does not prevent sibling effects from running', ex
 
 		// sibling effect
 		effect(() => {
-			seen.push(read())
+			seen.push(s.read())
 		})
 		return dispose
 	})
 	expect(seen).toEqual([0])
 
-	write(1) // first effect's cleanup throws, sibling should still run
+	s.write(1) // first effect's cleanup throws, sibling should still run
 	expect(seen).toEqual([0, 1])
 
-	write(2)
+	s.write(2)
 	expect(seen).toEqual([0, 1, 2])
 
 	console.error = original
@@ -385,18 +385,18 @@ await test('cleanup — all cleanups throw, all errors are routed', expect => {
 await test('cleanup — error during memo re-evaluation is caught', expect => {
 	/** @type {any} */
 	let caught
-	const [read, write] = signal(0)
+	const s = signal(0)
 	/** @type {any} */
 	let m
 	root(dispose => {
 		catchError(
 			() => {
 				m = memo(() => {
-					read()
+					s.read()
 					cleanup(() => {
-						if (read() === 1) throw new Error('memo cleanup')
+						if (s.read() === 1) throw new Error('memo cleanup')
 					})
-					return read() * 10
+					return s.read() * 10
 				})
 				m() // initial evaluation
 			},
@@ -409,7 +409,7 @@ await test('cleanup — error during memo re-evaluation is caught', expect => {
 	expect(caught).toBe(undefined)
 	expect(m()).toBe(0)
 
-	write(1) // memo re-evaluates, old cleanup throws
+	s.write(1) // memo re-evaluates, old cleanup throws
 	expect(caught instanceof Error).toBe(true)
 	expect(caught.message).toBe('memo cleanup')
 })
@@ -418,18 +418,18 @@ await test('cleanup — parent reactive state preserved after child cleanup erro
 	const original = console.error
 	console.error = () => {}
 
-	const [read, write] = signal(0)
+	const s = signal(0)
 	const parentSeen = []
 
 	root(dispose => {
 		effect(() => {
-			parentSeen.push(read())
+			parentSeen.push(s.read())
 		})
 
 		catchError(
 			() => {
 				effect(() => {
-					read()
+					s.read()
 					cleanup(() => {
 						throw new Error('child cleanup')
 					})
@@ -441,10 +441,10 @@ await test('cleanup — parent reactive state preserved after child cleanup erro
 	})
 	expect(parentSeen).toEqual([0])
 
-	write(1) // child cleanup throws, parent should keep tracking
+	s.write(1) // child cleanup throws, parent should keep tracking
 	expect(parentSeen).toEqual([0, 1])
 
-	write(2)
+	s.write(2)
 	expect(parentSeen).toEqual([0, 1, 2])
 
 	console.error = original
@@ -454,12 +454,12 @@ await test('cleanup — effect stays alive after its cleanup threw', expect => {
 	const original = console.error
 	console.error = () => {}
 
-	const [read, write] = signal(0)
+	const s = signal(0)
 	const seen = []
 
 	root(dispose => {
 		effect(() => {
-			const v = read()
+			const v = s.read()
 			seen.push(v)
 			if (v === 0) {
 				cleanup(() => {
@@ -472,11 +472,11 @@ await test('cleanup — effect stays alive after its cleanup threw', expect => {
 	expect(seen).toEqual([0])
 
 	// effect re-runs: old cleanup throws, but effect itself re-runs
-	write(1)
+	s.write(1)
 	expect(seen).toEqual([0, 1])
 
 	// effect is still alive
-	write(2)
+	s.write(2)
 	expect(seen).toEqual([0, 1, 2])
 
 	console.error = original

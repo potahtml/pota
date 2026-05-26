@@ -22,7 +22,7 @@ class MyComponent extends Pota {
 	}
 }
 
-const [val] = signal(0)
+const val = signal(0)
 const strSignal = signal('hello')
 
 // ============================================
@@ -81,12 +81,12 @@ const sa2: JSX.StyleAttribute = () => 'color: blue'
 
 // Accessor<T> accepts plain values, signals, and functions
 const a1: Accessor<number> = 42
-const a2: Accessor<number> = val
+const a2: Accessor<number> = val.read
 const a3: Accessor<number> = () => 42
 
 // When<T> is Accessor<T>
 const w1: When<number> = 42
-const w2: When<number> = val
+const w2: When<number> = val.read
 const w3: When<string> = strSignal.read
 
 // Each<T> accepts Iterable<T> or accessor of it
@@ -128,7 +128,7 @@ const _ai: A_Identity = 42
 // When<T> accepts Accessor<T> forms
 const w_plain: When<number> = 42
 const w_fn: When<number> = () => 42
-const w_signal: When<number> = val
+const w_signal: When<number> = val.read
 
 // Each<T> accepts Iterable forms
 const e_arr: Each<number> = [1, 2, 3]

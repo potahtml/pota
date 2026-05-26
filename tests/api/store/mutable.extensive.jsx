@@ -285,12 +285,12 @@ await test('batch: body throws — write persists but effect notifications are d
 
 await test('signal: signal() + mutable interop, both invalidate a memo', expect => {
 	const obj = mutable({ x: 0 })
-	const [read, write] = signal(0)
+	const s = signal(0)
 	let calls = 0
 	let sum
 	const m = memo(() => {
 		calls++
-		sum = obj.x + read()
+		sum = obj.x + s.read()
 	})
 	m()
 	expect(calls).toBe(1)
@@ -301,7 +301,7 @@ await test('signal: signal() + mutable interop, both invalidate a memo', expect 
 	expect(calls).toBe(2)
 	expect(sum).toBe(5)
 
-	write(10)
+	s.write(10)
 	m()
 	expect(calls).toBe(3)
 	expect(sum).toBe(15)
