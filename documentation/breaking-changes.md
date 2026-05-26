@@ -35,9 +35,22 @@
   `use:bind` are unchanged.
 
 - **New plugins.** `pota/use/storage` ships a
-  `storage(key, initial, store?)` signal whose value is mirrored to a
-  Web Storage area (default `localStorage`) on every write, with
-  try/catch around storage errors. `pota/use/cached` ships
+  `storage(prefix, backend?)` factory: each call returns a namespaced
+  `(key, initial?) => signal` whose value is mirrored to a Web Storage
+  area (default `localStorage`) under `prefix + key`, with try/catch
+  around storage errors. The factory shape replaces an earlier
+  `storage(key, initial, store?)` signal call.
+
+  ```js
+  const store = storage('my-app:')
+  const dark = store('dark', false)
+  dark.write(true)
+  ```
+
+  `pota/use/clipboard` adds `pasteText(handler?)` and
+  `pasteFiles(handler)` ref factories — the former intercepts `paste`
+  to insert only the `text/plain` portion (or hand it to a callback);
+  the latter receives any pasted `File`s. `pota/use/cached` ships
   `cached(url, opts?)` — a fetch helper with in-flight dedup, Cache
   API persistence stamped with `x-cached-at`, and per-entry TTL.
   `pota/use/time` gains `useElapsed(timestamp)` — a reactive accessor
