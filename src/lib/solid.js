@@ -588,9 +588,19 @@ export function createReactiveSystem() {
 		/** @type {number[]} */
 		observerSlots = EMPTY
 
-		/** @param {any} value */
-		constructor(value) {
+		/**
+		 * @param {any} value
+		 * @param {SignalOptions<any>} [options]
+		 */
+		constructor(value, options) {
 			this.value = value
+
+			if (options) {
+				assign(this, options)
+				if (options.equals === false) {
+					this.equals = this.equalsFalse
+				}
+			}
 		}
 
 		read = () => {
@@ -630,16 +640,7 @@ export function createReactiveSystem() {
 	 * @returns {SignalObject<T>}
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function signal(value, options) {
-		const s = new Signal(value)
-
-		if (options) {
-			assign(s, options)
-			if (options.equals === false) {
-				s.equals = s.equalsFalse
-			}
-		}
-
-		return s
+		return new Signal(value, options)
 	}
 
 	/**
