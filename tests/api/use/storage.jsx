@@ -1,7 +1,8 @@
 /** @jsxImportSource pota */
-// Tests for pota/use/storage: signal whose value is mirrored to a
-// Web Storage area on every write, with try/catch silent error
-// handling for quota / private-mode failures.
+// Tests for pota/use/storage: `storage(prefix, backend?)` factory
+// that returns `(key, initial?) => signal`, persisting under
+// `prefix + key` and silently swallowing quota / private-mode
+// failures.
 
 import { microtask, test } from '#test'
 
@@ -32,47 +33,52 @@ function memoryStore() {
 }
 
 await test('storage - falls back to initial when store is empty', async expect => {
-	const store = memoryStore()
+	const backend = memoryStore()
 	await root(async dispose => {
-		const s = storage('missing', 'fallback', store)
+		const store = storage('p:', backend)
+		const s = store('missing', 'fallback')
 		expect(s.read()).toBe('fallback')
-		// initial value is persisted by the seeding effect
-		expect(store.getItem('missing')).toBe('"fallback"')
+		// initial value is persisted by the seeding effect under
+		// the prefixed key
+		expect(backend.getItem('p:missing')).toBe('"fallback"')
 		dispose()
 	})
 })
 
 await test('storage - reads existing value from store on init', async expect => {
-	const store = memoryStore()
-	store.setItem('hit', JSON.stringify({ foo: 1, bar: [2, 3] }))
+	const backend = memoryStore()
+	backend.setItem('p:hit', JSON.stringify({ foo: 1, bar: [2, 3] }))
 	await root(async dispose => {
-		const s = storage('hit', { foo: 0, bar: [] }, store)
+		const store = storage('p:', backend)
+		const s = store('hit', { foo: 0, bar: [] })
 		expect(s.read()).toEqual({ foo: 1, bar: [2, 3] })
 		dispose()
 	})
 })
 
-await test('storage - writes propagate into the store', async expect => {
-	const store = memoryStore()
+await test('storage - writes propagate into the store under the prefixed key', async expect => {
+	const backend = memoryStore()
 	await root(async dispose => {
-		const s = storage('w', 0, store)
+		const store = storage('p:', backend)
+		const s = store('w', 0)
 		// Yield once so the root's initial Updates/Effects batch
 		// drains; subsequent writes then flush their own batch
 		// synchronously.
 		await microtask()
 		s.write(42)
-		expect(store.getItem('w')).toBe('42')
+		expect(backend.getItem('p:w')).toBe('42')
 		s.write(99)
-		expect(store.getItem('w')).toBe('99')
+		expect(backend.getItem('p:w')).toBe('99')
 		dispose()
 	})
 })
 
 await test('storage - unparseable JSON falls back to initial', async expect => {
-	const store = memoryStore()
-	store.setItem('broken', 'not-json{{{')
+	const backend = memoryStore()
+	backend.setItem('p:broken', 'not-json{{{')
 	await root(async dispose => {
-		const s = storage('broken', 'safe-default', store)
+		const store = storage('p:', backend)
+		const s = store('broken', 'safe-default')
 		expect(s.read()).toBe('safe-default')
 		dispose()
 	})
@@ -81,10 +87,11 @@ await test('storage - unparseable JSON falls back to initial', async expect => {
 await test('storage - JSON null is preserved (does not trigger fallback)', async expect => {
 	// JSON.parse("null") === null; safeParse must distinguish that
 	// from a missing key. Storage round-trip should round-trip null.
-	const store = memoryStore()
-	store.setItem('explicit-null', 'null')
+	const backend = memoryStore()
+	backend.setItem('p:explicit-null', 'null')
 	await root(async dispose => {
-		const s = storage('explicit-null', 'should-not-see-this', store)
+		const store = storage('p:', backend)
+		const s = store('explicit-null', 'should-not-see-this')
 		expect(s.read()).toBe(null)
 		dispose()
 	})
@@ -105,8 +112,9 @@ await test('storage - setItem failures are swallowed silently', async expect => 
 		length: 0,
 	}
 	await root(async dispose => {
+		const store = storage('p:', angry)
 		// must not throw despite the failing store
-		const s = storage('q', 'val', angry)
+		const s = store('q', 'val')
 		await microtask()
 		s.write('next')
 		expect(s.read()).toBe('next')
@@ -116,22 +124,56 @@ await test('storage - setItem failures are swallowed silently', async expect => 
 })
 
 await test('storage - default localStorage path persists across calls', async expect => {
-	// One key, two consecutive `storage()` calls — second sees the
+	// One key, two consecutive `store()` calls — second sees the
 	// first's write. Use a per-test prefix to avoid pollution.
-	const key = `pota-test-storage-${Math.random().toString(36).slice(2)}`
+	const prefix = `pota-test-storage-${Math.random().toString(36).slice(2)}:`
 	try {
 		await root(async dispose => {
-			const a = storage(key, 'one')
+			const a = storage(prefix)('thing', 'one')
 			await microtask()
 			a.write('two')
 			dispose()
 		})
 		await root(async dispose => {
-			const b = storage(key, 'one')
+			const b = storage(prefix)('thing', 'one')
 			expect(b.read()).toBe('two')
 			dispose()
 		})
 	} finally {
-		localStorage.removeItem(key)
+		localStorage.removeItem(prefix + 'thing')
 	}
+})
+
+await test('storage - separate prefixes are isolated', async expect => {
+	// Two namespaces over the same backend must not collide on the
+	// same logical key — the prefix is the namespace boundary.
+	const backend = memoryStore()
+	await root(async dispose => {
+		const a = storage('ns-a:', backend)
+		const b = storage('ns-b:', backend)
+		const sa = a('shared', 'A')
+		const sb = b('shared', 'B')
+		expect(sa.read()).toBe('A')
+		expect(sb.read()).toBe('B')
+		expect(backend.getItem('ns-a:shared')).toBe('"A"')
+		expect(backend.getItem('ns-b:shared')).toBe('"B"')
+		dispose()
+	})
+})
+
+await test('storage - reused factory shares the prefix', async expect => {
+	// One factory, multiple keys: each key gets its own signal,
+	// each persisted under prefix + key.
+	const backend = memoryStore()
+	await root(async dispose => {
+		const store = storage('app:', backend)
+		const a = store('a', 1)
+		const b = store('b', 2)
+		await microtask()
+		a.write(10)
+		b.write(20)
+		expect(backend.getItem('app:a')).toBe('10')
+		expect(backend.getItem('app:b')).toBe('20')
+		dispose()
+	})
 })
