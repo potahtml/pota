@@ -1,6 +1,7 @@
 import { addEvent, signal } from '../lib/reactive.js'
 import { window } from '../lib/std.js'
 import { document } from './dom.js'
+import { Emitter } from './emitter.js'
 import { isEditable } from './form.js'
 
 /**
@@ -93,7 +94,6 @@ export const submitOnCtrlEnter = handler =>
 const heldSignals = new Map()
 /** @type {Set<string>} */
 const heldSet = new Set()
-let heldInitialized = false
 
 const ensureHeldSignal = key => {
 	let entry = heldSignals.get(key)
@@ -110,32 +110,43 @@ const clearAllHeld = () => {
 	for (const [, [, write]] of heldSignals) write(false)
 }
 
-const initHeld = () => {
-	if (heldInitialized) return
-	heldInitialized = true
-	// page-lifetime tracking; never torn down once any consumer
-	// asks for held state. Listening on `window` (not via the
-	// scope-bound `addEvent`) keeps the tracker independent of
-	// any one reactive owner.
-	window.addEventListener('keydown', e => {
-		if (isEditable(document.activeElement)) return
-		const k = e.key.toLowerCase()
-		// skip OS key-repeat events so the signal flips only on
-		// the actual press transition.
-		if (heldSet.has(k)) return
-		heldSet.add(k)
-		ensureHeldSignal(k)[1](true)
-	})
-	window.addEventListener('keyup', e => {
-		const k = e.key.toLowerCase()
-		if (!heldSet.has(k)) return
-		heldSet.delete(k)
-		ensureHeldSignal(k)[1](false)
-	})
-	// clear everything on window blur so keys can't stay "stuck"
-	// when the user alt-tabs while holding one.
-	window.addEventListener('blur', clearAllHeld)
+const onKeyDown = e => {
+	if (isEditable(document.activeElement)) return
+	const k = e.key.toLowerCase()
+	// skip OS key-repeat events so the signal flips only on
+	// the actual press transition.
+	if (heldSet.has(k)) return
+	heldSet.add(k)
+	ensureHeldSignal(k)[1](true)
 }
+const onKeyUp = e => {
+	const k = e.key.toLowerCase()
+	if (!heldSet.has(k)) return
+	heldSet.delete(k)
+	ensureHeldSignal(k)[1](false)
+}
+
+// Emitter refcounts the held-key listeners: the first `use()`
+// attaches them on `window`; the last consumer's cleanup detaches
+// them and clears `heldSet` so stale "held" state doesn't survive
+// an off → on cycle. Listening on `window` (not via the
+// scope-bound `addEvent`) keeps the tracker independent of any one
+// reactive owner while it's alive.
+const heldLifecycle = new Emitter({
+	on: () => {
+		window.addEventListener('keydown', onKeyDown)
+		window.addEventListener('keyup', onKeyUp)
+		// blur clears held keys so they can't stay "stuck" when the
+		// user alt-tabs while holding one.
+		window.addEventListener('blur', clearAllHeld)
+		return () => {
+			window.removeEventListener('keydown', onKeyDown)
+			window.removeEventListener('keyup', onKeyUp)
+			window.removeEventListener('blur', clearAllHeld)
+			clearAllHeld()
+		}
+	},
+})
 
 /**
  * Reactive accessor for whether `key` is currently held down,
@@ -157,7 +168,7 @@ const initHeld = () => {
  * @url https://pota.quack.uy/use/keyboard
  */
 export const useKeyHeld = key => {
-	initHeld()
+	heldLifecycle.use()
 	return ensureHeldSignal(key.toLowerCase())[0]
 }
 
@@ -171,6 +182,6 @@ export const useKeyHeld = key => {
  * @url https://pota.quack.uy/use/keyboard
  */
 export const keysHeld = () => {
-	initHeld()
+	heldLifecycle.use()
 	return heldSet
 }
