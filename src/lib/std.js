@@ -1,4 +1,10 @@
-export const window = globalThis
+// `globalThis` alone is typed as `typeof globalThis` — but in the
+// DOM lib the real `window` is `Window & typeof globalThis`. Cast
+// so consumers (e.g. `addEvent`'s `typeof window` template
+// parameter) accept it without each call needing its own cast.
+export const window = /** @type {Window & typeof globalThis} */ (
+	globalThis
+)
 
 export const requestAnimationFrame = window.requestAnimationFrame
 export const cancelAnimationFrame = window.cancelAnimationFrame
