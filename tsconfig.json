@@ -40,5 +40,5 @@
 		"typescript/jsx/components.d.ts",
 		"typescript/jsx/namespace.d.ts"
 	],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules", "projects"]
 }
