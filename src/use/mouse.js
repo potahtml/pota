@@ -1,5 +1,6 @@
 import { signal } from '../lib/reactive.js'
 import { window } from '../lib/std.js'
+import { Emitter } from './emitter.js'
 
 // Backed by Pointer Events, not Mouse Events: pointerdown fires for
 // every button (including back/forward, which mousedown skips in
@@ -11,7 +12,6 @@ const buttonSignals = new Map()
 /** @type {Set<number>} */
 const heldButtons = new Set()
 const [posRead, posWrite] = signal({ x: 0, y: 0 })
-let initialized = false
 
 const ensureButtonSignal = button => {
 	let entry = buttonSignals.get(button)
@@ -28,36 +28,48 @@ const clearAllButtons = () => {
 	for (const [, [, write]] of buttonSignals) write(false)
 }
 
-const init = () => {
-	if (initialized) return
-	initialized = true
-	// page-lifetime tracking, attached on `window` (not via the
-	// scope-bound `addEvent`) so the tracker stays independent of any
-	// one reactive owner.
-	window.addEventListener('pointerdown', e => {
-		if (heldButtons.has(e.button)) return
-		heldButtons.add(e.button)
-		ensureButtonSignal(e.button)[1](true)
-	})
-	window.addEventListener('pointerup', e => {
-		if (!heldButtons.has(e.button)) return
-		heldButtons.delete(e.button)
-		ensureButtonSignal(e.button)[1](false)
-	})
-	window.addEventListener('pointercancel', e => {
-		if (!heldButtons.has(e.button)) return
-		heldButtons.delete(e.button)
-		ensureButtonSignal(e.button)[1](false)
-	})
-	window.addEventListener(
-		'pointermove',
-		e => posWrite({ x: e.clientX, y: e.clientY }),
-		{ passive: true },
-	)
-	// safety net: window blur (alt-tab while holding) clears held
-	// buttons so they don't get stuck.
-	window.addEventListener('blur', clearAllButtons)
+const onPointerDown = e => {
+	if (heldButtons.has(e.button)) return
+	heldButtons.add(e.button)
+	ensureButtonSignal(e.button)[1](true)
 }
+// pointerup and pointercancel do the same thing — release the button
+// if it was held.
+const onPointerRelease = e => {
+	if (!heldButtons.has(e.button)) return
+	heldButtons.delete(e.button)
+	ensureButtonSignal(e.button)[1](false)
+}
+const onPointerMove = e =>
+	posWrite({ x: e.clientX, y: e.clientY })
+
+// Emitter refcounts the pointer listeners: the first `use()`
+// attaches them on `window`; the last consumer's cleanup detaches
+// them and clears held buttons so stale state doesn't survive an
+// off → on cycle. Listening on `window` (not via the scope-bound
+// `addEvent`) keeps the tracker independent of any one reactive
+// owner while it's alive.
+const lifecycle = new Emitter({
+	on: () => {
+		window.addEventListener('pointerdown', onPointerDown)
+		window.addEventListener('pointerup', onPointerRelease)
+		window.addEventListener('pointercancel', onPointerRelease)
+		window.addEventListener('pointermove', onPointerMove, {
+			passive: true,
+		})
+		// safety net: window blur (alt-tab while holding) clears held
+		// buttons so they don't get stuck.
+		window.addEventListener('blur', clearAllButtons)
+		return () => {
+			window.removeEventListener('pointerdown', onPointerDown)
+			window.removeEventListener('pointerup', onPointerRelease)
+			window.removeEventListener('pointercancel', onPointerRelease)
+			window.removeEventListener('pointermove', onPointerMove)
+			window.removeEventListener('blur', clearAllButtons)
+			clearAllButtons()
+		}
+	},
+})
 
 /**
  * Reactive accessor for whether a mouse button is currently held.
@@ -78,7 +90,7 @@ const init = () => {
  * @url https://pota.quack.uy/use/mouse
  */
 export const useMouseButton = button => {
-	init()
+	lifecycle.use()
 	return ensureButtonSignal(button)[0]
 }
 
@@ -92,7 +104,7 @@ export const useMouseButton = button => {
  * @url https://pota.quack.uy/use/mouse
  */
 export const mouseButtons = () => {
-	init()
+	lifecycle.use()
 	return heldButtons
 }
 
@@ -106,7 +118,7 @@ export const mouseButtons = () => {
  * @url https://pota.quack.uy/use/mouse
  */
 export const useMousePosition = () => {
-	init()
+	lifecycle.use()
 	return posRead
 }
 
@@ -119,6 +131,6 @@ export const useMousePosition = () => {
  * @url https://pota.quack.uy/use/mouse
  */
 export const mousePosition = () => {
-	init()
+	lifecycle.use()
 	return posRead()
 }
