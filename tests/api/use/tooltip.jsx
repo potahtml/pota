@@ -125,8 +125,12 @@ await test('tooltip - arrows: false disables the arrow indicator attr', async ex
 await test('tooltip - activating a different trigger swaps content', async expect => {
 	const dispose = render(
 		<div>
-			<button id="a" use:ref={tooltip({ content: 'first' })}>a</button>
-			<button id="b" use:ref={tooltip({ content: 'second' })}>b</button>
+			<button id="a" use:ref={tooltip({ content: 'first' })}>
+				a
+			</button>
+			<button id="b" use:ref={tooltip({ content: 'second' })}>
+				b
+			</button>
 		</div>,
 		document.body,
 	)
@@ -151,7 +155,9 @@ await test('tooltip - activating a different trigger swaps content', async expec
 await test('tooltip - reactive content updates while shown', async expect => {
 	const value = signal('one')
 	const dispose = render(
-		<button id="r" use:ref={tooltip({ content: value.read })}>x</button>,
+		<button id="r" use:ref={tooltip({ content: value.read })}>
+			x
+		</button>,
 		document.body,
 	)
 	await microtask()
@@ -170,7 +176,9 @@ await test('tooltip - reactive content updates while shown', async expect => {
 
 await test('tooltip - disposing the last trigger removes the singleton overlay', async expect => {
 	const dispose = render(
-		<button id="d" use:ref={tooltip({ content: 'bye' })}>x</button>,
+		<button id="d" use:ref={tooltip({ content: 'bye' })}>
+			x
+		</button>,
 		document.body,
 	)
 	await microtask()
@@ -191,8 +199,12 @@ await test('tooltip - blur on a non-active trigger does not hide the active one'
 	// then blur on B should NOT close A's tooltip.
 	const dispose = render(
 		<div>
-			<button id="x" use:ref={tooltip({ content: 'x' })}>x</button>
-			<button id="y" use:ref={tooltip({ content: 'y' })}>y</button>
+			<button id="x" use:ref={tooltip({ content: 'x' })}>
+				x
+			</button>
+			<button id="y" use:ref={tooltip({ content: 'y' })}>
+				y
+			</button>
 		</div>,
 		document.body,
 	)

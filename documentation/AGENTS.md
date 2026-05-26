@@ -56,8 +56,8 @@ last resort**, not the default tool.
   `{count.read}`. `{count}` passes the signal object itself, which is
   not a valid JSX child. `{count.read()}` reads once (snapshot, not
   reactive) — use it only when you want a static value. Same rule for
-  component props expecting reactive values: `<Show when={flag.read}>`,
-  `<Dynamic component={...}>`, etc.
+  component props expecting reactive values:
+  `<Show when={flag.read}>`, `<Dynamic component={...}>`, etc.
 - A bare JSX expression is a **static** child; a function wrapping one
   is **reactive**. `<Foo>{<div/>}</Foo>` evaluates the `<div/>` once
   and passes that single node. `<Foo>{() => <div/>}</Foo>` passes a

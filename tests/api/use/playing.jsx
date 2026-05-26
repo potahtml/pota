@@ -37,9 +37,7 @@ await test('playing - isPlaying is true for currentTime>0, not paused, not ended
 
 await test('playing - isPlaying is false when paused', expect => {
 	expect(
-		isPlaying(
-			media({ currentTime: 1, paused: true, readyState: 4 }),
-		),
+		isPlaying(media({ currentTime: 1, paused: true, readyState: 4 })),
 	).toBe(false)
 })
 

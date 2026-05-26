@@ -5,11 +5,7 @@
 import { test, $, $$, microtask } from '#test'
 
 import { render } from 'pota'
-import {
-	clipboard,
-	pasteFiles,
-	pasteText,
-} from 'pota/use/clipboard'
+import { clipboard, pasteFiles, pasteText } from 'pota/use/clipboard'
 
 await test('clipboard - copies explicit string values', async expect => {
 	const writes = []
@@ -210,11 +206,7 @@ function dispatchPaste(node, text, files = []) {
 
 await test('pasteText - default insertion into <input> at the caret', async expect => {
 	const dispose = render(
-		<input
-			type="text"
-			value="ab"
-			use:ref={pasteText()}
-		/>,
+		<input type="text" value="ab" use:ref={pasteText()} />,
 	)
 	await microtask()
 	const input = /** @type {HTMLInputElement} */ ($('input'))
@@ -255,9 +247,7 @@ await test('pasteText - dispatches input event so listeners observe the change',
 			value=""
 			use:ref={pasteText()}
 			on:input={e =>
-				events.push(
-					/** @type {HTMLInputElement} */ (e.target).value,
-				)
+				events.push(/** @type {HTMLInputElement} */ (e.target).value)
 			}
 		/>,
 	)
@@ -275,11 +265,7 @@ await test('pasteText - dispatches input event so listeners observe the change',
 
 await test('pasteText - HTML-formatted clipboard is ignored, only text/plain wins', async expect => {
 	const dispose = render(
-		<input
-			type="text"
-			value=""
-			use:ref={pasteText()}
-		/>,
+		<input type="text" value="" use:ref={pasteText()} />,
 	)
 	await microtask()
 	const input = /** @type {HTMLInputElement} */ ($('input'))
@@ -336,11 +322,7 @@ await test('pasteText - handler overrides default insertion', async expect => {
 await test('pasteText - handler is cleaned up on dispose', async expect => {
 	let calls = 0
 	const dispose = render(
-		<input
-			type="text"
-			value=""
-			use:ref={pasteText(() => calls++)}
-		/>,
+		<input type="text" value="" use:ref={pasteText(() => calls++)} />,
 	)
 	await microtask()
 	const input = /** @type {HTMLInputElement} */ ($('input'))
@@ -385,10 +367,7 @@ await test('pasteFiles - fires handler with files and prevents default', async e
 await test('pasteFiles - handler is not called and default not prevented when only text is pasted', async expect => {
 	let calls = 0
 	const dispose = render(
-		<div
-			tabindex="0"
-			use:ref={pasteFiles(() => calls++)}
-		/>,
+		<div tabindex="0" use:ref={pasteFiles(() => calls++)} />,
 	)
 	await microtask()
 	const div = $('div')
@@ -428,10 +407,7 @@ await test('pasteFiles - hands all clipboard files to the handler', async expect
 await test('pasteFiles - handler is cleaned up on dispose', async expect => {
 	let calls = 0
 	const dispose = render(
-		<div
-			tabindex="0"
-			use:ref={pasteFiles(() => calls++)}
-		/>,
+		<div tabindex="0" use:ref={pasteFiles(() => calls++)} />,
 	)
 	await microtask()
 	const div = $('div')

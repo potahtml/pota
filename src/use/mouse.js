@@ -81,8 +81,8 @@ const lifecycle = new Emitter({
  * - `4` — forward
  *
  * Tracking is global; first call lazily installs the listeners.
- * `pointerup` is honored unconditionally so buttons can't get
- * stuck, and `blur` clears all held buttons.
+ * `pointerup` is honored unconditionally so buttons can't get stuck,
+ * and `blur` clears all held buttons.
  *
  * @param {number} button
  * @returns {() => boolean}
@@ -95,9 +95,9 @@ export const useMouseButton = button => {
 
 /**
  * Non-reactive live `Set` of currently-pressed button indices.
- * Intended for `requestAnimationFrame` loops where reactive
- * tracking would be wasted overhead. The set is mutated in place;
- * treat it as read-only.
+ * Intended for `requestAnimationFrame` loops where reactive tracking
+ * would be wasted overhead. The set is mutated in place; treat it as
+ * read-only.
  *
  * @returns {Set<number>}
  * @url https://pota.quack.uy/use/mouse
@@ -110,8 +110,8 @@ export const mouseButtons = () => {
 /**
  * Reactive accessor for the current pointer position in client
  * coordinates (`{x, y}`). For page coordinates, add the current
- * scroll offset; for element-relative coords, see
- * `pota/use/drag`'s `DragInfo`.
+ * scroll offset; for element-relative coords, see `pota/use/drag`'s
+ * `DragInfo`.
  *
  * @returns {() => { x: number; y: number }}
  * @url https://pota.quack.uy/use/mouse
@@ -123,8 +123,8 @@ export const useMousePosition = () => {
 
 /**
  * Non-reactive snapshot of the current pointer position. Returns a
- * fresh `{x, y}` object — the underlying signal is replaced on
- * every move, so subsequent calls see the latest value.
+ * fresh `{x, y}` object — the underlying signal is replaced on every
+ * move, so subsequent calls see the latest value.
  *
  * @returns {{ x: number; y: number }}
  * @url https://pota.quack.uy/use/mouse

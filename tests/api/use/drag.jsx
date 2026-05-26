@@ -148,7 +148,12 @@ await test('drag - reports element-relative coords and percent clamped to rect',
 		elementY: starts[0].elementY,
 		percentX: starts[0].percentX,
 		percentY: starts[0].percentY,
-	}).toEqual({ elementX: 50, elementY: 50, percentX: 25, percentY: 50 })
+	}).toEqual({
+		elementX: 50,
+		elementY: 50,
+		percentX: 25,
+		percentY: 50,
+	})
 
 	expect({
 		elementX: moves[0].elementX,
@@ -156,16 +161,21 @@ await test('drag - reports element-relative coords and percent clamped to rect',
 		percentY: moves[0].percentY,
 	}).toEqual({ elementX: 100, percentX: 50, percentY: 20 })
 
-	expect({ elementX: moves[1].elementX, percentX: moves[1].percentX }).toEqual({
+	expect({
+		elementX: moves[1].elementX,
+		percentX: moves[1].percentX,
+	}).toEqual({
 		elementX: 200,
 		percentX: 100,
 	})
 
-	expect({ elementX: moves[2].elementX, percentX: moves[2].percentX }).toEqual({
+	expect({
+		elementX: moves[2].elementX,
+		percentX: moves[2].percentX,
+	}).toEqual({
 		elementX: 0,
 		percentX: 0,
 	})
 
 	dispose()
 })
-

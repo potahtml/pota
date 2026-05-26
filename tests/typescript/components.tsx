@@ -824,7 +824,9 @@ const forWrongEach = (
 // TODO: should error — value is SignalAccessor<number>, not
 // string, but callback matches JSX.Element union branch
 const showWrongCallback = (
-	<Show when={count.read}>{(value: string) => <span>{value}</span>}</Show>
+	<Show when={count.read}>
+		{(value: string) => <span>{value}</span>}
+	</Show>
 )
 
 // @ts-expect-error Button2: type was omitted

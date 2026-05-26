@@ -100,8 +100,8 @@ const rafLifecycle = new Emitter({
 
 /**
  * Reactive accessor for whether the gamepad at `index` is currently
- * connected. Backed by the same poll loop as the other accessors;
- * the loop runs while any consumer is subscribed.
+ * connected. Backed by the same poll loop as the other accessors; the
+ * loop runs while any consumer is subscribed.
  *
  * @param {number} [index=0] Default is `0`
  * @returns {() => boolean}
@@ -161,18 +161,16 @@ export const useGamepadTrigger = (buttonIndex, gamepadIndex = 0) => {
  */
 export const useGamepadAxis = (axisIndex, gamepadIndex = 0) => {
 	rafLifecycle.use()
-	return ensureNumberSignal(
-		axisValue,
-		key2(gamepadIndex, axisIndex),
-	).read
+	return ensureNumberSignal(axisValue, key2(gamepadIndex, axisIndex))
+		.read
 }
 
 /**
- * Non-reactive snapshot of the underlying `Gamepad` object (or
- * `null` if no gamepad is at that index). Use this inside game
- * loops that want to read every button + axis without subscribing
- * per element. Does **not** start the poll loop on its own — it
- * just reads `navigator.getGamepads()` directly.
+ * Non-reactive snapshot of the underlying `Gamepad` object (or `null`
+ * if no gamepad is at that index). Use this inside game loops that
+ * want to read every button + axis without subscribing per element.
+ * Does **not** start the poll loop on its own — it just reads
+ * `navigator.getGamepads()` directly.
  *
  * @param {number} [index=0] Default is `0`
  * @returns {Gamepad | null}

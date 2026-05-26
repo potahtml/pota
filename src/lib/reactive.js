@@ -175,9 +175,7 @@ export function externalSignal(initialValue, options) {
 			const stale = untrack(s.read)
 
 			for (const after of fresh) {
-				const before = stale.find(
-					before => before.id === after.id,
-				)
+				const before = stale.find(before => before.id === after.id)
 
 				equals(before, after) ? r.push(before) : r.push(after)
 			}

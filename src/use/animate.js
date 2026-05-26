@@ -53,10 +53,10 @@ export const animatePartTo = (element, oldPart, newPart) =>
 	)
 
 /**
- * Cancels every running animation on `element` — CSS animations,
- * CSS transitions, and Web Animations API instances. Returns the
- * list that was canceled, in case the caller wants to inspect or
- * `await Promise.all(returned.map(a => a.finished.catch(()=>0)))`.
+ * Cancels every running animation on `element` — CSS animations, CSS
+ * transitions, and Web Animations API instances. Returns the list
+ * that was canceled, in case the caller wants to inspect or `await
+ * Promise.all(returned.map(a => a.finished.catch(()=>0)))`.
  *
  * @param {Element} element
  */
@@ -67,11 +67,11 @@ export const stopAnimations = element => {
 }
 
 /**
- * Returns a map of every `@keyframes` rule declared in the document
- * — name → its `CSSRuleList`. Walks both `document.styleSheets` and
- * `document.adoptedStyleSheets`. Cross-origin stylesheets are
- * skipped silently because reading their `cssRules` throws.
- * Intended for inspection / tooling, not for runtime use.
+ * Returns a map of every `@keyframes` rule declared in the document —
+ * name → its `CSSRuleList`. Walks both `document.styleSheets` and
+ * `document.adoptedStyleSheets`. Cross-origin stylesheets are skipped
+ * silently because reading their `cssRules` throws. Intended for
+ * inspection / tooling, not for runtime use.
  */
 export const documentKeyframes = () => {
 	const out = empty()

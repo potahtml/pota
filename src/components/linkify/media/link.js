@@ -18,10 +18,7 @@ export const Link = props =>
 		target:
 			props.blank ||
 			props.url.indexOf(
-				window.location.protocol +
-					'//' +
-					window.location.host +
-					'/',
+				window.location.protocol + '//' + window.location.host + '/',
 			) !== 0
 				? '_blank'
 				: undefined,

@@ -148,10 +148,10 @@ const heldLifecycle = new Emitter({
 })
 
 /**
- * Reactive accessor for whether `key` is currently held down,
- * tracked globally (modifier-agnostic). Useful for game-style input,
- * canvas controls, or any UI driven by key-held state rather than
- * key-press events.
+ * Reactive accessor for whether `key` is currently held down, tracked
+ * globally (modifier-agnostic). Useful for game-style input, canvas
+ * controls, or any UI driven by key-held state rather than key-press
+ * events.
  *
  * Keydown is ignored while focus is inside an editable element
  * (`<input>`, `<textarea>`, `<select>`, or `contenteditable`) so

@@ -130,10 +130,10 @@ export class CustomElement extends HTMLElement {
 	}
 
 	/**
-	 * Subscribes to `slotchange` events in the shadow root. When
-	 * `name` is provided, only fires for that named `<slot>`; when
-	 * `name` is `undefined` it matches the default (unnamed) slot.
-	 * Returns a disposer that removes the listener.
+	 * Subscribes to `slotchange` events in the shadow root. When `name`
+	 * is provided, only fires for that named `<slot>`; when `name` is
+	 * `undefined` it matches the default (unnamed) slot. Returns a
+	 * disposer that removes the listener.
 	 *
 	 * @param {string | undefined} name
 	 * @param {(slot: HTMLSlotElement) => void} fn

@@ -113,7 +113,7 @@ export const setFaviconBadge = async (badge, options) => {
  * the badge on scope dispose — favicons are page-global state, so
  * call `setFaviconBadge(null)` from your own cleanup if needed.
  *
- * @param {string|number|null|undefined|(() => any)} badge
+ * @param {string | number | null | undefined | (() => any)} badge
  * @param {{ background?: string; color?: string }} [options]
  * @url https://pota.quack.uy/use/favicon
  */

@@ -142,7 +142,18 @@ const releaseSheet = () => {
 }
 
 /**
- * @typedef {'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-left-overlap' | 'top-right-overlap' | 'bottom-left-overlap' | 'bottom-right-overlap'} OverlayPosition
+ * @typedef {'top'
+ * 	| 'bottom'
+ * 	| 'left'
+ * 	| 'right'
+ * 	| 'top-left'
+ * 	| 'top-right'
+ * 	| 'bottom-left'
+ * 	| 'bottom-right'
+ * 	| 'top-left-overlap'
+ * 	| 'top-right-overlap'
+ * 	| 'bottom-left-overlap'
+ * 	| 'bottom-right-overlap'} OverlayPosition
  */
 
 /**
@@ -209,16 +220,16 @@ const normalizeString = value =>
  *
  * Panel role defaults to `'dialog'`. Position defaults via
  * `computePosition()`'s `default` branch (top). String content is
- * whitespace-normalized (trimmed line-by-line) before being
- * rendered or surfaced as `aria-label`.
+ * whitespace-normalized (trimmed line-by-line) before being rendered
+ * or surfaced as `aria-label`.
  *
  * When `manageFocus` is set, the panel gets `tabindex="-1"`, focus
  * moves into it on open, and is restored to the previously-focused
  * element on close (or on dispose-while-open).
  *
- * Coordinates are clamped to the viewport — the wrap will not
- * render beyond the visible window. Clamping is naive: it does not
- * flip the requested position.
+ * Coordinates are clamped to the viewport — the wrap will not render
+ * beyond the visible window. Clamping is naive: it does not flip the
+ * requested position.
  *
  * @param {{
  * 	role?: string
@@ -230,7 +241,7 @@ const normalizeString = value =>
  * 	ariaLabel?: () => string | null
  * 	manageFocus?: boolean
  * }} opts
- * @returns {() => void} dispose
+ * @returns {() => void} Dispose
  */
 export const createOverlay = opts => {
 	retainSheet()
@@ -296,8 +307,7 @@ export const createOverlay = opts => {
 			// pota strips attrs whose value is boolean `false`, but the
 			// arrow CSS keys off `data-overlay-arrows="false"` — coerce
 			// so the attribute is always present.
-			'data-overlay-arrows': () =>
-				opts.arrows() ? 'true' : 'false',
+			'data-overlay-arrows': () => (opts.arrows() ? 'true' : 'false'),
 			'aria-label': ariaLabel,
 			'use:ref': /** @param {HTMLElement} el */ el => {
 				panel = el
@@ -349,10 +359,9 @@ export const createOverlay = opts => {
 
 			effect(() => {
 				if (opts.opened()) {
-					previousFocus =
-						/** @type {HTMLElement | null} */ (
-							document.activeElement
-						)
+					previousFocus = /** @type {HTMLElement | null} */ (
+						document.activeElement
+					)
 					// wait a microtask so the panel is rendered with
 					// display:block before focus moves to it.
 					queueMicrotask(() => {

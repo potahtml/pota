@@ -4,13 +4,12 @@
  * unit-testable.
  *
  * Markers (`*bold*`, `/italic/`, `_under_`, `-strike-`, `|spoiler|`,
- * `` `code` ``) nest freely except `` ` ``, which is atomic — its
- * body stays literal so the renderer can copy it verbatim.
+ * ``code``) nest freely except ```, which is atomic — its body stays
+ * literal so the renderer can copy it verbatim.
  *
- * @typedef {{ kind: 'text', s: string }
- *   | { kind: 'atom', name: string, s: string }
- *   | { kind: 'tag', name: string, children: Node[] }
- * } Node
+ * @typedef {{ kind: 'text'; s: string }
+ * 	| { kind: 'atom'; name: string; s: string }
+ * 	| { kind: 'tag'; name: string; children: Node[] }} Node
  */
 
 /**
@@ -23,7 +22,7 @@
 const tags = {
 	'*': 0,
 	'/': 1,
-	'_': 1,
+	_: 1,
 	'-': 0,
 	'|': 1,
 	'`': 1,
@@ -55,8 +54,8 @@ export default function tokenize(input) {
 
 /**
  * Parses `s`. The caller prepends a leading space so an opening tag
- * at position 0 of the original input still satisfies `canOpen`.
- * That space is stripped from the first text node before return.
+ * at position 0 of the original input still satisfies `canOpen`. That
+ * space is stripped from the first text node before return.
  *
  * @param {string} s
  * @returns {Node[]}
@@ -84,7 +83,11 @@ function parse(s) {
 			}
 		}
 		// `\*` etc. — drop the backslash so the tag char becomes literal.
-		if (s[i] === '\\' && s[i + 1] in tags && canOpen(s[i - 1], s, i - 1)) {
+		if (
+			s[i] === '\\' &&
+			s[i + 1] in tags &&
+			canOpen(s[i - 1], s, i - 1)
+		) {
 			continue
 		}
 		buf += s[i]
@@ -102,8 +105,8 @@ function parse(s) {
  * @param {string} name
  * @param {0 | 1} nLine
  * @param {string} s
- * @param {number} i  position of the opening tag char
- * @returns {number}  index of closing char, or -1 if no match
+ * @param {number} i Position of the opening tag char
+ * @returns {number} Index of closing char, or -1 if no match
  */
 function findClose(name, nLine, s, i) {
 	for (i += 1; i < s.length; i++) {

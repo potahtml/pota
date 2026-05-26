@@ -78,11 +78,11 @@ export const pasteText = handler => node =>
 	})
 
 /**
- * Ref factory: captures any files in the clipboard on `paste`
- * (pasted images, files copied from the OS file manager, etc.).
- * `handler` runs only when at least one file is present, and
- * `preventDefault()` is called so the host element doesn't also
- * receive a textual representation of the file.
+ * Ref factory: captures any files in the clipboard on `paste` (pasted
+ * images, files copied from the OS file manager, etc.). `handler`
+ * runs only when at least one file is present, and `preventDefault()`
+ * is called so the host element doesn't also receive a textual
+ * representation of the file.
  *
  * @param {(
  * 	files: File[],

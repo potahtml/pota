@@ -22,7 +22,7 @@ const spoilerRemove = e => {
 }
 
 /**
- * Tag-marker → component factory. Atomic markers (`` ` ``) receive the
+ * Tag-marker → component factory. Atomic markers (```) receive the
  * raw inner string so we can copy it to clipboard verbatim; the rest
  * receive the recursively-rendered children array.
  *
@@ -31,7 +31,7 @@ const spoilerRemove = e => {
 const wraps = {
 	'*': c => Component('b', { children: c }),
 	'/': c => Component('em', { children: c }),
-	'_': c => Component('u', { children: c }),
+	_: c => Component('u', { children: c }),
 	'-': c => Component('s', { children: c }),
 	'|': c =>
 		Component('span', {
@@ -48,10 +48,10 @@ const wraps = {
 
 /**
  * Inline-formatter for chat-style text. Renders `*bold*`, `/italic/`,
- * `_under_`, `-strike-`, `|spoiler|` and `` `code` `` markers,
- * recognises media URLs, optionally substitutes `:emoji:` shortcodes,
- * and can highlight a `mark` term. A leading `>` makes the whole
- * block a quote; a leading `/ ` italicises it.
+ * `_under_`, `-strike-`, `|spoiler|` and ``code`` markers, recognises
+ * media URLs, optionally substitutes `:emoji:` shortcodes, and can
+ * highlight a `mark` term. A leading `>` makes the whole block a
+ * quote; a leading `/ ` italicises it.
  *
  * @type {Component<{
  * 	text?: string
@@ -101,10 +101,10 @@ export function Linkify(props) {
 
 /**
  * @typedef {{
- *   emoji: boolean
- *   mark: string | false
- *   scroll: () => void
- *   guessType?: boolean
+ * 	emoji: boolean
+ * 	mark: string | false
+ * 	scroll: () => void
+ * 	guessType?: boolean
  * }} Ctx
  *
  * @param {Node[]} nodes
@@ -150,7 +150,10 @@ function appendText(s, ctx, out) {
 					guessType: ctx.guessType,
 				}),
 			)
-		} else if (ctx.mark !== false && ctx.mark === piece.toLowerCase()) {
+		} else if (
+			ctx.mark !== false &&
+			ctx.mark === piece.toLowerCase()
+		) {
 			out.push(Component('mark', { children: piece }))
 		} else if (
 			ctx.emoji &&

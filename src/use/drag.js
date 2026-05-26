@@ -8,10 +8,10 @@ import { document } from './dom.js'
  * element's top-left corner at the moment of `pointerdown`, clamped
  * to the element's box. `percentX` / `percentY` are the same values
  * expressed as `0`–`100`. Both are convenient for sliders, range
- * pickers, and color canvases — where the element doesn't move
- * during the gesture and the pointer position within its bounds is
- * what matters. Use `dx` / `dy` (cumulative delta) when dragging
- * the element itself.
+ * pickers, and color canvases — where the element doesn't move during
+ * the gesture and the pointer position within its bounds is what
+ * matters. Use `dx` / `dy` (cumulative delta) when dragging the
+ * element itself.
  *
  * @typedef {{
  * 	dx: number
@@ -56,14 +56,8 @@ export const draggable =
 		let pointerId = -1
 
 		const buildInfo = (/** @type {PointerEvent} */ e) => {
-			const elementX = Math.max(
-				0,
-				Math.min(rectW, e.clientX - rectX),
-			)
-			const elementY = Math.max(
-				0,
-				Math.min(rectH, e.clientY - rectY),
-			)
+			const elementX = Math.max(0, Math.min(rectW, e.clientX - rectX))
+			const elementY = Math.max(0, Math.min(rectH, e.clientY - rectY))
 			return {
 				dx: e.clientX - originX,
 				dy: e.clientY - originY,

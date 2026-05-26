@@ -302,9 +302,7 @@ await test('CustomElement - hasDefaultSlot is true when a child lacks the slot a
 			<p>Body</p>
 		</pota-test-ce-default-slot>,
 	)
-	const element = /** @type {El} */ (
-		$('pota-test-ce-default-slot')
-	)
+	const element = /** @type {El} */ ($('pota-test-ce-default-slot'))
 	expect(element.hasDefaultSlot()).toBe(true)
 
 	dispose()
@@ -371,8 +369,7 @@ await test('CustomElement - onSlotChange fires for matching slot and returns a d
 
 	// populating the host triggers slot assignment in the shadow DOM,
 	// which fires `slotchange` on each matched <slot>.
-	element.innerHTML =
-		'<span slot="title">T</span><b>B</b>'
+	element.innerHTML = '<span slot="title">T</span><b>B</b>'
 	await microtask()
 
 	expect(titleCalls).toEqual(['title'])

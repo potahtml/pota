@@ -617,8 +617,7 @@ export function createReactiveSystem() {
 			return false
 		}
 
-		update = val =>
-			this.write(untrack(() => val(this.value)))
+		update = val => this.write(untrack(() => val(this.value)))
 
 		/** @param {any} a @param {any} b */
 		equals(a, b) {

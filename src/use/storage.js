@@ -41,7 +41,10 @@ const safeParse = raw => {
  * (signals sharing a key see each other's writes) and the cross-tab
  * `storage` listener.
  *
- * @type {Map<string, Set<{ initial: unknown, update: (value: unknown) => void }>>}
+ * @type {Map<
+ * 	string,
+ * 	Set<{ initial: unknown; update: (value: unknown) => void }>
+ * >}
  */
 const subs = new Map()
 
@@ -80,8 +83,8 @@ window.addEventListener('storage', e => {
  * dark.update(v => !v)
  * ```
  *
- * Each call returns a `signal()`-shaped object: an iterable
- * `[read, write, update]` tuple that also exposes `.read`, `.write`,
+ * Each call returns a `signal()`-shaped object: an iterable `[read,
+ * write, update]` tuple that also exposes `.read`, `.write`,
  * `.update` as properties. The initial value comes from storage when
  * present, falling back to `initial`. Signals for the same key stay
  * in sync within the same document, and browser-backed stores also

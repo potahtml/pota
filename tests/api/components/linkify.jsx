@@ -42,9 +42,7 @@ await test('Linkify - trims surrounding whitespace by default', expect => {
 // === Adjacent literals coalesce ===
 
 await test('Linkify - adjacent literal pieces coalesce into one text node', expect => {
-	const dispose = render(
-		<Linkify text="alpha beta gamma delta" />,
-	)
+	const dispose = render(<Linkify text="alpha beta gamma delta" />)
 	expect(body()).toBe('alpha beta gamma delta')
 	expect(childNodes()).toBe(1)
 	dispose()
@@ -253,17 +251,13 @@ await test('Linkify - trim=true strips per-line padding but keeps newlines', exp
 // === Mark highlight ===
 
 await test('Linkify - mark wraps the whole matching token in <mark>', expect => {
-	const dispose = render(
-		<Linkify text="hello world" mark="world" />,
-	)
+	const dispose = render(<Linkify text="hello world" mark="world" />)
 	expect(body()).toBe('hello <mark>world</mark>')
 	dispose()
 })
 
 await test('Linkify - mark is case-insensitive', expect => {
-	const dispose = render(
-		<Linkify text="Hello WORLD" mark="world" />,
-	)
+	const dispose = render(<Linkify text="Hello WORLD" mark="world" />)
 	expect(body()).toBe('Hello <mark>WORLD</mark>')
 	dispose()
 })
@@ -293,9 +287,7 @@ await test('Linkify - emoji=false leaves :smile: as literal text', expect => {
 
 await test('Linkify - emoji=true substitutes :smile: via the shortcode map', expect => {
 	const dispose = render(<Linkify text=":smile:" emoji />)
-	expect(body()).toBe(
-		'<span data-linkify-type="emoji">😄</span>',
-	)
+	expect(body()).toBe('<span data-linkify-type="emoji">😄</span>')
 	dispose()
 })
 
@@ -307,9 +299,7 @@ await test('Linkify - emoji=true substitutes :heart: via the shortcode map', exp
 
 await test('Linkify - emoji=true # shortcodes render "<key> <value>"', expect => {
 	const dispose = render(<Linkify text="#UY" emoji />)
-	expect(body()).toBe(
-		'<span data-linkify-type="emoji">#UY 🇺🇾</span>',
-	)
+	expect(body()).toBe('<span data-linkify-type="emoji">#UY 🇺🇾</span>')
 	dispose()
 })
 
@@ -320,9 +310,7 @@ await test('Linkify - emoji=true wraps bare unicode emoji', expect => {
 })
 
 await test('Linkify - emoji=true mixes shortcodes with surrounding text', expect => {
-	const dispose = render(
-		<Linkify text="hello :smile: world" emoji />,
-	)
+	const dispose = render(<Linkify text="hello :smile: world" emoji />)
 	expect(body()).toBe(
 		'hello <span data-linkify-type="emoji">😄</span> world',
 	)
@@ -372,23 +360,17 @@ await test('Linkify - audio URL renders a bare <audio> element', expect => {
 })
 
 await test('Linkify - URL without a media extension renders a generic <a>', expect => {
-	const dispose = render(
-		<Linkify text="https://example.com/about" />,
-	)
+	const dispose = render(<Linkify text="https://example.com/about" />)
 	const a = $('a')
 	expect(a).not.toBe(null)
-	expect(a.getAttribute('href')).toBe(
-		'https://example.com/about',
-	)
+	expect(a.getAttribute('href')).toBe('https://example.com/about')
 	expect(a.querySelector('img')).toBe(null)
 	expect(a.querySelector('video')).toBe(null)
 	dispose()
 })
 
 await test('Linkify - off-origin URLs open in a new tab', expect => {
-	const dispose = render(
-		<Linkify text="https://example.com/about" />,
-	)
+	const dispose = render(<Linkify text="https://example.com/about" />)
 	const a = $('a')
 	expect(a.getAttribute('target')).toBe('_blank')
 	expect(a.getAttribute('rel')).toBe('noopener external')

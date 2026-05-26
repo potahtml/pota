@@ -68,30 +68,27 @@ const overlayLifecycle = new Emitter({
 })
 
 /**
- * Ref factory: shows a singleton tooltip when the element is
- * hovered (`pointerenter`) or focused, and hides it on
- * `pointerleave` / `blur`. Only one tooltip is visible at a time —
- * activating a different trigger replaces the active one. Auto-
- * repositions on scroll and viewport resize.
+ * Ref factory: shows a singleton tooltip when the element is hovered
+ * (`pointerenter`) or focused, and hides it on `pointerleave` /
+ * `blur`. Only one tooltip is visible at a time — activating a
+ * different trigger replaces the active one. Auto- repositions on
+ * scroll and viewport resize.
  *
  * `opts.content` accepts a string, a JSX element, or a function /
  * signal accessor (reactive). `opts.position` is one of:
  *
- * - **Cardinals** (tooltip adjacent, centered on the trigger):
- *   `top` (default), `bottom`, `left`, `right`.
- * - **Plain corners** (tooltip diagonally past the trigger's
- *   corner): `top-left`, `top-right`, `bottom-left`,
- *   `bottom-right`.
+ * - **Cardinals** (tooltip adjacent, centered on the trigger): `top`
+ *   (default), `bottom`, `left`, `right`.
+ * - **Plain corners** (tooltip diagonally past the trigger's corner):
+ *   `top-left`, `top-right`, `bottom-left`, `bottom-right`.
  * - **Overlap corners** (tooltip adjacent on one axis, with the
- *   matching edges aligned): `top-left-overlap`,
- *   `top-right-overlap`, `bottom-left-overlap`,
- *   `bottom-right-overlap`.
+ *   matching edges aligned): `top-left-overlap`, `top-right-overlap`,
+ *   `bottom-left-overlap`, `bottom-right-overlap`.
  *
  * `opts.arrows` toggles the arrow indicator (default `true`).
  *
- * The shared overlay is refcounted — it appears on the first
- * tooltip mount and is removed when the last `tooltip` ref
- * disposes.
+ * The shared overlay is refcounted — it appears on the first tooltip
+ * mount and is removed when the last `tooltip` ref disposes.
  *
  * @param {{
  * 	content: unknown
@@ -100,33 +97,34 @@ const overlayLifecycle = new Emitter({
  * }} opts
  * @url https://pota.quack.uy/use/tooltip
  */
-export const tooltip = opts => /** @param {HTMLElement} node */ node => {
-	overlayLifecycle.use()
-	const show = () => {
-		overlay?.show({
-			node,
-			content: opts.content,
-			position: opts.position || 'top',
-			arrows: opts.arrows ?? true,
+export const tooltip =
+	opts => /** @param {HTMLElement} node */ node => {
+		overlayLifecycle.use()
+		const show = () => {
+			overlay?.show({
+				node,
+				content: opts.content,
+				position: opts.position || 'top',
+				arrows: opts.arrows ?? true,
+			})
+		}
+		const hide = () => {
+			// only close if we're the active trigger — guards against
+			// blur on a previously-focused sibling closing the tooltip
+			// the user is currently pointing at.
+			if (overlay?.isOpenFor(node)) overlay.hide()
+		}
+
+		addEvent(node, 'pointerenter', show)
+		addEvent(node, 'pointerleave', hide)
+		addEvent(node, 'focus', show)
+		addEvent(node, 'blur', hide)
+
+		// hide when the trigger's owner scope tears down — otherwise a
+		// tooltip can linger after its anchor is gone. LIFO cleanup
+		// order in this scope runs this before `overlayLifecycle`'s
+		// teardown, so `overlay` is still live here.
+		cleanup(() => {
+			if (overlay?.isOpenFor(node)) overlay.hide()
 		})
 	}
-	const hide = () => {
-		// only close if we're the active trigger — guards against
-		// blur on a previously-focused sibling closing the tooltip
-		// the user is currently pointing at.
-		if (overlay?.isOpenFor(node)) overlay.hide()
-	}
-
-	addEvent(node, 'pointerenter', show)
-	addEvent(node, 'pointerleave', hide)
-	addEvent(node, 'focus', show)
-	addEvent(node, 'blur', hide)
-
-	// hide when the trigger's owner scope tears down — otherwise a
-	// tooltip can linger after its anchor is gone. LIFO cleanup
-	// order in this scope runs this before `overlayLifecycle`'s
-	// teardown, so `overlay` is still live here.
-	cleanup(() => {
-		if (overlay?.isOpenFor(node)) overlay.hide()
-	})
-}

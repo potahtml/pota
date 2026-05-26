@@ -70,7 +70,9 @@ export function Media(props) {
 		const link = toObjectURL(url)
 		return Component(Audio, { url: link.url, scroll: props.scroll })
 	}
-	if (/^data:image\/(png|apng|jpg|jpeg|gif|svg|webp);base64/.test(url)) {
+	if (
+		/^data:image\/(png|apng|jpg|jpeg|gif|svg|webp);base64/.test(url)
+	) {
 		const link = toObjectURL(url)
 		return Component(Image, { url: link.url, scroll: props.scroll })
 	}

@@ -52,8 +52,8 @@ function pickMimeType(video) {
  * show a "recording" indicator (`recording`), a "paused" state, an
  * elapsed-time counter (`duration`, in ms, frozen while paused), a
  * live mic level for a waveform or pulsing dot (`amplitude`, RMS in
- * `0..1`), and the current permission state for the requested
- * devices (`permission`).
+ * `0..1`), and the current permission state for the requested devices
+ * (`permission`).
  *
  * The mic / camera are released as soon as recording stops, is
  * cancelled, or the surrounding scope is disposed — so the browser
@@ -65,14 +65,15 @@ function pickMimeType(video) {
  * 	mimeType?: string
  * 	maxDuration?: number
  * }} [options]
- *   - `audio`: capture audio (default `true`). Pass a constraints
- *       object (e.g. `{ echoCancellation: true }`) to refine.
+ *   - `audio`: capture audio (default `true`). Pass a constraints object
+ *       (e.g. `{ echoCancellation: true }`) to refine.
  *   - `video`: capture video (default `false`).
  *   - `mimeType`: override the auto-picked codec. Must pass
  *       `MediaRecorder.isTypeSupported`.
- *   - `maxDuration`: auto-stop after this many ms of *active*
- *       recording (paused time doesn't count). The pending `stop()`
- *       promise (if any) resolves with the captured blob.
+ *   - `maxDuration`: auto-stop after this many ms of _active_ recording
+ *       (paused time doesn't count). The pending `stop()` promise (if
+ *       any) resolves with the captured blob.
+ *
  * @url https://pota.quack.uy/use/recorder
  */
 export function recorder(options = {}) {
@@ -143,9 +144,9 @@ export function recorder(options = {}) {
 	}
 
 	/**
-	 * Starts capture. Resolves once `MediaRecorder` is running.
-	 * Rejects if permission is denied or no compatible device exists
-	 * — callers should `try`/`catch` to surface that to the user.
+	 * Starts capture. Resolves once `MediaRecorder` is running. Rejects
+	 * if permission is denied or no compatible device exists — callers
+	 * should `try`/`catch` to surface that to the user.
 	 *
 	 * @returns {Promise<void>}
 	 */
@@ -156,7 +157,10 @@ export function recorder(options = {}) {
 			video,
 		})
 		const type = mimeType ?? pickMimeType(!!video)
-		rec = new MediaRecorder(stream, type ? { mimeType: type } : undefined)
+		rec = new MediaRecorder(
+			stream,
+			type ? { mimeType: type } : undefined,
+		)
 		chunks = []
 		rec.ondataavailable = e => {
 			if (e.data && e.data.size) chunks.push(e.data)
@@ -208,11 +212,10 @@ export function recorder(options = {}) {
 	}
 
 	/**
-	 * Pauses capture without releasing the device. The `duration`
-	 * timer and the `maxDuration` countdown freeze; `amplitude`
-	 * keeps ticking since the mic stays live (useful as a "mic is
-	 * still hearing you" indicator). No-op unless actively
-	 * recording.
+	 * Pauses capture without releasing the device. The `duration` timer
+	 * and the `maxDuration` countdown freeze; `amplitude` keeps ticking
+	 * since the mic stays live (useful as a "mic is still hearing you"
+	 * indicator). No-op unless actively recording.
 	 */
 	function pause() {
 		const r = rec
@@ -306,8 +309,7 @@ export function recorder(options = {}) {
 			const update = () => {
 				const states = statuses.map(s => s.state)
 				if (states.includes('denied')) permission.write('denied')
-				else if (states.includes('prompt'))
-					permission.write('prompt')
+				else if (states.includes('prompt')) permission.write('prompt')
 				else permission.write('granted')
 			}
 			update()
