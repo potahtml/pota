@@ -25,25 +25,25 @@ const noError = Symbol()
  * @url https://pota.quack.uy/Components/Errored
  */
 export const Errored = props => {
-	const [err, writeErr] = signal(/** @type {unknown} */ (noError))
-	const [attempt, , updateAttempt] = signal(0)
+	const err = signal(/** @type {unknown} */ (noError))
+	const attempt = signal(0)
 
 	const fallback = makeCallback(props.fallback)
 
 	const reset = () => {
 		batch(() => {
-			writeErr(noError)
-			updateAttempt(n => n + 1)
+			err.write(noError)
+			attempt.update(n => n + 1)
 		})
 	}
 
 	const children = memo(() => {
-		attempt()
-		return catchError(() => toHTMLFragment(props.children), writeErr)
+		attempt.read()
+		return catchError(() => toHTMLFragment(props.children), err.write)
 	})
 
 	return memo(() => {
-		const e = err()
+		const e = err.read()
 		if (e !== noError) return fallback(e, reset)
 		return children()
 	})

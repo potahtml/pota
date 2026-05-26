@@ -18,8 +18,8 @@ export function devToolsProps(path, state) {
  * Adds `__dev` argument to declarations
  *
  * ```js
- * const [something] = signal(undefined, {
- * 	__dev: { __pota: { name: something, etc } },
+ * const something = signal(undefined, {
+ * 	__dev: { __pota: { name: 'something', etc } },
  * })
  * ```
  */
@@ -342,7 +342,7 @@ function makeAssignementSource(path, state) {
 
 /**
  * ```js
- * const [something, write] = signal(val, {
+ * const something = signal(val, {
  * 	__dev: { __pota: { name: 'something' } },
  * })
  * ```

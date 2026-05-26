@@ -545,7 +545,7 @@ export function createChildren(
 			if ('then' in child) {
 				const remove = useSuspense().add()
 
-				const [value, setValue] = signal(undefined)
+				const value = signal(undefined)
 
 				child.then(
 					owned(result => {
@@ -553,7 +553,7 @@ export function createChildren(
 							markComponent(result)
 						}
 
-						setValue(result)
+						value.write(result)
 						remove()
 					}, remove),
 					owned(err => {
@@ -562,7 +562,7 @@ export function createChildren(
 					}, remove),
 				)
 
-				return createChildren(parent, value, relative)
+				return createChildren(parent, value.read, relative)
 			}
 
 			// iterable/Map/Set/NodeList

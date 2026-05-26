@@ -70,7 +70,7 @@ export function Route(props) {
 	)
 
 	let href = ''
-	const [params, setParams] = signal(() => nothing)
+	const params = signal(() => nothing)
 
 	const show = memo(() => {
 		const path = location.path()
@@ -78,7 +78,7 @@ export function Route(props) {
 		// console.log(path, route)
 
 		if (route.test(path)) {
-			setParams(() => route.exec(path)?.groups || nothing)
+			params.write(() => route.exec(path)?.groups || nothing)
 
 			if (href === '') {
 				href =
@@ -94,7 +94,7 @@ export function Route(props) {
 	const context = create({
 		base,
 		href: () => href,
-		params,
+		params: params.read,
 		scroll: props.scroll,
 		parent,
 		show,

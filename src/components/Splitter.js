@@ -68,8 +68,8 @@ export const Splitter = props => {
 			? stored
 			: props.initial
 
-	const [size, setSize] = signal(initial ?? null)
-	const [dragging, setDragging] = signal(false)
+	const size = signal(initial ?? null)
+	const dragging = signal(false)
 
 	ready(() => {
 		const node = handle()
@@ -93,7 +93,7 @@ export const Splitter = props => {
 			}
 		}
 
-		if (size() != null) applySize(size())
+		if (size.read() != null) applySize(size.read())
 
 		let active = false
 		let startCoord = 0
@@ -101,7 +101,7 @@ export const Splitter = props => {
 
 		const onPointerDown = e => {
 			active = true
-			setDragging(true)
+			dragging.write(true)
 			startCoord = e[clientCoord]
 			startSize = target[offsetDim]
 			node.setPointerCapture(e.pointerId)
@@ -119,21 +119,21 @@ export const Splitter = props => {
 				min,
 				Math.min(max, startSize + delta * sign),
 			)
-			setSize(next)
+			size.write(next)
 			applySize(next)
 		}
 
 		const onPointerUp = e => {
 			if (!active) return
 			active = false
-			setDragging(false)
+			dragging.write(false)
 			try {
 				node.releasePointerCapture(e.pointerId)
 			} catch {}
 			document.body.style.userSelect = ''
 			document.body.style.cursor = ''
-			if (props.persist && size() != null) {
-				localStorage.setItem(props.persist, String(size()))
+			if (props.persist && size.read() != null) {
+				localStorage.setItem(props.persist, String(size.read()))
 			}
 		}
 
@@ -166,7 +166,7 @@ export const Splitter = props => {
 		'use:css': splitterCSS,
 		class: props.class,
 		'data-orientation': orientation,
-		'data-dragging': dragging,
+		'data-dragging': dragging.read,
 		role: 'separator',
 		'aria-orientation': orientation,
 	})

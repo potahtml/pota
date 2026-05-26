@@ -8,8 +8,8 @@ import { isAbsolute } from '../../use/url.js'
  * @returns {import('#type/Route.d.ts').Context}
  */
 export function create(props) {
-	/** @type SignalObject<import('#type/Route.d.ts').Context[]> */
-	const [children, _, updateChildren] = signal(
+	/** @type {SignalObject<import('#type/Route.d.ts').Context[]>} */
+	const children = signal(
 		/** @type {import('#type/Route.d.ts').Context[]} */ ([]),
 	)
 
@@ -23,19 +23,19 @@ export function create(props) {
 		scroll: undefined, // elements to scroll
 		// the children routes
 		addChild(child) {
-			updateChildren(children => {
-				children.push(child)
-				return [...children]
+			children.update(prev => {
+				prev.push(child)
+				return [...prev]
 			})
 			cleanup(() =>
-				updateChildren(children => {
-					removeFromArray(children, child)
-					return [...children]
+				children.update(prev => {
+					removeFromArray(prev, child)
+					return [...prev]
 				}),
 			)
 		},
 		shouldShowDefault: memo(() => {
-			const child = children()
+			const child = children.read()
 			return (
 				// when it has siblings, check if at least 1 rendered
 				// `every` instead of `some`, needs to read the signal for tracking

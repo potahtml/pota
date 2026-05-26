@@ -80,9 +80,9 @@ export {
  * @returns {SignalFunction<T>}
  */
 export function signalFunction(value) {
-	const [read, write] = signal(value)
+	const s = signal(value)
 	// @ts-expect-error
-	return (...args) => (args.length ? write(args[0]) : read())
+	return (...args) => (args.length ? s.write(args[0]) : s.read())
 }
 
 /**

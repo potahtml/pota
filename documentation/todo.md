@@ -28,4 +28,3 @@
 - handle/listen postMessage/MessageChannel
 - color picker
 - uploads
-- record audio, video

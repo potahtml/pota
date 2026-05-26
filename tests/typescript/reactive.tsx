@@ -31,16 +31,15 @@ import {
 } from 'pota'
 
 // ============================================
-// Signal API — tuple + object style
+// Signal API — object style
 // ============================================
 
-// tuple destructuring: [read, write, update]
-const [val, setVal, updateVal] = signal(0)
-const r1: number = val()
-setVal(5)
-updateVal(prev => prev + 1)
+// .read / .write / .update
+const val = signal(0)
+const r1: number = val.read()
+val.write(5)
+val.update(prev => prev + 1)
 
-// object style: .read, .write, .update
 const numSignal = signal(100)
 const r2: number = numSignal.read()
 numSignal.write(200)
@@ -61,7 +60,7 @@ const emptySignal = signal<string>()
 const r5: string | undefined = emptySignal.read()
 
 // write returns boolean (SignalChanged)
-const changed: boolean = setVal(10)
+const changed: boolean = val.write(10)
 
 // ref — signal shorthand
 const myRef = ref()
@@ -72,65 +71,65 @@ const myRef = ref()
 
 // effect
 effect(() => {
-	const v = val()
+	const v = val.read()
 	console.log(v)
 })
 
 // effect with EffectOptions (empty-shape options object)
-effect(() => val(), {})
-effect(() => val(), undefined)
+effect(() => val.read(), {})
+effect(() => val.read(), undefined)
 
 // syncEffect
 syncEffect(() => {
-	const v = val()
+	const v = val.read()
 })
 
 // syncEffect with options
-syncEffect(() => val(), {})
+syncEffect(() => val.read(), {})
 
 // EffectOptions rejects unknown fields
 // @ts-expect-error EffectOptions has no `equals` field
-const effectBadOpts = effect(() => val(), { equals: false })
+const effectBadOpts = effect(() => val.read(), { equals: false })
 // @ts-expect-error EffectOptions is currently empty — arbitrary keys rejected
-const effectBadOpts2 = effect(() => val(), { foo: 'bar' })
+const effectBadOpts2 = effect(() => val.read(), { foo: 'bar' })
 
 // on — explicit deps (depend, fn)
-on(val, () => {
+on(val.read, () => {
 	// fn runs when depend's deps change
 })
 
 // on accepts a plain arrow as depend (after `() => any` widening)
 on(
-	() => val(),
+	() => val.read(),
 	() => {},
 )
 
 // on returns void
-const onReturn: void = on(val, () => 42)
+const onReturn: void = on(val.read, () => 42)
 
 // @ts-expect-error on's depend must be a callable, not a plain value
 const onBadDepend = on(42, () => {})
 
 // batch
 batch(() => {
-	setVal(1)
+	val.write(1)
 	strSignal.write('world')
 })
 
 // untrack
-const untracked = untrack(() => val())
+const untracked = untrack(() => val.read())
 const untrackedVal: number = untracked
 
 // root
 root(dispose => {
-	effect(() => val())
+	effect(() => val.read())
 	// dispose is a function
 	dispose()
 })
 
 // cleanup
 effect(() => {
-	val()
+	val.read()
 	cleanup(() => {
 		// cleanup callback
 	})
@@ -138,7 +137,7 @@ effect(() => {
 
 // owned
 const ownedFn = owned(() => {
-	return val()
+	return val.read()
 })
 
 // resolve — children resolution, returns SignalAccessor<T>
@@ -157,7 +156,7 @@ const resolvedPlain = resolve(<span>hi</span>)
 const unwrapped = unwrap([<div />, () => 'text', [1, 2]])
 
 // withValue — unwrap and track reactive value
-withValue(val, value => {
+withValue(val.read, value => {
 	const n: number = value
 })
 
@@ -168,7 +167,7 @@ withValue(Promise.resolve(42), value => {
 
 // action — batched callback
 const increment = action(() => {
-	updateVal(n => n + 1)
+	val.update(n => n + 1)
 })
 
 // externalSignal — expects { id?: string }[]
@@ -192,7 +191,7 @@ const extBad = externalSignal([42, 'string'])
 asyncEffect(currentRunningEffect => {
 	// currentRunningEffect is Promise<any>
 	const p: Promise<any> = currentRunningEffect
-	return val() * 2
+	return val.read() * 2
 })
 
 // returns void
@@ -290,11 +289,11 @@ const dUntypedIsResolved: boolean = isResolved(
 )
 
 // derived with signal dependency
-const dDouble = derived(() => val() * 2)
+const dDouble = derived(() => val.read() * 2)
 const dDoubleVal: number = dDouble()
 
 // memo returns SignalAccessor<T>
-const mStr = memo(() => `val: ${val()}`)
+const mStr = memo(() => `val: ${val.read()}`)
 const mStrVal: string = mStr()
 
 // ============================================
@@ -667,23 +666,14 @@ ThemeContext.walk(value => {
 const contextScoped = CountCtx(99, () => <div>scoped</div>)
 
 // ============================================
-// SignalObject / SignalTuple / DerivedSignal assertions
+// SignalObject / DerivedSignal assertions
 // ============================================
 
-// SignalTuple is readonly [read, write, update]
-const tuple: SignalTuple<number> = signal(0)
-const [tRead, tWrite, tUpdate] = tuple
-const tv: number = tRead()
-tWrite(1)
-tUpdate(n => n + 1)
-
-// SignalObject has both tuple and named access
+// SignalObject — named access
 const obj: SignalObject<string> = signal('hi')
 const ov1: string = obj.read()
 obj.write('bye')
 obj.update(s => s + '!')
-// also indexable
-const ov2: string = obj[0]()
 
 // DerivedSignal shape
 const ds = derived(() => 42)
