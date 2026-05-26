@@ -27,6 +27,5 @@
 
 - handle/listen postMessage/MessageChannel
 - color picker
-- linkify
 - uploads
 - record audio, video
