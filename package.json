@@ -124,7 +124,7 @@
 		"ignore": [],
 		"port": 7357,
 		"timeout": 8000,
-		"concurrency": 16
+		"concurrency": 8
 	},
 	"formatter": {
 		"pattern": "**/*.{js,jsx,ts,tsx,mjs,cjs}",
