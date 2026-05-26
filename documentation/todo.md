@@ -11,7 +11,7 @@
 
 - add proper 404
 - light theme
-- restructure the docs and switch to mdx
+- restructure the docs and switch to mdx maybe
 
 ### stuff
 

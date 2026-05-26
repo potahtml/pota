@@ -169,6 +169,15 @@ const ff: boolean = isFirefox
 // verifies subpath resolution only.
 import 'pota/use/clickoutside'
 
+// --- pota/use/storage ---
+
+import { storage } from 'pota/use/storage'
+
+const appStorage = storage('app:')
+const storedFlag = appStorage('flag', false)
+const storedRead: boolean = storedFlag.read()
+storedFlag.write(true)
+
 // --- pota/use/color ---
 
 import {
