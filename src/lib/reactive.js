@@ -164,24 +164,26 @@ export function asyncEffect(fn) {
  */
 export function externalSignal(initialValue, options) {
 	const s = signal(initialValue, options)
+	const baseWrite = s.write
 
-	const write = s[1]
+	return {
+		read: s.read,
+		update: s.update,
+		write: fresh => {
+			const r = /** @type {T} */ ([])
 
-	// @ts-expect-error
-	s[1] = s.write = fresh => {
-		const r = /** @type {T} */ ([])
+			const stale = untrack(s.read)
 
-		const stale = untrack(s.read)
+			for (const after of fresh) {
+				const before = stale.find(
+					before => before.id === after.id,
+				)
 
-		for (const after of fresh) {
-			const before = stale.find(before => before.id === after.id)
-
-			equals(before, after) ? r.push(before) : r.push(after)
-		}
-		return write(r)
+				equals(before, after) ? r.push(before) : r.push(after)
+			}
+			return baseWrite(r)
+		},
 	}
-
-	return s
 }
 
 /** @param {() => unknown} fn */

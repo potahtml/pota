@@ -572,22 +572,6 @@ export function createReactiveSystem() {
 	// SIGNAL
 
 	/**
-	 * @param {any} a
-	 * @param {any} b
-	 */
-	function equalsFalse(a, b) {
-		return false
-	}
-
-	/**
-	 * @param {any} a
-	 * @param {any} b
-	 */
-	function equals(a, b) {
-		return a === b
-	}
-
-	/**
 	 * Plain leaf observable shared with Memo/Derived for the
 	 * `o.observers` access in doRead/doWrite. observers / observerSlots
 	 * start as the EMPTY sentinel so the slot type is always JSArray —
@@ -595,18 +579,45 @@ export function createReactiveSystem() {
 	 * megamorphic across signal-literal vs Memo vs Derived shapes.
 	 */
 	class Signal {
+		/** @type {any} */
+		value
+
 		/** @type {Computation[]} */
 		observers = EMPTY
 
 		/** @type {number[]} */
 		observerSlots = EMPTY
 
-		/** @type {any} */
-		value
-
 		/** @param {any} value */
 		constructor(value) {
 			this.value = value
+		}
+
+		read = () => {
+			if (Listener) doRead(this)
+			return this.value
+		}
+
+		write = val => {
+			if (!this.equals(this.value, val)) {
+				this.value = val
+				doWrite(this)
+				return true
+			}
+			return false
+		}
+
+		update = val =>
+			this.write(untrack(() => val(this.value)))
+
+		/** @param {any} a @param {any} b */
+		equals(a, b) {
+			return a === b
+		}
+
+		/** @param {any} a @param {any} b */
+		equalsFalse(a, b) {
+			return false
 		}
 	}
 
@@ -619,41 +630,13 @@ export function createReactiveSystem() {
 	 * @returns {SignalObject<T>}
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function signal(value, options) {
-		let _equals = equals
-		if (options) {
-			if (options.equals === false) _equals = equalsFalse
-			else if (options.equals) _equals = options.equals
-		}
-
-		const o = new Signal(value)
-
-		function read() {
-			if (Listener) {
-				doRead(o)
-			}
-
-			return o.value
-		}
-		function write(val) {
-			if (!_equals(o.value, val)) {
-				o.value = val
-				doWrite(o)
-				return true
-			}
-			return false
-		}
-		function update(val) {
-			return write(untrack(() => val(o.value)))
-		}
-
-		const s = /** @type {any} */ ([read, write, update])
-
-		s.read = read
-		s.write = write
-		s.update = update
+		const s = new Signal(value)
 
 		if (options) {
 			assign(s, options)
+			if (options.equals === false) {
+				s.equals = s.equalsFalse
+			}
 		}
 
 		return s
