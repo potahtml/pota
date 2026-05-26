@@ -4,12 +4,12 @@
  * unit-testable.
  *
  * Markers (`*bold*`, `/italic/`, `_under_`, `-strike-`, `|spoiler|`,
- * ``code``) nest freely except ```, which is atomic — its body stays
+ * `code`) nest freely except ```, which is atomic — its body stays
  * literal so the renderer can copy it verbatim.
  *
- * @typedef {{ kind: 'text'; s: string }
- * 	| { kind: 'atom'; name: string; s: string }
- * 	| { kind: 'tag'; name: string; children: Node[] }} Node
+ * @typedef {{ kind: 'text'; s: string } | { kind: 'atom'; name:
+ * string; s: string } | { kind: 'tag'; name: string; children: Node[]
+ * }} Node
  */
 
 /**

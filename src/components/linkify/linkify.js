@@ -48,7 +48,7 @@ const wraps = {
 
 /**
  * Inline-formatter for chat-style text. Renders `*bold*`, `/italic/`,
- * `_under_`, `-strike-`, `|spoiler|` and ``code`` markers, recognises
+ * `_under_`, `-strike-`, `|spoiler|` and `code` markers, recognises
  * media URLs, optionally substitutes `:emoji:` shortcodes, and can
  * highlight a `mark` term. A leading `>` makes the whole block a
  * quote; a leading `/ ` italicises it.
