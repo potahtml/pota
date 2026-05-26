@@ -91,7 +91,7 @@ await test('tooltip - position prop is reflected on the inner element', async ex
 	pointer('pointerenter', $('#t3'))
 	await settle()
 
-	expect(overlayInner()?.getAttribute('data-tooltip-position')).toBe(
+	expect(overlayInner()?.getAttribute('data-overlay-position')).toBe(
 		'right',
 	)
 
@@ -114,7 +114,7 @@ await test('tooltip - arrows: false disables the arrow indicator attr', async ex
 	pointer('pointerenter', $('#t4'))
 	await settle()
 
-	expect(overlayInner()?.getAttribute('data-tooltip-arrows')).toBe(
+	expect(overlayInner()?.getAttribute('data-overlay-arrows')).toBe(
 		'false',
 	)
 

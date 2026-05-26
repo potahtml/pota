@@ -178,6 +178,19 @@ const storedFlag = appStorage('flag', false)
 const storedRead: boolean = storedFlag.read()
 storedFlag.write(true)
 
+// --- pota/use/popover ---
+
+import { popover } from 'pota/use/popover'
+
+const formPopover = popover()
+formPopover.setRelated(document.createElement('button'))
+formPopover.setContent('Confirm')
+formPopover.setPosition('top-left-overlap')
+formPopover.setArrows(false)
+formPopover.open()
+formPopover.close()
+formPopover.dispose()
+
 // --- pota/use/color ---
 
 import {
