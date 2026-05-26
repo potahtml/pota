@@ -25,7 +25,6 @@
 
 ### use / components
 
-- tooltip
 - handle/listen postMessage/MessageChannel
 - color picker
 - linkify
