@@ -404,8 +404,8 @@ import { signal as potaSignal } from 'pota'
 const prev = usePrevious<number>((next, previous) => (next ?? 0) + 1)
 const prevR = prev(5)
 
-const [selSignal] = potaSignal<string | undefined>('a')
-const isSelected = useSelector(selSignal)
+const selSignal = potaSignal<string | undefined>('a')
+const isSelected = useSelector(selSignal.read)
 const selA = isSelected('a')
 const selAVal: string | undefined = selA()
 

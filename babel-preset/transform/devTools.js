@@ -368,27 +368,10 @@ function makeDeclarationSource(path, declaration, state) {
 
 	const kind = declaration.init.callee.name
 
-	let name = 'unknown'
-
-	switch (declaration.id.type) {
-		case 'ArrayPattern': {
-			// array signal destructuring
-			name = declaration.id.elements[0].name
-			break
-		}
-		case 'ObjectPattern': {
-			// object signal destructuring
-			name = declaration.id.properties.find(
-				item => item.key.name === 'read',
-			).value.name
-			break
-		}
-		case 'Identifier': {
-			// memo/signal
-			name = declaration.id.name
-			break
-		}
-	}
+	const name =
+		declaration.id.type === 'Identifier'
+			? declaration.id.name
+			: 'unknown'
 
 	return makeDevObject(kind, name, file, position)
 }

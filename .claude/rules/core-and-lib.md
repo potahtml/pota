@@ -18,10 +18,7 @@ paths:
   layer—mirror Solid semantics only where pota intentionally aligns,
   and document behavioral differences in code comments when
   non-obvious.
-- Signal shape: object form `const s = signal()` with `s.read()`,
-  `s.write(value)`, `s.update(prev => next)` is the preferred API for
-  new code. The return value is also a `[read, write, update]` tuple
-  for backwards compatibility, but tuple destructuring is being phased
-  out — migrate when you touch surrounding code. `write` does not
-  receive the previous value; `update` does. See
+- Signal shape: `const s = signal()` returns an object with
+  `s.read()`, `s.write(value)`, `s.update(prev => next)`. `write` does
+  not receive the previous value; `update` does. See
   `documentation/AGENTS.md` (Library Semantics → Signals).

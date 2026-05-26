@@ -42,31 +42,22 @@ last resort**, not the default tool.
 
 ### Signals
 
-- Object API (preferred): `const s = signal()`, then `s.read()`,
-  `s.write(value)`, `s.update(prev => next)`. Use this in all new
-  code.
+- `const s = signal()`, then `s.read()`, `s.write(value)`,
+  `s.update(prev => next)`.
 - `write(value)` sets or replaces the value directly — it does **not**
   receive the previous value.
 - `update(prev => next)` receives the previous value.
-- Tuple form `const [read, write, update] = signal()` still works and
-  the renderer still treats the return value as an array (see _JSX and
-  DOM_ below for the `{count}` foot-gun) — but it is being phased out.
-  Migrate to the object form when you touch the surrounding code; do
-  not add new tuple destructures.
 
 ### JSX and DOM
 
 - Native elements use namespaced event props: `on:click={handler}`.
   Component props use camelCase: `onClick={handler}`.
-- For reactive text or children, pass the **reader**: `{count.read}`.
-  Never `{count}` — `signal()` returns `[read, write, update]` (a real
-  Array with attached methods), so `{count}` makes the renderer
-  iterate it and call each function as a child (`write()` with no args
-  clobbers the signal to `undefined`, then garbage like `"true"`
-  renders). `{count()}` is a one-time snapshot, not a reactive binding
-  — use it only when you genuinely want a static value. Same rule for
-  component props that expect reactive values:
-  `<Show when={flag.read}>`, `<Dynamic component={...}>`, etc.
+- For reactive text or children, pass the **reader function**:
+  `{count.read}`. `{count}` passes the signal object itself, which is
+  not a valid JSX child. `{count.read()}` reads once (snapshot, not
+  reactive) — use it only when you want a static value. Same rule for
+  component props expecting reactive values: `<Show when={flag.read}>`,
+  `<Dynamic component={...}>`, etc.
 - A bare JSX expression is a **static** child; a function wrapping one
   is **reactive**. `<Foo>{<div/>}</Foo>` evaluates the `<div/>` once
   and passes that single node. `<Foo>{() => <div/>}</Foo>` passes a

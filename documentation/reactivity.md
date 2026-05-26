@@ -93,8 +93,7 @@ separates memo propagation from effect execution.
 ### Signal
 
 Not a class — a closure-based factory. `signal(value, options)`
-returns a tuple `[read, write, update]` with the same functions also
-available as `.read`, `.write`, `.update` properties.
+returns an object with `.read`, `.write`, `.update` methods.
 
 The signal's observer tracking state (`observers`, `observerSlots`)
 lives on a plain object `o` captured in the closure. The value itself

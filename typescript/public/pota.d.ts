@@ -78,15 +78,9 @@ type SignalUpdate<T> = (
 	updateFunction: (prevValue: T) => T,
 ) => SignalChanged
 
-// signal as object/function/tuple
+// signal as object/function
 
-type SignalTuple<T> = readonly [
-	SignalAccessor<T>,
-	SignalSetter<T>,
-	SignalUpdate<T>,
-]
-
-type SignalObject<T> = SignalTuple<T> & {
+type SignalObject<T> = {
 	readonly read: SignalAccessor<T>
 	readonly write: SignalSetter<T>
 	readonly update: SignalUpdate<T>

@@ -23,10 +23,10 @@ import { getValue } from '../../lib/std.js'
 export function Labels(props) {
 	const context = Context()
 	const group = context.group
-	const [selected, setSelected] = context.selected
+	const selected = context.selected
 
 	function onTabClick(event, group, id, name, props) {
-		setSelected({ id, name })
+		selected.write({ id, name })
 		props.onClick && props.onClick({ event, group, id, props })
 	}
 
@@ -56,8 +56,8 @@ export function Labels(props) {
 					...rest
 				} = props
 
-				if (defaultSelected || selected().id === id)
-					setSelected({ id, name })
+				if (defaultSelected || selected.read().id === id)
+					selected.write({ id, name })
 
 				return Component(Show, {
 					when: () => !getValue(hidden),
@@ -65,7 +65,7 @@ export function Labels(props) {
 						id: `tab-${group}-${id}`,
 						role: 'tab',
 						'aria-selected': () =>
-							selected().id === id ? 'true' : 'false',
+							selected.read().id === id ? 'true' : 'false',
 						'aria-controls': `tab-panel-${group}-${id}`,
 						'on:click': e => onTabClick(e, group, id, name, props),
 						...rest,

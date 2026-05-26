@@ -914,8 +914,8 @@ const nestedFlowTest = (
 const dynamicClass = <Dynamic component={MyComponent} some="value" />
 
 // Dynamic: switching between elements
-const [tag, setTag] = signal<'h1' | 'h2' | 'h3'>('h1')
-const dynamicTag = <Dynamic component={tag()}>heading</Dynamic>
+const tag = signal<'h1' | 'h2' | 'h3'>('h1')
+const dynamicTag = <Dynamic component={tag.read()}>heading</Dynamic>
 
 // Dynamic with arrow component
 const dynamicArrow = <Dynamic component={LoginMsg} name="Tito" />

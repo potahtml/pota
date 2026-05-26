@@ -274,20 +274,12 @@ const so_undefined: SignalOptions<number> = undefined
 const schanged_true: SignalChanged = true
 const schanged_false: SignalChanged = false
 
-// SignalTuple<T> — [read, write, update]
-type ST = SignalTuple<number>
-declare const stTuple: ST
-const stR: number = stTuple[0]()
-const stW: boolean = stTuple[1](1)
-const stU: boolean = stTuple[2](n => n + 1)
-
-// SignalObject<T> — tuple + named access
+// SignalObject<T> — named access
 type SObj = SignalObject<number>
 declare const sObjVal: SObj
 const sObj_r: number = sObjVal.read()
 const sObj_w: boolean = sObjVal.write(2)
 const sObj_u: boolean = sObjVal.update(n => n + 1)
-const sObj_i0: number = sObjVal[0]()
 
 // SignalFunction<T> — call with arg (set) / no arg (get)
 type SF = SignalFunction<number>
