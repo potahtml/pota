@@ -83,14 +83,14 @@ window.addEventListener('storage', e => {
  * dark.update(v => !v)
  * ```
  *
- * Each call returns a `signal()`-shaped object: an iterable `[read,
- * write, update]` tuple that also exposes `.read`, `.write`,
- * `.update` as properties. The initial value comes from storage when
- * present, falling back to `initial`. Signals for the same key stay
- * in sync within the same document, and browser-backed stores also
- * react to `storage` events from other tabs. Storage writes are
- * wrapped in try/catch so quota and private-mode failures are
- * silently ignored — the signal still behaves correctly in-memory.
+ * Each call returns a regular pota `signal()` object — `.read()`,
+ * `.write(value)`, `.update(prev => next)`. The initial value comes
+ * from storage when present, falling back to `initial`. Signals for
+ * the same key stay in sync within the same document, and
+ * browser-backed stores also react to `storage` events from other
+ * tabs. Storage writes are wrapped in try/catch so quota and
+ * private-mode failures are silently ignored — the signal still
+ * behaves correctly in-memory.
  *
  * @param {string} prefix Prefix prepended to every key (caller picks
  *   the separator, e.g. `'my-app:'` or `'my-app/'`).

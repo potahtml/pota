@@ -119,21 +119,33 @@ export const files = dir =>
 export const readdir = dir => fs.readdirSync(dir)
 
 /**
- * Recursively lists files under `dir`, returning absolute paths.
+ * Recursively lists files under `dir`, returning paths joined to
+ * `dir`. Does not descend into directory symlinks — `fs.readdirSync(
+ * dir, { recursive: true })` follows them and loops forever on cycles
+ * like `projects/docs/node_modules/pota → ../../..`.
  *
  * @param {string} dir
  * @returns {string[]}
  */
-export const filesRecursive = dir =>
-	fs
-		.readdirSync(dir, { recursive: true })
-		.map(file => path.join(dir, file))
+export const filesRecursive = dir => {
+	const out = []
+	const walk = d => {
+		for (const name of fs.readdirSync(d)) {
+			const full = path.join(d, name)
+			const st = fs.lstatSync(full)
+			if (st.isDirectory()) walk(full)
+			else if (st.isFile()) out.push(full)
+		}
+	}
+	walk(dir)
+	return out
+}
 
 /**
  * Watches a directory tree and runs a callback on changes.
  *
  * @param {string} dir
- * @param {(eventType: string, filename: string) => void} fn
+ * @param {import('fs').WatchListener<string>} fn
  * @returns {import('fs').FSWatcher}
  */
 export const watch = (dir, fn) =>

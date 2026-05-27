@@ -35,9 +35,10 @@
   `use:bind` are unchanged.
 
 - **New plugins.** `pota/use/storage` ships a
-  `storage(prefix, backend?)` factory: each call returns a namespaced
-  `(key, initial?) => signal` whose value is mirrored to a Web Storage
-  area (default `localStorage`) under `prefix + key`, with try/catch
+  `storage(prefix)` factory: each call returns a namespaced
+  `(key, initial?) => signal` whose value is mirrored under
+  `prefix + key` to `localStorage`, falling back to `sessionStorage`,
+  then to an in-memory shim if neither is writable, with try/catch
   around storage errors. The factory shape replaces an earlier
   `storage(key, initial, store?)` signal call.
 

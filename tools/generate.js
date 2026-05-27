@@ -118,6 +118,7 @@ ${lib.join(',\n')}
 		for (const file of files) {
 			if (
 				!file.includes('projects/') &&
+				!file.includes('node_modules/') &&
 				!isDirectory(file) &&
 				file.includes('.d.ts') &&
 				!file.includes('.d.ts.map')
