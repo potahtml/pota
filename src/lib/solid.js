@@ -68,7 +68,7 @@ export function createReactiveSystem() {
 	const errorHandlerId = Symbol()
 
 	function routeError(node, err) {
-		const handler = node.context && node.context[errorHandlerId]
+		const handler = node?.context?.[errorHandlerId]
 		if (handler) handler(err)
 		else console.error(err)
 	}

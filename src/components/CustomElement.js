@@ -57,14 +57,6 @@ export class CustomElement extends HTMLElement {
 	/* DOM API */
 
 	/**
-	 * Shortcut for querySelector
-	 *
-	 * @param {string} query
-	 */
-	query(query) {
-		return querySelector(this, query)
-	}
-	/**
 	 * Shortcut for this.shadowRoot.innerHTML
 	 *
 	 * @param {string | Component} value
@@ -79,74 +71,15 @@ export class CustomElement extends HTMLElement {
 		}
 	}
 
-	/**
-	 * Toggles attribute `hidden`
-	 *
-	 * @param {boolean} value
-	 */
-	set hidden(value) {
-		value
-			? setAttribute(this, 'hidden', '')
-			: removeAttribute(this, 'hidden')
-	}
-
 	/* EVENTS API */
 
 	/**
 	 * Emits an event
 	 *
 	 * @param {string} eventName
-	 * @param {any} [data]
+	 * @param {CustomEventInit} [data]
 	 */
 	emit(eventName, data) {
 		emit(this, eventName, data)
-	}
-
-	/* SLOTS API */
-
-	/** @param {string} name */
-	hasSlot(name) {
-		return this.query(`:scope [slot="${CSS.escape(name)}"]`)
-	}
-
-	/**
-	 * Returns `true` when the host has at least one default-slotted
-	 * child — either a non-whitespace text node, or an element without
-	 * a `slot=""` attribute.
-	 *
-	 * @returns {boolean}
-	 */
-	hasDefaultSlot() {
-		for (const node of this.childNodes) {
-			if (node.nodeType === Node.TEXT_NODE) {
-				if (/** @type {Text} */ (node).textContent?.trim() !== '')
-					return true
-			} else if (node.nodeType === Node.ELEMENT_NODE) {
-				if (!(/** @type {Element} */ (node).hasAttribute('slot')))
-					return true
-			}
-		}
-		return false
-	}
-
-	/**
-	 * Subscribes to `slotchange` events in the shadow root. When `name`
-	 * is provided, only fires for that named `<slot>`; when `name` is
-	 * `undefined` it matches the default (unnamed) slot. Returns a
-	 * disposer that removes the listener.
-	 *
-	 * @param {string | undefined} name
-	 * @param {(slot: HTMLSlotElement) => void} fn
-	 * @returns {() => void}
-	 */
-	onSlotChange(name, fn) {
-		const target = name ?? ''
-		const handler = (/** @type {Event} */ e) => {
-			const slot = /** @type {HTMLSlotElement} */ (e.target)
-			if (slot.name === target) fn(slot)
-		}
-		this.shadowRoot.addEventListener('slotchange', handler)
-		return () =>
-			this.shadowRoot.removeEventListener('slotchange', handler)
 	}
 }

@@ -22,6 +22,7 @@ import {
 	head,
 	importNode,
 	isConnected,
+	isPlaying,
 	querySelector,
 	querySelectorAll,
 	removeAttribute,
@@ -286,4 +287,68 @@ await test('dom - walkElements with max=0 returns an empty collection', expect =
 	host.innerHTML = '<p>1</p><p>2</p>'
 
 	expect(walkElements(host, 0).length).toBe(0)
+})
+
+/**
+ * @param {{
+ * 	currentTime?: number
+ * 	paused?: boolean
+ * 	ended?: boolean
+ * 	readyState?: number
+ * }} state
+ */
+const media = state =>
+	/** @type {HTMLMediaElement} */ ({
+		currentTime: state.currentTime ?? 0,
+		paused: state.paused ?? true,
+		ended: state.ended ?? false,
+		readyState: state.readyState ?? 0,
+	})
+
+await test('dom - isPlaying is true for currentTime>0, not paused, not ended, readyState>2', expect => {
+	expect(
+		isPlaying(
+			media({
+				currentTime: 1.5,
+				paused: false,
+				ended: false,
+				readyState: 4,
+			}),
+		),
+	).toBe(true)
+})
+
+await test('dom - isPlaying is false when paused', expect => {
+	expect(
+		isPlaying(media({ currentTime: 1, paused: true, readyState: 4 })),
+	).toBe(false)
+})
+
+await test('dom - isPlaying is false when ended', expect => {
+	expect(
+		isPlaying(
+			media({
+				currentTime: 5,
+				paused: false,
+				ended: true,
+				readyState: 4,
+			}),
+		),
+	).toBe(false)
+})
+
+await test('dom - isPlaying is false at the very start (currentTime=0)', expect => {
+	expect(
+		isPlaying(
+			media({ currentTime: 0, paused: false, readyState: 4 }),
+		),
+	).toBe(false)
+})
+
+await test('dom - isPlaying is false when readyState <= 2 (still buffering)', expect => {
+	expect(
+		isPlaying(
+			media({ currentTime: 1, paused: false, readyState: 2 }),
+		),
+	).toBe(false)
 })
