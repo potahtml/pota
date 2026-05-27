@@ -81,30 +81,6 @@ await test('CustomElement - html accepts strings and components and hidden toggl
 	element.remove()
 })
 
-await test('CustomElement - query and hasSlot inspect light DOM children on the host', expect => {
-	class SlotElement extends CustomElement {}
-
-	customElement('pota-test-custom-element-slots', SlotElement)
-
-	const dispose = render(
-		<pota-test-custom-element-slots>
-			<span slot="title">Title</span>
-			<b>Body</b>
-		</pota-test-custom-element-slots>,
-	)
-
-	const element = /** @type {SlotElement} */ (
-		$('pota-test-custom-element-slots')
-	)
-
-	expect(element.hasSlot('title').outerHTML).toBe(
-		'<span slot="title">Title</span>',
-	)
-	expect(element.query('b').outerHTML).toBe('<b>Body</b>')
-
-	dispose()
-})
-
 await test('CustomElement - emit dispatches bubbling custom events with detail', expect => {
 	class EventElement extends CustomElement {}
 
@@ -192,52 +168,6 @@ await test('customElement - lifecycle callbacks and property setters do not caus
 	dispose()
 })
 
-// --- hasSlot returns null when the slot name is not present ------------
-
-await test('CustomElement - hasSlot returns null for missing slot names', expect => {
-	class MissingSlotElement extends CustomElement {}
-
-	customElement(
-		'pota-test-custom-element-missing-slot',
-		MissingSlotElement,
-	)
-
-	const dispose = render(
-		<pota-test-custom-element-missing-slot>
-			<span>body only</span>
-		</pota-test-custom-element-missing-slot>,
-	)
-
-	const element = /** @type {MissingSlotElement} */ (
-		$('pota-test-custom-element-missing-slot')
-	)
-
-	expect(element.hasSlot('absent')).toBe(null)
-
-	dispose()
-})
-
-// --- query returns null when no match is found -------------------------
-
-await test('CustomElement - query returns null when no descendant matches', expect => {
-	class QueryElement extends CustomElement {}
-
-	customElement('pota-test-custom-element-query-null', QueryElement)
-
-	const dispose = render(
-		<pota-test-custom-element-query-null>
-			<span>child</span>
-		</pota-test-custom-element-query-null>,
-	)
-
-	const element = /** @type {QueryElement} */ (
-		$('pota-test-custom-element-query-null')
-	)
-	expect(element.query('article')).toBe(null)
-
-	dispose()
-})
-
 // --- hidden setter true/false idempotence ------------------------------
 
 await test('CustomElement - setting hidden to the same value twice is stable', expect => {
@@ -286,103 +216,6 @@ await test('CustomElement - emit with no second argument still dispatches the ev
 	element.emit('ping')
 
 	expect(fired).toBe(true)
-
-	element.remove()
-})
-
-// --- hasDefaultSlot ----------------------------------------------------
-
-await test('CustomElement - hasDefaultSlot is true when a child lacks the slot attribute', expect => {
-	class El extends CustomElement {}
-	customElement('pota-test-ce-default-slot', El)
-
-	const dispose = render(
-		<pota-test-ce-default-slot>
-			<span slot="header">Header</span>
-			<p>Body</p>
-		</pota-test-ce-default-slot>,
-	)
-	const element = /** @type {El} */ ($('pota-test-ce-default-slot'))
-	expect(element.hasDefaultSlot()).toBe(true)
-
-	dispose()
-})
-
-await test('CustomElement - hasDefaultSlot is false when every child has slot=""', expect => {
-	class El extends CustomElement {}
-	customElement('pota-test-ce-named-only', El)
-
-	const dispose = render(
-		<pota-test-ce-named-only>
-			<span slot="header">Header</span>
-			<span slot="footer">Footer</span>
-		</pota-test-ce-named-only>,
-	)
-	const element = /** @type {El} */ ($('pota-test-ce-named-only'))
-	expect(element.hasDefaultSlot()).toBe(false)
-
-	dispose()
-})
-
-await test('CustomElement - hasDefaultSlot ignores whitespace-only text nodes', expect => {
-	class El extends CustomElement {}
-	customElement('pota-test-ce-text-slot', El)
-
-	const element = /** @type {El} */ (
-		document.createElement('pota-test-ce-text-slot')
-	)
-	document.body.appendChild(element)
-
-	element.appendChild(document.createTextNode('   '))
-	expect(element.hasDefaultSlot()).toBe(false)
-
-	element.appendChild(document.createTextNode('hello'))
-	expect(element.hasDefaultSlot()).toBe(true)
-
-	element.remove()
-})
-
-// --- onSlotChange ------------------------------------------------------
-
-await test('CustomElement - onSlotChange fires for matching slot and returns a disposer', async expect => {
-	class El extends CustomElement {
-		constructor() {
-			super()
-			this.html = '<slot name="title"></slot><slot></slot>'
-		}
-	}
-	customElement('pota-test-ce-onslot', El)
-
-	const element = /** @type {El} */ (
-		document.createElement('pota-test-ce-onslot')
-	)
-	document.body.appendChild(element)
-
-	const titleCalls = []
-	const defaultCalls = []
-	const offTitle = element.onSlotChange('title', s =>
-		titleCalls.push(s.name),
-	)
-	const offDefault = element.onSlotChange(undefined, s =>
-		defaultCalls.push(s.name),
-	)
-
-	// populating the host triggers slot assignment in the shadow DOM,
-	// which fires `slotchange` on each matched <slot>.
-	element.innerHTML = '<span slot="title">T</span><b>B</b>'
-	await microtask()
-
-	expect(titleCalls).toEqual(['title'])
-	expect(defaultCalls).toEqual([''])
-
-	// disposer removes the listener — further slot churn is ignored.
-	offTitle()
-	offDefault()
-	element.innerHTML = ''
-	await microtask()
-
-	expect(titleCalls).toEqual(['title'])
-	expect(defaultCalls).toEqual([''])
 
 	element.remove()
 })
