@@ -135,7 +135,7 @@ details.
 
 `runner.mjs` and `prof.mjs` exercise the dev benchmark page in
 `pota.docs` (start it via `npm run dev` in that repo so the page is
-reachable on `http://localhost:37808/pages/benchmark/dev/`).
+reachable on `http://localhost:47341/pages/benchmark/dev/`).
 
 | Script                            | Mode                                                                                                                                                                                            |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

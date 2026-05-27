@@ -9,11 +9,11 @@
 //
 // Run from repo root: `node tools/bench/prof.mjs`
 // Requires the same dev server as `runner.mjs`
-// (http://localhost:37808/pages/benchmark/dev/index.html).
+// (http://localhost:47341/pages/benchmark/dev/index.html).
 
 import puppeteer from 'puppeteer'
 
-const URL = 'http://localhost:37808/pages/benchmark/dev/index.html'
+const URL = 'http://localhost:47341/pages/benchmark/dev/index.html'
 
 // Same flags as runner.mjs — disable background work that injects
 // noise into samples.

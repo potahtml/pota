@@ -11,7 +11,7 @@
 // the history file would only churn.
 //
 // Requires the bench page to be reachable. Defaults to pota.docs's
-// kompiler dev server (http://localhost:37808/pages/benchmark/dev/).
+// kompiler dev server (http://localhost:47341/pages/benchmark/dev/).
 //
 // Run from repo root: `npm run bench`
 
@@ -28,7 +28,7 @@ const REPO = path.resolve(__dirname, '../..')
 const NO_WRITE =
 	process.argv.includes('--no-write') || process.argv.includes('-n')
 
-const URL = 'http://localhost:37808/pages/benchmark/dev/index.html'
+const URL = 'http://localhost:47341/pages/benchmark/dev/index.html'
 
 const RESULTS = path.join(__dirname, 'results.md')
 const RESULTS_SHORT = path.join(__dirname, 'results-short.md')
