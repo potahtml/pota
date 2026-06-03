@@ -123,25 +123,25 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 
 ## `tests/api/components/` — built-in components
 
-| File                 | Covers                                     |
-| -------------------- | ------------------------------------------ |
-| `a.jsx`              | `A` anchor component from route            |
-| `collapse.jsx`       | `Collapse`                                 |
-| `custom-element.jsx` | `CustomElement`, `customElement`           |
-| `dynamic.jsx`        | `Dynamic`                                  |
-| `errored.jsx`        | `Errored`                                  |
-| `for.jsx`            | `For`                                      |
-| `head.jsx`           | `Head`                                     |
-| `load.jsx`           | `load()` from route                        |
-| `navigate.jsx`       | `Navigate`                                 |
-| `normalize.jsx`      | `Normalize`                                |
-| `portal.jsx`         | `Portal`                                   |
-| `range.jsx`          | `Range`                                    |
-| `route.jsx`          | `Route`                                    |
-| `show.jsx`           | `Show`                                     |
-| `suspense.jsx`       | `Suspense`                                 |
-| `switch.jsx`         | `Match`, `Switch`                          |
-| `tabs.jsx`           | `Tabs` and sub-components                  |
+| File                 | Covers                           |
+| -------------------- | -------------------------------- |
+| `a.jsx`              | `A` anchor component from route  |
+| `collapse.jsx`       | `Collapse`                       |
+| `custom-element.jsx` | `CustomElement`, `customElement` |
+| `dynamic.jsx`        | `Dynamic`                        |
+| `errored.jsx`        | `Errored`                        |
+| `for.jsx`            | `For`                            |
+| `head.jsx`           | `Head`                           |
+| `load.jsx`           | `load()` from route              |
+| `navigate.jsx`       | `Navigate`                       |
+| `normalize.jsx`      | `Normalize`                      |
+| `portal.jsx`         | `Portal`                         |
+| `range.jsx`          | `Range`                          |
+| `route.jsx`          | `Route`                          |
+| `show.jsx`           | `Show`                           |
+| `suspense.jsx`       | `Suspense`                       |
+| `switch.jsx`         | `Match`, `Switch`                |
+| `tabs.jsx`           | `Tabs` and sub-components        |
 
 ## `tests/api/reactivity/` — reactive primitives
 

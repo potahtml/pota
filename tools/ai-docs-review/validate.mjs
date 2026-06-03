@@ -1,7 +1,12 @@
 // G1 — Deterministic compliance validator for pota docs content.
 // Checks ONLY mechanical, spec-defined properties — no accuracy/idiom
 // (that needs source reading). Output: per-file issue list + summary.
-import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import {
+	readFileSync,
+	readdirSync,
+	statSync,
+	writeFileSync,
+} from 'node:fs'
 import { join, relative, basename } from 'node:path'
 import { CONTENT as ROOT } from './_paths.mjs'
 
@@ -146,6 +151,4 @@ writeFileSync(
 		0,
 	),
 )
-console.log(
-	`\nwrote /tmp/noncompliant.json (${report.length} paths)`,
-)
+console.log(`\nwrote /tmp/noncompliant.json (${report.length} paths)`)

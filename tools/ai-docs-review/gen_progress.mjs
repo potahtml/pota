@@ -19,10 +19,47 @@ const files = walk(CONTENT)
 
 // root file -> source module
 const ROOT_SRC = {
-	reactive: ['action','addEvent','asyncEffect','batch','catchError','cleanup','context','derived','effect','externalSignal','isComponent','isResolved','listener','makeCallback','map','markComponent','memo','on','owned','owner','Pota','ref','removeEvent','resolve','root','signal','syncEffect','untrack','unwrap','withValue'],
-	renderer: ['Component','Fragment','insert','render','toHTML'],
-	scheduler: ['ready','readyAsync'],
-	props: ['setAttribute','setProperty','setStyle','setClass','setClassList'],
+	reactive: [
+		'action',
+		'addEvent',
+		'asyncEffect',
+		'batch',
+		'catchError',
+		'cleanup',
+		'context',
+		'derived',
+		'effect',
+		'externalSignal',
+		'isComponent',
+		'isResolved',
+		'listener',
+		'makeCallback',
+		'map',
+		'markComponent',
+		'memo',
+		'on',
+		'owned',
+		'owner',
+		'Pota',
+		'ref',
+		'removeEvent',
+		'resolve',
+		'root',
+		'signal',
+		'syncEffect',
+		'untrack',
+		'unwrap',
+		'withValue',
+	],
+	renderer: ['Component', 'Fragment', 'insert', 'render', 'toHTML'],
+	scheduler: ['ready', 'readyAsync'],
+	props: [
+		'setAttribute',
+		'setProperty',
+		'setStyle',
+		'setClass',
+		'setClassList',
+	],
 	std: ['getValue'],
 	version: ['version'],
 }
@@ -39,7 +76,8 @@ const SRC_LABEL = {
 	props: 'src/core/props/{attribute,property,style,class}.js',
 	std: 'src/lib/std.js',
 	version: 'src/version.js',
-	guide: 'src/core/props/* + src/core/renderer.js + JSX semantics (documentation/jsx.md)',
+	guide:
+		'src/core/props/* + src/core/renderer.js + JSX semantics (documentation/jsx.md)',
 	components: 'src/components/* (one source file per page)',
 	store: 'src/lib/store.js + src/lib/store/*',
 	xml: 'src/core/xml.js',
@@ -72,8 +110,21 @@ for (const f of files) {
 }
 
 // group ordering
-const ORDER = ['reactive','renderer','scheduler','props','std','version','guide','components','store','xml']
-const useKeys = [...groups.keys()].filter(k => k.startsWith('use/')).sort()
+const ORDER = [
+	'reactive',
+	'renderer',
+	'scheduler',
+	'props',
+	'std',
+	'version',
+	'guide',
+	'components',
+	'store',
+	'xml',
+]
+const useKeys = [...groups.keys()]
+	.filter(k => k.startsWith('use/'))
+	.sort()
 const orderedKeys = [...ORDER.filter(k => groups.has(k)), ...useKeys]
 // any leftover
 for (const k of groups.keys())
@@ -168,7 +219,11 @@ out += `---\n\n## Per-file checklist (grouped by source module)\n\n`
 let n = 0
 for (const key of orderedKeys) {
 	const g = groups.get(key)
-	const label = key.startsWith('use/') ? key : (SRC_LABEL[key] ? key : key)
+	const label = key.startsWith('use/')
+		? key
+		: SRC_LABEL[key]
+			? key
+			: key
 	out += `### ${key}  —  source: \`${g.src}\`  (${g.files.length})\n\n`
 	for (const f of g.files.sort()) {
 		n++
@@ -182,4 +237,11 @@ out += `---\n\n## Flags for maintainer\n\n_(append anything you could not confir
 out += `- \`context.md\` — \`### Functional override\` example is console-only (no \`render(App)\`); it deliberately demonstrates the synchronous return value of \`Theme(newValue, fn)\` outside the JSX tree. Carried over from the prior pass; confirm this is the intended treatment.\n`
 
 writeFileSync(PROGRESS, out)
-console.log('wrote progress.md:', total, 'files in', groups.size, 'groups; counted', n)
+console.log(
+	'wrote progress.md:',
+	total,
+	'files in',
+	groups.size,
+	'groups; counted',
+	n,
+)

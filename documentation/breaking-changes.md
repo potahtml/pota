@@ -34,13 +34,13 @@
   `use:ref`, `use:connected`, `use:disconnected`, `use:css`, and
   `use:bind` are unchanged.
 
-- **New plugins.** `pota/use/storage` ships a
-  `storage(prefix)` factory: each call returns a namespaced
-  `(key, initial?) => signal` whose value is mirrored under
-  `prefix + key` to `localStorage`, falling back to `sessionStorage`,
-  then to an in-memory shim if neither is writable, with try/catch
-  around storage errors. The factory shape replaces an earlier
-  `storage(key, initial, store?)` signal call.
+- **New plugins.** `pota/use/storage` ships a `storage(prefix)`
+  factory: each call returns a namespaced `(key, initial?) => signal`
+  whose value is mirrored under `prefix + key` to `localStorage`,
+  falling back to `sessionStorage`, then to an in-memory shim if
+  neither is writable, with try/catch around storage errors. The
+  factory shape replaces an earlier `storage(key, initial, store?)`
+  signal call.
 
   ```js
   const store = storage('my-app:')

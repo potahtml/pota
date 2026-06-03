@@ -35,7 +35,9 @@ const fm = raw => {
 }
 
 const pages = files.map(f => {
-	const id = relative(ROOT, f).replace(/\\/g, '/').replace(/\.md$/, '')
+	const id = relative(ROOT, f)
+		.replace(/\\/g, '/')
+		.replace(/\.md$/, '')
 	const d = fm(readFileSync(f, 'utf8'))
 	return {
 		id,
@@ -77,7 +79,9 @@ console.log(
 	`reachable: ${appearIn.size}/${pages.length}` +
 		(unreached.length ? '' : '  (comprehensive)'),
 )
-console.log(`"More"/catch-all section present: ${more ? 'YES' : 'no'}`)
+console.log(
+	`"More"/catch-all section present: ${more ? 'YES' : 'no'}`,
+)
 
 console.log('\n-- sections (item count) --')
 for (const s of sections)

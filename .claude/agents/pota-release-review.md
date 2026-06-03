@@ -1,10 +1,10 @@
 ---
 name: pota-release-review
 description:
-  Use before a release or when changing tools/*,
-  documentation/*, version bumps, or publish-related scripts.
-  Read-only review of consistency, gitignored outputs, and maintainer
-  docs — not implementation unless asked.
+  Use before a release or when changing tools/*, documentation/*,
+  version bumps, or publish-related scripts. Read-only review of
+  consistency, gitignored outputs, and maintainer docs — not
+  implementation unless asked.
 model: opus
 tools:
   - Read

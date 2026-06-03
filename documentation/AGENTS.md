@@ -81,16 +81,17 @@ last resort**, not the default tool.
 
 ### Plugins under `pota/use/*`
 
-Element-attached plugins ship as **ref factories** (`opts => node =>
-…`, cleanup via the surrounding reactive scope) consumed through the
-single registered `use:ref` attribute; compose several with an array:
-`use:ref={[example(opts), clickOutside(handler)]}`. Do **not** register
-a new `use:<name>` directive via `propsPlugin` or add `'use:<name>'?`
-slots to the JSX namespace. When a plugin also needs a non-DOM form (a
-callable signal), expose it separately — the ref factory takes only
-what it needs for the DOM side. References: `bind`, `visible`,
-`clickOutside`, `scrollIntoView`, `lazyImage`. Full do/don't list: the
-components-and-use rule.
+Element-attached plugins ship as **ref factories**
+(`opts => node => …`, cleanup via the surrounding reactive scope)
+consumed through the single registered `use:ref` attribute; compose
+several with an array:
+`use:ref={[example(opts), clickOutside(handler)]}`. Do **not**
+register a new `use:<name>` directive via `propsPlugin` or add
+`'use:<name>'?` slots to the JSX namespace. When a plugin also needs a
+non-DOM form (a callable signal), expose it separately — the ref
+factory takes only what it needs for the DOM side. References: `bind`,
+`visible`, `clickOutside`, `scrollIntoView`, `lazyImage`. Full
+do/don't list: the components-and-use rule.
 
 ## Subpath Exports
 
@@ -129,12 +130,12 @@ listed below.
 
 | Command                           | Purpose                                                                                                                                                                                                                            |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                     | Wipes `generated/*`, runs a one-shot `build:ts` (failure tolerated), then spawns all `watch:*` via `tools/watch.js`                                                                                                                                                        |
+| `npm run dev`                     | Wipes `generated/*`, runs a one-shot `build:ts` (failure tolerated), then spawns all `watch:*` via `tools/watch.js`                                                                                                                |
 | `npm run clean`                   | Wipe `generated/*`                                                                                                                                                                                                                 |
 | `npm run build:ts`                | `tsc` once — typecheck `src/` and emit declarations into `generated/types/`                                                                                                                                                        |
 | `npm run build:babel-preset`      | Rollup once — outputs `generated/babel-preset.cjs` + `generated/babel-preset-standalone.js`                                                                                                                                        |
 | `npm run build:generate`          | `tools/generate.js` once — regenerate importmap / types JSON                                                                                                                                                                       |
-| `npm run format`                  | Format code with Biome (`biome.json`); markdown + JSDoc with Prettier (`format:md` / `format:jsdoc`)                                                                                                                                                                                          |
+| `npm run format`                  | Format code with Biome (`biome.json`); markdown + JSDoc with Prettier (`format:md` / `format:jsdoc`)                                                                                                                               |
 | `npm test`                        | Run everything — `test:types` + `test:api` + `test:babel-preset`                                                                                                                                                                   |
 | `npm run test:api`                | Browser tests once via Puppeteer; config in `package.json` `"test"` key. Flags: `--bail`, `--log`, `--warn`, `--error`, `--coverage`. Positional arg filters by path substring (`-- for`). `watch:test` runs in watch mode.        |
 | `npm run coverage`                | Same as `test:api` but with V8 coverage → c8 HTML + text report in `generated/coverage/`                                                                                                                                           |
@@ -148,23 +149,23 @@ listed below.
 
 ## Repository Layout
 
-| Path              | Role                                                                                                                                                                                                                                                        |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/exports.js`  | Main package entry                                                                                                                                                                                                                                          |
-| `src/core/`       | Renderer, scheduler, XML, props pipeline                                                                                                                                                                                                                    |
-| `src/jsx/`        | JSX runtime (`jsx-runtime.js`)                                                                                                                                                                                                                              |
-| `src/lib/`        | Reactive primitives, store, Solid-compat helpers                                                                                                                                                                                                            |
-| `src/use/`        | Composables / hooks-style modules (`pota/use/*`)                                                                                                                                                                                                            |
-| `src/components/` | Built-in components (`pota/components`)                                                                                                                                                                                                                     |
-| `babel-preset/`   | Babel preset (subpackage at repo root, separate Rollup build — see Subpath Exports for details)                                                                                                                                                             |
-| `documentation/`  | Maintainer notes (`todo.md`, `breaking-changes.md`) plus the `ai/` AI-guidance subtree. |
-| `documentation/ai/` | Vendor-neutral AI guidance — `AGENTS.md` (this file); other AI tools read it directly |
-| `.claude/` | Claude Code config — `CLAUDE.md`, path-scoped `rules/`, `agents/`, `skills/`, `settings*.json` |
-| `projects/` | Gitignored sibling apps (docs site, benchmarks, demos) — not part of the npm package |
-| `generated/`      | **All generated output — gitignored, never commit.** Rebuilt by `tsc` / Rollup / `tools/generate.js`; ships in the npm tarball except `docs/**` and the standalone bundle. |
-| `tests/`          | Browser tests; `tests/api/components/` mirrors `src/components/`                                                                                                                                                                                            |
-| `tools/`          | Build / test utilities — `generate.js`, `release.js`, `watch.js`, `babel-preset/`, `test-runner/` (see its `readme.md`), `bench/`, `ai-docs-review/` (docs-review scripts)                              |
-| `typescript/`     | Hand-maintained `.d.ts` (`exports.d.ts`, `jsx/`, …); most subpath types are tsc-emitted under `generated/types/` instead                                                                                                                                                                         |
+| Path                | Role                                                                                                                                                                       |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/exports.js`    | Main package entry                                                                                                                                                         |
+| `src/core/`         | Renderer, scheduler, XML, props pipeline                                                                                                                                   |
+| `src/jsx/`          | JSX runtime (`jsx-runtime.js`)                                                                                                                                             |
+| `src/lib/`          | Reactive primitives, store, Solid-compat helpers                                                                                                                           |
+| `src/use/`          | Composables / hooks-style modules (`pota/use/*`)                                                                                                                           |
+| `src/components/`   | Built-in components (`pota/components`)                                                                                                                                    |
+| `babel-preset/`     | Babel preset (subpackage at repo root, separate Rollup build — see Subpath Exports for details)                                                                            |
+| `documentation/`    | Maintainer notes (`todo.md`, `breaking-changes.md`) plus the `ai/` AI-guidance subtree.                                                                                    |
+| `documentation/ai/` | Vendor-neutral AI guidance — `AGENTS.md` (this file); other AI tools read it directly                                                                                      |
+| `.claude/`          | Claude Code config — `CLAUDE.md`, path-scoped `rules/`, `agents/`, `skills/`, `settings*.json`                                                                             |
+| `projects/`         | Gitignored sibling apps (docs site, benchmarks, demos) — not part of the npm package                                                                                       |
+| `generated/`        | **All generated output — gitignored, never commit.** Rebuilt by `tsc` / Rollup / `tools/generate.js`; ships in the npm tarball except `docs/**` and the standalone bundle. |
+| `tests/`            | Browser tests; `tests/api/components/` mirrors `src/components/`                                                                                                           |
+| `tools/`            | Build / test utilities — `generate.js`, `release.js`, `watch.js`, `babel-preset/`, `test-runner/` (see its `readme.md`), `bench/`, `ai-docs-review/` (docs-review scripts) |
+| `typescript/`       | Hand-maintained `.d.ts` (`exports.d.ts`, `jsx/`, …); most subpath types are tsc-emitted under `generated/types/` instead                                                   |
 
 ## Conventions
 
@@ -189,13 +190,13 @@ listed below.
   extend them carefully and run `npm run watch:ts` when touching typed
   surfaces.
 - **Conciseness in docs:** prefer the concept over enumerations that
-  drift. Skip counts ("37 tests"), default values mirrored from configs
-  (point at `package.json` / `tsconfig.json` / source), exhaustive
-  file/export listings when the concept is the point, historical
-  framing ("used to be X") once shipped, preambles that restate the
-  heading, and line-by-line narration of adjacent code. Keep the why,
-  the invariants, and the gotchas — anything not obvious from the
-  source.
+  drift. Skip counts ("37 tests"), default values mirrored from
+  configs (point at `package.json` / `tsconfig.json` / source),
+  exhaustive file/export listings when the concept is the point,
+  historical framing ("used to be X") once shipped, preambles that
+  restate the heading, and line-by-line narration of adjacent code.
+  Keep the why, the invariants, and the gotchas — anything not obvious
+  from the source.
 
 ## Workflow
 
@@ -268,7 +269,7 @@ matching `.claude/rules/` file and in the source.
 
 There are no separate deep-dive docs: each subsystem's non-obvious
 invariants live as **path-scoped rules** under `.claude/rules/`, which
-Claude Code auto-loads when the matching paths are touched. Other tools
-should read the source (the reference for mechanism). `todo.md` and
-`breaking-changes.md` are maintainer notes; `.claude/CLAUDE.md` is
+Claude Code auto-loads when the matching paths are touched. Other
+tools should read the source (the reference for mechanism). `todo.md`
+and `breaking-changes.md` are maintainer notes; `.claude/CLAUDE.md` is
 Claude Code-specific extras.

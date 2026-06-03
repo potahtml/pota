@@ -13,8 +13,8 @@ isolated context.
 
 - The area invariants (attribute layering, overload ordering,
   `Properties<T>`, event divergences) auto-load from the
-  `jsx-and-types` path-scoped rule (`.claude/rules/jsx-and-types.md`) —
-  follow it.
+  `jsx-and-types` path-scoped rule (`.claude/rules/jsx-and-types.md`)
+  — follow it.
 - `typescript/jsx/namespace.d.ts` is huge: **surgical** edits only, no
   mass renames or style churn. Reconcile `typescript/exports.d.ts` and
   `package.json` `"exports"` types together.

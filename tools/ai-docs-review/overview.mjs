@@ -2,7 +2,12 @@
 // For every folder that has BOTH an index page (sibling `<folder>.md`)
 // and sub-pages (`<folder>/*.md`), verify the index links to every
 // sub-page route. Route of content/X/Y.md is `/X/Y`.
-import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs'
+import {
+	readdirSync,
+	readFileSync,
+	statSync,
+	existsSync,
+} from 'node:fs'
 import { join, relative } from 'node:path'
 import { CONTENT as ROOT } from './_paths.mjs'
 

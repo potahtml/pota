@@ -3,7 +3,12 @@
 // function/class/let, export { ... }, export { ... } from '...'),
 // then diffs against content files. Re-exports via `export *` are
 // noted but not fully resolved.
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs'
+import {
+	readFileSync,
+	readdirSync,
+	existsSync,
+	statSync,
+} from 'node:fs'
 import { join, basename } from 'node:path'
 import { REPO, CONTENT } from './_paths.mjs'
 
@@ -20,7 +25,9 @@ function exportsOf(file) {
 	))
 		names.add(m[1])
 	// export { a, b as c, d } [from '...']
-	for (const m of code.matchAll(/export\s*\{([^}]*)\}\s*(from\s*['"][^'"]*['"])?/g)) {
+	for (const m of code.matchAll(
+		/export\s*\{([^}]*)\}\s*(from\s*['"][^'"]*['"])?/g,
+	)) {
 		for (const part of m[1].split(',')) {
 			const t = part.trim()
 			if (!t) continue
@@ -29,7 +36,9 @@ function exportsOf(file) {
 		}
 	}
 	// export * from '...'
-	for (const m of code.matchAll(/export\s*\*\s*from\s*['"]([^'"]*)['"]/g))
+	for (const m of code.matchAll(
+		/export\s*\*\s*from\s*['"]([^'"]*)['"]/g,
+	))
 		starFrom.push(m[1])
 	return { names: [...names], starFrom }
 }
@@ -49,9 +58,7 @@ function report(label, exp, files, opts = {}) {
 	const missing = exp.names.filter(
 		n => !fileSet.has(n) && !ignore.has(n),
 	)
-	const orphan = files.filter(
-		f => !expSet.has(f) && !ignore.has(f),
-	)
+	const orphan = files.filter(f => !expSet.has(f) && !ignore.has(f))
 	if (missing.length || orphan.length || exp.starFrom.length) {
 		console.log(`\n## ${label}`)
 		if (missing.length)
@@ -81,7 +88,11 @@ for (const entry of readdirSync(useDir)) {
 	const files = contentFilesIn(contentSub)
 	// overview lives at use/<mod>.md (separate)
 	const overview = existsSync(join(CONTENT, 'use', modName + '.md'))
-	report(`pota/use/${modName}` + (overview ? '' : '  [NO OVERVIEW]'), exp, files)
+	report(
+		`pota/use/${modName}` + (overview ? '' : '  [NO OVERVIEW]'),
+		exp,
+		files,
+	)
 }
 
 // top-level pota

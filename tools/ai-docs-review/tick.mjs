@@ -86,7 +86,9 @@ writeFileSync(FILE, lines.join('\n'))
 
 const remaining = lines.filter(l => /^\s*- \[ \]/.test(l)).length
 const doneFiles = lines.filter(l => /^\s*- \[x\]\s*`/.test(l)).length
-const totalFiles = lines.filter(l => /^\s*- \[[ x]\]\s*`/.test(l)).length
+const totalFiles = lines.filter(l =>
+	/^\s*- \[[ x]\]\s*`/.test(l),
+).length
 console.log(
 	`ticked ${ticked}; per-file ${doneFiles}/${totalFiles}; total unchecked boxes remaining: ${remaining}`,
 )

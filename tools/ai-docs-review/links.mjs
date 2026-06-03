@@ -48,7 +48,9 @@ for (const b of broken) {
 	byTarget.get(b.target).add(b.rel)
 }
 
-console.log(`=== ${broken.length} broken internal links, ${byTarget.size} distinct targets ===\n`)
+console.log(
+	`=== ${broken.length} broken internal links, ${byTarget.size} distinct targets ===\n`,
+)
 for (const [target, fileset] of [...byTarget.entries()].sort()) {
 	// suggest a fix: does adding /guide prefix or some existing route match?
 	const suggestions = [...routes].filter(

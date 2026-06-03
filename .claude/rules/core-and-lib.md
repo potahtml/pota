@@ -13,15 +13,15 @@ The props pipeline has its own rule.
 
 `src/lib/solid.js` is the engine — a `createReactiveSystem()` factory;
 `src/lib/reactive.js` calls it once and re-exports, adding `map`,
-`resolve`, `signalFunction`, etc. It descends from Solid 1.x, ported to
-classes and extended (`derived`, `owned`, `asyncTracking`,
+`resolve`, `signalFunction`, etc. It descends from Solid 1.x, ported
+to classes and extended (`derived`, `owned`, `asyncTracking`,
 `catchError`); mirror Solid only where pota intentionally aligns, and
 comment divergences. Hot paths matter — preserve allocation and
 scheduling patterns unless the task calls for a redesign. Run
 `npm run build:ts` after typed / JSDoc edits.
 
-The sections below are the non-obvious invariants — things that read as
-if they could be otherwise but are load-bearing. Source is the
+The sections below are the non-obvious invariants — things that read
+as if they could be otherwise but are load-bearing. Source is the
 reference for mechanism; this is the why. Signal/JSX basics are in
 AGENTS.md (Library Semantics).
 
@@ -41,8 +41,8 @@ AGENTS.md (Library Semantics).
   observers `CHECK` ("maybe dirty"). `upstream` resolves `CHECK`
   lazily — the pull half; the push half (`doWrite`) re-marks a node
   `STALE` only if a source's value actually changed. A `Memo` whose
-  recomputed value is unchanged leaves observers `CHECK`/`CLEAN` — they
-  never re-run. That is the memo optimization boundary.
+  recomputed value is unchanged leaves observers `CHECK`/`CLEAN` —
+  they never re-run. That is the memo optimization boundary.
 - **Flush order (`runUpdates`/`batch`):** the outermost call owns the
   flush. **Phase 1 flushes memos, Phase 2 flushes effects** — always
   memos before effects, so effects read a consistent graph. Within
@@ -50,7 +50,7 @@ AGENTS.md (Library Semantics).
   framework setup (context, `catchError`) completes before user code
   observes it. `runTop` updates **ancestors before children**
   (top-down) to avoid a child re-running against a stale parent.
-- **Disposal-on-rerun:** a computation `dispose()`s itself *before*
+- **Disposal-on-rerun:** a computation `dispose()`s itself _before_
   every re-run — unlinks from sources (swap-remove via stored slot
   indices), disposes owned children, runs cleanups — then re-runs
   `fn`. So tracking is rebuilt fresh each run; a branch that stops
@@ -59,8 +59,8 @@ AGENTS.md (Library Semantics).
 - **`owned(cb, onCancel)`** makes a callback disposal-aware (a
   promise's `.then` can fire after its computation disposed). It runs
   `cb` under the original owner only if not yet disposed, else
-  `onCancel`. Used by the scheduler's `add`, events (`ownedEvent`), and
-  promise resolution.
+  `onCancel`. Used by the scheduler's `add`, events (`ownedEvent`),
+  and promise resolution.
 - **Context** is a symbol-keyed record copied-on-write up the `Owner`
   chain (`Owner.context = { ...Owner.context, [id]: v }`); lookups are
   O(1). Providers use `syncEffect` so context is set before children
@@ -77,18 +77,18 @@ AGENTS.md (Library Semantics).
 Writable memo that lazily unwraps functions / promises / arrays via
 `withValue`; the chain `derived(f0, f1, f2)` is just `this.fn`.
 
-- `d()` reads (and tracks). `d(value)` writes a **temporary** override:
-  chain effects stay alive, and the next change to any stage's
-  dependency re-runs from that stage onward and overwrites the
+- `d()` reads (and tracks). `d(value)` writes a **temporary**
+  override: chain effects stay alive, and the next change to any
+  stage's dependency re-runs from that stage onward and overwrites the
   override — **dependency changes are authoritative**.
 - **Per-stage re-run:** a dep change re-runs only from the affected
   stage to the end; earlier stages keep their cached results.
 - **`lastWrite`** is a monotonic integer counter (not object
   identity), bumped once per chain run. A commit proceeds only if
   `Listener || lastWrite === mine`. This closes two races: (1) a late
-  promise clobbering a newer sync write; (2) two pending promises where
-  the older resolves last. Inside an effect re-run (`Listener` set)
-  commits always proceed; async callbacks must match the token.
+  promise clobbering a newer sync write; (2) two pending promises
+  where the older resolves last. Inside an effect re-run (`Listener`
+  set) commits always proceed; async callbacks must match the token.
 - Chain dispatch uses **`fns.slice(1)`** (fresh array per stage), not
   `shift()` — `shift()` mutated the shared array and lost the tail on
   re-runs.
@@ -113,14 +113,14 @@ One microtask-driven priority queue, six fixed buckets. Only `ready` /
 `readyAsync` are public; the rest let the renderer and props pipeline
 cooperate without leaking timing into user code.
 
-| Pri | Name      | Purpose                              |
-| --- | --------- | ------------------------------------ |
-| 0   | `onFixes` | before everything (e.g. focus)       |
-| 1   | `onProps` | prop plugins with `onMicrotask=true` |
-| 2   | `onMount` | after props applied                  |
-| 3   | `ready`   | public `ready(fn)`                   |
-| 4   | `onDone`  | after user processes                 |
-| 5   | _(unused)_| reserved                             |
+| Pri | Name       | Purpose                              |
+| --- | ---------- | ------------------------------------ |
+| 0   | `onFixes`  | before everything (e.g. focus)       |
+| 1   | `onProps`  | prop plugins with `onMicrotask=true` |
+| 2   | `onMount`  | after props applied                  |
+| 3   | `ready`    | public `ready(fn)`                   |
+| 4   | `onDone`   | after user processes                 |
+| 5   | _(unused)_ | reserved                             |
 
 - `add` wraps `fn` in `owned(fn)` (a disposed owner cancels it). `run`
   captures the live buckets and installs fresh ones (via `reset`)

@@ -28,6 +28,7 @@
 - mobile
 - interlink documents more
 - update urls to new docs website
+- use more from pota in docs, be more idiomatic
 
 ### someday
 
