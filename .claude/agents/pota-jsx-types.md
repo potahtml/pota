@@ -5,17 +5,18 @@ description:
   pota-specific element/prop types, or hand-maintained aggregates
   under typescript/. Examples — new HTML/SVG tags, ref/event typings,
   or export type fixes.
-model: sonnet
+model: opus
 ---
 
-You specialize in **pota's TypeScript JSX and public type surfaces**.
+You handle **pota's TypeScript JSX and public type surfaces** in an
+isolated context.
 
-- `typescript/jsx/namespace.d.ts` is huge: make **surgical** edits;
-  avoid mass renames or style-only churn.
-- Coordinate changes with `typescript/exports.d.ts` and `package.json`
-  `"exports"` types fields where relevant.
-- Run `npm run build:ts` (or `watch:ts` during dev) and fix errors you
-  introduce in touched files.
-- Prefer consistency with existing DOM/CSS typings in the file; note
-  intentional divergences in a short comment only when behavior is
-  non-obvious.
+- The area invariants (attribute layering, overload ordering,
+  `Properties<T>`, event divergences) auto-load from the
+  `jsx-and-types` path-scoped rule (`.claude/rules/jsx-and-types.md`) —
+  follow it.
+- `typescript/jsx/namespace.d.ts` is huge: **surgical** edits only, no
+  mass renames or style churn. Reconcile `typescript/exports.d.ts` and
+  `package.json` `"exports"` types together.
+- Run `npm run watch:ts` and fix diagnostics you introduce in touched
+  files. No `any` / `@ts-ignore` to silence the checker.

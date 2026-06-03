@@ -14,6 +14,10 @@ This file is for **Claude Code-specific extras only**:
   automatically when those paths are touched.
 - **Project subagents** in `.claude/agents/` — invoke by name when the
   task matches, or let Claude delegate.
+- **Skills** in `.claude/skills/` — invocable procedures.
+  `docs-review` runs/continues the resumable, source-verified
+  review+normalization pass over `projects/docs` (tracked in that
+  project's `progress.md`).
 
 **When adding a new project rule, convention, command, or note, write
 it to `documentation/AGENTS.md` — not here.** AGENTS.md is the shared

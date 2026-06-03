@@ -10,7 +10,7 @@
 //   npm run test:api -- derived-chain-expected
 //
 // See also `derived-chain-current.jsx` for baseline regression
-// tests and `documentation/derived.md` for the design doc.
+// tests; the `Derived` design lives in `src/lib/solid.js`.
 
 import { test } from '#test'
 import { signal, derived, memo } from 'pota'

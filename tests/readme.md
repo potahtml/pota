@@ -68,13 +68,24 @@ time. Write 1 file at a time.
 
 ## Timing Considerations
 
-See `documentation/scheduler.md` § "Timing for tests" for the full
-rule of thumb. Quick reminders specific to writing tests:
+Rule of thumb — prefer `microtask` over `macrotask` over `sleep`:
 
-- Prefer `microtask` over `macrotask`, and `macrotask` over `sleep`.
-- Do not use double `await microtask()` — use a single
-  `await macrotask()` instead.
-- `useTimeout` tests need `sleep > timer delay`.
+- **`await microtask()`** — flushes the full scheduler priority queue.
+  Enough for `onProps`, `onMount`, `ready`, lifecycle plugins, and any
+  callback routed through the scheduler's `add(...)`.
+- **`await macrotask()`** — needed when promises chain through more
+  than one microtask tick (`readyAsync`, `action` promise chains,
+  `CSSStyleSheet.replace()`). Do not use a double `await microtask()`;
+  use a single `await macrotask()`.
+- **`sleep(ms)`** — only for truly time-dependent browser APIs
+  (`history.back()` needs ~200ms, `navigate({delay})` needs ≥2×delay,
+  `useTimeout` tests need `sleep > timer delay`).
+
+Namespaced props (`use:*`) registered with the default
+`onMicrotask=true` need `await microtask()` after `render()` before
+their effect is observable. Built-in props registered with
+`onMicrotask=false` (`use:ref`, `use:connected`, `use:disconnected`,
+`style`, `class`, `on:*`, `prop:*`) apply immediately.
 
 ## Current Gaps
 
@@ -118,7 +129,7 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 | `collapse.jsx`       | `Collapse`                                 |
 | `custom-element.jsx` | `CustomElement`, `customElement`           |
 | `dynamic.jsx`        | `Dynamic`                                  |
-| `errored.jsx`        | `Errored` — see `documentation/errored.md` |
+| `errored.jsx`        | `Errored`                                  |
 | `for.jsx`            | `For`                                      |
 | `head.jsx`           | `Head`                                     |
 | `load.jsx`           | `load()` from route                        |
@@ -229,8 +240,11 @@ the matching `pota/use/<name>` subpath.
 ## `tests/typescript/` — typecheck-only tests
 
 Run via `npm run test:ts-tests` (`tsc -p tests/tsconfig.json`).
-Per-file scope catalogued in `documentation/typescript.md`
-(Verification Checklist).
+Per-file split: `jsx.tsx` (intrinsic elements, attributes, events,
+`prop:*`/`on:*`/`use:*`, and component utility types), `types.tsx`
+(structural utilities only — `Accessor`, `When`, `Each`, `Merge`,
+`ComponentProps`, primitive JSX types), plus `components.tsx`,
+`reactive.tsx`, `store.tsx`, `utility.tsx`, `use.tsx`.
 
 ---
 

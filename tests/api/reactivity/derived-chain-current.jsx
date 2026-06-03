@@ -4,8 +4,8 @@
 // Covers single-stage, multi-stage with pure transforms, and
 // multi-stage with intermediate signal deps (per-stage re-runs).
 //
-// See also `derived-chain-expected.jsx` for additional coverage
-// and `documentation/derived.md` for the design doc.
+// See also `derived-chain-expected.jsx` for additional coverage;
+// the `Derived` design lives in `src/lib/solid.js`.
 
 import { test } from '#test'
 import { signal, derived } from 'pota'
@@ -165,7 +165,8 @@ await test('current: three-stage chain with pure transforms — dep change in f0
 // signal's change triggers the stage's tracking effect to re-run
 // the transformation — but the result silently fails to commit
 // and downstream stages never run. The committed value remains
-// stale. See `documentation/derived.md` Issue 1 and Issue 2.
+// stale. See the Issue 1 / Issue 2 cases in
+// `derived-chain-expected.jsx`.
 //
 // These tests ASSERT the broken behavior so they pass today.
 // They are not describing the desired semantic — they are

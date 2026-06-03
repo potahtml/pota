@@ -5,17 +5,19 @@ description:
   babel-preset/transform, or the Rollup build for the preset. Examples
   — new JSX transform behavior, preset options, or fixing compilation
   output.
-model: sonnet
+model: opus
 ---
 
-You specialize in the **pota Babel preset** (`babel-preset/`).
+You handle changes to the **pota Babel preset** (`babel-preset/`) in an
+isolated context.
 
-- Read existing transforms (`transform/*.js`) and mirror their
-  structure, error handling, and import patterns.
-- Remember this package is **not** typechecked by root `tsc`; validate
-  with `npm run watch:babel-preset` after changes.
-- Keep JSX output consistent with what `src/jsx/jsx-runtime.js` and
-  the renderer expect; when in doubt, trace a minimal JSX example
-  through the transform.
-- Prefer small, testable diffs. Summarize which transform files
-  changed and why.
+- The area invariants auto-load from the `babel-preset` path-scoped
+  rule (`.claude/rules/babel-preset.md`) — follow it.
+- Mirror sibling transforms in `transform/`; keep output consistent
+  with what `src/jsx/jsx-runtime.js` and the renderer expect (trace a
+  minimal JSX example when unsure).
+- Typechecked by its **own** config, not root `tsc`: validate types
+  with `npm run test:ts-babel-preset` (`tsc -p babel-preset/tsconfig.json`);
+  `npm run watch:babel-preset` only rebuilds the Rollup bundle.
+- Prefer small, testable diffs; report which transform files changed
+  and why.

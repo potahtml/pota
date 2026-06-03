@@ -32,7 +32,8 @@
 			"!**/node_modules",
 			"!**/generated",
 			"!**/projects",
-			"!**/package-lock.json"
+			"!**/package-lock.json",
+			"projects"
 		]
 	}
 }
