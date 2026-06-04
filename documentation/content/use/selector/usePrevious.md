@@ -1,0 +1,48 @@
+---
+title: usePrevious
+subpath: pota/use/selector
+topic: Reactive helpers
+desc: Wrap a function so it receives its previous return value.
+---
+
+# usePrevious
+
+`usePrevious(fn)` wraps `fn` so that on every call it receives the
+previous return value as its second argument — useful for transitions,
+deltas, or "compute from the previous state" patterns without an extra
+signal. Part of [`pota/use/selector`](/use/selector).
+
+The wrapper keeps the previous value in a closure variable, so it is
+not reactive on its own; reach for it inside a derivation or effect
+when you need to compare a value against the one it produced last
+time.
+
+## Arguments
+
+| Argument | Type                    | Description                                                                |
+| -------- | ----------------------- | -------------------------------------------------------------------------- |
+| `fn`     | `(next, previous) => T` | Called with the current input and the value it returned on the prior call. |
+
+**Returns:** a function `next => T` that runs `fn(next, previous)`,
+stores the result as the new `previous`, and returns it. On the first
+call `previous` is `undefined`.
+
+## Examples
+
+### Compute from the previous return
+
+Wrap a reducer-style function so each call sees what it returned last
+time. On the first call the previous value is `undefined`.
+
+```js
+import { usePrevious } from 'pota/use/selector'
+
+const step = usePrevious((next, prev) => {
+	console.log('was', prev, '→', next)
+	return next
+})
+
+step(1) // prev: undefined
+step(2) // prev: 1
+step(5) // prev: 2
+```
