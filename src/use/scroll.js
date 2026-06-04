@@ -1,6 +1,7 @@
 import { onMount } from '../core/scheduler.js'
 import { location, window } from '../lib/std.js'
 import { document, querySelector } from './dom.js'
+import { decodeURIComponent } from './url.js'
 
 /**
  * Scrolls to an element
@@ -20,23 +21,43 @@ export const scrollToLocationHash = () =>
 	scrollToSelector(location.hash)
 
 /**
- * Scrolls to element that matches the hash
+ * Scrolls to the element a hash / selector points to.
  *
- * @param {string} selector - Hash to scroll to
+ * @param {string} selector - Hash or selector to scroll to
  * @returns {boolean} True on success
  */
 export function scrollToSelector(selector) {
-	if (selector) {
-		try {
-			// selector could be invalid
-			const item = querySelector(document, selector)
-			if (item) {
-				scrollToElement(item)
-				return true
-			}
-		} catch (e) {}
+	const item = selector ? scrollTarget(selector) : null
+	if (item) {
+		scrollToElement(item)
+		return true
 	}
 	return false
+}
+
+/**
+ * Resolves a hash / selector to an element. A URL fragment is matched
+ * against element ids (`getElementById`), not CSS selectors, so `#id`
+ * is resolved that way first — this handles ids that are valid HTML
+ * but invalid CSS selectors (a leading digit, `/`, `.`, `:`). Falls
+ * back to `querySelector` for arbitrary selectors.
+ *
+ * @param {string} selector
+ * @returns {Element | null}
+ */
+function scrollTarget(selector) {
+	if (selector[0] === '#') {
+		const item = document.getElementById(
+			decodeURIComponent(selector.slice(1)),
+		)
+		if (item) return item
+	}
+	try {
+		// selector could be invalid
+		return querySelector(document, selector)
+	} catch (e) {
+		return null
+	}
 }
 
 /**
