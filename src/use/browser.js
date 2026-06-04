@@ -12,3 +12,6 @@ export const isMobile = /mobile|iphone|ipod|ios|ipad|android/i.test(
 
 /** Detects whether the current browser user agent belongs to Firefox. */
 export const isFirefox = /firefox/i.test(userAgent)
+
+/** Detects whether the current browser user agent belongs to macOS. */
+export const isMac = /mac/i.test(userAgent)
