@@ -160,7 +160,7 @@ export function asyncEffect(fn) {
  * to patch a signal array with data that comes from a server without
  * losing references to what its already there avoiding a store.
  *
- * @template {{ id?: string; [key: string]: any }[]} T
+ * @template {{ id?: string | number; [key: string]: any }[]} T
  * @param {T} initialValue
  * @param {SignalOptions<T>} [options]
  * @returns {Signal<T>}
