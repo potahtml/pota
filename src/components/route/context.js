@@ -8,7 +8,7 @@ import { isAbsolute } from '../../use/url.js'
  * @returns {import('#type/Route.d.ts').Context}
  */
 export function create(props) {
-	/** @type {SignalObject<import('#type/Route.d.ts').Context[]>} */
+	/** @type {Signal<import('#type/Route.d.ts').Context[]>} */
 	const children = signal(
 		/** @type {import('#type/Route.d.ts').Context[]} */ ([]),
 	)

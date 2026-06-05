@@ -6,7 +6,7 @@ export class Emitter {
 	#on
 	#off
 
-	/** @type SignalObject<T> */
+	/** @type Signal<T> */
 	#signal
 	#initialValue
 

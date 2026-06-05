@@ -238,8 +238,8 @@ import { signal } from 'pota'
 
 const sigForMutable = signal(0)
 const mutWithSig = mutable({ count: sigForMutable })
-// `count` is still a SignalObject<number>
-const mutSig: SignalObject<number> = mutWithSig.count
+// `count` is still a Signal<number>
+const mutSig: Signal<number> = mutWithSig.count
 const mutSigRead: number = mutWithSig.count.read()
 
 // ============================================

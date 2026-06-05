@@ -101,12 +101,12 @@ export function storage(prefix) {
 	 * @template T
 	 * @param {string} key
 	 * @param {T} [initial]
-	 * @returns {SignalObject<T>}
+	 * @returns {Signal<T>}
 	 */
 	return (key, initial) => {
 		const fullKey = prefix + key
 		const parsed = safeParse(defaultStore.getItem(fullKey))
-		const s = /** @type {SignalObject<T>} */ (
+		const s = /** @type {Signal<T>} */ (
 			signal(parsed === undefined ? initial : parsed)
 		)
 		let skipNextPersist = false

@@ -14,13 +14,13 @@ import { Emitter } from './emitter.js'
 // `gamepaddisconnected` events — one source of truth, and polling
 // observes everything those events do within one frame.
 
-/** @type {Map<number, SignalObject<boolean>>} */
+/** @type {Map<number, Signal<boolean>>} */
 const connectedSignals = new Map()
-/** @type {Map<string, SignalObject<boolean>>} */
+/** @type {Map<string, Signal<boolean>>} */
 const buttonPressed = new Map()
-/** @type {Map<string, SignalObject<number>>} */
+/** @type {Map<string, Signal<number>>} */
 const buttonValue = new Map()
-/** @type {Map<string, SignalObject<number>>} */
+/** @type {Map<string, Signal<number>>} */
 const axisValue = new Map()
 
 let rafId = 0

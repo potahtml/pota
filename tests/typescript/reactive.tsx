@@ -666,11 +666,11 @@ ThemeContext.walk(value => {
 const contextScoped = CountCtx(99, () => <div>scoped</div>)
 
 // ============================================
-// SignalObject / DerivedSignal assertions
+// Signal / DerivedSignal assertions
 // ============================================
 
-// SignalObject — named access
-const obj: SignalObject<string> = signal('hi')
+// Signal — named access
+const obj: Signal<string> = signal('hi')
 const ov1: string = obj.read()
 obj.write('bye')
 obj.update(s => s + '!')

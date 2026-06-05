@@ -160,7 +160,7 @@ export function asyncEffect(fn) {
  * @template {{ id?: string; [key: string]: any }[]} T
  * @param {T} initialValue
  * @param {SignalOptions<T>} [options]
- * @returns {SignalObject<T>}
+ * @returns {Signal<T>}
  */
 export function externalSignal(initialValue, options) {
 	const s = signal(initialValue, options)

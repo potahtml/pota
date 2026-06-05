@@ -80,7 +80,7 @@ type SignalUpdate<T> = (
 
 // signal as object/function
 
-type SignalObject<T> = {
+type Signal<T> = {
 	readonly read: SignalAccessor<T>
 	readonly write: SignalSetter<T>
 	readonly update: SignalUpdate<T>

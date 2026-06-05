@@ -7,7 +7,7 @@ import { Emitter } from './emitter.js'
 // some browsers) and the API works for pen/touch too. Module name
 // stays `mouse` because that's what callers reach for.
 
-/** @type {Map<number, SignalObject<boolean>>} */
+/** @type {Map<number, Signal<boolean>>} */
 const buttonSignals = new Map()
 /** @type {Set<number>} */
 const heldButtons = new Set()

@@ -90,7 +90,7 @@ export const submitOnCtrlEnter = handler =>
 
 // ---- held-key tracking -------------------------------------------
 
-/** @type {Map<string, SignalObject<boolean>>} */
+/** @type {Map<string, Signal<boolean>>} */
 const heldSignals = new Map()
 /** @type {Set<string>} */
 const heldSet = new Set()

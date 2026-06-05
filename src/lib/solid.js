@@ -578,7 +578,7 @@ export function createReactiveSystem() {
 	 * eliminates the undefined→array transition that was making doRead
 	 * megamorphic across signal-literal vs Memo vs Derived shapes.
 	 */
-	class Signal {
+	class SignalNode {
 		/** @type {any} */
 		value
 
@@ -636,10 +636,10 @@ export function createReactiveSystem() {
 	 * @template T
 	 * @param {T} [value] - Initial value of the signal
 	 * @param {SignalOptions<T>} [options] - Signal options
-	 * @returns {SignalObject<T>}
+	 * @returns {Signal<T>}
 	 */
 	/* #__NO_SIDE_EFFECTS__ */ function signal(value, options) {
-		return new Signal(value, options)
+		return new SignalNode(value, options)
 	}
 
 	/**

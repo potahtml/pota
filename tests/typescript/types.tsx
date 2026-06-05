@@ -274,8 +274,8 @@ const so_undefined: SignalOptions<number> = undefined
 const schanged_true: SignalChanged = true
 const schanged_false: SignalChanged = false
 
-// SignalObject<T> — named access
-type SObj = SignalObject<number>
+// Signal<T> — named access
+type SObj = Signal<number>
 declare const sObjVal: SObj
 const sObj_r: number = sObjVal.read()
 const sObj_w: boolean = sObjVal.write(2)
