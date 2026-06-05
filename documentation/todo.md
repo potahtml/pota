@@ -1,40 +1,26 @@
-# TODO
-
-## CONSIDER ALWAYS
+# TODO - CONSIDER ALWAYS
 
 - KEEP THE CODE READABLE, DO NOT COMPLICATE IT TOO MUCH
 - CONSISTENCY ABOVE ALL
 - SLOW AND SIMPLE IS BETTER THAN FAST AND HARD TO UNDERSTAND
 - TAKE IT EASY, STEP BY STEP
 
-### stuff
+## wip
 
-- transform: refactor transform again !
-- need to maybe get rid of props plugin
-- some plugins like orientation are creating a root, figure out if
-  this can be abstracted
+- docs: typecheck the examples
+- docs: interlink documents more
 - tabs need to be passed a write for the selected tab
-- forbid select.value
+- reactivity: prevent writing to signals inside tracked scopes
+- need to get rid of props plugin
+- some plugins like orientation are creating a root
+
+## someday
+
+- dev tools: rethink the dev tools
 - ask for coverage report
-- SignalObject -> Signal
-- add isMac
+- transform: refactor transform again !
 - finish formalising the api and bump to v1
 
-### documentation
-
-- typecheck the examples
-- topics need slightly better organization, for example use/test could
-  has its own section, maybe others pota/use/\* too
-- mobile
-- interlink documents more
-- update urls to new docs website
-- use more from pota in docs, be more idiomatic
-
-### someday
-
-- reactivity: prevent writing to signals inside tracked scopes
-- dev tools: rethink the dev tools
-
-### use / components
+## use / components
 
 - color picker
