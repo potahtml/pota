@@ -4,6 +4,7 @@
  * @param {MediaStream} sourceStream - The source media stream
  * @param {MediaStream} destinationStream - The destination media
  *   stream
+ * @url https://pota.quack.uy/use/stream/copyAudioTracks
  */
 export function copyAudioTracks(sourceStream, destinationStream) {
 	removeAudioTracks(destinationStream)
@@ -18,6 +19,7 @@ export function copyAudioTracks(sourceStream, destinationStream) {
  * @param {MediaStream} sourceStream - The source media stream.
  * @param {MediaStream} destinationStream - The destination media
  *   stream.
+ * @url https://pota.quack.uy/use/stream/copyVideoTracks
  */
 export function copyVideoTracks(sourceStream, destinationStream) {
 	removeVideoTracks(destinationStream)
@@ -31,6 +33,7 @@ export function copyVideoTracks(sourceStream, destinationStream) {
  *
  * @param {MediaStream} stream - The MediaStream object from which to
  *   remove audio tracks
+ * @url https://pota.quack.uy/use/stream/removeAudioTracks
  */
 export function removeAudioTracks(stream) {
 	stream.getAudioTracks().forEach(track => stream.removeTrack(track))
@@ -41,6 +44,7 @@ export function removeAudioTracks(stream) {
  *
  * @param {MediaStream} stream - The media stream from which to remove
  *   video tracks.
+ * @url https://pota.quack.uy/use/stream/removeVideoTracks
  */
 export function removeVideoTracks(stream) {
 	stream.getVideoTracks().forEach(track => stream.removeTrack(track))
@@ -50,6 +54,7 @@ export function removeVideoTracks(stream) {
  * Stops all tracks of the provided stream.
  *
  * @param {MediaStream | MediaRecorder} stream - The stream to stop.
+ * @url https://pota.quack.uy/use/stream/stopStream
  */
 export function stopStream(stream) {
 	if (stream instanceof MediaStream) {
@@ -64,6 +69,7 @@ export function stopStream(stream) {
  * Stops a track.
  *
  * @param {MediaStreamTrack} track - The track to stop.
+ * @url https://pota.quack.uy/use/stream/stopTrack
  */
 export const stopTrack = track => track.stop()
 
@@ -72,6 +78,7 @@ export const stopTrack = track => track.stop()
  *
  * @param {MediaStream} stream - The MediaStream object containing the
  *   tracks to be stopped.
+ * @url https://pota.quack.uy/use/stream/stopTracks
  */
 export function stopTracks(stream) {
 	stream.getAudioTracks().forEach(stopTrack)

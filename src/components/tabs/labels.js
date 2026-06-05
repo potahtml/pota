@@ -18,7 +18,7 @@ import { getValue } from '../../lib/std.js'
  *       so the specific component identity cannot be constrained at
  *       the type level.
  *
- * @url https://pota.quack.uy/Components/Tabs
+ * @url https://pota.quack.uy/components/Tabs
  */
 export function Labels(props) {
 	const context = Context()
@@ -99,7 +99,7 @@ export function Labels(props) {
  * 		}) => void
  * 	}
  * >} props
- * @url https://pota.quack.uy/Components/Tabs
+ * @url https://pota.quack.uy/components/Tabs
  */
 export function Label(props) {
 	return props

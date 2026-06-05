@@ -10,7 +10,7 @@ import { addListeners, navigate } from '../../use/location.js'
  * 	params?: object
  * 	delay?: number
  * }>}
- * @url https://pota.quack.uy/Components/Route/Navigate
+ * @url https://pota.quack.uy/components/Navigate
  */
 export const Navigate = props => {
 	addListeners()

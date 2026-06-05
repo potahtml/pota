@@ -86,7 +86,7 @@ const lifecycle = new Emitter({
  *
  * @param {number} button
  * @returns {() => boolean}
- * @url https://pota.quack.uy/use/mouse
+ * @url https://pota.quack.uy/use/mouse/useMouseButton
  */
 export const useMouseButton = button => {
 	lifecycle.use()
@@ -100,7 +100,7 @@ export const useMouseButton = button => {
  * read-only.
  *
  * @returns {Set<number>}
- * @url https://pota.quack.uy/use/mouse
+ * @url https://pota.quack.uy/use/mouse/mouseButtons
  */
 export const mouseButtons = () => {
 	lifecycle.use()
@@ -114,7 +114,7 @@ export const mouseButtons = () => {
  * `DragInfo`.
  *
  * @returns {() => { x: number; y: number }}
- * @url https://pota.quack.uy/use/mouse
+ * @url https://pota.quack.uy/use/mouse/useMousePosition
  */
 export const useMousePosition = () => {
 	lifecycle.use()
@@ -127,7 +127,7 @@ export const useMousePosition = () => {
  * move, so subsequent calls see the latest value.
  *
  * @returns {{ x: number; y: number }}
- * @url https://pota.quack.uy/use/mouse
+ * @url https://pota.quack.uy/use/mouse/mousePosition
  */
 export const mousePosition = () => {
 	lifecycle.use()

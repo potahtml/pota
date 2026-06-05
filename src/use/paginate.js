@@ -38,6 +38,7 @@ import { getValue, toArray } from '../lib/std.js'
  *   when an accessor reading a tracked signal is passed, source
  *   updates clobber `next`/`previous` writes.
  * @returns {PaginatePage}
+ * @url https://pota.quack.uy/use/paginate/paginateValues
  */
 
 export function paginateValues(items, numPerPage, page) {
@@ -78,6 +79,7 @@ export function paginateValues(items, numPerPage, page) {
  *   change and clobbers any prior write from `next`/`previous`,
  *   making the source the authority.
  * @returns {PaginatePage}
+ * @url https://pota.quack.uy/use/paginate
  */
 export function paginate(fetch, options) {
 	const page = derived(

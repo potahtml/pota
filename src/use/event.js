@@ -9,18 +9,21 @@ import {
 /**
  * @template {Event} T
  * @param {T} e
+ * @url https://pota.quack.uy/use/event/preventDefault
  */
 export const preventDefault = e => e.preventDefault()
 
 /**
  * @template {Event} T
  * @param {T} e
+ * @url https://pota.quack.uy/use/event/stopPropagation
  */
 export const stopPropagation = e => e.stopPropagation()
 
 /**
  * @template {Event} T
  * @param {T} e
+ * @url https://pota.quack.uy/use/event/stopImmediatePropagation
  */
 export const stopImmediatePropagation = e =>
 	e.stopImmediatePropagation()
@@ -28,6 +31,7 @@ export const stopImmediatePropagation = e =>
 /**
  * @template {Event} T
  * @param {T} e
+ * @url https://pota.quack.uy/use/event/stopEvent
  */
 export function stopEvent(e) {
 	preventDefault(e)
@@ -39,6 +43,7 @@ export function stopEvent(e) {
  * @param {Element | typeof globalThis} node
  * @param {string} eventName
  * @param {CustomEventInit} [data]
+ * @url https://pota.quack.uy/use/event/emit
  */
 
 export const emit = (node, eventName, data = {}) => {
@@ -81,6 +86,7 @@ export const waitEvent =
  * @param {string} type
  * @param {EventListenerOrEventListenerObject} handler
  * @returns {void}
+ * @url https://pota.quack.uy/use/event/addEventNative
  */
 export const addEventNative = (where, type, handler) =>
 	where.addEventListener(
@@ -101,6 +107,7 @@ export const addEventNative = (where, type, handler) =>
  * @param {string} type
  * @param {EventListenerOrEventListenerObject} handler
  * @returns {void}
+ * @url https://pota.quack.uy/use/event/removeEventNative
  */
 export const removeEventNative = (where, type, handler) =>
 	where.removeEventListener(

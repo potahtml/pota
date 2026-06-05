@@ -103,7 +103,7 @@ let BeforeLeave = []
  *
  * @param {Function | Promise<unknown>} cb - Run before leaving the
  *   route
- * @url https://pota.quack.uy/Components/Route/useBeforeLeave
+ * @url https://pota.quack.uy/use/location/useBeforeLeave
  */
 export const useBeforeLeave = cb => {
 	addListeners()
@@ -145,7 +145,7 @@ async function canNavigate(href) {
  * 	scroll?: boolean
  * 	replace?: boolean
  * }} options
- * @url https://pota.quack.uy/Components/Route/Navigate
+ * @url https://pota.quack.uy/use/location/navigate
  */
 async function navigate(href, options = nothing) {
 	if (wLocation.href !== href) {
@@ -192,7 +192,7 @@ function navigateInternal(href, options) {
  * 	replace?: boolean
  * 	delay?: number
  * }} options
- * @url https://pota.quack.uy/Components/Route/Navigate
+ * @url https://pota.quack.uy/use/location/navigate
  */
 function navigateUser(href, options = nothing) {
 	addListeners()
@@ -218,6 +218,7 @@ export { navigateUser as navigate }
  *
  * @param {string} href - Full or absolute URL
  * @param {{ replace?: boolean }} [options]
+ * @url https://pota.quack.uy/use/location/navigateSync
  */
 export function navigateSync(href, options) {
 	options?.replace
@@ -233,6 +234,8 @@ let addListenersAdded = false
 /**
  * Adds event listeners for client-side navigation. Only adds
  * listeners once to prevent duplicate handlers
+ *
+ * @url https://pota.quack.uy/use/location/addListeners
  */
 export function addListeners() {
 	if (!addListenersAdded) {

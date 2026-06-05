@@ -22,7 +22,7 @@ const noError = Symbol()
  * 		| JSX.Element
  * 		| ((err: unknown, reset: () => void) => JSX.Element)
  * }>}
- * @url https://pota.quack.uy/Components/Errored
+ * @url https://pota.quack.uy/components/Errored
  */
 export const Errored = props => {
 	const err = signal(/** @type {unknown} */ (noError))

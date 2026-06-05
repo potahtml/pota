@@ -5,6 +5,8 @@ const userAgent = navigator.userAgent
 /**
  * Detects whether the current browser user agent belongs to a mobile
  * device.
+ *
+ * @url https://pota.quack.uy/use/browser/isMobile
  */
 export const isMobile = /mobile|iphone|ipod|ios|ipad|android/i.test(
 	userAgent,

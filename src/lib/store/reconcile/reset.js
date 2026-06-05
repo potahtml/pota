@@ -28,6 +28,7 @@ import { copy } from '../copy.js'
  * @param {T} target
  * @param {U} source
  * @returns {T & U}
+ * @url https://pota.quack.uy/store/reset
  */
 export const reset = (target, source) => (
 	batch(() => untrack(() => reconcile(target, copy(source)))),

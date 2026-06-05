@@ -16,7 +16,7 @@ import { Show } from '../Show.js'
  * @param {object} props
  * @param {JSX.Element} [props.children]
  * @returns {JSX.Element}
- * @url https://pota.quack.uy/Components/Tabs
+ * @url https://pota.quack.uy/components/Tabs
  */
 export function Panels(props) {
 	const context = Context()
@@ -53,7 +53,7 @@ export function Panels(props) {
  * >} props
  *   - Leftover props are passed to the section container
  *
- * @url https://pota.quack.uy/Components/Tabs
+ * @url https://pota.quack.uy/components/Tabs
  */
 export function Panel(props) {
 	return props

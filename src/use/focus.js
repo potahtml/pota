@@ -25,6 +25,8 @@ const elements = () =>
 /**
  * Focuses the next tabbable element in the document, wrapping to the
  * start.
+ *
+ * @url https://pota.quack.uy/use/focus/focusNext
  */
 export function focusNext(all = elements()) {
 	const idx = all.indexOf(
@@ -50,6 +52,8 @@ export function focusNext(all = elements()) {
 /**
  * Focuses the previous tabbable element in the document, wrapping to
  * the end.
+ *
+ * @url https://pota.quack.uy/use/focus/focusPrevious
  */
 export function focusPrevious(all = elements()) {
 	focusNext(all.reverse())
@@ -59,7 +63,7 @@ export function focusPrevious(all = elements()) {
  * Ref function: focuses the element once it is mounted in the DOM.
  *
  * @param {HTMLElement} node
- * @url https://pota.quack.uy/use/focus
+ * @url https://pota.quack.uy/use/focus/autoFocus
  */
 export const autoFocus = node => {
 	onMount(() => node.focus())
@@ -70,7 +74,7 @@ export const autoFocus = node => {
  * element receives focus.
  *
  * @param {HTMLInputElement | HTMLTextAreaElement} node
- * @url https://pota.quack.uy/use/focus
+ * @url https://pota.quack.uy/use/focus/selectOnFocus
  */
 export const selectOnFocus = node => {
 	addEvent(node, 'focus', () => node.select?.())
@@ -82,7 +86,7 @@ export const selectOnFocus = node => {
  * when the element has no focusable descendants.
  *
  * @param {HTMLElement} node
- * @url https://pota.quack.uy/use/focus
+ * @url https://pota.quack.uy/use/focus/trapFocus
  */
 export const trapFocus = node => {
 	addEvent(node, 'keydown', e => {

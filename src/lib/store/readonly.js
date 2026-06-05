@@ -6,5 +6,6 @@ import { deepFreeze } from '../std.js'
  * @template T
  * @param {T} value
  * @returns {import('#type/store.d.ts').DeepReadonly<T>}
+ * @url https://pota.quack.uy/store/readonly
  */
 export const readonly = value => deepFreeze(value)

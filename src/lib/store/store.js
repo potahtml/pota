@@ -27,6 +27,7 @@ import { mutable } from './mutable.js'
  * @param {boolean} [clone] - If `true`, `source` is deep-copied first
  *   so outside references to `source` cannot bypass `setStore`.
  * @returns {import('#type/store.d.ts').Store<T>}
+ * @url https://pota.quack.uy/store/store
  */
 export function store(source, clone) {
 	const draft = mutable(source, clone)

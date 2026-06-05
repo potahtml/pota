@@ -30,7 +30,7 @@ const getEmitter = (node, init) =>
  *
  * @param {Node} node
  * @param {MutationObserverInit} [init]
- * @url https://pota.quack.uy/use/mutation
+ * @url https://pota.quack.uy/use/mutation/useMutations
  */
 export const useMutations = (node, init) =>
 	getEmitter(node, init).use()
@@ -43,7 +43,7 @@ export const useMutations = (node, init) =>
  * @param {Node} node
  * @param {(records: MutationRecord[]) => void} fn
  * @param {MutationObserverInit} [init]
- * @url https://pota.quack.uy/use/mutation
+ * @url https://pota.quack.uy/use/mutation/onMutations
  */
 export const onMutations = (node, fn, init) =>
 	getEmitter(node, init).on(records => {
@@ -57,7 +57,7 @@ export const onMutations = (node, fn, init) =>
  *
  * @param {(records: MutationRecord[]) => void} handler
  * @param {MutationObserverInit} [init]
- * @url https://pota.quack.uy/use/mutation
+ * @url https://pota.quack.uy/use/mutation/mutated
  */
 export const mutated = (handler, init) => node =>
 	onMutations(node, handler, init)

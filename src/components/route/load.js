@@ -16,7 +16,7 @@ import { scroll } from './scroll.js'
  * @template {(...args: any[]) => JSX.Element} C
  * @param {() => Promise<{ default: C }>} component - Import statement
  * @returns {C}
- * @url https://pota.quack.uy/load
+ * @url https://pota.quack.uy/components/load
  */
 export function load(component, tries = 0) {
 	return markComponent(() => {

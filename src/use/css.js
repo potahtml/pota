@@ -17,6 +17,7 @@ export const CSSStyleSheet = window.CSSStyleSheet
  * @param {TemplateStringsArray} template
  * @param {...any} values
  * @returns {CSSStyleSheet}
+ * @url https://pota.quack.uy/use/css
  */
 export const css = (template, ...values) =>
 	sheet(String.raw({ raw: template }, ...values))
@@ -26,6 +27,7 @@ export const css = (template, ...values) =>
  *
  * @param {string} css
  * @returns {CSSStyleSheet}
+ * @url https://pota.quack.uy/use/css/sheet
  */
 export const sheet = withCache(css => {
 	const sheet = new CSSStyleSheet()
@@ -39,6 +41,7 @@ export const sheet = withCache(css => {
  * Returns `adoptedStyleSheets` for a document
  *
  * @param {Document | ShadowRoot} document
+ * @url https://pota.quack.uy/use/css/getAdoptedStyleSheets
  */
 export const getAdoptedStyleSheets = document =>
 	document?.adoptedStyleSheets
@@ -52,6 +55,7 @@ export const adoptedStyleSheets =
  *
  * @param {Document | ShadowRoot} document
  * @param {CSSStyleSheet} styleSheet
+ * @url https://pota.quack.uy/use/css/addAdoptedStyleSheet
  */
 export const addAdoptedStyleSheet = (document, styleSheet) => {
 	const sheets = getAdoptedStyleSheets(document)
@@ -63,6 +67,7 @@ export const addAdoptedStyleSheet = (document, styleSheet) => {
  *
  * @param {Document | ShadowRoot} document
  * @param {CSSStyleSheet} styleSheet
+ * @url https://pota.quack.uy/use/css/removeAdoptedStyleSheet
  */
 export const removeAdoptedStyleSheet = (document, styleSheet) =>
 	removeFromArray(getAdoptedStyleSheets(document), styleSheet)
@@ -74,6 +79,7 @@ export const removeAdoptedStyleSheet = (document, styleSheet) =>
  *   root to add the stylesheets to.
  * @param {(CSSStyleSheet | string)[]} styleSheets - Array of
  *   stylesheets or stylesheet URLs to add.
+ * @url https://pota.quack.uy/use/css/addStyleSheets
  */
 export function addStyleSheets(document, styleSheets = []) {
 	for (const sheet of styleSheets) {
@@ -92,6 +98,7 @@ export function addStyleSheets(document, styleSheets = []) {
  *
  * @param {Document | ShadowRoot} document
  * @param {string} text
+ * @url https://pota.quack.uy/use/css/addStyleSheetExternal
  */
 export const addStyleSheetExternal = withState(
 	(state, document, text) => {

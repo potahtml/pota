@@ -13,6 +13,7 @@ import { addClass, removeClass } from '../../use/dom.js'
 /**
  * @param {Element} node
  * @param {object | string | ArrayLike<any>} value
+ * @url https://pota.quack.uy/setClass
  */
 export const setClass = (node, value) => {
 	isString(value)
@@ -35,6 +36,7 @@ export const setClassNS = (node, localName, value) => {
  * @param {Element} node
  * @param {object | string | ArrayLike<any>} value
  * @param {object | string | ArrayLike<any>} [prev]
+ * @url https://pota.quack.uy/setClassList
  */
 export function setClassList(node, value, prev) {
 	if (isString(value) || value == null) {

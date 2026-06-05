@@ -6,7 +6,7 @@ import { Component } from '../core/renderer.js'
  * @template {JSX.ElementType} T
  * @param {Dynamic<T>} props
  * @returns {JSX.Element}
- * @url https://pota.quack.uy/Components/Dynamic
+ * @url https://pota.quack.uy/components/Dynamic
  */
 export function Dynamic(props) {
 	// `component` needs to be deleted else it will end in the tag as an attribute

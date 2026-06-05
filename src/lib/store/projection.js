@@ -22,6 +22,7 @@ const $isProjection = Symbol()
  * @template T
  * @param {T} value
  * @returns {import('#type/store.d.ts').Mutable<T>}
+ * @url https://pota.quack.uy/store/project
  */
 export function project(value, proxies = new WeakMap()) {
 	if (!isObject(value)) {

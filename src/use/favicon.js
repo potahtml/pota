@@ -89,7 +89,7 @@ const draw = (image, badge, options) => {
  * @param {string | number | null | undefined} [badge]
  * @param {{ background?: string; color?: string }} [options]
  * @returns {Promise<void>}
- * @url https://pota.quack.uy/use/favicon
+ * @url https://pota.quack.uy/use/favicon/setFaviconBadge
  */
 export const setFaviconBadge = async (badge, options) => {
 	const link = findLink()
@@ -115,7 +115,7 @@ export const setFaviconBadge = async (badge, options) => {
  *
  * @param {string | number | null | undefined | (() => any)} badge
  * @param {{ background?: string; color?: string }} [options]
- * @url https://pota.quack.uy/use/favicon
+ * @url https://pota.quack.uy/use/favicon/useFaviconBadge
  */
 export const useFaviconBadge = (badge, options) => {
 	withValue(badge, v => {

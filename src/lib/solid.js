@@ -1101,7 +1101,7 @@ export function createReactiveSystem() {
 		 * @param {Partial<T> | { [K in keyof T]?: Accessor<T[K]> }} props.value
 		 * @param {JSX.Element} [props.children]
 		 * @returns {JSX.Element}
-		 * @url https://pota.quack.uy/Reactivity/Context
+		 * @url https://pota.quack.uy/context
 		 */
 		useContext.Provider = props =>
 			useContext(/** @type {Partial<T>} */ (props.value), () =>

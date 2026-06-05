@@ -90,6 +90,7 @@ export function signalFunction(value) {
  *
  * @template {DOMElement} T
  * @returns {SignalFunction<T>}
+ * @url https://pota.quack.uy/ref
  */
 export const ref = () => signalFunction()
 
@@ -118,6 +119,7 @@ export function withPrevValue(value, fn) {
  * @template {Derived<any>} T
  * @param {...T} args
  * @returns {boolean}
+ * @url https://pota.quack.uy/isResolved
  */
 export function isResolved(...args) {
 	return !args.some(x => !x.resolved())
@@ -131,6 +133,7 @@ export function isResolved(...args) {
  *   awaited for when wanting to run effects synchronously, that's it
  *   one effect after another.
  * @returns {void}
+ * @url https://pota.quack.uy/asyncEffect
  */
 export function asyncEffect(fn) {
 	/** @type {Promise<any>[]} */
@@ -161,6 +164,7 @@ export function asyncEffect(fn) {
  * @param {T} initialValue
  * @param {SignalOptions<T>} [options]
  * @returns {Signal<T>}
+ * @url https://pota.quack.uy/externalSignal
  */
 export function externalSignal(initialValue, options) {
 	const s = signal(initialValue, options)
@@ -310,6 +314,7 @@ class Row extends Root {
  * 		reactiveIndex?: boolean,
  * 	): (fn?: Function) => JSX.Element
  * }}
+ * @url https://pota.quack.uy/map
  */
 export const map = (
 	list,
@@ -554,6 +559,7 @@ export function resolve(fn) {
  * @template T
  * @param {T} children
  * @returns {Resolved<T>}
+ * @url https://pota.quack.uy/unwrap
  */
 export function unwrap(children) {
 	if (isFunction(children)) {
@@ -586,7 +592,7 @@ export function unwrap(children) {
  *
  * @template {Record<string, unknown>} [P=Record<string, unknown>]
  *   Default is `Record<string, unknown>`
- * @url https://pota.quack.uy/Classes
+ * @url https://pota.quack.uy/Pota
  */
 export class Pota {
 	/** @type {P} */
@@ -603,6 +609,7 @@ Pota[$isClass] = undefined
  *
  * @param {any} value
  * @returns {boolean}
+ * @url https://pota.quack.uy/isComponent
  */
 export const isComponent = value =>
 	isFunction(value) && $isComponent in value
@@ -615,6 +622,7 @@ export const isComponent = value =>
  * @template {JSX.Element | JSX.Element[]} T
  * @param {T} children
  * @returns {(...args: unknown[]) => T}
+ * @url https://pota.quack.uy/makeCallback
  */
 export function makeCallback(children) {
 	/** Shortcut the most used case */
@@ -666,6 +674,8 @@ export function makeCallback(children) {
  * Signals and user functions go in effects, for reactivity.
  * Components and callbacks are untracked and wont go in effects to
  * avoid re-rendering if signals are used in the components body
+ *
+ * @url https://pota.quack.uy/markComponent
  */
 export function markComponent(fn) {
 	fn[$isComponent] = undefined
@@ -684,7 +694,7 @@ export function markComponent(fn) {
  *
  * @returns {Function} - An `off` function for removing the event
  *   listener
- * @url https://pota.quack.uy/props/EventListener
+ * @url https://pota.quack.uy/addEvent
  */
 export function addEvent(node, type, handler) {
 	node.addEventListener(
@@ -721,7 +731,7 @@ export function addEvent(node, type, handler) {
  *
  * @returns {Function} - An `on` function for adding back the event
  *   listener
- * @url https://pota.quack.uy/props/EventListener
+ * @url https://pota.quack.uy/removeEvent
  */
 export function removeEvent(node, type, handler) {
 	node.removeEventListener(

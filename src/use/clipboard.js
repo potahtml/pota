@@ -50,7 +50,7 @@ export const clipboard = value => node =>
  * 	event: ClipboardEvent,
  * 	node: Element,
  * ) => void} [handler]
- * @url https://pota.quack.uy/use/clipboard
+ * @url https://pota.quack.uy/use/clipboard/pasteText
  */
 export const pasteText = handler => node =>
 	addEvent(node, 'paste', e => {
@@ -89,7 +89,7 @@ export const pasteText = handler => node =>
  * 	event: ClipboardEvent,
  * 	node: Element,
  * ) => void} handler
- * @url https://pota.quack.uy/use/clipboard
+ * @url https://pota.quack.uy/use/clipboard/pasteFiles
  */
 export const pasteFiles = handler => node =>
 	addEvent(node, 'paste', e => {

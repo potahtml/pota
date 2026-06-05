@@ -61,6 +61,7 @@ const wraps = {
  * 	guessType?: boolean
  * 	emoji?: boolean
  * }>}
+ * @url https://pota.quack.uy/components/Linkify
  */
 export function Linkify(props) {
 	const scroll = props.scroll || noop

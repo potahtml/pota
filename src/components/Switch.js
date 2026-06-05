@@ -11,7 +11,7 @@ import {
  * a fallback in case of no match
  *
  * @type {FlowComponent<{ fallback?: JSX.Element }>}
- * @url https://pota.quack.uy/Components/Switch
+ * @url https://pota.quack.uy/components/Switch
  */
 export const Switch = props => {
 	const matches = resolve(() =>
@@ -54,6 +54,6 @@ export const Switch = props => {
  * 	}): JSX.Element
  * 	(props: { children?: JSX.Element }): JSX.Element
  * }}
- * @url https://pota.quack.uy/Components/Switch
+ * @url https://pota.quack.uy/components/Match
  */
 export const Match = identity

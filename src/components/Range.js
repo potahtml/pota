@@ -13,7 +13,7 @@ import { For } from './For.js'
  * 	},
  * 	Children<(item: number, index: number) => JSX.Element>
  * >}
- * @url https://pota.quack.uy/Components/Range
+ * @url https://pota.quack.uy/components/Range
  */
 export const Range = props =>
 	Component(For, {

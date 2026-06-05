@@ -8,7 +8,7 @@ import { NS } from '../../constants.js'
  * @param {Element} node
  * @param {string} name
  * @param {Accessor<string | number | boolean>} value
- * @url https://pota.quack.uy/props/setAttribute
+ * @url https://pota.quack.uy/setAttribute
  */
 export const setAttribute = (node, name, value) => {
 	withValue(value, value => _setAttribute(node, name, value))
@@ -35,7 +35,7 @@ function _setAttribute(node, name, value) {
  * @param {Accessor<string | number | boolean>} value
  * @param {string} ns
  * @param {string} localName
- * @url https://pota.quack.uy/props/setAttribute
+ * @url https://pota.quack.uy/setAttribute
  */
 export const setAttributeNS = (node, name, value, ns, localName) => {
 	withValue(value, value =>

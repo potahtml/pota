@@ -64,6 +64,7 @@ import { copy } from '../copy.js'
  * @param {import('#type/store.d.ts').ReconcileKeys<U>} [keys] Keep
  *   references on objects with the same key. Shape mirrors `source`.
  * @returns {T & U}
+ * @url https://pota.quack.uy/store/replace
  */
 export const replace = (target, source, keys) => (
 	batch(() =>

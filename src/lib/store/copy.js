@@ -23,6 +23,7 @@ import { isMutationBlacklisted } from './blacklist.js'
  * @template T
  * @param {T} o
  * @returns {T}
+ * @url https://pota.quack.uy/store/copy
  */
 export function copy(o, seen = new Map()) {
 	if (!isObject(o)) {

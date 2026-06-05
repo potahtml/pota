@@ -15,7 +15,7 @@ import { useRoute } from './context.js'
  * 		replace?: boolean
  * 	} & JSX.Elements['a']
  * >}
- * @url https://pota.quack.uy/Components/Route/A
+ * @url https://pota.quack.uy/components/A
  */
 export const A = props => {
 	addListeners()

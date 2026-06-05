@@ -14,6 +14,7 @@ import {
  * Returns the viewport dimensions of the document element.
  *
  * @returns {{ width: number; height: number }}
+ * @url https://pota.quack.uy/use/resize/documentSize
  */
 export const documentSize = () => ({
 	width: documentElement.clientWidth,
@@ -63,7 +64,7 @@ const getEmitter = node =>
  * node share one observer.
  *
  * @param {Element} node
- * @url https://pota.quack.uy/use/resize
+ * @url https://pota.quack.uy/use/resize/useElementSize
  */
 export const useElementSize = node => getEmitter(node).use()
 
@@ -74,7 +75,7 @@ export const useElementSize = node => getEmitter(node).use()
  *
  * @param {Element} node
  * @param {(entry: ResizeObserverEntry) => void} fn
- * @url https://pota.quack.uy/use/resize
+ * @url https://pota.quack.uy/use/resize/onElementSize
  */
 export const onElementSize = (node, fn) =>
 	getEmitter(node).on(entry => {
@@ -100,7 +101,7 @@ export const resize = handler => node => onElementSize(node, handler)
  * lifetime. If the anchor moves, drop and re-attach the ref.
  *
  * @param {HTMLElement} node
- * @url https://pota.quack.uy/use/resize
+ * @url https://pota.quack.uy/use/resize/ensureInBounds
  */
 export const ensureInBounds = node => {
 	const size = useDocumentSize()

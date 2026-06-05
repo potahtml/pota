@@ -19,7 +19,7 @@ import { getValue, isFunction } from '../lib/std.js'
  * 		children?: JSX.Element
  * 	}): JSX.Element
  * }}
- * @url https://pota.quack.uy/Components/Show
+ * @url https://pota.quack.uy/components/Show
  */
 export const Show = props => {
 	// callback

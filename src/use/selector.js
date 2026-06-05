@@ -7,6 +7,7 @@ import { isFunction, toArray } from '../lib/std.js'
  *
  * @template T
  * @param {(next: T, previous: T) => T} fn
+ * @url https://pota.quack.uy/use/selector/usePrevious
  */
 export function usePrevious(fn) {
 	let previous
@@ -24,6 +25,7 @@ export function usePrevious(fn) {
  *
  * @param {SignalAccessor<unknown>} value - Signal with the current
  *   value
+ * @url https://pota.quack.uy/use/selector/useSelector
  */
 export function useSelector(value) {
 	const map = new Map()

@@ -89,5 +89,6 @@ export const onDone = fn => add(4, fn)
  * Registers a callback that runs when all async tasks complete.
  *
  * @param {() => void} fn
+ * @url https://pota.quack.uy/readyAsync
  */
 export const readyAsync = asyncTracking.ready

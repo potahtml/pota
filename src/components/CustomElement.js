@@ -17,6 +17,7 @@ import { emit } from '../use/event.js'
  *   custom element
  * @param {ElementDefinitionOptions} [options] - Options passed to
  *   `customElements.define`
+ * @url https://pota.quack.uy/components/customElement
  */
 export function customElement(name, constructor, options) {
 	if (customElements.get(name) === undefined) {

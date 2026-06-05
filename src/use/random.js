@@ -17,6 +17,7 @@ export const random = () =>
  * @param {() => number} [generator=random] Source of uniform floats
  *   between 0 and 1. Default is `random`
  * @returns {number}
+ * @url https://pota.quack.uy/use/random/randomBetween
  */
 export const randomBetween = (
 	min = 0,
@@ -31,6 +32,7 @@ export const randomBetween = (
  * @param {number} [min=0] Lowest channel value. Default is `0`
  * @param {number} [max=255] Highest channel value. Default is `255`
  * @returns {string}
+ * @url https://pota.quack.uy/use/random/randomColor
  */
 export const randomColor = (min = 0, max = 255) =>
 	'rgb(' +
@@ -45,6 +47,7 @@ export const randomColor = (min = 0, max = 255) =>
  * Generates a base36 id string by reading 64 bits from `crypto`.
  *
  * @returns {string}
+ * @url https://pota.quack.uy/use/random/randomId
  */
 export const randomId = () =>
 	crypto.getRandomValues(new BigUint64Array(1))[0].toString(36)
@@ -54,6 +57,7 @@ export const randomId = () =>
  * numbers between 0 and 1
  *
  * @param {number} seed
+ * @url https://pota.quack.uy/use/random/randomSeeded
  */
 export function randomSeeded(seed) {
 	const m = 2 ** 35 - 31

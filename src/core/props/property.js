@@ -6,7 +6,7 @@ import { withValue } from '../../lib/reactive.js'
  * @param {Element} node
  * @param {string} name
  * @param {unknown} value
- * @url https://pota.quack.uy/props/setProperty
+ * @url https://pota.quack.uy/setProperty
  */
 export const setProperty = (node, name, value) => {
 	withValue(value, value => _setProperty(node, name, value))

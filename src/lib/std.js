@@ -416,6 +416,7 @@ export function getSetterNamesFromPrototype(object, set = new Set()) {
  * @template T
  * @param {Accessor<T>} value - Maybe function
  * @returns T
+ * @url https://pota.quack.uy/getValue
  */
 export function getValue(value) {
 	while (typeof value === 'function')

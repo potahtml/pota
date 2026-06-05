@@ -8,7 +8,7 @@ import { isFunction, isObject, isString } from '../../lib/std.js'
  *
  * @param {DOMElement} node
  * @param {JSX.StyleAttribute} value
- * @url https://pota.quack.uy/props/setStyle
+ * @url https://pota.quack.uy/setStyle
  */
 export const setStyle = (node, value) => {
 	setNodeStyle(node.style, value)

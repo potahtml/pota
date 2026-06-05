@@ -14,6 +14,7 @@ export const head = document?.head
  *
  * @param {Node} node
  * @returns {boolean}
+ * @url https://pota.quack.uy/use/dom/isConnected
  */
 export const isConnected = node => node.isConnected
 
@@ -29,6 +30,7 @@ export const activeElement = () => document.activeElement
  *
  * @param {HTMLMediaElement} el
  * @returns {boolean}
+ * @url https://pota.quack.uy/use/dom/isPlaying
  */
 export const isPlaying = el =>
 	el.currentTime > 0 && !el.paused && !el.ended && el.readyState > 2
@@ -63,6 +65,7 @@ export const createComment = bind('createComment')
  *
  * @param {string} value
  * @returns {string}
+ * @url https://pota.quack.uy/use/dom/cleanJSXText
  */
 export function cleanJSXText(value) {
 	const lines = value.split(/\r\n|\n|\r/)
@@ -98,6 +101,7 @@ export const createTreeWalker = bind('createTreeWalker')
  * @param {Element & { part: DOMTokenList }} node
  * @param {string} partName
  * @returns {void}
+ * @url https://pota.quack.uy/use/dom/addPart
  */
 export const addPart = (node, partName) => node.part.add(partName)
 
@@ -107,6 +111,7 @@ export const addPart = (node, partName) => node.part.add(partName)
  * @param {Element & { part: DOMTokenList }} node
  * @param {string} partName
  * @returns {void}
+ * @url https://pota.quack.uy/use/dom/removePart
  */
 export const removePart = (node, partName) =>
 	node.part.remove(partName)
@@ -119,6 +124,7 @@ export const removePart = (node, partName) =>
  *
  * @param {string | undefined | null} s
  * @returns {string[]}
+ * @url https://pota.quack.uy/use/dom/tokenList
  */
 export const tokenList = s => {
 	s = s?.trim()
@@ -132,6 +138,7 @@ export const tokenList = s => {
  *
  * @param {Element} node
  * @param {string | string[]} className
+ * @url https://pota.quack.uy/use/dom/addClass
  */
 export const addClass = (node, className) =>
 	className.length &&
@@ -145,6 +152,7 @@ export const addClass = (node, className) =>
  *
  * @param {Element} node
  * @param {string | string[]} className
+ * @url https://pota.quack.uy/use/dom/removeClass
  */
 export const removeClass = (node, className) =>
 	className.length &&
@@ -160,6 +168,7 @@ export const removeClass = (node, className) =>
  * @param {Element} node
  * @param {string} name
  * @param {string} value
+ * @url https://pota.quack.uy/use/dom/setAttribute
  */
 export const setAttribute = (node, name, value) =>
 	node.setAttribute(name, value)
@@ -170,6 +179,7 @@ export const setAttribute = (node, name, value) =>
  * @param {Element} node
  * @param {string} name
  * @returns {boolean}
+ * @url https://pota.quack.uy/use/dom/hasAttribute
  */
 export const hasAttribute = (node, name) => node.hasAttribute(name)
 
@@ -178,6 +188,7 @@ export const hasAttribute = (node, name) => node.hasAttribute(name)
  *
  * @param {Element} node
  * @param {string} name
+ * @url https://pota.quack.uy/use/dom/removeAttribute
  */
 export const removeAttribute = (node, name) =>
 	node.removeAttribute(name)
@@ -190,6 +201,7 @@ export const removeAttribute = (node, name) =>
  * @param {ParentNode} node
  * @param {string} query
  * @returns {Element | null}
+ * @url https://pota.quack.uy/use/dom/querySelector
  */
 export const querySelector = (node, query) =>
 	node.querySelector(query)
@@ -200,6 +212,7 @@ export const querySelector = (node, query) =>
  * @param {ParentNode} node
  * @param {string} query
  * @returns {NodeListOf<Element>}
+ * @url https://pota.quack.uy/use/dom/querySelectorAll
  */
 export const querySelectorAll = (node, query) =>
 	node.querySelectorAll(query)
@@ -210,6 +223,7 @@ export const querySelectorAll = (node, query) =>
  * @template {Element | DocumentFragment} T
  * @param {T} node
  * @returns {Document | ShadowRoot}
+ * @url https://pota.quack.uy/use/dom/getDocumentForElement
  */
 export const getDocumentForElement = node => {
 	const document = /** @type {Document | ShadowRoot} */ (
@@ -236,6 +250,7 @@ export const getDocumentForElement = node => {
  * @param {number} [max=Infinity] Default is `Infinity`
  * @param {Node[]} [nodes=[]] Default is `[]`
  * @returns {Node[]}
+ * @url https://pota.quack.uy/use/dom/walkElements
  */
 export const walkElements = function (
 	walk,
@@ -270,6 +285,7 @@ export const walkElements = function (
  * @param {T} value - Maybe function
  * @param {...unknown} args? - Arguments
  * @returns {DOMElement | T | undefined}
+ * @url https://pota.quack.uy/use/dom/getValueElement
  */
 export function getValueElement(value, ...args) {
 	const element = getValueWithArguments(value, ...args)
@@ -286,6 +302,7 @@ export function getValueElement(value, ...args) {
  * @param {boolean} [short=false] - Whether to use fast clear. Default
  *   is `false`
  * @returns {DOMElement[]} The next array of elements
+ * @url https://pota.quack.uy/use/dom/toDiff
  */
 export function toDiff(prev = [], next = [], short = false) {
 	// if theres something to remove

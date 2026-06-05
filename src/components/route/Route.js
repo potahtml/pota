@@ -36,7 +36,7 @@ import { scroll } from './scroll.js'
  *
  * @param {Partial<RouteProps>} props
  * @returns {JSX.Element}
- * @url https://pota.quack.uy/Components/Route/Route
+ * @url https://pota.quack.uy/components/Route
  */
 export function Route(props) {
 	addListeners()

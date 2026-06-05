@@ -32,6 +32,7 @@ export const fullscreen = target => node =>
  * Reads the current fullscreen element, if any.
  *
  * @returns {Element | null}
+ * @url https://pota.quack.uy/use/fullscreen/isFullscreen
  */
 export const isFullscreen = () => document.fullscreenElement
 
@@ -52,6 +53,7 @@ export const { on: onFullscreen, use: useFullscreen } = new Emitter({
  * Requests the browser to exit fullscreen mode.
  *
  * @returns {Promise<void>}
+ * @url https://pota.quack.uy/use/fullscreen/exitFullscreen
  */
 export const exitFullscreen = () => document.exitFullscreen()
 

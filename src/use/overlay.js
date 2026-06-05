@@ -242,6 +242,7 @@ const normalizeString = value =>
  * 	manageFocus?: boolean
  * }} opts
  * @returns {() => void} Dispose
+ * @url https://pota.quack.uy/use/overlay
  */
 export const createOverlay = opts => {
 	retainSheet()

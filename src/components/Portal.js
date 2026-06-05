@@ -5,7 +5,7 @@ import { insert } from '../core/renderer.js'
  * scope
  *
  * @type {ParentComponent<{ mount: DOMElement }>}
- * @url https://pota.quack.uy/Components/Portal
+ * @url https://pota.quack.uy/components/Portal
  */
 export const Portal = props => {
 	insert(props.children, props.mount)

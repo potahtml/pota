@@ -105,7 +105,7 @@ const rafLifecycle = new Emitter({
  *
  * @param {number} [index=0] Default is `0`
  * @returns {() => boolean}
- * @url https://pota.quack.uy/use/gamepad
+ * @url https://pota.quack.uy/use/gamepad/useGamepadConnected
  */
 export const useGamepadConnected = (index = 0) => {
 	rafLifecycle.use()
@@ -120,7 +120,7 @@ export const useGamepadConnected = (index = 0) => {
  * @param {number} buttonIndex
  * @param {number} [gamepadIndex=0] Default is `0`
  * @returns {() => boolean}
- * @url https://pota.quack.uy/use/gamepad
+ * @url https://pota.quack.uy/use/gamepad/useGamepadButton
  */
 export const useGamepadButton = (buttonIndex, gamepadIndex = 0) => {
 	rafLifecycle.use()
@@ -140,7 +140,7 @@ export const useGamepadButton = (buttonIndex, gamepadIndex = 0) => {
  * @param {number} buttonIndex
  * @param {number} [gamepadIndex=0] Default is `0`
  * @returns {() => number}
- * @url https://pota.quack.uy/use/gamepad
+ * @url https://pota.quack.uy/use/gamepad/useGamepadTrigger
  */
 export const useGamepadTrigger = (buttonIndex, gamepadIndex = 0) => {
 	rafLifecycle.use()
@@ -157,7 +157,7 @@ export const useGamepadTrigger = (buttonIndex, gamepadIndex = 0) => {
  * @param {number} axisIndex
  * @param {number} [gamepadIndex=0] Default is `0`
  * @returns {() => number}
- * @url https://pota.quack.uy/use/gamepad
+ * @url https://pota.quack.uy/use/gamepad/useGamepadAxis
  */
 export const useGamepadAxis = (axisIndex, gamepadIndex = 0) => {
 	rafLifecycle.use()
@@ -174,7 +174,7 @@ export const useGamepadAxis = (axisIndex, gamepadIndex = 0) => {
  *
  * @param {number} [index=0] Default is `0`
  * @returns {Gamepad | null}
- * @url https://pota.quack.uy/use/gamepad
+ * @url https://pota.quack.uy/use/gamepad/gamepadSnapshot
  */
 export const gamepadSnapshot = (index = 0) =>
 	window.navigator.getGamepads()[index] || null

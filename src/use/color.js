@@ -34,6 +34,7 @@ const APCA_Y_BLACK = /*#__PURE__*/ apcaLuminance(BLACK)
  *
  * @param {(hex: string) => void} cb
  * @returns {Promise<void> | void}
+ * @url https://pota.quack.uy/use/color/eyeDropper
  */
 export const eyeDropper = cb => {
 	const Ctor = /** @type {{ EyeDropper?: EyeDropperCtor }} */ (window)
@@ -57,6 +58,7 @@ export const eyeDropper = cb => {
  * @param {string[]} colors
  * @param {number} [count]
  * @returns {string[]}
+ * @url https://pota.quack.uy/use/color/scale
  */
 export function scale(colors, count = 10) {
 	const stops = colors.map(c => toOklab(parse(c)))
@@ -127,6 +129,7 @@ function sRGBtoLinear(v) {
  *
  * @param {string} color
  * @returns {'white' | 'black'}
+ * @url https://pota.quack.uy/use/color/textColor
  */
 export function textColor(color) {
 	const Ybg = apcaLuminance(parse(color))
@@ -140,6 +143,7 @@ export function textColor(color) {
  *
  * @param {string} color
  * @returns {string}
+ * @url https://pota.quack.uy/use/color/textColorWhenBackgroundIsBlack
  */
 export const textColorWhenBackgroundIsBlack = color =>
 	textColorWhenBackgroundIs(color, true)
@@ -149,6 +153,7 @@ export const textColorWhenBackgroundIsBlack = color =>
  *
  * @param {string} color
  * @returns {string}
+ * @url https://pota.quack.uy/use/color/textColorWhenBackgroundIsWhite
  */
 export const textColorWhenBackgroundIsWhite = color =>
 	textColorWhenBackgroundIs(color, false)
@@ -179,6 +184,7 @@ function textColorWhenBackgroundIs(color, black) {
  *
  * @param {string} string
  * @returns {string | undefined} The original string when valid.
+ * @url https://pota.quack.uy/use/color/validateColor
  */
 export function validateColor(string) {
 	try {

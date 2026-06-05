@@ -76,6 +76,7 @@ const useXMLNS = context()
  * `<Fragment>...</Fragment>`.
  *
  * @type {ParentComponent}
+ * @url https://pota.quack.uy/Fragment
  */
 export const Fragment = props => props.children
 
@@ -729,6 +730,7 @@ export function render(children, parent, options = nothing) {
  *   `document.body`
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
+ * @url https://pota.quack.uy/insert
  */
 export function insert(
 	children,

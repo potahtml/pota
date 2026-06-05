@@ -5,6 +5,7 @@ import { window, origin } from '../lib/std.js'
  *
  * @param {string} v
  * @returns {string}
+ * @url https://pota.quack.uy/use/url/cleanLink
  */
 export const cleanLink = v => v.replace(/[\.,"]$/, '')
 
@@ -36,6 +37,7 @@ const nestedProtocolOptional = /^[a-z]+:([a-z]+:)?\/\//
  *
  * @param {string} href - URL
  * @returns {boolean}
+ * @url https://pota.quack.uy/use/url/isFileProtocol
  */
 export const isFileProtocol = href => href.startsWith('file://')
 
@@ -45,6 +47,7 @@ export const isFileProtocol = href => href.startsWith('file://')
  *
  * @param {string} href - URL
  * @returns {boolean}
+ * @url https://pota.quack.uy/use/url/hasProtocol
  */
 export const hasProtocol = href => nestedProtocolOptional.test(href)
 
@@ -53,6 +56,7 @@ export const hasProtocol = href => nestedProtocolOptional.test(href)
  *
  * @param {string} href - URL
  * @returns {string}
+ * @url https://pota.quack.uy/use/url/removeNestedProtocol
  */
 export const removeNestedProtocol = href =>
 	href.replace(nestedProtocol, '$1//')
@@ -63,6 +67,7 @@ export const removeNestedProtocol = href =>
  *
  * @param {string} href - URL
  * @returns {boolean} Returns true if the link is absolute
+ * @url https://pota.quack.uy/use/url/isAbsolute
  */
 export const isAbsolute = href => href[0] === '/' || hasProtocol(href)
 
@@ -71,6 +76,7 @@ export const isAbsolute = href => href[0] === '/' || hasProtocol(href)
  *
  * @param {string} href - URL
  * @returns {boolean} Returns `true` if the link relative
+ * @url https://pota.quack.uy/use/url/isRelative
  */
 export const isRelative = href => !isAbsolute(href)
 
@@ -79,6 +85,7 @@ export const isRelative = href => !isAbsolute(href)
  *
  * @param {string} url - URL
  * @returns {boolean} Returns `true` if the link relative
+ * @url https://pota.quack.uy/use/url/isHash
  */
 export const isHash = url => url[0] === '#'
 
@@ -88,6 +95,7 @@ export const isHash = url => url[0] === '#'
  *
  * @param {string} href - URL
  * @returns {boolean} Returns true if the link is external
+ * @url https://pota.quack.uy/use/url/isExternal
  */
 export const isExternal = href =>
 	// origin could be http://example.net and link could be http://example.net.ha.com, so add "/"
@@ -101,6 +109,7 @@ export const paramsRegExp = /\:([a-z0-9_\-]+)/gi
  * @param {string} href - URL
  * @param {object} [params] - Key-value pair to replace
  * @returns {string} URL with the params replaced
+ * @url https://pota.quack.uy/use/url/replaceParams
  */
 export const replaceParams = (href, params) =>
 	params

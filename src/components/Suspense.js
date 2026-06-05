@@ -9,7 +9,7 @@ import {
  * Provides a fallback till children promises resolve (recursively)
  *
  * @type {FlowComponent<{ fallback?: JSX.Element }>}
- * @url https://pota.quack.uy/Components/Suspense
+ * @url https://pota.quack.uy/components/Suspense
  */
 export const Suspense = props =>
 	useSuspense(new createSuspenseContext(), () => {

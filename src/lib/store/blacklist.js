@@ -65,6 +65,7 @@ const keyBlacklist = new Set([
  * target window.
  *
  * @param {Window & typeof globalThis} window
+ * @url https://pota.quack.uy/store/updateBlacklist
  */
 export function updateBlacklist(window) {
 	new Set(

@@ -25,6 +25,7 @@ let num = 1
  *   after this one.
  * @returns {Promise<unknown>} A promise that resolves when all
  *   assertions in the test pass, or rejects if any assertion fails.
+ * @url https://pota.quack.uy/use/test
  */
 export function test(title, fn, stopTesting) {
 	if (!stop) {
@@ -242,6 +243,7 @@ window.Proxy = new Proxy(Proxy, {
  * debugging/testing purposes.
  *
  * @param {unknown} value
+ * @url https://pota.quack.uy/use/test/isProxy
  */
 export const isProxy = value =>
 	proxies.has(/** @type {object} */ (value))
@@ -249,6 +251,8 @@ export const isProxy = value =>
 /**
  * Injects a temporary stylesheet that highlights DOM nodes whenever
  * they rerender.
+ *
+ * @url https://pota.quack.uy/use/test/rerenders
  */
 export const rerenders = () =>
 	addAdoptedStyleSheet(
@@ -281,6 +285,7 @@ export const head = () => document.head.innerHTML.trim()
  *
  * @param {Node} [node] - The parent node to inspect.
  * @returns {number} The child node count.
+ * @url https://pota.quack.uy/use/test/childNodes
  */
 export const childNodes = (node = document.body) =>
 	node.childNodes.length
@@ -289,6 +294,7 @@ export const childNodes = (node = document.body) =>
  * Waits one microtask (`Promise.resolve()`).
  *
  * @returns {Promise<void>}
+ * @url https://pota.quack.uy/use/test/microtask
  */
 export const microtask = () => Promise.resolve()
 
@@ -296,6 +302,7 @@ export const microtask = () => Promise.resolve()
  * Waits one macrotask (`setTimeout(0)`).
  *
  * @returns {Promise<void>}
+ * @url https://pota.quack.uy/use/test/macrotask
  */
 export const macrotask = () =>
 	new Promise(resolve => setTimeout(resolve, 0))
@@ -305,6 +312,7 @@ export const macrotask = () =>
  *
  * @param {number} [ms] - Delay in milliseconds (defaults to 0).
  * @returns {Promise<void>}
+ * @url https://pota.quack.uy/use/test/sleep
  */
 export const sleep = (ms = 0) =>
 	new Promise(resolve => setTimeout(resolve, ms))
@@ -316,6 +324,7 @@ export const sleep = (ms = 0) =>
  * this single constant is enough to retime every flaky wait.
  *
  * @returns {Promise<void>}
+ * @url https://pota.quack.uy/use/test/sleepLong
  */
 export const sleepLong = () => sleep(300)
 
@@ -396,6 +405,7 @@ export const sleepLong = () => sleep(300)
  * 		node?: Document | HTMLElement,
  * 	): E | null
  * }}
+ * @url https://pota.quack.uy/use/test/$
  */
 export const $ = (selector, node) =>
 	(node || document).querySelector(selector)
@@ -415,6 +425,7 @@ export const $ = (selector, node) =>
  * 		node?: Document | HTMLElement,
  * 	): E[]
  * }}
+ * @url https://pota.quack.uy/use/test/$$
  */
 export const $$ = (selector, node) => [
 	...(node || document).querySelectorAll(selector),

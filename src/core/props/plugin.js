@@ -34,7 +34,6 @@ updateNamespaces()
  * @param {boolean} [onMicrotask=true] - To avoid the problem of
  *   needed props not being set, or children elements not created yet.
  *   Default is `true`
- * @url https://pota.quack.uy/props/propsPlugin
  */
 export const propsPlugin = (propName, fn, onMicrotask) => {
 	plugin(plugins, propName, fn, onMicrotask)

@@ -229,7 +229,7 @@ function compileNode(node, next, xml) {
  * 	components: Record<string, JSX.ElementType>
  * 	define: (userComponents: Record<string, JSX.ElementType>) => void
  * }}
- * @url https://pota.quack.uy/XML
+ * @url https://pota.quack.uy/xml/XML
  */
 export function XML() {
 	/**
@@ -243,7 +243,7 @@ export function XML() {
 	 *
 	 * @param {TemplateStringsArray} template
 	 * @param {...unknown} values
-	 * @url https://pota.quack.uy/XML
+	 * @url https://pota.quack.uy/xml/xml
 	 */
 	function xml(template, ...values) {
 		return compiled(template)(values)

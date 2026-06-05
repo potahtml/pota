@@ -41,6 +41,7 @@ export const unwrapGetSet = fn =>
  * @param {PropertyKey[]} [keys] - To transform specific keys. It is
  *   possible to signalify keys that don't exists yet.
  * @returns {import('#type/store.d.ts').Mutable<T>}
+ * @url https://pota.quack.uy/store/signalify
  */
 export function signalify(target, keys) {
 	// Already a mutable proxy — its own keys are already signalified

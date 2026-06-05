@@ -10,6 +10,7 @@ import { empty, entries, hasOwn, isArray } from '../lib/std.js'
  *
  * @param {Element} node
  * @returns {boolean}
+ * @url https://pota.quack.uy/use/form/isDisabled
  */
 export const isDisabled = node => node.matches(':disabled')
 
@@ -21,6 +22,7 @@ export const isDisabled = node => node.matches(':disabled')
  *
  * @param {Element | null | undefined} node
  * @returns {boolean}
+ * @url https://pota.quack.uy/use/form/isEditable
  */
 export const isEditable = node => {
 	if (!node) return false
@@ -106,6 +108,7 @@ export function object2form(form, object) {
  * descendant input/button/select/textarea/contenteditable.
  *
  * @param {DOMElement} node
+ * @url https://pota.quack.uy/use/form/clickFocusChildrenInput
  */
 export const clickFocusChildrenInput = node => {
 	addEvent(node, 'click', e => {
@@ -122,6 +125,7 @@ export const clickFocusChildrenInput = node => {
  * Ref function: pressing Enter moves focus to the next form element.
  *
  * @param {HTMLInputElement} node
+ * @url https://pota.quack.uy/use/form/enterFocusNext
  */
 export const enterFocusNext = node => {
 	addEvent(node, 'keydown', e => {
@@ -136,6 +140,7 @@ export const enterFocusNext = node => {
  * newline by calling `preventDefault` and `stopPropagation`.
  *
  * @param {DOMElement} node
+ * @url https://pota.quack.uy/use/form/preventEnter
  */
 export const preventEnter = node => {
 	addEvent(node, 'keydown', e => {
@@ -151,6 +156,7 @@ export const preventEnter = node => {
  * parent) on `input`, `focus`, and `blur`.
  *
  * @param {HTMLTextAreaElement} node
+ * @url https://pota.quack.uy/use/form/sizeToInput
  */
 export const sizeToInput = node => {
 	// initial size

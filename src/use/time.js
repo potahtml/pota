@@ -11,6 +11,7 @@ import { getValue } from '../lib/std.js'
  * Native `Date.now()`.
  *
  * @returns {number}
+ * @url https://pota.quack.uy/use/time/now
  */
 export const now = () => Date.now()
 
@@ -19,6 +20,7 @@ export const now = () => Date.now()
  *
  * @param {number} [timestamp=now()] Default is `now()`
  * @returns {string}
+ * @url https://pota.quack.uy/use/time/date
  */
 export function date(timestamp = now()) {
 	const o = new Date(timestamp)
@@ -39,6 +41,7 @@ export function date(timestamp = now()) {
  *
  * @param {number} [timestamp=now()] Default is `now()`
  * @returns {string}
+ * @url https://pota.quack.uy/use/time/datetime
  */
 export function datetime(timestamp = now()) {
 	return date(timestamp) + ' ' + time(timestamp)
@@ -49,6 +52,7 @@ export function datetime(timestamp = now()) {
  *
  * @param {number} [timestamp=now()] Default is `now()`
  * @returns {string}
+ * @url https://pota.quack.uy/use/time
  */
 export function time(timestamp = now()) {
 	return timeWithSeconds(timestamp).slice(0, -3)
@@ -59,6 +63,7 @@ export function time(timestamp = now()) {
  *
  * @param {number} [timestamp=now()] Default is `now()`
  * @returns {string}
+ * @url https://pota.quack.uy/use/time/timeWithSeconds
  */
 export function timeWithSeconds(timestamp = now()) {
 	const o = new Date(timestamp)
@@ -81,6 +86,7 @@ export function timeWithSeconds(timestamp = now()) {
  * @param {number} [timestamp=now()] Default is `now()`
  * @param {Intl.LocalesArgument} [lang='en'] Default is `'en'`
  * @returns {string}
+ * @url https://pota.quack.uy/use/time/day
  */
 export function day(timestamp = now(), lang = 'en') {
 	const o = new Date(timestamp)
@@ -103,6 +109,7 @@ export function day(timestamp = now(), lang = 'en') {
  * @param {() => T} cb
  * @param {(duration: number) => void} [timeReport]
  * @returns {T}
+ * @url https://pota.quack.uy/use/time/measure
  */
 export function measure(name, cb, timeReport) {
 	console.time(name)
@@ -118,6 +125,7 @@ export function measure(name, cb, timeReport) {
  *
  * @param {() => void} fn
  * @returns {number} Duration in milliseconds.
+ * @url https://pota.quack.uy/use/time/timing
  */
 export function timing(fn) {
 	const start = performance.now()
@@ -135,6 +143,7 @@ export function timing(fn) {
  * @param {Accessor<number>} delay - Delay number or signal
  * @param {unknown[]} args - Arguments to pass to the callback
  * @returns {{ start: Function; stop: Function }}
+ * @url https://pota.quack.uy/use/time/useTimeout
  */
 export function useTimeout(callback, delay, ...args) {
 	let id
@@ -194,7 +203,7 @@ const divisorFor = diffSec => {
  * @param {number | (() => number | undefined | null)} timestamp -
  *   Unix seconds. May be a value or an accessor.
  * @returns {() => number} Elapsed seconds since `timestamp`.
- * @url https://pota.quack.uy/use/time
+ * @url https://pota.quack.uy/use/time/useElapsed
  */
 export function useElapsed(timestamp) {
 	const s = signal(0)
@@ -238,7 +247,7 @@ export function useElapsed(timestamp) {
  * 	stop: () => any
  * 	reset: () => any
  * }}
- * @url https://pota.quack.uy/use/time
+ * @url https://pota.quack.uy/use/time/useStopwatch
  */
 export function useStopwatch(opts) {
 	const interval = opts?.interval ?? 1000

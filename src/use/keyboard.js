@@ -45,7 +45,7 @@ const parse = combo => {
  *
  * @param {string} combo
  * @param {(e: KeyboardEvent, node: Element) => void} handler
- * @url https://pota.quack.uy/use/keyboard
+ * @url https://pota.quack.uy/use/keyboard/shortcut
  */
 export const shortcut = (combo, handler) => {
 	const matches = parse(combo)
@@ -64,7 +64,7 @@ export const shortcut = (combo, handler) => {
  *
  * @param {string} combo
  * @param {(e: KeyboardEvent) => void} handler
- * @url https://pota.quack.uy/use/keyboard
+ * @url https://pota.quack.uy/use/keyboard/globalShortcut
  */
 export const globalShortcut = (combo, handler) => {
 	const matches = parse(combo)
@@ -83,7 +83,7 @@ export const globalShortcut = (combo, handler) => {
  * textarea.
  *
  * @param {(e: KeyboardEvent, node: Element) => void} handler
- * @url https://pota.quack.uy/use/keyboard
+ * @url https://pota.quack.uy/use/keyboard/submitOnCtrlEnter
  */
 export const submitOnCtrlEnter = handler =>
 	shortcut('mod+enter', handler)
@@ -164,7 +164,7 @@ const heldLifecycle = new Emitter({
  *
  * @param {string} key
  * @returns {() => boolean}
- * @url https://pota.quack.uy/use/keyboard
+ * @url https://pota.quack.uy/use/keyboard/useKeyHeld
  */
 export const useKeyHeld = key => {
 	heldLifecycle.use()
@@ -178,7 +178,7 @@ export const useKeyHeld = key => {
  * place by the tracker; treat it as read-only.
  *
  * @returns {Set<string>}
- * @url https://pota.quack.uy/use/keyboard
+ * @url https://pota.quack.uy/use/keyboard/keysHeld
  */
 export const keysHeld = () => {
 	heldLifecycle.use()

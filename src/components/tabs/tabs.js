@@ -15,7 +15,7 @@ let group = 0
  * 	children?: JSX.Element
  * }} props
  * @returns {JSX.Element}
- * @url https://pota.quack.uy/Components/Tabs
+ * @url https://pota.quack.uy/components/Tabs
  */
 export function Tabs(props) {
 	return Component(Context.Provider, {

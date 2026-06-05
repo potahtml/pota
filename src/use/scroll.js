@@ -7,6 +7,7 @@ import { decodeURIComponent } from './url.js'
  * Scrolls to an element
  *
  * @param {Element} item - Element to scroll to
+ * @url https://pota.quack.uy/use/scroll/scrollToElement
  */
 export function scrollToElement(item) {
 	/** Scroll children of element to the top */
@@ -25,6 +26,7 @@ export const scrollToLocationHash = () =>
  *
  * @param {string} selector - Hash or selector to scroll to
  * @returns {boolean} True on success
+ * @url https://pota.quack.uy/use/scroll/scrollToSelector
  */
 export function scrollToSelector(selector) {
 	const item = selector ? scrollTarget(selector) : null
@@ -64,6 +66,7 @@ function scrollTarget(selector) {
  * Scrolls to hash and in case isnt found it scrolls to the top
  *
  * @param {string} selector - Hash to scroll to
+ * @url https://pota.quack.uy/use/scroll/scrollToSelectorWithFallback
  */
 export function scrollToSelectorWithFallback(selector) {
 	if (!scrollToSelector(selector)) scrollToTop()
@@ -77,7 +80,7 @@ export const scrollToTop = () =>
  * Ref factory: scrolls the element into view once it is mounted.
  *
  * @param {boolean | ScrollIntoViewOptions} [opts]
- * @url https://pota.quack.uy/use/scroll
+ * @url https://pota.quack.uy/use/scroll/scrollIntoView
  */
 export const scrollIntoView = opts => node => {
 	onMount(() => node.scrollIntoView(opts))

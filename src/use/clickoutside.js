@@ -25,7 +25,7 @@ export const clickOutside = (handler, options) => node =>
  * to the handler so a single closure can handle several elements.
  *
  * @param {(e: KeyboardEvent, node: Element) => void} handler
- * @url https://pota.quack.uy/use/clickoutside
+ * @url https://pota.quack.uy/use/clickoutside/escape
  */
 export const escape = handler => node =>
 	addEvent(document, 'keydown', e => {

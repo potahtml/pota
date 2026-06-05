@@ -44,7 +44,7 @@ class[data-dragging] {
  * 	persist?: string
  * 	class?: string
  * }>}
- * @url https://pota.quack.uy/Components/Splitter
+ * @url https://pota.quack.uy/components/Splitter
  */
 export const Splitter = props => {
 	const handle = ref()

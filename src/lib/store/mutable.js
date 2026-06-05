@@ -46,6 +46,7 @@ function createProxy(target, Handler) {
  * @param {T} value
  * @param {boolean} [clone] - If to `copy` the value first
  * @returns {import('#type/store.d.ts').Mutable<T>}
+ * @url https://pota.quack.uy/store/mutable
  */
 export function mutable(value, clone) {
 	/** Return value as is when is not an object */

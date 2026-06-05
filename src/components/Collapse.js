@@ -9,7 +9,7 @@ import { getValue } from '../lib/std.js'
  * 	when: When<any>
  * 	fallback?: JSX.Element
  * }>}
- * @url https://pota.quack.uy/Components/Collapse
+ * @url https://pota.quack.uy/components/Collapse
  */
 export const Collapse = props => {
 	const visible = () => !!getValue(props.when)

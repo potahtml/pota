@@ -59,6 +59,7 @@ import { copy } from '../copy.js'
  *   reconcile iterates source, so only arrays present in source are
  *   relevant to this option.
  * @returns {T & U}
+ * @url https://pota.quack.uy/store/merge
  */
 export const merge = (target, source, keys) => (
 	batch(() =>

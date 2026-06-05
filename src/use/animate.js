@@ -22,6 +22,7 @@ import { waitEvent } from './event.js'
  * @param {Element} element
  * @param {string} oldClass - `class` with the old animation
  * @param {string} newClass - `class` with the new animation
+ * @url https://pota.quack.uy/use/animate/animateClassTo
  */
 export const animateClassTo = (element, oldClass, newClass) =>
 	promise(resolve =>
@@ -40,6 +41,7 @@ export const animateClassTo = (element, oldClass, newClass) =>
  * @param {Element} element
  * @param {string} oldPart - `part` with the old animation
  * @param {string} newPart - `part` with the new animation
+ * @url https://pota.quack.uy/use/animate/animatePartTo
  */
 export const animatePartTo = (element, oldPart, newPart) =>
 	promise(resolve =>
@@ -59,6 +61,7 @@ export const animatePartTo = (element, oldPart, newPart) =>
  * Promise.all(returned.map(a => a.finished.catch(()=>0)))`.
  *
  * @param {Element} element
+ * @url https://pota.quack.uy/use/animate/stopAnimations
  */
 export const stopAnimations = element => {
 	const animations = element.getAnimations()
@@ -72,6 +75,8 @@ export const stopAnimations = element => {
  * `document.adoptedStyleSheets`. Cross-origin stylesheets are skipped
  * silently because reading their `cssRules` throws. Intended for
  * inspection / tooling, not for runtime use.
+ *
+ * @url https://pota.quack.uy/use/animate/documentKeyframes
  */
 export const documentKeyframes = () => {
 	const out = empty()
@@ -101,7 +106,7 @@ export const documentKeyframes = () => {
  *
  * @param {(timestamp: DOMHighResTimeStamp) => void} fn
  * @returns {{ start: () => any; stop: () => any }}
- * @url https://pota.quack.uy/use/animate
+ * @url https://pota.quack.uy/use/animate/useAnimationFrame
  */
 export function useAnimationFrame(fn) {
 	let id = 0

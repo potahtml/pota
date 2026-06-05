@@ -6,6 +6,7 @@ import { window } from '../lib/std.js'
  * selected.
  *
  * @returns {Range | null}
+ * @url https://pota.quack.uy/use/selection/getSelection
  */
 export function getSelection() {
 	const selection = window.getSelection()
@@ -20,6 +21,7 @@ export function getSelection() {
  *
  * @param {Range | null | undefined} range
  * @returns {void}
+ * @url https://pota.quack.uy/use/selection/restoreSelection
  */
 export function restoreSelection(range) {
 	if (range) {
@@ -34,6 +36,7 @@ export function restoreSelection(range) {
  * the window selection.
  *
  * @param {DOMElement} node
+ * @url https://pota.quack.uy/use/selection/clickSelectsAll
  */
 export const clickSelectsAll = node => {
 	addEvent(node, 'click', () => {

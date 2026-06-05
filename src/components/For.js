@@ -30,7 +30,7 @@ import { onFixes } from '../core/scheduler.js'
  * 		fallback?: JSX.Element
  * 	}): JSX.Element
  * }}
- * @url https://pota.quack.uy/Components/For
+ * @url https://pota.quack.uy/components/For
  */
 export const For = props =>
 	map(

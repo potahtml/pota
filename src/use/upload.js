@@ -188,7 +188,7 @@ const postFile = (file, opts) =>
  * @param {File} file
  * @param {UploadFileOptions} options
  * @returns {Promise<UploadResult>}
- * @url https://pota.quack.uy/use/upload
+ * @url https://pota.quack.uy/use/upload/uploadFile
  */
 export const uploadFile = async (file, options) => {
 	const {
@@ -339,7 +339,7 @@ export const upload = options => node => {
  *
  * @param {UploadOptions} options
  * @returns {(node: HTMLElement) => void}
- * @url https://pota.quack.uy/use/upload
+ * @url https://pota.quack.uy/use/upload/dropzone
  */
 export const dropzone = options => node => {
 	const controller = new AbortController()

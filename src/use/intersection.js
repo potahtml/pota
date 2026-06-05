@@ -32,7 +32,7 @@ const getEmitter = (node, opts) =>
  *
  * @param {Element} node
  * @param {IntersectionObserverInit} [opts]
- * @url https://pota.quack.uy/use/intersection
+ * @url https://pota.quack.uy/use/intersection/useVisible
  */
 export const useVisible = (node, opts) => getEmitter(node, opts).use()
 
@@ -49,7 +49,7 @@ export const useVisible = (node, opts) => getEmitter(node, opts).use()
  * @param {Element} node
  * @param {(entry: IntersectionObserverEntry) => void} fn
  * @param {IntersectionObserverInit & { once?: boolean }} [opts]
- * @url https://pota.quack.uy/use/intersection
+ * @url https://pota.quack.uy/use/intersection/onVisible
  */
 export const onVisible = (node, fn, opts) => {
 	let fired = false
@@ -71,7 +71,7 @@ export const onVisible = (node, fn, opts) => {
  *
  * @param {(entry: IntersectionObserverEntry) => void} handler
  * @param {IntersectionObserverInit & { once?: boolean }} [opts]
- * @url https://pota.quack.uy/use/intersection
+ * @url https://pota.quack.uy/use/intersection/visible
  */
 export const visible = (handler, opts) => node =>
 	onVisible(node, handler, opts)
@@ -82,7 +82,7 @@ export const visible = (handler, opts) => node =>
  * disconnects.
  *
  * @param {{ src?: string; rootMargin?: string }} [opts]
- * @url https://pota.quack.uy/use/intersection
+ * @url https://pota.quack.uy/use/intersection/lazyImage
  */
 export const lazyImage =
 	(opts = {}) =>
