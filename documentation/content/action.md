@@ -78,7 +78,7 @@ function App() {
 		<Errored
 			fallback={(err, reset) => (
 				<div>
-					<p>oops: {err.message}</p>
+					<p>oops: {String(err)}</p>
 					<button on:click={reset}>try again</button>
 				</div>
 			)}

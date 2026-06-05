@@ -40,7 +40,7 @@ function App() {
 		<div>
 			<input
 				value={input.read()}
-				on:input={e => input.write(e.target.value)}
+				on:input={e => input.write(e.currentTarget.value)}
 			/>
 			<div
 				style={{

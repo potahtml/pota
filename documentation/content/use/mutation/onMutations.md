@@ -35,5 +35,5 @@ on a node you already hold a reference to.
 ```jsx
 import { onMutations } from 'pota/use/mutation'
 
-onMutations(node, records => console.log(records))
+onMutations(document.body, records => console.log(records))
 ```

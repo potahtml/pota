@@ -38,19 +38,19 @@ Logs whenever the node enters or leaves the viewport. `entry` is
 always a real `IntersectionObserverEntry`.
 
 ```jsx
-import { render, signal } from 'pota'
+import { render, ref } from 'pota'
 import { onVisible } from 'pota/use/intersection'
 
 function Panel() {
-	const node = signal()
+	const node = ref()
 
-	onVisible(node.read(), entry =>
+	onVisible(node(), entry =>
 		console.log('visible:', entry.isIntersecting),
 	)
 
 	return (
 		<div
-			use:ref={node.write}
+			use:ref={node}
 			style={{ height: '120vh' }}
 		>
 			scroll me
@@ -68,18 +68,18 @@ With `once`, `fn` runs a single time — the first entry where
 before that are ignored.
 
 ```jsx
-import { render, signal } from 'pota'
+import { render, ref, signal } from 'pota'
 import { onVisible } from 'pota/use/intersection'
 
 function RevealOnce() {
-	const node = signal()
+	const node = ref()
 	const seen = signal(false)
 
-	onVisible(node.read(), () => seen.write(true), { once: true })
+	onVisible(node(), () => seen.write(true), { once: true })
 
 	return (
 		<div
-			use:ref={node.write}
+			use:ref={node}
 			style={{ height: '40vh' }}
 		>
 			{() => (seen.read() ? 'arrived' : 'scroll me into view')}

@@ -58,7 +58,7 @@ Extend `CustomElement`, render the shadow tree from
 `this.html`, and dispatch a custom event with `this.emit` that the
 host listens for with `on:*`.
 
-```jsx
+```tsx
 import { render, signal } from 'pota'
 import { CustomElement, customElement } from 'pota/components'
 
@@ -83,6 +83,14 @@ class CounterEl extends CustomElement {
 
 customElement('my-counter', CounterEl)
 
+declare global {
+	namespace JSX {
+		interface IntrinsicElements {
+			'my-counter': JSX.HTMLAttributes<HTMLElement>
+		}
+	}
+}
+
 const last = signal(0)
 
 render(
@@ -99,7 +107,7 @@ Assigning a string to `this.html` writes the shadow HTML; reassigning
 a JSX component later swaps the shadow tree to a reactive render. The
 `css` tagged template supplies the adopted stylesheet.
 
-```jsx
+```tsx
 import { render } from 'pota'
 import { CustomElement, customElement } from 'pota/components'
 import { css } from 'pota/use/css'
@@ -117,12 +125,20 @@ class MyElement extends CustomElement {
 		super()
 		this.html = 'hello <b><slot/></b>!'
 		setTimeout(() => {
-			this.html = <b>JSX Component takes over!</b>
+			this.html = () => <b>JSX Component takes over!</b>
 		}, 2000)
 	}
 }
 
 customElement('hello-world', MyElement)
+
+declare global {
+	namespace JSX {
+		interface IntrinsicElements {
+			'hello-world': JSX.HTMLAttributes<HTMLElement>
+		}
+	}
+}
 
 render(<hello-world>World</hello-world>)
 ```

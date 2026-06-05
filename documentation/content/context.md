@@ -120,12 +120,17 @@ once; any nested component swaps the theme by calling the context's
 `set` channel. Note the reader is passed as `theme.read` (the reader
 function) so the read stays reactive.
 
-```jsx
+```tsx
 import { context, render, signal } from 'pota'
 
-const Theme = context({
+type ThemeContext = {
+	value: () => string
+	set: (next: string) => void
+}
+
+const Theme = context<ThemeContext>({
 	value: () => 'light',
-	set: () => {},
+	set: next => {},
 })
 
 function Toolbar() {

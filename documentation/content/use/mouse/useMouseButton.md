@@ -65,6 +65,9 @@ import { useMouseButton } from 'pota/use/mouse'
 
 const middle = useMouseButton(1)
 
+const startPanning = () => console.log('start panning')
+const stopPanning = () => console.log('stop panning')
+
 effect(() => {
 	if (middle()) startPanning()
 	else stopPanning()

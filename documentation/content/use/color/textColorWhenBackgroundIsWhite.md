@@ -44,7 +44,7 @@ function App() {
 		<div style={{ 'background-color': 'white', padding: '1rem' }}>
 			<input
 				value={brand.read()}
-				on:input={e => brand.write(e.target.value)}
+				on:input={e => brand.write(e.currentTarget.value)}
 			/>
 			<p style={{ color: readable }}>Readable on white</p>
 		</div>

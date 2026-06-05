@@ -90,7 +90,7 @@ Within the TTL window, repeat calls come from the Cache API without
 touching the network; the first call past expiry fetches once and
 re-stamps the entry for everyone.
 
-```jsx
+```tsx
 import { render, signal } from 'pota'
 import { cached } from 'pota/use/cached'
 
@@ -102,7 +102,7 @@ function App() {
 	async function load() {
 		status.write('fetching…')
 		// 5s TTL — within the window, calls hit the Cache API
-		const post = await cached(URL, { ttl: 5_000 })
+		const post = await cached<{ title: string }>(URL, { ttl: 5_000 })
 		status.write(`got "${post.title.slice(0, 40)}…"`)
 	}
 

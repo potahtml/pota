@@ -76,9 +76,9 @@ function App() {
 	return (
 		<ul
 			use:connected={menu => {
-				for (const link of menu.querySelectorAll('li a')) {
+				for (const link of menu.querySelectorAll('a')) {
 					setClass(
-						link.parentNode,
+						link.parentElement,
 						'selected',
 						() => location.href() === link.href,
 					)

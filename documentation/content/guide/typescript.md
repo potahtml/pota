@@ -314,15 +314,16 @@ the parameter with `| (() => T)` and resolve it inside the body with
 
 Declaring a custom element in TypeScript has two parts: tell the
 compiler the tag exists, and describe its attributes. You do that by
-merging into `JSX.IntrinsicElements` with a `declare module 'pota'`
-block. To allow a signal as an attribute value, widen the type with
-`() => T` — that matches pota's runtime acceptance of function values.
+merging into `JSX.IntrinsicElements` with a `declare global` block —
+pota's `JSX` namespace is global, so augment it there rather than
+through the `pota` module. To allow a signal as an attribute value,
+widen the type with `() => T` — that matches pota's runtime acceptance
+of function values.
 
 ```tsx
-import type { JSX } from 'pota'
 import { render, signal } from 'pota'
 
-declare module 'pota' {
+declare global {
 	namespace JSX {
 		interface IntrinsicElements {
 			'some-element': JSX.HTMLAttributes<HTMLElement> & {

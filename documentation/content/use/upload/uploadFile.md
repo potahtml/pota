@@ -74,7 +74,7 @@ function App() {
 			})
 			status.write('done: ' + url)
 		} catch (err) {
-			status.write('failed: ' + err.message)
+			status.write('failed: ' + String(err))
 		}
 	}
 
@@ -101,7 +101,9 @@ the upload is skipped and the cached URL is returned with its `hash`.
 ```js
 import { uploadFile } from 'pota/use/upload'
 
-const { url, file, hash } = await uploadFile(file, {
+const picked = new File(['…'], 'note.txt')
+
+const { url, file, hash } = await uploadFile(picked, {
 	endpoint: '/api/upload',
 	existsUrl: hash => '/cdn/' + hash,
 	field: 'attachment',

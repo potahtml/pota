@@ -49,11 +49,11 @@ Schedules imperative work that needs the node in the DOM — measuring
 sizes, focusing inputs, attaching third-party widgets. `ready(fn)`
 fires after `onProps`, `onRef`, and `onMount`.
 
-```jsx
+```tsx
 import { ready, ref, render } from 'pota'
 
 function App() {
-	const input = ref()
+	const input = ref<HTMLInputElement>()
 
 	ready(() => {
 		input().focus()

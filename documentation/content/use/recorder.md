@@ -83,7 +83,7 @@ function App() {
 		try {
 			await r.start()
 		} catch (e) {
-			alert('Could not start: ' + e.message)
+			alert('Could not start: ' + String(e))
 		}
 	}
 

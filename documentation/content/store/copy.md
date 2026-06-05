@@ -44,6 +44,8 @@ import { copy } from 'pota/store'
 import { render } from 'pota'
 
 class Point {
+	x
+	y
 	constructor(x, y) {
 		this.x = x
 		this.y = y
@@ -56,7 +58,7 @@ class Point {
 const a = new Point(3, 4)
 const b = copy(a)
 
-const cyclic = { name: 'self' }
+const cyclic = { name: 'self', me: null }
 cyclic.me = cyclic
 const c = copy(cyclic)
 

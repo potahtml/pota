@@ -44,6 +44,6 @@ console.log(settings.api.url)
 try {
 	settings.api.url = '...'
 } catch (e) {
-	console.log('blocked:', e.message)
+	console.log('blocked:', e)
 }
 ```

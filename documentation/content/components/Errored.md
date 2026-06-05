@@ -100,7 +100,7 @@ function App() {
 			<Errored
 				fallback={(err, reset) => (
 					<div>
-						<p>error: {err.message}</p>
+						<p>error: {String(err)}</p>
 						<button on:click={reset}>retry</button>
 					</div>
 				)}
@@ -160,7 +160,7 @@ function App() {
 					<Errored
 						fallback={(err, reset) => (
 							<div>
-								<p>{err.message}</p>
+								<p>{String(err)}</p>
 								<button on:click={reset}>retry</button>
 							</div>
 						)}
@@ -213,7 +213,7 @@ function App() {
 		<Errored
 			fallback={(err, reset) => (
 				<div>
-					<p>fetch failed: {err.message}</p>
+					<p>fetch failed: {String(err)}</p>
 					<button on:click={reset}>try again</button>
 				</div>
 			)}

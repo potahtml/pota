@@ -92,12 +92,12 @@ indices, and `mousePosition()` takes a fresh snapshot — both ideal
 inside a `requestAnimationFrame` loop where reactive tracking would be
 wasted overhead. Treat the returned set as read-only.
 
-```jsx
+```tsx
 import { mouseButtons, mousePosition } from 'pota/use/mouse'
 import { render } from 'pota'
 
 function App() {
-	const out = <output>idle</output>
+	const out = (<output>idle</output>) as HTMLOutputElement
 
 	const tick = () => {
 		const held = [...mouseButtons()]

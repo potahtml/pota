@@ -46,7 +46,7 @@ function App() {
 		stopAnimations(box())
 		box().classList.remove('pulse')
 		// force reflow so the re-add re-triggers the animation
-		void box().offsetWidth
+		void box().getBoundingClientRect()
 		box().classList.add('pulse')
 	}
 

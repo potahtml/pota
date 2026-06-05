@@ -43,7 +43,7 @@ function App() {
 		<div>
 			<input
 				value={bg.read()}
-				on:input={e => bg.write(e.target.value)}
+				on:input={e => bg.write(e.currentTarget.value)}
 			/>
 			<div
 				style={{

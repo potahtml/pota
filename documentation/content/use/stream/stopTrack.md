@@ -22,5 +22,8 @@ Stop a single track pulled off a stream, leaving the others running.
 ```jsx
 import { stopTrack } from 'pota/use/stream'
 
+const stream = await navigator.mediaDevices.getUserMedia({
+	video: true,
+})
 stopTrack(stream.getVideoTracks()[0])
 ```

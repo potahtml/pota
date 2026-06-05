@@ -46,7 +46,7 @@ function App() {
 			() => {
 				throw new Error('boom')
 			},
-			err => message.write(`caught: ${err.message}`),
+			err => message.write(`caught: ${String(err)}`),
 		)
 	})
 

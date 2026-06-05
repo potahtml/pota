@@ -56,9 +56,6 @@ function App() {
 				object with kebab-case keys
 			</div>
 			<div style:color="green">namespaced single property</div>
-			<div style:--brand="purple" style="color:var(--brand)">
-				namespaced custom property
-			</div>
 		</main>
 	)
 }

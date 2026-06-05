@@ -347,9 +347,5 @@ class CounterBox extends HTMLElement {
 
 customElements.define('counter-box', CounterBox)
 
-function App() {
-	return <counter-box />
-}
-
-render(App)
+document.body.append(document.createElement('counter-box'))
 ```

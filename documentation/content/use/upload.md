@@ -103,13 +103,13 @@ render(App)
 Tracks per-file progress in a [signal](/signal)-backed map and renders
 a bar for each upload. `onProgress` fires repeatedly during the POST.
 
-```jsx
+```tsx
 import { render, signal } from 'pota'
 import { For } from 'pota/components'
 import { upload } from 'pota/use/upload'
 
 function App() {
-	const progress = signal({})
+	const progress = signal<Record<string, number>>({})
 
 	return (
 		<>

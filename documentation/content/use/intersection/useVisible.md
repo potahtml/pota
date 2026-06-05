@@ -37,16 +37,16 @@ Drives content from the accessor: reading `onscreen()` inside the
 reactive child subscribes to every intersection change.
 
 ```jsx
-import { render, signal } from 'pota'
+import { render, ref } from 'pota'
 import { useVisible } from 'pota/use/intersection'
 
 function Tracker() {
-	const node = signal()
-	const onscreen = useVisible(node.read())
+	const node = ref()
+	const onscreen = useVisible(node())
 
 	return (
 		<div
-			use:ref={node.write}
+			use:ref={node}
 			style={{ height: '120vh' }}
 		>
 			{() =>

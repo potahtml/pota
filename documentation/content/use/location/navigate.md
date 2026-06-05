@@ -72,7 +72,7 @@ function App() {
 	return (
 		<Route path="/old">
 			<Navigate
-				href="/somewhere/:cat/:page"
+				path="/somewhere/:cat/:page"
 				params={{ cat: 'variété', page: 'touché' }}
 				replace={true}
 			/>
