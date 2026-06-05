@@ -14,9 +14,8 @@ characters and trims again (so trailing whitespace exposed by the
 slice is removed).
 
 Part of [`pota/use/string`](/use/string). Used by
-[`validateEmail`](/use/string/validateEmail) and
-[`validatePassword`](/use/string/validatePassword) to normalize input
-before checking it.
+[`validateEmail`](/use/string/validateEmail) to normalize input before
+checking it.
 
 ## Arguments
 

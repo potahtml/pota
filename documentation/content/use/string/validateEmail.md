@@ -16,8 +16,7 @@ directly.
 
 The check is intentionally loose (one `@`, a dot in the domain); it is
 a sanity filter, not full RFC validation. Part of
-[`pota/use/string`](/use/string); see also
-[`validatePassword`](/use/string/validatePassword).
+[`pota/use/string`](/use/string).
 
 ## Arguments
 

@@ -1,7 +1,7 @@
 /** @jsxImportSource pota */
 // Tests for pota/use/string: dashesToCamelCase, capitalizeFirstLetter,
-// label, short, ensureString, toString, validateEmail, validatePassword,
-// wholeNumber, isEmoji, hash, copyToClipboard, and diff.
+// label, short, ensureString, toString, validateEmail, wholeNumber,
+// isEmoji, hash, copyToClipboard, and diff.
 
 import { test } from '#test'
 
@@ -17,7 +17,6 @@ import {
 	short,
 	toString,
 	validateEmail,
-	validatePassword,
 	wholeNumber,
 } from 'pota/use/string'
 
@@ -48,14 +47,12 @@ await test('string - ensureString and toString normalize values', expect => {
 	expect(toString('  hello world  ', 7)).toBe('hello w')
 })
 
-await test('string - validateEmail and validatePassword return normalized values', expect => {
+await test('string - validateEmail returns normalized values', expect => {
 	expect(validateEmail('  Test@Example.com ')).toBe(
 		'test@example.com',
 	)
 	expect(validateEmail('x')).toBe(false)
 	expect(validateEmail('a@a.uy')).toBe('a@a.uy')
-	expect(validatePassword(' 123456 ')).toBe('123456')
-	expect(validatePassword('123')).toBe(false)
 })
 
 await test('string - wholeNumber and isEmoji cover numeric and emoji helpers', expect => {

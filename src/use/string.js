@@ -97,21 +97,6 @@ export function validateEmail(s) {
 	return s
 }
 
-/**
- * Validates that a password has a minimum length of 6.
- *
- * @param {string} s
- * @returns {string | false}
- * @url https://pota.quack.uy/use/string/validatePassword
- */
-export function validatePassword(s) {
-	s = toString(s)
-	if (!s || s.length < 6) {
-		return false
-	}
-	return s
-}
-
 // removes decimal from number, converts NaN to 0
 /**
  * Drops fractional portion from numbers and coerces NaN to 0.

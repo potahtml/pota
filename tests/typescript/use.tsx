@@ -445,7 +445,6 @@ import {
 	short,
 	toString as strToString,
 	validateEmail,
-	validatePassword,
 	wholeNumber,
 } from 'pota/use/string'
 
@@ -456,9 +455,8 @@ const lbl: string = label('TestLabel')
 const sh: string = short('long string')
 const es: string = ensureString(null)
 const ts: string = strToString('hello')
-// validateEmail / validatePassword return `string | false`
+// validateEmail returns `string | false`
 const emailRes: string | false = validateEmail('a@b.com')
-const pwRes: string | false = validatePassword('Passw0rd!')
 const wn: number = wholeNumber(3.7)
 const emoji: boolean = isEmoji('!')
 const d = strDiff('hello', 'help')

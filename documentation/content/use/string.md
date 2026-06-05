@@ -30,8 +30,6 @@ clipboard, hashing, and a multi-line `diff` used by
   part, `NaN` → `0`
 - [`validateEmail(s)`](/use/string/validateEmail) — normalized email
   or `false`
-- [`validatePassword(s)`](/use/string/validatePassword) — trimmed
-  password (len ≥ 6) or `false`
 - [`isEmoji(s)`](/use/string/isEmoji) — does the string contain emoji?
 - [`copyToClipboard(s)`](/use/string/copyToClipboard) — write text to
   the clipboard
