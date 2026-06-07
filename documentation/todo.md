@@ -5,15 +5,11 @@
 - SLOW AND SIMPLE IS BETTER THAN FAST AND HARD TO UNDERSTAND
 - TAKE IT EASY, STEP BY STEP
 
-## wip
+## someday
 
-- tabs need to be passed a write for the selected tab
 - reactivity: prevent writing to signals inside tracked scopes
 - need to get rid of props plugin
 - some plugins like orientation are creating a root
-
-## someday
-
 - dev tools: rethink the dev tools
 - ask for coverage report
 - transform: refactor transform again !

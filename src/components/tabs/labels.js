@@ -27,6 +27,7 @@ export function Labels(props) {
 
 	function onTabClick(event, group, id, name, props) {
 		selected.write({ id, name })
+		context.onSelected && context.onSelected({ id, name })
 		props.onClick && props.onClick({ event, group, id, props })
 	}
 

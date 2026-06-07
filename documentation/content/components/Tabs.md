@@ -25,14 +25,15 @@ Unknown props are forwarded to the underlying element.
 
 ## Attributes
 
-| component    | prop        | type                                          | description                                                                                                                     |
-| ------------ | ----------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `Tabs`       | `selected?` | `number`                                      | initial tab index (default `0`)                                                                                                 |
-| `Tabs.Label` | `name?`     | `string`                                      | optional label name, exposed through `Tabs.selected().read().name`                                                              |
-| `Tabs.Label` | `selected?` | `boolean`                                     | when `true`, marks this label as the initially selected tab (overrides `Tabs`'s `selected`)                                     |
-| `Tabs.Label` | `hidden?`   | `Accessor<boolean>`                           | hides the label (and its matching panel)                                                                                        |
-| `Tabs.Label` | `onClick?`  | `(info: { event, group, id, props }) => void` | called when the label is clicked, after the selection change is applied                                                         |
-| `Tabs.Panel` | `collapse?` | `boolean`                                     | when `true`, the inactive panel is hidden via `display:none` instead of unmounted — its DOM and state survive across selections |
+| component    | prop          | type                                               | description                                                                                                                                               |
+| ------------ | ------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Tabs`       | `selected?`   | `number`                                           | initial tab index (default `0`)                                                                                                                           |
+| `Tabs`       | `onSelected?` | `(selected: { id: number, name: string }) => void` | called with the picked tab each time the selection changes (not on mount) — lift it into a caller-owned signal to observe selection from outside the tree |
+| `Tabs.Label` | `name?`       | `string`                                           | optional label name, exposed through `Tabs.selected().read().name`                                                                                        |
+| `Tabs.Label` | `selected?`   | `boolean`                                          | when `true`, marks this label as the initially selected tab (overrides `Tabs`'s `selected`)                                                               |
+| `Tabs.Label` | `hidden?`     | `Accessor<boolean>`                                | hides the label (and its matching panel)                                                                                                                  |
+| `Tabs.Label` | `onClick?`    | `(info: { event, group, id, props }) => void`      | called when the label is clicked, after the selection change is applied                                                                                   |
+| `Tabs.Panel` | `collapse?`   | `boolean`                                          | when `true`, the inactive panel is hidden via `display:none` instead of unmounted — its DOM and state survive across selections                           |
 
 **Returns:** the tab tree wrapped in a context provider so the
 sub-components can share the current selection.
@@ -44,6 +45,21 @@ for the nearest `<Tabs>` ancestor. Read it (reactively) to know which
 tab is active — `Tabs.selected().read()` yields `{ id, name }`, so
 `Tabs.selected().read().id` is the active index and
 `Tabs.selected().read().name` the active label's `name`.
+
+`Tabs.selected()` only resolves while rendering **inside** a `<Tabs>`
+subtree (it reads the nearest context). To observe selection from a
+parent — above the `<Tabs>`, in a sibling, or across two independent
+tab groups — use `onSelected` instead and keep the state in a signal
+you own.
+
+## onSelected
+
+`onSelected` fires with the picked `{ id, name }` every time a tab is
+chosen, so the selection can live in a caller-owned [signal](/signal)
+rather than being trapped in the component. It is **not** called on
+mount — the initial tab is whatever you passed as `selected`, so
+there's nothing to report. Pass `signal.write` directly to mirror the
+selection, or a handler to react to it.
 
 ## Collapse
 
@@ -127,6 +143,42 @@ function App() {
 				<Tabs.Panel>three</Tabs.Panel>
 			</Tabs.Panels>
 		</Tabs>
+	)
+}
+
+render(App)
+```
+
+### Lifting selection into your own signal
+
+`onSelected` writes each pick into a caller-owned signal, so the
+current tab can be read from **outside** the `<Tabs>` subtree — here a
+sibling heading that `Tabs.selected()` couldn't reach.
+
+```jsx
+import { render, signal } from 'pota'
+import { Tabs } from 'pota/components'
+
+function App() {
+	const selected = signal({ id: 0, name: 'profile' })
+
+	return (
+		<div>
+			<h1>{() => `editing: ${selected.read().name}`}</h1>
+
+			<Tabs onSelected={selected.write}>
+				<Tabs.Labels>
+					<Tabs.Label name="profile">profile</Tabs.Label>
+					<Tabs.Label name="settings">settings</Tabs.Label>
+					<Tabs.Label name="billing">billing</Tabs.Label>
+				</Tabs.Labels>
+				<Tabs.Panels>
+					<Tabs.Panel>your profile</Tabs.Panel>
+					<Tabs.Panel>preferences and account</Tabs.Panel>
+					<Tabs.Panel>plan and invoices</Tabs.Panel>
+				</Tabs.Panels>
+			</Tabs>
+		</div>
 	)
 }
 

@@ -326,3 +326,35 @@ await test('Tabs - clicking a label un-selects the previously selected tab', exp
 
 	dispose()
 })
+
+// --- onSelected reports selection changes to a caller-owned signal ---
+
+await test('Tabs - onSelected fires with { id, name } on each click', expect => {
+	const selected = signal({ id: 0, name: '' })
+	const dispose = render(
+		<Tabs onSelected={selected.write}>
+			<Tabs.Labels>
+				<Tabs.Label name="one">one</Tabs.Label>
+				<Tabs.Label name="two">two</Tabs.Label>
+				<Tabs.Label name="three">three</Tabs.Label>
+			</Tabs.Labels>
+			<Tabs.Panels>
+				<Tabs.Panel>p1</Tabs.Panel>
+				<Tabs.Panel>p2</Tabs.Panel>
+				<Tabs.Panel>p3</Tabs.Panel>
+			</Tabs.Panels>
+		</Tabs>,
+	)
+
+	// not fired on mount — only the caller-provided initial is known
+	expect(selected.read()).toEqual({ id: 0, name: '' })
+
+	const tabs = $$('[role="tab"]')
+	tabs[2].dispatchEvent(new MouseEvent('click', { bubbles: true }))
+	expect(selected.read()).toEqual({ id: 2, name: 'three' })
+
+	tabs[1].dispatchEvent(new MouseEvent('click', { bubbles: true }))
+	expect(selected.read()).toEqual({ id: 1, name: 'two' })
+
+	dispose()
+})
