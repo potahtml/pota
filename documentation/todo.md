@@ -7,8 +7,6 @@
 
 ## wip
 
-- docs: typecheck the examples
-- docs: interlink documents more
 - tabs need to be passed a write for the selected tab
 - reactivity: prevent writing to signals inside tracked scopes
 - need to get rid of props plugin

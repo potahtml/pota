@@ -120,5 +120,8 @@ export const removeEventNative = (where, type, handler) =>
 			: undefined,
 	)
 
-/** @param {EventListener} fn */
+/**
+ * @template {Event} [T=Event]
+ * @param {(e: T) => void} fn
+ */
 export const passiveEvent = fn => ({ handleEvent: fn, passive: true })

@@ -10,7 +10,7 @@ import { getValue, isFunction } from '../lib/std.js'
  * 		when: When<T>
  * 		fallback?: JSX.Element
  * 		children: Children<
- * 			(arg: SignalAccessor<Accessed<T>>) => JSX.Element
+ * 			(arg: SignalAccessor<Matched<Accessed<T>>>) => JSX.Element
  * 		>
  * 	}): JSX.Element
  * 	(props: {

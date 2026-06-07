@@ -96,12 +96,16 @@ the matched value (reactively). Useful when the discriminator carries
 data — for example a status object — and the body needs to read it
 without re-checking.
 
-```jsx
+```tsx
 import { render, signal } from 'pota'
 import { Match, Switch } from 'pota/components'
 
+type Result =
+	| { kind: 'ok'; value: number }
+	| { kind: 'err'; message: string }
+
 function App() {
-	const result = signal({ kind: 'ok', value: 42 })
+	const result = signal<Result>({ kind: 'ok', value: 42 })
 
 	return (
 		<div>
@@ -122,12 +126,18 @@ function App() {
 			</button>
 			<Switch>
 				<Match
-					when={() => result.read().kind === 'ok' && result.read()}
+					when={() => {
+						const state = result.read()
+						return state.kind === 'ok' && state
+					}}
 				>
 					{r => <p>got value: {() => r().value}</p>}
 				</Match>
 				<Match
-					when={() => result.read().kind === 'err' && result.read()}
+					when={() => {
+						const state = result.read()
+						return state.kind === 'err' && state
+					}}
 				>
 					{r => <p>error: {() => r().message}</p>}
 				</Match>
@@ -182,12 +192,18 @@ variant — perfect for state machines, result types, or remote-data
 lifecycles. The matching branch gets the value through the children
 render-prop, so it can read the variant-specific fields directly.
 
-```jsx
+```tsx
 import { render, signal } from 'pota'
 import { Match, Switch } from 'pota/components'
 
+type Remote =
+	| { kind: 'idle' }
+	| { kind: 'loading' }
+	| { kind: 'error'; message: string }
+	| { kind: 'ok'; items: string[] }
+
 function App() {
-	const remote = signal({ kind: 'idle' })
+	const remote = signal<Remote>({ kind: 'idle' })
 
 	return (
 		<div>
@@ -220,12 +236,18 @@ function App() {
 					<p>loading…</p>
 				</Match>
 				<Match
-					when={() => remote.read().kind === 'error' && remote.read()}
+					when={() => {
+						const state = remote.read()
+						return state.kind === 'error' && state
+					}}
 				>
 					{e => <p>error: {() => e().message}</p>}
 				</Match>
 				<Match
-					when={() => remote.read().kind === 'ok' && remote.read()}
+					when={() => {
+						const state = remote.read()
+						return state.kind === 'ok' && state
+					}}
 				>
 					{r => <p>got {() => r().items.length} items</p>}
 				</Match>

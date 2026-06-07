@@ -129,6 +129,13 @@ type Derived<R> = DerivedSignal<R> & PromiseLike<DerivedSignal<R>>
 type When<T> = Accessor<T>
 type Each<T> = Accessor<Iterable<T>>
 
+// the matched part of a `when` value handed to a `Show`/`Match`
+// render-prop child. The branch runs only when `when` is truthy, so
+// the no-match sentinels (`false`/`null`/`undefined`) are removed —
+// but genuine values stay, including the falsy literals `0`/`''`/`0n`
+// (a numeric `when` still hands the child a number)
+type Matched<T> = Exclude<T, false | null | undefined>
+
 // tests
 
 type Expect = {

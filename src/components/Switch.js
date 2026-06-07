@@ -45,7 +45,7 @@ export const Switch = props => {
  * 	<T>(props: {
  * 		when: When<T>
  * 		children: Children<
- * 			(value: SignalAccessor<Accessed<T>>) => JSX.Element
+ * 			(value: SignalAccessor<Matched<Accessed<T>>>) => JSX.Element
  * 		>
  * 	}): JSX.Element
  * 	<T>(props: {

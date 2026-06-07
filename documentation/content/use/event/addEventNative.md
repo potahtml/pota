@@ -27,14 +27,16 @@ the same handler reference. Passing a
 [passiveEvent](/use/event/passiveEvent) object hands the options bag
 and the handler to `addEventListener` in one go.
 
-```jsx
+```tsx
 import {
 	addEventNative,
 	removeEventNative,
 	passiveEvent,
 } from 'pota/use/event'
 
-const handler = passiveEvent(e => console.log('wheel', e.deltaY))
+const handler = passiveEvent((e: WheelEvent) =>
+	console.log('wheel', e.deltaY),
+)
 
 addEventNative(window, 'wheel', handler)
 // later:

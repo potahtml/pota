@@ -21,12 +21,12 @@ on your handler. Part of [`pota/use/event`](/use/event).
 Wraps a `wheel` handler so the browser can scroll without waiting on
 it, then attaches it with [addEventNative](/use/event/addEventNative).
 
-```jsx
+```tsx
 import { addEventNative, passiveEvent } from 'pota/use/event'
 
 addEventNative(
 	window,
 	'wheel',
-	passiveEvent(e => console.log(e.deltaY)),
+	passiveEvent((e: WheelEvent) => console.log(e.deltaY)),
 )
 ```
