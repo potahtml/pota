@@ -2,7 +2,8 @@
 title: lighten
 subpath: pota/use/color
 topic: Utilities
-desc: Lighten a color by an amount and return a new #RRGGBBAA string.
+desc:
+  'Lighten a color by an amount and return a new #RRGGBBAA string.'
 ---
 
 # lighten

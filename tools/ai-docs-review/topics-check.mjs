@@ -9,6 +9,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import jsYaml from 'js-yaml'
 import { CONTENT as ROOT, TOPICS } from './_paths.mjs'
 
 const { buildManifest } = await import(pathToFileURL(TOPICS).href)
@@ -25,13 +26,15 @@ walk(ROOT)
 
 const fm = raw => {
 	const m = /^---\n([\s\S]*?)\n---/.exec(raw)
-	const data = {}
-	if (m)
-		for (const line of m[1].split('\n')) {
-			const mm = /^([\w-]+):\s*(.*)$/.exec(line)
-			if (mm) data[mm[1]] = mm[2].trim().replace(/^['"]|['"]$/g, '')
-		}
-	return data
+	if (!m) return {}
+	try {
+		const data = jsYaml.load(m[1])
+		return data && typeof data === 'object' && !Array.isArray(data)
+			? data
+			: {}
+	} catch {
+		return {}
+	}
 }
 
 const pages = files.map(f => {

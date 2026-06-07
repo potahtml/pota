@@ -3,8 +3,8 @@ title: catchError
 subpath: pota
 topic: Reactive core
 desc:
-  Runs a function inside an error boundary, routing any thrown error —
-  sync or reactive — to a handler instead of the console.
+  Runs a function inside an error boundary, routing any thrown error
+  (sync or reactive) to a handler, not the console.
 ---
 
 # catchError

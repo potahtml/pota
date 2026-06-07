@@ -2,7 +2,7 @@
 title: alpha
 subpath: pota/use/color
 topic: Utilities
-desc: Set a color's alpha channel and return a new #RRGGBBAA string.
+desc: "Set a color's alpha channel and return a new #RRGGBBAA string."
 ---
 
 # alpha

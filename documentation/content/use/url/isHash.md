@@ -2,7 +2,7 @@
 title: isHash
 subpath: pota/use/url
 topic: Routing
-desc: True when a url starts with #.
+desc: 'True when a url starts with #.'
 ---
 
 # isHash

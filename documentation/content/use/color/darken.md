@@ -2,7 +2,7 @@
 title: darken
 subpath: pota/use/color
 topic: Utilities
-desc: Darken a color by an amount and return a new #RRGGBBAA string.
+desc: 'Darken a color by an amount and return a new #RRGGBBAA string.'
 ---
 
 # darken

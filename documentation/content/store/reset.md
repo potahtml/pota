@@ -3,8 +3,8 @@ title: reset
 subpath: pota/store
 topic: Store
 desc:
-  Reconcile source into target in place, keeping target keys that are
-  absent from source.
+  Reconcile source into target in place, replacing nested arrays
+  wholesale while keeping target-only keys.
 ---
 
 # reset
@@ -12,7 +12,9 @@ desc:
 Reconciles into `target` whatever is defined in `source`, leaving any
 `target` keys that `source` doesn't mention untouched. Unlike
 [replace](/store/replace), which removes keys absent from `source`,
-`reset` is additive. Mutates `target` in place and returns it;
+`reset` is additive. And unlike [merge](/store/merge), nested arrays
+are overwritten wholesale rather than reconciled item-by-item — there
+is no `keys` option. Mutates `target` in place and returns it;
 `source` is deep-copied before reconciling, so the original `source`
 is left untouched.
 

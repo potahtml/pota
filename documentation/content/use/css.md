@@ -2,7 +2,9 @@
 title: css
 subpath: pota/use/css
 topic: Styling
-desc: Building blocks for constructable stylesheets: tagged-template css, cached sheet(), adoptedStyleSheets helpers.
+desc:
+  'Building blocks for constructable stylesheets: tagged-template css,
+  cached sheet(), adoptedStyleSheets helpers.'
 ---
 
 # `pota/use/css`

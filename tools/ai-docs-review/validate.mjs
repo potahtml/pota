@@ -8,6 +8,7 @@ import {
 	writeFileSync,
 } from 'node:fs'
 import { join, relative, basename } from 'node:path'
+import jsYaml from 'js-yaml'
 import { CONTENT as ROOT } from './_paths.mjs'
 
 function walk(dir, out = []) {
@@ -19,18 +20,37 @@ function walk(dir, out = []) {
 	return out
 }
 
+// Parse frontmatter with a real YAML parser (matches the site's
+// content-parser.js) so folded / multi-line / quoted scalars resolve
+// correctly. Surfaces malformed YAML as a reportable issue instead of
+// silently dropping fields.
 function parseFrontmatter(raw) {
 	const m = /^---\n([\s\S]*?)\n---\n?/.exec(raw)
-	if (!m) return { data: {}, keys: [], body: raw }
-	const data = {}
-	const keys = []
-	for (const line of m[1].split('\n')) {
-		const mm = /^([\w-]+):\s*(.*)$/.exec(line)
-		if (!mm) continue
-		keys.push(mm[1])
-		data[mm[1]] = mm[2].trim().replace(/^['"]|['"]$/g, '')
+	if (!m) return { data: {}, keys: [], body: raw, parseError: null }
+	let data
+	try {
+		data = jsYaml.load(m[1])
+	} catch (err) {
+		return {
+			data: {},
+			keys: [],
+			body: raw.slice(m[0].length),
+			parseError: err.message.split('\n')[0],
+		}
 	}
-	return { data, keys, body: raw.slice(m[0].length) }
+	if (data == null || typeof data !== 'object' || Array.isArray(data))
+		return {
+			data: {},
+			keys: [],
+			body: raw.slice(m[0].length),
+			parseError: 'frontmatter is not a mapping',
+		}
+	return {
+		data,
+		keys: Object.keys(data),
+		body: raw.slice(m[0].length),
+		parseError: null,
+	}
 }
 
 // Is this a capitalized component page? (components/Foo.md, cap basename)
@@ -100,14 +120,19 @@ let okCount = 0
 for (const f of files) {
 	const rel = relative(ROOT, f)
 	const raw = readFileSync(f, 'utf8')
-	const { data, keys, body } = parseFrontmatter(raw)
+	const { data, keys, body, parseError } = parseFrontmatter(raw)
 	const issues = []
+
+	if (parseError)
+		issues.push('frontmatter parse error: ' + parseError)
 
 	// frontmatter completeness
 	if (!data.title) issues.push('missing title')
 	if (!('subpath' in data) && !rel.startsWith('guide/'))
 		issues.push('missing subpath')
 	if (!data.desc) issues.push('missing desc')
+	else if (String(data.desc).length > 120)
+		issues.push(`desc too long (${String(data.desc).length} chars)`)
 	if (!data.topic && !rel.startsWith('guide/'))
 		issues.push('missing topic')
 
