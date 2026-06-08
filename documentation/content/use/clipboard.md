@@ -3,18 +3,18 @@ title: clipboard
 subpath: pota/use/clipboard
 topic: Interaction
 desc:
-  Three clipboard ref factories — copy on click, and intercept paste.
+  Clipboard ref factories — copy on click, and intercept paste.
 ---
 
 # `pota/use/clipboard`
 
-`pota/use/clipboard` ships three ref factories you attach with
+`pota/use/clipboard` ships ref factories you attach with
 `use:ref`: `clipboard(value)` copies on click,
 [`pasteText`](/use/clipboard/pasteText) intercepts paste and strips
 formatting, and [`pasteFiles`](/use/clipboard/pasteFiles) captures
 pasted images and files.
 
-`clipboard` accepts three value shapes:
+`clipboard` accepts these value shapes:
 
 - `function` — invoked with the click event; its return value is
   copied
@@ -31,7 +31,7 @@ pasted images and files.
 
 ## Examples
 
-### Three value shapes
+### Value shapes
 
 Each button copies via a different `value` shape: `true` copies the
 element's own text, a string copies a fixed literal, and a function is

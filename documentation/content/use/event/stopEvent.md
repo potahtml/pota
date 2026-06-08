@@ -9,7 +9,7 @@ desc:
 
 # stopEvent
 
-`stopEvent(e)` calls all three stop methods —
+`stopEvent(e)` calls all stop methods —
 [`preventDefault`](/use/event/preventDefault),
 [`stopPropagation`](/use/event/stopPropagation), and
 [`stopImmediatePropagation`](/use/event/stopImmediatePropagation) — in

@@ -29,7 +29,7 @@ when called with no argument.
 
 ### Localized weekday and date
 
-Renders the same instant formatted in two locales.
+Renders the same instant formatted in different locales.
 
 ```jsx
 import { render } from 'pota'

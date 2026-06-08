@@ -8,7 +8,7 @@ desc: One-liner handler that calls event.preventDefault().
 # preventDefault
 
 `preventDefault(e)` calls `e.preventDefault()` — drop it straight into
-an `on:*` handler. For all three stop methods at once use
+an `on:*` handler. For all stop methods at once use
 [`stopEvent`](/use/event/stopEvent). Part of
 [`pota/use/event`](/use/event).
 

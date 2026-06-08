@@ -9,7 +9,7 @@ desc:
 
 # cached
 
-`cached(url, opts?)` is a three-layer `fetch` wrapper: concurrent
+`cached(url, opts?)` is a layered `fetch` wrapper: concurrent
 in-flight dedup, the browser Cache API with per-entry TTL, then a real
 network request. It returns a `Promise` — drop it into
 [derived](/derived) and you get a Suspense-friendly reactive value
@@ -40,7 +40,7 @@ they can be retried.
 
 ## How it works
 
-Three layers are consulted in order:
+Layers are consulted in order:
 
 1. **In-flight dedup.** Concurrent callers for the same URL share one
    `Promise`; only one request goes out.

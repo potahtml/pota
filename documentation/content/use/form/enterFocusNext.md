@@ -26,7 +26,7 @@ call it.
 
 ### Enter advances, and a swallowed Enter
 
-Two fields advance focus on `Enter`; a third swallows `Enter` entirely
+Fields advance focus on `Enter`; another swallows `Enter` entirely
 with [`preventEnter`](/use/form/preventEnter), and a textarea grows to
 fit with [`sizeToInput`](/use/form/sizeToInput).
 

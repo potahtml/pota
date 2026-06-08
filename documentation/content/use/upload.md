@@ -9,7 +9,7 @@ desc:
 
 # `pota/use/upload`
 
-`pota/use/upload` is an imperative file-upload primitive plus two ref
+`pota/use/upload` is an imperative file-upload primitive plus ref
 factories — the same upload pipeline (progress, optional
 content-addressed dedup, cancellation) regardless of how the files
 arrive. The [`uploadFile`](/use/upload/uploadFile) primitive does the

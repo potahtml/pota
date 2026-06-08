@@ -10,7 +10,7 @@ desc: IntersectionObserver behind a use*/on* pair, plus ref factories.
 `pota/use/intersection` wraps `IntersectionObserver` behind the same
 `use*` / `on*` pair you find on other document-level emitters
 ([`fullscreen`](/use/fullscreen), [`orientation`](/use/orientation),
-etc.), plus two ref factories you attach with `use:ref`.
+etc.), plus ref factories you attach with `use:ref`.
 
 Multiple subscribers on the same node share one observer. Cleanup
 happens automatically when the owning scope disposes — the observer

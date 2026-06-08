@@ -2,12 +2,12 @@
 title: browser
 subpath: pota/use/browser
 topic: Environment
-desc: Three simple user-agent booleans evaluated once at module load.
+desc: Simple user-agent booleans evaluated once at module load.
 ---
 
 # `pota/use/browser`
 
-`pota/use/browser` exposes three simple user-agent booleans, evaluated
+`pota/use/browser` exposes simple user-agent booleans, evaluated
 once at module load. They are convenient guards for tiny per-browser
 branches; for anything richer reach for a real UA-parsing library.
 

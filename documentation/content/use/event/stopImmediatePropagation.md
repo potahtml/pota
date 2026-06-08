@@ -9,7 +9,7 @@ desc: One-liner handler that calls event.stopImmediatePropagation().
 
 `stopImmediatePropagation(e)` calls `e.stopImmediatePropagation()`,
 which stops bubbling _and_ prevents other listeners on the same
-element from running. For all three stop methods at once use
+element from running. For all stop methods at once use
 [`stopEvent`](/use/event/stopEvent). Part of
 [`pota/use/event`](/use/event).
 

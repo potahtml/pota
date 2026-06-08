@@ -7,7 +7,7 @@ desc: Select-all-on-click ref plus Range round-trip helpers.
 
 # `pota/use/selection`
 
-`pota/use/selection` covers two needs: the
+`pota/use/selection` covers these needs: the
 [`clickSelectsAll`](/use/selection/clickSelectsAll) ref function that
 selects an element's text on click, and
 [`getSelection`](/use/selection/getSelection) /

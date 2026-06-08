@@ -8,7 +8,7 @@ desc: One-liner handler that calls event.stopPropagation().
 # stopPropagation
 
 `stopPropagation(e)` calls `e.stopPropagation()` — drop it into an
-`on:*` handler to stop the event bubbling. For all three stop methods
+`on:*` handler to stop the event bubbling. For all stop methods
 at once use [`stopEvent`](/use/event/stopEvent). Part of
 [`pota/use/event`](/use/event).
 

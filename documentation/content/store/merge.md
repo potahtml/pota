@@ -14,7 +14,7 @@ Merges `source` into `target` in place and returns `target`. Keys of
 to unchanged properties are kept intact.
 
 `merge`, [replace](/store/replace), and [reset](/store/reset) are
-three narrow reconcilers so each use case stays explicit. `merge` and
+narrow reconcilers so each use case stays explicit. `merge` and
 `replace` accept an optional `keys` option telling the reconciler how
 to identify items inside nested arrays. Without it, entries are
 matched by index; with it, they are matched by the named key,

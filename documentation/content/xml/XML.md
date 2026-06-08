@@ -24,7 +24,7 @@ compiled, its component-vs-element decisions are fixed.
 
 `XML()` takes no arguments.
 
-**Returns:** an `xml` tagged-template function with two extra members:
+**Returns:** an `xml` tagged-template function with extra members:
 
 | Member           | Type                                                    | Description                                                    |
 | ---------------- | ------------------------------------------------------- | -------------------------------------------------------------- |

@@ -7,7 +7,7 @@ desc: Single-effect selection state, plus a previous-value wrapper.
 
 # `pota/use/selector`
 
-`pota/use/selector` provides two small reactive helpers:
+`pota/use/selector` provides small reactive helpers:
 [`useSelector`](/use/selector/useSelector) builds derived selection
 state from a source signal using a single shared effect (not one per
 value), so it scales to long lists; and

@@ -23,7 +23,7 @@ nodes.)
   [`stopPropagation(e)`](/use/event/stopPropagation) /
   [`stopImmediatePropagation(e)`](/use/event/stopImmediatePropagation)
   — one-method stop helpers
-- [`stopEvent(e)`](/use/event/stopEvent) — all three at once
+- [`stopEvent(e)`](/use/event/stopEvent) — all stop methods at once
 - [`emit(node, name, init?)`](/use/event/emit) — dispatch a
   `CustomEvent`
 - [`waitEvent(element, name)`](/use/event/waitEvent) — promise for the

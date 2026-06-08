@@ -144,7 +144,7 @@ This is the pattern used by [intersection](/use/intersection),
 
 If `initialValue` is omitted, the signal is initialized to
 `undefined`. The first effect run sees that placeholder before the
-source has fired. Two ways to handle it:
+source has fired. Ways to handle it:
 
 1. Provide `initialValue` when a synchronous read of the source is
    possible (visibility, orientation, fullscreen — see

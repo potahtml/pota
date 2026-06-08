@@ -116,7 +116,7 @@ render(App)
 
 ### Different fallback shapes
 
-`fallback` accepts three shapes: a JSX element for a static "something
+`fallback` accepts these shapes: a JSX element for a static "something
 failed" view, a primitive (string/number) when you just want a
 placeholder, or a `(err, reset) => JSX` function when you want to show
 the error and let the user recover. The function form is the most
