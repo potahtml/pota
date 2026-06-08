@@ -5,6 +5,8 @@
 - SLOW AND SIMPLE IS BETTER THAN FAST AND HARD TO UNDERSTAND
 - TAKE IT EASY, STEP BY STEP
 
+- project doesnt update reactively
+
 ## someday
 
 - reactivity: prevent writing to signals inside tracked scopes

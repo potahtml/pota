@@ -702,7 +702,8 @@ function insertNode(parent, node, relative) {
  *
  * @param {JSX.Element} children - Thing to render
  * @param {Element | DocumentFragment | null} [parent] - Mount point,
- *   defaults to document.body (a `ShadowRoot` is a `DocumentFragment`)
+ *   defaults to document.body (a `ShadowRoot` is a
+ *   `DocumentFragment`)
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  * @returns {() => void} Disposer
@@ -727,7 +728,8 @@ export function render(children, parent, options = nothing) {
 /**
  * @param {JSX.Element} children - Thing to render
  * @param {Element | DocumentFragment | null} [parent] - Mount point,
- *   defaults to `document.body` (a `ShadowRoot` is a `DocumentFragment`)
+ *   defaults to `document.body` (a `ShadowRoot` is a
+ *   `DocumentFragment`)
  * @param {{ clear?: boolean; relative?: boolean }} [options] -
  *   Mounting options
  * @url https://pota.quack.uy/insert
