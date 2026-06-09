@@ -69,6 +69,30 @@ await test('cached - first call fetches and persists into the Cache API', async 
 	}
 })
 
+await test('cached - a response without a content-type is stored as application/octet-stream', async expect => {
+	const url = uniqueUrl('no-content-type')
+	const cacheName = uniqueCacheName()
+	try {
+		await withFetch(
+			// ArrayBuffer-bodied Response carries no content-type header,
+			// so the stamped cache entry falls back to octet-stream.
+			async () => new Response(new TextEncoder().encode('{"v":1}')),
+			async () => {
+				const v = await cached(url, { cacheName })
+				expect(v).toEqual({ v: 1 })
+
+				const store = await caches.open(cacheName)
+				const hit = await store.match(url)
+				expect(hit.headers.get('content-type')).toBe(
+					'application/octet-stream',
+				)
+			},
+		)
+	} finally {
+		await caches.delete(cacheName)
+	}
+})
+
 await test('cached - concurrent calls for the same URL share one fetch', async expect => {
 	const url = uniqueUrl('inflight')
 	const cacheName = uniqueCacheName()

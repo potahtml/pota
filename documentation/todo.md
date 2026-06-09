@@ -13,7 +13,6 @@
 - need to get rid of props plugin
 - some plugins like orientation are creating a root
 - dev tools: rethink the dev tools
-- ask for coverage report
 - transform: refactor transform again !
 - finish formalising the api and bump to v1
 

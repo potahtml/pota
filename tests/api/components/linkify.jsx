@@ -4,12 +4,19 @@
 // nesting and word boundaries, escape sequences, leading `>` quote
 // and `/ ` italic prefixes, the trim option, the mark highlight, the
 // emoji shortcode and unicode-emoji branches, URL → <Media> routing
-// across image/audio/video/link, the spoiler click reveal, and
-// disposal cleanup. Each test renders, asserts, and disposes.
-import { $, test, body, childNodes } from '#test'
+// across image/audio/video/link, `data:` URI → object-URL conversion,
+// the `guessType` content-type fetch fallback, the spoiler click
+// reveal, and disposal cleanup. Each test renders, asserts, and
+// disposes.
+import { $, test, body, childNodes, macrotask, sleep } from '#test'
 
 import { render } from 'pota'
 import { Linkify } from 'pota/components/Linkify'
+
+// internal: <Media> is the per-URL renderer Linkify routes to. A few
+// of its branches (a resolved non-media Content-Type) are only
+// reachable by driving it directly.
+import { Media } from '../../../src/components/linkify/media.js'
 
 // === Empty / trim defaults ===
 
@@ -399,6 +406,102 @@ await test('Linkify - URLs sit inline with surrounding text', expect => {
 	expect($('a').getAttribute('href')).toBe(
 		'https://example.com/about',
 	)
+	dispose()
+})
+
+// === data: URIs → object-URL conversion ===
+//
+// `data:` URIs route through <Media> just like http(s) URLs, but the
+// payload is first fetched and wrapped in an object URL (so the
+// rendered `src` is a compact `blob:` reference instead of a giant
+// inline string). The fetch + URL.createObjectURL happen on a
+// microtask after the element is already in the DOM; dispose revokes
+// the object URL.
+
+await test('Linkify - data:video URI routes to a <video> wrapped in a link', async expect => {
+	const dispose = render(
+		<Linkify text="data:video/mp4;base64,AAAA" />,
+	)
+	const video = $('video')
+	expect(video).not.toBe(null)
+	// Video is wrapped in a new-tab link to the source.
+	expect($('a')).not.toBe(null)
+	// let fetch(dataURI) → blob() → createObjectURL() run
+	await macrotask()
+	dispose()
+})
+
+await test('Linkify - data:audio URI routes to a bare <audio>', async expect => {
+	const dispose = render(
+		<Linkify text="data:audio/mp3;base64,AAAA" />,
+	)
+	expect($('audio')).not.toBe(null)
+	// audio is NOT wrapped in an anchor
+	expect($('a')).toBe(null)
+	await macrotask()
+	dispose()
+})
+
+await test('Linkify - data:image URI routes to an <img> wrapped in a link', async expect => {
+	const dispose = render(
+		<Linkify text="data:image/png;base64,AAAA" />,
+	)
+	const a = $('a')
+	expect(a).not.toBe(null)
+	expect(a.querySelector('img')).not.toBe(null)
+	await macrotask()
+	dispose()
+})
+
+await test('Linkify - non-media data: URI falls back to a plain link', async expect => {
+	const url = 'data:application/octet-stream;base64,AAAA'
+	const dispose = render(<Linkify text={url} />)
+	const a = $('a')
+	expect(a).not.toBe(null)
+	expect(a.getAttribute('href')).toBe(url)
+	await macrotask()
+	dispose()
+})
+
+// === guessType: resolve ambiguous URLs via their Content-Type ===
+
+await test('Linkify - guessType skips origin-only URLs and renders a link immediately', expect => {
+	// No path after the host → nothing to guess, so the link renders
+	// straight away without a network round-trip.
+	const dispose = render(
+		<Linkify text="https://example.com" guessType />,
+	)
+	const a = $('a')
+	expect(a).not.toBe(null)
+	expect(a.getAttribute('href')).toBe('https://example.com')
+	dispose()
+})
+
+await test('Linkify - guessType HEADs an extensionless URL then resolves on its Content-Type', async expect => {
+	// `/favicon.ico` is served same-origin as `image/x-icon` — a type
+	// that matches no media renderer — so the guessType branch fires a
+	// HEAD request and, once it resolves, <Media> re-enters with the
+	// resolved `type` and renders nothing (no element to show).
+	const url = window.location.origin + '/favicon.ico'
+	const dispose = render(<Linkify text={url} guessType />)
+	// HEAD resolves on the network; give it room, then assert it
+	// settled without error and produced no media element.
+	await sleep(200)
+	await macrotask()
+	expect($('a')).toBe(null)
+	expect($('img')).toBe(null)
+	dispose()
+})
+
+// === <Media> directly: resolved non-media Content-Type ===
+
+await test('Media - a resolved non-media type renders nothing', expect => {
+	// When `type` is already set, type-guessing has run; an
+	// unrecognised media type renders nothing rather than recursing.
+	const dispose = render(
+		<Media url="https://example.com/file" type="application/unknown" />,
+	)
+	expect(body()).toBe('')
 	dispose()
 })
 
