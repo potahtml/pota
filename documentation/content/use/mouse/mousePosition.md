@@ -27,16 +27,23 @@ Sample the latest position from an event handler without subscribing
 to every move.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { mousePosition } from 'pota/use/mouse'
 
 function App() {
+	const pos = signal('move the mouse')
+
 	function logHere() {
 		const { x, y } = mousePosition()
-		console.log('clicked at', x, y)
+		pos.write(`clicked at ${x}, ${y}`)
 	}
 
-	return <button on:click={logHere}>where am I?</button>
+	return (
+		<div>
+			<button on:click={logHere}>where am I?</button>
+			<p>{pos.read}</p>
+		</div>
+	)
 }
 
 render(App)

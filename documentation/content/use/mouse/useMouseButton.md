@@ -60,16 +60,20 @@ Drive an effect from the reader to start and stop panning as the
 middle button toggles.
 
 ```jsx
-import { effect } from 'pota'
+import { effect, render, signal } from 'pota'
 import { useMouseButton } from 'pota/use/mouse'
 
-const middle = useMouseButton(1)
+function App() {
+	const middle = useMouseButton(1)
+	const log = signal('hold middle button to pan')
 
-const startPanning = () => console.log('start panning')
-const stopPanning = () => console.log('stop panning')
+	effect(() => {
+		if (middle()) log.write('start panning')
+		else log.write('stop panning')
+	})
 
-effect(() => {
-	if (middle()) startPanning()
-	else stopPanning()
-})
+	return <p>{log.read}</p>
+}
+
+render(App)
 ```

@@ -100,22 +100,26 @@ Compose a tooltip with another behavior by passing an array of ref
 factories to `use:ref`.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { tooltip } from 'pota/use/tooltip'
 import { clickOutside } from 'pota/use/clickoutside'
 
 function App() {
-	const cancel = () => console.log('cancelled')
+	const log = signal('')
+	const cancel = () => log.write('cancelled')
 
 	return (
-		<button
-			use:ref={[
-				tooltip({ content: 'Click outside to cancel' }),
-				clickOutside(cancel),
-			]}
-		>
-			Confirm
-		</button>
+		<div>
+			<button
+				use:ref={[
+					tooltip({ content: 'Click outside to cancel' }),
+					clickOutside(cancel),
+				]}
+			>
+				Confirm
+			</button>
+			<p>{log.read}</p>
+		</div>
 	)
 }
 

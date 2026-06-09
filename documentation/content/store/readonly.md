@@ -30,6 +30,7 @@ Reads pass through normally; any write throws in strict mode (and
 TypeScript already flagged it).
 
 ```jsx
+import { render, signal } from 'pota'
 import { readonly } from 'pota/store'
 
 const settings = readonly({
@@ -37,13 +38,26 @@ const settings = readonly({
 	flags: { betaUI: true },
 })
 
-// reading is fine
-console.log(settings.api.url)
+function App() {
+	const log = signal('')
 
-// any of these throws in strict mode
-try {
-	settings.api.url = '...'
-} catch (e) {
-	console.log('blocked:', e)
+	function testWrite() {
+		try {
+			settings.api.url = '...'
+			log.write('write succeeded')
+		} catch (e) {
+			log.write(`blocked: ${e}`)
+		}
+	}
+
+	return (
+		<div>
+			<p>api url: {settings.api.url}</p>
+			<button on:click={testWrite}>try to write</button>
+			<p>{log.read}</p>
+		</div>
+	)
 }
+
+render(App)
 ```

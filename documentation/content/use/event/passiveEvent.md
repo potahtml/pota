@@ -22,11 +22,20 @@ Wraps a `wheel` handler so the browser can scroll without waiting on
 it, then attaches it with [addEventNative](/use/event/addEventNative).
 
 ```tsx
+import { render, signal } from 'pota'
 import { addEventNative, passiveEvent } from 'pota/use/event'
 
-addEventNative(
-	window,
-	'wheel',
-	passiveEvent((e: WheelEvent) => console.log(e.deltaY)),
-)
+function App() {
+	const log = signal('scroll to see wheel events')
+
+	addEventNative(
+		window,
+		'wheel',
+		passiveEvent((e: WheelEvent) => log.write(`wheel delta: ${e.deltaY}`)),
+	)
+
+	return <p>{log.read}</p>
+}
+
+render(App)
 ```

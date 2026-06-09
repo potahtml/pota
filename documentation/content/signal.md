@@ -109,14 +109,16 @@ function App() {
 		{ id: 1, name: 'Ada' },
 		{ equals: (a, b) => a.id === b.id },
 	)
+	const log = signal('user changed: Ada')
 
 	effect(() => {
-		console.log('user changed:', user.read().name)
+		log.write(`user changed: ${user.read().name}`)
 	})
 
 	return (
 		<div>
-			<p>{() => user.read().name}</p>
+			<p>current: {() => user.read().name}</p>
+			<p>{log.read}</p>
 			<button
 				on:click={() => user.write({ id: 1, name: 'Ada Lovelace' })}
 			>

@@ -38,22 +38,26 @@ Logs whenever the node enters or leaves the viewport. `entry` is
 always a real `IntersectionObserverEntry`.
 
 ```jsx
-import { render, ref } from 'pota'
+import { render, ref, signal } from 'pota'
 import { onVisible } from 'pota/use/intersection'
 
 function Panel() {
 	const node = ref()
+	const log = signal('')
 
 	onVisible(node(), entry =>
-		console.log('visible:', entry.isIntersecting),
+		log.write(`visible: ${entry.isIntersecting}`),
 	)
 
 	return (
-		<div
-			use:ref={node}
-			style={{ height: '120vh' }}
-		>
-			scroll me
+		<div>
+			<div
+				use:ref={node}
+				style={{ height: '120vh' }}
+			>
+				scroll me
+			</div>
+			<p>{log.read}</p>
 		</div>
 	)
 }

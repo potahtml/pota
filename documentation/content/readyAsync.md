@@ -38,6 +38,7 @@ import { derived, readyAsync, render, signal } from 'pota'
 
 function App() {
 	const id = signal(1)
+	const status = signal('loading…')
 
 	const post = derived(
 		() =>
@@ -48,10 +49,15 @@ function App() {
 	)
 
 	readyAsync(() => {
-		console.log('all async settled — post is', post())
+		status.write(`all async settled — post is ${post()?.title}`)
 	})
 
-	return <p>{() => post()?.title ?? 'loading…'}</p>
+	return (
+		<div>
+			<p>{status.read}</p>
+			<p>{() => post()?.title ?? 'loading…'}</p>
+		</div>
+	)
 }
 
 render(App)

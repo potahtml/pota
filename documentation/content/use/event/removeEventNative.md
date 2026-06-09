@@ -21,11 +21,25 @@ Attaches a `resize` listener on `window` and removes it later by
 passing the exact same handler reference.
 
 ```jsx
+import { render, signal } from 'pota'
 import { addEventNative, removeEventNative } from 'pota/use/event'
 
-const onResize = () => console.log(window.innerWidth)
+function App() {
+	const log = signal('resize to see width')
 
-addEventNative(window, 'resize', onResize)
-// later:
-removeEventNative(window, 'resize', onResize)
+	const onResize = () => log.write(`width: ${window.innerWidth}`)
+
+	addEventNative(window, 'resize', onResize)
+
+	return (
+		<div>
+			<button on:click={() => removeEventNative(window, 'resize', onResize)}>
+				remove listener
+			</button>
+			<p>{log.read}</p>
+		</div>
+	)
+}
+
+render(App)
 ```

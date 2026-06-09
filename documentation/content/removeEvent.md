@@ -55,17 +55,61 @@ render(App)
 ### off / on round-trip
 
 `addEvent` returns `off()`; `removeEvent` returns `on()` — the pair
-lets you toggle a listener without re-stating the arguments.
+lets you toggle a listener without re-stating the arguments. Click the
+box to fire the handler; the buttons attach and detach it.
 
 ```jsx
-import { addEvent, removeEvent } from 'pota'
+import {
+	addEvent,
+	removeEvent,
+	ready,
+	ref,
+	render,
+	signal,
+} from 'pota'
 
-const node = document.createElement('main')
-const handler = () => console.log('handler')
+function App() {
+	const box = ref()
+	const status = signal('listener off — use the buttons')
 
-// add the listener; off() removes it
-const off = addEvent(node, 'click', handler)
+	const handler = () => status.write('handler ran')
 
-// remove the listener; on() adds it back
-const on = removeEvent(node, 'click', handler)
+	// addEvent returns off() (removes); removeEvent returns on()
+	// (re-adds). Captured once the box exists, then reused.
+	let off, on
+	ready(() => {
+		off = addEvent(box(), 'click', handler)
+		on = removeEvent(box(), 'click', handler)
+	})
+
+	return (
+		<div>
+			<div
+				use:ref={box}
+				style={{ padding: '1em', border: '1px solid #aaa' }}
+			>
+				click me
+			</div>
+			<button
+				on:click={() => {
+					off()
+					status.write('listener off')
+				}}
+			>
+				off()
+			</button>
+			<button
+				on:click={() => {
+					on()
+					status.write('listener on — click the box')
+				}}
+			>
+				on()
+			</button>
+			<p>{status.read}</p>
+		</div>
+	)
+}
+
+render(App)
 ```

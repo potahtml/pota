@@ -73,25 +73,30 @@ Attaches `upload` to a multiple file input with type and size filters
 and the full set of lifecycle callbacks.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { upload } from 'pota/use/upload'
 
 function App() {
+	const log = signal('')
+
 	return (
-		<input
-			type="file"
-			multiple
-			use:ref={upload({
-				endpoint: '/api/upload',
-				accept: 'image/*',
-				maxSize: 5 * 1024 * 1024,
-				onUpload: results => console.log('all done', results.length),
-				onFile: r => console.log('done', r.url),
-				onError: (err, file) => console.error(file.name, err.message),
-				onReject: (file, reason) =>
-					console.warn(file.name, 'rejected:', reason),
-			})}
-		/>
+		<div>
+			<input
+				type="file"
+				multiple
+				use:ref={upload({
+					endpoint: '/api/upload',
+					accept: 'image/*',
+					maxSize: 5 * 1024 * 1024,
+					onUpload: results => log.write(`all done ${results.length}`),
+					onFile: r => log.write(`done ${r.url}`),
+					onError: (err, file) => log.write(`${file.name}: ${err.message}`),
+					onReject: (file, reason) =>
+						log.write(`${file.name} rejected: ${reason}`),
+				})}
+			/>
+			<p>{log.read}</p>
+		</div>
 	)
 }
 
@@ -110,6 +115,7 @@ import { upload } from 'pota/use/upload'
 
 function App() {
 	const progress = signal<Record<string, number>>({})
+	const status = signal('')
 
 	return (
 		<>
@@ -123,9 +129,10 @@ function App() {
 							...p,
 							[file.name]: loaded / total,
 						})),
-					onUpload: () => console.log('done'),
+					onUpload: () => status.write('done'),
 				})}
 			/>
+			<p>{status.read}</p>
 			<For each={() => Object.entries(progress.read())}>
 				{([name, ratio]) => (
 					<div>

@@ -32,13 +32,17 @@ The callback fires once the element is in the document, after
 insertion and before paint.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 
 function App() {
+	const log = signal('')
 	return (
-		<main use:connected={node => console.log(node, 'connected')}>
-			Content
-		</main>
+		<div>
+			<main use:connected={node => log.write(`${node.tagName} connected`)}>
+				Content
+			</main>
+			<p>{log.read}</p>
+		</div>
 	)
 }
 

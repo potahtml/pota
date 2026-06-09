@@ -192,7 +192,7 @@ reactive markup. It counts as a subscriber just like `use()`, so the
 source is shared and torn down on cleanup.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { Emitter } from 'pota/use/emitter'
 
 const visible = new Emitter({
@@ -207,10 +207,11 @@ const visible = new Emitter({
 })
 
 function App() {
+	const log = signal('switch tabs and check the status')
 	visible.on(isVisible => {
-		console.log('tab is', isVisible ? 'visible' : 'hidden')
+		log.write(`tab is ${isVisible ? 'visible' : 'hidden'}`)
 	})
-	return <p>switch tabs and watch the console</p>
+	return <p>{log.read}</p>
 }
 
 render(App)

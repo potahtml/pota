@@ -41,15 +41,17 @@ import { validateEmail } from 'pota/use/string'
 function App() {
 	const raw = signal('')
 	const error = signal('')
+	const success = signal('')
 
 	function submit(e) {
 		e.preventDefault()
 		const email = validateEmail(raw.read())
 		if (email === false) {
 			error.write('Please enter a valid email')
+			success.write('')
 		} else {
 			error.write('')
-			console.log('normalized:', email) // e.g. 'A@B.UY' -> 'a@b.uy'
+			success.write(`normalized: ${email}`) // e.g. 'A@B.UY' -> 'a@b.uy'
 		}
 	}
 
@@ -61,6 +63,7 @@ function App() {
 			/>
 			<button>Submit</button>
 			<p>{error.read}</p>
+			<p>{success.read}</p>
 		</form>
 	)
 }

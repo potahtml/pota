@@ -76,19 +76,22 @@ render(Keys)
 
 `cleanup` callbacks run after the scope's DOM nodes have already been
 removed, and child scopes dispose before their parents — so the
-deepest cleanups fire first. Disposing the root here logs the nested
-`cleanup:` lines from the inside out.
+deepest cleanups fire first. Unmount the tree and the `cleanup:` lines
+appear from the inside out: `Child` before `Parent`.
 
 ```jsx
-import { cleanup, render } from 'pota'
+import { cleanup, render, signal } from 'pota'
+import { Show } from 'pota/components'
+
+const log = signal('mounted — unmount to see disposal order')
 
 function Child() {
-	cleanup(() => console.log('cleanup: Child'))
+	cleanup(() => log.update(s => s + 'cleanup: Child\n'))
 	return <p>child</p>
 }
 
-function App() {
-	cleanup(() => console.log('cleanup: App'))
+function Parent() {
+	cleanup(() => log.update(s => s + 'cleanup: Parent'))
 	return (
 		<main>
 			<Child />
@@ -96,8 +99,26 @@ function App() {
 	)
 }
 
-const dispose = render(App)
+function App() {
+	const show = signal(true)
 
-// later: tears down Child first, then App
-dispose()
+	return (
+		<div>
+			<button
+				on:click={() => {
+					log.write('')
+					show.update(v => !v)
+				}}
+			>
+				mount / unmount
+			</button>
+			<Show when={show.read}>
+				<Parent />
+			</Show>
+			<pre>{log.read}</pre>
+		</div>
+	)
+}
+
+render(App)
 ```

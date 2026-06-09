@@ -31,13 +31,22 @@ Resolves the same helper across a plain value, a signal reader, a
 memo-style function, and a deeply nested chain of functions.
 
 ```jsx
-import { getValue, signal } from 'pota'
+import { getValue, render, signal } from 'pota'
 
 const a = signal(1)
 const b = () => a.read() * 2
+const deep = () => () => () => 'deep'
 
-console.log(getValue(42)) // 42 (plain)
-console.log(getValue(a.read)) // 1 (signal)
-console.log(getValue(b)) // 2 (memo-style)
-console.log(getValue(() => () => () => 'deep')) // 'deep'
+function App() {
+	return (
+		<div>
+			<p>getValue(42): {getValue(42)}</p>
+			<p>getValue(a.read): {getValue(a.read)}</p>
+			<p>getValue(b): {getValue(b)}</p>
+			<p>getValue(deep): {getValue(deep)}</p>
+		</div>
+	)
+}
+
+render(App)
 ```

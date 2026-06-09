@@ -38,13 +38,14 @@ import { waitEvent } from 'pota/use/event'
 
 function App() {
 	const open = signal(false)
+	const log = signal('')
 
 	let box
 
 	async function toggle() {
 		open.update(prev => !prev)
 		await waitEvent(box, 'transitionend')
-		console.log('transition finished')
+		log.write('transition finished')
 	}
 
 	return (
@@ -62,6 +63,7 @@ function App() {
 						: 'translateX(0)',
 				})}
 			/>
+			<p>{log.read}</p>
 		</div>
 	)
 }

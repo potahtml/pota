@@ -29,15 +29,17 @@ Registers a callback that fires with the initial size and again on
 every window resize.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { onDocumentSize } from 'pota/use/resize'
 
 function App() {
+	const size = signal('resize the window')
+
 	onDocumentSize(({ width, height }) => {
-		console.log('viewport:', width, height)
+		size.write(`viewport: ${width} × ${height}`)
 	})
 
-	return <p>resize the window — watch the console</p>
+	return <p>{size.read}</p>
 }
 
 render(App)

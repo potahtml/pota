@@ -42,7 +42,7 @@ runs once with the final values.
 
 ```jsx
 import { store } from 'pota/store'
-import { effect, render } from 'pota'
+import { effect, render, signal } from 'pota'
 
 const [user, setUser] = store({
 	name: 'ada',
@@ -50,23 +50,28 @@ const [user, setUser] = store({
 	role: 'engineer',
 })
 
+const log = signal('user is now ada 0 engineer')
+
 effect(() => {
-	console.log('user is now', user.name, user.age, user.role)
+	log.write(`user is now ${user.name} ${user.age} ${user.role}`)
 })
 
 function App() {
 	return (
-		<button
-			on:click={() =>
-				setUser(u => {
-					u.name = 'grace'
-					u.age = 30
-					u.role = 'rear admiral'
-				})
-			}
-		>
-			rename and promote (one effect run)
-		</button>
+		<div>
+			<p>{log.read}</p>
+			<button
+				on:click={() =>
+					setUser(u => {
+						u.name = 'grace'
+						u.age = 30
+						u.role = 'rear admiral'
+					})
+				}
+			>
+				rename and promote (one effect run)
+			</button>
+		</div>
 	)
 }
 

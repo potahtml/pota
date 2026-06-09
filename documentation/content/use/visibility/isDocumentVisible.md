@@ -29,18 +29,23 @@ Reads the visibility state once when the button is clicked — no
 subscription is created, so the value is a snapshot for that moment.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { isDocumentVisible } from 'pota/use/visibility'
 
 function App() {
+	const result = signal('')
+
 	return (
-		<button
-			on:click={() =>
-				console.log(isDocumentVisible() ? 'visible' : 'hidden')
-			}
-		>
-			check visibility
-		</button>
+		<div>
+			<button
+				on:click={() =>
+					result.write(isDocumentVisible() ? 'visible' : 'hidden')
+				}
+			>
+				check visibility
+			</button>
+			<p>{result.read}</p>
+		</div>
 	)
 }
 

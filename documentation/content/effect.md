@@ -45,23 +45,26 @@ effect(() => {
 ### Log on change
 
 Run a side-effect every time tracked state updates. Each click fires
-the effect — the console line lands _after_ the click handler returns
-because effects are scheduled, not synchronous.
+the effect — the effect is scheduled, not synchronous.
 
 ```jsx
 import { effect, render, signal } from 'pota'
 
 function App() {
 	const count = signal(0)
+	const log = signal('click to start')
 
 	effect(() => {
-		console.log('count is now', count.read())
+		log.write(`count is now ${count.read()}`)
 	})
 
 	return (
-		<button on:click={() => count.update(n => n + 1)}>
-			{count.read}
-		</button>
+		<div>
+			<button on:click={() => count.update(n => n + 1)}>
+				{count.read}
+			</button>
+			<p>{log.read}</p>
+		</div>
 	)
 }
 

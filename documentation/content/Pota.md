@@ -27,16 +27,19 @@ and dispose hooks, and `render(props)` returns the JSX.
 
 ```jsx
 import { Pota, render, signal } from 'pota'
+import { Show } from 'pota/components'
+
+const status = signal('not mounted')
 
 class Counter extends Pota {
 	count = signal(0)
 
 	ready() {
-		console.log('counter mounted')
+		status.write('mounted')
 	}
 
 	cleanup() {
-		console.log('counter unmounted')
+		status.write('unmounted')
 	}
 
 	render(props) {
@@ -48,7 +51,23 @@ class Counter extends Pota {
 	}
 }
 
-render(<Counter label="clicks" />)
+function App() {
+	const show = signal(true)
+
+	return (
+		<div>
+			<button on:click={() => show.update(v => !v)}>
+				mount / unmount
+			</button>
+			<Show when={show.read}>
+				<Counter label="clicks" />
+			</Show>
+			<p>status: {status.read}</p>
+		</div>
+	)
+}
+
+render(App)
 ```
 
 ### Lifecycle and dispose
@@ -59,7 +78,9 @@ merged result. The handle returned by `render` disposes the tree,
 firing `cleanup()`.
 
 ```jsx
-import { Pota, render } from 'pota'
+import { Pota, render, signal } from 'pota'
+
+const log = signal('ready')
 
 class MyComponent extends Pota {
 	props = {
@@ -67,10 +88,10 @@ class MyComponent extends Pota {
 		children: 'quack',
 	}
 	ready() {
-		console.log('ready callback!')
+		log.write('ready callback!')
 	}
 	cleanup() {
-		console.log('cleanup callback!')
+		log.write('cleanup callback!')
 	}
 	render() {
 		return <main>{this.props.children}</main>
@@ -81,12 +102,17 @@ const dispose = render(
 	<MyComponent some="lala">hello from class!</MyComponent>,
 )
 
+// the log lives outside the disposed tree, so it survives to
+// show the cleanup message
 render(
-	<button
-		name="button"
-		on:click={dispose}
-	>
-		dispose
-	</button>,
+	<div>
+		<button
+			name="button"
+			on:click={dispose}
+		>
+			dispose
+		</button>
+		<p>{log.read}</p>
+	</div>,
 )
 ```

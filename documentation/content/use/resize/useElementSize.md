@@ -71,19 +71,18 @@ side-effecting callback instead of an accessor — it fires only with
 real `ResizeObserverEntry`s, never the pre-observer placeholder.
 
 ```jsx
-import { render } from 'pota'
-
+import { render, signal } from 'pota'
 import { onElementSize } from 'pota/use/resize'
 
 function App() {
+	const size = signal('resize me')
+
 	return (
 		<div
 			use:ref={node => {
 				onElementSize(node, entry => {
-					console.log(
-						'resized',
-						entry.contentRect.width,
-						entry.contentRect.height,
+					size.write(
+						`resized ${Math.round(entry.contentRect.width)} × ${Math.round(entry.contentRect.height)}`,
 					)
 				})
 			}}
@@ -96,7 +95,7 @@ function App() {
 				border: '1px solid #aaa',
 			}}
 		>
-			resize me — watch the console
+			{size.read}
 		</div>
 	)
 }

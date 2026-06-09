@@ -33,19 +33,29 @@ authoring a getter that should return a memo when tracked but a plain
 value otherwise.
 
 ```jsx
-import { effect, listener, signal } from 'pota'
+import { effect, listener, render, signal } from 'pota'
 
 const value = signal(1)
+const log = signal('')
 
 function read() {
 	if (listener()) {
-		console.log('tracked read')
+		log.write('tracked read')
 	} else {
-		console.log('untracked read')
+		log.write('untracked read')
 	}
 	return value.read()
 }
 
-read() // → "untracked read"
-effect(() => read()) // → "tracked read"
+function App() {
+	return (
+		<div>
+			<button on:click={() => read()}>untracked read</button>
+			<button on:click={() => effect(() => read())}>tracked read</button>
+			<p>{log.read}</p>
+		</div>
+	)
+}
+
+render(App)
 ```

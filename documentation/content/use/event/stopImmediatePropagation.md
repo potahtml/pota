@@ -18,27 +18,44 @@ element from running. For all stop methods at once use
 ### Stop other listeners too
 
 `on:click` takes an array of handlers, each attached as its own
-listener. The first calls `stopImmediatePropagation`, so the second
-handler on the same button never runs and the click never reaches the
-wrapper. Plain [`stopPropagation`](/use/event/stopPropagation) would
-let the second handler run; only the _immediate_ form stops siblings
-on the same element.
+listener. Both buttons run a first handler, then a stop method, then a
+second handler. With `stopImmediatePropagation` the second handler is
+skipped — the log only shows `first ran`. Plain
+[`stopPropagation`](/use/event/stopPropagation) stops bubbling but
+lets siblings on the same element run, so the log shows
+`first ran + second ran`.
 
 ```jsx
-import { render } from 'pota'
-import { stopImmediatePropagation } from 'pota/use/event'
+import { render, signal } from 'pota'
+import {
+	stopImmediatePropagation,
+	stopPropagation,
+} from 'pota/use/event'
 
 function App() {
+	const log = signal('click a button')
+
 	return (
-		<div on:click={() => console.log('wrapper — never reached')}>
+		<div>
 			<button
 				on:click={[
+					() => log.write('first ran'),
 					stopImmediatePropagation,
-					() => console.log('second handler — never runs'),
+					() => log.update(s => s + ' + second ran'),
 				]}
 			>
-				handled, exclusively
+				stopImmediatePropagation
 			</button>
+			<button
+				on:click={[
+					() => log.write('first ran'),
+					stopPropagation,
+					() => log.update(s => s + ' + second ran'),
+				]}
+			>
+				stopPropagation
+			</button>
+			<p>{log.read}</p>
 		</div>
 	)
 }

@@ -156,15 +156,17 @@ import { Show } from 'pota/components'
 
 function App() {
 	const show = signal(false)
+	const log = signal('')
 
 	const expensive = memo(() => {
-		console.log('memo ran') // only logs once shown
+		log.write('memo ran') // only runs once shown
 		return 'computed on demand'
 	})
 
 	return (
 		<div>
 			<button on:click={() => show.write(true)}>reveal</button>
+			<p>{log.read}</p>
 			<Show when={show.read}>
 				<p>{expensive}</p>
 			</Show>

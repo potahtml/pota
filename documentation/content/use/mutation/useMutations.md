@@ -33,9 +33,17 @@ Read the latest batch of records inside an effect; it re-runs whenever
 the node mutates.
 
 ```jsx
-import { effect } from 'pota'
+import { effect, render, signal } from 'pota'
 import { useMutations } from 'pota/use/mutation'
 
-const records = useMutations(document.body)
-effect(() => console.log(records()))
+function App() {
+	const records = useMutations(document.body)
+	const log = signal('mutations will appear here')
+
+	effect(() => log.write(`mutations: ${records().length}`))
+
+	return <p>{log.read}</p>
+}
+
+render(App)
 ```

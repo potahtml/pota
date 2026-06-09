@@ -26,9 +26,14 @@ Reads the pre-bound array to see how many sheets the main document has
 adopted.
 
 ```jsx
+import { render } from 'pota'
 import { adoptedStyleSheets, sheet } from 'pota/use/css'
 
 document.adoptedStyleSheets.push(sheet('body { margin: 0 }'))
 
-console.log(adoptedStyleSheets.length) // 1
+function App() {
+	return <p>adopted sheets: {adoptedStyleSheets.length}</p>
+}
+
+render(App)
 ```

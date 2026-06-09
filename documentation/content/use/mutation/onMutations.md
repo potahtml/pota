@@ -33,7 +33,18 @@ Register a callback that logs each `MutationRecord[]` batch observed
 on a node you already hold a reference to.
 
 ```jsx
+import { render, signal } from 'pota'
 import { onMutations } from 'pota/use/mutation'
 
-onMutations(document.body, records => console.log(records))
+function App() {
+	const log = signal('mutations will appear here')
+
+	onMutations(document.body, records => {
+		log.write(`mutations: ${records.length}`)
+	})
+
+	return <p>{log.read}</p>
+}
+
+render(App)
 ```

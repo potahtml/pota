@@ -36,9 +36,6 @@ import { isComponent, markComponent, render } from 'pota'
 const Greeting = markComponent(() => <p>hello!</p>)
 const plain = () => Math.random()
 
-console.log(isComponent(Greeting)) // true
-console.log(isComponent(plain)) // false
-
 function Wrapper(props) {
 	return (
 		<div>
@@ -47,5 +44,15 @@ function Wrapper(props) {
 	)
 }
 
-render(<Wrapper body={Greeting} />)
+function App() {
+	return (
+		<div>
+			<p>isComponent(Greeting): {isComponent(Greeting)}</p>
+			<p>isComponent(plain): {isComponent(plain)}</p>
+			<Wrapper body={Greeting} />
+		</div>
+	)
+}
+
+render(App)
 ```

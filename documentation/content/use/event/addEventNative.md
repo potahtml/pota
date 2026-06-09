@@ -28,17 +28,31 @@ the same handler reference. Passing a
 and the handler to `addEventListener` in one go.
 
 ```tsx
+import { render, signal } from 'pota'
 import {
 	addEventNative,
 	removeEventNative,
 	passiveEvent,
 } from 'pota/use/event'
 
-const handler = passiveEvent((e: WheelEvent) =>
-	console.log('wheel', e.deltaY),
-)
+function App() {
+	const log = signal('scroll to see wheel events')
 
-addEventNative(window, 'wheel', handler)
-// later:
-removeEventNative(window, 'wheel', handler)
+	const handler = passiveEvent((e: WheelEvent) =>
+		log.write(`wheel ${e.deltaY}`),
+	)
+
+	addEventNative(window, 'wheel', handler)
+
+	return (
+		<div>
+			<button on:click={() => removeEventNative(window, 'wheel', handler)}>
+				remove listener
+			</button>
+			<p>{log.read}</p>
+		</div>
+	)
+}
+
+render(App)
 ```

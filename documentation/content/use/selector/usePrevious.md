@@ -34,15 +34,26 @@ call `previous` is `undefined`.
 Wrap a reducer-style function so each call sees what it returned last
 time. On the first call the previous value is `undefined`.
 
-```js
+```jsx
+import { render, signal } from 'pota'
 import { usePrevious } from 'pota/use/selector'
 
-const step = usePrevious((next, prev) => {
-	console.log('was', prev, '→', next)
-	return next
-})
+function App() {
+	const log = signal('')
+	const step = usePrevious((next, prev) => {
+		log.write(`was ${prev} → ${next}`)
+		return next
+	})
 
-step(1) // prev: undefined
-step(2) // prev: 1
-step(5) // prev: 2
+	return (
+		<div>
+			<p>{log.read}</p>
+			<button on:click={() => step(1)}>step(1)</button>
+			<button on:click={() => step(2)}>step(2)</button>
+			<button on:click={() => step(5)}>step(5)</button>
+		</div>
+	)
+}
+
+render(App)
 ```

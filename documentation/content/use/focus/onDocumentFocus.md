@@ -32,15 +32,17 @@ Logs whenever the browser tab/window gains or loses focus, starting
 with its current state.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { onDocumentFocus } from 'pota/use/focus'
 
 function App() {
+	const log = signal('switch tabs to see focus events')
+
 	onDocumentFocus(focused =>
-		console.log(focused ? 'gained focus' : 'lost focus'),
+		log.write(focused ? 'gained focus' : 'lost focus'),
 	)
 
-	return <p>switch tabs to see focus events in the console</p>
+	return <p>{log.read}</p>
 }
 
 render(App)

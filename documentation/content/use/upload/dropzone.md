@@ -35,7 +35,7 @@ Turns a `<div>` into a drop zone that accepts images and PDFs. The
 `[data-dragover]` selector lights up the outline while files hover.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { dropzone } from 'pota/use/upload'
 
 const css = `
@@ -49,6 +49,8 @@ const css = `
 `
 
 function App() {
+	const log = signal('')
+
 	return (
 		<>
 			<style>{css}</style>
@@ -58,11 +60,12 @@ function App() {
 					endpoint: '/api/upload',
 					accept: 'image/*,application/pdf',
 					onUpload: results =>
-						console.log('uploaded', results.length),
+						log.write(`uploaded ${results.length}`),
 				})}
 			>
 				Drop files here
 			</div>
+			<p>{log.read}</p>
 		</>
 	)
 }

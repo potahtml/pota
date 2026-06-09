@@ -117,17 +117,23 @@ Pass an array to `use:ref` to write the same element into more than
 one ref. Each ref is called with the node as the element is created.
 
 ```jsx
-import { ready, ref, render } from 'pota'
+import { ready, ref, render, signal } from 'pota'
 
 function App() {
 	const a = ref()
 	const b = ref()
+	const result = signal('')
 
 	ready(() => {
-		console.log('same node:', a() === b()) // true
+		result.write(`same node: ${a() === b()}`) // true
 	})
 
-	return <p use:ref={[a, b]}>captured by two refs</p>
+	return (
+		<div>
+			<p use:ref={[a, b]}>captured by two refs</p>
+			<p>{result.read}</p>
+		</div>
+	)
 }
 
 render(App)

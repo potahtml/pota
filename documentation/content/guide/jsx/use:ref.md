@@ -45,25 +45,29 @@ at element creation; reading `button()` inside an effect re-runs when
 it is written.
 
 ```jsx
-import { effect, ref, render } from 'pota'
+import { effect, ref, render, signal } from 'pota'
 
 function App() {
 	const button = ref()
+	const log = signal('')
 
 	effect(() => {
 		if (button()) {
-			console.log(button())
+			log.write(`button: ${button().tagName}`)
 		}
 	})
 
 	return (
-		<button
-			name="button"
-			use:ref={button}
-			on:click={() => console.log(button())}
-		>
-			button
-		</button>
+		<div>
+			<button
+				name="button"
+				use:ref={button}
+				on:click={() => log.write(`clicked: ${button().tagName}`)}
+			>
+				button
+			</button>
+			<p>{log.read}</p>
+		</div>
 	)
 }
 
@@ -104,22 +108,26 @@ takes the same signal-as-callback and fires once the element is in the
 document, so `button()` reads a connected node.
 
 ```jsx
-import { effect, ref, render } from 'pota'
+import { effect, ref, render, signal } from 'pota'
 
 function App() {
 	const button = ref()
+	const log = signal('')
 
 	effect(() => {
-		if (button()) console.log('connected:', button())
+		if (button()) log.write(`connected: ${button().tagName}`)
 	})
 
 	return (
-		<button
-			use:connected={button}
-			on:click={() => console.log(button())}
-		>
-			button
-		</button>
+		<div>
+			<button
+				use:connected={button}
+				on:click={() => log.write(`clicked: ${button().tagName}`)}
+			>
+				button
+			</button>
+			<p>{log.read}</p>
+		</div>
 	)
 }
 
@@ -134,23 +142,27 @@ parent component, an external library wrapper) also needs a handle.
 Both refs read the same node.
 
 ```jsx
-import { ready, ref, render } from 'pota'
+import { ready, ref, render, signal } from 'pota'
 
 function App() {
 	const localRef = ref()
 	const externalRef = ref()
+	const log = signal('')
 
 	ready(() => {
-		console.log('local sees', localRef().tagName)
-		console.log('external sees', externalRef().tagName)
-		console.log('same node?', localRef() === externalRef())
+		log.write(
+			`local sees ${localRef().tagName}, external sees ${externalRef().tagName}, same node? ${localRef() === externalRef()}`,
+		)
 	})
 
 	return (
-		<input
-			use:ref={[localRef, externalRef]}
-			placeholder="bound to two refs"
-		/>
+		<div>
+			<input
+				use:ref={[localRef, externalRef]}
+				placeholder="bound to two refs"
+			/>
+			<p>{log.read}</p>
+		</div>
 	)
 }
 
@@ -204,27 +216,31 @@ in array order, synchronously at creation. Mix bare functions with
 factories from `pota/use/*`.
 
 ```jsx
-import { ready, render } from 'pota'
+import { ready, render, signal } from 'pota'
 import { clickOutside } from 'pota/use/clickoutside'
 import { preventEnter } from 'pota/use/form'
 
 const autoFocus = node => ready(() => node.focus())
 
-const logMount = label => node => {
-	console.log(label, 'attached', node)
-}
-
 function App() {
+	const log = signal('')
+
+	const logMount = label => node =>
+		log.write(`${label} attached: ${node.tagName}`)
+
 	return (
-		<input
-			use:ref={[
-				autoFocus,
-				preventEnter,
-				clickOutside(() => console.log('clicked outside')),
-				logMount('input'),
-			]}
-			placeholder="type here"
-		/>
+		<div>
+			<input
+				use:ref={[
+					autoFocus,
+					preventEnter,
+					clickOutside(() => log.write('clicked outside')),
+					logMount('input'),
+				]}
+				placeholder="type here"
+			/>
+			<p>{log.read}</p>
+		</div>
 	)
 }
 

@@ -38,13 +38,19 @@ subscription is owned by the component, it is removed automatically
 when the component unmounts.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { onFullscreen, fullscreen } from 'pota/use/fullscreen'
 
 function App() {
-	onFullscreen(el => console.log('fullscreen element:', el))
+	const log = signal('')
+	onFullscreen(el => log.write(`fullscreen element: ${el?.tagName ?? 'none'}`))
 
-	return <button use:ref={fullscreen()}>toggle fullscreen</button>
+	return (
+		<div>
+			<button use:ref={fullscreen()}>toggle fullscreen</button>
+			<p>{log.read}</p>
+		</div>
+	)
 }
 
 render(App)

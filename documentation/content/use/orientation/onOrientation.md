@@ -32,15 +32,17 @@ Subscribes to orientation flips and logs the new value. Resize the
 window (or rotate the device) to see it fire.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { onOrientation } from 'pota/use/orientation'
 
 function App() {
+	const log = signal('resize to see orientation changes')
+
 	onOrientation(o => {
-		console.log('orientation is now', o)
+		log.write(`orientation is now ${o}`)
 	})
 
-	return <p>watch the console while you resize</p>
+	return <p>{log.read}</p>
 }
 
 render(App)

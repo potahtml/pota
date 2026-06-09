@@ -27,18 +27,23 @@ or `null`.
 Read the fullscreen element once, without subscribing to changes.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
 import { isFullscreen } from 'pota/use/fullscreen'
 
 function App() {
+	const result = signal('')
+
 	return (
-		<button
-			on:click={() =>
-				console.log(isFullscreen() ? 'fullscreen' : 'windowed')
-			}
-		>
-			log state
-		</button>
+		<div>
+			<button
+				on:click={() =>
+					result.write(isFullscreen() ? 'fullscreen' : 'windowed')
+				}
+			>
+				check state
+			</button>
+			<p>{result.read}</p>
+		</div>
 	)
 }
 

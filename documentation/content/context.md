@@ -98,18 +98,25 @@ outside the JSX tree — computing a derived value, inside an
 [effect](/effect), and so on.
 
 ```jsx
-import { context } from 'pota'
+import { context, render, signal } from 'pota'
 
 const Theme = context('light')
 
-console.log(Theme()) // 'light'
+const log = signal('')
+log.write(`Theme(): ${Theme()}`) // 'light'
 
 const result = Theme('dark', () => {
 	return Theme('contrast', () => Theme())
 })
 
-console.log(result) // 'contrast'
-console.log(Theme()) // 'light' — restored
+log.update(s => s + `\nresult: ${String(result)}`) // 'contrast'
+log.update(s => s + `\nTheme(): ${Theme()}`) // 'light' — restored
+
+function App() {
+	return <p>{log.read}</p>
+}
+
+render(App)
 ```
 
 ### Reactive context value

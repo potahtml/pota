@@ -31,17 +31,29 @@ The callback runs just before the element leaves the document — a good
 place to detach a non-reactive subscription bound to the live node.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
+import { Show } from 'pota/components'
 
 function App() {
+	const show = signal(true)
+	const log = signal('')
+
 	return (
-		<main
-			use:disconnected={node => {
-				console.log(node, 'about to unmount')
-			}}
-		>
-			Content
-		</main>
+		<div>
+			<button on:click={() => show.update(v => !v)}>
+				mount / unmount
+			</button>
+			<Show when={show.read}>
+				<main
+					use:disconnected={node => {
+						log.write(`${node.tagName} about to unmount`)
+					}}
+				>
+					Content
+				</main>
+			</Show>
+			<p>{log.read}</p>
+		</div>
 	)
 }
 
@@ -55,11 +67,15 @@ runs the registered cleanup — so the `use:disconnected` callback
 fires.
 
 ```jsx
-import { render } from 'pota'
+import { render, signal } from 'pota'
+
+const log = signal('')
 
 function App() {
 	return (
-		<main use:disconnected={node => console.log(node, 'disposed')}>
+		<main
+			use:disconnected={node => log.write(`${node.tagName} disposed`)}
+		>
 			Content
 		</main>
 	)
@@ -67,5 +83,12 @@ function App() {
 
 const dispose = render(App)
 
-dispose()
+// the log lives outside the disposed tree, so it survives to show
+// the message
+render(
+	<div>
+		<button on:click={dispose}>dispose</button>
+		<p>{log.read}</p>
+	</div>,
+)
 ```
