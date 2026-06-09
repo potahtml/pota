@@ -73,6 +73,20 @@
   pota.docs, or in the test suite. If you relied on `.run`, store the
   thing it depended on as a signal and write to that signal instead.
 
+- **`Linkify` moved to its own subpath.** It is no longer re-exported
+  from `pota/components`; import it from `pota/components/Linkify`
+  instead. The component bundles a large emoji shortcode map, so
+  keeping it out of the `pota/components` barrel avoids pulling that
+  payload into apps that never use it.
+
+  ```jsx
+  // before
+  import { Linkify } from 'pota/components'
+
+  // after
+  import { Linkify } from 'pota/components/Linkify'
+  ```
+
 # pota v0.20.230
 
 - **`Collapse` no longer renders a `<pota-collapse>` custom element.**

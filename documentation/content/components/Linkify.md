@@ -1,7 +1,7 @@
 ---
 title: Linkify
 kind: component
-subpath: pota/components
+subpath: pota/components/Linkify
 topic: Text
 desc:
   Inline formatter for chat-style text — markers, media URLs, emoji
@@ -59,7 +59,7 @@ URL into the matching native element.
 
 ```jsx
 import { render } from 'pota'
-import { Linkify } from 'pota/components'
+import { Linkify } from 'pota/components/Linkify'
 
 function App() {
 	return (
@@ -81,7 +81,7 @@ search term as you type.
 
 ```jsx
 import { render, signal } from 'pota'
-import { Linkify } from 'pota/components'
+import { Linkify } from 'pota/components/Linkify'
 
 function App() {
 	const text = signal('the *quick* brown fox jumps over the lazy dog')
@@ -118,7 +118,7 @@ With `emoji`, `:shortcode:` sequences are replaced with unicode emoji.
 
 ```jsx
 import { render } from 'pota'
-import { Linkify } from 'pota/components'
+import { Linkify } from 'pota/components/Linkify'
 
 function App() {
 	return (

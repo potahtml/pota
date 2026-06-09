@@ -58,6 +58,7 @@ function run() {
 
 "pota/xml": "/node_modules/pota/src/core/xml.js",
 "pota/components": "/node_modules/pota/src/components/@main.js",
+"pota/components/Linkify": "/node_modules/pota/src/components/linkify/linkify.js",
 
 ${use.join(',\n')},
 

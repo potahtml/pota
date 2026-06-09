@@ -9,7 +9,7 @@
 import { $, test, body, childNodes } from '#test'
 
 import { render } from 'pota'
-import { Linkify } from 'pota/components'
+import { Linkify } from 'pota/components/Linkify'
 
 // === Empty / trim defaults ===
 

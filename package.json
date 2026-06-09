@@ -30,6 +30,10 @@
 			"types": "./generated/types/components/@main.d.ts",
 			"default": "./src/components/@main.js"
 		},
+		"./components/Linkify": {
+			"types": "./generated/types/components/linkify/linkify.d.ts",
+			"default": "./src/components/linkify/linkify.js"
+		},
 		"./use/*": {
 			"types": "./generated/types/use/*.d.ts",
 			"default": "./src/use/*.js"
