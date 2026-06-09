@@ -213,7 +213,8 @@ out += `- [ ] **G2 — Completeness**: every export from \`package.json\` \`expo
 out += `- [ ] **G3 — Overview/index pages**: each folder index (\`use/<mod>.md\`, \`store/store.md\`, \`xml\`…) has an \`## Exports\` link-list covering EVERY sub-page in its folder.\n`
 out += `- [ ] **G4 — topics.js**: comprehensive of all APIs; no \`More\` catch-all section; closely-related APIs grouped tightly; sensible duplication allowed (adjust \`buildManifest\` claim logic if needed). Every page reachable from a topic.\n`
 out += `- [ ] **G5 — \`npm run build\` (vite)** green; spot-check a few rendered pages.\n`
-out += `- [ ] **G6 — Internal-link integrity**: every markdown \`](/…)\` link resolves to a real page route (router matches \`location.pathname()\` EXACTLY against \`'/'+<relpath-without-.md>\` — NO aliasing). Re-run until 0 broken.\n\n`
+out += `- [ ] **G6 — Internal-link integrity**: every markdown \`](/…)\` link resolves to a real page route (router matches \`location.pathname()\` EXACTLY against \`'/'+<relpath-without-.md>\` — NO aliasing). Re-run until 0 broken.\n`
+out += `- [ ] **G7 — Example type-check**: every \`## Examples\` fence type-checks against pota's types (offline replica of the playground checker — \`typecheck.mjs\`). Re-run after edits; only known/allowlisted errors may remain.\n\n`
 out += `---\n\n## Per-file checklist (grouped by source module)\n\n`
 
 let n = 0

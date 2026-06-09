@@ -68,7 +68,7 @@ changes; it does NOT preserve ticks). It contains:
 
 - **How-to-resume** + this spec inline (so resumption needs no other
   context).
-- **Global checks** G1–G6 (below), each its own checkbox.
+- **Global checks** G1–G7 (below), each its own checkbox.
 - **Per-file checklist grouped by source module** — every `.md` as a
   `- [ ]`. Grouping by source lets you read each `src/` module once
   and verify all its pages together.
@@ -134,7 +134,7 @@ names it), then confirm and fix in place:
    - relative imports include the file extension; tabs, single quotes,
      no semicolons.
 
-## Global checks (G1–G6)
+## Global checks (G1–G7)
 
 - **G1 — Format/example validator** (`scripts/validate.mjs`):
   mechanical frontmatter + example-one-liner check. Baseline must be
@@ -165,6 +165,19 @@ names it), then confirm and fix in place:
   matches `location.pathname()` EXACTLY against
   `'/' + <relpath-without-.md>` (NO aliasing — `src/index.jsx`). RERUN
   until 0 broken.
+- **G7 — Example type-check** (`scripts/typecheck.mjs`): every
+  `## Examples` `jsx`/`tsx` fence type-checks against pota's types —
+  an OFFLINE replica of the live-playground checker (same compiler
+  options; needs `generated/docs/types.json` from
+  `npm run build:generate`). Catches regressions the runnable-example
+  pass can introduce (`=>` in JSX text → TS1382; a `JSX.Element`-typed
+  value in a template literal → TS2731; wrong arg types). Optional
+  path-substring args filter the run. A small in-script `ALLOW` map
+  carries intentional, page-documented errors (e.g. `store/readonly`'s
+  rejected write); a handful of fences error inherently (multi-file
+  routing `load`, `updateBlacklist`/`toHTML`/`pasteText` typing) — see
+  the Flags. RERUN after edits; only known/allowlisted errors may
+  remain.
 
 ## Flags vs fixes (don't guess)
 
@@ -190,9 +203,9 @@ names it), then confirm and fix in place:
 ## Helper scripts (in `tools/ai-docs-review/`)
 
 One per global check — `validate` (G1), `completeness` (G2),
-`overview` (G3), `topics-check` (G4), `links` (G6) — plus `tick` (tick
-boxes / append fix+flag bullets), `gen_progress` (regenerate the
-skeleton), and shared `_paths.mjs` (resolves
+`overview` (G3), `topics-check` (G4), `links` (G6), `typecheck` (G7) —
+plus `tick` (tick boxes / append fix+flag bullets), `gen_progress`
+(regenerate the skeleton), and shared `_paths.mjs` (resolves
 `REPO`/`DOCS`/`CONTENT`/`PROGRESS`/`TOPICS`, honors `DOCS_DIR`).
 Version-tracked; read the dir. Recreate any that goes missing — they
 are small and deterministic, contracts described above.
