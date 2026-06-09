@@ -4,6 +4,10 @@ generated
 node_modules
 projects/**
 
+# bench: compiled benchmark bundle (rebuilt by tools/bench/serve.mjs)
+tools/bench/js-framework-benchmark/main.js
+tools/bench/js-framework-benchmark/main.js.map
+
 # ai
 
 .claude/settings.json

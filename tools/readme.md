@@ -133,9 +133,20 @@ details.
 
 ## bench/
 
-`runner.mjs` and `prof.mjs` exercise the dev benchmark page in
-`pota.docs` (start it via `npm run dev` in that repo so the page is
-reachable on `http://localhost:47341/pages/benchmark/dev/`).
+`runner.mjs` and `prof.mjs` exercise a standalone copy of the
+js-framework-benchmark keyed implementation in
+`js-framework-benchmark/`. `serve.mjs` compiles its `index.jsx` (pota
+Babel preset + esbuild, resolving bare `pota` specifiers to local
+`src/`) into a gitignored `main.js` and serves the folder over HTTP on
+an ephemeral port — so the scripts are self-contained and need no
+external dev server.
+
+`browser.mjs` updates Chrome to the latest **stable** build before
+each run (puppeteer otherwise pins an older Chrome to its own version,
+so the numbers would silently track a stale engine). It downloads into
+puppeteer's cache only when a newer stable ships — otherwise it's an
+instant cache hit; offline, it falls back to puppeteer's bundled
+build.
 
 | Script                            | Mode                                                                                                                                                                                            |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

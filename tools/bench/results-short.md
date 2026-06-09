@@ -2,7 +2,21 @@
 
 Compact log of `npm run bench` runs. Newest entry at the top.
 
-## 0.20.233 (dirty) @ 1b2cb84 — Chrome/147.0.7727.57
+## 2026-06-09 — 0.20.233 @ 2b5594e0 — Chrome/149.0.7827.55
+
+- 10k `60.61ms` clear `5.77ms`
+- 1k `4.42ms` clear `0.40ms`
+- per-row `639B` full `7335KB` leak `25KB`
+- deopts `10/12`
+
+## 0.20.233 @ 2b5594e0 — Chrome/147.0.7727.57
+
+- 10k `58.49ms` clear `8.10ms`
+- 1k `5.65ms` clear `0.80ms`
+- per-row `648B` full `7482KB` leak `27KB`
+- deopts `10/12`
+
+## 0.20.233 @ 1b2cb84 — Chrome/147.0.7727.57
 
 - 10k `45.53ms` clear `6.35ms`
 - 1k `4.20ms` clear `0.50ms`
@@ -16,14 +30,14 @@ Compact log of `npm run bench` runs. Newest entry at the top.
 - per-row `648B` full `7462KB` leak `35KB`
 - deopts `10/12`
 
-## 0.20.232 (dirty) @ 531d54e — Chrome/147.0.7727.57
+## 0.20.232 @ 531d54e — Chrome/147.0.7727.57
 
 - 10k `63.26ms` clear `8.35ms`
 - 1k `4.42ms` clear `0.64ms`
 - per-row `654B` full `7475KB` leak `34KB`
 - deopts `10/11`
 
-## 0.20.232 (dirty) @ 531d54e — Chrome/147.0.7727.57
+## 0.20.232 @ 531d54e — Chrome/147.0.7727.57
 
 - 10k `65.66ms` clear `8.13ms`
 - 1k `5.43ms` clear `0.70ms`

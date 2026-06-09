@@ -1,5 +1,5 @@
 // CPU profiler — captures a V8 sample profile of one bench cycle on
-// the dev benchmark page and prints the top hot self-time functions.
+// the benchmark page and prints the top hot self-time functions.
 //
 // Where the regular `runner.mjs` reports deopt counts (a coarse
 // proxy), this script tells you where time is actually spent. Use
@@ -8,12 +8,12 @@
 // bottleneck.
 //
 // Run from repo root: `node tools/bench/prof.mjs`
-// Requires the same dev server as `runner.mjs`
-// (http://localhost:47341/pages/benchmark/dev/index.html).
+// Compiles and serves the standalone benchmark page itself (see
+// `serve.mjs`) — same page as `runner.mjs`, no external dev server.
 
 import puppeteer from 'puppeteer'
-
-const URL = 'http://localhost:47341/pages/benchmark/dev/index.html'
+import { startBenchServer } from './serve.mjs'
+import { installLatestChrome } from './browser.mjs'
 
 // Same flags as runner.mjs — disable background work that injects
 // noise into samples.
@@ -49,19 +49,15 @@ async function cycle(page) {
 	await page.waitForFunction(ROWS_FULL(0), { timeout: 0 })
 }
 
-try {
-	const r = await fetch(URL, { signal: AbortSignal.timeout(2000) })
-	if (!r.ok) throw new Error(`HTTP ${r.status}`)
-} catch (e) {
-	console.error(`[prof] cannot reach ${URL}`)
-	console.error(`       reason: ${e.message || e}`)
-	console.error(
-		`       Start the bench page: in pota.docs run \`npm run dev\`.`,
-	)
-	process.exit(1)
-}
+console.log('[prof] compiling + serving benchmark page...')
+const { url: URL, close: closeServer } = await startBenchServer()
+
+console.log('[prof] updating Chrome to latest stable...')
+const { executablePath: chromePath, buildId: chromeBuild } =
+	await installLatestChrome('prof')
 
 console.log(`[prof] target: ${URL}`)
+if (chromeBuild) console.log(`[prof] chrome: ${chromeBuild} (stable)`)
 
 // `--no-inlining` is exposed via `--js-flags`. Setting it makes the
 // CPU profile attribute samples to the actual function they fall in,
@@ -105,6 +101,7 @@ if (HEAP_MODE) console.log('[prof] heap allocation mode')
 
 const browser = await puppeteer.launch({
 	headless: true,
+	executablePath: chromePath,
 	args: ['--no-sandbox', ...jsFlags, ...STABILIZATION_FLAGS],
 })
 
@@ -240,6 +237,7 @@ if (HEAP_MODE) {
 		console.log(`  ${sz}  ${pct}%  ${name}  ${url}${loc}`)
 	}
 
+	await closeServer()
 	process.exit(0)
 }
 
@@ -359,6 +357,7 @@ if (TRACE_MODE) {
 		console.log(`  ${ms}ms  ${pct}%  ${label}`)
 	}
 
+	await closeServer()
 	process.exit(0)
 }
 
@@ -561,3 +560,5 @@ const userByIncl = [...userFrames].sort(
 for (let i = 0; i < Math.min(20, userByIncl.length); i++) {
 	console.log(row(userByIncl[i], userTotal, total))
 }
+
+await closeServer()

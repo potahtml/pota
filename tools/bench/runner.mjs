@@ -1,4 +1,4 @@
-// Bench runner — captures the dev benchmark page's memory profile,
+// Bench runner — captures the benchmark page's memory profile,
 // invokes the page's own `#bench` button (which prints per-action
 // timing numbers to the console), and records V8 deopt sites.
 //
@@ -10,8 +10,8 @@
 // the console and skips both files. Useful for A/B comparisons where
 // the history file would only churn.
 //
-// Requires the bench page to be reachable. Defaults to pota.docs's
-// kompiler dev server (http://localhost:47341/pages/benchmark/dev/).
+// Compiles and serves the standalone benchmark page itself (see
+// `serve.mjs`) — no external dev server required.
 //
 // Run from repo root: `npm run bench`
 
@@ -21,14 +21,14 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { execSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { startBenchServer } from './serve.mjs'
+import { installLatestChrome } from './browser.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const REPO = path.resolve(__dirname, '../..')
 
 const NO_WRITE =
 	process.argv.includes('--no-write') || process.argv.includes('-n')
-
-const URL = 'http://localhost:47341/pages/benchmark/dev/index.html'
 
 const RESULTS = path.join(__dirname, 'results.md')
 const RESULTS_SHORT = path.join(__dirname, 'results-short.md')
@@ -83,22 +83,19 @@ const headSha = git('rev-parse --short HEAD') || '?'
 const dirty = !!git('status --porcelain')
 const date = new Date().toISOString().replace('T', ' ').slice(0, 19)
 
-try {
-	const r = await fetch(URL, { signal: AbortSignal.timeout(2000) })
-	if (!r.ok) throw new Error(`HTTP ${r.status}`)
-} catch (e) {
-	console.error(`[bench] cannot reach ${URL}`)
-	console.error(`        reason: ${e.message || e}`)
-	console.error(
-		`        Start the bench page: in pota.docs run \`npm run dev\`.`,
-	)
-	process.exit(1)
-}
+console.log('[bench] compiling + serving benchmark page...')
+const { url: URL, close: closeServer } = await startBenchServer()
+
+console.log('[bench] updating Chrome to latest stable...')
+const { executablePath: chromePath, buildId: chromeBuild } =
+	await installLatestChrome('bench')
 
 console.log(`[bench] target: ${URL}`)
 console.log(
 	`[bench] pota ${pkg.version}${dirty ? ' (dirty)' : ''} @ ${headSha}`,
 )
+if (chromeBuild)
+	console.log(`[bench] chrome: ${chromeBuild} (stable)`)
 
 const ROWS_FULL = expr =>
 	`() => document.querySelectorAll('tbody tr').length === ${expr}`
@@ -147,6 +144,7 @@ console.log('[bench] heap + page bench...')
 
 const browser1 = await puppeteer.launch({
 	headless: true,
+	executablePath: chromePath,
 	args: [
 		'--no-sandbox',
 		'--js-flags=--expose-gc',
@@ -247,6 +245,7 @@ const deoptLines = []
 
 const browser2 = await puppeteer.launch({
 	headless: true,
+	executablePath: chromePath,
 	args: [
 		'--no-sandbox',
 		// --trace-deopt prints `[bailout` lines per deopt;
@@ -425,7 +424,7 @@ if (NO_WRITE) {
 		.join('')
 
 	const shortEntry =
-		`## ${versionTag} — ${browserVersion}\n\n` +
+		`## ${date.slice(0, 10)} — ${pkg.version} @ ${headSha} — ${browserVersion}\n\n` +
 		benchShortLines +
 		`- per-row \`${heap.perRow.toFixed(0)}B\` full \`${(heap.full / 1024).toFixed(0)}KB\` leak \`${(heap.retainedLeak / 1024).toFixed(0)}KB\`\n` +
 		`- deopts \`${uniqueDeopts}/${totalDeopts}\`\n\n`
@@ -451,3 +450,5 @@ if (NO_WRITE) {
 		`[bench] prepended to ${path.relative(REPO, RESULTS_SHORT)}`,
 	)
 }
+
+await closeServer()
