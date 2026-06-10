@@ -88,10 +88,11 @@ npm run watch:generate      # same as -w, via npm
 Bumps the patch version, writes `src/version.js`, commits, tags, and
 publishes to npm. Run from the repo root.
 
-**Before running:** update `documentation/breaking-changes.md` — its
-contents become the signed git tag message
-(`-F ./documentation/breaking-changes.md`). The tag is signed
-(`-s -a`), so a GPG key must be configured.
+**Before running:** make sure any breaking changes are documented for
+consumers in the breaking-changes skill
+(`.claude/skills/breaking-changes/SKILL.md`). The tag message is a
+minimal `-m "v<version>"`; the tag is signed (`-s -a`), so a GPG key
+must be configured.
 
 `npm run release` chains `npm test` in front of `release.js` (which
 covers types, browser tests, and the babel-preset smoke suite), so a

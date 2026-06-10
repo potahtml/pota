@@ -8,8 +8,8 @@ components, and a store layer based on signalified objects and
 proxies. This repo is the source for the `pota` npm package.
 
 - Site / docs: https://pota.quack.uy/
-- Maintainer notes: `documentation/todo.md`,
-  `documentation/breaking-changes.md`
+- Maintainer notes: `documentation/todo.md` (consumer breaking-change
+  migrations live in the `breaking-changes` skill)
 - SSR is out of scope.
 
 ## Start Here
@@ -149,23 +149,23 @@ listed below.
 
 ## Repository Layout
 
-| Path                | Role                                                                                                                                                                       |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/exports.js`    | Main package entry                                                                                                                                                         |
-| `src/core/`         | Renderer, scheduler, XML, props pipeline                                                                                                                                   |
-| `src/jsx/`          | JSX runtime (`jsx-runtime.js`)                                                                                                                                             |
-| `src/lib/`          | Reactive primitives, store, Solid-compat helpers                                                                                                                           |
-| `src/use/`          | Composables / hooks-style modules (`pota/use/*`)                                                                                                                           |
-| `src/components/`   | Built-in components (`pota/components`)                                                                                                                                    |
-| `babel-preset/`     | Babel preset (subpackage at repo root, separate Rollup build — see Subpath Exports for details)                                                                            |
-| `documentation/`    | Maintainer notes (`todo.md`, `breaking-changes.md`) plus the `ai/` AI-guidance subtree.                                                                                    |
-| `documentation/ai/` | Vendor-neutral AI guidance — `AGENTS.md` (this file); other AI tools read it directly                                                                                      |
-| `.claude/`          | Claude Code config — `CLAUDE.md`, path-scoped `rules/`, `agents/`, `skills/`, `settings*.json`                                                                             |
-| `projects/`         | Gitignored sibling apps (docs site, benchmarks, demos) — not part of the npm package                                                                                       |
-| `generated/`        | **All generated output — gitignored, never commit.** Rebuilt by `tsc` / Rollup / `tools/generate.js`; ships in the npm tarball except `docs/**` and the standalone bundle. |
-| `tests/`            | Browser tests; `tests/api/components/` mirrors `src/components/`                                                                                                           |
-| `tools/`            | Build / test utilities — `generate.js`, `release.js`, `watch.js`, `babel-preset/`, `test-runner/` (see its `readme.md`), `bench/`, `ai-docs-review/` (docs-review scripts) |
-| `typescript/`       | Hand-maintained `.d.ts` (`exports.d.ts`, `jsx/`, …); most subpath types are tsc-emitted under `generated/types/` instead                                                   |
+| Path              | Role                                                                                                                                                                       |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AGENTS.md`       | Root documentation map — index of every Markdown file (this guide, `.claude/` config, readmes); points here for the full guide.                                            |
+| `src/exports.js`  | Main package entry                                                                                                                                                         |
+| `src/core/`       | Renderer, scheduler, XML, props pipeline                                                                                                                                   |
+| `src/jsx/`        | JSX runtime (`jsx-runtime.js`)                                                                                                                                             |
+| `src/lib/`        | Reactive primitives, store, Solid-compat helpers                                                                                                                           |
+| `src/use/`        | Composables / hooks-style modules (`pota/use/*`)                                                                                                                           |
+| `src/components/` | Built-in components (`pota/components`)                                                                                                                                    |
+| `babel-preset/`   | Babel preset (subpackage at repo root, separate Rollup build — see Subpath Exports for details)                                                                            |
+| `documentation/`  | Canonical agent guide (`AGENTS.md`, this file), maintainer notes (`todo.md`, `cheatsheet.md`), and `content/` (docs-site source, one page per export).                     |
+| `.claude/`        | Claude Code config — `CLAUDE.md`, path-scoped `rules/`, `agents/`, `skills/`, `settings*.json`                                                                             |
+| `projects/`       | Gitignored sibling apps (docs site, benchmarks, demos) — not part of the npm package                                                                                       |
+| `generated/`      | **All generated output — gitignored, never commit.** Rebuilt by `tsc` / Rollup / `tools/generate.js`; ships in the npm tarball except `docs/**` and the standalone bundle. |
+| `tests/`          | Browser tests; `tests/api/components/` mirrors `src/components/`                                                                                                           |
+| `tools/`          | Build / test utilities — `generate.js`, `release.js`, `watch.js`, `babel-preset/`, `test-runner/` (see its `readme.md`), `bench/`, `ai-docs-review/` (docs-review scripts) |
+| `typescript/`     | Hand-maintained `.d.ts` (`exports.d.ts`, `jsx/`, …); most subpath types are tsc-emitted under `generated/types/` instead                                                   |
 
 ## Conventions
 
@@ -271,5 +271,5 @@ There are no separate deep-dive docs: each subsystem's non-obvious
 invariants live as **path-scoped rules** under `.claude/rules/`, which
 Claude Code auto-loads when the matching paths are touched. Other
 tools should read the source (the reference for mechanism). `todo.md`
-and `breaking-changes.md` are maintainer notes; `.claude/CLAUDE.md` is
-Claude Code-specific extras.
+is a maintainer note; `.claude/CLAUDE.md` is Claude Code-specific
+extras.

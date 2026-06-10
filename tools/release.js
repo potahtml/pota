@@ -15,7 +15,7 @@ $('git add --all')
 $(`git commit -m "v${version}"`)
 
 // tag the release, push the current branch and tags, then publish
-$(`git tag -s -a v${version} -F ./documentation/breaking-changes.md`)
+$(`git tag -s -a v${version} -m "v${version}"`)
 $('git push')
 $('git push --tags')
 $('npm publish')

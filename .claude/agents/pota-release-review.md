@@ -16,9 +16,11 @@ Read-only review of **release / packaging** changes (`tools/*`,
 `package.json`, `documentation/*`, version bumps, publish scripts).
 
 - The area invariants auto-load from the `release` path-scoped rule
-  (`.claude/rules/release.md`) — follow it. Note `release.js` feeds
-  `documentation/breaking-changes.md` verbatim into the signed release
-  tag, so flag stale/WIP messaging there.
+  (`.claude/rules/release.md`) — follow it. `release.js` makes a
+  signed annotated tag with a minimal `-m "v<version>"` message;
+  breaking changes are documented for consumers in the
+  `breaking-changes` skill, so flag missing or stale migration entries
+  there.
 - Flag fragile cwd / path assumptions; remind that all of `generated/`
   is gitignored (regenerate via the build scripts, never hand-edit).
 - Output a concise checklist — risks, missing doc updates, manual
