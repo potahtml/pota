@@ -51,7 +51,9 @@ function App() {
 	return (
 		<div>
 			<button on:click={() => read()}>untracked read</button>
-			<button on:click={() => effect(() => read())}>tracked read</button>
+			<button on:click={() => effect(() => read())}>
+				tracked read
+			</button>
 			<p>{log.read}</p>
 		</div>
 	)

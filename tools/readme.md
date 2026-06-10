@@ -5,15 +5,17 @@ published package.
 
 ## Files
 
-| Path            | Role                                                                         |
-| --------------- | ---------------------------------------------------------------------------- |
-| `watch.js`      | Dev watcher — spawns all `watch:*` npm scripts                               |
-| `generate.js`   | Generates `generated/docs/importmap.json` and `types.json` for the docs site |
-| `release.js`    | Version bump, git tag, and npm publish script                                |
-| `utils.js`      | Shared file system helpers used by other tools                               |
-| `babel-preset/` | Rollup configs and Puppeteer tests for the Babel preset builds               |
-| `bench/`        | `runner.mjs` (`npm run bench`) + `prof.mjs` (CPU sampling / tracing / heap)  |
-| `test-runner/`  | Custom Puppeteer browser test runner                                         |
+| Path              | Role                                                                                      |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `watch.js`        | Dev watcher — spawns all `watch:*` npm scripts                                            |
+| `generate.js`     | Generates `generated/docs/importmap.json` and `types.json` for the docs site              |
+| `release.js`      | Version bump, git tag, and npm publish script                                             |
+| `format-jsdoc.js` | `npm run format:jsdoc` — reformats JSDoc blocks only (prettier-plugin-jsdoc)              |
+| `utils.js`        | Shared file system helpers used by other tools                                            |
+| `babel-preset/`   | Rollup configs and Puppeteer tests for the Babel preset builds                            |
+| `bench/`          | `runner.mjs` (`npm run bench`) + `prof.mjs` (CPU sampling / tracing / heap)               |
+| `test-runner/`    | Custom Puppeteer browser test runner                                                      |
+| `ai-docs-review/` | Helper scripts for the `docs-review` skill (validators, link/type checks, progress ticks) |
 
 ## One-shot vs watch
 

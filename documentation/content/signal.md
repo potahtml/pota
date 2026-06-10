@@ -10,11 +10,11 @@ desc:
 # signal
 
 The leaf primitive of pota's reactive graph. Holds a value, notifies
-observers when it changes. Returns a `Signal` object with
-callables — `read`, `write`, and `update` — so you keep the writer
-next to the reader instead of threading separate variables. For
-derived values, reach for [memo](/memo) / [derived](/derived); for
-side-effects that mirror a signal, [effect](/effect).
+observers when it changes. Returns a `Signal` object with callables —
+`read`, `write`, and `update` — so you keep the writer next to the
+reader instead of threading separate variables. For derived values,
+reach for [memo](/memo) / [derived](/derived); for side-effects that
+mirror a signal, [effect](/effect).
 
 ## Arguments
 
@@ -23,8 +23,8 @@ side-effects that mirror a signal, [effect](/effect).
 | `value?`   | `T`                                               | initial value (default `undefined`)                                                                                            |
 | `options?` | `{ equals?: false \| ((prev, next) => boolean) }` | `equals: false` notifies on every write (skip the equality check); a custom comparator decides what counts as "the same" value |
 
-**Returns:** a `Signal` object with methods — `read()` reads
-(and tracks), `write(next)` assigns and returns `true` when the value
+**Returns:** a `Signal` object with methods — `read()` reads (and
+tracks), `write(next)` assigns and returns `true` when the value
 changed, `update(fn)` reads the previous value _without tracking_ and
 writes the result of `fn(prev)`. The methods are bound — pass
 `signal.read` directly as a JSX child or handler without wrapping.

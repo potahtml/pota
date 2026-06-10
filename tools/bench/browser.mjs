@@ -24,12 +24,13 @@ import {
 
 /**
  * Resolve + install the latest stable Chrome into puppeteer's cache.
- * Falls back to puppeteer's bundled build (returns no `executablePath`)
- * if the update can't be done — e.g. offline — so the bench still runs.
+ * Falls back to puppeteer's bundled build (returns no
+ * `executablePath`) if the update can't be done — e.g. offline — so
+ * the bench still runs.
  *
  * @param {string} [tag] Log prefix matching the calling script
  *   (`bench` / `prof`).
- * @returns {Promise<{ executablePath?: string, buildId?: string }>}
+ * @returns {Promise<{ executablePath?: string; buildId?: string }>}
  */
 export async function installLatestChrome(tag = 'bench') {
 	try {

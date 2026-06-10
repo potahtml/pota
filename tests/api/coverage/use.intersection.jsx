@@ -18,8 +18,8 @@ import { onVisible } from 'pota/use/intersection'
  * any layout). Restores the original in a finally block.
  *
  * @param {(api: {
- *   emit: (entry: object) => void
- *   disconnects: () => number
+ * 	emit: (entry: object) => void
+ * 	disconnects: () => number
  * }) => Promise<void> | void} fn
  */
 async function withObserver(fn) {

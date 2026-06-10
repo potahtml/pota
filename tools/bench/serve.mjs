@@ -81,9 +81,9 @@ const MIME = {
  * Build the page, then serve `APP_DIR` over HTTP on an ephemeral
  * localhost port.
  *
- * @returns {Promise<{ url: string, close: () => Promise<void> }>}
- *   `url` is the benchmark page; `close()` stops the server (call it
- *   so the process can exit — an open listener keeps Node alive).
+ * @returns {Promise<{ url: string; close: () => Promise<void> }>}
+ *   `url` is the benchmark page; `close()` stops the server (call it so
+ *   the process can exit — an open listener keeps Node alive).
  */
 export async function startBenchServer() {
 	await buildBench()

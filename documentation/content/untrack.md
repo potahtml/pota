@@ -44,9 +44,7 @@ function App() {
 
 	effect(() => {
 		// Re-runs only when `a` changes; `b` is read snapshot-style.
-		log.write(
-			`a = ${a.read()}, b was ${untrack(() => b.read())}`,
-		)
+		log.write(`a = ${a.read()}, b was ${untrack(() => b.read())}`)
 	})
 
 	return (

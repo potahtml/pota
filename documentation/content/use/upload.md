@@ -88,9 +88,11 @@ function App() {
 					endpoint: '/api/upload',
 					accept: 'image/*',
 					maxSize: 5 * 1024 * 1024,
-					onUpload: results => log.write(`all done ${results.length}`),
+					onUpload: results =>
+						log.write(`all done ${results.length}`),
 					onFile: r => log.write(`done ${r.url}`),
-					onError: (err, file) => log.write(`${file.name}: ${err.message}`),
+					onError: (err, file) =>
+						log.write(`${file.name}: ${err.message}`),
 					onReject: (file, reason) =>
 						log.write(`${file.name} rejected: ${reason}`),
 				})}

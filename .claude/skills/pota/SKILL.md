@@ -33,7 +33,7 @@ canonical reference; this skill distills the day-to-day patterns.
   `style={{ 'flex-direction': 'column' }}`. camelCase keys are
   silently dropped.
 - **Imports:** relative imports include the file extension
-  (`./foo.js`), tabs, single quotes, no semicolons.
+  (`./foo.js`).
 
 ## Signal API
 
@@ -50,22 +50,43 @@ count.update(prev => prev + 1) // set based on previous
 import { memo, derived, resolve } from 'pota'
 
 const doubled = memo(() => count.read() * 2) // cached, lazy
-const tripled = derived(() => count.read() * 3) // writable memo chain
-const resolved = resolve(() => count.read() * 4) // unwraps functions/promises
+const tripled = derived(() => count.read() * 3) // writable memo; chains unwrap fns/promises
+const kids = resolve(() => props.children) // resolve children once, read many times
 ```
 
 ```js
-import { effect, batch, untrack, on, cleanup, context, ref } from 'pota'
+import {
+	effect,
+	batch,
+	untrack,
+	on,
+	cleanup,
+	context,
+	ref,
+} from 'pota'
 
-effect(() => { /* runs on dep change, returns dispose */ })
-batch(() => { /* groups writes, effects fire once after */ })
-untrack(() => { /* reads without subscribing */ })
-on(signal, (val, prev) => { /* explicit deps */ })
-cleanup(() => { /* scope teardown */ })
+effect(() => {
+	/* re-runs when the signals it reads change */
+})
+batch(() => {
+	/* groups writes, effects fire once after */
+})
+untrack(() => {
+	/* reads without subscribing */
+})
+on(count.read, () => {
+	/* explicit deps; callback runs untracked, no args */
+})
+cleanup(() => {
+	/* scope teardown */
+})
 
-const Ctx = context(default) // → Ctx() / <Ctx.Provider value={…}>
-const el = ref() // → use:ref={el}
+const Ctx = context(defaultValue) // → Ctx() / <Ctx.Provider value={…}>
+const el = ref() // → use:ref={el}, then effect(() => el())
 ```
+
+Prefer derivation (`memo` / `derived` / `resolve`) over manual
+synchronization — effects are a last resort, not the default tool.
 
 ## Built-in components (from `pota/components`)
 
@@ -95,14 +116,16 @@ import {
   `when` is truthy/falsy. Children can be a callback receiving the
   value: `{v => <p>{v}</p>}`.
 - **`<For each={array} fallback={…}>`** — keyed list reconciliation.
-  Children receive `(item, index)`. `reactiveIndex` makes index a
-  signal. Accepts arrays, Sets, Maps.
+  Children receive `(item, index)`. Accepts any iterable;
+  `reactiveIndex` makes the index a function `() => number`.
 - **`<Match when={value}>`** / **`<Switch>`** — pattern matching.
 - **`<Dynamic component={Component} />`** — render a dynamic
   component.
 - **`<Suspense>`** — async boundary for promises.
-- **`<Errored fallback={…}>`** — error boundary.
-- **`<Range from={0} to={10}>`** — iterate a numeric range.
+- **`<Errored fallback={…}>`** — error boundary; `fallback` may be
+  `(err, reset) => …`.
+- **`<Range start={0} stop={10} step={1}>`** — iterate a numeric
+  range.
 - **`<A href="…">`** — client-side navigation link.
 - **`<Route path="…" component={…}>`** — route definition.
 
@@ -120,13 +143,22 @@ import {
 ## Store (from `pota/store`)
 
 ```js
-import { signalify, mutable } from 'pota/store'
+import { mutable, signalify } from 'pota/store'
 
-const state = mutable({ count: 0, items: [] })
+// deep reactive proxy — tracks every level
+const state = mutable({ count: 0, user: { name: 'q' } })
 state.count++ // reactive mutation
+state.user.name = 'quack' // also reactive
 
-const sig = signalify(state, 'count') // signal from a store path
+// in place, first level only — own properties become signal-backed
+const settings = signalify({ theme: 'dark' })
+settings.theme = 'light' // reactive write
+// signalify(target, ['keys']) limits it to specific keys
+// (keys may not exist yet); it is NOT recursive
 ```
+
+Also exported: `merge` / `replace` / `reset` reconcilers, `copy`,
+`readonly`, `project`.
 
 ## Use/_ modules (from `pota/use/_`)
 
@@ -153,24 +185,56 @@ const name = bind('hello')
 <input use:bind={name} />
 ```
 
-## App entry point
+## Setup and entry point
+
+JSX compiles via `pota/babel-preset`
+(`{ "babel": { "presets": [["pota/babel-preset"]] } }`) or any
+react-jsx-style transform with `jsxImportSource: "pota"`. Without a
+build step, the `xml` tagged template from `pota/xml` parses
+well-formed XML markup at runtime. Starter templates:
+https://github.com/potahtml/templates
 
 ```jsx
-/** @jsxImportSource pota */
 import { render, signal } from 'pota'
-import { Show } from 'pota/components'
 
 function Counter() {
 	const count = signal(0)
 	return (
 		<div>
 			<p>Count: {count.read}</p>
-			<button on:click={() => count.write(count.read() + 1)}>
-				+
-			</button>
+			<button on:click={() => count.update(n => n + 1)}>+</button>
 		</div>
 	)
 }
 
-render(() => <Counter />, document.body)
+render(Counter) // target defaults to document.body
 ```
+
+## TypeScript
+
+- tsconfig: `"jsx": "react-jsx"`, `"jsxImportSource": "pota"`. The
+  component utility types (`Component<P>`, `ParentComponent<P>`,
+  `FlowComponent<P, C>`, `ComponentProps<T>`, `Accessor<T>`, …) are
+  ambient — available without imports.
+- Custom elements: augment the **global** `JSX` namespace — not
+  `declare module 'pota'` (that augmentation does not take):
+
+```tsx
+declare global {
+	namespace JSX {
+		interface IntrinsicElements {
+			'my-element': JSX.HTMLAttributes<HTMLElement> & {
+				'some-attr'?: string
+			}
+		}
+	}
+}
+```
+
+## Ground truth
+
+The installed package carries its own source: `node_modules/pota/src`
+is what actually runs — read it when a signature or behavior is in
+doubt. `documentation/content/` has one page per export (rendered at
+https://pota.quack.uy/) and `documentation/cheatsheet.md` shows the
+whole public surface at a glance.

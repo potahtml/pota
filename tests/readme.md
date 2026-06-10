@@ -56,6 +56,8 @@ time. Write 1 file at a time.
 - Only change a test when there is a strong reason to believe the test
   is flawed. Prefer reading the implementation first and adjusting the
   expectation to match real behavior.
+- To demonstrate an alternative assertion or expose a coverage gap,
+  add a new test alongside the existing one instead of rewriting it.
 - Do not weaken a test just to make it pass. Avoid replacing a strong
   assertion with a vague one unless browser serialization or platform
   behavior genuinely makes the stronger assertion unreliable.

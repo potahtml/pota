@@ -31,7 +31,9 @@ function App() {
 	addEventNative(
 		window,
 		'wheel',
-		passiveEvent((e: WheelEvent) => log.write(`wheel delta: ${e.deltaY}`)),
+		passiveEvent((e: WheelEvent) =>
+			log.write(`wheel delta: ${e.deltaY}`),
+		),
 	)
 
 	return <p>{log.read}</p>

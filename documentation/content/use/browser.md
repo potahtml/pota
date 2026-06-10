@@ -7,8 +7,8 @@ desc: Simple user-agent booleans evaluated once at module load.
 
 # `pota/use/browser`
 
-`pota/use/browser` exposes simple user-agent booleans, evaluated
-once at module load. They are convenient guards for tiny per-browser
+`pota/use/browser` exposes simple user-agent booleans, evaluated once
+at module load. They are convenient guards for tiny per-browser
 branches; for anything richer reach for a real UA-parsing library.
 
 ## Exports

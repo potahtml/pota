@@ -43,7 +43,9 @@ import { onFullscreen, fullscreen } from 'pota/use/fullscreen'
 
 function App() {
 	const log = signal('')
-	onFullscreen(el => log.write(`fullscreen element: ${el?.tagName ?? 'none'}`))
+	onFullscreen(el =>
+		log.write(`fullscreen element: ${el?.tagName ?? 'none'}`),
+	)
 
 	return (
 		<div>

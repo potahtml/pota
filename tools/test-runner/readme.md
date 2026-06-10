@@ -73,7 +73,7 @@ npm run test:api                    # run once, all files
 npm run watch:test                  # watch mode
 npm run test:api -- --bail          # stop on first failure
 npm run test:api -- route           # filter by name
-npm run test:coverage               # run once with coverage
+npm run coverage                    # run once with coverage
 ```
 
 `npm test` also runs this suite, but chains `test:types` and

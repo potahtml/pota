@@ -11,8 +11,11 @@
 // options the playground forces (strict, but strictNullChecks +
 // noImplicitAny disabled to match pota's own tsconfig — otherwise every
 // idiomatic example shows nullability/implicit-any noise pota never
-// flags). Non-`## Examples` snippets are NOT checked, mirroring the
-// playground.
+// flags). @typescript/vfs force-enables `strict` and silently wins
+// over options that omit it — that is why the two sub-flags are
+// disabled explicitly here and in ts-service.js, not via
+// `strict: false`. Non-`## Examples` snippets are NOT checked,
+// mirroring the playground.
 //
 //   node tools/ai-docs-review/typecheck.mjs            # all content
 //   node tools/ai-docs-review/typecheck.mjs use/event  # path filter(s)

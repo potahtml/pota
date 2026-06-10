@@ -2,14 +2,13 @@
 title: clipboard
 subpath: pota/use/clipboard
 topic: Interaction
-desc:
-  Clipboard ref factories — copy on click, and intercept paste.
+desc: Clipboard ref factories — copy on click, and intercept paste.
 ---
 
 # `pota/use/clipboard`
 
-`pota/use/clipboard` ships ref factories you attach with
-`use:ref`: `clipboard(value)` copies on click,
+`pota/use/clipboard` ships ref factories you attach with `use:ref`:
+`clipboard(value)` copies on click,
 [`pasteText`](/use/clipboard/pasteText) intercepts paste and strips
 formatting, and [`pasteFiles`](/use/clipboard/pasteFiles) captures
 pasted images and files.

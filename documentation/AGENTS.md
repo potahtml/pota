@@ -151,7 +151,7 @@ listed below.
 
 | Path              | Role                                                                                                                                                                       |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `AGENTS.md`       | Root documentation map — index of every Markdown file (this guide, `.claude/` config, readmes); points here for the full guide.                                            |
+| `AGENTS.md`       | Root documentation map — repo index plus the consumer entry point shipped in the npm package; points here for the full guide.                                              |
 | `src/exports.js`  | Main package entry                                                                                                                                                         |
 | `src/core/`       | Renderer, scheduler, XML, props pipeline                                                                                                                                   |
 | `src/jsx/`        | JSX runtime (`jsx-runtime.js`)                                                                                                                                             |
@@ -174,11 +174,13 @@ listed below.
   `emitDeclarationOnly`, `include`s `src/` only — `babel-preset/` is
   outside and not typechecked). Match existing style; do not convert
   the whole tree to `.ts` unless explicitly requested.
-- **Formatting:** code (JS/JSX/TS) is formatted by **Biome**
-  (`biome.json`); markdown and JSDoc by **Prettier** (`package.json`).
-  Tabs, single quotes, no semicolons, trailing commas, width 70;
-  `generated/` is excluded. Run `npm run format` after substantive
-  edits — don't hand-format to a different style.
+- **Formatting:** not your concern — don't think about it. Don't
+  reformat files, don't try to match the house style by hand, and
+  don't make or suggest formatting-only changes. The maintainer runs
+  `npm run format` (Biome for code, Prettier for markdown + JSDoc)
+  whenever they want, and it normalizes everything. You may run
+  `npm run format` too — it follows the project pattern — but it is
+  never required.
 - **DOM:** default semantics are attribute-first, not property-first.
   `prop:*`, `on:*`, `use:*`, `style`, and `class` are handled by the
   props plugin layer (`src/core/props/`).
@@ -218,7 +220,15 @@ listed below.
   commits (if explicitly told to, omit any AI-tool attribution /
   co-author trailer). Read-only git only (`diff` / `log` / `show` /
   `status`); never `stash` / `checkout` / `restore` / `reset` /
-  `clean`, including in any subagent you spawn.
+  `clean`, including in any subagent you spawn. The maintainer stages
+  selectively (`git add -p`), so any commit-time automation proposed
+  (pre-commit hooks, format-on-commit) must never re-stage unstaged
+  hunks — staged-index-isolated (lint-staged-style) or check-only.
+- **Long mechanical passes:** keep terminal output to silence or one
+  terse line per chunk; the durable record is the pass's tracking file
+  (fixes applied + flags for the maintainer), not chat. Surface prose
+  only for a blocking question, a bug that needs eyes now, or a brief
+  end-of-session checkpoint.
 - **Showing code changes:** the maintainer wants Claude Code's
   Edit/Write rendering (line numbers + colored +/- backgrounds). That
   rendering only appears for Edit/Write tool calls.
@@ -238,7 +248,9 @@ listed below.
 ## Tests
 
 Two facts that affect how you write or read tests; full runner
-architecture is in `tools/test-runner/readme.md`:
+architecture is in `tools/test-runner/readme.md`, conventions and the
+coverage inventory in `tests/readme.md`, and the `writing-tests` skill
+walks through adding coverage:
 
 - The per-test harness clears `document.body`, `document.head`, and
   `document.adoptedStyleSheets` before each test and asserts the same

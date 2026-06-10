@@ -42,6 +42,13 @@ of using this or SolidJS, you should use SolidJS.
 - For getting started, check out
   [templates](https://github.com/potahtml/templates)
 
+### AI / agents
+
+The npm package ships agent-facing docs — point your AI tool at
+`node_modules/pota/AGENTS.md`. It maps the included skills (writing
+idiomatic pota, migrating across breaking changes) and the per-export
+docs under `documentation/content/`.
+
 ### See also
 
 - https://pota.quack.uy/

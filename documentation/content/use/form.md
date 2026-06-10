@@ -9,10 +9,10 @@ desc:
 
 # `pota/use/form`
 
-`pota/use/form` covers form ergonomics: bare ref functions for
-common input behaviors, plus imperative helpers for reading and
-writing form state (`form2object`, `object2form`, `isDisabled`,
-`isEditable`) and a `focusNextInput` stepper.
+`pota/use/form` covers form ergonomics: bare ref functions for common
+input behaviors, plus imperative helpers for reading and writing form
+state (`form2object`, `object2form`, `isDisabled`, `isEditable`) and a
+`focusNextInput` stepper.
 
 ## Exports
 

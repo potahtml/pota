@@ -12,7 +12,15 @@ tools/**
 .gitignore
 .npmignore
 
-.claude
+# .claude: only the consumer-facing skills ship (pota, breaking-changes)
+.claude/CLAUDE.md
+.claude/settings.json
+.claude/settings.local.json
+.claude/agents
+.claude/rules
+.claude/skills/docs-review
+.claude/skills/writing-tests
+
 .github
 .vscode
 .codex

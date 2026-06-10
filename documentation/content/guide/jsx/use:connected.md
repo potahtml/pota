@@ -38,7 +38,9 @@ function App() {
 	const log = signal('')
 	return (
 		<div>
-			<main use:connected={node => log.write(`${node.tagName} connected`)}>
+			<main
+				use:connected={node => log.write(`${node.tagName} connected`)}
+			>
 				Content
 			</main>
 			<p>{log.read}</p>

@@ -43,9 +43,8 @@ component.
 Every built-in component from `pota/components` is registered out of
 the box — `For`, `Show`, `Switch`, `Match`, `Suspense`, `Dynamic`, and
 the rest — so they can be referenced by tag name without calling
-`xml.define`. The lowercase/exception helpers `load`,
-`customElement`, and `CustomElement` are intentionally **not**
-registered.
+`xml.define`. The lowercase/exception helpers `load`, `customElement`,
+and `CustomElement` are intentionally **not** registered.
 
 ## Notes
 

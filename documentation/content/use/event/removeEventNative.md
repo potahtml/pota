@@ -33,7 +33,9 @@ function App() {
 
 	return (
 		<div>
-			<button on:click={() => removeEventNative(window, 'resize', onResize)}>
+			<button
+				on:click={() => removeEventNative(window, 'resize', onResize)}
+			>
 				remove listener
 			</button>
 			<p>{log.read}</p>

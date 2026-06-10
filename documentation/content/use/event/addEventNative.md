@@ -46,7 +46,9 @@ function App() {
 
 	return (
 		<div>
-			<button on:click={() => removeEventNative(window, 'wheel', handler)}>
+			<button
+				on:click={() => removeEventNative(window, 'wheel', handler)}
+			>
 				remove listener
 			</button>
 			<p>{log.read}</p>
