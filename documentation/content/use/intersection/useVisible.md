@@ -7,10 +7,12 @@ desc: Signal accessor for an element's intersection state.
 
 # useVisible
 
-When you already have a ref to a node (e.g. from `use:ref`),
-`useVisible(node, opts?)` returns a signal accessor that reflects the
-latest `IntersectionObserverEntry` for the node and re-runs whatever
-reads it on every intersection change. For a side-effect callback use
+When you already have a DOM node in hand, `useVisible(node, opts?)`
+returns a signal accessor that reflects the latest
+`IntersectionObserverEntry` for the node and re-runs whatever reads it
+on every intersection change. It needs the real node at call time —
+inside a `use:ref` function, or one created up front; a still-empty
+ref won't do. For a side-effect callback use
 [`onVisible`](/use/intersection/onVisible); to attach an observer
 declaratively use [`visible`](/use/intersection/visible). Part of
 [`pota/use/intersection`](/use/intersection).
@@ -33,25 +35,30 @@ first real entry arrives.
 
 ### Read intersection reactively
 
-Drives content from the accessor: reading `onscreen()` inside the
-reactive child subscribes to every intersection change.
+`useVisible` needs an existing node, so the example creates one up
+front, inserts it as a child, and reads `onscreen()` inside the
+reactive child — subscribing to every intersection change.
 
 ```jsx
-import { render, ref } from 'pota'
+import { render } from 'pota'
 import { useVisible } from 'pota/use/intersection'
 
 function Tracker() {
-	const node = ref()
-	const onscreen = useVisible(node())
+	// the node exists before render — create it, then observe it
+	const box = document.createElement('div')
+	box.style.height = '120vh'
+	box.textContent = 'scroll me'
+
+	const onscreen = useVisible(box)
 
 	return (
-		<div
-			use:ref={node}
-			style={{ height: '120vh' }}
-		>
-			{() =>
-				onscreen()?.isIntersecting ? 'on screen' : 'off screen'
-			}
+		<div>
+			{box}
+			<p>
+				{() =>
+					onscreen()?.isIntersecting ? 'on screen' : 'off screen'
+				}
+			</p>
 		</div>
 	)
 }

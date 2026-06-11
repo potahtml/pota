@@ -12,8 +12,9 @@ desc:
 Builds a handler that chains callbacks into a pipeline. Calling the
 returned function runs the first callback with the received arguments;
 each subsequent callback receives the previous one's _resolved_ value
-— returned functions are read reactively and returned promises are
-awaited before the next stage runs.
+— returned functions are unwrapped (called) and returned promises are
+awaited before the next stage runs. Each call is one-shot: signals
+read inside a stage do not re-trigger the pipeline.
 
 The pipeline runs under the current owner, so it cancels automatically
 if that owner is disposed mid-flight — handy for async event handlers

@@ -8,19 +8,23 @@ desc:
 
 # scrollToSelector
 
-`scrollToSelector(selector)` finds an element via `querySelector` and
-scrolls to it with [`scrollToElement`](/use/scroll/scrollToElement),
-returning `true` on success and `false` on a miss. An invalid or empty
-selector is swallowed and returns `false` rather than throwing. To
-fall back to the top of the page on a miss, use
+`scrollToSelector(selector)` resolves a hash or CSS selector to an
+element and scrolls to it with
+[`scrollToElement`](/use/scroll/scrollToElement), returning `true` on
+success and `false` on a miss. A leading `#` is resolved against
+element ids first (`getElementById`, with the fragment URI-decoded) —
+that handles ids that are valid HTML but invalid CSS selectors, like a
+leading digit — before falling back to `querySelector`. An invalid or
+empty selector is swallowed and returns `false` rather than throwing.
+To fall back to the top of the page on a miss, use
 [`scrollToSelectorWithFallback`](/use/scroll/scrollToSelectorWithFallback).
 Part of [`pota/use/scroll`](/use/scroll).
 
 ## Arguments
 
-| Argument   | Type     | Description                         |
-| ---------- | -------- | ----------------------------------- |
-| `selector` | `string` | CSS selector for the scroll target. |
+| Argument   | Type     | Description                                      |
+| ---------- | -------- | ------------------------------------------------ |
+| `selector` | `string` | Hash (`#id`) or CSS selector for the scroll target. |
 
 **Returns:** `true` when an element matched and was scrolled to,
 `false` otherwise.

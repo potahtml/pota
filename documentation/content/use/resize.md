@@ -13,10 +13,10 @@ desc:
 behind one `use* / on*` Emitter pattern. Document size tracks the
 window `resize` event; element size is backed by a `ResizeObserver`.
 Each pair gives you a reactive accessor (`use*`) and a plain callback
-registration (`on*`), and the module also ships two `use:ref`
-factories — `resize` for per-element callbacks and
-[`ensureInBounds`](/use/resize/ensureInBounds) for clamping a floating
-element to the viewport.
+registration (`on*`), and the module also ships two `use:ref` helpers
+— the `resize(handler)` factory for per-element callbacks and
+[`ensureInBounds`](/use/resize/ensureInBounds), a ref used directly to
+clamp a floating element to the viewport.
 
 The module's own `resize` export is documented inline below.
 
@@ -45,7 +45,7 @@ The module's own `resize` export is documented inline below.
 | --------- | -------------------------------------- | ---------------------------------------------------------- |
 | `handler` | `(entry: ResizeObserverEntry) => void` | Called with the latest entry whenever the element resizes. |
 
-**Returns:** a ref factory `(node: Element) => void` for `use:ref`.
+**Returns:** a ref function `(node: Element) => void` for `use:ref`.
 
 Multiple subscribers on the same node share a single `ResizeObserver`.
 

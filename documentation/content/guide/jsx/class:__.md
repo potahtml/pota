@@ -19,7 +19,7 @@ remove a class, set it to `false`, `null` or `undefined`.
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `class="a b"`                   | sets the whole `class` attribute to the string (replaces any existing value)                                                                         |
 | `class={["a", cond && "b"]}`    | array form — falsy entries are dropped, the rest are added                                                                                           |
-| `class={{ a: true, b: false }}` | object form — adds keys with truthy values                                                                                                           |
+| `class={{ a: true, b: false }}` | object form — adds keys with truthy values, removes keys with falsy values                                                                           |
 | `class:a={truthy}`              | namespace form — toggles just the `a` class based on the value                                                                                       |
 | `class:my-ns={{ a: true }}`     | nested object form — identical to the object form above; the `my-ns` part is ignored at runtime, only there so you can organise multi-class bindings |
 
@@ -29,6 +29,11 @@ When you swap the object on a `class={...}` binding, classes that were
 on the previous object but not on the new one are **not** removed —
 object forms add and update, they don't sweep. To clear a class, set
 its value to `false` explicitly.
+
+A _reactive_ per-class binding (`class:a={fn}`) that resolves falsy on
+initialization leaves a pre-existing class alone — removal only
+happens when the binding later flips from truthy to falsy. A plain
+falsy value removes the class immediately.
 
 ## Examples
 
@@ -69,7 +74,13 @@ function App() {
 				class="orange"
 				class:orange={undefined}
 			>
-				namespace undefined keeps orange
+				namespace undefined removes orange
+			</div>
+			<div
+				class="orange"
+				class:orange={() => undefined}
+			>
+				reactive undefined on init keeps orange
 			</div>
 			<div
 				class="orange"

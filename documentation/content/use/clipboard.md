@@ -18,7 +18,7 @@ pasted images and files.
 - `function` — invoked with the click event; its return value is
   copied
 - `string` or `number` — that literal value is copied
-- `true` — the element's own `innerText` is copied
+- `true` — the element's own `innerText` is copied, trimmed
 
 ## Exports
 

@@ -20,8 +20,8 @@ click, responding to a route change, etc.).
   factory: scroll the element into view on mount
 - [`scrollToElement(node)`](/use/scroll/scrollToElement) — reset
   `scrollTop` and `scrollIntoView(true)`
-- [`scrollToSelector(selector)`](/use/scroll/scrollToSelector) — find
-  via `querySelector`; returns `true` on success
+- [`scrollToSelector(selector)`](/use/scroll/scrollToSelector) —
+  resolve a hash (id-first) or CSS selector; returns `true` on success
 - [`scrollToSelectorWithFallback(selector)`](/use/scroll/scrollToSelectorWithFallback)
   — same, falls back to `scrollToTop()` on a miss
 - [`scrollToLocationHash()`](/use/scroll/scrollToLocationHash) —

@@ -23,9 +23,9 @@ until everything settles.
 
 ## Arguments
 
-| name | type | description                                         |
-| ---- | ---- | --------------------------------------------------- |
-| `fn` | fn   | function to run once all tracked async work settles |
+| name | type         | description                                         |
+| ---- | ------------ | --------------------------------------------------- |
+| `fn` | `() => void` | function to run once all tracked async work settles |
 
 ## Examples
 

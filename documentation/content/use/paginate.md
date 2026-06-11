@@ -45,7 +45,7 @@ Both functions return the same object:
 {
   items,         // Derived<unknown[]> — the current slice (Promise-aware)
   page,          // Derived<number>    — writable raw cursor
-  currentPage,   // signal accessor    — clamped to [1, totalPages]
+  currentPage,   // signal accessor    — clamped to [1, max(1, totalPages)]
   totalPages,    // signal accessor
   hasNext,       // () => boolean
   hasPrevious,   // () => boolean
@@ -63,21 +63,64 @@ slices the items.
 
 ### paginate — async fetch
 
-Page over data fetched on demand: `fetch(start, end)` returns the
-current slice (here a `Promise`), and the `items` derived resolves it
-as the page changes.
+Page over data fetched on demand: `fetch(start, end)` may return a
+`Promise`, and the Promise-aware `items` derived reports the pending
+state — `isResolved(items)` is `false` until the slice arrives. Here a
+delayed local slice stands in for the request.
 
 ```jsx
+import { isResolved, render } from 'pota'
 import { paginate } from 'pota/use/paginate'
 
-const { items, currentPage, totalPages, next, previous } = paginate(
-	(start, end) =>
-		fetch(`/api/rows?from=${start}&to=${end}`).then(r => r.json()),
-	{
-		numPerPage: () => 20,
-		numItems: () => 1_000,
-	},
-)
+const rows = Array.from({ length: 95 }, (_, i) => `row #${i + 1}`)
+
+// stands in for a server request — resolves the slice after a delay
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+const fetchRows = async (start, end) => {
+	await delay(300)
+	return rows.slice(start, end)
+}
+
+function App() {
+	const {
+		items,
+		currentPage,
+		totalPages,
+		hasPrevious,
+		hasNext,
+		next,
+		previous,
+	} = paginate(fetchRows, {
+		numPerPage: () => 10,
+		numItems: () => rows.length,
+	})
+
+	return (
+		<div>
+			<p>
+				page <strong>{currentPage}</strong> of{' '}
+				<strong>{totalPages}</strong>
+			</p>
+			<p>
+				{() => (isResolved(items) ? items().join(', ') : 'loading…')}
+			</p>
+			<button
+				on:click={previous}
+				disabled={() => !hasPrevious()}
+			>
+				prev
+			</button>
+			<button
+				on:click={next}
+				disabled={() => !hasNext()}
+			>
+				next
+			</button>
+		</div>
+	)
+}
+
+render(App)
 ```
 
 ### External page source
@@ -85,20 +128,25 @@ const { items, currentPage, totalPages, next, previous } = paginate(
 Pass `options.page` (an accessor) when the current page lives in a URL
 search param or some other tracked source. Updates from that source
 clobber any prior `next` / `previous` writes — the external source
-becomes the authority.
+becomes the authority, so move between pages by updating the source
+itself (here, [`navigate`](/use/location/navigate) to a new `?page=`)
+rather than calling `next` / `previous`.
 
 ```jsx
 import { paginate } from 'pota/use/paginate'
-import { location } from 'pota/use/location'
+import { location, navigate } from 'pota/use/location'
 
 const page = () => Number(location.searchParams.page) || 1
 
 const fetchRows = (start, end) =>
 	fetch(`/api/rows?from=${start}&to=${end}`).then(r => r.json())
 
-const { items, currentPage, hasNext, next } = paginate(fetchRows, {
+const { items, currentPage, totalPages } = paginate(fetchRows, {
 	numPerPage: () => 25,
 	numItems: () => 1_000,
 	page,
 })
+
+// move pages through the source, not `next`/`previous`
+const goTo = n => navigate(`?page=${n}`)
 ```

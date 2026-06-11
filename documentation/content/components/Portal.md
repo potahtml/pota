@@ -21,9 +21,10 @@ nodes are removed too.
 
 ## Attributes
 
-| name    | type      | description                                                    |
-| ------- | --------- | -------------------------------------------------------------- |
-| `mount` | `Element` | Element to portal into. The element should be in the document. |
+| name        | type      | description                                                    |
+| ----------- | --------- | -------------------------------------------------------------- |
+| `mount`     | `Element` | Element to portal into. The element should be in the document. |
+| `children?` | any       | content to project into `mount`                                |
 
 ## Examples
 

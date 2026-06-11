@@ -8,14 +8,15 @@ desc:
 
 # rerenders
 
-`rerenders()` injects a temporary adopted stylesheet that flashes
-every element with a blue background whenever it rerenders — a drop-in
-visualiser for render thrashing. The flash is a one-second CSS
-animation triggered on `document`, so call it once and watch the page.
-Part of [`pota/use/test`](/use/test).
+`rerenders()` injects an adopted stylesheet that flashes every element
+with a blue background whenever it rerenders — a drop-in visualiser
+for render thrashing. The flash is a one-second CSS animation that
+runs each time an element is (re)created and enters the DOM; the
+stylesheet is adopted on `document`, so call it once and watch the
+page. Part of [`pota/use/test`](/use/test).
 
 ## Arguments
 
 Takes no arguments.
 
-**Returns:** the adopted stylesheet result of `addAdoptedStyleSheet`.
+**Returns:** nothing — the stylesheet stays adopted on `document`.

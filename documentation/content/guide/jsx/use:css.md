@@ -13,8 +13,9 @@ Inline a stylesheet onto an element. In the `use:css` attribute you
 can use the keyword `class` in a selector — it's rewritten to a random
 class name that's then added to the element. That way you co-locate a
 scoped stylesheet with the markup without hand-generating a class. The
-generated sheet is adopted into the element's owning document while
-the element is mounted.
+generated sheet is adopted into the element's owning document the
+first time it's seen and kept — the same CSS string maps to one shared
+sheet and class across every element that uses it.
 
 For the tagged-template helper that produces `CSSStyleSheet` objects
 (and the `css` child form that adopts a sheet into the document), see

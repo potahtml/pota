@@ -10,7 +10,9 @@ desc: Native Date.now() — current time in milliseconds.
 `now()` is native `Date.now()` — the current time in milliseconds
 since the epoch. It is the default `timestamp` for every formatter in
 [`pota/use/time`](/use/time): [`date`](/use/time/date),
-[`datetime`](/use/time/datetime), and [`day`](/use/time/day).
+[`datetime`](/use/time/datetime), `time`,
+[`timeWithSeconds`](/use/time/timeWithSeconds), and
+[`day`](/use/time/day).
 
 ## Arguments
 

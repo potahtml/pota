@@ -28,15 +28,15 @@ work; `upload` wires it to a file `<input>`, and
 ## upload — ref factory for file inputs
 
 `upload(options)` attaches to an `<input type="file">` and uploads its
-selection on every `change` event. After upload the input is cleared
-so re-selecting the same file fires `change` again — opt out with
-`clearOnUpload: false`. In-flight uploads abort when the surrounding
-reactive scope is disposed.
+selection on every `change` event. The input is cleared as soon as the
+selection is read, so re-selecting the same file fires `change` again
+— opt out with `clearOnUpload: false`. In-flight uploads abort when
+the surrounding reactive scope is disposed.
 
 ## Arguments
 
 `upload(options)` takes a single options object and returns a ref
-factory `(node: HTMLInputElement) => void`.
+function `(node: HTMLInputElement) => void`.
 
 | Option          | Type                                | Description                                                                        |
 | --------------- | ----------------------------------- | ---------------------------------------------------------------------------------- |
@@ -47,13 +47,13 @@ factory `(node: HTMLInputElement) => void`.
 | `accept`        | `string`                            | `<input accept>`-style filter; non-matching files fire `onReject(file, 'type')`.   |
 | `maxSize`       | `number`                            | Max file size in bytes; larger files fire `onReject(file, 'size')`.                |
 | `onProgress`    | `({ file, loaded, total }) => void` | Fires during the POST; cached/HEAD hits get one event with `loaded === total`.     |
-| `onUpload`      | `(results) => void`                 | Fires once at the end with the array of successful `UploadResult`s. Required.      |
+| `onUpload`      | `(results) => void`                 | Fires once at the end with the array of successful `UploadResult`s; skipped when none succeeded. Required. |
 | `onFile`        | `(result) => void`                  | Fires per successfully uploaded file.                                              |
 | `onError`       | `(error, file) => void`             | Fires per file that failed (aborted uploads are silent).                           |
 | `onReject`      | `(file, reason) => void`            | Fires per file rejected by `accept`/`maxSize`; `reason` is `'type'` or `'size'`.   |
-| `clearOnUpload` | `boolean`                           | Clear the input after upload so the same file can be re-selected (default `true`). |
+| `clearOnUpload` | `boolean`                           | Clear the input once the selection is read so the same file can be re-selected (default `true`). |
 
-**Returns:** a ref factory `(node: HTMLInputElement) => void` for
+**Returns:** a ref function `(node: HTMLInputElement) => void` for
 `use:ref`.
 
 ## Filters: accept and maxSize

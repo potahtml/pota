@@ -8,7 +8,10 @@ desc: Drop the fractional part; coerce NaN to 0.
 # wholeNumber
 
 `wholeNumber(num)` is `+num | 0` — it drops the fractional part and
-coerces `NaN` to `0`. Part of [`pota/use/string`](/use/string).
+coerces `NaN` to `0`. The bitwise `| 0` operates on 32-bit integers,
+so values beyond ±2³¹ wrap around and `Infinity` becomes `0` — meant
+for small UI numbers (indexes, sizes, counts). Part of
+[`pota/use/string`](/use/string).
 
 ## Arguments
 

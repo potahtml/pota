@@ -21,7 +21,7 @@ wrapper over [`shortcut('mod+enter', fn)`](/use/keyboard/shortcut), so
 | -------- | ------------------------------------------- | ---------------------------------- |
 | `fn`     | `(e: KeyboardEvent, node: Element) => void` | Handler invoked on Ctrl/Cmd+Enter. |
 
-**Returns:** a `use:ref` factory — `(node: Element) => void`.
+**Returns:** a ref function `(node: Element) => void` for `use:ref`.
 
 ## Examples
 
@@ -42,7 +42,7 @@ function App() {
 		<div>
 			<textarea
 				rows="4"
-				value={draft.read}
+				prop:value={draft.read}
 				on:input={e => draft.write(e.currentTarget.value)}
 				use:ref={submitOnCtrlEnter(() => {
 					sent.write(draft.read())

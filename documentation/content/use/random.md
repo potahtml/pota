@@ -12,7 +12,9 @@ Small randomness helpers backed by `crypto.getRandomValues` — not
 ([`randomSeeded`](/use/random/randomSeeded)) for reproducibility.
 
 `random()` is the module's base generator: a crypto-strength float in
-`[0, 1)`. The other helpers build on it and accept a custom
+`[0, 1)`. The others draw on the same crypto source;
+[`chance`](/use/random/chance) and
+[`randomBetween`](/use/random/randomBetween) also accept a custom
 `generator` so you can swap in a seeded one for deterministic runs.
 
 ## Exports

@@ -33,9 +33,10 @@ itself, not a call. It receives the element node from `use:ref`.
 
 ### Clamp a panel to the viewport
 
-Attaches `ensureInBounds` to a panel anchored near the screen edge;
-shrink the window and the panel's `max-width` / `max-height` shrink so
-it stays fully visible.
+Attaches `ensureInBounds` to a panel pinned at a fixed top-left
+position — the anchor the helper's snapshot relies on. Shrink the
+window and the panel's `max-width` / `max-height` shrink so it stays
+fully visible.
 
 ```jsx
 import { render } from 'pota'
@@ -48,7 +49,7 @@ function App() {
 			style={{
 				position: 'fixed',
 				top: '20px',
-				right: '20px',
+				left: '20px',
 				width: '320px',
 				height: '480px',
 				padding: '1rem',

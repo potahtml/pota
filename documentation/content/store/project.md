@@ -17,7 +17,11 @@ useful for editable drafts, undo stacks, and "what-if" scenarios.
 
 Once the projection writes its own copy of a key, later changes to the
 source for that key no longer show through; keys the projection hasn't
-touched keep mirroring the source.
+touched keep mirroring the source. Arrays are the exception to
+read-through: projecting an array seeds the projection's own copy of
+the existing entries up front, so later changes to the source array
+don't show through — though entries that are objects remain live views
+of their source counterparts.
 
 ## Arguments
 
@@ -31,9 +35,9 @@ touched keep mirroring the source.
 
 ### Editable draft
 
-Bumping the draft's age leaves the original untouched; renaming the
-original is visible through the draft until the draft writes its own
-copy of `name`.
+The draft overrides `age` with its own copy — the original keeps
+`30` — while the untouched `name` keeps mirroring the source, so
+renaming the original shows through the draft.
 
 ```jsx
 import { mutable, project } from 'pota/store'
@@ -41,6 +45,9 @@ import { render } from 'pota'
 
 const original = mutable({ name: 'Ada', age: 30 })
 const draft = project(original)
+
+// the write lands on the draft's own copy, `original` keeps 30
+draft.age = 31
 
 function App() {
 	return (
@@ -51,9 +58,6 @@ function App() {
 			<p>
 				draft: {() => draft.name}, {() => draft.age}
 			</p>
-			<button on:click={() => (draft.age += 1)}>
-				bump draft age (original unchanged)
-			</button>
 			<button on:click={() => (original.name = 'Grace')}>
 				rename original (draft sees it through)
 			</button>

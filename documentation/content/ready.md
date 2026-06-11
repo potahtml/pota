@@ -21,9 +21,9 @@ waits on tracked async work, see [`readyAsync`](/readyAsync).
 
 ## Arguments
 
-| name | type | description                                       |
-| ---- | ---- | ------------------------------------------------- |
-| `fn` | fn   | function to run once the processing batch is done |
+| name | type         | description                                       |
+| ---- | ------------ | ------------------------------------------------- |
+| `fn` | `() => void` | function to run once the processing batch is done |
 
 ## Examples
 
@@ -47,7 +47,8 @@ render(Component)
 
 Schedules imperative work that needs the node in the DOM — measuring
 sizes, focusing inputs, attaching third-party widgets. `ready(fn)`
-fires after `onProps`, `onRef`, and `onMount`.
+fires after the `onProps` and `onMount` phases (refs are assigned
+synchronously at creation, earlier still).
 
 ```tsx
 import { ready, ref, render } from 'pota'

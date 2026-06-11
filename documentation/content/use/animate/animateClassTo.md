@@ -31,16 +31,21 @@ ends, or immediately if `element.getAnimations()` reports none.
 2. Removes `oldClass` and adds `newClass`.
 3. If `element.getAnimations()` reports at least one running
    animation, waits for `animationend` on that element; otherwise
-   resolves immediately — so it's safe to `await` when the swap may or
-   may not produce a transition.
+   resolves immediately — so it's safe to `await` even when the swap
+   triggers no animation at all.
+
+Note that `getAnimations()` also reports CSS **transitions**, but a
+transition fires `transitionend`, not `animationend` — so a swap whose
+only effect is a transition leaves the promise unresolved. Pair it
+with `@keyframes` animations.
 
 ## Examples
 
 ### Fade between states
 
 Chains class swaps, awaiting each animation before triggering the
-next. Each `await` resolves on `animationend`, so the sequence stays
-in step with the CSS.
+next — the final swap declares no animation, so its `await` resolves
+immediately.
 
 ```jsx
 import { ref, render, signal } from 'pota'
@@ -51,30 +56,33 @@ function App() {
 	const state = signal('idle')
 
 	const toggle = async () => {
-		if (state.read() === 'idle') {
-			state.write('out')
-			await animateClassTo(box(), 'idle', 'out')
-			state.write('back')
-			await animateClassTo(box(), 'out', 'back')
-			state.write('idle')
-			await animateClassTo(box(), 'back', 'idle')
-		}
+		if (state.read() !== 'idle') return
+		state.write('out')
+		await animateClassTo(box(), 'idle', 'out')
+		state.write('back')
+		await animateClassTo(box(), 'out', 'back')
+		state.write('idle')
+		// `.idle` runs no animation — this resolves immediately
+		await animateClassTo(box(), 'back', 'idle')
 	}
 
 	return (
 		<>
 			<style>{`
-				.idle { background: #2a9d8f; transition: background .2s; }
+				.idle { background: #2a9d8f; }
 				.out  { background: #e76f51; animation: slide .4s forwards; }
 				.back { background: #f4a261; animation: slide-back .4s forwards; }
-				@keyframes slide       { to { transform: translateX(120px); } }
-				@keyframes slide-back  { to { transform: translateX(0);     } }
+				@keyframes slide { to { transform: translateX(120px); } }
+				@keyframes slide-back {
+					from { transform: translateX(120px); }
+					to   { transform: translateX(0); }
+				}
 			`}</style>
 
 			<button on:click={toggle}>animate</button>
 			<div
 				use:ref={box}
-				class={state.read}
+				class="idle"
 				style={{
 					width: '120px',
 					padding: '1rem',

@@ -23,14 +23,15 @@ declaratively use [`mutated`](/use/mutation/mutated). The default
 | `init`   | `MutationObserverInit` | Optional observer config; defaults to childList + subtree. |
 
 **Returns:** a signal accessor (reader function) holding the latest
-`MutationRecord[]` batch.
+`MutationRecord[]` batch — `undefined` until the first batch arrives.
 
 ## Examples
 
 ### Read mutations reactively
 
 Read the latest batch of records inside an effect; it re-runs whenever
-the node mutates.
+the node mutates. The accessor reads `undefined` until the first
+batch, hence the `?.`.
 
 ```jsx
 import { effect, render, signal } from 'pota'
@@ -40,7 +41,7 @@ function App() {
 	const records = useMutations(document.body)
 	const log = signal('mutations will appear here')
 
-	effect(() => log.write(`mutations: ${records().length}`))
+	effect(() => log.write(`mutations: ${records()?.length ?? 0}`))
 
 	return <p>{log.read}</p>
 }

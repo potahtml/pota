@@ -29,7 +29,7 @@ matters.
 
 ## Arguments
 
-`draggable` takes a single options object and returns a ref factory
+`draggable` takes a single options object and returns a ref function
 for [use:ref](/guide/jsx/use:ref).
 
 | Option    | Type                       | Description                                                         |
@@ -38,7 +38,7 @@ for [use:ref](/guide/jsx/use:ref).
 | `onStart` | `(info: DragInfo) => void` | Optional. Fires once on `pointerdown` when a gesture begins.        |
 | `onEnd`   | `(info: DragInfo) => void` | Optional. Fires on `pointerup`/`pointercancel` when a gesture ends. |
 
-**Returns:** a ref factory — `(node: HTMLElement) => void` — to pass
+**Returns:** a ref function — `(node: HTMLElement) => void` — to pass
 to `use:ref`.
 
 ## DragInfo

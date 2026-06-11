@@ -12,8 +12,10 @@ by source string — the same input always returns the same
 `CSSStyleSheet` instance, so adopting it on many documents or custom
 elements is cheap and they all share one object.
 
-The underlying `replace` is asynchronous and accepts `@import`
-statements referencing external resources. The tagged-template
+The underlying `replace` is asynchronous — the sheet object is
+returned immediately and its rules land when the parse settles. Note
+that browsers disallow `@import` in constructed stylesheets: such
+rules are dropped with a console warning. The tagged-template
 [`css`](/use/css) is a thin wrapper that calls `sheet()` for you.
 
 ## Arguments

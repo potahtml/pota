@@ -12,8 +12,8 @@ each `IntersectionObserverEntry` change. The second argument is
 forwarded to `IntersectionObserver` as the options bag (`root`,
 `rootMargin`, `threshold`), plus a pota-specific `once`: when `true`,
 the handler fires once on the first entry where `isIntersecting` is
-`true` and then auto-unsubscribes — handy for reveal-on-scroll styles
-that only need to flip a class once. It is the declarative `use:ref`
+`true` and later entries are ignored — handy for reveal-on-scroll
+styles that only need to flip a class once. It is the declarative `use:ref`
 form of [`onVisible`](/use/intersection/onVisible). Part of
 [`pota/use/intersection`](/use/intersection).
 
@@ -24,7 +24,7 @@ form of [`onVisible`](/use/intersection/onVisible). Part of
 | `handler` | `(entry: IntersectionObserverEntry) => void`    | Called with each real intersection change.                                                |
 | `opts`    | `IntersectionObserverInit & { once?: boolean }` | Optional. `root` / `rootMargin` / `threshold`, plus `once` to fire only on first arrival. |
 
-**Returns:** a `use:ref` factory `(node: Element) => void`.
+**Returns:** a ref function `(node: Element) => void` for `use:ref`.
 
 ## Examples
 

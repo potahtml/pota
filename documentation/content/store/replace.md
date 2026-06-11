@@ -29,7 +29,9 @@ see [reset](/store/reset).
 | `source` | `U`                | desired final shape (deep-copied before reconciling, so it is left untouched) |
 | `keys?`  | `ReconcileKeys<U>` | per-path key names for matching nested array items; shape mirrors `source`    |
 
-**Returns:** `target` (the same reference), now typed `T & U`.
+**Returns:** `target` (the same reference), now typed `T & U`. The
+type approximates the final shape — keys of `T` deleted at runtime
+still appear in it.
 
 ## Examples
 
@@ -76,7 +78,7 @@ const ref = target.q[1]
 
 replace(target, source, { q: { key: 'id' } })
 
-render(<pre>reference preserved: {ref === target.q[0]}</pre>)
+render(<pre>reference preserved: {String(ref === target.q[0])}</pre>)
 
 render(<pre>{JSON.stringify(target, null, 2)}</pre>)
 ```

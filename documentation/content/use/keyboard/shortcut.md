@@ -24,7 +24,7 @@ document-wide chord use
 | `combo`   | `string`                                    | `+`-separated modifiers (`ctrl`/`meta`/`alt`/`shift`/`mod`) + key. |
 | `handler` | `(e: KeyboardEvent, node: Element) => void` | Called when the chord is pressed while the element has focus.      |
 
-**Returns:** a `use:ref` factory — `(node: Element) => void`.
+**Returns:** a ref function `(node: Element) => void` for `use:ref`.
 
 ## Examples
 
@@ -45,7 +45,7 @@ function App() {
 		<form on:submit={e => e.preventDefault()}>
 			<textarea
 				rows="4"
-				value={draft.read}
+				prop:value={draft.read}
 				on:input={e => draft.write(e.currentTarget.value)}
 				use:ref={[
 					shortcut('mod+b', () => draft.update(d => d + '**bold**')),

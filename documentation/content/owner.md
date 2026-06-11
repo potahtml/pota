@@ -11,7 +11,7 @@ desc:
 
 Returns the currently-running reactive _owner_ — the scope that
 cleanups and child computations attach to — or `undefined` when called
-outside a tracked scope. Sibling to [listener](/listener) (the
+outside any reactive scope. Sibling to [listener](/listener) (the
 tracking scope); both are low-level introspection helpers. Most app
 code never touches them.
 

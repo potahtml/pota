@@ -17,8 +17,8 @@ host doesn't also receive a textual representation.
 
 ### Capture pasted files
 
-Paste a file or screenshot into the drop zone and list each pasted
-`File`'s name, type, and size.
+Paste a file or screenshot into the focused target and list each
+pasted `File`'s name, type, and size.
 
 ```jsx
 import { render, signal } from 'pota'

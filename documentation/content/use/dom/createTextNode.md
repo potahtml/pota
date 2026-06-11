@@ -9,8 +9,8 @@ desc: document.createTextNode, pre-bound to document.
 
 `createTextNode` is
 [`document.createTextNode`](https://developer.mozilla.org/en-US/docs/Web/API/Document/createTextNode),
-pre-bound to `document`. Returns `undefined` when there is no
-`document` (non-browser environment). Part of
+pre-bound to `document`. The export itself is `undefined` when there
+is no `document` (non-browser environment). Part of
 [`pota/use/dom`](/use/dom).
 
 ## Arguments

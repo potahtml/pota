@@ -10,10 +10,10 @@ desc:
 
 # `<Range/>`
 
-Renders one entry per number in a numeric range. Think of it as
-Python's `range()` wired into [`<For/>`](/components/For): it
-generates the numbers and calls the child callback with each
-`(item, index)`.
+Renders one entry per number in a numeric range. Think of it as a
+`range()` generator wired into [`<For/>`](/components/For): it
+generates the numbers from `start` to `stop` — **inclusive**, unlike
+Python's — and calls the child callback with each `(item, index)`.
 
 All three bounds accept either a number or an accessor, so the range
 can be driven by signals.
@@ -23,7 +23,7 @@ can be driven by signals.
 | name       | type                                           | description                                                                                                                                 |
 | ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `start?`   | `number \| Accessor<number>`                   | first value (default `0`). Always emitted.                                                                                                  |
-| `stop?`    | `number \| Accessor<number>`                   | final value (default `0`). Counts up when `start < stop`, down when `start > stop`.                                                         |
+| `stop?`    | `number \| Accessor<number>`                   | last value (default `0`), inclusive — when `step` skips past it, the final emitted value overshoots it. Counts up when `start < stop`, down when `start > stop`. |
 | `step?`    | `number \| Accessor<number>`                   | increment between emitted values (default `1`). A negative `step` is normalised to its absolute value — pick direction with `start`/`stop`. |
 | `children` | `(item: number, index: number) => JSX.Element` | callback invoked for each emitted number — same semantics as [`<For/>`](/components/For)'s child callback.                                  |
 
@@ -81,7 +81,9 @@ function App() {
 				<input
 					type="number"
 					prop:value={step.read}
-					on:input={e => step.write(Number(e.currentTarget.value))}
+					on:input={e =>
+						step.write(Math.max(1, Number(e.currentTarget.value) || 1))
+					}
 				/>
 			</label>
 			<ol>

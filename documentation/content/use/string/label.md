@@ -12,7 +12,7 @@ every `-` and `_` with a space, then collapses runs of whitespace into
 a single space. Useful for deriving a readable heading from a route
 segment or a key.
 
-Part of [`pota/use/string`](/use/string). For the inverse direction
+Part of [`pota/use/string`](/use/string). For kebab-case → camelCase
 see [`dashesToCamelCase`](/use/string/dashesToCamelCase).
 
 ## Arguments

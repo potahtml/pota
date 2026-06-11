@@ -23,7 +23,7 @@ input-specific): `endpoint`, `field`, `existsUrl`, `parseResponse`,
 `accept`, `maxSize`, `onProgress`, `onUpload`, `onFile`, `onError`,
 `onReject`. See [`upload`](/use/upload) for the full table.
 
-**Returns:** a ref factory `(node: HTMLElement) => void` for
+**Returns:** a ref function `(node: HTMLElement) => void` for
 `use:ref`. In-flight uploads abort when the surrounding reactive scope
 is disposed.
 

@@ -46,6 +46,7 @@ changed.
 import { useSelector } from 'pota/use/selector'
 import { For } from 'pota/components'
 import { render, signal } from 'pota'
+import { css } from 'pota/use/css'
 
 const items = ['apple', 'banana', 'cherry', 'date']
 
@@ -54,18 +55,25 @@ function App() {
 	const isSelected = useSelector(current.read)
 
 	return (
-		<ul>
-			<For each={items}>
-				{item => (
-					<li
-						class:selected={isSelected(item)}
-						on:click={() => current.write(item)}
-					>
-						{item}
-					</li>
-				)}
-			</For>
-		</ul>
+		<>
+			{css`
+				.selected {
+					color: aqua;
+				}
+			`}
+			<ul>
+				<For each={items}>
+					{item => (
+						<li
+							class:selected={isSelected(item)}
+							on:click={() => current.write(item)}
+						>
+							{item}
+						</li>
+					)}
+				</For>
+			</ul>
+		</>
 	)
 }
 
@@ -96,24 +104,26 @@ function App() {
 		})
 
 	return (
-		<main>
+		<>
 			{css`
 				.selected {
 					color: aqua;
 				}
 			`}
 
-			<For each={[1, 2, 3, 4, 5]}>
-				{item => (
-					<li
-						class:selected={isSelected(item)}
-						on:click={() => toggle(item)}
-					>
-						item {item}
-					</li>
-				)}
-			</For>
-		</main>
+			<ul>
+				<For each={[1, 2, 3, 4, 5]}>
+					{item => (
+						<li
+							class:selected={isSelected(item)}
+							on:click={() => toggle(item)}
+						>
+							item {item}
+						</li>
+					)}
+				</For>
+			</ul>
+		</>
 	)
 }
 

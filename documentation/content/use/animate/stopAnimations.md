@@ -31,9 +31,9 @@ for the cancellations to settle.
 
 ### Cancel before re-triggering
 
-Stops any in-flight animation, then re-adds the class to restart it
-from a clean state. Without the cancel, re-adding a class that is
-already present would not re-fire the animation.
+Cancels whatever is in flight (CSS or Web Animations API alike), then
+removes and re-adds the class with a forced reflow in between, so the
+keyframes restart from the top.
 
 ```jsx
 import { ref, render } from 'pota'

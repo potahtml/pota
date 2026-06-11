@@ -12,8 +12,9 @@ desc:
 
 Like [`<Show/>`](/components/Show), renders its children based on a
 condition — but when the condition turns falsy the subtree is _hidden_
-(`style:display` flips to `none`) rather than removed from the
-document. State inside the children survives across hide/show, which
+rather than removed from the document. The children are wrapped in a
+`<div>` whose `display` flips between `contents` (invisible to layout)
+and `none`. State inside the children survives across hide/show, which
 makes it the right tool for iframes, canvases, video, audio, or any
 expensive widget you don't want to re-mount.
 

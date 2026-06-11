@@ -30,15 +30,45 @@ in a `cleanup`. For lower-level forms see
 
 ### Tear down on cleanup
 
-Acquire a camera stream and release the hardware automatically when
-the surrounding reactive scope is disposed.
+Acquire a camera inside a component and release the hardware when the
+component unmounts. If disposal happens while the permission prompt is
+still pending, the late stream is stopped the moment it arrives.
 
 ```jsx
+import { render, signal, cleanup } from 'pota'
+import { Show } from 'pota/components'
 import { stopStream } from 'pota/use/stream'
-import { cleanup } from 'pota'
 
-const stream = await navigator.mediaDevices.getUserMedia({
-	video: true,
-})
-cleanup(() => stopStream(stream))
+function Camera() {
+	let stream
+	let disposed = false
+
+	navigator.mediaDevices.getUserMedia({ video: true }).then(s => {
+		disposed ? stopStream(s) : (stream = s)
+	})
+
+	cleanup(() => {
+		disposed = true
+		stream && stopStream(stream)
+	})
+
+	return <p>camera live — unmount me to release it</p>
+}
+
+function App() {
+	const show = signal(false)
+
+	return (
+		<div>
+			<button on:click={() => show.update(v => !v)}>
+				toggle camera
+			</button>
+			<Show when={show.read}>
+				<Camera />
+			</Show>
+		</div>
+	)
+}
+
+render(App)
 ```

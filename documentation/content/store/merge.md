@@ -75,7 +75,7 @@ const ref = target.q[1]
 
 merge(target, source, { q: { key: 'id' } })
 
-render(<pre>reference preserved: {ref === target.q[1]}</pre>)
+render(<pre>reference preserved: {String(ref === target.q[1])}</pre>)
 
 render(<pre>{JSON.stringify(target, null, 2)}</pre>)
 ```

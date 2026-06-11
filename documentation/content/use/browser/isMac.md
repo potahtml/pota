@@ -11,7 +11,9 @@ desc: true when the user agent contains "mac".
 when the user agent contains _mac_. Evaluated once at module load —
 prefer feature detection where you can, and reserve this for genuine
 macOS-specific branches, such as showing ⌘ instead of Ctrl in keyboard
-hints.
+hints. Note that iOS user agents also contain _mac_ ("like Mac OS X"),
+so `isMac` is `true` on iPhone and iPad too — pair it with
+[`isMobile`](/use/browser/isMobile) when you mean desktop macOS.
 
 ## Examples
 

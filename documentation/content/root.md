@@ -3,13 +3,13 @@ title: root
 subpath: pota
 topic: Reactive core
 desc:
-  Creates a top-level tracking scope; the callback receives a dispose
+  Creates a top-level owner scope; the callback receives a dispose
   function that tears down everything inside.
 ---
 
 # root
 
-Creates a new top-level tracking scope. The callback receives a
+Creates a new top-level owner scope. The callback receives a
 `dispose` function that tears down everything created inside. Reactive
 work that outlives a component (long-lived subscriptions, imperative
 rendering, stores instantiated at module load) belongs in a `root`.
@@ -30,12 +30,12 @@ when there's no render tree.
 ### Detached scope with manual dispose
 
 `root` runs `fn` in a new owner that is _not_ attached to any parent —
-so cleanups stick around until you call the disposer `fn` received.
-Use it for reactive code outside a component tree (workers, modal
-managers, background timers).
+[cleanup](/cleanup) registrations stick around until you call the
+disposer `fn` received. Use it for reactive code outside a component
+tree (workers, modal managers, background timers).
 
 ```jsx
-import { effect, root, signal } from 'pota'
+import { cleanup, effect, root, signal } from 'pota'
 
 const dispose = root(dispose => {
 	const ticks = signal(0)
@@ -45,12 +45,9 @@ const dispose = root(dispose => {
 	})
 
 	const id = setInterval(() => ticks.update(n => n + 1), 1000)
+	cleanup(() => clearInterval(id))
 
-	// when the caller disposes the root, stop the timer too
-	return () => {
-		clearInterval(id)
-		dispose()
-	}
+	return dispose
 })
 
 // later, e.g. on hot-reload or page teardown:

@@ -33,7 +33,8 @@ its own component registry, see [`XML()`](/xml/XML).
 | `xml.define`     | `(components: Record<string, JSX.ElementType>) => void` | Registers components addressable by tag name (case sensitive). |
 | `xml.components` | `Record<string, JSX.ElementType>`                       | The registry, seeded with the built-in components.             |
 
-**Returns:** a function (a component), so `xml` composes with
+**Returns:** a function (a component) — or an array of them when the
+template has several root nodes — so `xml` composes with
 [`render`](/render), [`<Show/>`](/components/Show),
 [`<Suspense/>`](/components/Suspense) and friends like any other
 component.
@@ -49,12 +50,18 @@ and `CustomElement` are intentionally **not** registered.
 ## Notes
 
 1. A `children` attribute applies only while the element has no
-   `childNodes` (just like JSX). If the element has any children, the
-   `children` attribute is ignored.
+   `childNodes`. If the element has any children, the `children`
+   attribute is ignored.
 2. `xml.define` is case **sensitive**.
-3. `xml.define` can override a name like `div`, making all `div` tags
+3. `xml.define` must run before the first `` xml`...` `` invocation
+   that uses the new tag — templates compile once and cache their
+   component-vs-element decisions, so a later `define` won't rebind an
+   already-compiled template. An unregistered capitalized tag logs a
+   warning; lowercase and hyphenated tags are assumed to be real
+   elements and stay quiet.
+4. `xml.define` can override a name like `div`, making all `div` tags
    behave differently. This is a warning, not a recommendation.
-4. Defining a component on the exported `xml` makes it global —
+5. Defining a component on the exported `xml` makes it global —
    visible wherever `xml` is imported. To avoid polluting the global
    registry, create a local instance with [`XML()`](/xml/XML).
 
@@ -158,15 +165,16 @@ function Value() {
 
 xml.define({ Provider: Context.Provider, Value })
 
-// renders "1 2 3 2 1"
+// renders "12321" (whitespace-only text between tags is dropped,
+// following JSX whitespace rules)
 const App = xml`
-	<Value /> 
+	<Value />
 	<Provider value="${{ myValue: 2 }}">
-		<Value /> 
+		<Value />
 		<Provider value="${{ myValue: 3 }}">
-			<Value /> 
+			<Value />
 		</Provider>
-		<Value /> 
+		<Value />
 	</Provider>
 	<Value />
 `

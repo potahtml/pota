@@ -20,7 +20,7 @@ be functions, and the corresponding classes follow them.
 | name    | type                                                              | description                                                                                                                                                          |
 | ------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `node`  | `Element`                                                         | Target element.                                                                                                                                                      |
-| `value` | `string \| ArrayLike<string> \| { [name]: boolean } \| () => ...` | A string sets the classes wholesale; arrays add their (truthy) names; object entries are added when truthy and removed when falsy; functions are tracked reactively. |
+| `value` | `string \| ArrayLike<string> \| { [name]: boolean } \| () => ...` | A string adds its space-separated names; arrays add their (truthy) names; object entries are added when truthy and removed when falsy; functions are tracked reactively. |
 
 **Returns:** `void`
 

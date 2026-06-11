@@ -11,8 +11,8 @@ desc:
 
 Two-way binding between a form field and a signal. The value is read
 into the signal on `input`, and the element is updated when the signal
-changes. Accepts a single signal or a flat array of signals (all bound
-to the same element).
+changes. Accepts a single signal or an array of signals (all bound to
+the same element; nested arrays are flattened).
 
 `bind(initial)` returns a `SignalFunction` — a callable signal where
 `value()` reads and `value(next)` writes — so a single call covers
@@ -39,6 +39,8 @@ to read, call with a value to write.
 - any other `<input>`, `<textarea>`, `<select>` — binds to `value`
 - `contenteditable` elements — binds to `innerText`, preserving the
   caret selection across updates
+
+Elements that aren't `HTMLElement`s (e.g. SVG) are silently ignored.
 
 ## Examples
 
@@ -88,7 +90,7 @@ function App() {
 					type="checkbox"
 					use:bind={checkbox}
 				/>{' '}
-				checkbox: {checkbox}
+				checkbox: {() => String(checkbox())}
 				<button on:click={() => checkbox(true)}>set checked</button>
 			</section>
 			<section>

@@ -49,8 +49,8 @@ when `existsUrl` was provided. Cancellation rejects with a
 ### Upload a file imperatively
 
 Uploads a file picked from an `<input>`, logging progress and the
-resulting URL. An `AbortController` cancels the upload if the
-component is torn down.
+resulting URL. The cancel button aborts an in-flight upload via its
+`AbortSignal` — the promise then rejects with an `AbortError`.
 
 ```jsx
 import { render, signal } from 'pota'
@@ -58,12 +58,13 @@ import { uploadFile } from 'pota/use/upload'
 
 function App() {
 	const status = signal('idle')
+	let controller
 
 	const onChange = async e => {
 		const file = e.target.files[0]
 		if (!file) return
 
-		const controller = new AbortController()
+		controller = new AbortController()
 		status.write('uploading')
 		try {
 			const { url } = await uploadFile(file, {
@@ -84,6 +85,7 @@ function App() {
 				type="file"
 				on:change={onChange}
 			/>
+			<button on:click={() => controller?.abort()}>cancel</button>
 			<p>{status.read}</p>
 		</>
 	)

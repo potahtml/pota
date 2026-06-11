@@ -16,9 +16,9 @@ declaratively use [`visible`](/use/intersection/visible).
 
 `fn` is never invoked with the pre-observer placeholder: the emitter
 emits `undefined` before the first real entry arrives, and `onVisible`
-filters that out. With `opts.once` the subscription auto-unsubscribes
-after the first entry where `isIntersecting` is `true`; entries that
-fire on exit are ignored.
+filters that out. With `opts.once`, `fn` runs only for the first entry
+where `isIntersecting` is `true` — exit entries before it, and
+everything after it, are ignored.
 
 ## Arguments
 
@@ -34,25 +34,26 @@ fire on exit are ignored.
 
 ### Subscribe to intersection
 
-Logs whenever the node enters or leaves the viewport. `entry` is
-always a real `IntersectionObserverEntry`.
+Logs whenever the node enters or leaves the viewport. The subscription
+happens inside a `use:ref` function, where the node actually exists;
+`entry` is always a real `IntersectionObserverEntry`.
 
 ```jsx
-import { render, ref, signal } from 'pota'
+import { render, signal } from 'pota'
 import { onVisible } from 'pota/use/intersection'
 
 function Panel() {
-	const node = ref()
 	const log = signal('')
 
-	onVisible(node(), entry =>
-		log.write(`visible: ${entry.isIntersecting}`),
-	)
+	const watch = node =>
+		onVisible(node, entry =>
+			log.write(`visible: ${entry.isIntersecting}`),
+		)
 
 	return (
 		<div>
 			<div
-				use:ref={node}
+				use:ref={watch}
 				style={{ height: '120vh' }}
 			>
 				scroll me
@@ -68,22 +69,21 @@ render(Panel)
 ### Fire once on first arrival
 
 With `once`, `fn` runs a single time — the first entry where
-`isIntersecting` is `true` — then auto-unsubscribes. Exit entries
-before that are ignored.
+`isIntersecting` is `true`. Exit entries before that, and everything
+after it, are ignored.
 
 ```jsx
-import { render, ref, signal } from 'pota'
+import { render, signal } from 'pota'
 import { onVisible } from 'pota/use/intersection'
 
 function RevealOnce() {
-	const node = ref()
 	const seen = signal(false)
-
-	onVisible(node(), () => seen.write(true), { once: true })
 
 	return (
 		<div
-			use:ref={node}
+			use:ref={node =>
+				onVisible(node, () => seen.write(true), { once: true })
+			}
 			style={{ height: '40vh' }}
 		>
 			{() => (seen.read() ? 'arrived' : 'scroll me into view')}

@@ -3,14 +3,14 @@ title: unwrap
 subpath: pota
 topic: Reactive core
 desc:
-  Recursively calls any function it encounters and flattens arrays one
-  level, returning a plain snapshot value.
+  Recursively calls any function it encounters and flattens nested
+  arrays, returning a plain snapshot value.
 ---
 
 # unwrap
 
-Recursively calls any function it encounters and flattens arrays one
-level, returning a plain value. It is the snapshot half of
+Recursively calls any function it encounters and flattens nested
+arrays, returning a plain value. It is the snapshot half of
 [resolve](/resolve): `resolve` wraps `unwrap` in a memo so the result
 is reactive; `unwrap` on its own does the same walk once and returns a
 plain value with no subscriptions.
@@ -28,7 +28,8 @@ re-run on change.
 
 If `children` is a function it is called and the result is unwrapped
 recursively. If it is an array each entry is unwrapped and the results
-are concatenated (one-level flatten). Anything else is returned as-is.
+are concatenated, flattening nested arrays. Anything else is returned
+as-is.
 
 **Returns:** `Resolved<T>` — the fully walked, plain value.
 

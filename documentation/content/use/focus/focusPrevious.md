@@ -25,7 +25,7 @@ a subset. Part of [`pota/use/focus`](/use/focus).
 The default candidate set is `input` (non-hidden), `button`, `select`,
 `textarea`, `a`, `[tabindex]`, and `[contenteditable]` elements. The
 list is traversed in reverse, so wrap-around lands on the last
-element.
+element — note that an explicit `list` you pass is reversed in place.
 
 ## Examples
 

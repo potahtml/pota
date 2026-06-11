@@ -21,7 +21,7 @@ inside an existing effect, see [untrack](/untrack).
 | name     | type            | description                                                   |
 | -------- | --------------- | ------------------------------------------------------------- |
 | `depend` | `() => unknown` | tracked function whose reads become the effect's dependencies |
-| `fn`     | `() => void`    | untracked body — runs after every change to `depend`          |
+| `fn`     | `() => void`    | untracked body — runs once on creation, then after every change to `depend` |
 
 **Returns:** `void`.
 

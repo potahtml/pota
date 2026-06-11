@@ -3,16 +3,19 @@ title: syncEffect
 subpath: pota
 topic: Reactive core
 desc:
-  Like effect, but the body runs synchronously when a dependency
-  changes instead of on the next scheduler tick.
+  Like effect, but runs immediately on creation and re-runs ahead of
+  regular effects within the update batch.
 ---
 
 # syncEffect
 
-Like [effect](/effect), but the body runs _synchronously_ when a
-dependency changes instead of being queued for the next scheduler
-tick. Pick it only when the side-effect must land before the current
-call returns — for everything else, `effect` is the right primitive.
+Like [effect](/effect), but it runs immediately when created — even in
+the middle of an update — and its re-runs fire ahead of regular
+effects within the same batch. pota itself uses it where setup must
+complete before user code observes it: context providers and
+[catchError](/catchError) boundaries. Pick it when creation-time or
+ordering guarantees matter — for everything else, `effect` is the
+right primitive.
 
 ## Arguments
 
@@ -26,11 +29,10 @@ call returns — for everything else, `effect` is the right primitive.
 
 ### Synchronous snapshot
 
-[effect](/effect) defers the body to the effects queue (fired after
-the current update batch). `syncEffect` runs synchronously inside the
-current batch — useful when you need a value computed _during_ the
-same microtask, e.g. as part of a context setup or a one-shot read
-used by the surrounding render.
+An [effect](/effect) created during a render runs at the end of the
+render batch — after the component body has returned. `syncEffect`
+runs during creation, so `snapshot` is already populated when the
+static text below reads it.
 
 ```jsx
 import { render, signal, syncEffect } from 'pota'
@@ -47,7 +49,8 @@ function App() {
 		<div>
 			<p>captured: {snapshot}</p>
 			<button on:click={() => count.update(n => n + 1)}>
-				bump (only the next syncEffect would update snapshot)
+				bump (the variable updates; the static text keeps the first
+				snapshot)
 			</button>
 		</div>
 	)

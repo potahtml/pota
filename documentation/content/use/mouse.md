@@ -94,18 +94,17 @@ wasted overhead. Treat the returned set as read-only.
 
 ```tsx
 import { mouseButtons, mousePosition } from 'pota/use/mouse'
+import { useAnimationFrame } from 'pota/use/animate'
 import { render } from 'pota'
 
 function App() {
 	const out = (<output>idle</output>) as HTMLOutputElement
 
-	const tick = () => {
+	useAnimationFrame(() => {
 		const held = [...mouseButtons()]
 		const { x, y } = mousePosition()
 		out.textContent = `buttons: [${held}] at ${x},${y}`
-		requestAnimationFrame(tick)
-	}
-	requestAnimationFrame(tick)
+	}).start()
 
 	return out
 }

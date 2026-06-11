@@ -25,9 +25,9 @@ Pair with [`<A>`](/components/A) for route-aware links and
 | `path?`     | `string`                 | when the location matches this path, the route's children render. When omitted, the route matches only when the parent route's path matches the location exactly (the final / index route).      |
 | `params?`   | `Record<string, string>` | replaces `:name` segments in `path` with their URI-encoded values. `<Route path="/some/:cat/:page" params={{ cat: 'variété', page: 'touché' }}/>` becomes `/some/vari%C3%A9t%C3%A9/touch%C3%A9`. |
 | `when?`     | `When<any>`              | optional condition to stop rendering even when the path matches.                                                                                                                                 |
-| `fallback?` | `JSX.Element`            | rendered while a `when` condition is falsy. Unused when `when` is not set.                                                                                                                       |
+| `fallback?` | `JSX.Element`            | rendered while the route is not shown — when the path doesn't match, or a `when` condition is falsy.                                                                                             |
 | `collapse?` | `When<any>`              | hide the route instead of unmounting it. Keeps state for iframes, canvas, video, audio, etc.                                                                                                     |
-| `scroll?`   | `string \| string[]`     | selector(s) to scroll into view when the route matches (falls back to the URL hash, then the top of the page).                                                                                   |
+| `scroll?`   | `string \| string[]`     | selector(s) to scroll into view when the route matches — the URL hash wins first, then these selectors, then the top of the page.                                                                |
 | `children?` | `JSX.Element`            | what to render when the route matches.                                                                                                                                                           |
 
 ## Nested routes and params

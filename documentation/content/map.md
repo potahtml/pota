@@ -9,10 +9,11 @@ desc:
 
 # map
 
-Reactive equivalent of `array.map`. Runs the callback only for added,
-removed or changed entries — existing rows keep their state instead of
-being recreated on every change. Powers [`<For/>`](/components/For)
-and works with arrays, Sets and Maps.
+Reactive equivalent of `array.map`. Runs the callback only for
+entries it hasn't rendered before — existing rows keep their state
+instead of being recreated on every change, and removed rows are
+disposed. Powers [`<For/>`](/components/For) and works with arrays,
+Sets and Maps.
 
 Plain `array.map(item => <li>{item}</li>)` can't react to mutations
 without rebuilding every row from scratch, losing focus, DOM state,
@@ -108,7 +109,8 @@ render(App)
 ### Reactive index and fallback
 
 The `reactiveIndex` flag turns `index` into a reader that updates as
-rows move; `fallback` renders when the list is empty.
+rows move — _reverse_ renumbers the existing rows in place — and
+_clear_ empties the list so the `fallback` renders.
 
 ```jsx
 import { map, render, signal } from 'pota'
@@ -117,19 +119,27 @@ function App() {
 	const items = signal(['a', 'b', 'c'])
 
 	return (
-		<ul>
-			{map(
-				items.read,
-				(item, index) => (
-					<li>
-						{index} — {item}
-					</li>
-				),
-				false,
-				<li>nothing here</li>,
-				true,
-			)}
-		</ul>
+		<div>
+			<button
+				on:click={() => items.update(list => [...list].reverse())}
+			>
+				reverse
+			</button>
+			<button on:click={() => items.write([])}>clear</button>
+			<ul>
+				{map(
+					items.read,
+					(item, index) => (
+						<li>
+							{index} — {item}
+						</li>
+					),
+					false,
+					<li>nothing here</li>,
+					true,
+				)}
+			</ul>
+		</div>
 	)
 }
 

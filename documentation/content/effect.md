@@ -19,7 +19,7 @@ derive a value instead of imperatively pushing it.
 
 | name | type         | description                                                                                                                                                                                           |
 | ---- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fn` | `() => void` | function whose tracked reads become the effect's dependencies. Re-runs after any tracked signal changes — scheduled, not synchronous (use [syncEffect](/syncEffect) if you need synchronous re-runs). |
+| `fn` | `() => void` | function whose tracked reads become the effect's dependencies. Re-runs when any tracked signal changes, at the end of the current update batch — after memos settle (use [syncEffect](/syncEffect) when the body must run during creation or ahead of regular effects). |
 
 **Returns:** `void`. The effect lives until its owner is disposed;
 pair imperative setup with [cleanup](/cleanup) to detach listeners or
@@ -44,8 +44,8 @@ effect(() => {
 
 ### Log on change
 
-Run a side-effect every time tracked state updates. Each click fires
-the effect — the effect is scheduled, not synchronous.
+Run a side-effect every time tracked state updates — the effect fires
+at the end of each click's update batch.
 
 ```jsx
 import { effect, render, signal } from 'pota'

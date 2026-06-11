@@ -13,8 +13,9 @@ desc:
 Anchor that intercepts clicks for client-side
 [`<Route>`](/components/Route) navigation. Renders a regular `<a>` but
 resolves its `href` relative to the current route — when `href` is not
-absolute (does not start with `/`, `#`, or `http`) it is made relative
-to the route the link sits in.
+absolute (doesn't start with `/` and carries no `scheme://` protocol)
+it is resolved against the route the link sits in. Hash hrefs (`#…`)
+resolve relative too, which is what makes hash routing work.
 
 Use `params` to substitute `:name` placeholders in `href` with their
 URI-encoded values, and `replace` to swap the current history entry

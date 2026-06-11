@@ -24,7 +24,8 @@ computed value until one of its tracked sources changes again.
 **Returns:** a callable signal — call it with no args to read, or pass
 a value to override. `await` works too: a derived is thenable and
 resolves once its current pending stage commits.
-[isResolved(d)](/isResolved) reports `true` after the first commit.
+[isResolved(d)](/isResolved) reports `true` once the current run has
+committed — and flips back to `false` while a re-run is pending.
 
 ## API shape
 
@@ -73,10 +74,10 @@ render(App)
 ### Multi-stage chain
 
 `derived(f0, f1, f2, ...)` runs the input through each stage in turn;
-each stage receives the previous stage's resolved value. The chain
-re-runs whenever any tracked source in any stage changes, but
-individual stages re-run independently when their own deps fire. Type
-into the input — every keystroke walks the chain to produce a slug.
+each stage receives the previous stage's resolved value. A dependency
+change re-runs the chain from the affected stage onward — earlier
+stages keep their cached results. Type into the input — every
+keystroke walks the chain to produce a slug.
 
 ```jsx
 import { derived, render, signal } from 'pota'
@@ -109,8 +110,8 @@ render(App)
 
 `derived` unwraps promises automatically — each stage's input is
 already resolved by the time it runs. [isResolved(post)](/isResolved)
-is `false` until the chain has committed at least once, so it doubles
-as a loading flag.
+is `false` while a fetch is pending — initially and again on every
+re-run — so it doubles as a loading flag.
 
 ```jsx
 import { derived, isResolved, render, signal } from 'pota'
@@ -141,8 +142,8 @@ A `derived` with promises rejects through the reactive scope —
 unhandled, the rejection routes to `console.error`. Wrap the consumer
 in [`<Errored/>`](/components/Errored) so a failed `fetch` or
 `res.json()` shows a fallback instead. The fallback's `reset`
-re-mounts the children, and because the chain re-runs from the source
-signal, bumping the trigger after reset starts a fresh attempt.
+re-mounts the children — `Post`'s state is recreated from scratch
+(`id` back to `1`), so the retry starts clean.
 
 ```jsx
 import { derived, render, signal } from 'pota'

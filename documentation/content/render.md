@@ -10,12 +10,12 @@ desc:
 # render
 
 Mounts anything into an `Element` inside a fresh root and returns a
-disposer that unmounts it. It creates a tracking scope with a
+disposer that unmounts it. It creates an owner scope with a
 [root](/root) and hands back a dispose function that, when called,
 unmounts the contents.
 
-When called inside a tracked scope, the rendered tree is disposed
-automatically if that scope gets disposed.
+When called inside an existing reactive scope, the rendered tree is
+disposed automatically if that scope gets disposed.
 
 Rendering into a container does not clear the container, and disposing
 what was rendered does not remove unrelated elements from it. For the
@@ -27,7 +27,7 @@ lower-level, owner-bound version that does not create a root, see
 | name       | type                                      | description                                                                                          |
 | ---------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `children` | `JSX.Element`                             | thing to render                                                                                      |
-| `parent?`  | `Element \| null`                         | mount point (default: `document.body`)                                                               |
+| `parent?`  | `Element \| DocumentFragment \| null`     | mount point (default: `document.body`); a `ShadowRoot` is a `DocumentFragment`                       |
 | `options?` | `{ clear?: boolean; relative?: boolean }` | `clear` empties the target before inserting; `relative` inserts before `parent` instead of appending |
 
 **Returns:** a dispose function (`() => void`).

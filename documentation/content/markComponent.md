@@ -27,32 +27,28 @@ The flag can be read back with [isComponent](/isComponent).
 
 ## Examples
 
-### Component factory
+### Marked vs. plain function child
 
-Builds reusable components outside JSX; each marked function runs
-untracked, so its internal signal doesn't leak reactivity to the
-parent.
+The same function body twice as a child: the plain one is a reactive
+expression that rebuilds its paragraph on every `count` change, the
+marked one runs once, untracked.
 
 ```jsx
 import { markComponent, render, signal } from 'pota'
 
-function makeCounter(initial) {
-	return markComponent(() => {
-		const n = signal(initial)
-		return (
-			<button on:click={() => n.update(v => v + 1)}>{n.read}</button>
-		)
-	})
-}
-
-const A = makeCounter(0)
-const B = makeCounter(100)
-
 function App() {
+	const count = signal(0)
+
+	const tracked = () => <p>rebuilt at count = {count.read()}</p>
+	const marked = markComponent(() => (
+		<p>created once at count = {count.read()}</p>
+	))
+
 	return (
 		<div>
-			<A />
-			<B />
+			<button on:click={() => count.update(n => n + 1)}>+1</button>
+			{tracked}
+			{marked}
 		</div>
 	)
 }

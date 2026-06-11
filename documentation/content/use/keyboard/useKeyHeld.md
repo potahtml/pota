@@ -37,20 +37,23 @@ is held.
 
 ### React to a held key
 
-Toggle a class while the Shift key is down. Because the reader is
-reactive, the [effect](/effect) re-runs on each press/release.
+Toggle a class while the Shift key is down — the reactive class
+function re-evaluates on each press and release.
 
 ```jsx
-import { render, effect, signal } from 'pota'
+import { render } from 'pota'
 import { useKeyHeld } from 'pota/use/keyboard'
 
 function App() {
 	const shift = useKeyHeld('shift')
 
 	return (
-		<p class={() => (shift() ? 'shifted' : '')}>
-			hold <kbd>Shift</kbd> to highlight this text
-		</p>
+		<>
+			<style>{`.shifted { background: gold; }`}</style>
+			<p class={() => (shift() ? 'shifted' : '')}>
+				hold <kbd>Shift</kbd> to highlight this text
+			</p>
+		</>
 	)
 }
 

@@ -33,9 +33,13 @@ const test = <video prop:srcObject={o} />
 
 ## Children
 
-Passing `children` as a prop is only honoured when the element has no
-explicit child nodes in JSX. If both are set, the explicit
-`childNodes` win and the `children` prop is ignored.
+On a native element, write children as JSX content — a `children`
+attribute is treated like any other attribute and lands as a literal
+`children="…"` attribute in the DOM, not as content. On a component,
+`children` is a regular prop; when both a `children` attribute and
+explicit JSX children are given, the explicit children win. The
+imperative [`Component`](/Component) factory accepts `children` in its
+props object and renders them as content.
 
 ## xmlns
 

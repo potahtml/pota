@@ -50,8 +50,9 @@ const [user, setUser] = store({
 	role: 'engineer',
 })
 
-const log = signal('user is now ada 0 engineer')
+const log = signal('')
 
+// runs once per batched `setUser` call, not once per write
 effect(() => {
 	log.write(`user is now ${user.name} ${user.age} ${user.role}`)
 })

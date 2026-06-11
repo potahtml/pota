@@ -27,7 +27,7 @@ factories: attach them with `use:ref`.
 | Argument       | Type                                       | Description                                         |
 | -------------- | ------------------------------------------ | --------------------------------------------------- |
 | `handler`      | `(e: PointerEvent, node: Element) => void` | Called when a `pointerdown` lands outside the node. |
-| `options.once` | `boolean`                                  | When `true`, detach after the first match.          |
+| `options.once` | `boolean`                                  | When `true`, detach after the first `pointerdown`.  |
 
 **Returns:** a ref function `(node: Element) => void` for `use:ref`.
 
@@ -65,10 +65,14 @@ render(App)
 ## Notes
 
 - `clickOutside` listens for `pointerdown` on `document`. "Outside"
-  means `!node.contains(event.target)`, so clicks on descendants
-  (including portals rendered inside the node) don't fire.
-- Pass `{ once: true }` for single-shot dismissal — the listener
-  auto-removes after the first match:
-  `clickOutside(handler, { once: true })`.
+  means `!node.contains(event.target)` — DOM containment, not
+  component structure: clicks on DOM descendants don't fire, while
+  content portaled out of the node (a
+  [`Portal`](/components/Portal) mounted elsewhere) counts as
+  outside.
+- `{ once: true }` maps to the native `addEventListener` `once`
+  option, so the document listener is removed after the first
+  `pointerdown` anywhere — including one inside the node, in which
+  case the handler never fires.
 - Compose multiple factories on one element:
   `use:ref={[clickOutside(a), escape(b)]}`.

@@ -9,10 +9,14 @@ desc:
 
 # readonly
 
-Deep-freezes `value` and everything reachable from it, then types the
-result as `DeepReadonly<T>`. Useful for exposing config or constants
-where downstream code shouldn't even attempt to write — silent
-strict-mode failures become loud `TypeError` throws.
+Deep-freezes `value` and everything reachable through its enumerable
+properties, then types the result as `DeepReadonly<T>`. Useful for
+exposing config or constants where downstream code shouldn't even
+attempt to write — a stray write throws a `TypeError` in strict mode
+(module code is always strict) rather than mutating the object. Note
+that freezing affects properties only: the entries of collections like
+`Map` and `Set` live in internal slots, so `.set`/`.add` still work on
+a frozen collection.
 
 ## Arguments
 

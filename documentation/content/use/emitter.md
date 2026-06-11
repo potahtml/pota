@@ -160,8 +160,8 @@ source has fired. Ways to handle it:
 
 Wrap a window event source as an `Emitter` and read `use()` directly
 in JSX. The accessor is reactive, so the text re-renders on every
-resize, and the listener is added on first read and removed on
-unmount.
+resize; the listener is added by the `use()` call itself and removed
+on unmount.
 
 ```jsx
 import { render } from 'pota'

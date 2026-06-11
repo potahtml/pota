@@ -18,8 +18,11 @@ fullscreen, otherwise exits. The element defaults to
 | --------- | ------------ | --------------------------------------------------------------------- |
 | `element` | `DOMElement` | Optional. Element to enter fullscreen. Defaults to `documentElement`. |
 
-**Returns:** the fullscreen element after the toggle (same as
-[`isFullscreen()`](/use/fullscreen/isFullscreen)), or `null`.
+**Returns:** [`isFullscreen()`](/use/fullscreen/isFullscreen) read
+immediately after issuing the request. The Fullscreen API is
+asynchronous, so this is still the pre-toggle state — for the settled
+value subscribe with
+[`useFullscreen`](/use/fullscreen/useFullscreen).
 
 ## Examples
 

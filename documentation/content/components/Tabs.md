@@ -31,7 +31,7 @@ Unknown props are forwarded to the underlying element.
 | `Tabs`       | `onSelected?` | `(selected: { id: number, name: string }) => void` | called with the picked tab each time the selection changes (not on mount) — lift it into a caller-owned signal to observe selection from outside the tree |
 | `Tabs.Label` | `name?`       | `string`                                           | optional label name, exposed through `Tabs.selected().read().name`                                                                                        |
 | `Tabs.Label` | `selected?`   | `boolean`                                          | when `true`, marks this label as the initially selected tab (overrides `Tabs`'s `selected`)                                                               |
-| `Tabs.Label` | `hidden?`     | `Accessor<boolean>`                                | hides the label (and its matching panel)                                                                                                                  |
+| `Tabs.Label` | `hidden?`     | `Accessor<boolean>`                                | hides the label's tab button — its panel then can't be selected (don't point the initial `selected` at a hidden tab)                                      |
 | `Tabs.Label` | `onClick?`    | `(info: { event, group, id, props }) => void`      | called when the label is clicked, after the selection change is applied                                                                                   |
 | `Tabs.Panel` | `collapse?`   | `boolean`                                          | when `true`, the inactive panel is hidden via `display:none` instead of unmounted — its DOM and state survive across selections                           |
 

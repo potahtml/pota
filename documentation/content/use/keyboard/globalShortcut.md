@@ -24,8 +24,8 @@ the `KeyboardEvent` — there is no element bound to a global chord.
 | `combo`   | `string`                     | `+`-separated modifiers (`ctrl`/`meta`/`alt`/`shift`/`mod`) + key. |
 | `handler` | `(e: KeyboardEvent) => void` | Called when the chord is pressed anywhere in the document.         |
 
-**Returns:** a `use:ref` factory — `(node: Element) => void`. Attach
-it to any mounted element; the listener is document-wide regardless.
+**Returns:** a ref function for `use:ref` — it ignores the element
+it's attached to; the listener is document-wide regardless.
 
 ## Examples
 

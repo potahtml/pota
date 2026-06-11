@@ -63,27 +63,25 @@ it off so hover doesn't steal focus.
 ### Toggle an anchored panel
 
 Drives an overlay from a couple of signals: a button toggles `opened`,
-and the panel anchors to that same button. Calling `createOverlay` in
-an effect ties the overlay's lifetime to the component, so it disposes
-on cleanup.
+and the panel anchors to that same button. Called during component
+setup, the overlay's internal root attaches to the component's scope
+and tears down with it — keep the returned `dispose` only when you
+need to close the overlay early.
 
 ```jsx
-import { render, signal, effect } from 'pota'
+import { render, signal } from 'pota'
 import { createOverlay } from 'pota/use/overlay'
 
 function App() {
 	const opened = signal(false)
 	const anchor = signal(null)
 
-	effect(() => {
-		const dispose = createOverlay({
-			opened: opened.read,
-			related: anchor.read,
-			content: () => 'Anchored panel',
-			position: () => 'bottom',
-			arrows: () => true,
-		})
-		return dispose
+	createOverlay({
+		opened: opened.read,
+		related: anchor.read,
+		content: () => 'Anchored panel',
+		position: () => 'bottom',
+		arrows: () => true,
 	})
 
 	return (
@@ -106,24 +104,21 @@ restored to the trigger on close — the foundation for a dialog-like
 floating panel.
 
 ```jsx
-import { render, signal, effect } from 'pota'
+import { render, signal } from 'pota'
 import { createOverlay } from 'pota/use/overlay'
 
 function App() {
 	const opened = signal(false)
 	const anchor = signal(null)
 
-	effect(() => {
-		const dispose = createOverlay({
-			opened: opened.read,
-			related: anchor.read,
-			content: () => 'Press Tab — focus is trapped to me',
-			position: () => 'bottom',
-			arrows: () => true,
-			role: 'dialog',
-			manageFocus: true,
-		})
-		return dispose
+	createOverlay({
+		opened: opened.read,
+		related: anchor.read,
+		content: () => 'Press Tab — focus is trapped to me',
+		position: () => 'bottom',
+		arrows: () => true,
+		role: 'dialog',
+		manageFocus: true,
 	})
 
 	return (

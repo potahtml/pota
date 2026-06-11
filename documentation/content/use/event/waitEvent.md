@@ -8,9 +8,9 @@ desc: Resolve a promise with the next matching event.
 # waitEvent
 
 `waitEvent(element, eventName)` resolves with the next matching event
-from `element` and removes its listener. If a new `waitEvent` is
-requested for the same element / event before the old one fires, the
-earlier promise is rejected and its listener removed — so duplicate
+from `element` and removes its listener. Only one `waitEvent` is
+pending per element: requesting another (whatever the event name)
+before the old one fires rejects the earlier promise — so duplicate
 `transitionend` / `animationend` handlers don't pile up. Part of
 [`pota/use/event`](/use/event).
 

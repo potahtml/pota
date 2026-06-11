@@ -11,8 +11,10 @@ desc: Non-reactive snapshot of the pointer position.
 pointer position in client coordinates. It is **not** reactive — call
 it whenever you need the latest value, e.g. inside a
 `requestAnimationFrame` loop or an event handler, where subscribing
-would be wasted overhead. For a reactive reader, use
-[`useMousePosition`](/use/mouse/useMousePosition).
+would be wasted overhead. It does read a signal under the hood, so
+calling it inside a tracked scope (an effect or memo) would subscribe
+after all — for reactive reads use
+[`useMousePosition`](/use/mouse/useMousePosition) instead.
 
 The first call lazily installs the shared `window` listeners.
 

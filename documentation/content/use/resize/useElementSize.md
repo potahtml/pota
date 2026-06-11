@@ -18,37 +18,29 @@ backed by a `ResizeObserver`. The callback counterpart is
 
 ### Live size readout
 
-Attach `useElementSize` to a node and derive displayed text from its
-reactive accessor. The accessor yields the latest
-`ResizeObserverEntry`, so read `contentRect` for the current
-dimensions.
+`useElementSize` takes the node itself, so obtain the node before
+rendering — here a natively-resizable `textarea` is created up front,
+rendered as a child, and its accessor drives the readout. The accessor
+yields the latest `ResizeObserverEntry` (`undefined` until the first
+observation), so read `contentRect` for the current dimensions. Don't
+capture the accessor from inside `use:ref` and read it in a sibling
+child — children render before refs fire; when the node only exists in
+JSX, use the [`resize`](/use/resize) ref factory or
+[`onElementSize`](/use/resize/onElementSize) instead.
 
 ```jsx
 import { render } from 'pota'
-
 import { useElementSize } from 'pota/use/resize'
 
 function App() {
-	let size
+	const box = document.createElement('textarea')
+	box.value = 'resize me'
+
+	const size = useElementSize(box)
 
 	return (
 		<>
-			<div
-				use:ref={node => {
-					size = useElementSize(node)
-				}}
-				style={{
-					resize: 'both',
-					overflow: 'auto',
-					width: '200px',
-					height: '120px',
-					padding: '1rem',
-					border: '1px solid #aaa',
-				}}
-			>
-				resize me
-			</div>
-
+			{box}
 			<p>
 				{() => {
 					const entry = size()

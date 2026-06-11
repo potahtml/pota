@@ -15,9 +15,12 @@ returned disposer being called, or a re-run [memo](/memo) recreating
 its scope. Pair it with anything you set up imperatively (timers,
 listeners, third-party instances) so it doesn't outlive the scope.
 
-Callbacks run in reverse registration order (LIFO), after the elements
-owned by the scope have been removed from the document. `cleanup`
-returns the same `fn` it was given.
+Callbacks run in reverse registration order (LIFO), and child scopes
+dispose before their parents. Don't rely on the scope's DOM having
+been detached yet inside a cleanup — in most scopes the nodes leave
+the document at the end of disposal, after the cleanups (keyed
+[`<For>`](/components/For) rows are the exception: their nodes detach
+first). `cleanup` returns the same `fn` it was given.
 
 ## Arguments
 
@@ -74,10 +77,9 @@ render(Keys)
 
 ### Disposal ordering
 
-`cleanup` callbacks run after the scope's DOM nodes have already been
-removed, and child scopes dispose before their parents — so the
-deepest cleanups fire first. Unmount the tree and the `cleanup:` lines
-appear from the inside out: `Child` before `Parent`.
+Child scopes dispose before their parents — the deepest cleanups fire
+first. Unmount the tree and the `cleanup:` lines appear from the
+inside out: `Child` before `Parent`.
 
 ```jsx
 import { cleanup, render, signal } from 'pota'

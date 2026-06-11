@@ -7,9 +7,10 @@ desc: Run a callback whenever document visibility changes.
 
 # onDocumentVisible
 
-`onDocumentVisible(fn)` calls `fn` with the current visibility boolean
-whenever the document is shown or hidden — use it for pausing timers,
-stopping animations, or refreshing data when the tab regains focus.
+`onDocumentVisible(fn)` calls `fn` once with the current visibility
+boolean, then again whenever the document is shown or hidden — use it
+for pausing timers, stopping animations, or refreshing data when the
+tab regains focus.
 For a reactive accessor use
 [`useDocumentVisible`](/use/visibility/useDocumentVisible). Part of
 [`pota/use/visibility`](/use/visibility).
@@ -25,7 +26,7 @@ listener and it leaks.
 
 | Argument | Type                         | Description                                        |
 | -------- | ---------------------------- | -------------------------------------------------- |
-| `fn`     | `(visible: boolean) => void` | Called with the current visibility on each change. |
+| `fn`     | `(visible: boolean) => void` | Called once on subscription, then on each change.  |
 
 **Returns:** `undefined`.
 
@@ -34,8 +35,9 @@ listener and it leaks.
 ### Logging visibility changes
 
 Appends a timestamped entry to the log each time the tab is shown or
-hidden. Because the subscription is owned by the component, it is
-removed automatically when the component unmounts.
+hidden — the first entry appears immediately, from the initial call
+with the current value. Because the subscription is owned by the
+component, it is removed automatically when the component unmounts.
 
 ```jsx
 import { render, signal } from 'pota'

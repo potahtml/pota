@@ -36,9 +36,15 @@ import { useGamepadButton } from 'pota/use/gamepad'
 function App() {
 	const pressed = useGamepadButton(0)
 	return (
-		<div class={() => (pressed() ? 'held' : 'idle')}>
-			A button: {() => (pressed() ? 'down' : 'up')}
-		</div>
+		<>
+			<style>{`
+				.idle, .held { padding: 1rem; }
+				.held { background: seagreen; color: white; }
+			`}</style>
+			<div class={() => (pressed() ? 'held' : 'idle')}>
+				A button: {() => (pressed() ? 'down' : 'up')}
+			</div>
+		</>
 	)
 }
 

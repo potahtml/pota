@@ -29,7 +29,7 @@ disposal.
 | name       | type                                      | description                                                                                          |
 | ---------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `children` | `JSX.Element`                             | thing to insert                                                                                      |
-| `parent?`  | `Element \| null`                         | mount point (default: `document.body`)                                                               |
+| `parent?`  | `Element \| DocumentFragment \| null`     | mount point (default: `document.body`); a `ShadowRoot` is a `DocumentFragment`                       |
 | `options?` | `{ clear?: boolean; relative?: boolean }` | `clear` empties the target before inserting; `relative` inserts before `parent` instead of appending |
 
 **Returns:** the created node(s) — a `Node`, an array of `Node`s, or

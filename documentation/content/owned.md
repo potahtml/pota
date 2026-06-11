@@ -66,27 +66,34 @@ render(App)
 
 ### Cancel work when the owner disposes
 
-`onCancel` lets you run teardown when the scheduled callback never
-fires because its owner was disposed first.
+`onCancel` runs when the scheduled callback never fires because its
+owner was disposed first — unmount the child before the timer expires
+to see it.
 
 ```jsx
 import { owned, render, signal } from 'pota'
+import { Show } from 'pota/components'
 
 function App() {
-	const log = signal('idle')
+	const log = signal('waiting…')
+	const mounted = signal(true)
 
-	function schedule() {
+	function Child() {
 		const run = owned(
 			() => log.write('ran'),
 			() => log.write('cancelled'),
 		)
-		setTimeout(run, 1000)
+		setTimeout(run, 1500)
+		return <p>child mounted — wait 1.5s, or unmount first</p>
 	}
 
 	return (
 		<div>
 			<p>{log.read}</p>
-			<button on:click={schedule}>schedule</button>
+			<button on:click={() => mounted.write(false)}>unmount</button>
+			<Show when={mounted.read}>
+				<Child />
+			</Show>
 		</div>
 	)
 }

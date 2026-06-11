@@ -30,12 +30,10 @@ names. The `<style>` block contributes the rules `documentKeyframes`
 finds.
 
 ```jsx
-import { render, resolve } from 'pota'
+import { render } from 'pota'
 import { documentKeyframes } from 'pota/use/animate'
 
 function App() {
-	const names = resolve(() => Object.keys(documentKeyframes()))
-
 	return (
 		<>
 			<style>{`
@@ -43,7 +41,15 @@ function App() {
 				@keyframes pulse   { 50% { transform: scale(1.3); } }
 			`}</style>
 
-			<ul>{() => names().map(name => <li>{name}</li>)}</ul>
+			{/* the function child runs after the style is in the
+			    document, so the new rules are visible to the walk */}
+			<ul>
+				{() =>
+					Object.keys(documentKeyframes()).map(name => (
+						<li>{name}</li>
+					))
+				}
+			</ul>
 		</>
 	)
 }

@@ -48,18 +48,20 @@ function App() {
 	const state = signal('idle')
 
 	const toggle = async () => {
-		if (state.read() === 'idle') {
-			state.write('out')
-			await animateClassTo(box(), 'idle', 'out')
-			state.write('idle')
-			await animateClassTo(box(), 'out', 'idle')
-		}
+		if (state.read() !== 'idle') return
+		state.write('sliding out')
+		// `.out` runs an animation — resolves on `animationend`
+		await animateClassTo(box(), 'idle', 'out')
+		state.write('snapping back')
+		// `.idle` runs none — resolves immediately
+		await animateClassTo(box(), 'out', 'idle')
+		state.write('idle')
 	}
 
 	return (
 		<>
 			<style>{`
-				.idle { background: #2a9d8f; transition: background .2s; }
+				.idle { background: #2a9d8f; }
 				.out  { background: #e76f51; animation: slide .4s forwards; }
 				@keyframes slide { to { transform: translateX(120px); } }
 			`}</style>
@@ -67,7 +69,7 @@ function App() {
 			<button on:click={toggle}>animate</button>
 			<div
 				use:ref={box}
-				class={state.read}
+				class="idle"
 				style={{
 					width: '120px',
 					padding: '1rem',

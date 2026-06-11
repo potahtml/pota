@@ -27,7 +27,8 @@ creates its own observer and tears it down on cleanup. Part of
 | `src`        | `string` | Source to load. Falls back to the element's `data-src` when omitted.              |
 | `rootMargin` | `string` | Forwarded to `IntersectionObserver` to start loading before the image scrolls in. |
 
-**Returns:** a `use:ref` factory `(node: HTMLImageElement) => void`.
+**Returns:** a ref function `(node: HTMLImageElement) => void` for
+`use:ref`.
 
 ## Examples
 

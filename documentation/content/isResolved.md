@@ -3,16 +3,19 @@ title: isResolved
 subpath: pota
 topic: Reactive core
 desc:
-  True once every passed derived has resolved at least once — a
-  render-time guard for async values.
+  True while every passed derived is resolved — false whenever any
+  run is still pending.
 ---
 
 # isResolved
 
-`true` once every passed [derived](/derived) has resolved at least
-once. Useful with [`<Suspense/>`](/components/Suspense) or as a
-render-time guard for async-driven values that start out as
-`undefined`.
+`true` while every passed [derived](/derived) is resolved. A derived
+is pending until its first value commits, and again while any re-run
+is awaiting a promise — `isResolved` is `false` during those windows.
+Reading it inside a tracking scope subscribes to the deriveds, so it
+re-evaluates as they settle. Useful with
+[`<Suspense/>`](/components/Suspense) or as a render-time guard for
+async-driven values that start out as `undefined`.
 
 ## Arguments
 
@@ -20,16 +23,15 @@ render-time guard for async-driven values that start out as
 | ------------- | ---------------- | ----------------------------------- |
 | `...deriveds` | `Derived<any>[]` | one or more derived values to check |
 
-**Returns:** `boolean` — `true` when each argument has resolved at
-least once.
+**Returns:** `boolean` — `true` when no passed derived is pending.
 
 ## Examples
 
 ### Render a loading state
 
-Async `derived` chains start unresolved — their value is `undefined`
-until the first resolution. `isResolved` is the way to render a
-loading state without reading an undefined value on the first render.
+Async `derived` chains start unresolved — `isResolved` guards the
+loading state on the first render and again on every refetch the
+button triggers.
 
 ```jsx
 import { derived, isResolved, render, signal } from 'pota'

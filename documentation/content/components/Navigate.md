@@ -27,7 +27,7 @@ including `delay`, which lets the children show briefly (a
 | `path`      | `string`                 | destination URL. Relative paths are resolved against the current location.              |
 | `params?`   | `Record<string, string>` | replaces `:name` segments in `path` with their URI-encoded values, same as `A`/`Route`. |
 | `replace?`  | `boolean`                | use `history.replaceState` so no new history entry is added (default `false`).          |
-| `scroll?`   | `boolean`                | scroll to the URL hash (if any) after navigating.                                       |
+| `scroll?`   | `boolean`                | scroll to the URL hash (if any) after navigating (default `true` — pass `false` to skip). |
 | `delay?`    | `number`                 | milliseconds to wait before navigating. Useful to show the children before redirecting. |
 | `children?` | `JSX.Element`            | content rendered in place during the navigation (for example a "Redirecting…" notice).  |
 

@@ -20,7 +20,8 @@ readable-text pick see [textColor](/use/color/textColor).
 | ------- | -------- | ------------------------------- |
 | `color` | `string` | Any parseable CSS color string. |
 
-**Returns:** `number` — the relative luminance.
+**Returns:** `number` — the relative luminance in the `[0, 1]` range
+(`0` darkest black, `1` lightest white), rounded to 3 decimals.
 
 ## Examples
 

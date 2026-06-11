@@ -47,8 +47,8 @@ function Wrapper(props) {
 function App() {
 	return (
 		<div>
-			<p>isComponent(Greeting): {isComponent(Greeting)}</p>
-			<p>isComponent(plain): {isComponent(plain)}</p>
+			<p>isComponent(Greeting): {String(isComponent(Greeting))}</p>
+			<p>isComponent(plain): {String(isComponent(plain))}</p>
 			<Wrapper body={Greeting} />
 		</div>
 	)

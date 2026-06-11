@@ -253,9 +253,9 @@ render(App)
 
 ### Fallback
 
-A `fallback` renders when the condition becomes falsy. Fallbacks are
-wrapped in a lazy `memo`, so a plain component reference works without
-the [resolve](/resolve) helper.
+A `fallback` renders when the condition becomes falsy. It is
+instantiated only while shown and disposed when the condition turns
+truthy again.
 
 ```jsx
 import { render, signal } from 'pota'

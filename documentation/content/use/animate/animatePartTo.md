@@ -11,8 +11,10 @@ desc: Swap part tokens and resolve when the resulting animation ends.
 [`animateClassTo`](/use/animate/animateClassTo) — useful when styling
 shadow-DOM custom elements from outside with `::part(...)` selectors.
 It follows the same schedule → swap → await flow and resolves when the
-animation ends (or immediately if none runs). Part of
-[`pota/use/animate`](/use/animate).
+animation ends (or immediately if none runs) — including the same
+caveat: a swap whose only effect is a CSS **transition** leaves the
+promise unresolved (transitions fire `transitionend`, not
+`animationend`). Part of [`pota/use/animate`](/use/animate).
 
 ## Arguments
 
@@ -30,8 +32,9 @@ ends, or immediately if `element.getAnimations()` reports none.
 ### Animate a part on click
 
 Swaps a `part` token and waits for the resulting `::part(...)`
-animation to finish before resetting it. The shadow tree exposes a
-`box` part the page styles from outside.
+animation to finish before resetting it. A `use:ref` builds the shadow
+tree whose inner element exposes the `box` part — `::part()` only
+matches elements inside a shadow root, styled from outside it.
 
 ```jsx
 import { ref, render } from 'pota'
@@ -39,6 +42,14 @@ import { animatePartTo } from 'pota/use/animate'
 
 function App() {
 	const box = ref()
+
+	const shadowHost = node => {
+		const inner = document.createElement('div')
+		inner.setAttribute('part', 'box idle')
+		inner.textContent = 'part box'
+		node.attachShadow({ mode: 'open' }).append(inner)
+		box(inner)
+	}
 
 	const pulse = async () => {
 		await animatePartTo(box(), 'idle', 'pulse')
@@ -49,6 +60,7 @@ function App() {
 		<>
 			<style>{`
 				::part(box) {
+					display: block;
 					width: 120px;
 					padding: 1rem;
 					color: white;
@@ -63,12 +75,7 @@ function App() {
 			`}</style>
 
 			<button on:click={pulse}>pulse</button>
-			<div
-				use:ref={box}
-				part="box idle"
-			>
-				part box
-			</div>
+			<div use:ref={shadowHost} />
 		</>
 	)
 }

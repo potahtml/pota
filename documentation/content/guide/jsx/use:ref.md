@@ -16,10 +16,10 @@ producer is [ref](/ref), a tiny signal-function: call `r(node)` to
 write, `r()` to read — so the reference works inside effects and
 memos.
 
-The ref is written as soon as the element is created, _before_ its
-children exist and _before_ it is inserted into the document.
-Layout-dependent properties like `clientWidth` therefore return `0` at
-ref time. For work that needs the element connected, run it inside
+The ref is written as soon as the element is created, _before_ it is
+inserted into the document (static children are already cloned in;
+dynamic expression children fill in after). Layout-dependent
+properties like `clientWidth` therefore return `0` at ref time. For work that needs the element connected, run it inside
 [ready](/ready) or use [use:connected](/guide/jsx/use:connected).
 
 Because the value is just a function `(node) => void`, the same
@@ -34,7 +34,7 @@ without a plugin registry.
 | `value` | `fn` \| `fn[]` (any depth) | function(s) called synchronously with the element at creation time |
 
 Each function runs in array order, synchronously, at element creation
-— before children exist and before insertion.
+— before the element is inserted into the document.
 
 ## Examples
 

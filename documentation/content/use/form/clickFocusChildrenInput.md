@@ -10,8 +10,9 @@ desc:
 
 `clickFocusChildrenInput` is a `use:ref` function: clicking the
 element focuses the first focusable descendant (input / button /
-select / textarea / contenteditable). Useful for clickable labels
-around a hidden input. Part of [`pota/use/form`](/use/form).
+select / textarea / contenteditable). Useful for making an arbitrary
+container behave like a `<label>` — clicking anywhere inside focuses
+the field. Part of [`pota/use/form`](/use/form).
 
 ## Arguments
 
@@ -27,10 +28,10 @@ The first focusable descendant is matched with
 
 ## Examples
 
-### A clickable label
+### A label-like wrapper
 
-Clicking anywhere in the label — including the text — focuses the
-descendant input.
+Clicking anywhere in the wrapper — including the text — focuses the
+descendant input, without needing a `<label>`.
 
 ```jsx
 import { render } from 'pota'
@@ -38,10 +39,10 @@ import { clickFocusChildrenInput } from 'pota/use/form'
 
 function App() {
 	return (
-		<label use:ref={clickFocusChildrenInput}>
+		<div use:ref={clickFocusChildrenInput}>
 			Click anywhere here
 			<input placeholder="…and I get focus" />
-		</label>
+		</div>
 	)
 }
 

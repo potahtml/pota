@@ -23,7 +23,7 @@ compares by reference (`===`), such as a keyed
 
 | name           | type                          | description                                   |
 | -------------- | ----------------------------- | --------------------------------------------- |
-| `initialValue` | `Array<{ id?: string, ... }>` | seed array; entries should expose an `id` key |
+| `initialValue` | `Array<{ id?: string \| number, ... }>` | seed array; entries should expose an `id` key |
 | `options?`     | `SignalOptions`               | forwarded to the underlying `signal`          |
 
 **Returns:** an object `{ read, update, write }`. `read` and `update`

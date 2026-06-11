@@ -14,7 +14,9 @@ Reconciles into `target` whatever is defined in `source`, leaving any
 [replace](/store/replace), which removes keys absent from `source`,
 `reset` is additive. And unlike [merge](/store/merge), nested arrays
 are overwritten wholesale rather than reconciled item-by-item — there
-is no `keys` option. Mutates `target` in place and returns it;
+is no `keys` option. An empty object in `source` likewise overwrites
+wholesale, resetting that key to `{}`, while a non-empty object is
+reconciled key by key. Mutates `target` in place and returns it;
 `source` is deep-copied before reconciling, so the original `source`
 is left untouched.
 

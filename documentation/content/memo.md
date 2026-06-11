@@ -94,9 +94,9 @@ render(App)
 ### Layered memos
 
 Memos compose: a memo can read other memos, and each layer caches
-independently. Toggling a todo recomputes `completed`, but `total`
-doesn't change unless the source array's length does — so the
-percentage memo skips work the rest of the chain didn't trigger.
+independently. Toggling a todo changes `completed` and re-runs
+`percent`, while `total` re-runs but keeps its value — a memo whose
+recomputed value is unchanged doesn't re-run its dependents.
 
 ```jsx
 import { memo, render, signal } from 'pota'

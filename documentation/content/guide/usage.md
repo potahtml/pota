@@ -56,16 +56,17 @@ components.
 
 ## Entry points
 
-The full set of importable subpaths, in one place. Handy as a map when
-wiring bundler aliases or vendoring pota. Each `pota/use/*` module is
-one subpath per file under `src/use/`.
+The importable subpaths, in one place. Handy as a map when wiring
+bundler aliases or vendoring pota. Each `pota/use/*` module is one
+subpath per file under `src/use/`.
 
 ```js
 import 'pota' // reactive primitives, renderer, prop helpers
 import 'pota/components' // built-in UI and routing components
+import 'pota/components/Linkify' // Linkify ships as its own subpath
 import 'pota/store' // reactive store helpers
 import 'pota/xml' // compiler-less XML tagged template
-import 'pota/jsx-runtime' // JSX runtime for bundlers
+import 'pota/jsx-runtime' // JSX runtime (pota/jsx-dev-runtime mirrors it)
 import 'pota/babel-preset' // the JSX → partials transform
 
 // composables — one subpath per file under src/use/

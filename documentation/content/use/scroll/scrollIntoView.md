@@ -11,7 +11,7 @@ desc: use:ref factory that scrolls the element into view on mount.
 `node.scrollIntoView(opts)` after the element is mounted. Options are
 forwarded verbatim to the DOM method — pass
 `{ behavior: 'smooth', block: 'center' }` for a centered scroll, or a
-boolean for the two-argument form. Part of
+boolean (`alignToTop`) for the legacy form. Part of
 [`pota/use/scroll`](/use/scroll).
 
 ## Arguments
@@ -20,7 +20,7 @@ boolean for the two-argument form. Part of
 | -------- | ----------------------------------- | ----------------------------------------------------- |
 | `opts`   | `boolean \| ScrollIntoViewOptions?` | Forwarded verbatim to `node.scrollIntoView` on mount. |
 
-**Returns:** a `use:ref` factory `(node) => void`.
+**Returns:** a ref function `(node) => void` for `use:ref`.
 
 ## Examples
 

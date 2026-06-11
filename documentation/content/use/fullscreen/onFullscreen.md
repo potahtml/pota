@@ -10,7 +10,8 @@ desc:
 # onFullscreen
 
 `onFullscreen(fn)` calls `fn` with the current fullscreen element (or
-`null`) whenever fullscreen changes — the callback form of the
+`null`) — immediately with the initial state, then on every
+fullscreen change — the callback form of the
 [`pota/use/fullscreen`](/use/fullscreen) state. For a reactive
 accessor use [`useFullscreen`](/use/fullscreen/useFullscreen).
 
