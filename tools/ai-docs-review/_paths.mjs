@@ -22,10 +22,11 @@ export const DOCS = process.env.DOCS_DIR
 	: join(REPO, 'projects', 'docs')
 
 // The content markdown lives in the pota repo (documentation/content),
-// consumed by the docs project via a glob import; progress.md and
-// topics.js still live under the docs project (DOCS).
+// consumed by the docs project via a glob import; progress.md sits
+// next to these scripts, only topics.js still lives under the docs
+// project (DOCS).
 export const CONTENT = process.env.CONTENT_DIR
 	? resolve(process.env.CONTENT_DIR)
 	: join(REPO, 'documentation', 'content')
-export const PROGRESS = join(DOCS, 'progress.md')
+export const PROGRESS = join(HERE, 'progress.md')
 export const TOPICS = join(DOCS, 'tools', 'topics.js')

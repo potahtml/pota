@@ -204,7 +204,7 @@ resumes with zero context loss by following these steps:
 
 let out = ''
 out += `# Docs content normalization — progress\n\n`
-out += `Generated checklist for every \`.md\` under \`src/content/\` (**${total} files**). One pass, one consistent standard. **Resumable** — see below.\n\n`
+out += `Generated checklist for every \`.md\` under \`documentation/content/\` (**${total} files**). One pass, one consistent standard. **Resumable** — see below.\n\n`
 out += HOWTO + '\n\n'
 out += SPEC + '\n\n'
 out += `---\n\n## Global checks\n\n`

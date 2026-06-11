@@ -15,9 +15,10 @@ This file is for **Claude Code-specific extras only**:
 - **Project subagents** in `.claude/agents/` — invoke by name when the
   task matches, or let Claude delegate.
 - **Skills** in `.claude/skills/` — invocable procedures. Internal:
-  `docs-review` (resumable, source-verified pass over `projects/docs`,
-  tracked in its `progress.md`) and `writing-tests` (add test coverage
-  under `tests/`). Consumer-facing, shipped in the npm tarball: `pota`
+  `docs-review` (resumable, source-verified pass over
+  `documentation/content`, tracked in
+  `tools/ai-docs-review/progress.md`) and `writing-tests` (add test
+  coverage under `tests/`). Consumer-facing, shipped in the npm tarball: `pota`
   (write idiomatic pota) and `breaking-changes` (migrate an app across
   versions).
 

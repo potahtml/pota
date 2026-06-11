@@ -2,7 +2,8 @@
 name: docs-review
 description:
   Review, normalize, and keep accurate the pota documentation content
-  under projects/docs (the markdown that becomes the docs site). Use
+  under documentation/content (the markdown that becomes the docs
+  site). Use
   when asked to review/update/normalize the docs, verify pages against
   source, fix examples, check completeness/links, or rework topics.js.
   Runs as ONE resumable, synchronous, source-verified pass tracked in
@@ -13,13 +14,13 @@ description:
 # Docs review / update pass
 
 A single, consistent standard for every `.md` under
-`projects/docs/src/content/` (each file documents a pota export or a
+`documentation/content/` (each file documents a pota export or a
 guide page). The pass is **resumable** and runs **without subagents**.
-Resume anchor lives in `projects/docs/progress.md`; helper scripts
-live in `tools/ai-docs-review/` (version-tracked, so they survive
-fresh checkouts and `npm run clean`). The scripts resolve the docs
-tree relative to their own location, so they run from any cwd; point
-them at another content tree with `DOCS_DIR=…`.
+Resume anchor lives in `tools/ai-docs-review/progress.md`, next to the
+helper scripts (all version-tracked, so they survive fresh checkouts
+and `npm run clean`). The scripts resolve the content tree relative to
+their own location, so they run from any cwd; point them at another
+content tree with `CONTENT_DIR=…` (docs-site project: `DOCS_DIR=…`).
 
 ## How to start / resume (DO THIS FIRST)
 
@@ -197,8 +198,9 @@ names it), then confirm and fix in place:
 - Do NOT touch pota `src/`, the content parser, or the runtime — only
   the docs `.md` files and `topics.js`.
 - NEVER commit or push; the maintainer reviews diffs in their own git
-  client. (The docs live in a nested git repo at `projects/docs` — its
-  changes don't show in the parent repo's status.)
+  client. (`topics.js` and the docs-site app live in a nested git repo
+  at `projects/docs` — changes there don't show in the parent repo's
+  status; the content and `progress.md` are in the parent repo.)
 
 ## Helper scripts (in `tools/ai-docs-review/`)
 

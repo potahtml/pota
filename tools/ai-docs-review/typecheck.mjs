@@ -35,13 +35,27 @@ import { join, relative } from 'node:path'
 import { createRequire } from 'node:module'
 import { REPO, DOCS, CONTENT } from './_paths.mjs'
 
-// Diagnostics that are intentional and documented in the page itself —
-// reported as "(intentional)" and excluded from the failure count.
-// Keyed by content-relative path → set of TS error codes.
+// Diagnostics that are intentional (documented in the page itself) or
+// inherent to the example (vfs/lib-dom limitations a consumer-facing
+// fence shouldn't contort around) — reported as "(intentional)" and
+// excluded from the failure count. Keyed by content-relative path →
+// set of TS error codes.
 const ALLOW = {
 	// store/readonly's example exists to prove writes are type-rejected;
 	// the prose says "TypeScript already flagged it".
 	'store/readonly.md': new Set([2540]),
+	// lazy-route example imports app-local page modules ('./pages/…')
+	// that cannot exist in the vfs — code-splitting by path is the point.
+	'components/load.md': new Set([2307]),
+	// passes `window` where lib-dom wants `Window & typeof globalThis`;
+	// fine at runtime, casting would clutter the example.
+	'store/updateBlacklist.md': new Set([2345]),
+	// childNodes(s) handed to toHTML — runtime-fine union the example
+	// keeps uncast for readability.
+	'toHTML.md': new Set([2345]),
+	// e.target is Element; the example uses textarea members
+	// (selectionStart/value/setRangeText) without a cast for readability.
+	'use/clipboard/pasteText.md': new Set([2339]),
 }
 
 const TYPES_JSON = join(REPO, 'generated', 'docs', 'types.json')
