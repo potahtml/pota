@@ -23,7 +23,7 @@ ground truth (see the end).
 moving to, then apply every change below tagged with a version in that
 range. The big, every-app migrations follow.
 
-## Signals — tuple form removed (0.20.234)
+## Signals — tuple form removed (0.21.234)
 
 `signal()` returns a single object, not a destructurable tuple.
 
@@ -40,7 +40,7 @@ count.update(n => n + 1)
 
 Types: `SignalObject<T>` → `Signal<T>`; `SignalTuple<T>` is gone.
 
-## `use:*` behavior plugins → `use:ref` factories (0.20.234)
+## `use:*` behavior plugins → `use:ref` factories (0.21.234)
 
 The built-in `use:clickoutside`, `use:clipboard`, `use:fullscreen`,
 `use:prevent-enter`, `use:click-selects-all`,
@@ -74,7 +74,7 @@ import { preventEnter } from 'pota/use/form'
 - `use:ref`, `use:connected`, `use:disconnected`, `use:css`, and
   `use:bind` are unchanged.
 
-## `@static` JSX marker removed (0.20.234)
+## `@static` JSX marker removed (0.21.234)
 
 Just delete the comment — the expression compiles the same.
 
@@ -85,7 +85,7 @@ Just delete the comment — the expression compiles the same.
 <div prop:value={compute()} />
 ```
 
-## Removed / moved exports (0.20.234, 0.20.233)
+## Removed / moved exports (0.21.234, 0.20.233)
 
 - `Linkify` is no longer re-exported from `pota/components` — import
   it from `pota/components/Linkify`.

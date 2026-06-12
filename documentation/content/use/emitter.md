@@ -1,7 +1,7 @@
 ---
 title: Emitter
 subpath: pota/use/emitter
-topic: Internals
+topic: Events
 desc:
   Wraps an event/observer source as a shared signal-backed reactive
   value with refcounted setup/teardown.
