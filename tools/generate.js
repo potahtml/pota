@@ -1,5 +1,9 @@
 // this script creates importmap.json and types.json for use in docs/monaco
 
+import { createRequire } from 'node:module'
+
+import { buildSync } from 'esbuild'
+
 import {
 	escapeRegex,
 	filesRecursive,
@@ -11,6 +15,8 @@ import {
 	write,
 } from './utils.js'
 
+const require = createRequire(import.meta.url)
+
 if (process.argv.includes('-w')) {
 	let timeout
 	watch('./', () => {
@@ -21,6 +27,40 @@ if (process.argv.includes('-w')) {
 
 function run() {
 	let changedSomething = []
+
+	// color-bits (used by src/use/color.js) ships CommonJS only, which a
+	// browser importmap can't load — bundle each entry point to ESM for
+	// the playground. esbuild won't synthesize named exports from CJS,
+	// so feed it a facade that re-exports the names require() reports.
+	// Bundled independently (`string` inlines its own copy of the core):
+	// the library is pure functions over numbers, so the duplication is
+	// harmless. Routed through write() so watch mode doesn't retrigger
+	// itself on identical output.
+
+	{
+		const bundle = entry => {
+			// require via the public subpath — the package's exports map
+			// (`"./*": "./build/*"`) would double the build/ segment
+			const names = Object.keys(
+				require(entry === 'index' ? 'color-bits' : `color-bits/${entry}`),
+			).filter(name => name !== 'default' && name !== '__esModule')
+			return buildSync({
+				stdin: {
+					contents: `export { ${names.join(', ')} } from './node_modules/color-bits/build/${entry}.js'`,
+					resolveDir: process.cwd(),
+				},
+				bundle: true,
+				format: 'esm',
+				write: false,
+			}).outputFiles[0].text
+		}
+
+		for (const entry of ['index', 'string']) {
+			changedSomething.push(
+				write(`./generated/docs/color-bits/${entry}.js`, bundle(entry)),
+			)
+		}
+	}
 
 	// importmap
 
@@ -62,7 +102,10 @@ function run() {
 
 ${use.join(',\n')},
 
-${lib.join(',\n')}
+${lib.join(',\n')},
+
+"color-bits": "/node_modules/pota/generated/docs/color-bits/index.js",
+"color-bits/string": "/node_modules/pota/generated/docs/color-bits/string.js"
 
 }}`,
 			),
@@ -131,10 +174,32 @@ ${lib.join(',\n')}
 			}
 		}
 
+		// color-bits types: its real build/*.d.ts plus root redirect files,
+		// so `import 'color-bits'` / 'color-bits/string' resolve in the
+		// editor's virtual FS (which has no package.json to point at them).
+		for (const file of readdir('./node_modules/color-bits/build')) {
+			if (file.endsWith('.d.ts')) {
+				types.push({
+					f: 'color-bits/build/' + file,
+					c: read('./node_modules/color-bits/build/' + file),
+				})
+			}
+		}
+		types.push(
+			{ f: 'color-bits/index.d.ts', c: 'export * from "./build/index"' },
+			{
+				f: 'color-bits/string.d.ts',
+				c: 'export * from "./build/string"',
+			},
+		)
+
 		const importmap = JSON.parse(
 			read('./generated/docs/importmap.json'),
 		)
 		for (const moduleName in importmap.imports) {
+			// color-bits is handled above — the generated redirect below
+			// only makes sense for modules whose types live in pota's tree
+			if (moduleName.startsWith('color-bits')) continue
 			if (
 				moduleName === 'pota/jsx-runtime' ||
 				moduleName === 'pota/jsx-dev-runtime'
