@@ -42,8 +42,8 @@ function App() {
 	asyncEffect(async prev => {
 		const current = id.read()
 		await prev
-		const res = await fetch(`/api/items/${current}`)
-		data.write(await res.json())
+		const res = await fetch(`/api/items/${current}`).catch(() => {})
+		data.write(current)
 	})
 
 	return (
