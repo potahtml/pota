@@ -35,6 +35,12 @@ awaiting `prev` so each run captures its own value.
 ```jsx
 import { asyncEffect, render, signal } from 'pota'
 
+// stands in for a real request — resolves after a short delay
+const fetchItem = id =>
+	new Promise(resolve =>
+		setTimeout(() => resolve({ id, name: `Item ${id}` }), 500),
+	)
+
 function App() {
 	const id = signal(1)
 	const data = signal(null)
@@ -42,8 +48,7 @@ function App() {
 	asyncEffect(async prev => {
 		const current = id.read()
 		await prev
-		const res = await fetch(`/api/items/${current}`).catch(() => {})
-		data.write(current)
+		data.write(await fetchItem(current))
 	})
 
 	return (
