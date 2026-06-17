@@ -17,8 +17,8 @@ derive a value instead of imperatively pushing it.
 
 ## Arguments
 
-| name | type         | description                                                                                                                                                                                           |
-| ---- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name | type         | description                                                                                                                                                                                                                                                             |
+| ---- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `fn` | `() => void` | function whose tracked reads become the effect's dependencies. Re-runs when any tracked signal changes, at the end of the current update batch — after memos settle (use [syncEffect](/syncEffect) when the body must run during creation or ahead of regular effects). |
 
 **Returns:** `void`. The effect lives until its owner is disposed;

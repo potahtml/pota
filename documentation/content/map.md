@@ -9,11 +9,10 @@ desc:
 
 # map
 
-Reactive equivalent of `array.map`. Runs the callback only for
-entries it hasn't rendered before — existing rows keep their state
-instead of being recreated on every change, and removed rows are
-disposed. Powers [`<For/>`](/components/For) and works with arrays,
-Sets and Maps.
+Reactive equivalent of `array.map`. Runs the callback only for entries
+it hasn't rendered before — existing rows keep their state instead of
+being recreated on every change, and removed rows are disposed. Powers
+[`<For/>`](/components/For) and works with arrays, Sets and Maps.
 
 Plain `array.map(item => <li>{item}</li>)` can't react to mutations
 without rebuilding every row from scratch, losing focus, DOM state,

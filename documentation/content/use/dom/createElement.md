@@ -11,7 +11,8 @@ desc: document.createElement, pre-bound to document.
 [`document.createElement`](https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement),
 pre-bound to `document` so it can be passed around and called without
 a receiver. The export itself is `undefined` when there is no
-`document` (non-browser environment). Part of [`pota/use/dom`](/use/dom).
+`document` (non-browser environment). Part of
+[`pota/use/dom`](/use/dom).
 
 ## Arguments
 

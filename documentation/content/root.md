@@ -9,10 +9,10 @@ desc:
 
 # root
 
-Creates a new top-level owner scope. The callback receives a
-`dispose` function that tears down everything created inside. Reactive
-work that outlives a component (long-lived subscriptions, imperative
-rendering, stores instantiated at module load) belongs in a `root`.
+Creates a new top-level owner scope. The callback receives a `dispose`
+function that tears down everything created inside. Reactive work that
+outlives a component (long-lived subscriptions, imperative rendering,
+stores instantiated at module load) belongs in a `root`.
 [render](/render) creates one for you internally; call `root` directly
 when there's no render tree.
 

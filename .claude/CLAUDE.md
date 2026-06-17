@@ -18,9 +18,9 @@ This file is for **Claude Code-specific extras only**:
   `docs-review` (resumable, source-verified pass over
   `documentation/content`, tracked in
   `tools/ai-docs-review/progress.md`) and `writing-tests` (add test
-  coverage under `tests/`). Consumer-facing, shipped in the npm tarball: `pota`
-  (write idiomatic pota) and `breaking-changes` (migrate an app across
-  versions).
+  coverage under `tests/`). Consumer-facing, shipped in the npm
+  tarball: `pota` (write idiomatic pota) and `breaking-changes`
+  (migrate an app across versions).
 
 **When adding a new project rule, convention, command, or note, write
 it to `documentation/AGENTS.md` — not here.** AGENTS.md is the shared

@@ -12,15 +12,15 @@ desc:
 Register a callback to run whenever the user tries to leave the
 current route. The callback can be sync or async; navigation continues
 only when it returns (or resolves to) a truthy value — `false`, a
-falsy return like `undefined`, or a rejected promise all cancel it. Call `useBeforeLeave` from within a route's
-rendering — the guard is automatically cleared once the user navigates
-to a location outside the route's path. Part of
-[`pota/use/location`](/use/location).
+falsy return like `undefined`, or a rejected promise all cancel it.
+Call `useBeforeLeave` from within a route's rendering — the guard is
+automatically cleared once the user navigates to a location outside
+the route's path. Part of [`pota/use/location`](/use/location).
 
 ## Arguments
 
-| name | type                                | description                                                                                           |
-| ---- | ----------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| name | type                                | description                                                                                                |
+| ---- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `fn` | `() => boolean \| Promise<boolean>` | return (or resolve) `true` to allow the navigation; any falsy result — or a rejected promise — cancels it. |
 
 ## Examples

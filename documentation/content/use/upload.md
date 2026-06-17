@@ -38,20 +38,20 @@ the surrounding reactive scope is disposed.
 `upload(options)` takes a single options object and returns a ref
 function `(node: HTMLInputElement) => void`.
 
-| Option          | Type                                | Description                                                                        |
-| --------------- | ----------------------------------- | ---------------------------------------------------------------------------------- |
-| `endpoint`      | `string`                            | URL the file is POSTed to as `multipart/form-data`.                                |
-| `field`         | `string`                            | Form field name for the file (default `'file'`).                                   |
-| `existsUrl`     | `(hash, file) => string`            | Optional content-addressed dedup: `HEAD` this URL first, skip upload on a 2xx.     |
-| `parseResponse` | `(text, xhr) => string`             | Extract the result URL from the response body (default: trimmed body text).        |
-| `accept`        | `string`                            | `<input accept>`-style filter; non-matching files fire `onReject(file, 'type')`.   |
-| `maxSize`       | `number`                            | Max file size in bytes; larger files fire `onReject(file, 'size')`.                |
-| `onProgress`    | `({ file, loaded, total }) => void` | Fires during the POST; cached/HEAD hits get one event with `loaded === total`.     |
+| Option          | Type                                | Description                                                                                                |
+| --------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `endpoint`      | `string`                            | URL the file is POSTed to as `multipart/form-data`.                                                        |
+| `field`         | `string`                            | Form field name for the file (default `'file'`).                                                           |
+| `existsUrl`     | `(hash, file) => string`            | Optional content-addressed dedup: `HEAD` this URL first, skip upload on a 2xx.                             |
+| `parseResponse` | `(text, xhr) => string`             | Extract the result URL from the response body (default: trimmed body text).                                |
+| `accept`        | `string`                            | `<input accept>`-style filter; non-matching files fire `onReject(file, 'type')`.                           |
+| `maxSize`       | `number`                            | Max file size in bytes; larger files fire `onReject(file, 'size')`.                                        |
+| `onProgress`    | `({ file, loaded, total }) => void` | Fires during the POST; cached/HEAD hits get one event with `loaded === total`.                             |
 | `onUpload`      | `(results) => void`                 | Fires once at the end with the array of successful `UploadResult`s; skipped when none succeeded. Required. |
-| `onFile`        | `(result) => void`                  | Fires per successfully uploaded file.                                              |
-| `onError`       | `(error, file) => void`             | Fires per file that failed (aborted uploads are silent).                           |
-| `onReject`      | `(file, reason) => void`            | Fires per file rejected by `accept`/`maxSize`; `reason` is `'type'` or `'size'`.   |
-| `clearOnUpload` | `boolean`                           | Clear the input once the selection is read so the same file can be re-selected (default `true`). |
+| `onFile`        | `(result) => void`                  | Fires per successfully uploaded file.                                                                      |
+| `onError`       | `(error, file) => void`             | Fires per file that failed (aborted uploads are silent).                                                   |
+| `onReject`      | `(file, reason) => void`            | Fires per file rejected by `accept`/`maxSize`; `reason` is `'type'` or `'size'`.                           |
+| `clearOnUpload` | `boolean`                           | Clear the input once the selection is read so the same file can be re-selected (default `true`).           |
 
 **Returns:** a ref function `(node: HTMLInputElement) => void` for
 `use:ref`.

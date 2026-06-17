@@ -22,8 +22,8 @@ Part of [`pota/use/scroll`](/use/scroll).
 
 ## Arguments
 
-| Argument   | Type     | Description                                      |
-| ---------- | -------- | ------------------------------------------------ |
+| Argument   | Type     | Description                                         |
+| ---------- | -------- | --------------------------------------------------- |
 | `selector` | `string` | Hash (`#id`) or CSS selector for the scroll target. |
 
 **Returns:** `true` when an element matched and was scrolled to,

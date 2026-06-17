@@ -20,12 +20,12 @@ can be driven by signals.
 
 ## Attributes
 
-| name       | type                                           | description                                                                                                                                 |
-| ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `start?`   | `number \| Accessor<number>`                   | first value (default `0`). Always emitted.                                                                                                  |
+| name       | type                                           | description                                                                                                                                                      |
+| ---------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `start?`   | `number \| Accessor<number>`                   | first value (default `0`). Always emitted.                                                                                                                       |
 | `stop?`    | `number \| Accessor<number>`                   | last value (default `0`), inclusive — when `step` skips past it, the final emitted value overshoots it. Counts up when `start < stop`, down when `start > stop`. |
-| `step?`    | `number \| Accessor<number>`                   | increment between emitted values (default `1`). A negative `step` is normalised to its absolute value — pick direction with `start`/`stop`. |
-| `children` | `(item: number, index: number) => JSX.Element` | callback invoked for each emitted number — same semantics as [`<For/>`](/components/For)'s child callback.                                  |
+| `step?`    | `number \| Accessor<number>`                   | increment between emitted values (default `1`). A negative `step` is normalised to its absolute value — pick direction with `start`/`stop`.                      |
+| `children` | `(item: number, index: number) => JSX.Element` | callback invoked for each emitted number — same semantics as [`<For/>`](/components/For)'s child callback.                                                       |
 
 ## Examples
 
@@ -82,7 +82,9 @@ function App() {
 					type="number"
 					prop:value={step.read}
 					on:input={e =>
-						step.write(Math.max(1, Number(e.currentTarget.value) || 1))
+						step.write(
+							Math.max(1, Number(e.currentTarget.value) || 1),
+						)
 					}
 				/>
 			</label>

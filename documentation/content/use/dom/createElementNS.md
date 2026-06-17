@@ -11,7 +11,8 @@ desc: document.createElementNS, pre-bound to document.
 [`document.createElementNS`](https://developer.mozilla.org/en-US/docs/Web/API/Document/createElementNS),
 pre-bound to `document`. Use it to create namespaced elements such as
 SVG or MathML. The export itself is `undefined` when there is no
-`document` (non-browser environment). Part of [`pota/use/dom`](/use/dom).
+`document` (non-browser environment). Part of
+[`pota/use/dom`](/use/dom).
 
 ## Arguments
 

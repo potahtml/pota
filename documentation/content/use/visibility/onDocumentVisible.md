@@ -10,8 +10,7 @@ desc: Run a callback whenever document visibility changes.
 `onDocumentVisible(fn)` calls `fn` once with the current visibility
 boolean, then again whenever the document is shown or hidden — use it
 for pausing timers, stopping animations, or refreshing data when the
-tab regains focus.
-For a reactive accessor use
+tab regains focus. For a reactive accessor use
 [`useDocumentVisible`](/use/visibility/useDocumentVisible). Part of
 [`pota/use/visibility`](/use/visibility).
 
@@ -24,9 +23,9 @@ listener and it leaks.
 
 ## Arguments
 
-| Argument | Type                         | Description                                        |
-| -------- | ---------------------------- | -------------------------------------------------- |
-| `fn`     | `(visible: boolean) => void` | Called once on subscription, then on each change.  |
+| Argument | Type                         | Description                                       |
+| -------- | ---------------------------- | ------------------------------------------------- |
+| `fn`     | `(visible: boolean) => void` | Called once on subscription, then on each change. |
 
 **Returns:** `undefined`.
 

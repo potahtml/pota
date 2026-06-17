@@ -499,7 +499,10 @@ await test('Media - a resolved non-media type renders nothing', expect => {
 	// When `type` is already set, type-guessing has run; an
 	// unrecognised media type renders nothing rather than recursing.
 	const dispose = render(
-		<Media url="https://example.com/file" type="application/unknown" />,
+		<Media
+			url="https://example.com/file"
+			type="application/unknown"
+		/>,
 	)
 	expect(body()).toBe('')
 	dispose()

@@ -3,8 +3,8 @@ title: isResolved
 subpath: pota
 topic: Reactive core
 desc:
-  True while every passed derived is resolved — false whenever any
-  run is still pending.
+  True while every passed derived is resolved — false whenever any run
+  is still pending.
 ---
 
 # isResolved

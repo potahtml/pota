@@ -35,9 +35,9 @@ of their source counterparts.
 
 ### Editable draft
 
-The draft overrides `age` with its own copy — the original keeps
-`30` — while the untouched `name` keeps mirroring the source, so
-renaming the original shows through the draft.
+The draft overrides `age` with its own copy — the original keeps `30`
+— while the untouched `name` keeps mirroring the source, so renaming
+the original shows through the draft.
 
 ```jsx
 import { mutable, project } from 'pota/store'

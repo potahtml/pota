@@ -43,8 +43,8 @@ with `@keyframes` animations.
 
 ### Fade between states
 
-Chains class swaps, awaiting each animation before triggering the
-next — the final swap declares no animation, so its `await` resolves
+Chains class swaps, awaiting each animation before triggering the next
+— the final swap declares no animation, so its `await` resolves
 immediately.
 
 ```jsx

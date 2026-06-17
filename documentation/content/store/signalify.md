@@ -38,9 +38,8 @@ new keys aren't auto-tracked (unlike [mutable](/store/mutable)).
 
 ### All properties become reactive
 
-Without a `keys` argument, every property of the target is
-signalified — reading `state.count` in a reactive context re-runs when
-it changes.
+Without a `keys` argument, every property of the target is signalified
+— reading `state.count` in a reactive context re-runs when it changes.
 
 ```jsx
 import { render } from 'pota'

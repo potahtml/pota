@@ -67,9 +67,8 @@ render(App)
 - `clickOutside` listens for `pointerdown` on `document`. "Outside"
   means `!node.contains(event.target)` — DOM containment, not
   component structure: clicks on DOM descendants don't fire, while
-  content portaled out of the node (a
-  [`Portal`](/components/Portal) mounted elsewhere) counts as
-  outside.
+  content portaled out of the node (a [`Portal`](/components/Portal)
+  mounted elsewhere) counts as outside.
 - `{ once: true }` maps to the native `addEventListener` `once`
   option, so the document listener is removed after the first
   `pointerdown` anywhere — including one inside the node, in which

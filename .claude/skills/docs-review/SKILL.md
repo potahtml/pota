@@ -3,19 +3,18 @@ name: docs-review
 description:
   Review, normalize, and keep accurate the pota documentation content
   under documentation/content (the markdown that becomes the docs
-  site). Use
-  when asked to review/update/normalize the docs, verify pages against
-  source, fix examples, check completeness/links, or rework topics.js.
-  Runs as ONE resumable, synchronous, source-verified pass tracked in
-  progress.md. Invoke to start a new pass or to continue an
-  interrupted one.
+  site). Use when asked to review/update/normalize the docs, verify
+  pages against source, fix examples, check completeness/links, or
+  rework topics.js. Runs as ONE resumable, synchronous,
+  source-verified pass tracked in progress.md. Invoke to start a new
+  pass or to continue an interrupted one.
 ---
 
 # Docs review / update pass
 
 A single, consistent standard for every `.md` under
-`documentation/content/` (each file documents a pota export or a
-guide page). The pass is **resumable** and runs **without subagents**.
+`documentation/content/` (each file documents a pota export or a guide
+page). The pass is **resumable** and runs **without subagents**.
 Resume anchor lives in `tools/ai-docs-review/progress.md`, next to the
 helper scripts (all version-tracked, so they survive fresh checkouts
 and `npm run clean`). The scripts resolve the content tree relative to

@@ -42,8 +42,7 @@ async function withObserver(fn) {
 		}
 	}
 
-	globalThis.IntersectionObserver =
-		/** @type {any} */ (StubObserver)
+	globalThis.IntersectionObserver = /** @type {any} */ (StubObserver)
 
 	try {
 		await fn({

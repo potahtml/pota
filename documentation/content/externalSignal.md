@@ -21,10 +21,10 @@ compares by reference (`===`), such as a keyed
 
 ## Arguments
 
-| name           | type                          | description                                   |
-| -------------- | ----------------------------- | --------------------------------------------- |
+| name           | type                                    | description                                   |
+| -------------- | --------------------------------------- | --------------------------------------------- |
 | `initialValue` | `Array<{ id?: string \| number, ... }>` | seed array; entries should expose an `id` key |
-| `options?`     | `SignalOptions`               | forwarded to the underlying `signal`          |
+| `options?`     | `SignalOptions`                         | forwarded to the underlying `signal`          |
 
 **Returns:** an object `{ read, update, write }`. `read` and `update`
 match [signal](/signal); `write` patches the array by id rather than

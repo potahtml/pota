@@ -17,9 +17,9 @@ be functions, and the corresponding classes follow them.
 
 ## Arguments
 
-| name    | type                                                              | description                                                                                                                                                          |
-| ------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `node`  | `Element`                                                         | Target element.                                                                                                                                                      |
+| name    | type                                                              | description                                                                                                                                                              |
+| ------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `node`  | `Element`                                                         | Target element.                                                                                                                                                          |
 | `value` | `string \| ArrayLike<string> \| { [name]: boolean } \| () => ...` | A string adds its space-separated names; arrays add their (truthy) names; object entries are added when truthy and removed when falsy; functions are tracked reactively. |
 
 **Returns:** `void`

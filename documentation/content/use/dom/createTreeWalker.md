@@ -10,8 +10,8 @@ desc: document.createTreeWalker, pre-bound to document.
 `createTreeWalker` is
 [`document.createTreeWalker`](https://developer.mozilla.org/en-US/docs/Web/API/Document/createTreeWalker),
 pre-bound to `document`. It builds a `TreeWalker` for depth-first
-traversal of a subtree. The export itself is `undefined` when there
-is no `document` (non-browser environment).
+traversal of a subtree. The export itself is `undefined` when there is
+no `document` (non-browser environment).
 [walkElements](/use/dom/walkElements) uses a shared element-only
 walker built this way. Part of [`pota/use/dom`](/use/dom).
 

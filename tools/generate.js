@@ -42,7 +42,9 @@ function run() {
 			// require via the public subpath — the package's exports map
 			// (`"./*": "./build/*"`) would double the build/ segment
 			const names = Object.keys(
-				require(entry === 'index' ? 'color-bits' : `color-bits/${entry}`),
+				require(
+					entry === 'index' ? 'color-bits' : `color-bits/${entry}`,
+				),
 			).filter(name => name !== 'default' && name !== '__esModule')
 			return buildSync({
 				stdin: {
@@ -57,7 +59,10 @@ function run() {
 
 		for (const entry of ['index', 'string']) {
 			changedSomething.push(
-				write(`./generated/docs/color-bits/${entry}.js`, bundle(entry)),
+				write(
+					`./generated/docs/color-bits/${entry}.js`,
+					bundle(entry),
+				),
 			)
 		}
 	}
@@ -186,7 +191,10 @@ ${lib.join(',\n')},
 			}
 		}
 		types.push(
-			{ f: 'color-bits/index.d.ts', c: 'export * from "./build/index"' },
+			{
+				f: 'color-bits/index.d.ts',
+				c: 'export * from "./build/index"',
+			},
 			{
 				f: 'color-bits/string.d.ts',
 				c: 'export * from "./build/string"',

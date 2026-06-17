@@ -19,8 +19,9 @@ memos.
 The ref is written as soon as the element is created, _before_ it is
 inserted into the document (static children are already cloned in;
 dynamic expression children fill in after). Layout-dependent
-properties like `clientWidth` therefore return `0` at ref time. For work that needs the element connected, run it inside
-[ready](/ready) or use [use:connected](/guide/jsx/use:connected).
+properties like `clientWidth` therefore return `0` at ref time. For
+work that needs the element connected, run it inside [ready](/ready)
+or use [use:connected](/guide/jsx/use:connected).
 
 Because the value is just a function `(node) => void`, the same
 attribute also attaches **ref factories** — this is how the built-in

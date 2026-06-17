@@ -13,8 +13,8 @@ forwarded to `IntersectionObserver` as the options bag (`root`,
 `rootMargin`, `threshold`), plus a pota-specific `once`: when `true`,
 the handler fires once on the first entry where `isIntersecting` is
 `true` and later entries are ignored — handy for reveal-on-scroll
-styles that only need to flip a class once. It is the declarative `use:ref`
-form of [`onVisible`](/use/intersection/onVisible). Part of
+styles that only need to flip a class once. It is the declarative
+`use:ref` form of [`onVisible`](/use/intersection/onVisible). Part of
 [`pota/use/intersection`](/use/intersection).
 
 ## Arguments
