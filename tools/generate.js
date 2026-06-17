@@ -69,7 +69,7 @@ function run() {
 			.filter(x => x.endsWith('.js'))
 			.map(
 				x =>
-					`"pota/use/${x.replace(/\.js$/, '')}": "/node_modules/pota/src/use/${x}"`,
+					`"pota/use/${x.replace(/\.js$/, '')}": "/modules/pota/src/use/${x}"`,
 			)
 
 		const lib = readdir('./src/lib')
@@ -82,7 +82,7 @@ function run() {
 			)
 			.map(
 				x =>
-					`"pota/${x.replace(/.js$/, '')}": "/node_modules/pota/src/lib/${x}"`,
+					`"pota/${x.replace(/.js$/, '')}": "/modules/pota/src/lib/${x}"`,
 			)
 
 		changedSomething.push(
@@ -90,22 +90,22 @@ function run() {
 				'./generated/docs/importmap.json',
 				`{ "imports": {
 
-"pota": "/node_modules/pota/src/exports.js",
+"pota": "/modules/pota/src/exports.js",
 
-"pota/babel-preset": "/node_modules/pota/babel-preset/babel-preset.js",
-"pota/jsx-runtime": "/node_modules/pota/src/jsx/jsx-runtime.js",
-"pota/jsx-dev-runtime": "/node_modules/pota/src/jsx/jsx-runtime.js",
+"pota/babel-preset": "/modules/pota/babel-preset/babel-preset.js",
+"pota/jsx-runtime": "/modules/pota/src/jsx/jsx-runtime.js",
+"pota/jsx-dev-runtime": "/modules/pota/src/jsx/jsx-runtime.js",
 
-"pota/xml": "/node_modules/pota/src/core/xml.js",
-"pota/components": "/node_modules/pota/src/components/@main.js",
-"pota/components/Linkify": "/node_modules/pota/src/components/linkify/linkify.js",
+"pota/xml": "/modules/pota/src/core/xml.js",
+"pota/components": "/modules/pota/src/components/@main.js",
+"pota/components/Linkify": "/modules/pota/src/components/linkify/linkify.js",
 
 ${use.join(',\n')},
 
 ${lib.join(',\n')},
 
-"color-bits": "/node_modules/pota/generated/docs/color-bits/index.js",
-"color-bits/string": "/node_modules/pota/generated/docs/color-bits/string.js"
+"color-bits": "/modules/pota/generated/docs/color-bits/index.js",
+"color-bits/string": "/modules/pota/generated/docs/color-bits/string.js"
 
 }}`,
 			),
