@@ -155,7 +155,7 @@ export function generateUidIdentifier(scope, name = 'id') {
 		scope.hasLabel(uid)
 	)
 	const program = scope.getProgramParent()
-	program.references[uid] = true
-	program.uids[uid] = true
+	program.referencesSet.add(uid)
+	program.uidsSet.add(uid)
 	return t.identifier(uid)
 }

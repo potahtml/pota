@@ -61,11 +61,10 @@ const babelPlugin = {
 			const isTS = ext === '.ts' || ext === '.tsx'
 			const presets = []
 			if (isJSX) presets.push(potaPreset)
-			if (isTS)
-				presets.push([
-					'@babel/preset-typescript',
-					{ isTSX: isJSX, allExtensions: isJSX },
-				])
+			// Babel 8 removed `isTSX`/`allExtensions`; preset-typescript
+			// now picks TS vs TSX from the file extension, which `filename`
+			// (set below) provides — `.tsx` enables JSX, `.ts` does not.
+			if (isTS) presets.push('@babel/preset-typescript')
 			const out = transformSync(source, {
 				filename: args.path,
 				presets,

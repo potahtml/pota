@@ -358,9 +358,9 @@ export function buildPartial(path, state) {
 	 * compile time.
 	 */
 	attributes.push(
-		t.jSXAttribute(
-			t.jSXIdentifier('#pota'),
-			t.jSXExpressionContainer(
+		t.jsxAttribute(
+			t.jsxIdentifier('#pota'),
+			t.jsxExpressionContainer(
 				t.arrowFunctionExpression(
 					[inlinedNode],
 					t.blockStatement(
@@ -536,7 +536,7 @@ export function partialMerge(path, state) {
 		// push arguments
 
 		if (keys(propsAt).length) {
-			args.push(core.template.expression.ast`${propsMetaData}`)
+			args.push(core.template.expression.ast(propsMetaData))
 		}
 
 		// call

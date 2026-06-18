@@ -23,6 +23,32 @@ ground truth (see the end).
 moving to, then apply every change below tagged with a version in that
 range. The big, every-app migrations follow.
 
+## Babel preset requires Babel 8 (0.22.235)
+
+`pota/babel-preset` now peer-depends on **Babel 8** (`@babel/* ^8.0.0`).
+Babel 8 is ESM-only and requires Node `^22.18.0 || >=24.11.0`. This is a
+toolchain bump only — the JSX → partials output is unchanged, so no app
+code changes. Bump the Babel packages the app provides for the preset:
+
+```jsonc
+// before — package.json
+"@babel/core": "^7",
+"@babel/helper-module-imports": "^7",
+"@babel/helper-plugin-utils": "^7",
+"@babel/plugin-syntax-jsx": "^7"
+
+// after
+"@babel/core": "^8",
+"@babel/helper-module-imports": "^8",
+"@babel/helper-plugin-utils": "^8",
+"@babel/plugin-syntax-jsx": "^8"
+```
+
+- There's no dual-support build: the preset uses Babel 8 APIs, so
+  Babel 7 will no longer load it.
+- On Node older than 22.18, upgrade Node first — Babel 8 won't install
+  otherwise.
+
 ## Signals — tuple form removed (0.21.234)
 
 `signal()` returns a single object, not a destructurable tuple.

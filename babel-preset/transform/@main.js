@@ -20,7 +20,7 @@ export default function createPlugin({ name }) {
 	return declare((_, options) => {
 		return {
 			name,
-			inherits: jsx.default,
+			inherits: jsx,
 			visitor: {
 				JSXSpreadChild(path, state) {
 					if (state.pota.skip) return
@@ -54,7 +54,11 @@ export default function createPlugin({ name }) {
 						}
 						if (state.pota.skip) return
 
-						if (false && options?.development) {
+						if (
+							false &&
+							(/** @type {{ development?: boolean }} */ (options))
+								?.development
+						) {
 							path.traverse(
 								{
 									/** Add debugging arguments to reactive functions */

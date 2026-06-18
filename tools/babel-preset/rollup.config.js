@@ -11,6 +11,12 @@ const preset = {
 		{
 			file: 'generated/babel-preset.cjs',
 			format: 'cjs',
+			// `auto` interop honors `__esModule` on required deps, so a
+			// default import of an ESM-only Babel 8 package
+			// (@babel/plugin-syntax-jsx) resolves to its real default
+			// export rather than the `{ default }` namespace object that
+			// Node's require(ESM) returns.
+			interop: 'auto',
 			sourcemap: false,
 		},
 	],
@@ -53,9 +59,7 @@ const shims = {
 		syntheticNamedExports: true,
 	},
 	'@babel/plugin-syntax-jsx': `
-		export default {
-			default: globalThis.Babel.availablePlugins['syntax-jsx'],
-		}
+		export default globalThis.Babel.availablePlugins['syntax-jsx']
 	`,
 	assert: `
 		export default function assert(condition, message) {
@@ -69,7 +73,11 @@ const shimPlugin = {
 	name: 'browser-shims',
 	/** @param {string} source */
 	resolveId(source) {
-		if (source in shims) return '\0shim:' + source
+		// Strip the `node:` prefix so `node:assert` matches the `assert`
+		// shim — Babel 8's @babel/helper-module-imports imports
+		// `node:assert` (Babel 7 imported the bare `assert`).
+		const key = source.replace(/^node:/, '')
+		if (key in shims) return '\0shim:' + key
 		return null
 	},
 	/** @param {string} id */
