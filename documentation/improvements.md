@@ -145,13 +145,13 @@ regression test for the fix.
       there, clobbering the stored proxy).
       Test: `tests/api/confirmations/store-map-set-stores-raw.jsx`
 
-- [ ] **`trackDiff` off-by-one drops the `has` write for the first
+- [x] **`trackDiff` off-by-one drops the `has` write for the first
       grown index.** `key > oldLength`
       (`src/lib/store/proxies/array.js:200`) should be `>=`:
       `oldLength` is the previous length, so index `oldLength` is the
       first new key. After `unshift`/`splice`/`fill` growth, `key in
       arr` / `hasOwn` tracking for that index never fires (`push` has
-      its own correct path).
+      its own correct path). **Fixed:** `>=`.
       Test: `tests/api/confirmations/store-array-trackdiff-off-by-one.jsx`
 
 - [ ] **`slice(x, 0)` over-tracks the whole array.** The end

@@ -197,7 +197,9 @@ export class ProxyHandlerArray extends ProxyHandlerBase {
 
 		let key = 0
 		for (let length = target.length; key < length; key++) {
-			if (key > oldLength) {
+			// previous valid indexes are `0..oldLength - 1`, so index
+			// `oldLength` is the first new key
+			if (key >= oldLength) {
 				// it's new
 				this.track.add(key, target[key])
 				changed = true

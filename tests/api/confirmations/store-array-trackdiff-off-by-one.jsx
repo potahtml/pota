@@ -1,15 +1,14 @@
-// BUG CONFIRMATION — documentation/improvements.md: "`trackDiff`
-// off-by-one drops the `has` write for the first grown index".
-// `key > oldLength` should be `>=`: `oldLength` is the previous
-// length, so index `oldLength` is the first new key — after
-// unshift/splice growth its `in`/`hasOwn` tracking never fires.
-// Asserts the CURRENT buggy behavior.
+// REGRESSION — documentation/improvements.md: "`trackDiff` off-by-one
+// drops the `has` write for the first grown index". `key > oldLength`
+// misclassified index `oldLength` (the first new key after growth) as
+// existing, taking the modify() branch that never writes the per-key
+// `has` signal. Fixed with `key >= oldLength`.
 
 import { test } from '#test'
 import { effect, root } from 'pota'
 import { mutable } from 'pota/store'
 
-await test('CONFIRM - `in` tracking misses the first index added by unshift', expect => {
+await test('`in` tracking sees the first index added by unshift', expect => {
 	const arr = mutable(['a'])
 
 	let has
@@ -23,11 +22,8 @@ await test('CONFIRM - `in` tracking misses the first index added by unshift', ex
 
 	arr.unshift('z') // ['z', 'a'] — index 1 now exists
 
-	// BUG: index 1 === oldLength took the modify() branch, which
-	// never writes the per-key `has` signal
-	expect(has).toBe(false)
-	// FIXED: expect(has).toBe(true)
-	expect(1 in arr).toBe(true) // the array itself is correct
+	expect(has).toBe(true)
+	expect(1 in arr).toBe(true)
 
 	dispose()
 })
