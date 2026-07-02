@@ -317,6 +317,14 @@ export function createReactiveSystem() {
 	class Memo extends Computation {
 		value
 
+		/**
+		 * `true` while the last completed run threw — the held value is
+		 * known-stale, so a successful recompute must commit even when
+		 * the error path's `updatedAt = time + 1` stamp would discard
+		 * it (see `update()`).
+		 */
+		errored = false
+
 		/** @type {Computation[]} */
 		observers = EMPTY
 
@@ -386,13 +394,25 @@ export function createReactiveSystem() {
 			try {
 				const nextValue = runWith(this.fn, this, this)
 
-				if (this.updatedAt <= time) {
+				/**
+				 * Commit unless a re-entrant newer run already updated
+				 * us — except right after an error: the held value is
+				 * known-stale, so a successful recompute (e.g. a
+				 * same-tick read) commits instead of being discarded.
+				 * Diverges from Solid 1.x, which drops the fresh value
+				 * until the next source write.
+				 */
+				if (this.updatedAt <= time || this.errored) {
+					this.errored = false
 					this.write(nextValue)
 					this.updatedAt = time
 				}
 			} catch (err) {
 				this.state = 1 /* STALE */
+				this.errored = true
 				this.disposeOwned()
+				// blocks re-runs via upstream/runTop for the rest of
+				// the flush (strict `<` comparisons)
 				this.updatedAt = time + 1
 				routeError(this, err)
 			}

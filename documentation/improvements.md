@@ -76,12 +76,16 @@ regression test for the fix.
       reports false after a failure.
       Test: `tests/api/confirmations/derived-rejection-hangs.jsx`
 
-- [ ] **Memo discards a successful recompute after an error** —
+- [x] **Memo discards a successful recompute after an error** —
       inherited Solid quirk, confirm intent. After `update()` throws,
       `updatedAt = time + 1`; a read in the same tick re-runs `fn`,
       and if it now succeeds the guard `updatedAt <= time`
       (`src/lib/solid.js:389`) skips the write — the memo ends `CLEAN`
       holding the stale value until some source fires again.
+      **Fixed** (intentional divergence from Solid 1.x): Memo tracks
+      `errored`; a successful recompute after an error always commits.
+      The `time + 1` stamp stays, so upstream/runTop suppression
+      within the failing flush is unchanged.
       Test: `tests/api/confirmations/memo-discards-recompute-after-error.jsx`
 
 - [ ] **`context` Provider with `value={undefined}` renders the
