@@ -180,7 +180,7 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 | `events.jsx`            | `addEvent` / `removeEvent`, event delegation                        |
 | `helpers.jsx`           | DOM test helpers themselves                                         |
 | `namespaces.jsx`        | SVG / MathML / foreignObject                                        |
-| `partials.jsx`          | `createPartial` runtime                                             |
+| `partials.jsx`          | `createPartial` runtime + compiled walk paths                       |
 | `reactive-children.jsx` | reactive text/children semantics                                    |
 | `ready.jsx`             | `ready`, `readyAsync`, scheduler priorities                         |
 | `refs.jsx`              | `use:ref`, `ref()`                                                  |

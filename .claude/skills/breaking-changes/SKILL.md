@@ -23,6 +23,31 @@ ground truth (see the end).
 moving to, then apply every change below tagged with a version in that
 range. The big, every-app migrations follow.
 
+## `createPartial` — inlined DOM walk (0.22.236)
+
+The compiled JSX output navigates the cloned template directly
+(`root.firstChild.nextSibling…`) instead of walking it at runtime, so
+`createPartial` no longer takes the props-index → walk-index map. The
+preset and runtime ship together — recompiling the app is the whole
+migration. Only code calling `createPartial` directly changes: the
+second argument keeps only `x` (xmlns) and `i` (importNode), and the
+partial takes one function receiving the cloned root (or the
+`DocumentFragment` for multi-node content) instead of an array of
+per-element functions.
+
+```js
+// before
+const partial = createPartial('<p></p><span></span>', { 0: 1, m: 2 })
+partial([node => { /* <span> */ }])
+
+// after
+const partial = createPartial('<p></p><span></span>')
+partial(node => {
+	const span = node.firstChild.nextSibling
+	/* … */
+})
+```
+
 ## Babel preset requires Babel 8 (0.22.235)
 
 `pota/babel-preset` now peer-depends on **Babel 8** (`@babel/* ^8.0.0`).

@@ -1,25 +1,7 @@
+import { serialize } from 'parse5'
+
 import { error } from './utils.js'
-
-import { parse, parseFragment, serialize } from 'parse5'
-
-/** @typedef {import('parse5').DefaultTreeAdapterTypes.Element} Element */
-
-const htmlElement = /** @type {Element} */ (
-	parse(`<!DOCTYPE html><html><head></head><body></body></html>`)
-		.childNodes[1]
-)
-const bodyElement = /** @type {Element} */ (htmlElement.childNodes[1])
-
-/**
- * Parses HTML fragment and serializes it to check browser parsing
- * behavior
- *
- * @param {string} htmlFragment - HTML fragment to parse and serialize
- * @returns {string} Serialized HTML after browser-like parsing
- */
-function innerHTML(htmlFragment) {
-	return serialize(parseFragment(bodyElement, htmlFragment, {}))
-}
+import { parsePartial } from './walk.js'
 
 /**
  * Validates HTML content, ensuring it's well-formed and will be
@@ -28,12 +10,17 @@ function innerHTML(htmlFragment) {
  * browser's parsed version. If discrepancies are found, it logs a
  * warning and throws an error indicating malformed HTML.
  *
+ * Parsing uses a `<template>` context element (the runtime parses
+ * partials via `template.innerHTML`), so bare table content
+ * (`<tr>`, `<td>`, `<col>`…) is legal as written.
+ *
  * @param {any} path - Babel path
  * @param {string} html - The HTML string to validate.
+ * @param {string} [xmlns] - Namespace of the partial, if any.
  */
-export function validatePartial(path, html) {
+export function validatePartial(path, html, xmlns) {
 	// partial validation
-	let clean = html
+	const clean = html
 		// remove content that isnt in between tags
 		.replace(/^[^<]+/, '#text')
 		.replace(/[^>]+$/, '#text')
@@ -46,27 +33,7 @@ export function validatePartial(path, html) {
 		.replace(/\s[a-z0-9-:]+='[^']+'/gi, '')
 		.replace(/<([a-z0-9-:]+)\s+[^>]+>/gi, '<$1>')
 
-	// table cells
-	if (/^<(td|th)>/.test(clean)) {
-		clean = `<table><tbody><tr>${clean}</tr></tbody></table>`
-	}
-
-	// table rows
-	if (/^<tr>/.test(clean)) {
-		clean = `<table><tbody>${clean}</tbody></table>`
-	}
-
-	// table misc
-	if (/^<col>/.test(clean)) {
-		clean = `<table><colgroup>${clean}</colgroup></table>`
-	}
-
-	// table components
-	if (/^<(thead|tbody|tfoot|colgroup|caption)>/.test(clean)) {
-		clean = `<table>${clean}</table>`
-	}
-
-	const browser = innerHTML(clean)
+	const browser = serialize(parsePartial(clean, xmlns))
 
 	if (browser.toLowerCase() !== clean.toLowerCase()) {
 		console.warn('-'.repeat(80))

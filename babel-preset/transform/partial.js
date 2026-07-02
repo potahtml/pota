@@ -8,7 +8,6 @@ import {
 	generateUidIdentifier,
 	keys,
 	objectProperty,
-	removeFromArray,
 } from './utils.js'
 
 import {
@@ -22,6 +21,7 @@ import { merge, mergeToTag } from './merge.js'
 import { buildProps } from './props.js'
 import { getTagName } from './tag.js'
 import { validatePartial } from './validate.js'
+import { buildPartialWalk } from './walk.js'
 import { buildChildrenPartial } from './children.js'
 import { evaluateAndInline, isNativeLiteral } from './literal.js'
 import { inlineStyles } from './style.js'
@@ -413,13 +413,11 @@ export function buildPartial(path, state) {
 export function partialMerge(path, state) {
 	const node = path.node
 
-	// create map of props -> nodes, and inlines the function in place of the prop
+	// prop functions per element, in element pre-order — the props
+	// array position is the element's pre-order index
 	const elements = node.arguments[1].elements
 
-	const propsAt = {}
-
-	let propsKey = 0
-	const toRemove = []
+	const slots = []
 
 	for (let i = 0; i < elements.length; i++) {
 		const properties = elements[i].properties
@@ -435,52 +433,23 @@ export function partialMerge(path, state) {
 		)
 
 		if (childrenProp) {
-			removeFromArray(properties, childrenProp)
-
 			potaProp.value.body.body.push(
-				callFunctionImport(
-					path,
-					state,
-					'pota/jsx-runtime',
-					'createChildren',
-					potaProp.value.params[0],
-					childrenProp.value,
+				t.expressionStatement(
+					callFunctionImport(
+						path,
+						state,
+						'pota/jsx-runtime',
+						'createChildren',
+						potaProp.value.params[0],
+						childrenProp.value,
+					),
 				),
 			)
 		}
 
-		if (!potaProp.value.body.body.length) {
-			removeFromArray(properties, potaProp)
+		if (potaProp.value.body.body.length) {
+			slots.push({ index: i, fn: potaProp.value })
 		}
-
-		// if there are other props than #pota then this element has props at
-		if (properties.length) {
-			// do not add the obvious propKeys to make output smaller
-			if (propsKey !== i) {
-				propsAt[propsKey] = i
-			}
-			propsKey++
-
-			elements[i] = potaProp.value
-		} else {
-			// props object is empty
-			toRemove.push(elements[i])
-		}
-	}
-
-	// save the max number of nodes to walk
-	if (propsAt[propsKey - 1] > -1) {
-		propsAt.m = propsAt[propsKey - 1] + 1
-	}
-
-	// remove empty props objects from array
-	for (const remove of toRemove) {
-		removeFromArray(elements, remove)
-	}
-
-	// remove empty array of props from partial function
-	if (node.arguments[1].elements.length === 0) {
-		removeFromArray(node.arguments, node.arguments[1])
 	}
 
 	// hoist it
@@ -501,26 +470,28 @@ export function partialMerge(path, state) {
 
 	// arguments matter for templates that look the same
 
+	const options = {}
+
 	if (node.xmlns) {
-		propsAt.x = node.xmlns
+		options.x = node.xmlns
 	}
 
 	// if should use importNode instead of cloneNode
 
 	if (node.isImportNode) {
-		propsAt.i = 1
+		options.i = 1
 	}
 
-	// props metadata - {"2":8,"3":10,"m":11,"i":1}
+	// partial metadata - {"x":"http://www.w3.org/2000/svg","i":1}
 
-	const propsMetaData = JSON.stringify(propsAt)
+	const optionsData = JSON.stringify(options)
 
-	const partialID = partial + propsMetaData
+	const partialID = partial + optionsData
 
 	// de-duplicates and hoist calls to partials
 
 	if (!pota.partials[partialID]) {
-		validatePartial(path, partial)
+		validatePartial(path, partial, node.xmlns)
 
 		// identifier
 
@@ -535,8 +506,8 @@ export function partialMerge(path, state) {
 
 		// push arguments
 
-		if (keys(propsAt).length) {
-			args.push(core.template.expression.ast(propsMetaData))
+		if (keys(options).length) {
+			args.push(core.template.expression.ast(optionsData))
 		}
 
 		// call
@@ -555,7 +526,17 @@ export function partialMerge(path, state) {
 
 	return callFunction(
 		pota.partials[partialID].name,
-		node.arguments[1] ? [node.arguments[1]] : [],
+		slots.length
+			? [
+					buildPartialWalk(
+						path,
+						partial,
+						node.xmlns,
+						slots,
+						elements.length,
+					),
+				]
+			: [],
 	)
 }
 

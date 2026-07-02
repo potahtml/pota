@@ -36,7 +36,6 @@ import {
 	isConnected,
 	querySelector,
 	toDiff,
-	walkElements,
 } from '../use/dom.js'
 
 import {
@@ -306,60 +305,43 @@ export function createComponent(value) {
 }
 
 /**
- * @template T
  * @param {string} content
- * @param {{
- * 	x?: string
- * 	[i: number]: number
- * 	m?: number
- * } & Record<string, unknown>} [propsData]
- * @returns {(props: T[]) => JSX.Element}
+ * @param {{ x?: string; i?: number }} [options]
+ * @returns {(assign?: (node: Node) => void) => JSX.Element}
  */
-export function createPartial(content, propsData = nothing) {
+export function createPartial(content, options = nothing) {
 	let clone = () => {
-		const node = withXMLNS(propsData.x, xmlns =>
+		const node = withXMLNS(options.x, xmlns =>
 			parseXML(content, xmlns),
 		)
 
 		clone =
-			'i' in propsData
+			'i' in options
 				? importNode.bind(null, node, true)
 				: node.cloneNode.bind(node, true)
 		return clone()
 	}
 
-	return props =>
-		markComponent(() =>
-			assignPartialProps(
-				clone(),
-				/** @type {((node: Node) => void)[]} */ (
-					/** @type {unknown} */ (props)
-				),
-				propsData,
-			),
-		)
+	return assign =>
+		markComponent(() => assignPartialProps(clone(), assign, options))
 }
 
 /**
- * @template T
- * @param {Element} node
- * @param {((node: Node) => void)[]} props
- * @param {{
- * 	x?: string
- * 	[i: number]: number
- * 	m?: number
- * } & Record<string, unknown>} propsData
+ * @param {Element | DocumentFragment} node
+ * @param {((node: Node) => void) | undefined} assign - Compiled walk
+ *   that navigates the cloned tree and applies the props
+ * @param {{ x?: string; i?: number }} options
  * @returns {JSX.Element}
  */
-function assignPartialProps(node, props, propsData) {
-	if (props) {
-		const nodes = walkElements(node, propsData.m)
-
-		withXMLNS(propsData.x, xmlns => {
-			for (let i = 0; i < props.length; i++) {
-				props[i](nodes[i in propsData ? propsData[i] : i])
-			}
-		})
+function assignPartialProps(node, assign, options) {
+	if (assign) {
+		/**
+		 * `withXMLNS` without a namespace is a pass-through (`assign`
+		 * ignores the argument) — skip the closure on the common path
+		 */
+		options.x
+			? withXMLNS(options.x, () => assign(node))
+			: assign(node)
 	}
 
 	return node instanceof DocumentFragment

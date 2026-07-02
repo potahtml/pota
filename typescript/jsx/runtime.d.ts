@@ -15,7 +15,7 @@ export { jsx as jsxs, jsx as jsxDEV }
  */
 export function createPartial(
 	content: string,
-	propsData?: any,
-): (props?: any) => JSX.Element
+	options?: { x?: string; i?: number },
+): (assign?: (node: Node) => void) => JSX.Element
 
 export { JSX }
