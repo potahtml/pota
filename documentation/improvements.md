@@ -154,10 +154,11 @@ regression test for the fix.
       its own correct path). **Fixed:** `>=`.
       Test: `tests/api/confirmations/store-array-trackdiff-off-by-one.jsx`
 
-- [ ] **`slice(x, 0)` over-tracks the whole array.** The end
+- [x] **`slice(x, 0)` over-tracks the whole array.** The end
       normalization `end > 0 ? end : end < 0 ? … : target.length`
       (`src/lib/store/proxies/array.js:423`) maps an explicit `0` to
       `target.length`. Subscription-only issue, no wrong values.
+      **Fixed:** the normalization dispatches on `end === undefined`.
       Test: `tests/api/confirmations/store-array-slice-zero-end.jsx`
 
 - [ ] **`deleteProperty` fires deletion tracking for prototype-only

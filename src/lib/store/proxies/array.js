@@ -421,8 +421,14 @@ const arrayMethods = {
 		let end = args[1]
 
 		start = start > 0 ? start : start < 0 ? start + target.length : 0
+		// dispatch on undefined-ness, not truthiness — an explicit `0`
+		// selects nothing and must not subscribe to the whole array
 		end =
-			end > 0 ? end : end < 0 ? end + target.length : target.length
+			end === undefined
+				? target.length
+				: end < 0
+					? end + target.length
+					: end
 
 		const r = reflectApply(value, target, args)
 

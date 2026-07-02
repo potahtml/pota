@@ -1,14 +1,14 @@
-// BUG CONFIRMATION — documentation/improvements.md: "`slice(x, 0)`
-// over-tracks the whole array". The end normalization maps an
+// REGRESSION — documentation/improvements.md: "`slice(x, 0)`
+// over-tracks the whole array". The end normalization used to map an
 // explicit `0` to `target.length`, so a slice that selects nothing
-// subscribes to every index. Subscription-only issue (no wrong
-// values). Asserts the CURRENT buggy behavior.
+// subscribed to every index. Fixed: the normalization dispatches on
+// undefined-ness, not truthiness.
 
 import { test } from '#test'
 import { effect, root } from 'pota'
 import { mutable } from 'pota/store'
 
-await test('CONFIRM - slice(0, 0) subscribes to the whole array', expect => {
+await test('slice(0, 0) does not subscribe to the whole array', expect => {
 	const arr = mutable(['a', 'b', 'c'])
 
 	let runs = 0
@@ -21,11 +21,28 @@ await test('CONFIRM - slice(0, 0) subscribes to the whole array', expect => {
 	})
 	expect(runs).toBe(1)
 
-	// BUG: end === 0 was normalized to target.length, so the effect
-	// tracked indexes 0..2 and wakes on an unrelated write
+	// nothing was selected, so an unrelated write must not wake it
 	arr[2] = 'z'
+	expect(runs).toBe(1)
+
+	dispose()
+})
+
+await test('slice() with no end still tracks the whole array', expect => {
+	const arr = mutable(['a', 'b', 'c'])
+
+	let runs = 0
+	const dispose = root(d => {
+		effect(() => {
+			arr.slice(1)
+			runs++
+		})
+		return d
+	})
+	expect(runs).toBe(1)
+
+	arr[2] = 'z' // inside the implicit range
 	expect(runs).toBe(2)
-	// FIXED: expect(runs).toBe(1)
 
 	dispose()
 })
