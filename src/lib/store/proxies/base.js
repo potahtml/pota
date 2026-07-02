@@ -1,5 +1,6 @@
 import { batch } from '../../reactive.js'
 import {
+	hasOwn,
 	isProxyValueReturnInvariant,
 	reflectApply,
 	reflectDefineProperty,
@@ -31,8 +32,13 @@ export class ProxyHandlerBase {
 		return r
 	}
 	deleteProperty(target, key) {
-		/** To not trigger effects when the property isn't in the object */
-		if (!(key in target)) {
+		/**
+		 * To not trigger effects when the property isn't an own key —
+		 * `delete` can't remove prototype properties, so a proto-only
+		 * key is a no-op that must not fire deletion signals (`in`
+		 * would include the prototype chain).
+		 */
+		if (!hasOwn(target, key)) {
 			return true
 		}
 

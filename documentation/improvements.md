@@ -161,13 +161,13 @@ regression test for the fix.
       **Fixed:** the normalization dispatches on `end === undefined`.
       Test: `tests/api/confirmations/store-array-slice-zero-end.jsx`
 
-- [ ] **`deleteProperty` fires deletion tracking for prototype-only
+- [x] **`deleteProperty` fires deletion tracking for prototype-only
       keys.** The guard `!(key in target)`
       (`src/lib/store/proxies/base.js:35`) includes the prototype
       chain; deleting a key that exists only on the proto "succeeds"
       without changing anything, yet writes `keyWrite(key, false)` +
       `delete` signals — spurious wakes and a `has` signal that
-      disagrees with `key in proxy`. Should use `hasOwn`.
+      disagrees with `key in proxy`. **Fixed:** guard uses `hasOwn`.
       Test: `tests/api/confirmations/store-delete-prototype-key.jsx`
 
 - [ ] **Projections can't delete.** `Projection`

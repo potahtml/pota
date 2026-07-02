@@ -1,15 +1,15 @@
-// BUG CONFIRMATION — documentation/improvements.md: "`deleteProperty`
-// fires deletion tracking for prototype-only keys". The guard uses
+// REGRESSION — documentation/improvements.md: "`deleteProperty` fires
+// deletion tracking for prototype-only keys". The guard used
 // `key in target` (prototype chain included), so deleting a key that
-// exists only on the proto "succeeds" without changing anything, yet
-// fires `keyWrite(key, false)` + delete signals — spurious wakes and
-// a `has` signal that disagrees with reality. Should use `hasOwn`.
+// exists only on the proto — a JS no-op — fired `keyWrite(key,
+// false)` + delete signals: spurious wakes and a `has` signal that
+// disagreed with reality. Fixed with `hasOwn`.
 
 import { test } from '#test'
 import { effect, root } from 'pota'
 import { mutable } from 'pota/store'
 
-await test('CONFIRM - deleting a proto-only key fires tracking though nothing changed', expect => {
+await test('deleting a proto-only key is a tracking no-op', expect => {
 	const obj = mutable(Object.create({ inherited: 'x' }))
 
 	let has
@@ -28,9 +28,10 @@ await test('CONFIRM - deleting a proto-only key fires tracking though nothing ch
 	delete obj.inherited
 	expect('inherited' in obj).toBe(true)
 
-	// BUG: the delete branch ran anyway and woke the subscriber
-	expect(runs).toBe(2)
-	// FIXED: expect(runs).toBe(1)
+	// nothing changed, so the subscriber must not wake — and the
+	// `has` signal keeps agreeing with `in`
+	expect(runs).toBe(1)
+	expect(has).toBe(true)
 
 	dispose()
 })
@@ -53,6 +54,27 @@ await test('control - deleting an own key tracks correctly', expect => {
 	delete obj.k
 	expect(has).toBe(false)
 	expect(runs).toBe(2)
+
+	dispose()
+})
+
+await test('deleting an own key that shadows a proto key updates has', expect => {
+	const proto = { k: 'proto' }
+	const obj = mutable(Object.assign(Object.create(proto), { k: 'own' }))
+
+	let has
+	const dispose = root(d => {
+		effect(() => {
+			has = 'k' in obj
+		})
+		return d
+	})
+	expect(has).toBe(true)
+
+	// removes the own key; the proto key still answers `in`
+	delete obj.k
+	expect('k' in obj).toBe(true)
+	expect(obj.k).toBe('proto')
 
 	dispose()
 })
