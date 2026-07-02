@@ -250,7 +250,7 @@ await test('batch: cross-memo isolation — each memo re-runs at most once per b
 	expect(bSeen).toBe(20)
 })
 
-await test('batch: body throws — write persists but effect notifications are dropped', expect => {
+await test('batch: body throws — write persists, effect misses the batch but recovers', expect => {
 	const obj = mutable({ a: 0 })
 	const seen = []
 	root(() => {
@@ -273,14 +273,14 @@ await test('batch: body throws — write persists but effect notifications are d
 	// the write to the target happened
 	expect(obj.a).toBe(1)
 
-	// FINDING: pota's batch, when its body throws, drops the Updates/Effects
-	// queue without flushing. So marked-stale effects are NOT re-run. Further
-	// writes also don't re-fire them (stale flag prevents re-mark, but nothing
-	// ever runs them). Documenting current behavior.
+	// when the batch body throws, the queued effects are dropped
+	// without running (they miss the failed batch), but the catch
+	// path resets them to CLEAN so later writes re-queue them —
+	// see tests/api/confirmations/batch-throw-kills-effects.jsx
 	expect(seen).toEqual([0])
 
 	obj.a = 2
-	expect(seen).toEqual([0])
+	expect(seen).toEqual([0, 2])
 })
 
 await test('signal: signal() + mutable interop, both invalidate a memo', expect => {

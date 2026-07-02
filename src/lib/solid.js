@@ -980,10 +980,31 @@ export function createReactiveSystem() {
 
 			return res
 		} catch (err) {
+			/**
+			 * `fn` threw, but writes made before the throw are already
+			 * committed. Flush the queued memos so their values stay
+			 * consistent with their sources, and reset the discarded
+			 * effects to CLEAN so the next write re-queues them —
+			 * `_markObservers` only queues CLEAN observers, so a
+			 * discarded STALE/CHECK effect would otherwise never run
+			 * again. Effects miss this failed batch and recover on the
+			 * next write.
+			 */
+			if (Updates) {
+				for (const update of Updates) {
+					runTop(update)
+				}
+			}
+			Updates = undefined
+
 			if (!wait) {
 				Effects = undefined
 			}
-			Updates = undefined
+			if (myEffects) {
+				for (const effect of myEffects) {
+					effect.state = 0 /* CLEAN */
+				}
+			}
 
 			throw err
 		} finally {
