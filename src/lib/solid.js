@@ -408,6 +408,15 @@ export function createReactiveSystem() {
 
 		isResolved;
 
+		/**
+		 * Holds the error of the last failed attempt (rejected promise
+		 * or throwing fn) while no newer attempt has started —
+		 * `nothing` otherwise. Lets `then()` settle immediately
+		 * instead of queueing forever on a derived whose last attempt
+		 * failed.
+		 */
+		rejectedWith = nothing;
+
 		[$isDerived] = true
 
 		/**
@@ -465,11 +474,16 @@ export function createReactiveSystem() {
 				this.state = 1 /* STALE */
 				this.disposeOwned()
 				this.updatedAt = time + 1
+				// a sync throw settles awaiters too — same hang as a
+				// rejected promise otherwise
+				this.rejectedWith = err
+				this._rejectThens(err)
 				routeError(this, err)
 			}
 		}
 		write(nextValue, fns) {
 			this.isResolved = undefined
+			this.rejectedWith = nothing
 
 			const mine =
 				fns === undefined ? ++this.lastWrite : this.lastWrite
@@ -482,6 +496,7 @@ export function createReactiveSystem() {
 							this.write(() => fns[0](nextValue), fns.slice(1))
 						} else {
 							this.isResolved = null
+							this.rejectedWith = nothing
 
 							this.writeNextValue(nextValue)
 							this.updatedAt = Time
@@ -501,6 +516,15 @@ export function createReactiveSystem() {
 					// to avoid the "Florida - New York City" problem
 					this.writeNextValue(nothing)
 				},
+				undefined,
+				err => {
+					// a stale rejection (a newer write already started or
+					// committed) must not settle awaiters
+					if (this.lastWrite === mine) {
+						this.rejectedWith = err
+						this._rejectThens(err)
+					}
+				},
 			)
 		}
 		writeNextValue(value) {
@@ -513,11 +537,12 @@ export function createReactiveSystem() {
 
 		/**
 		 * Thenable surface. Stays defined across commits so consumers can
-		 * register more than once: each call to `then` either fires
-		 * synchronously (if already resolved) or queues onto
-		 * `thenCallbacks`, drained by `_fireThens` on commit. Has to be
-		 * an instance arrow so `assign(self(), this)` carries it onto the
-		 * callable wrapper.
+		 * register more than once: each call to `then` either settles
+		 * synchronously (already resolved, or the last attempt failed) or
+		 * queues `(resolve, reject)` as a flat pair onto `thenCallbacks`,
+		 * drained by `_fireThens` on commit or `_rejectThens` on a failed
+		 * attempt. Has to be an instance arrow so `assign(self(), this)`
+		 * carries it onto the callable wrapper.
 		 *
 		 * We resolve with `_unwrap()` rather than `self()`: `self()`
 		 * carries `then` onto every fresh wrapper, which makes the
@@ -534,15 +559,33 @@ export function createReactiveSystem() {
 				resolve(this._unwrap())
 				return
 			}
+			// the last attempt failed and no newer attempt has started:
+			// settle now instead of queueing forever
+			if (this.rejectedWith !== nothing) {
+				reject && reject(this.rejectedWith)
+				return
+			}
 			if (!this.thenCallbacks) this.thenCallbacks = []
-			this.thenCallbacks.push(resolve)
+			this.thenCallbacks.push(resolve, reject)
 		}
 		_fireThens() {
 			if (this.thenCallbacks) {
 				const cbs = this.thenCallbacks
 				this.thenCallbacks = undefined
 				const wrap = this._unwrap()
-				cbs.forEach(cb => cb(wrap))
+				for (let i = 0; i < cbs.length; i += 2) {
+					cbs[i](wrap)
+				}
+			}
+		}
+		_rejectThens(err) {
+			if (this.thenCallbacks) {
+				const cbs = this.thenCallbacks
+				this.thenCallbacks = undefined
+				for (let i = 1; i < cbs.length; i += 2) {
+					// a bare `.then(fn)` consumer has no reject side
+					cbs[i] && cbs[i](err)
+				}
 			}
 		}
 		_unwrap() {
@@ -1194,6 +1237,7 @@ export function createReactiveSystem() {
 		fn,
 		writeDefaultValue = noop,
 		wroteValue = undefined,
+		onReject = undefined,
 	) {
 		// `wroteValue` is lazily allocated INSIDE the branches that
 		// need it. The terminal `fn(value)` path is the common case
@@ -1208,7 +1252,7 @@ export function createReactiveSystem() {
 			if (wroteValue === undefined) wroteValue = { value: false }
 
 			syncEffect(() =>
-				withValue(value(), fn, writeDefaultValue, wroteValue),
+				withValue(value(), fn, writeDefaultValue, wroteValue, onReject),
 			)
 		} else if (isArray(value)) {
 			// TODO maybe do same for objects ...
@@ -1252,6 +1296,7 @@ export function createReactiveSystem() {
 					},
 					writeDefaultValue,
 					wroteValue,
+					onReject,
 				)
 			}
 		} else if (isPromise(value)) {
@@ -1272,10 +1317,20 @@ export function createReactiveSystem() {
 			value.then(
 				owned(value => {
 					remove()
-					withValue(value, fn, writeDefaultValue, wroteValue)
+					withValue(
+						value,
+						fn,
+						writeDefaultValue,
+						wroteValue,
+						onReject,
+					)
 				}, remove),
 				owned(err => {
 					remove()
+					// `onReject` observes the rejection (Derived uses it
+					// to settle awaiters); the throw still routes the
+					// error to the boundary either way
+					onReject && onReject(err)
 					throw err
 				}, remove),
 			)

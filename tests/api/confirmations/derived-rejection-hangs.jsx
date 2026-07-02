@@ -1,13 +1,15 @@
-// BUG CONFIRMATION — documentation/improvements.md: "`await derived`
-// hangs forever on rejection". `Derived.then` ignores its `reject`
-// argument and `thenCallbacks` are only drained on successful commit,
-// so a rejected promise routes to the error handler but awaiting
-// consumers never settle. Asserts the CURRENT buggy behavior.
+// REGRESSION — documentation/improvements.md: "`await derived` hangs
+// forever on rejection". `Derived.then` used to ignore its `reject`
+// argument and `thenCallbacks` were only drained on successful
+// commit. Fixed: a rejected promise (or a throwing fn) settles
+// awaiting consumers with the rejection, keeps routing the error to
+// the boundary, and rejects late awaiters until a newer attempt
+// starts.
 
 import { test, macrotask } from '#test'
 import { derived, catchError, root } from 'pota'
 
-await test('CONFIRM - then() never settles when the derived promise rejects', async expect => {
+await test('then() rejects when the derived promise rejects', async expect => {
 	const settled = []
 	const caught = []
 
@@ -15,21 +17,119 @@ await test('CONFIRM - then() never settles when the derived promise rejects', as
 		catchError(
 			() => {
 				const d = derived(() => Promise.reject(new Error('nope')))
-				d.then(() => settled.push('resolved'))
+				d.then(
+					() => settled.push('resolved'),
+					err => settled.push(err.message),
+				)
 			},
-			err => caught.push(err instanceof Error ? err.message : String(err)),
+			err =>
+				caught.push(err instanceof Error ? err.message : String(err)),
 		)
 		return dispose
 	})
 
 	await macrotask()
 
-	// the rejection was routed to the error boundary
+	// the rejection still routes to the error boundary
 	expect(caught).toEqual(['nope'])
 
-	// BUG: the then() callback is queued forever — `await d` hangs
-	expect(settled).toEqual([])
-	// FIXED: awaiters should settle (reject) instead of hanging
+	// and awaiting consumers settle with the rejection
+	expect(settled).toEqual(['nope'])
+
+	dispose()
+})
+
+await test('await derived throws instead of hanging', async expect => {
+	const caught = []
+
+	let d
+	const dispose = root(dispose => {
+		catchError(
+			() => {
+				d = derived(() => Promise.reject(new Error('boom')))
+			},
+			() => caught.push('routed'),
+		)
+		return dispose
+	})
+
+	let thrown
+	try {
+		await d
+	} catch (err) {
+		thrown = err instanceof Error ? err.message : String(err)
+	}
+	expect(thrown).toBe('boom')
+
+	// a late awaiter also settles (the failed attempt is remembered
+	// until a newer attempt starts)
+	thrown = undefined
+	try {
+		await d
+	} catch (err) {
+		thrown = err instanceof Error ? err.message : String(err)
+	}
+	expect(thrown).toBe('boom')
+
+	dispose()
+})
+
+await test('await derived throws when fn throws synchronously', async expect => {
+	let d
+	const dispose = root(dispose => {
+		catchError(
+			() => {
+				d = derived(() => {
+					throw new Error('sync')
+				})
+			},
+			() => {},
+		)
+		return dispose
+	})
+
+	let thrown
+	try {
+		await d
+	} catch (err) {
+		thrown = err instanceof Error ? err.message : String(err)
+	}
+	expect(thrown).toBe('sync')
+
+	dispose()
+})
+
+await test('a rejected derived recovers on a direct write', async expect => {
+	/** @type {Derived<number> | undefined} */
+	let d
+	const dispose = root(dispose => {
+		catchError(
+			() => {
+				d = derived(
+					() =>
+						/** @type {Promise<number>} */ (
+							Promise.reject(new Error('first'))
+						),
+				)
+			},
+			() => {},
+		)
+		return dispose
+	})
+
+	let thrown
+	try {
+		await d
+	} catch (err) {
+		thrown = err instanceof Error ? err.message : String(err)
+	}
+	expect(thrown).toBe('first')
+
+	// a new write starts a fresh attempt; awaiters resolve again
+	// (await yields the unwrapped callable — call it to read)
+	const dd = /** @type {NonNullable<typeof d>} */ (d)
+	dd(42)
+	expect((await dd)()).toBe(42)
 
 	dispose()
 })

@@ -62,11 +62,18 @@ regression test for the fix.
       terminal branch) is gone.
       Test: `tests/api/confirmations/with-value-array-mutates-input.jsx`
 
-- [ ] **`await derived` hangs forever on rejection.** `Derived.then`
+- [x] **`await derived` hangs forever on rejection.** `Derived.then`
       (`src/lib/solid.js:528-539`) ignores its `reject` argument and
       `thenCallbacks` are only drained on successful commit; a
       rejected promise routes through `routeError` but never settles
-      awaiting consumers, and `resolved()` stays false.
+      awaiting consumers, and `resolved()` stays false. **Fixed:**
+      `withValue` gained an internal `onReject` hook; `Derived.write`
+      uses it (token-gated against stale rejections) to reject queued
+      awaiters and remember the failure in `rejectedWith` until a
+      newer attempt starts, so late awaiters settle too. Sync throws
+      in the derived's fn settle awaiters the same way via `update()`'s
+      catch. Errors still route to the boundary; `resolved()` still
+      reports false after a failure.
       Test: `tests/api/confirmations/derived-rejection-hangs.jsx`
 
 - [ ] **Memo discards a successful recompute after an error** —
