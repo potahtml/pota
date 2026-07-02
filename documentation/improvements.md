@@ -37,22 +37,29 @@ regression test for the fix.
       which miss the failed batch and recover on the next write.
       Test: `tests/api/confirmations/batch-throw-kills-effects.jsx`
 
-- [ ] **`withValue` array: terminal callback never re-fires** —
+- [x] **`withValue` array: terminal callback never re-fires** —
       verified. In the array branch (`src/lib/solid.js:1200-1236`),
       `--pending === 0` can only be true once; when a reactive item's
       `syncEffect` re-runs later, `pending` goes negative and `fn` is
       never called again. Any array value containing a function
       (`setAttribute`/`setProperty`/`setStyle` values, `derived`
       resolving an array) renders once and then goes permanently
-      stale. The `TODO maybe change this to be a memo` at
-      `src/lib/solid.js:1186` is the right fix direction.
+      stale. **Fixed** together with the mutation bug below: the
+      array branch resolves items into a copy with a per-slot `done`
+      guard; once all slots resolve, any reactive item change
+      re-fires `fn` with the updated copy. A pure memo is not viable
+      because items can be promises.
       Test: `tests/api/confirmations/with-value-array-stale.jsx`
 
-- [ ] **`withValue` array mutates the caller's array in place** —
+- [x] **`withValue` array mutates the caller's array in place** —
       verified. `value[i] = item` (`src/lib/solid.js:1221`) replaces
       the user's functions/promises with resolved snapshots. A shared
       or reused array (module-level constant passed to two elements)
       arrives at the second consumer pre-resolved and inert.
+      **Fixed** by the copy-based redesign above — the caller's array
+      is never touched, and the `resolved` bookkeeping parameter
+      (whose only job was routing the mutated array back to the
+      terminal branch) is gone.
       Test: `tests/api/confirmations/with-value-array-mutates-input.jsx`
 
 - [ ] **`await derived` hangs forever on rejection.** `Derived.then`
@@ -232,10 +239,12 @@ regression test for the fix.
       `_unwrap()` allocates per then-fire. Fine if deriveds are rare;
       worth revisiting if they appear in hot lists.
 
-- [ ] **`withValue` array path** allocates
+- [x] **`withValue` array path** allocates
       `wroteValue`/`resolved`/per-item closures and is broken (see
       bugs); redesign as memo-based per-item resolution rather than
-      patching `pending`.
+      patching `pending`. **Done** with the bug fixes: `resolved` is
+      deleted; per-item closures and the lazy `wroteValue` remain
+      (promise items preclude a pure memo).
 
 ### `map()` / For reconciliation (`src/lib/reactive.js`)
 

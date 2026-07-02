@@ -1194,39 +1194,24 @@ export function createReactiveSystem() {
 		fn,
 		writeDefaultValue = noop,
 		wroteValue = undefined,
-		resolved = undefined,
 	) {
-		// `wroteValue` and `resolved` are lazily allocated INSIDE the
-		// branches that need them. The terminal `fn(value)` path is
-		// the common case (every reactive prop assignment for a
-		// primitive/element value goes through it) — making the
-		// defaults eager allocated `{ value: false }` + `[]` per
-		// call, even for the terminal path that never reads them.
-		// Lazy init keeps that hot path allocation-free.
+		// `wroteValue` is lazily allocated INSIDE the branches that
+		// need it. The terminal `fn(value)` path is the common case
+		// (every reactive prop assignment for a primitive/element
+		// value goes through it) — making the default an eager
+		// allocated `{ value: false }` per call, even for the terminal
+		// path that never reads it. Lazy init keeps that hot path
+		// allocation-free.
 		if (isFunction(value)) {
 			// TODO maybe change this to be a memo
 
 			if (wroteValue === undefined) wroteValue = { value: false }
-			if (resolved === undefined) resolved = []
 
 			syncEffect(() =>
-				withValue(
-					value(),
-					fn,
-					writeDefaultValue,
-					wroteValue,
-					resolved,
-				),
+				withValue(value(), fn, writeDefaultValue, wroteValue),
 			)
-		} else if (
-			isArray(value) &&
-			(resolved === undefined || !resolved.includes(value))
-		) {
+		} else if (isArray(value)) {
 			// TODO maybe do same for objects ...
-
-			if (wroteValue === undefined) wroteValue = { value: false }
-			if (resolved === undefined) resolved = []
-			resolved.push(value)
 
 			// when empty it should update too
 			if (value.length === 0) {
@@ -1234,30 +1219,43 @@ export function createReactiveSystem() {
 				return
 			}
 
+			if (wroteValue === undefined) wroteValue = { value: false }
+
+			/**
+			 * Items resolve into a copy — the caller's array is never
+			 * mutated, so a shared/reused array stays reactive for every
+			 * consumer. `fn` first fires once every slot has resolved
+			 * (promises included); from then on, any reactive item
+			 * re-fires `fn` with the updated copy. `done` guards the
+			 * countdown per slot: a reactive item re-running while other
+			 * slots are still pending only refreshes its slot.
+			 */
+			const copy = /** @type {T & unknown[]} */ (
+				new Array(value.length)
+			)
+			const done = new Array(value.length)
 			let pending = value.length
-			value.forEach((item, i) => {
+
+			for (let i = 0; i < value.length; i++) {
 				withValue(
-					item,
+					value[i],
 					item => {
-						value[i] = item
-						if (--pending === 0) {
-							withValue(
-								value,
-								fn,
-								writeDefaultValue,
-								wroteValue,
-								resolved,
-							)
+						copy[i] = item
+						if (pending === 0) {
+							fn(copy)
+						} else if (!done[i]) {
+							done[i] = true
+							if (--pending === 0) {
+								fn(copy)
+							}
 						}
 					},
 					writeDefaultValue,
 					wroteValue,
-					resolved,
 				)
-			})
+			}
 		} else if (isPromise(value)) {
 			if (wroteValue === undefined) wroteValue = { value: false }
-			if (resolved === undefined) resolved = []
 
 			const remove = asyncTracking.add()
 			/**
@@ -1274,13 +1272,7 @@ export function createReactiveSystem() {
 			value.then(
 				owned(value => {
 					remove()
-					withValue(
-						value,
-						fn,
-						writeDefaultValue,
-						wroteValue,
-						resolved,
-					)
+					withValue(value, fn, writeDefaultValue, wroteValue)
 				}, remove),
 				owned(err => {
 					remove()

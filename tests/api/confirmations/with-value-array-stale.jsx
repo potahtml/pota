@@ -1,14 +1,15 @@
 /** @jsxImportSource pota */
-// BUG CONFIRMATION — documentation/improvements.md: "`withValue`
-// array: terminal callback never re-fires". The `--pending === 0`
-// counter in the array branch only hits zero once, so a reactive
-// item updating later never re-dispatches the resolved array.
-// Asserts the CURRENT buggy behavior; flip FIXED assertions on fix.
+// REGRESSION — documentation/improvements.md: "`withValue` array:
+// terminal callback never re-fires". The old `--pending === 0`
+// counter only hit zero once, so a reactive item updating later never
+// re-dispatched the resolved array. Fixed by per-item resolution into
+// a copy: once every slot has resolved, any reactive item change
+// re-fires the terminal callback with the updated copy.
 
 import { test, body } from '#test'
 import { signal, withValue, root, render } from 'pota'
 
-await test('CONFIRM - withValue array goes stale after first resolution', expect => {
+await test('withValue array re-fires when a reactive item changes', expect => {
 	const s = signal('a')
 	const calls = []
 
@@ -19,20 +20,23 @@ await test('CONFIRM - withValue array goes stale after first resolution', expect
 
 	expect(calls).toEqual([['static', 'a']])
 
-	// BUG: the item effect re-runs (see mutation test) but the
-	// terminal callback never fires again — pending goes negative.
 	s.write('b')
-	expect(calls).toEqual([['static', 'a']])
-	// FIXED: expect(calls).toEqual([['static', 'a'], ['static', 'b']])
+	expect(calls).toEqual([
+		['static', 'a'],
+		['static', 'b'],
+	])
 
 	s.write('c')
-	expect(calls).toEqual([['static', 'a']])
-	// FIXED: expect(calls).toEqual([['static', 'a'], ['static', 'b'], ['static', 'c']])
+	expect(calls).toEqual([
+		['static', 'a'],
+		['static', 'b'],
+		['static', 'c'],
+	])
 
 	dispose()
 })
 
-await test('CONFIRM - attribute with a reactive array value never updates the DOM', expect => {
+await test('attribute with a reactive array value updates the DOM', expect => {
 	const s = signal('one')
 
 	const dispose = render(
@@ -43,13 +47,11 @@ await test('CONFIRM - attribute with a reactive array value never updates the DO
 		/>,
 	)
 
-	// the array resolves once and stringifies via setAttribute
+	// the array resolves and stringifies via setAttribute
 	expect(body()).toBe('<div title="id-,one"></div>')
 
-	// BUG: the DOM attribute is permanently stale
 	s.write('two')
-	expect(body()).toBe('<div title="id-,one"></div>')
-	// FIXED: expect(body()).toBe('<div title="id-,two"></div>')
+	expect(body()).toBe('<div title="id-,two"></div>')
 
 	dispose()
 })
