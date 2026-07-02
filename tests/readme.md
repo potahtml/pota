@@ -106,6 +106,7 @@ All test file paths below are relative to `tests/api/` unless noted.
 tests/
   api/                      browser tests, discovered by the runner
     components/             one file per built-in component
+    confirmations/          bug confirmations for documentation/improvements.md
     reactivity/             one file per reactive primitive
     dom/                    renderer, refs, props, events
     forms/                  native HTML form behavior
@@ -230,6 +231,15 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 
 One file per module under `src/use/`. Each imports from `#test` and
 the matching `pota/use/<name>` subpath.
+
+## `tests/api/confirmations/` — bug confirmations
+
+One file per bug item in `documentation/improvements.md` (two
+`setCSS` items share a file). These tests assert the **current buggy
+behavior** so they pass while the bug exists; each buggy assertion
+carries a `FIXED:` comment with the expected assertion to flip when
+the fix lands, turning the file into the fix's regression test. Each
+improvements.md item links its file; file headers link back.
 
 ## Top-level tests
 
