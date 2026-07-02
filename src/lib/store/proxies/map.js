@@ -97,11 +97,18 @@ const mapMethods = {
 
 	set(handler, trackSlot, target, value, args, proxy) {
 		const key = args[0]
+		/**
+		 * Store the mutable proxy, not the raw — wrap-time entries are
+		 * proxied (see `mutable()`'s Map branch), so entries added
+		 * through the proxy must match for iteration to yield tracked
+		 * values and for the no-op check below to hold (`mutable()` is
+		 * idempotent: same raw, same proxy).
+		 */
 		const val = mutable(args[1])
 
 		if (target.has(key)) {
 			if (target.get(key) === val) {
-				return reflectApply(value, target, args)
+				return target
 			}
 		} else {
 			trackSlot.keysWrite()
@@ -112,7 +119,7 @@ const mapMethods = {
 		trackSlot.keyWrite(key, true)
 		trackSlot.valueWrite(key, val)
 
-		const r = reflectApply(value, target, args)
+		const r = reflectApply(value, target, [key, val])
 
 		handler.track.valueWrite('size', target.size)
 

@@ -88,7 +88,8 @@ regression test for the fix.
       within the failing flush is unchanged.
       Test: `tests/api/confirmations/memo-discards-recompute-after-error.jsx`
 
-- [ ] **`context` Provider with `value={undefined}` renders the
+- [ ] **(skipped 2026-07-02, maintainer decision — revisit later)**
+      **`context` Provider with `value={undefined}` renders the
       context value instead of children.** `useContext(newValue, fn)`
       dispatches on `newValue === undefined`
       (`src/lib/solid.js:1080`), so `Provider` falls into read mode,
@@ -96,7 +97,8 @@ regression test for the fix.
       children thunk.
       Test: `tests/api/confirmations/context-provider-undefined-value.jsx`
 
-- [ ] **`root()` / `render()` return `undefined` on setup error.**
+- [ ] **(skipped 2026-07-02, maintainer decision — revisit later)**
+      **`root()` / `render()` return `undefined` on setup error.**
       `runWithOwner` catches and routes (`src/lib/solid.js:783-789`),
       so `render()`'s `dispose` can be `undefined` →
       `cleanup(undefined)` is registered and later throws (caught,
@@ -105,7 +107,11 @@ regression test for the fix.
 
 ### `map()` / For
 
-- [ ] **Rows that render no DOM node crash removal and reorder.** A
+- [ ] **(skipped 2026-07-02, maintainer decision — revisit later;
+      preferred direction if fixed: substitute an empty text node as
+      the row anchor at materialization, matching how component rows
+      already get placeholders)**
+      **Rows that render no DOM node crash removal and reorder.** A
       callback returning `null`/`undefined` gives `Row.nodes =
       undefined`; `begin()`/`end()` cache `undefined` and
       `nodesForRow()` (`src/lib/reactive.js:279-292`) returns
@@ -115,7 +121,8 @@ regression test for the fix.
       cover `each={null}` but not null row output.
       Test: `tests/api/confirmations/map-null-row-crash.jsx`
 
-- [ ] **`mapper()` with `fallback` but no `fn` crashes.** The
+- [ ] **(skipped 2026-07-02, maintainer decision — revisit later)**
+      **`mapper()` with `fallback` but no `fn` crashes.** The
       fallback path calls `fn(fallback)` unconditionally
       (`src/lib/reactive.js:437`); only `<For>`'s effect passes `fn`.
       Direct `map(list, cb, false, fallback)` usage throws when the
@@ -124,7 +131,7 @@ regression test for the fix.
 
 ### Store
 
-- [ ] **Map proxy `set` stores the raw value, not the mutable
+- [x] **Map proxy `set` stores the raw value, not the mutable
       proxy.** `mapMethods.set` computes `val = mutable(args[1])` but
       applies the original `args` (`src/lib/store/proxies/map.js:115`)
       — should be `[key, val]`. Consequences: entries added through
@@ -133,6 +140,9 @@ regression test for the fix.
       post-init entries (nested mutations invisible); the no-op check
       `target.get(key) === val` (map.js:103) can never match for
       object values, so same-value sets always fire `valuesWrite`.
+      **Fixed:** `set` applies `[key, val]`; the no-op path returns
+      the target without re-applying (the old code re-set the raw
+      there, clobbering the stored proxy).
       Test: `tests/api/confirmations/store-map-set-stores-raw.jsx`
 
 - [ ] **`trackDiff` off-by-one drops the `has` write for the first
