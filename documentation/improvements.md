@@ -606,10 +606,21 @@ regression test for the fix.
       Tests: `tests/api/store/mutable.jsx` (shared methods, tracked
       inherited getter, tracked proto data prop).
 
-- [ ] **Tracker storage for array indices is a null-proto dictionary**
+- [x] **Tracker storage for array indices is a null-proto dictionary**
       (`tracker.js:74`); numeric keys as strings force dictionary
       mode. A `Map` (like the identity path) is likely faster for
       index-heavy arrays — measure with the bench.
+      **Resolved by measurement — keeping the object storage**
+      (2026-07-03): headless micro-bench (10k indices × 200 passes of
+      trap-style string reads + numeric reads + numeric writes,
+      real `signal()`s) puts the current null-proto object at ~90-105ms
+      vs ~207ms for a `Map` — the premise was wrong, V8 keeps
+      integer-like keys in the elements backing store (not dictionary
+      mode), which beats Map hashing, and the Map variant must also
+      pay number↔string normalization since proxy traps pass strings
+      while `trackDiff`/`trackKeysRange`/`push` pass numbers. The main
+      bench couldn't have measured this either way (its rows are
+      plain signal arrays, not store arrays).
 
 - [ ] **Array `set` trap always runs the `length` signal write**
       (`array.js:96`) even when length didn't change; the equality
