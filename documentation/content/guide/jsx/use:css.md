@@ -15,7 +15,11 @@ class name that's then added to the element. That way you co-locate a
 scoped stylesheet with the markup without hand-generating a class. The
 generated sheet is adopted into the element's owning document the
 first time it's seen and kept — the same CSS string maps to one shared
-sheet and class across every element that uses it.
+sheet and class across every element that uses it. The cache is keyed
+by the full CSS text and never evicted, so don't interpolate changing
+values into the string (each distinct string keeps a sheet alive for
+the lifetime of the page) — set a CSS custom property on the element
+and reference it from the stylesheet instead.
 
 For the tagged-template helper that produces `CSSStyleSheet` objects
 (and the `css` child form that adopts a sheet into the document), see

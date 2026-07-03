@@ -10,6 +10,13 @@ import { randomId } from '../../use/random.js'
 import { onMount } from '../scheduler.js'
 
 /**
+ * Cached by the full CSS text, and entries are never evicted: the
+ * sheet stays adopted and the `{ id, sheet }` entry stays in the
+ * cache for the lifetime of the page. Static strings are bounded by
+ * source code; interpolating dynamic values into the CSS text mints
+ * a new class + sheet per distinct string and accumulates — use CSS
+ * custom properties for dynamic values instead.
+ *
  * @param {Element} node
  * @param {string} value
  */

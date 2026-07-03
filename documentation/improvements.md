@@ -469,9 +469,16 @@ regression test for the fix.
       50.9ms in-band, per-row 631B, deopts 10/12); gate was the full
       suite (props dispatch is exercised everywhere).
 
-- [ ] **`setCSS` cache growth is unbounded** for dynamic CSS strings
+- [x] **`setCSS` cache growth is unbounded** for dynamic CSS strings
       (global Map keyed by full text, never evicted) — couple this
       with the per-document bug fix above.
+      **Resolved by documenting the contract** (2026-07-03,
+      maintainer decision): behavior unchanged — a real fix means
+      refcounted sheet lifecycle (bounding only the Map wouldn't
+      release the adopted sheets, which are the actual growth), and
+      dynamic CSS text is better served by CSS custom properties.
+      Documented in the `setCSS` JSDoc and the `use:css` docs page
+      (`documentation/content/guide/jsx/use:css.md`).
 
 ### Store (`src/lib/store/`)
 
