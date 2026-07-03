@@ -6,7 +6,11 @@ import {
 	isObject,
 	isString,
 } from '../../lib/std.js'
-import { withPrevValue } from '../../lib/reactive.js'
+import {
+	cleanup,
+	withPrevValue,
+	withValue,
+} from '../../lib/reactive.js'
 
 import { addClass, removeClass } from '../../use/dom.js'
 
@@ -40,11 +44,30 @@ export const setClassNS = (node, localName, value) => {
  */
 export function setClassList(node, value, prev) {
 	if (isString(value) || value == null) {
-		prev && _setClassListValue(node, prev, false)
+		// an array prev cleaned itself up (see the array branch) and
+		// may hold raw functions that classList would reject
+		prev && !isArray(prev) && _setClassListValue(node, prev, false)
 		value && _setClassListValue(node, value, true)
 	} else if (isArray(value)) {
-		prev && _setClassListValue(node, prev, false)
-		_setClassListValue(node, value.filter(Boolean), true)
+		prev && !isArray(prev) && _setClassListValue(node, prev, false)
+
+		/**
+		 * Resolve items (functions/promises) like attribute arrays do.
+		 * Snapshot the applied names each run: `withValue` re-fires
+		 * with the same mutated copy on reactive item change. The
+		 * cleanup removes the last applied names when the owning scope
+		 * re-runs (the whole value swapped shape) or disposes.
+		 */
+		let prevNames
+		cleanup(
+			() => prevNames && _setClassListValue(node, prevNames, false),
+		)
+		withValue(value, value => {
+			const names = value.flat(Infinity).filter(Boolean)
+			prevNames && _setClassListValue(node, prevNames, false)
+			_setClassListValue(node, names, true)
+			prevNames = names
+		})
 	} else if (isObject(value)) {
 		for (let name in value) {
 			setElementClass(node, name, value[name])

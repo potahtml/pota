@@ -1,36 +1,49 @@
 /** @jsxImportSource pota */
-// BUG CONFIRMATION — documentation/improvements.md: "Functions inside
-// `class` arrays throw". setClassList's array branch passes raw items
-// to classList.add; a function stringifies with spaces and throws
-// InvalidCharacterError. Inconsistent with attribute values, where
-// withValue resolves array items. Asserts the CURRENT buggy behavior.
+// REGRESSION — documentation/improvements.md: "Functions inside
+// `class` arrays throw". setClassList's array branch used to pass raw
+// items to classList.add; a function stringified with spaces and
+// threw InvalidCharacterError. Fixed: array items resolve through
+// withValue (functions tracked, promises awaited), consistent with
+// attribute arrays.
 
 import { test, body } from '#test'
-import { signal, render, catchError } from 'pota'
+import { signal, render } from 'pota'
 
-await test('CONFIRM - class={[fn]} throws InvalidCharacterError', expect => {
-	const caught = []
-	/** @type {unknown} */ let d = 'sentinel'
-
-	catchError(
-		() => {
-			d = render(
-				<div
-					class={/** @type {string[]} */ (
-						/** @type {unknown} */ (['a', () => 'b'])
-					)}
-				/>,
-			)
-		},
-		err =>
-			caught.push(err instanceof DOMException ? err.name : String(err)),
+await test('class={[fn]} resolves the function into a class name', expect => {
+	const dispose = render(
+		<div
+			class={/** @type {string[]} */ (
+				/** @type {unknown} */ (['a', () => 'b'])
+			)}
+		/>,
 	)
 
-	// BUG: the function is not resolved, classList.add() rejects it
-	expect(caught).toEqual(['InvalidCharacterError'])
-	expect(d).toBe(undefined)
-	expect(body()).toBe('')
-	// FIXED: expect(body()).toBe('<div class="a b"></div>')
+	expect(body()).toBe('<div class="a b"></div>')
+
+	dispose()
+})
+
+await test('reactive class array items update the class list', expect => {
+	const active = signal(false)
+
+	const dispose = render(
+		<div
+			class={/** @type {string[]} */ (
+				/** @type {unknown} */ (['btn', () => active.read() && 'on'])
+			)}
+		/>,
+	)
+
+	// falsy resolved item is dropped
+	expect(body()).toBe('<div class="btn"></div>')
+
+	active.write(true)
+	expect(body()).toBe('<div class="btn on"></div>')
+
+	active.write(false)
+	expect(body()).toBe('<div class="btn"></div>')
+
+	dispose()
 })
 
 await test('control - string arrays and whole-value functions work', expect => {
@@ -44,4 +57,23 @@ await test('control - string arrays and whole-value functions work', expect => {
 	s.write('y')
 	expect(body()).toBe('<div class="y"></div>')
 	dispose2()
+})
+
+await test('whole-value function swapping array to string cleans up', expect => {
+	const value = signal(
+		/** @type {unknown} */ (['a', () => 'b']),
+	)
+
+	const dispose = render(
+		<div class={/** @type {string} */ (
+			/** @type {unknown} */ (value.read)
+		)} />,
+	)
+	expect(body()).toBe('<div class="a b"></div>')
+
+	// swapping to a string removes the resolved array names
+	value.write('solo')
+	expect(body()).toBe('<div class="solo"></div>')
+
+	dispose()
 })

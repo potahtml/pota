@@ -183,13 +183,17 @@ regression test for the fix.
 
 ### Props / components
 
-- [ ] **Functions inside `class` arrays throw.**
+- [x] **Functions inside `class` arrays throw.**
       `setClassList`'s array branch passes the raw items to
       `classList.add` (`src/core/props/class.js:47`); a function
       stringifies with spaces → `InvalidCharacterError`. Inconsistent
       with attribute values, where `withValue` resolves array items.
-      Either resolve items (shares `withValue`'s array machinery once
-      fixed) or document arrays-of-strings-only.
+      **Fixed:** the array branch resolves items via `withValue`
+      (reactive items re-fire; nested arrays flattened; falsy items
+      dropped), snapshots the applied names per run, and registers a
+      cleanup — which also fixed the array→object cross-type
+      transition leaving stale classes (object→array still has the
+      pre-existing limitation).
       Test: `tests/api/confirmations/class-array-function-throws.jsx`
 
 - [ ] **`setCSS` corrupts CSS containing `class` as a substring.**

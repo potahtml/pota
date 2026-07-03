@@ -269,9 +269,11 @@ await test('JSX class prop - reactive switching from array to object', expect =>
 	cls.write({ gamma: true, delta: false })
 	expect(el.classList.contains('gamma')).toBe(true)
 	expect(el.classList.contains('delta')).toBe(false)
-	// array→object: prev array classes are not removed (cross-type limitation)
-	expect(el.classList.contains('alpha')).toBe(true)
-	expect(el.classList.contains('beta')).toBe(true)
+	// array→object: the array branch cleans up its applied names when
+	// the owning effect re-runs (object→array still has the
+	// cross-type limitation, see the previous test)
+	expect(el.classList.contains('alpha')).toBe(false)
+	expect(el.classList.contains('beta')).toBe(false)
 
 	dispose()
 })
