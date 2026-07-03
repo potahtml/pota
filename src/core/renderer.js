@@ -385,7 +385,15 @@ export function createChildren(
 		// string/number
 		case 'string':
 		case 'number': {
-			if (prev instanceof Text) {
+			/**
+			 * `prev` may be the placeholder of a previous function child
+			 * that the function-branch cleanup already detached on this
+			 * same re-run — writing into it would render nowhere. Reuse
+			 * only nodes still in a tree (`parentNode` instead of
+			 * `isConnected` so text inside detached fragments, e.g.
+			 * `toHTML`, keeps the fast path).
+			 */
+			if (prev instanceof Text && prev.parentNode) {
 				prev.nodeValue = /** @type string */ (child)
 				return prev
 			}

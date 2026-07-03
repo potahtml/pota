@@ -227,6 +227,19 @@ regression test for the fix.
       → TypeError when no match matches and `fallback` is nullish.
       Test: `tests/api/confirmations/switch-primitive-children-crash.jsx`
 
+- [x] **A reactive child going string → function → string renders
+      into a detached node.** The function-child branch's cleanup
+      removes its placeholder on the next re-run
+      (`src/core/renderer.js:465`), but the effect still passes it as
+      `prev`; the string branch's `prev instanceof Text` fast path
+      (`src/core/renderer.js:388`) then writes into the detached node
+      — the text never reaches the document. Trigger: `Switch` losing
+      its match content after showing the default fallback.
+      **Fixed:** `prev` is reused only while it has a `parentNode`
+      (not `isConnected`, so text in detached fragments — `toHTML` —
+      keeps the fast path).
+      Test: `tests/api/confirmations/renderer-detached-prev-text-reuse.jsx`
+
 - [ ] **`asyncEffect` crashes when `fn` returns a non-promise.**
       `resolved(fn(…), onDone)` (`src/lib/reactive.js:151`) calls
       `.then` on the return value; a sync `fn` returning `undefined`
