@@ -1,14 +1,16 @@
-// BUG CONFIRMATION — documentation/improvements.md:
+// DOCUMENTED CONTRACT — documentation/improvements.md:
 // "`externalSignal.write` matches id-less items with each other".
 // `stale.find(before => before.id === after.id)` pairs any two items
 // whose id is undefined — every id-less fresh item is compared
-// against the FIRST id-less stale item, so reference reuse pairs the
-// wrong objects. Asserts the CURRENT buggy behavior.
+// against the FIRST id-less stale item. Maintainer decision
+// (2026-07-03): documented in the `externalSignal` JSDoc instead of
+// changed — give items an `id` for reliable reference reuse. These
+// tests pin the documented behavior.
 
 import { test } from '#test'
 import { externalSignal } from 'pota'
 
-await test('CONFIRM - id-less items all match the first id-less stale item', expect => {
+await test('contract - id-less items all match the first id-less stale item', expect => {
 	const a = { name: 'x' }
 	const b = { name: 'y' }
 	const ext = externalSignal([a, b])
@@ -22,11 +24,11 @@ await test('CONFIRM - id-less items all match the first id-less stale item', exp
 	// item), deep-equal, so `a`'s reference was kept
 	expect(result[1]).toBe(a)
 
-	// BUG: fresh {name:'y'} was ALSO compared against `a`, not `b` —
-	// not equal, so the reference to `b` was lost
+	// fresh {name:'y'} was ALSO compared against `a`, not `b` — not
+	// equal, so the reference to `b` is not reused (documented: use
+	// ids for reliable reference reuse)
 	expect(result[0]).not.toBe(b)
 	expect(result[0]).toEqual({ name: 'y' })
-	// FIXED: expect(result[0]).toBe(b)
 })
 
 await test('control - items with ids keep their references across writes', expect => {

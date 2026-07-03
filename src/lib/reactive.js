@@ -163,6 +163,11 @@ export function asyncEffect(fn) {
  * to patch a signal array with data that comes from a server without
  * losing references to what its already there avoiding a store.
  *
+ * Items are matched by `id` — give every item an `id` for reliable
+ * reference reuse. Items without an `id` all match the first id-less
+ * stale item (`undefined === undefined`), so an id-less item keeps
+ * its reference only when it deep-equals that first item.
+ *
  * @template {{ id?: string | number; [key: string]: any }[]} T
  * @param {T} initialValue
  * @param {SignalOptions<T>} [options]

@@ -255,10 +255,15 @@ regression test for the fix.
       promise-only contract.
       Test: `tests/api/confirmations/async-effect-sync-fn-crash.jsx`
 
-- [ ] **`externalSignal.write` matches id-less items with each
+- [x] **`externalSignal.write` matches id-less items with each
       other.** `stale.find(before => before.id === after.id)`
       (`src/lib/reactive.js:182`) pairs any two items whose `id` is
       `undefined`.
+      **Resolved by documenting the contract** (2026-07-03,
+      maintainer decision): behavior unchanged; the `externalSignal`
+      JSDoc now states items are matched by `id` and id-less items
+      get no reliable reference reuse. The confirmation test pins the
+      documented behavior.
       Test: `tests/api/confirmations/external-signal-idless-match.jsx`
 
 ---
