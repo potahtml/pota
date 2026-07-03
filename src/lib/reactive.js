@@ -461,13 +461,15 @@ export const map = (
 
 		// sort
 		if (hasPrev) {
-			// remove rows that arent present on the current run
+			// remove rows that arent present on the current run —
+			// single write-index compaction instead of indexOf+splice
+			// per removed row (O(n·removed))
+			let w = 0
 			for (let i = 0; i < prev.length; i++) {
-				if (prev[i].runId !== runId) {
-					dispose(prev[i])
-					removeFromArray(prev, prev[i--])
-				}
+				const row = prev[i]
+				row.runId !== runId ? dispose(row) : (prev[w++] = row)
 			}
+			prev.length = w
 
 			// reorder elements
 			// `rows.length > 1` because no need for sorting when there are no items

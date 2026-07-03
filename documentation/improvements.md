@@ -343,9 +343,17 @@ regression test for the fix.
       Tests: `tests/api/components/for.jsx` (object/Map/Set
       coverage).
 
-- [ ] **Removal pass is O(n²).** `removeFromArray(prev, prev[i--])`
+- [x] **Removal pass is O(n²).** `removeFromArray(prev, prev[i--])`
       (:450) does `indexOf` + `splice` per removed row. Replace with
       a single write-index compaction pass.
+      **Fixed:** write-index compaction — one pass, O(n) regardless
+      of how many rows leave; same dispose order and survivor order.
+      Edge-case tests were added first and pinned against the old
+      implementation (removal from every position, scattered/bulk,
+      duplicates, cleanup counts, node reuse, reactiveIndex
+      re-indexing), then the swap confirmed identical output.
+      Tests: `tests/api/components/for.jsx` (removal / shrinking
+      section).
 
 - [ ] **Swap-phase membership scans are O(n²).**
       `unsort.includes(...)` / `sorted.includes(...)` (:485-507) are

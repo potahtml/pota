@@ -1065,3 +1065,196 @@ await test('For - handles falsy scalar items (0, empty string)', expect => {
 
 	dispose()
 })
+
+// --- removal / shrinking edge cases -------------------------------
+// Written against the pre-compaction removal pass to pin the output
+// contract: removing items (from any position, scattered, in bulk,
+// with duplicates) must preserve survivor order, dispose exactly the
+// removed rows, and reuse surviving DOM nodes.
+
+await test('For - removal: first item', expect => {
+	const items = signal(['a', 'b', 'c'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+	expect(body()).toBe('<p>a</p><p>b</p><p>c</p>')
+
+	items.write(['b', 'c'])
+	expect(body()).toBe('<p>b</p><p>c</p>')
+
+	dispose()
+})
+
+await test('For - removal: last item', expect => {
+	const items = signal(['a', 'b', 'c'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['a', 'b'])
+	expect(body()).toBe('<p>a</p><p>b</p>')
+
+	dispose()
+})
+
+await test('For - removal: middle item', expect => {
+	const items = signal(['a', 'b', 'c'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['a', 'c'])
+	expect(body()).toBe('<p>a</p><p>c</p>')
+
+	dispose()
+})
+
+await test('For - removal: scattered items (every other)', expect => {
+	const items = signal(['a', 'b', 'c', 'd', 'e'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['a', 'c', 'e'])
+	expect(body()).toBe('<p>a</p><p>c</p><p>e</p>')
+
+	dispose()
+})
+
+await test('For - removal: consecutive block', expect => {
+	const items = signal(['a', 'b', 'c', 'd', 'e'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['a', 'e'])
+	expect(body()).toBe('<p>a</p><p>e</p>')
+
+	dispose()
+})
+
+await test('For - removal: shrink to a single surviving item', expect => {
+	const items = signal(['a', 'b', 'c', 'd'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['c'])
+	expect(body()).toBe('<p>c</p>')
+
+	dispose()
+})
+
+await test('For - removal: shrink to empty, then repopulate', expect => {
+	const items = signal(['a', 'b'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write([])
+	expect(body()).toBe('')
+
+	items.write(['b', 'a'])
+	expect(body()).toBe('<p>b</p><p>a</p>')
+
+	dispose()
+})
+
+await test('For - removal: remove many, keep one, add a new item', expect => {
+	const items = signal(['a', 'b', 'c', 'd'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['d', 'x'])
+	expect(body()).toBe('<p>d</p><p>x</p>')
+
+	dispose()
+})
+
+await test('For - removal combined with reorder of survivors', expect => {
+	const items = signal(['a', 'b', 'c', 'd'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['d', 'b'])
+	expect(body()).toBe('<p>d</p><p>b</p>')
+
+	dispose()
+})
+
+await test('For - removal: duplicate primitives shrink and regrow', expect => {
+	const items = signal([1, 1, 2, 2])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+	expect(body()).toBe('<p>1</p><p>1</p><p>2</p><p>2</p>')
+
+	items.write([1, 2])
+	expect(body()).toBe('<p>1</p><p>2</p>')
+
+	items.write([1, 1, 2])
+	expect(body()).toBe('<p>1</p><p>1</p><p>2</p>')
+
+	dispose()
+})
+
+await test('For - removal disposes exactly the removed rows', expect => {
+	const disposed = []
+	const items = signal(['a', 'b', 'c', 'd'])
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				cleanup(() => disposed.push(item))
+				return <p>{item}</p>
+			}}
+		</For>,
+	)
+
+	items.write(['b', 'd'])
+	expect(disposed.sort()).toEqual(['a', 'c'])
+	expect(body()).toBe('<p>b</p><p>d</p>')
+
+	dispose()
+})
+
+await test('For - removal keeps surviving DOM nodes (no recreation)', expect => {
+	const items = signal(['a', 'b', 'c'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	const b = document.body.children[1]
+	const c = document.body.children[2]
+	expect(b.textContent).toBe('b')
+
+	items.write(['b', 'c'])
+	expect(document.body.children[0]).toBe(b)
+	expect(document.body.children[1]).toBe(c)
+
+	dispose()
+})
+
+await test('For - removal updates reactive indices of survivors', expect => {
+	const items = signal(['a', 'b', 'c'])
+	const dispose = render(
+		<For
+			each={items.read}
+			reactiveIndex
+		>
+			{(item, index) => (
+				<p>
+					{item}
+					{index}
+				</p>
+			)}
+		</For>,
+	)
+	expect(body()).toBe('<p>a0</p><p>b1</p><p>c2</p>')
+
+	items.write(['b', 'c'])
+	expect(body()).toBe('<p>b0</p><p>c1</p>')
+
+	dispose()
+})
