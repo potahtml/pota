@@ -482,13 +482,22 @@ regression test for the fix.
 
 ### Store (`src/lib/store/`)
 
-- [ ] **Cache method wrappers in `returnFunction`.** Every function
+- [x] **Cache method wrappers in `returnFunction`.** Every function
       property read allocates a fresh `(...args) => batch(…)` closure
       (`base.js:126-140`, `array.js:159-173`, `map.js:57-78`,
       `set.js:55-76`) — hot for any loop calling array/map methods,
       and it breaks identity (`proxy.push !== proxy.push`). Cache per
       handler keyed by property key, invalidating when the underlying
       function identity changes.
+      **Fixed:** `returnFunction` lives once on the base handler as
+      the cached entry point (lazy per-handler `Map` of
+      `key → { value, wrapper }`, safe because handlers are 1:1 with
+      targets); the four former bodies became `makeFunction`
+      overrides. Method identity is now stable
+      (`proxy.push === proxy.push`) and a property swapped to a
+      different function invalidates by `value` identity. Bench
+      neutral (10k 47.5ms in-band, 631B, deopts 10/12).
+      Tests: `tests/api/store/mutable.jsx` (identity + invalidation).
 
 - [ ] **`isProxyValueReturnInvariant` allocates a descriptor per
       object-valued read.** `reflectGetOwnPropertyDescriptor`

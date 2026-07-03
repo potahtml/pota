@@ -1521,3 +1521,37 @@ await test('mutable - Set instances are proxied', expect => {
 	expect(state.tags).not.toBe(set)
 	expect(state.tags instanceof Set).toBe(true)
 })
+
+// --- method wrapper identity ---------------------------------------------
+
+await test('mutable - method reads return the same wrapper (stable identity)', expect => {
+	const state = mutable({
+		list: [1, 2],
+		map: new Map([['k', 1]]),
+		tags: new Set([1]),
+		fn: () => 'a',
+	})
+
+	expect(state.list.push).toBe(state.list.push)
+	expect(state.map.get).toBe(state.map.get)
+	expect(state.tags.add).toBe(state.tags.add)
+	expect(state.fn).toBe(state.fn)
+
+	// the cached wrapper still works
+	state.list.push(3)
+	expect(state.list.length).toBe(3)
+	expect(state.fn()).toBe('a')
+})
+
+await test('mutable - swapping a function property invalidates the cached wrapper', expect => {
+	const state = mutable({ fn: () => 'a' })
+
+	const before = state.fn
+	expect(state.fn()).toBe('a')
+
+	state.fn = () => 'b'
+
+	expect(state.fn).not.toBe(before)
+	expect(state.fn()).toBe('b')
+	expect(state.fn).toBe(state.fn)
+})

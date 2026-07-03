@@ -52,7 +52,7 @@ export class ProxyHandlerSet extends ProxyHandlerObject {
 			: this.returnValue(target, key, value)
 	}
 
-	returnFunction(target, key, value, proxy) {
+	makeFunction(target, key, value, proxy) {
 		/**
 		 * 1. `Reflect.apply` to correct `receiver`. `TypeError: Method
 		 *    Set.prototype.add called on incompatible receiver #<Set>`

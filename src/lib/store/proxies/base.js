@@ -19,6 +19,19 @@ export class ProxyHandlerBase {
 
 	constructor(value) {
 		this.track = tracker(value)
+
+		/**
+		 * Lazy per-handler cache of method wrappers, so repeated
+		 * function-property reads return the same wrapper instead of
+		 * allocating one per read — which also gives stable identity:
+		 * `proxy.push === proxy.push`.
+		 *
+		 * @type {Map<
+		 * 	PropertyKey,
+		 * 	{ value: Function; wrapper: Function }
+		 * > | null}
+		 */
+		this.methods = null
 	}
 
 	ownKeys(target) {
@@ -130,6 +143,23 @@ export class ProxyHandlerBase {
 			: mutable(value)
 	}
 	returnFunction(target, key, value, proxy) {
+		/**
+		 * Serve the cached wrapper while the underlying function
+		 * identity is unchanged; a property swapped to a different
+		 * function gets a fresh wrapper.
+		 */
+		const entry = this.methods && this.methods.get(key)
+		if (entry && entry.value === value) {
+			return entry.wrapper
+		}
+		const wrapper = this.makeFunction(target, key, value, proxy)
+		;(this.methods || (this.methods = new Map())).set(key, {
+			value,
+			wrapper,
+		})
+		return wrapper
+	}
+	makeFunction(target, key, value, proxy) {
 		/**
 		 * 1. `Reflect.apply` to correct `receiver`. `TypeError: Method
 		 *    Set.prototype.add called on incompatible receiver #<Set>`

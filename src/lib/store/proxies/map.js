@@ -54,7 +54,7 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 			: this.returnValue(target, key, value)
 	}
 
-	returnFunction(target, key, value, proxy) {
+	makeFunction(target, key, value, proxy) {
 		/**
 		 * 1. `Reflect.apply` to correct `receiver`. `TypeError: Method
 		 *    Map.prototype.set called on incompatible receiver #<Map>`

@@ -156,7 +156,7 @@ export class ProxyHandlerArray extends ProxyHandlerBase {
 		})
 	}
 
-	returnFunction(target, key, value, proxy) {
+	makeFunction(target, key, value, proxy) {
 		/**
 		 * 1. `Reflect.apply` to correct `receiver`. `TypeError: Method
 		 *    Set.prototype.add called on incompatible receiver #<Set>`
