@@ -1,13 +1,14 @@
-// BUG CONFIRMATION — documentation/improvements.md: "`asyncEffect`
-// crashes when `fn` returns a non-promise". `resolved(fn(…), onDone)`
-// calls `.then` on the return value, so a sync fn (returning
-// undefined) throws inside the effect. Asserts the CURRENT buggy
-// behavior (error routed to the boundary).
+// REGRESSION — documentation/improvements.md: "`asyncEffect` crashes
+// when `fn` returns a non-promise". `resolved(fn(…), onDone)` called
+// `.then` on the return value, so a sync fn (returning undefined)
+// threw inside the effect. Fixed: non-thenable returns complete the
+// run synchronously (`onDone()` right away) — `resolved` keeps its
+// promise-only contract.
 
 import { test, macrotask } from '#test'
-import { asyncEffect, catchError, root } from 'pota'
+import { asyncEffect, catchError, root, signal } from 'pota'
 
-await test('CONFIRM - asyncEffect with a sync fn throws', expect => {
+await test('asyncEffect with a sync fn does not throw', expect => {
 	const caught = []
 	const ran = []
 
@@ -25,13 +26,30 @@ await test('CONFIRM - asyncEffect with a sync fn throws', expect => {
 		)
 	)
 
-	// the body ran, then resolved(undefined, …) blew up
 	expect(ran).toEqual(['ran'])
+	expect(caught).toEqual([])
 
-	// BUG: undefined.then — TypeError routed to the boundary
-	expect(caught.length).toBe(1)
-	expect(caught[0]).toInclude('then')
-	// FIXED: expect(caught).toEqual([])
+	dispose()
+})
+
+await test('sync runs complete immediately — re-runs never wait on a previous run', expect => {
+	const s = signal(0)
+	const prevs = []
+
+	const dispose = root(d => {
+		asyncEffect(prev => {
+			s.read()
+			prevs.push(prev)
+		})
+		return d
+	})
+
+	s.write(1)
+	s.write(2)
+
+	// each sync run resolved its queue entry on the spot, so every
+	// run saw an empty queue and received no previous-run promise
+	expect(prevs).toEqual([undefined, undefined, undefined])
 
 	dispose()
 })

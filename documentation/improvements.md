@@ -245,10 +245,14 @@ regression test for the fix.
       keeps the fast path).
       Test: `tests/api/confirmations/renderer-detached-prev-text-reuse.jsx`
 
-- [ ] **`asyncEffect` crashes when `fn` returns a non-promise.**
+- [x] **`asyncEffect` crashes when `fn` returns a non-promise.**
       `resolved(fn(…), onDone)` (`src/lib/reactive.js:151`) calls
       `.then` on the return value; a sync `fn` returning `undefined`
       throws. Guard with `isPromise` or document the contract.
+      **Fixed:** guarded with `isPromise` — a non-thenable return
+      completes the run synchronously (`onDone()` right away), so
+      re-runs never wait on a sync run; `resolved` keeps its
+      promise-only contract.
       Test: `tests/api/confirmations/async-effect-sync-fn-crash.jsx`
 
 - [ ] **`externalSignal.write` matches id-less items with each

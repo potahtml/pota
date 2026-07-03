@@ -8,6 +8,7 @@ import {
 	getValue,
 	isArray,
 	isFunction,
+	isPromise,
 	queueMicrotask,
 	removeFromArray,
 	resolved,
@@ -148,10 +149,12 @@ export function asyncEffect(fn) {
 			resolve()
 		}
 
-		resolved(
-			fn(queue.length === 1 ? undefined : queue[queue.length - 2]),
-			onDone,
+		const result = fn(
+			queue.length === 1 ? undefined : queue[queue.length - 2],
 		)
+
+		// a sync `fn` (non-thenable return) is already done
+		isPromise(result) ? resolved(result, onDone) : onDone()
 	})
 }
 
