@@ -196,21 +196,29 @@ regression test for the fix.
       pre-existing limitation).
       Test: `tests/api/confirmations/class-array-function-throws.jsx`
 
-- [ ] **`setCSS` corrupts CSS containing `class` as a substring.**
+- [x] **`setCSS` corrupts CSS containing `class` as a substring.**
       `value.replace(/class/g, '.' + id)`
       (`src/core/props/css.js:33`) rewrites `.classic`,
       `[class*=…]`, `content: "class"`, etc. Needs a real token match
       (e.g. `/\bclass\b/` at selector positions) or a different
-      placeholder.
+      placeholder. **Fixed:** token match with lookarounds — skips
+      longer words (`.classic`, `class-name`, `my-class`), literal
+      `.class`/`#class`/`[class` references, and quote-opened
+      strings. Residual (documented in the regex comment): `class` as
+      a bare word inside a longer quoted string would need a CSS
+      tokenizer.
       Test: `tests/api/confirmations/use-css-corruption-and-cache.jsx`
 
-- [ ] **`setCSS` cache is keyed globally by CSS string, so a second
+- [x] **`setCSS` cache is keyed globally by CSS string, so a second
       document never gets the stylesheet.** `addAdoptedStyleSheet`
       runs only inside the cache-miss factory
       (`src/core/props/css.js:29-35`); the same CSS used later in a
       shadow root / other document gets the class name but no sheet.
       Cache should be per-document (and is also unbounded for dynamic
-      strings — see performance).
+      strings — see performance). **Fixed:** the cache holds
+      `{ id, sheet }` and adoption runs on every call —
+      `addAdoptedStyleSheet` is idempotent per document. Cache growth
+      for dynamic strings remains unbounded (see performance).
       Test: `tests/api/confirmations/use-css-corruption-and-cache.jsx`
 
 - [ ] **`Switch` with primitive children crashes the default
