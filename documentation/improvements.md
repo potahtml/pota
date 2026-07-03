@@ -355,11 +355,21 @@ regression test for the fix.
       Tests: `tests/api/components/for.jsx` (removal / shrinking
       section).
 
-- [ ] **Swap-phase membership scans are O(n²).**
+- [x] **Swap-phase membership scans are O(n²).**
       `unsort.includes(...)` / `sorted.includes(...)` (:485-507) are
       linear scans inside the per-usort loop. Use runId-style marks
       on `Row` (`row.sortMark = runId`) for O(1) membership, as
       `runId` already does for liveness.
+      **Fixed:** `unsortMark`/`sortedMark` run-scoped stamps on
+      `Row`, set at the same push sites (arrays and placement logic
+      untouched — pushes stay as the source of truth, marks mirror
+      them). Permutation tests (reverse, rotations, shuffles, mixed
+      add/remove/reorder, repeated reorders, duplicates,
+      reactiveIndex) were pinned green against the `includes`
+      version first. Cost: the two fields retain ~8B/row (bench
+      623→631B); timing in-band (10k 43.9ms), deopts 10/12
+      unchanged.
+      Tests: `tests/api/components/for.jsx` (permutation section).
 
 - [ ] **`nodesForRow()` allocates and walks siblings on every call**
       (:279-292) and is invoked repeatedly by the sort loops for the

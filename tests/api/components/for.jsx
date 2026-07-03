@@ -1258,3 +1258,187 @@ await test('For - removal updates reactive indices of survivors', expect => {
 
 	dispose()
 })
+
+// --- reorder / permutation edge cases -----------------------------
+// Pinned against the pre-marks swap phase: any permutation must
+// produce exact order with all surviving DOM nodes reused, including
+// permutations mixed with adds/removes and repeated back-to-back
+// reorders (marks are run-scoped — staleness across runs would show
+// here).
+
+await test('For - permutation: full reverse reuses every node', expect => {
+	const items = signal(['a', 'b', 'c', 'd', 'e'])
+	const nodes = {}
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				const el = <p>{item}</p>
+				nodes[item] = el
+				return el
+			}}
+		</For>,
+	)
+	const saved = { ...nodes }
+
+	items.write(['e', 'd', 'c', 'b', 'a'])
+	expect(body()).toBe('<p>e</p><p>d</p><p>c</p><p>b</p><p>a</p>')
+	for (const key of ['a', 'b', 'c', 'd', 'e']) {
+		expect(nodes[key]).toBe(saved[key])
+	}
+
+	dispose()
+})
+
+await test('For - permutation: rotate head to tail', expect => {
+	const items = signal(['a', 'b', 'c', 'd'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['b', 'c', 'd', 'a'])
+	expect(body()).toBe('<p>b</p><p>c</p><p>d</p><p>a</p>')
+
+	dispose()
+})
+
+await test('For - permutation: rotate tail to head', expect => {
+	const items = signal(['a', 'b', 'c', 'd'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['d', 'a', 'b', 'c'])
+	expect(body()).toBe('<p>d</p><p>a</p><p>b</p><p>c</p>')
+
+	dispose()
+})
+
+await test('For - permutation: adjacent swap in the middle', expect => {
+	const items = signal(['a', 'b', 'c', 'd'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['a', 'c', 'b', 'd'])
+	expect(body()).toBe('<p>a</p><p>c</p><p>b</p><p>d</p>')
+
+	dispose()
+})
+
+await test('For - permutation: two independent swaps in one write', expect => {
+	const items = signal(['a', 'b', 'c', 'd', 'e', 'f'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	// swap (a,f) and (c,e); b and d stay
+	items.write(['f', 'b', 'e', 'd', 'c', 'a'])
+	expect(body()).toBe(
+		'<p>f</p><p>b</p><p>e</p><p>d</p><p>c</p><p>a</p>',
+	)
+
+	dispose()
+})
+
+await test('For - permutation: full shuffle reuses every node', expect => {
+	const items = signal(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
+	const nodes = {}
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				const el = <p>{item}</p>
+				nodes[item] = el
+				return el
+			}}
+		</For>,
+	)
+	const saved = { ...nodes }
+
+	items.write(['d', 'g', 'a', 'f', 'b', 'e', 'c'])
+	expect(body()).toBe(
+		'<p>d</p><p>g</p><p>a</p><p>f</p><p>b</p><p>e</p><p>c</p>',
+	)
+	for (const key of ['a', 'b', 'c', 'd', 'e', 'f', 'g']) {
+		expect(nodes[key]).toBe(saved[key])
+	}
+
+	dispose()
+})
+
+await test('For - permutation mixed with add and remove in one write', expect => {
+	const items = signal(['a', 'b', 'c', 'd', 'e'])
+	const nodes = {}
+	const dispose = render(
+		<For each={items.read}>
+			{item => {
+				const el = <p>{item}</p>
+				nodes[item] = el
+				return el
+			}}
+		</For>,
+	)
+	const savedB = nodes['b']
+	const savedE = nodes['e']
+
+	// removes c and d, adds x, reorders survivors
+	items.write(['e', 'x', 'b', 'a'])
+	expect(body()).toBe('<p>e</p><p>x</p><p>b</p><p>a</p>')
+	expect(nodes['b']).toBe(savedB)
+	expect(nodes['e']).toBe(savedE)
+
+	dispose()
+})
+
+await test('For - permutation: repeated reorders back-to-back', expect => {
+	const items = signal(['a', 'b', 'c', 'd'])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+
+	items.write(['d', 'c', 'b', 'a'])
+	expect(body()).toBe('<p>d</p><p>c</p><p>b</p><p>a</p>')
+
+	items.write(['b', 'd', 'a', 'c'])
+	expect(body()).toBe('<p>b</p><p>d</p><p>a</p><p>c</p>')
+
+	items.write(['a', 'b', 'c', 'd'])
+	expect(body()).toBe('<p>a</p><p>b</p><p>c</p><p>d</p>')
+
+	dispose()
+})
+
+await test('For - permutation with duplicate primitives', expect => {
+	const items = signal([1, 1, 2, 3])
+	const dispose = render(
+		<For each={items.read}>{item => <p>{item}</p>}</For>,
+	)
+	expect(body()).toBe('<p>1</p><p>1</p><p>2</p><p>3</p>')
+
+	items.write([3, 1, 2, 1])
+	expect(body()).toBe('<p>3</p><p>1</p><p>2</p><p>1</p>')
+
+	dispose()
+})
+
+await test('For - permutation updates reactive indices', expect => {
+	const items = signal(['a', 'b', 'c'])
+	const dispose = render(
+		<For
+			each={items.read}
+			reactiveIndex
+		>
+			{(item, index) => (
+				<p>
+					{item}
+					{index}
+				</p>
+			)}
+		</For>,
+	)
+	expect(body()).toBe('<p>a0</p><p>b1</p><p>c2</p>')
+
+	items.write(['c', 'a', 'b'])
+	expect(body()).toBe('<p>c0</p><p>a1</p><p>b2</p>')
+
+	dispose()
+})

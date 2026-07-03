@@ -204,6 +204,11 @@ export const microtask = fn => queueMicrotask(owned(fn))
 
 class Row extends Root {
 	runId = 0
+	// run-scoped stamps mirroring `unsort`/`sorted` membership in the
+	// reorder phase — O(1) instead of `includes` scans; valid only
+	// while `=== runId`, like `runId` itself is for liveness
+	unsortMark = 0
+	sortedMark = 0
 	item
 	index
 	isDupe
@@ -478,21 +483,29 @@ export const map = (
 				const unsort = []
 				const sorted = []
 
-				// handles append/prepend/insert in middle/swap
+				// handles append/prepend/insert in middle/swap.
+				// pushes also stamp the row's run-scoped mark so the
+				// swap loop tests membership O(1)
 				for (let i = 0; i < prev.length && i < rows.length; i++) {
-					if (prev[i] !== rows[i]) {
-						unsort.push(rows[i])
+					const row = rows[i]
+					if (prev[i] !== row) {
+						unsort.push(row)
+						row.unsortMark = runId
 						for (let i2 = 1; rows.length - i2 > i; i2++) {
 							const k = rows.length - i2
-							if (prev[prev.length - i2] !== rows[k]) {
-								unsort.push(rows[k])
+							const tail = rows[k]
+							if (prev[prev.length - i2] !== tail) {
+								unsort.push(tail)
+								tail.unsortMark = runId
 							} else {
-								sorted.push(rows[k])
+								sorted.push(tail)
+								tail.sortedMark = runId
 							}
 						}
 						break
 					} else {
-						sorted.push(rows[i])
+						sorted.push(row)
+						row.sortedMark = runId
 					}
 				}
 
@@ -502,27 +515,27 @@ export const map = (
 						if (sorted.length) {
 							// handle swap - unsorted rows should move only next to already sorted
 							for (const usort of unsort) {
+								const before = rows[usort.index - 1]
+								const after = rows[usort.index + 1]
 								if (
-									rows[usort.index - 1] &&
+									before &&
 									(unsorted === 1 ||
-										!unsort.includes(rows[usort.index - 1]) ||
-										sorted.includes(rows[usort.index - 1]))
+										before.unsortMark !== runId ||
+										before.sortedMark === runId)
 								) {
-									rows[usort.index - 1]
-										.end()
-										.after(...usort.nodesForRow())
+									before.end().after(...usort.nodesForRow())
 									sorted.push(usort)
+									usort.sortedMark = runId
 									unsorted--
 								} else if (
-									rows[usort.index + 1] &&
+									after &&
 									(unsorted === 1 ||
-										!unsort.includes(rows[usort.index + 1]) ||
-										sorted.includes(rows[usort.index + 1]))
+										after.unsortMark !== runId ||
+										after.sortedMark === runId)
 								) {
-									rows[usort.index + 1]
-										.begin()
-										.before(...usort.nodesForRow())
+									after.begin().before(...usort.nodesForRow())
 									sorted.push(usort)
+									usort.sortedMark = runId
 									unsorted--
 								}
 							}
