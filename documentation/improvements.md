@@ -584,7 +584,7 @@ regression test for the fix.
       Tests: `tests/api/store/mutable.jsx` ([[Get]] invariant at wrap
       time and post-wrap define).
 
-- [ ] **Don't signalify prototype data properties.**
+- [x] **Don't signalify prototype data properties.**
       `getPropertyDescriptors` walks the proto chain to catch
       inherited accessors, but `signalifyObject` then hoists
       inherited *methods* onto each instance as accessor wrappers
@@ -592,6 +592,19 @@ regression test for the fix.
       identity`). Skip data descriptors sourced from prototypes:
       keeps methods shared, avoids per-instance accessors and
       spurious tracked reads on method access.
+      **Fixed:** one guard in `signalifyObject`'s loop — function-
+      valued data descriptors not own to the target are skipped;
+      methods resolve through the proxy's cached `returnFunction`
+      instead. Inherited accessors and non-function proto data props
+      keep the per-instance signalify, and explicit
+      `signalify(obj, keys)` is untouched. Traded away: reading a
+      method *itself* is no longer a reactive dependency (a
+      per-instance method swap still works via wrapper-cache
+      invalidation, it just doesn't wake effects that read the
+      method). Bench neutral (10k 51.9ms in-band, 631B, deopts
+      10/12).
+      Tests: `tests/api/store/mutable.jsx` (shared methods, tracked
+      inherited getter, tracked proto data prop).
 
 - [ ] **Tracker storage for array indices is a null-proto dictionary**
       (`tracker.js:74`); numeric keys as strings force dictionary

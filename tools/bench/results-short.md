@@ -2,6 +2,13 @@
 
 Compact log of `npm run bench` runs. Newest entry at the top.
 
+## 2026-07-03 — 0.22.235 @ 2c889024 — Chrome/150.0.7871.46
+
+- 10k `51.89ms` clear `5.78ms`
+- 1k `3.35ms` clear `0.40ms`
+- per-row `631B` full `7258KB` leak `27KB`
+- deopts `10/12`
+
 ## 2026-07-03 — 0.22.235 @ 6fe4a270 — Chrome/150.0.7871.46
 
 - 10k `49.48ms` clear `4.73ms`

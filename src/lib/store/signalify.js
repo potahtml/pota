@@ -1,6 +1,7 @@
 import {
 	defineProperty,
 	entriesIncludingSymbols,
+	hasOwn,
 	identity,
 	isExtensible,
 	isFunction,
@@ -70,6 +71,22 @@ export function signalifyObject(target, wrapper) {
 		for (const [key, descriptor] of entriesIncludingSymbols(
 			descriptors,
 		)) {
+			/**
+			 * Prototype methods stay shared on the prototype — hoisting
+			 * them would cost an accessor + signal per method per
+			 * instance and make every method access a tracked read.
+			 * Inherited accessors and non-function data props keep the
+			 * per-instance signalify (that's what the prototype walk is
+			 * for). Explicit `signalify(obj, keys)` is unaffected.
+			 */
+			if (
+				isFunction(
+					(/** @type {PropertyDescriptor} */ (descriptor)).value,
+				) &&
+				!hasOwn(/** @type {object} */ (target), key)
+			) {
+				continue
+			}
 			signalifyKey(target, key, descriptor, wrapper, track)
 		}
 	})

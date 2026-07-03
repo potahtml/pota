@@ -1556,6 +1556,70 @@ await test('mutable - swapping a function property invalidates the cached wrappe
 	expect(state.fn).toBe(state.fn)
 })
 
+// --- prototype methods stay shared ----------------------------------------
+
+await test('mutable - class methods stay on the prototype, not copied per instance', expect => {
+	class Counter {
+		count = 0
+		increment() {
+			this.count++
+		}
+		get double() {
+			return this.count * 2
+		}
+	}
+
+	const raw = new Counter()
+	const state = mutable(raw)
+
+	// no accessor copy was installed on the instance
+	expect(Object.getOwnPropertyDescriptor(raw, 'increment')).toBe(
+		undefined,
+	)
+
+	// calling the method still works and its writes are tracked
+	const seen = []
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.count)
+		})
+	})
+	expect(seen).toEqual([0])
+
+	state.increment()
+	expect(seen).toEqual([0, 1])
+
+	// the inherited getter is still reactive
+	const doubles = []
+	root(() => {
+		syncEffect(() => {
+			doubles.push(state.double)
+		})
+	})
+	expect(doubles).toEqual([2])
+
+	state.increment()
+	expect(doubles).toEqual([2, 4])
+})
+
+await test('mutable - non-function prototype data props are still tracked', expect => {
+	class Thing {}
+	Thing.prototype.shared = 'a'
+
+	const state = mutable(new Thing())
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.shared)
+		})
+	})
+	expect(seen).toEqual(['a'])
+
+	state.shared = 'b'
+	expect(seen).toEqual(['a', 'b'])
+})
+
 // --- [[Get]] invariant for frozen own props -------------------------------
 
 await test('mutable - frozen own props keep the [[Get]] invariant (wrap time and post-wrap define)', expect => {
