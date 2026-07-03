@@ -48,6 +48,24 @@ partial(node => {
 })
 ```
 
+## Component props are frozen only in dev mode (0.22.236)
+
+`Object.freeze(props)` on component creation is now a dev-only
+guard. In production, writing to `props` no longer throws — enable
+dev mode to keep the check while developing:
+
+```js
+// once, before rendering — e.g. the app entry
+import 'pota/dev'
+```
+
+Bundlers that select `pota/jsx-dev-runtime` for development builds
+(`jsx: 'automatic'` with `development: true` — Vite dev serve does)
+enable it automatically; their production builds import
+`pota/jsx-runtime` and stay on the fast path. Correct code needs no
+migration — only code relying on the production `TypeError` when
+mutating `props` behaves differently.
+
 ## Babel preset requires Babel 8 (0.22.235)
 
 `pota/babel-preset` now peer-depends on **Babel 8** (`@babel/* ^8.0.0`).

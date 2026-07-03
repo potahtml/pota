@@ -118,7 +118,11 @@ for:
 - **`pota/use/*`** — one subpath per file under `src/use/` (for
   example `pota/use/location`, `pota/use/form`, `pota/use/animate`).
 - **`pota/jsx-runtime`** / **`pota/jsx-dev-runtime`** — JSX runtime
-  for bundlers (`src/jsx/jsx-runtime.js`).
+  for bundlers (`src/jsx/jsx-runtime.js`); the dev runtime also turns
+  on development mode.
+- **`pota/dev`** — side-effect entry (`src/dev.js`): turns on
+  development mode (dev-only guards such as frozen component props;
+  flag lives in `src/lib/dev.js`). Production builds omit it.
 - **`pota/babel-preset`** — custom Babel preset that lowers JSX into
   partials for the renderer; separate Rollup build under
   `babel-preset/` at the repo root. The CJS artifact is emitted to

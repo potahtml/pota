@@ -20,7 +20,11 @@
 		},
 		"./jsx-dev-runtime": {
 			"types": "./typescript/jsx/runtime.d.ts",
-			"default": "./src/jsx/jsx-runtime.js"
+			"default": "./src/jsx/jsx-dev-runtime.js"
+		},
+		"./dev": {
+			"types": "./generated/types/dev.d.ts",
+			"default": "./src/dev.js"
 		},
 		"./xml": {
 			"types": "./generated/types/core/xml.d.ts",

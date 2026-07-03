@@ -392,16 +392,27 @@ regression test for the fix.
 
 ### Renderer (`src/core/renderer.js`)
 
-- [ ] **Cache `Factory(value)`.** Every `Component()` /
+- [ ] **(skipped 2026-07-03, maintainer decision — revisit in a
+      dedicated xml-path perf pass: the preset hoists
+      `createComponent` per type, plain fns self-cache via the
+      `$isComponent` stamp, and the xml per-render props churn
+      dwarfs the factory closure)**
+      **Cache `Factory(value)`.** Every `Component()` /
       `createComponent()` call rebuilds the factory closure and
       re-marks it (:107-169, :298-306). Cache per value (Map for tag
       strings, WeakMap for functions/classes/elements) so the
       jsx-runtime path stops allocating identical wrappers per
       element instantiation.
 
-- [ ] **`freeze(props)` on every component creation** (:119, :303)
+- [x] **`freeze(props)` on every component creation** (:119, :303)
       is pure guard-rail cost on creation-heavy paths; consider
       DEV-only freezing.
+      **Fixed:** dev-mode flag (`src/lib/dev.js`, off by default) —
+      the four renderer freeze sites are gated behind `DEV`. Enabled
+      via `import 'pota/dev'` (new subpath) or automatically by
+      `pota/jsx-dev-runtime` (now its own module). Consumer-facing
+      change documented in the breaking-changes skill (0.22.236).
+      Test: `tests/api/jsx/dev-mode.jsx`.
 
 - [ ] **`toDiff` membership is O(n·m)** (`src/use/dom.js:339`):
       `next.includes(item)` per prev item. Build a `Set` from `next`

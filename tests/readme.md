@@ -211,6 +211,7 @@ matches `.jsx`/`.tsx`/`.ts` (except `.d.ts`). No registration step.
 | ------------------------ | ------------------------------------------------------- |
 | `children.jsx`           | children shapes, fragments, arrays                      |
 | `component-tracking.jsx` | `() =>` wrapped vs unwrapped in Show / Switch / For     |
+| `dev-mode.jsx`           | `pota/dev` flag — props freezing off by default         |
 | `transform.jsx`          | Babel preset output — partials, event hoisting, spreads |
 
 ## `tests/api/store/` — reactive store

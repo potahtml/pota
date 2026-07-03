@@ -101,9 +101,11 @@ await test('Component and Pota - support class components and lifecycle hooks', 
 	expect(seen).toEqual(['ready', 'cleanup'])
 })
 
-// --- component props are frozen ----------------------------------------------
+// --- component props freezing is a dev-only guard ----------------------------
+// (the dev-enabled case is covered in tests/api/jsx/dev-mode.jsx —
+// it must run in its own page since the flag is global)
 
-await test('component - component props object is frozen', expect => {
+await test('component - props are not frozen by default', expect => {
 	/** @type {any} */
 	let capturedProps
 
@@ -114,7 +116,7 @@ await test('component - component props object is frozen', expect => {
 
 	const dispose = render(<Capture name="test" />)
 
-	expect(Object.isFrozen(capturedProps)).toBe(true)
+	expect(Object.isFrozen(capturedProps)).toBe(false)
 	expect(capturedProps.name).toBe('test')
 
 	dispose()

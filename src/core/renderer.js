@@ -24,6 +24,8 @@ import {
 	isFunction,
 } from '../lib/std.js'
 
+import { DEV } from '../lib/dev.js'
+
 import {
 	createElement,
 	createElementNS,
@@ -114,24 +116,24 @@ export const Component = (value, props = undefined) => {
 		)
 	}
 
-	/** Freeze props so isnt directly writable */
-	freeze(props)
+	/** DEV: freeze props so isnt directly writable */
+	DEV && freeze(props)
 
 	/** Create a callable function to pass `props` */
 	const component = Factory(value)
 
 	return props === undefined
 		? component
-		: markComponent(propsOverride =>
-				component(
-					propsOverride
-						? freeze({
-								.../** @type {object} */ (props),
-								...propsOverride,
-							})
-						: props,
-				),
-			)
+		: markComponent(propsOverride => {
+				const merged = propsOverride
+					? {
+							.../** @type {object} */ (props),
+							...propsOverride,
+						}
+					: props
+				DEV && propsOverride && freeze(merged)
+				return component(merged)
+			})
 }
 
 /**
@@ -280,7 +282,8 @@ function parseXML(content, xmlns) {
  */
 function createClass(value, props = nothing) {
 	const i = new value(props)
-	i.props = freeze({ ...(i.props || nothing), ...props })
+	i.props = { ...(i.props || nothing), ...props }
+	DEV && freeze(i.props)
 	i.ready && ready(() => i.ready())
 	i.cleanup && cleanup(() => i.cleanup())
 	return i.render(i.props)
@@ -298,8 +301,8 @@ export function createComponent(value) {
 	const component = Factory(value)
 
 	return (props = nothing) => {
-		/** Freeze props so isnt directly writable */
-		freeze(props)
+		/** DEV: freeze props so isnt directly writable */
+		DEV && freeze(props)
 		return markComponent(() => component(props))
 	}
 }
