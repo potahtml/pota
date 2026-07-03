@@ -101,7 +101,9 @@ export function createReactiveSystem() {
 	let _writeTarget
 
 	function _markObservers() {
-		for (const observer of _writeTarget) {
+		const observers = _writeTarget
+		for (let i = 0; i < observers.length; i++) {
+			const observer = observers[i]
 			if (observer.state === 0 /* CLEAN */) {
 				observer.queue()
 				observer.observers && downstream(observer)
@@ -1026,8 +1028,11 @@ export function createReactiveSystem() {
 			const res = fn()
 
 			if (Updates) {
-				for (const update of Updates) {
-					runTop(update)
+				// indexed with a live `length` read — computations queued
+				// during the flush must still be visited
+				const updates = Updates
+				for (let i = 0; i < updates.length; i++) {
+					runTop(updates[i])
 				}
 			}
 			Updates = undefined
@@ -1054,8 +1059,9 @@ export function createReactiveSystem() {
 			 * next write.
 			 */
 			if (Updates) {
-				for (const update of Updates) {
-					runTop(update)
+				const updates = Updates
+				for (let i = 0; i < updates.length; i++) {
+					runTop(updates[i])
 				}
 			}
 			Updates = undefined
@@ -1084,7 +1090,8 @@ export function createReactiveSystem() {
 
 	function runEffects(queue) {
 		let userLength = 0
-		for (const effect of queue) {
+		for (let i = 0; i < queue.length; i++) {
+			const effect = queue[i]
 			if (effect.user) {
 				queue[userLength++] = effect
 			} else {
@@ -1100,7 +1107,9 @@ export function createReactiveSystem() {
 	function upstream(node, ignore) {
 		node.state = 0 /* CLEAN */
 
-		for (const source of node.sources) {
+		const sources = node.sources
+		for (let i = 0; i < sources.length; i++) {
+			const source = sources[i]
 			if (source.sources) {
 				switch (source.state) {
 					case 1 /* STALE */:
@@ -1121,7 +1130,9 @@ export function createReactiveSystem() {
 	}
 
 	function downstream(node) {
-		for (const observer of node.observers) {
+		const observers = node.observers
+		for (let i = 0; i < observers.length; i++) {
+			const observer = observers[i]
 			if (observer.state === 0 /* CLEAN */) {
 				observer.state = 2 /* CHECK */
 				observer.queue()

@@ -272,13 +272,21 @@ regression test for the fix.
 
 ### Reactive core (`src/lib/solid.js`)
 
-- [ ] **Indexed loops on the hottest paths.** `_markObservers`
+- [x] **Indexed loops on the hottest paths.** `_markObservers`
       (:104), the `Updates` flush (:966), `runEffects` (:1003),
       `upstream` (:1019), `downstream` (:1040) all use `for…of` over
       plain arrays — per-call iterator allocation and generic
       `next()` calls in the tightest loops of the system. Convert to
       `for (let i = 0; i < arr.length; i++)` (re-reading `length`
       preserves visit-appended semantics for the flush loop).
+      **Fixed:** all five (plus the catch-path flush copy) converted,
+      hoisting the array reference — matching `for…of`'s
+      captured-array semantics — with a live `length` read so
+      computations queued during the flush are still visited; the
+      cold error-recovery reset keeps `for…of`. Bench-neutral within
+      run noise (10k 45.2 baseline vs 46.4/51.6ms across after-runs;
+      per-row 625B and deopts 10/12 unchanged) — the removed
+      iterator work sits below this bench's noise floor.
 
 - [ ] **`doRead`/`doWrite` call sites are polymorphic across
       `SignalNode` / `Memo` / `Derived`.** The EMPTY sentinel fixed
