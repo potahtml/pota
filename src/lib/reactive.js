@@ -13,6 +13,7 @@ import {
 	removeFromArray,
 	resolved,
 	withResolvers,
+	toArray,
 	toEntries,
 } from './std.js'
 
@@ -386,13 +387,20 @@ export const map = (
 
 		rows = []
 
-		/** `toEntries` To allow iterate objects as if were an array */
+		/**
+		 * `toEntries` allows iterating objects/Maps/Sets as if they
+		 * were arrays. Arrays iterate positions directly — the entries
+		 * iterator would allocate an `[index, item]` tuple per item
+		 * per loop on the hottest path.
+		 */
+		const isArr = isArray(value)
+		const entries = isArr ? value : toArray(toEntries(value))
 
 		// all has been replaced?
 		if (prev.length) {
 			let clearit = true
-			for (const [index, item] of toEntries(value)) {
-				if (cache.get(item)) {
+			for (let i = 0; i < entries.length; i++) {
+				if (cache.get(isArr ? entries[i] : entries[i][1])) {
 					clearit = false
 					break
 				}
@@ -405,7 +413,9 @@ export const map = (
 
 		const hasPrev = prev.length
 
-		for (const [index, item] of toEntries(value)) {
+		for (let i = 0; i < entries.length; i++) {
+			const item = isArr ? entries[i] : entries[i][1]
+			const index = isArr ? i : entries[i][0]
 			let row = hasPrev ? cache.get(item) : undefined
 
 			if (row === undefined) {

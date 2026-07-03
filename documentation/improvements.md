@@ -288,7 +288,10 @@ regression test for the fix.
       per-row 625B and deopts 10/12 unchanged) — the removed
       iterator work sits below this bench's noise floor.
 
-- [ ] **`doRead`/`doWrite` call sites are polymorphic across
+- [ ] **(skipped 2026-07-03, maintainer decision — revisit later;
+      highest-risk area, payoff unmeasurable with current bench
+      noise)**
+      **`doRead`/`doWrite` call sites are polymorphic across
       `SignalNode` / `Memo` / `Derived`.** The EMPTY sentinel fixed
       the slot types but the three hidden classes remain at the
       `o.observers`/`o.observerSlots` ICs, and the `Listener` side
@@ -299,7 +302,8 @@ regression test for the fix.
       dedicated monomorphic node object shared by all kinds, so the
       subscribe/unsubscribe loops only ever see one map.
 
-- [ ] **Three closures per signal.** `SignalNode` allocates
+- [ ] **(skipped 2026-07-03, maintainer decision — revisit later)**
+      **Three closures per signal.** `SignalNode` allocates
       `read`/`write`/`update` as instance arrows (:606-620). Via
       `Track#prop`, a fully-tracked store key costs up to 4 signals =
       12 closures. `update` is rarely used detached — make it lazy
@@ -307,7 +311,8 @@ regression test for the fix.
       tracker a leaner internal signal without `update`/options
       support.
 
-- [ ] **`Derived` construction cost.** `assign(callable, this)`
+- [ ] **(skipped 2026-07-03, maintainer decision — revisit later)**
+      **`Derived` construction cost.** `assign(callable, this)`
       copies every own field per derived plus 4–5 arrow fields;
       `_unwrap()` allocates per then-fire. Fine if deriveds are rare;
       worth revisiting if they appear in hot lists.
@@ -321,11 +326,22 @@ regression test for the fix.
 
 ### `map()` / For reconciliation (`src/lib/reactive.js`)
 
-- [ ] **Avoid `toEntries` for arrays.** Both the replaced-all
+- [x] **Avoid `toEntries` for arrays.** Both the replaced-all
       pre-scan (:386) and the main loop (:400) allocate an `[index,
       item]` tuple per item per run — 2n allocations per update on
       big lists. Use an indexed loop for arrays; keep the entries
       path for objects/Maps.
+      **Fixed:** `mapper` hoists `isArray` once per run; arrays
+      iterate positions directly (zero tuples), non-arrays
+      materialize `toEntries` once and share the same indexed loop.
+      Alongside (own commit): `toEntries` gained real plain-object
+      support — `Object.entries` fallback for non-iterable objects
+      (previously `<For each={obj}>` silently rendered nothing) and
+      an `isFunction` guard so a data property named `entries`
+      doesn't break iteration. Bench-neutral timing (transient
+      allocations; 10k 46.9ms in-band, per-row 623B, deopts 10/12).
+      Tests: `tests/api/components/for.jsx` (object/Map/Set
+      coverage).
 
 - [ ] **Removal pass is O(n²).** `removeFromArray(prev, prev[i--])`
       (:450) does `indexOf` + `splice` per removed row. Replace with
