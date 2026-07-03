@@ -170,11 +170,15 @@ regression test for the fix.
       disagrees with `key in proxy`. **Fixed:** guard uses `hasOwn`.
       Test: `tests/api/confirmations/store-delete-prototype-key.jsx`
 
-- [ ] **Projections can't delete.** `Projection`
+- [x] **Projections can't delete.** `Projection`
       (`src/lib/store/projection.js:62`) has no `deleteProperty`
       trap: `delete proj.k` deletes from the copy-on-write target,
       but `has`/`get`/`ownKeys` keep projecting the source, so the
       key resurrects immediately. Needs a tombstone or explicit trap.
+      **Fixed:** lazy per-projection tombstone `Set` — delete makes
+      the key absent (overridden keys too, no revert-to-source), a
+      later `set` resurrects, `get`/`has`/`ownKeys`/descriptor stop
+      projecting tombstoned keys; source untouched.
       Test: `tests/api/confirmations/store-projection-delete.jsx`
 
 ### Props / components

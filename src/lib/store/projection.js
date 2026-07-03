@@ -5,6 +5,7 @@ import {
 	isObject,
 	isProxyValueReturnInvariant,
 	reflectApply,
+	reflectDeleteProperty,
 	reflectGet,
 	reflectGetOwnPropertyDescriptor,
 	reflectHas,
@@ -60,19 +61,45 @@ export function project(value, proxies = new WeakMap()) {
 }
 
 class Projection {
+	/**
+	 * Tombstones — keys deleted on the projection that still exist on
+	 * the source, so the projecting traps must stop falling through
+	 * for them. Lazy: most projections never delete. A `set` of the
+	 * key resurrects it.
+	 *
+	 * @type {Set<PropertyKey> | undefined}
+	 */
+	deleted
+
 	constructor(source, root) {
 		this.source = source
 		this.root = root
 	}
+	isDeleted(key) {
+		return this.deleted !== undefined && this.deleted.has(key)
+	}
 	set(target, key, value, proxy) {
+		this.deleted !== undefined && this.deleted.delete(key)
 		return reflectSet(target, key, project(value, this.root))
+	}
+	deleteProperty(target, key) {
+		const r = reflectDeleteProperty(target, key)
+		if (r && reflectHas(this.source, key)) {
+			if (this.deleted === undefined) this.deleted = new Set()
+			this.deleted.add(key)
+		}
+		return r
 	}
 	get(target, key, proxy) {
 		if (key === $isProjection) {
 			return this.root
 		}
 
-		if (!(key in target) && target !== this.source) {
+		if (
+			!(key in target) &&
+			!this.isDeleted(key) &&
+			target !== this.source
+		) {
 			return this.get(this.source, key, proxy) // project
 		}
 
@@ -83,21 +110,33 @@ class Projection {
 			: this.returnValue(target, key, value)
 	}
 	getOwnPropertyDescriptor(target, key) {
-		if (!(key in target) && target !== this.source) {
+		if (
+			!(key in target) &&
+			!this.isDeleted(key) &&
+			target !== this.source
+		) {
 			return this.getOwnPropertyDescriptor(this.source, key)
 		}
 
 		return reflectGetOwnPropertyDescriptor(target, key)
 	}
 	ownKeys(target) {
+		const sourceKeys = reflectOwnKeys(this.source)
 		return [
 			...new Set(
-				reflectOwnKeys(target).concat(reflectOwnKeys(this.source)),
+				reflectOwnKeys(target).concat(
+					this.deleted === undefined
+						? sourceKeys
+						: sourceKeys.filter(key => !this.deleted.has(key)),
+				),
 			),
 		]
 	}
 	has(target, key) {
-		return reflectHas(target, key) || reflectHas(this.source, key)
+		return (
+			reflectHas(target, key) ||
+			(!this.isDeleted(key) && reflectHas(this.source, key))
+		)
 	}
 
 	returnValue(target, key, value) {

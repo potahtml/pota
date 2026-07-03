@@ -1,13 +1,15 @@
-// BUG CONFIRMATION — documentation/improvements.md: "Projections
-// can't delete". Projection has no deleteProperty trap: delete
-// removes from the copy-on-write target, but has/get/ownKeys keep
-// projecting the source, so the key resurrects immediately. Needs a
-// tombstone or an explicit trap. Asserts the CURRENT buggy behavior.
+// REGRESSION — documentation/improvements.md: "Projections can't
+// delete". Projection had no deleteProperty trap: delete removed from
+// the copy-on-write target, but has/get/ownKeys kept projecting the
+// source, so the key resurrected immediately. Fixed with lazy
+// tombstones: delete makes the key absent on the projection (source
+// untouched); a later set of the key resurrects it.
 
 import { test } from '#test'
+import { effect, root } from 'pota'
 import { project } from 'pota/store'
 
-await test('CONFIRM - deleting a projected key resurrects it from the source', expect => {
+await test('deleting a projected key makes it absent, source intact', expect => {
 	const source = { a: 1, b: 2 }
 	const proj = project(source)
 
@@ -15,16 +17,15 @@ await test('CONFIRM - deleting a projected key resurrects it from the source', e
 
 	delete proj.a
 
-	// BUG: the key is still there, still projecting the source
-	expect('a' in proj).toBe(true)
-	expect(proj.a).toBe(1)
-	// FIXED: expect('a' in proj).toBe(false) and proj.a === undefined
+	expect('a' in proj).toBe(false)
+	expect(proj.a).toBe(undefined)
+	expect(Object.keys(proj)).toEqual(['b'])
 
-	// the source must stay intact either way (copy-on-write contract)
+	// the source stays intact (copy-on-write contract)
 	expect(source.a).toBe(1)
 })
 
-await test('CONFIRM - deleting an overridden key falls back to the source value', expect => {
+await test('deleting an overridden key makes it absent too', expect => {
 	const source = { b: 2 }
 	const proj = project(source)
 
@@ -34,10 +35,55 @@ await test('CONFIRM - deleting an overridden key falls back to the source value'
 
 	delete proj.b
 
-	// Deleting the override reverts to projecting the source — there
-	// is no way to make a key absent on a projection. If revert is
-	// the intended CoW semantics, document it; absence needs a
-	// tombstone either way.
-	expect(proj.b).toBe(2)
-	expect('b' in proj).toBe(true)
+	// absence, not revert-to-source — the tombstone blocks projection
+	expect('b' in proj).toBe(false)
+	expect(proj.b).toBe(undefined)
+	expect(source.b).toBe(2)
+})
+
+await test('setting a deleted key resurrects it', expect => {
+	const source = { a: 1 }
+	const proj = project(source)
+
+	delete proj.a
+	expect('a' in proj).toBe(false)
+
+	proj.a = 5
+	expect('a' in proj).toBe(true)
+	expect(proj.a).toBe(5)
+	expect(source.a).toBe(1)
+})
+
+await test('deletion is reactive through the mutable wrapper', expect => {
+	const source = { a: 1 }
+	const proj = project(source)
+
+	let has
+	const dispose = root(d => {
+		effect(() => {
+			has = 'a' in proj
+		})
+		return d
+	})
+	expect(has).toBe(true)
+
+	delete proj.a
+	expect(has).toBe(false)
+
+	proj.a = 2
+	expect(has).toBe(true)
+
+	dispose()
+})
+
+await test('tombstones are per projection', expect => {
+	const source = { a: 1 }
+	const projA = project(source)
+	const projB = project(source)
+
+	delete projA.a
+
+	expect('a' in projA).toBe(false)
+	expect('a' in projB).toBe(true)
+	expect(projB.a).toBe(1)
 })
