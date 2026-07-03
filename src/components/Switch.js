@@ -4,6 +4,7 @@ import {
 	identity,
 	isArray,
 	isNullUndefined,
+	isObject,
 } from '../lib/std.js'
 
 /**
@@ -20,13 +21,15 @@ export const Switch = props => {
 
 	const fallback = isNullUndefined(props.fallback)
 		? memo(() => {
-				const r = matches().find(match => !('when' in match))
-				return r && r.children
+				const r = matches().find(
+					match => !isObject(match) || !('when' in match),
+				)
+				return isObject(r) ? r.children : r
 			})
 		: memo(() => resolve(props.fallback))
 
 	const match = memo(() =>
-		matches().find(match => !!getValue(match.when)),
+		matches().find(match => isObject(match) && !!getValue(match.when)),
 	)
 
 	const value = memo(() => match() && getValue(match().when))

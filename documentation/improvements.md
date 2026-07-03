@@ -221,10 +221,15 @@ regression test for the fix.
       for dynamic strings remains unbounded (see performance).
       Test: `tests/api/confirmations/use-css-corruption-and-cache.jsx`
 
-- [ ] **`Switch` with primitive children crashes the default
+- [x] **`Switch` with primitive children crashes the default
       fallback.** `matches().find(match => !('when' in match))`
       (`src/components/Switch.js:23`) applies `in` to strings/numbers
       → TypeError when no match matches and `fallback` is nullish.
+      **Fixed:** both finders guard with `isObject` — a primitive
+      child acts as the fallback content itself, and `null` children
+      no longer crash either finder. Regressing the fallback→match
+      transition exposed the detached-`prev` renderer bug (next
+      item).
       Test: `tests/api/confirmations/switch-primitive-children-crash.jsx`
 
 - [x] **A reactive child going string → function → string renders
