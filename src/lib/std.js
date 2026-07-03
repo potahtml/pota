@@ -59,15 +59,23 @@ export const toValues = value =>
 			: toArray(/** @type {Iterable<unknown>} */ (value))
 
 /**
+ * `entries()` method (arrays, Maps, Sets) → live entries iterator;
+ * non-iterable plain objects → `Object.entries`. The method check is
+ * `isFunction`, not `in`, so a data property named `entries` doesn't
+ * shadow the object path.
+ *
  * @param {unknown} value
  * @returns {Iterable<[unknown, unknown]>}
  */
 export const toEntries = value =>
-	isObject(value) && 'entries' in /** @type {object} */ (value)
+	isObject(value) &&
+	isFunction(/** @type {any} */ (value).entries)
 		? /** @type {{ entries(): IterableIterator<[unknown, unknown]> }} */ (
 				value
 			).entries()
-		: toArray(/** @type {Iterable<[unknown, unknown]>} */ (value))
+		: isObject(value) && !isIterable(value)
+			? entries(value)
+			: toArray(/** @type {Iterable<[unknown, unknown]>} */ (value))
 
 export const iterator = Symbol.iterator
 export const Iterator = window.Iterator

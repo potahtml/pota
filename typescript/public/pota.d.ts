@@ -127,7 +127,7 @@ type Derived<R> = DerivedSignal<R> & PromiseLike<DerivedSignal<R>>
 // props
 
 type When<T> = Accessor<T>
-type Each<T> = Accessor<Iterable<T>>
+type Each<T> = Accessor<Iterable<T> | Record<PropertyKey, T>>
 
 // the matched part of a `when` value handed to a `Show`/`Match`
 // render-prop child. The branch runs only when `when` is truthy, so

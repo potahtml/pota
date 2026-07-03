@@ -21,8 +21,8 @@ the list reactive.
 
 | name             | type                           | description                                                                                                                      |
 | ---------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `each`           | `Each<T>`                      | an iterable, or a signal/function whose value is iterable                                                                        |
-| `children`       | `(item, index) => JSX.Element` | callback rendering one item; `index` is a number, or a `() => number` accessor when `reactiveIndex` is set                       |
+| `each`           | `Each<T>`                      | an iterable (array, Map, Set) or a plain object, or a signal/function whose value is one                                         |
+| `children`       | `(item, index) => JSX.Element` | callback rendering one item; `index` is the array position — or the key for Maps and plain objects, and the item itself for Sets. `() => number` accessor when `reactiveIndex` is set |
 | `restoreFocus?`  | `boolean`                      | when items are reordered, the DOM swap can steal focus and scroll position. Set `true` to save and restore both around the swap. |
 | `fallback?`      | `JSX.Element`                  | rendered when the list is empty                                                                                                  |
 | `reactiveIndex?` | `boolean`                      | when `true`, the callback's `index` is a reactive `() => number` accessor instead of a plain number                              |

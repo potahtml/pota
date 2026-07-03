@@ -4,7 +4,8 @@
 // keyed reuse, empty fallback, nested For loops, DOM reordering
 // (swap, insert, prepend, append, complete replacement), item
 // cleanup on removal, duplicate primitives/objects, restoreFocus,
-// reactiveIndex, and Map/Set iterables.
+// reactiveIndex, Map/Set iterables, and plain objects
+// (Object.entries).
 import { microtask, test, body } from '#test'
 
 import { cleanup, map, ref, render, signal } from 'pota'
@@ -513,6 +514,58 @@ await test('For - accepts a Map', expect => {
 		</For>,
 	)
 	expect(body()).toBe('<p>k1:v1</p><p>k2:v2</p>')
+
+	dispose()
+})
+
+await test('For - accepts a plain object, iterating Object.entries', expect => {
+	const dispose = render(
+		<For each={{ a: 1, b: 2 }}>
+			{(item, index) => (
+				<p>
+					{index}:{String(item)}
+				</p>
+			)}
+		</For>,
+	)
+	expect(body()).toBe('<p>a:1</p><p>b:2</p>')
+
+	dispose()
+})
+
+await test('For - reactive plain object reconciles by item value', expect => {
+	const items = signal(
+		/** @type {Record<string, number>} */ ({ a: 1, b: 2 }),
+	)
+
+	const dispose = render(
+		<For each={items.read}>
+			{(item, index) => (
+				<p>
+					{index}:{String(item)}
+				</p>
+			)}
+		</For>,
+	)
+	expect(body()).toBe('<p>a:1</p><p>b:2</p>')
+
+	items.write({ b: 2, c: 3 })
+	expect(body()).toBe('<p>b:2</p><p>c:3</p>')
+
+	dispose()
+})
+
+await test('For - object with an `entries` data property still iterates', expect => {
+	const dispose = render(
+		<For each={{ entries: 1, other: 2 }}>
+			{(item, index) => (
+				<p>
+					{index}:{String(item)}
+				</p>
+			)}
+		</For>,
+	)
+	expect(body()).toBe('<p>entries:1</p><p>other:2</p>')
 
 	dispose()
 })

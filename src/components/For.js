@@ -10,7 +10,8 @@ import { onFixes } from '../core/scheduler.js'
 
 /**
  * Renders reactive values from a signal that returns an Iterable
- * object
+ * (array, Map, Set) or a plain object — objects iterate as
+ * `Object.entries`, with the key as `index`
  *
  * @type {{
  * 	<T>(props: {
