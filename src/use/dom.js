@@ -309,10 +309,27 @@ export function toDiff(prev = [], next = [], short = false) {
 	if (prev.length) {
 		// fast clear
 		if (short && next.length === 0) {
-			const parent = prev[0] && prev[0].parentNode
+			/**
+			 * Falsy slots (null/undefined children) are not nodes: they
+			 * say nothing about the parent and must not count towards
+			 * the whole-content heuristic below
+			 */
+			let count = 0
+			let first
+			for (let i = 0; i < prev.length; i++) {
+				if (prev[i]) {
+					if (!first) first = prev[i]
+					count++
+				}
+			}
+			if (!first) {
+				// nothing real to remove
+				return next
+			}
+			const parent = first.parentNode
 			if (parent) {
 				// + 1 because of the original placeholder
-				if (prev.length + 1 === parent.childNodes.length) {
+				if (count + 1 === parent.childNodes.length) {
 					// console.log('fast clear')
 					// save the placeholder
 					const lastChild = parent.lastChild

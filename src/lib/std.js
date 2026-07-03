@@ -324,14 +324,25 @@ export function deepFreeze(o) {
 export const unwrapArray = arr => (arr.length === 1 ? arr[0] : arr)
 
 /**
- * Flats an array/childNodes recursively
+ * Flats an array/childNodes recursively. An already-flat array is
+ * returned as-is (same reference, no copy) — callers must not mutate
+ * the result nor assume a fresh array.
  *
  * @template T
  * @param {T | T[]} arr
  * @returns {T[]}
  */
-export const flatToArray = arr =>
-	/** @type {T[]} */ (isArray(arr) ? arr.flat(Infinity) : [arr])
+export const flatToArray = arr => {
+	if (!isArray(arr)) {
+		return [arr]
+	}
+	for (let i = 0; i < arr.length; i++) {
+		if (isArray(arr[i])) {
+			return /** @type {T[]} */ (arr.flat(Infinity))
+		}
+	}
+	return arr
+}
 
 /**
  * Flats an array/childNodes recursively if its an array else it

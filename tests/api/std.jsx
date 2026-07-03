@@ -105,6 +105,17 @@ await test('std - entriesIncludingSymbols yields string and symbol keys', expect
 await test('std - flatToArray wraps scalars and deeply flattens arrays', expect => {
 	expect(flatToArray('x')).toEqual(['x'])
 	expect(flatToArray(['a', ['b', ['c']]])).toEqual(['a', 'b', 'c'])
+	expect(flatToArray(['a', 'b'])).toEqual(['a', 'b'])
+	expect(flatToArray([])).toEqual([])
+
+	// an already-flat array is returned as-is, no copy
+	const flat = ['a', 'b']
+	expect(flatToArray(flat)).toBe(flat)
+	expect(flatToArray(['a', undefined, null])).toEqual([
+		'a',
+		undefined,
+		null,
+	])
 })
 
 await test('std - getValue unwraps nested functions recursively', expect => {

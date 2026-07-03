@@ -426,5 +426,89 @@ await test('rendering - reactive child returning an array of elements updates co
 		'<span>x</span><span>y</span><span>z</span>',
 	)
 
+	items.write(['z'])
+	expect($('div').innerHTML).toBe('<span>z</span>')
+
+	items.write([])
+	expect($('div').innerHTML).toBe('')
+
+	items.write(['a', 'b'])
+	expect($('div').innerHTML).toBe('<span>a</span><span>b</span>')
+
+	dispose()
+})
+
+await test('rendering - reactive child switches between nested arrays, flat arrays, single elements and empty', expect => {
+	const shape = signal('nested')
+
+	const dispose = render(
+		<div>
+			<span>before</span>
+			{() =>
+				shape.read() === 'nested' ? (
+					[<b>a</b>, [<i>b</i>, [<u>c</u>]]]
+				) : shape.read() === 'flat' ? (
+					[<b>d</b>, <i>e</i>]
+				) : shape.read() === 'single' ? (
+					<b>solo</b>
+				) : (
+					[]
+				)
+			}
+			<span>after</span>
+		</div>,
+	)
+
+	expect(body()).toBe(
+		'<div><span>before</span><b>a</b><i>b</i><u>c</u><span>after</span></div>',
+	)
+
+	shape.write('flat')
+	expect(body()).toBe(
+		'<div><span>before</span><b>d</b><i>e</i><span>after</span></div>',
+	)
+
+	shape.write('nested')
+	expect(body()).toBe(
+		'<div><span>before</span><b>a</b><i>b</i><u>c</u><span>after</span></div>',
+	)
+
+	shape.write('single')
+	expect(body()).toBe(
+		'<div><span>before</span><b>solo</b><span>after</span></div>',
+	)
+
+	shape.write('empty')
+	expect(body()).toBe(
+		'<div><span>before</span><span>after</span></div>',
+	)
+
+	shape.write('nested')
+	expect(body()).toBe(
+		'<div><span>before</span><b>a</b><i>b</i><u>c</u><span>after</span></div>',
+	)
+
+	dispose()
+})
+
+await test('rendering - reactive child arrays keep rendering through null and undefined items', expect => {
+	const items = signal([<b>a</b>, null, [<i>b</i>, undefined]])
+
+	const dispose = render(<div>{() => items.read()}</div>)
+
+	expect($('div').innerHTML).toBe('<b>a</b><i>b</i>')
+
+	items.write([null, <b>c</b>, undefined])
+	expect($('div').innerHTML).toBe('<b>c</b>')
+
+	// clearing straight from here is pinned in
+	// confirmations/todiff-leading-falsy-skips-removal.jsx (fast-clear
+	// bug with a leading falsy prev item)
+	items.write([<b>d</b>])
+	expect($('div').innerHTML).toBe('<b>d</b>')
+
+	items.write([])
+	expect($('div').innerHTML).toBe('')
+
 	dispose()
 })

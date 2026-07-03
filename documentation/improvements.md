@@ -255,6 +255,24 @@ regression test for the fix.
       promise-only contract.
       Test: `tests/api/confirmations/async-effect-sync-fn-crash.jsx`
 
+- [x] **`toDiff` fast-clear breaks on falsy prev slots** — two
+      symptoms, one root cause: the short branch assumed every `prev`
+      slot is a node. (1) Leading falsy slot: the parent lookup
+      `prev[0] && prev[0].parentNode` (`src/use/dom.js:312`) went
+      falsy, the branch returned as if the parent left the document,
+      and the per-item removal loop below was skipped — real nodes
+      after the falsy slot were never removed on clear. (2) Mid-array
+      falsy slot: `prev.length + 1 === parent.childNodes.length`
+      counted falsy slots as nodes, so the heuristic could
+      coincidentally match and the `textContent = ''` wipe destroyed
+      sibling nodes that were never part of the reactive child. Found
+      2026-07-03 while pinning edges for the `flatToArray` perf item.
+      **Fixed:** the branch scans `prev` once for the first real node
+      (falsy slots say nothing about the parent) and counts only real
+      nodes for the whole-content heuristic; all-falsy returns early,
+      everything else falls through to the guarded removal loop.
+      Test: `tests/api/confirmations/todiff-leading-falsy-skips-removal.jsx`
+
 - [x] **`externalSignal.write` matches id-less items with each
       other.** `stale.find(before => before.id === after.id)`
       (`src/lib/reactive.js:182`) pairs any two items whose `id` is
@@ -414,16 +432,29 @@ regression test for the fix.
       change documented in the breaking-changes skill (0.22.236).
       Test: `tests/api/jsx/dev-mode.jsx`.
 
-- [ ] **`toDiff` membership is O(n·m)** (`src/use/dom.js:339`):
+- [ ] **(skipped 2026-07-03, maintainer decision — revisit later)**
+      **`toDiff` membership is O(n·m)** (`src/use/dom.js:339`):
       `next.includes(item)` per prev item. Build a `Set` from `next`
       above a small length threshold. Matters for large non-keyed
       reactive children (the `map()` path has its own removal).
 
-- [ ] **`flatToArray` boxes every update.** The effect diff path
+- [x] **`flatToArray` boxes every update.** The effect diff path
       (:465-481) calls `flatToArray` per re-run; single-node children
       pay `[arr]` + the `isArray` checks, arrays pay
       `flat(Infinity)` even when already flat. Fast-path the common
       single-node and already-flat cases.
+      **Fixed:** an already-flat array is returned as-is (one
+      nested-array scan; `.flat(Infinity)` only when actually
+      nested) — safe because `createChildren`'s array returns are
+      fresh per run and `toDiff` neither mutates nor retains beyond
+      returning `next`; the aliasing contract is documented on the
+      JSDoc and pinned by an identity test. Non-array boxing stays
+      (`toDiff` wants arrays). Pinning edges for this exposed the
+      `toDiff` falsy-slot fast-clear bug above (fixed together).
+      Bench-neutral (10k 49.1ms in-band, per-row 631B, deopts 10/12).
+      Tests: `tests/api/dom/reactive-children.jsx`
+      (nested/flat/single/empty switching, shrink-to-empty),
+      `tests/api/std.jsx`.
 
 ### Props pipeline (`src/core/props/`)
 
