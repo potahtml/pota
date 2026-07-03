@@ -622,7 +622,8 @@ regression test for the fix.
       bench couldn't have measured this either way (its rows are
       plain signal arrays, not store arrays).
 
-- [ ] **Array `set` trap always runs the `length` signal write**
+- [ ] **(skipped 2026-07-03, maintainer decision — revisit later)**
+      **Array `set` trap always runs the `length` signal write**
       (`array.js:96`) even when length didn't change; the equality
       check absorbs it but still pays `#prop` lookup + write
       machinery per element write. Skip when `key !== 'length'` and
@@ -630,7 +631,11 @@ regression test for the fix.
 
 ### Scheduler (`src/core/scheduler.js`)
 
-- [ ] **Bucket arrays are reallocated every flush cycle.** `reset()`
+- [ ] **(skipped 2026-07-03, maintainer decision — unmeasurable win,
+      keeps `reset()` trivially correct; the swap would also lean on
+      `owned()` guaranteeing no throw-out of `call()` so buckets
+      always get cleared)**
+      **Bucket arrays are reallocated every flush cycle.** `reset()`
       (:17-20) builds 7 fresh arrays per microtask batch. Keep two
       pre-allocated bucket sets and swap (`run` already captures the
       old set before reset, so double-buffering is safe).
