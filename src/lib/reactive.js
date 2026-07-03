@@ -187,8 +187,22 @@ export function externalSignal(initialValue, options) {
 
 			const stale = untrack(s.read)
 
+			/**
+			 * Index stale by `id` once — first occurrence wins, matching
+			 * what `stale.find` did for duplicate ids and preserving the
+			 * documented id-less contract (every `undefined` id matches
+			 * the first id-less stale item).
+			 */
+			const staleById = new Map()
+			for (let i = 0; i < stale.length; i++) {
+				const before = stale[i]
+				if (!staleById.has(before.id)) {
+					staleById.set(before.id, before)
+				}
+			}
+
 			for (const after of fresh) {
-				const before = stale.find(before => before.id === after.id)
+				const before = staleById.get(after.id)
 
 				equals(before, after) ? r.push(before) : r.push(after)
 			}

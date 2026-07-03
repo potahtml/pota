@@ -371,15 +371,24 @@ regression test for the fix.
       unchanged.
       Tests: `tests/api/components/for.jsx` (permutation section).
 
-- [ ] **`nodesForRow()` allocates and walks siblings on every call**
+- [ ] **(skipped 2026-07-03, maintainer decision — revisit together
+      with the skipped null-row `nodesForRow` bug as one
+      span-tracking redesign; ~1-2 small walks per row per reorder,
+      caching costs another `Row` field)**
+      **`nodesForRow()` allocates and walks siblings on every call**
       (:279-292) and is invoked repeatedly by the sort loops for the
       same row within a run. Cache per run, or track contiguous spans
       so a move is one `before()` of a cached slice.
 
-- [ ] **`externalSignal.write` is O(n²) with deep-equals.**
+- [x] **`externalSignal.write` is O(n²) with deep-equals.**
       `stale.find` per fresh item plus `equals(before, after)`
       (:180-186). Index `stale` by `id` in a `Map` first; that also
       bounds the deep-equal calls to id-matched pairs.
+      **Fixed:** one first-wins `Map` per write (first occurrence
+      kept, so duplicate-id and the documented id-less first-match
+      contract behave exactly as `find` did), O(1) lookups,
+      deep-equal only on the id-matched pair. Gate: the id-less
+      contract confirmation test + reactivity suite.
 
 ### Renderer (`src/core/renderer.js`)
 
