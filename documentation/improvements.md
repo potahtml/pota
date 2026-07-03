@@ -458,10 +458,16 @@ regression test for the fix.
 
 ### Props pipeline (`src/core/props/`)
 
-- [ ] **`plugins` / `pluginsNS` as raw `Map`s.** `assignProp` goes
+- [x] **`plugins` / `pluginsNS` as raw `Map`s.** `assignProp` goes
       through the `DataStore` closure with its unused-defaults branch
       on every prop of every element; a plain `Map.get` is direct.
       Micro, but it's the entry to the whole pipeline.
+      **Fixed:** both are plain `new Map()`s
+      (`src/core/props/plugin.js`) — only `plugin.js` (`.set`) and
+      `@main.js` (`.get`) ever touched them, and neither used the
+      `DataStore` defaults argument or iterator. Bench-neutral (10k
+      50.9ms in-band, per-row 631B, deopts 10/12); gate was the full
+      suite (props dispatch is exercised everywhere).
 
 - [ ] **`setCSS` cache growth is unbounded** for dynamic CSS strings
       (global Map keyed by full text, never evicted) — couple this

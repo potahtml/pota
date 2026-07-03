@@ -1,8 +1,10 @@
-import { cacheStore, toArray } from '../../lib/std.js'
+import { toArray } from '../../lib/std.js'
 import { onProps } from '../scheduler.js'
 
-export const plugins = cacheStore()
-export const pluginsNS = cacheStore()
+/** @type {Map<string, Function>} */
+export const plugins = new Map()
+/** @type {Map<string, Function>} */
+export const pluginsNS = new Map()
 
 /** @type {Set<string> & { xmlns?: string }} */
 export const namespaces = new Set([
