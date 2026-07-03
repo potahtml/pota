@@ -81,22 +81,29 @@ export class ProxyHandlerMap extends ProxyHandlerObject {
 const mapMethods = {
 	__proto__: null,
 
+	/**
+	 * Keys are normalized with `mutable()` everywhere (wrap time and
+	 * every method below) so raw-vs-proxy lookups agree — `mutable()`
+	 * is idempotent, the same raw always maps to the same proxy, and
+	 * the identity-keyed `trackSlot` sees one identity per key.
+	 */
+
 	has(handler, trackSlot, target, value, args, proxy) {
-		const key = args[0]
-		const r = reflectApply(value, target, args)
+		const key = mutable(args[0])
+		const r = reflectApply(value, target, [key])
 		trackSlot.keyRead(key, r)
 		return r
 	},
 
 	get(handler, trackSlot, target, value, args, proxy) {
-		const key = args[0]
-		const r = reflectApply(value, target, args)
+		const key = mutable(args[0])
+		const r = reflectApply(value, target, [key])
 		trackSlot.valueRead(key, r)
 		return r
 	},
 
 	set(handler, trackSlot, target, value, args, proxy) {
-		const key = args[0]
+		const key = mutable(args[0])
 		/**
 		 * Store the mutable proxy, not the raw — wrap-time entries are
 		 * proxied (see `mutable()`'s Map branch), so entries added
@@ -127,9 +134,9 @@ const mapMethods = {
 	},
 
 	delete(handler, trackSlot, target, value, args, proxy) {
-		const key = args[0]
+		const key = mutable(args[0])
 
-		const r = reflectApply(value, target, args)
+		const r = reflectApply(value, target, [key])
 		if (r) {
 			trackSlot.keysWrite()
 			trackSlot.valuesWrite()
@@ -156,6 +163,44 @@ const mapMethods = {
 
 			handler.track.valueWrite('size', 0)
 		}
+	},
+
+	/**
+	 * ES2026 upsert methods — defined unconditionally: the dispatch
+	 * only reaches here when the method exists on the engine's
+	 * `Map.prototype`. The insert path mirrors `set`, the hit path
+	 * mirrors `get`; both subscribe to the key's value so later
+	 * changes re-run readers.
+	 */
+
+	getOrInsert(handler, trackSlot, target, value, args, proxy) {
+		const key = mutable(args[0])
+
+		if (!target.has(key)) {
+			// delegate the write bookkeeping to `set`
+			this.set(handler, trackSlot, target, target.set, [key, args[1]], proxy)
+		}
+
+		const r = target.get(key)
+		trackSlot.valueRead(key, r)
+		return r
+	},
+
+	getOrInsertComputed(handler, trackSlot, target, value, args, proxy) {
+		const key = mutable(args[0])
+
+		if (!target.has(key)) {
+			/**
+			 * The computed value wins even when the callback inserts the
+			 * key itself (spec) — `set` handles both as insert/modify
+			 */
+			const val = args[1](key)
+			this.set(handler, trackSlot, target, target.set, [key, val], proxy)
+		}
+
+		const r = target.get(key)
+		trackSlot.valueRead(key, r)
+		return r
 	},
 
 	forEach(handler, trackSlot, target, value, args, proxy) {

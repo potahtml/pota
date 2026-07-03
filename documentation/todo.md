@@ -19,5 +19,3 @@
 - color picker
 - window component for lazy loaded scrolled items
 - review docs
-- review proxies for missing methodsa and bugs, overtracking and
-  undertracking

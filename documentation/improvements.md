@@ -170,6 +170,68 @@ regression test for the fix.
       disagrees with `key in proxy`. **Fixed:** guard uses `hasOwn`.
       Test: `tests/api/confirmations/store-delete-prototype-key.jsx`
 
+- [x] **`splice` stores raw values.** The handler wrapped inserted
+      items into a discarded local (`items = args.slice(2).map(…)`)
+      and applied the original raw `args` — breaking the
+      stored-proxies invariant every other write path keeps:
+      `indexOf`/`includes` missed spliced-in items, iteration yielded
+      raws. Found 2026-07-03 in the full proxies audit (todo.md
+      note). **Fixed:** `args` items wrapped in place, like
+      `toSpliced`.
+      Test: `tests/api/confirmations/store-array-splice-raw.jsx`
+
+- [x] **Array search and positional reads undertrack.** `slice`
+      subscribed only to the key range (growth appended keys it never
+      saw); `indexOf`/`lastIndexOf` tracked only the found slot —
+      nothing at all on a miss, and an earlier occurrence appearing
+      went unseen; `at`/`with` resolved negative indices against
+      `length` without tracking it, and `with` tracked one slot
+      though its result copies the whole array. From the same audit.
+      **Fixed:** `slice` also reads `length`; the search methods and
+      `with` use the coarse `valuesRead`; `at` tracks `length` for
+      negative/missing indices plus the undefined-state for absent
+      slots (the now-unused `trackKey` helper is gone).
+      Test: `tests/api/confirmations/store-array-read-tracking.jsx`
+
+- [x] **Set composition methods untracked; generators lack per-yield
+      subscriptions.** The ES2025 composition methods (`union`,
+      `intersection`, `difference`, `symmetricDifference`,
+      `isSubsetOf`, `isSupersetOf`, `isDisjointFrom`) were missing
+      from `setMethods` — they fell through the generic apply with no
+      tracking. The `values`/`keys`/`entries` generators subscribed
+      only after full iteration, so a `break` left zero
+      subscriptions. From the same audit. **Fixed:** composition
+      methods subscribe via `valuesRead` (a proxied set-like argument
+      tracks through its own traps); generators do a per-element
+      `keyRead` at each yield, matching the Map generators' design.
+      Test: `tests/api/confirmations/store-set-methods-tracking.jsx`
+
+- [x] **Map keys never normalized.** Wrap-time keys stayed raw while
+      values were proxied, and the keyed methods didn't `mutable()`
+      the key argument (Set normalizes everywhere) — `has`/`get` with
+      the proxy of a raw wrap-time key missed the entry. From the
+      same audit. **Fixed** (maintainer decision — normalize, not
+      document): keys wrapped at wrap time (entries rebuilt to
+      preserve insertion order) and in `has`/`get`/`set`/`delete` and
+      the upsert methods; `keys()` now yields proxies, consistent
+      with values.
+      Test: `tests/api/confirmations/store-map-key-identity.jsx`
+
+- [x] **Map `getOrInsert`/`getOrInsertComputed` fall through
+      untracked.** On engines shipping the ES2026 upsert methods the
+      insert went unnotified and stored the raw value unwrapped. From
+      the same audit. **Fixed:** both delegate write bookkeeping to
+      the `set` handler (computed value wins even when the callback
+      inserts the key, per spec) and subscribe to the key's value
+      like `get`; the handlers are inert on engines without the
+      methods.
+      Test: `tests/api/confirmations/store-map-get-or-insert.jsx`
+
+- [ ] **`Object.prototype.propertyIsEnumerable` is untracked** on
+      plain-object proxies (only `hasOwnProperty` is intercepted in
+      `objectMethods`). Minor — rare in app code; found in the same
+      audit, recorded for completeness.
+
 - [x] **Projections can't delete.** `Projection`
       (`src/lib/store/projection.js:62`) has no `deleteProperty`
       trap: `delete proj.k` deletes from the copy-on-write target,

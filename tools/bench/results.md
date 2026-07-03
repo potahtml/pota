@@ -3,17 +3,17 @@
 Overwritten on each `npm run bench`. See `results-short.md` for the
 multi-line history.
 
-## 2026-07-03 18:10:21 — pota 0.22.235 (dirty) @ 375ca01f
+## 2026-07-03 18:23:09 — pota 0.22.235 (dirty) @ b75008fd
 
 | metric                              | value                        |
 | ----------------------------------- | ---------------------------- |
 | empty heap (post-warmup, GC)        | 1094 KB                      |
-| 10k rows attached                   | 7260 KB                      |
+| 10k rows attached                   | 7258 KB                      |
 | empty heap (post-clear, GC)         | 1121 KB                      |
 | **per-row retained**                | **631 bytes**                |
 | retained leak after clear           | 27 KB                        |
-| **10k**                             | **`47.50ms` clear `4.77ms`** |
-| **1k**                              | **`3.30ms` clear `0.43ms`**  |
+| **10k**                             | **`47.85ms` clear `4.85ms`** |
+| **1k**                              | **`3.58ms` clear `0.45ms`**  |
 | unique deopts (warmup + 1 measured) | 10                           |
 | total deopts                        | 12                           |
 | chrome                              | Chrome/150.0.7871.46         |

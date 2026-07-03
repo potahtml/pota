@@ -174,13 +174,6 @@ export class ProxyHandlerArray extends ProxyHandlerBase {
 
 	/** Special track methods for array */
 
-	/** Dispatch read to specific key */
-	trackKey(target, key) {
-		if (key in target) {
-			this.track.valueRead(key, target[key])
-		}
-	}
-
 	/** Dispatch reads to a keys range */
 	trackKeysRange(target, start = 0, end = target.length) {
 		start = start < 0 ? 0 : start
@@ -316,9 +309,15 @@ const arrayMethods = {
 	},
 
 	splice(handler, target, value, args, proxy) {
-		let items = args.slice(2)
-
-		items = items.map(value => mutable(value))
+		/**
+		 * Wrap inserted items in place — the target stores proxies
+		 * (wrap-time contents and every other write path are wrapped),
+		 * so raw inserts would break identity lookups and leak
+		 * untracked values through iteration
+		 */
+		for (let i = 2; i < args.length; i++) {
+			args[i] = mutable(args[i])
+		}
 
 		const oldLength = target.length
 
@@ -434,6 +433,12 @@ const arrayMethods = {
 
 		handler.trackKeysRange(target, start, end)
 
+		/**
+		 * The result also depends on `length`: growth appends keys the
+		 * range subscription above never saw
+		 */
+		handler.track.valueRead('length', target.length)
+
 		return r
 	},
 
@@ -451,27 +456,22 @@ const arrayMethods = {
 	},
 
 	indexOf(handler, target, value, args, proxy) {
-		const searchElement = args[0]
-		const fromIndex = args[1]
+		/**
+		 * Coarse read — the result changes when the element appears,
+		 * disappears, or an earlier occurrence shows up, none of which
+		 * a single-slot subscription can see
+		 */
+		handler.track.valuesRead()
 
-		const key = target.indexOf(mutable(searchElement), fromIndex)
-
-		handler.trackKey(target, key)
-
-		return key
+		return target.indexOf(mutable(args[0]), args[1])
 	},
 	lastIndexOf(handler, target, value, args, proxy) {
-		const searchElement = args[0]
-		const fromIndex = args[1]
+		handler.track.valuesRead()
 
-		const key = target.lastIndexOf(
-			mutable(searchElement),
-			fromIndex === undefined ? target.length - 1 : fromIndex,
+		return target.lastIndexOf(
+			mutable(args[0]),
+			args[1] === undefined ? target.length - 1 : args[1],
 		)
-
-		handler.trackKey(target, key)
-
-		return key
 	},
 
 	filter(handler, target, value, args, proxy) {
@@ -594,9 +594,19 @@ const arrayMethods = {
 	at(handler, target, value, args, proxy) {
 		let key = args[0]
 
-		key = key < 0 ? key + target.length : key
+		if (key < 0) {
+			/** Negative indices resolve against `length` */
+			handler.track.valueRead('length', target.length)
+			key = key + target.length
+		}
 
-		handler.trackKey(target, key)
+		if (key in target) {
+			handler.track.valueRead(key, target[key])
+		} else {
+			/** Missing/out-of-range: wake when the slot appears */
+			handler.track.isUndefinedRead(key, true)
+			handler.track.valueRead('length', target.length)
+		}
 
 		return reflectApply(value, target, args)
 	},
@@ -642,11 +652,12 @@ const arrayMethods = {
 		return reflectApply(value, target, args)
 	},
 	with(handler, target, value, args, proxy) {
-		let key = args[0]
-
-		key = key < 0 ? key + target.length : key
-
-		handler.trackKey(target, key)
+		/**
+		 * The result is a copy of the whole array with one slot
+		 * replaced — it changes when any element changes, and length
+		 * changes always fire `valuesWrite` too
+		 */
+		handler.track.valuesRead()
 
 		return reflectApply(value, target, args)
 	},

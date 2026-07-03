@@ -103,12 +103,19 @@ export function mutable(value, clone) {
 	if (value instanceof Map) {
 		proxy = createProxy(value, ProxyHandlerMap)
 
-		/** Make the content mutable. */
-		untrack(() =>
-			value.forEach((value, key, map) => {
-				map.set(key, mutable(value))
-			}),
-		)
+		/**
+		 * Make keys and values mutable — keys too, so wrap-time entries
+		 * and method-time lookups (which normalize keys with
+		 * `mutable()`) agree on identity. Rebuild to preserve insertion
+		 * order when a key changes identity.
+		 */
+		untrack(() => {
+			const entries = [...value]
+			value.clear()
+			for (const entry of entries) {
+				value.set(mutable(entry[0]), mutable(entry[1]))
+			}
+		})
 
 		return proxy
 	}

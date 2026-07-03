@@ -138,8 +138,14 @@ const setMethods = {
 		}
 	},
 
+	/**
+	 * Per-element `keyRead` at each yield (same signal `has`/`delete`
+	 * use) so partial iteration via `break` stays reactive — the
+	 * trailing `valuesRead` only runs when iteration completes
+	 */
 	*values(handler, trackSlot, target, value, args, proxy) {
 		for (const v of target.values()) {
+			trackSlot.keyRead(v, true)
 			yield v
 		}
 
@@ -149,6 +155,7 @@ const setMethods = {
 	*keys(handler, trackSlot, target, value, args, proxy) {
 		// Set.prototype.keys === Set.prototype.values
 		for (const v of target.values()) {
+			trackSlot.keyRead(v, true)
 			yield v
 		}
 
@@ -157,6 +164,7 @@ const setMethods = {
 
 	*entries(handler, trackSlot, target, value, args, proxy) {
 		for (const v of target.values()) {
+			trackSlot.keyRead(v, true)
 			yield [v, v]
 		}
 
@@ -165,5 +173,43 @@ const setMethods = {
 
 	[iterator](handler, trackSlot, target, value, args, proxy) {
 		return this.values(handler, trackSlot, target, value, args, proxy)
+	},
+
+	/**
+	 * ES2025 composition methods — read-only over `this`, so a coarse
+	 * `valuesRead` subscription is exact. A set-like argument that is
+	 * itself a mutable proxy tracks through its own traps (the native
+	 * method calls its `has`/`keys`/`size` via the proxy). Results are
+	 * fresh raw Sets, wrapped by the caller (`makeFunction`'s
+	 * `mutable(...)`).
+	 */
+
+	union(handler, trackSlot, target, value, args, proxy) {
+		trackSlot.valuesRead()
+		return reflectApply(value, target, args)
+	},
+	intersection(handler, trackSlot, target, value, args, proxy) {
+		trackSlot.valuesRead()
+		return reflectApply(value, target, args)
+	},
+	difference(handler, trackSlot, target, value, args, proxy) {
+		trackSlot.valuesRead()
+		return reflectApply(value, target, args)
+	},
+	symmetricDifference(handler, trackSlot, target, value, args, proxy) {
+		trackSlot.valuesRead()
+		return reflectApply(value, target, args)
+	},
+	isSubsetOf(handler, trackSlot, target, value, args, proxy) {
+		trackSlot.valuesRead()
+		return reflectApply(value, target, args)
+	},
+	isSupersetOf(handler, trackSlot, target, value, args, proxy) {
+		trackSlot.valuesRead()
+		return reflectApply(value, target, args)
+	},
+	isDisjointFrom(handler, trackSlot, target, value, args, proxy) {
+		trackSlot.valuesRead()
+		return reflectApply(value, target, args)
 	},
 }
