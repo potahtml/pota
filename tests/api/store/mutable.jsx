@@ -693,6 +693,23 @@ await test('mutable - hasOwnProperty tracks key existence', expect => {
 	expect(seen).toEqual([true, false])
 })
 
+await test('mutable - propertyIsEnumerable tracks key existence', expect => {
+	const state = mutable({ a: 1 })
+	const seen = []
+
+	root(() => {
+		syncEffect(() => {
+			seen.push(state.propertyIsEnumerable('b'))
+		})
+	})
+
+	expect(seen).toEqual([false])
+
+	state.b = 2
+
+	expect(seen).toEqual([false, true])
+})
+
 // --- mutable array reduce ----------------------------------------------------
 
 await test('mutable - tracks array reduce reads', expect => {

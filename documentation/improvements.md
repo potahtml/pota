@@ -227,10 +227,14 @@ regression test for the fix.
       methods.
       Test: `tests/api/confirmations/store-map-get-or-insert.jsx`
 
-- [ ] **`Object.prototype.propertyIsEnumerable` is untracked** on
+- [x] **`Object.prototype.propertyIsEnumerable` is untracked** on
       plain-object proxies (only `hasOwnProperty` is intercepted in
       `objectMethods`). Minor — rare in app code; found in the same
-      audit, recorded for completeness.
+      audit, recorded for completeness. **Fixed:** intercepted with
+      the same key-presence tracking as `hasOwnProperty`;
+      enumerability-only transitions ride on `defineProperty`'s
+      `keysWrite`.
+      Test: `tests/api/store/mutable.jsx`.
 
 - [x] **Projections can't delete.** `Projection`
       (`src/lib/store/projection.js:62`) has no `deleteProperty`

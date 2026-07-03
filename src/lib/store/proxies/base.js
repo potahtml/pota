@@ -278,4 +278,15 @@ const objectMethods = {
 		track.has(target, args[0])
 		return reflectApply(value, target, args)
 	},
+
+	propertyIsEnumerable(track, target, value, args, proxy) {
+		/**
+		 * Key-presence tracking, like `hasOwnProperty` — enumerability
+		 * transitions additionally fire `keysWrite` from
+		 * `defineProperty`, which `ownKeys` subscribers see; per-key
+		 * this is the closest signal we have
+		 */
+		track.has(target, args[0])
+		return reflectApply(value, target, args)
+	},
 }
