@@ -802,7 +802,19 @@ export const error = (...args) => console.error(...args)
  *   corresponding target object property is a non-configurable own
  *   accessor property that has undefined as its [[Get]] attribute.
  */
-export const isProxyValueReturnInvariant = (target, key, value) =>
-	!isObject(value) ||
-	!reflectIsExtensible(target) ||
-	reflectGetOwnPropertyDescriptor(target, key)?.configurable === false
+export const isProxyValueReturnInvariant = (target, key, value) => {
+	if (!isObject(value) || !reflectIsExtensible(target)) {
+		return true
+	}
+	/**
+	 * Only a non-configurable AND non-writable own data property
+	 * constrains [[Get]] — array `length` (non-configurable but
+	 * writable) must not force the raw-return path
+	 */
+	const desc = reflectGetOwnPropertyDescriptor(target, key)
+	return (
+		desc !== undefined &&
+		desc.configurable === false &&
+		desc.writable === false
+	)
+}

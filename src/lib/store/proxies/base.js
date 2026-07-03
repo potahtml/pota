@@ -6,6 +6,7 @@ import {
 	reflectDefineProperty,
 	reflectGetOwnPropertyDescriptor,
 	reflectHas,
+	reflectIsExtensible,
 	reflectOwnKeys,
 } from '../../std.js'
 
@@ -32,6 +33,16 @@ export class ProxyHandlerBase {
 		 * > | null}
 		 */
 		this.methods = null
+
+		/**
+		 * `true` when the target may hold a frozen (non-configurable,
+		 * non-writable) own property — the only case the proxy [[Get]]
+		 * invariant forces returning the raw value instead of the
+		 * proxy. Computed once at wrap; `defineProperty` keeps it
+		 * current. Freezing the raw target behind the proxy's back is
+		 * not observable and stays the engine's invariant error.
+		 */
+		this.hasFrozenProps = hasFrozenProps(value)
 	}
 
 	ownKeys(target) {
@@ -81,7 +92,9 @@ export class ProxyHandlerBase {
 	}
 	defineProperty(target, key, descriptor) {
 		if (!this.shouldTrackKey(key)) {
-			return reflectDefineProperty(target, key, descriptor)
+			const r = reflectDefineProperty(target, key, descriptor)
+			if (r) this.updateFrozenProps(target, key)
+			return r
 		}
 
 		return batch(() => {
@@ -93,6 +106,7 @@ export class ProxyHandlerBase {
 			const r = reflectDefineProperty(target, key, descriptor)
 			if (r) {
 				const newDesc = reflectGetOwnPropertyDescriptor(target, key)
+				this.updateFrozenProps(target, key, newDesc)
 				const oldEnum = oldDesc ? oldDesc.enumerable : false
 				const newEnum = newDesc ? newDesc.enumerable : false
 
@@ -138,6 +152,13 @@ export class ProxyHandlerBase {
 		})
 	}
 	returnValue(target, key, value) {
+		/**
+		 * The invariant check fetches a descriptor per object-valued
+		 * read — skip it while the target has no frozen own property
+		 */
+		if (!this.hasFrozenProps) {
+			return mutable(value)
+		}
 		return isProxyValueReturnInvariant(target, key, value)
 			? (mutable(value), value)
 			: mutable(value)
@@ -175,6 +196,28 @@ export class ProxyHandlerBase {
 			)
 	}
 	/**
+	 * Flips `hasFrozenProps` when a define left `key` frozen — a
+	 * partial descriptor defaults omitted fields to `false` on new
+	 * properties, so the resulting descriptor is what counts.
+	 *
+	 * @param {object} target
+	 * @param {PropertyKey} key
+	 * @param {PropertyDescriptor} [desc] - The resulting descriptor,
+	 *   when the caller already fetched it
+	 */
+	updateFrozenProps(target, key, desc) {
+		if (!this.hasFrozenProps) {
+			desc = desc || reflectGetOwnPropertyDescriptor(target, key)
+			if (
+				desc !== undefined &&
+				desc.configurable === false &&
+				desc.writable === false
+			) {
+				this.hasFrozenProps = true
+			}
+		}
+	}
+	/**
 	 * `true` when reactive tracking should run for `key`. Skips
 	 * engine-internal keys (well-known symbols, `constructor`,
 	 * `__proto__`) so they don't create spurious subscriptions.
@@ -200,6 +243,32 @@ export class ProxyHandlerBase {
 	isIdentityKey(key) {
 		return key === 'constructor' || key === '__proto__'
 	}
+}
+
+/**
+ * `true` when `target` is non-extensible or holds a frozen
+ * (non-configurable, non-writable) own property — see
+ * `hasFrozenProps` on the handler.
+ *
+ * @param {object} target
+ * @returns {boolean}
+ */
+const hasFrozenProps = target => {
+	if (!reflectIsExtensible(target)) {
+		return true
+	}
+	const keys = reflectOwnKeys(target)
+	for (let i = 0; i < keys.length; i++) {
+		const desc = reflectGetOwnPropertyDescriptor(target, keys[i])
+		if (
+			desc !== undefined &&
+			desc.configurable === false &&
+			desc.writable === false
+		) {
+			return true
+		}
+	}
+	return false
 }
 
 const objectMethods = {

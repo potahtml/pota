@@ -1555,3 +1555,27 @@ await test('mutable - swapping a function property invalidates the cached wrappe
 	expect(state.fn()).toBe('b')
 	expect(state.fn).toBe(state.fn)
 })
+
+// --- [[Get]] invariant for frozen own props -------------------------------
+
+await test('mutable - frozen own props keep the [[Get]] invariant (wrap time and post-wrap define)', expect => {
+	// frozen prop existing before wrap: reads return the raw value
+	const rawA = { a: 1 }
+	const preWrapped = {}
+	Object.defineProperty(preWrapped, 'locked', { value: rawA })
+	const state = mutable({ nested: preWrapped })
+	expect(state.nested.locked).toBe(rawA)
+
+	// frozen prop defined through the proxy after wrap: no invariant
+	// TypeError, reads return the raw value
+	const rawB = { b: 2 }
+	const state2 = mutable({})
+	Object.defineProperty(state2, 'locked', { value: rawB })
+	expect(state2.locked).toBe(rawB)
+
+	// normal object values still come back as proxies
+	const rawC = { c: 3 }
+	const state3 = mutable({ open: rawC })
+	expect(state3.open).not.toBe(rawC)
+	expect(state3.open.c).toBe(3)
+})

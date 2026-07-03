@@ -108,7 +108,9 @@ export class ProxyHandlerArray extends ProxyHandlerBase {
 	 */
 	defineProperty(target, key, descriptor) {
 		if (!this.shouldTrackKey(key)) {
-			return reflectDefineProperty(target, key, descriptor)
+			const r = reflectDefineProperty(target, key, descriptor)
+			if (r) this.updateFrozenProps(target, key)
+			return r
 		}
 
 		return batch(() => {
@@ -120,6 +122,7 @@ export class ProxyHandlerArray extends ProxyHandlerBase {
 			const r = reflectDefineProperty(target, key, descriptor)
 			if (r) {
 				const newDesc = reflectGetOwnPropertyDescriptor(target, key)
+				this.updateFrozenProps(target, key, newDesc)
 				const oldEnum = oldDesc ? oldDesc.enumerable : false
 				const newEnum = newDesc ? newDesc.enumerable : false
 

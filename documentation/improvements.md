@@ -561,13 +561,28 @@ regression test for the fix.
       neutral (10k 47.5ms in-band, 631B, deopts 10/12).
       Tests: `tests/api/store/mutable.jsx` (identity + invalidation).
 
-- [ ] **`isProxyValueReturnInvariant` allocates a descriptor per
+- [x] **`isProxyValueReturnInvariant` allocates a descriptor per
       object-valued read.** `reflectGetOwnPropertyDescriptor`
       (`std.js:786-789` via `base.js:121-124`) runs on every `get`
       that returns an object. Non-configurable own props are rare:
       track "target has any non-configurable key" once per handler
       (the `defineProperty` trap sees all later definitions) and skip
       the descriptor fetch on the common path.
+      **Fixed:** per-handler `hasFrozenProps` flag — scanned once at
+      wrap, kept current by both `defineProperty` traps (re-fetching
+      the resulting descriptor, since partial descriptors default new
+      props to frozen); `returnValue` skips the invariant check while
+      the flag is off. The flag and the helper now use the actual
+      [[Get]] invariant condition (non-configurable AND non-writable
+      — the helper was looser than its own JSDoc), which is what
+      keeps the flag off for arrays despite `length` being
+      non-configurable. Freezing the raw target behind the proxy's
+      back is not observable — that stays the engine's invariant
+      error (documented on the flag). `projection.js` still uses the
+      (tightened) helper per read — different target semantics, out
+      of scope. Bench in-band (10k 49.5ms, 632B, deopts 10/12).
+      Tests: `tests/api/store/mutable.jsx` ([[Get]] invariant at wrap
+      time and post-wrap define).
 
 - [ ] **Don't signalify prototype data properties.**
       `getPropertyDescriptors` walks the proto chain to catch
