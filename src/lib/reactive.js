@@ -471,6 +471,13 @@ export const map = (
 			hasPrev && clear()
 			prev = rows
 			if (fallback) {
+				// `fn` is only provided by the renderer's <For> mount
+				// (it materializes children into the parent); direct
+				// map() calls pass no `fn` — return the fallback value
+				// itself, nothing was rendered so theres nothing to diff
+				if (!fn) {
+					return fallback
+				}
 				const f = fn(fallback)
 				cleanup(() => toDiff(flatToArray(f)))
 				return f

@@ -1,13 +1,15 @@
-// BUG CONFIRMATION — documentation/improvements.md: "`mapper()` with
-// `fallback` but no `fn` crashes". map()'s empty path calls
-// `fn(fallback)` unconditionally; only <For>'s effect passes `fn`,
-// so direct map() usage with a fallback throws when the list is
-// empty. Asserts the CURRENT buggy behavior.
+// REGRESSION — documentation/improvements.md: "`mapper()` with
+// `fallback` but no `fn` crashes". map()'s empty path called
+// `fn(fallback)` unconditionally, but only the renderer's <For>
+// mount passes `fn` — direct map() usage with a fallback threw
+// `TypeError: fn is not a function` when the list emptied.
+// Fixed: without `fn` the mapper returns the fallback value itself
+// (nothing was rendered, so there is nothing to diff away).
 
 import { test } from '#test'
 import { signal, map, effect, root, catchError } from 'pota'
 
-await test('CONFIRM - direct map() with fallback throws on empty list', expect => {
+await test('direct map() with fallback returns it on empty list', expect => {
 	const items = signal([])
 	const caught = []
 	const results = []
@@ -29,11 +31,19 @@ await test('CONFIRM - direct map() with fallback throws on empty list', expect =
 		)
 	)
 
-	// BUG: the fallback path calls fn(fallback) with fn === undefined
-	expect(caught.length).toBe(1)
-	expect(caught[0]).toInclude('is not a function')
-	expect(results).toEqual([])
-	// FIXED: expect(caught).toEqual([]) and the fallback is returned
+	expect(caught).toEqual([])
+	expect(results).toEqual(['fallback-value'])
+
+	// leaving the empty state maps the items again
+	items.write(['a'])
+	expect(results.length).toBe(2)
+	expect(results[1]).toEqual(['a'])
+
+	// emptying again returns the fallback again
+	items.write([])
+	expect(results.length).toBe(3)
+	expect(results[2]).toBe('fallback-value')
+	expect(caught).toEqual([])
 
 	dispose()
 })

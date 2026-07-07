@@ -121,12 +121,15 @@ regression test for the fix.
       cover `each={null}` but not null row output.
       Test: `tests/api/confirmations/map-null-row-crash.jsx`
 
-- [ ] **(skipped 2026-07-02, maintainer decision — revisit later)**
-      **`mapper()` with `fallback` but no `fn` crashes.** The
+- [x] **`mapper()` with `fallback` but no `fn` crashes.** The
       fallback path calls `fn(fallback)` unconditionally
       (`src/lib/reactive.js:437`); only `<For>`'s effect passes `fn`.
       Direct `map(list, cb, false, fallback)` usage throws when the
-      list empties.
+      list empties. (Skipped 2026-07-02; revisited and fixed
+      2026-07-07.) **Fixed:** when no `fn` is given the empty path
+      returns the fallback value itself — nothing was materialized
+      into a parent, so there is nothing to diff away; the `fn` path
+      is byte-identical, `<For>` unaffected.
       Test: `tests/api/confirmations/map-fallback-without-fn.jsx`
 
 ### Store
