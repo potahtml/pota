@@ -1561,7 +1561,7 @@ await test('mutable - method reads return the same wrapper (stable identity)', e
 })
 
 await test('mutable - swapping a function property invalidates the cached wrapper', expect => {
-	const state = mutable({ fn: () => 'a' })
+	const state = mutable({ fn: /** @type {() => string} */ (() => 'a') })
 
 	const before = state.fn
 	expect(state.fn()).toBe('a')
