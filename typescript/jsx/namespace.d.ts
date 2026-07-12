@@ -146,6 +146,8 @@ declare namespace JSX {
 
 	type EnumeratedPseudoBoolean = 'false' | 'true'
 
+	type EnumeratedAcceptsEmpty = '' | true
+
 	type StyleAttribute = Attribute<CSSProperties | string>
 
 	// EVENTS
@@ -251,7 +253,10 @@ declare namespace JSX {
 		>
 		autocorrect?: Attribute<'on' | 'off'>
 		contenteditable?: Attribute<
-			EnumeratedPseudoBoolean | 'plaintext-only' | 'inherit' | ''
+			| EnumeratedPseudoBoolean
+			| 'plaintext-only'
+			| 'inherit'
+			| EnumeratedAcceptsEmpty
 		>
 		dir?: Attribute<'ltr' | 'rtl' | 'auto'>
 		draggable?: Attribute<EnumeratedPseudoBoolean>
@@ -265,7 +270,9 @@ declare namespace JSX {
 			| 'send'
 		>
 		exportparts?: Attribute<string>
-		hidden?: Attribute<'' | 'hidden' | 'until-found'>
+		hidden?: Attribute<
+			EnumeratedAcceptsEmpty | 'hidden' | 'until-found'
+		>
 		inert?: Attribute<BooleanAttribute>
 		inputmode?: Attribute<
 			| 'decimal'
@@ -279,8 +286,12 @@ declare namespace JSX {
 		>
 		is?: Attribute<string>
 		lang?: Attribute<string>
-		popover?: Attribute<'' | 'manual' | 'auto' | 'hint'>
-		spellcheck?: Attribute<'' | EnumeratedPseudoBoolean>
+		popover?: Attribute<
+			EnumeratedAcceptsEmpty | 'manual' | 'auto' | 'hint'
+		>
+		spellcheck?: Attribute<
+			EnumeratedAcceptsEmpty | EnumeratedPseudoBoolean
+		>
 		title?: Attribute<string>
 		translate?: Attribute<'yes' | 'no'>
 
@@ -302,7 +313,9 @@ declare namespace JSX {
 		vocab?: Attribute<string>
 
 		/** @experimental */
-		virtualkeyboardpolicy?: Attribute<'' | 'auto' | 'manual'>
+		virtualkeyboardpolicy?: Attribute<
+			EnumeratedAcceptsEmpty | 'auto' | 'manual'
+		>
 		/** @experimental */
 		writingsuggestions?: Attribute<EnumeratedPseudoBoolean>
 
@@ -342,11 +355,15 @@ declare namespace JSX {
 			| 'noremoteplayback'
 			| (string & {})
 		>
-		crossorigin?: Attribute<'anonymous' | 'use-credentials' | ''>
+		crossorigin?: Attribute<
+			'anonymous' | 'use-credentials' | EnumeratedAcceptsEmpty
+		>
 		disableremoteplayback?: Attribute<BooleanAttribute>
 		loop?: Attribute<BooleanAttribute>
 		muted?: Attribute<BooleanAttribute>
-		preload?: Attribute<'none' | 'metadata' | 'auto' | ''>
+		preload?: Attribute<
+			'none' | 'metadata' | 'auto' | EnumeratedAcceptsEmpty
+		>
 		src?: Attribute<string>
 
 		'on:encrypted'?: EventHandlers<MediaEncryptedEvent, Element>
@@ -713,7 +730,9 @@ declare namespace JSX {
 		alt?: Attribute<string>
 		attributionsrc?: Attribute<string>
 		browsingtopics?: Attribute<string>
-		crossorigin?: Attribute<'anonymous' | 'use-credentials' | ''>
+		crossorigin?: Attribute<
+			'anonymous' | 'use-credentials' | EnumeratedAcceptsEmpty
+		>
 		decoding?: Attribute<'sync' | 'async' | 'auto'>
 		fetchpriority?: Attribute<'high' | 'low' | 'auto'>
 		height?: Attribute<number | string>
@@ -930,7 +949,9 @@ declare namespace JSX {
 			| 'worker'
 		>
 		color?: Attribute<string>
-		crossorigin?: Attribute<'anonymous' | 'use-credentials' | ''>
+		crossorigin?: Attribute<
+			'anonymous' | 'use-credentials' | EnumeratedAcceptsEmpty
+		>
 		disabled?: Attribute<BooleanAttribute>
 		fetchpriority?: Attribute<'high' | 'low' | 'auto'>
 		href?: Attribute<string>
@@ -1108,7 +1129,9 @@ declare namespace JSX {
 	interface HTMLScriptElementAttributes<Element>
 		extends HTMLAttributes<Element> {
 		async?: Attribute<BooleanAttribute>
-		crossorigin?: Attribute<'anonymous' | 'use-credentials' | ''>
+		crossorigin?: Attribute<
+			'anonymous' | 'use-credentials' | EnumeratedAcceptsEmpty
+		>
 		defer?: Attribute<BooleanAttribute>
 		fetchpriority?: Attribute<'high' | 'low' | 'auto'>
 		for?: Attribute<string>
