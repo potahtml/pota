@@ -88,7 +88,12 @@ regression test for the fix.
       within the failing flush is unchanged.
       Test: `tests/api/confirmations/memo-discards-recompute-after-error.jsx`
 
-- [ ] **(skipped 2026-07-02, maintainer decision — revisit later)**
+- [ ] **(skipped 2026-07-02, re-reviewed and skipped again
+      2026-07-07, maintainer decision — revisit later; proposed
+      shape then: Provider-local guard, `value={undefined}` renders
+      children under the unchanged context — "provide nothing", the
+      only value consistent with the read side treating stored
+      `undefined` as absent; `useContext` dispatch untouched)**
       **`context` Provider with `value={undefined}` renders the
       context value instead of children.** `useContext(newValue, fn)`
       dispatches on `newValue === undefined`
@@ -97,7 +102,11 @@ regression test for the fix.
       children thunk.
       Test: `tests/api/confirmations/context-provider-undefined-value.jsx`
 
-- [ ] **(skipped 2026-07-02, maintainer decision — revisit later)**
+- [ ] **(skipped 2026-07-02, re-reviewed and skipped again
+      2026-07-07, maintainer decision — revisit later; proposed
+      shape then: render() captures the disposer by assignment
+      before insert, root()'s undefined-on-throw documented as
+      contract)**
       **`root()` / `render()` return `undefined` on setup error.**
       `runWithOwner` catches and routes (`src/lib/solid.js:783-789`),
       so `render()`'s `dispose` can be `undefined` →
@@ -107,10 +116,16 @@ regression test for the fix.
 
 ### `map()` / For
 
-- [ ] **(skipped 2026-07-02, maintainer decision — revisit later;
-      preferred direction if fixed: substitute an empty text node as
-      the row anchor at materialization, matching how component rows
-      already get placeholders)**
+- [ ] **(skipped 2026-07-02, re-reviewed and skipped again
+      2026-07-07, maintainer decision — revisit later; traced plan:
+      (1) in `mapper`'s cb wrapper substitute `''` for a null/undefined
+      row result — the renderer's `fn` path turns it into a text node
+      inserted at the row's position (direct `map()` gets a detached
+      text node, whose remove/after are no-ops); (2) make
+      `begin()`/`end()` skip falsy slots when resolving anchors so
+      mixed arrays like `[<p/>, null]` anchor on the real node. Sort
+      loops untouched; the coupled `nodesForRow` caching perf item
+      stays out of scope)**
       **Rows that render no DOM node crash removal and reorder.** A
       callback returning `null`/`undefined` gives `Row.nodes =
       undefined`; `begin()`/`end()` cache `undefined` and
@@ -501,7 +516,13 @@ regression test for the fix.
       change documented in the breaking-changes skill (0.22.236).
       Test: `tests/api/jsx/dev-mode.jsx`.
 
-- [ ] **(skipped 2026-07-03, maintainer decision — revisit later)**
+- [ ] **(skipped 2026-07-03, re-reviewed and skipped again
+      2026-07-07, maintainer decision — revisit later; proposed
+      shape then: branch on `prev.length * next.length >= 64` —
+      above it a `Set` from `next`, below it the `includes` scan
+      stays since Set construction costs ~next insertions and
+      break-even is prev ≈ 2-3; only stable-identity non-keyed
+      children ever reach this loop, so the bench can't measure it)**
       **`toDiff` membership is O(n·m)** (`src/use/dom.js:339`):
       `next.includes(item)` per prev item. Build a `Set` from `next`
       above a small length threshold. Matters for large non-keyed
