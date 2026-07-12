@@ -37,6 +37,7 @@ type Attribute<T> =
 	| PromiseLike<Attribute<T>>
 	| SignalAccessor<T>
 	| T
+	| false
 
 /**
  * Result of recursively invoking functions and flattening nested
